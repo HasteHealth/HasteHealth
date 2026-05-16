@@ -13,6 +13,7 @@ use thiserror::Error;
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Registered client for the OIDC provider."]
@@ -31,6 +32,7 @@ pub struct IdentityProviderOidcClient {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "PKCE Configuration"]
@@ -49,6 +51,7 @@ pub struct IdentityProviderOidcPkce {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "OIDC connection configuration for the identity provider."]
@@ -80,6 +83,7 @@ pub struct IdentityProviderOidc {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "External identity provider configuration."]
@@ -107,6 +111,7 @@ pub struct IdentityProvider {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = ""]
@@ -129,6 +134,7 @@ pub struct Membership {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = ""]
@@ -155,6 +161,7 @@ pub struct Project {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The operation to retrieve the attribute."]
@@ -175,6 +182,7 @@ pub struct AccessPolicyV2AttributeOperation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Attributes to use for the policy evaluation."]
@@ -192,6 +200,7 @@ pub struct AccessPolicyV2Attribute {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = ""]
@@ -206,6 +215,7 @@ pub struct AccessPolicyV2RuleTarget {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = ""]
@@ -220,6 +230,7 @@ pub struct AccessPolicyV2RuleCondition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The rules that govern how the access policy is applied."]
@@ -250,6 +261,7 @@ pub struct AccessPolicyV2Rule {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Who the access policy applies to."]
@@ -265,6 +277,7 @@ pub struct AccessPolicyV2Target {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A set of rules that govern how a system resource is accessed and used."]
@@ -297,6 +310,7 @@ pub struct AccessPolicyV2 {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = ""]
@@ -350,6 +364,7 @@ pub struct ClientApplication {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = ""]
@@ -380,6 +395,7 @@ pub struct User {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The party(s) that are responsible for covering the payment of this account, and what order should they be applied to the account."]
@@ -404,6 +420,7 @@ pub struct AccountCoverage {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The parties responsible for balancing the account if other payment options fall short."]
@@ -430,6 +447,7 @@ pub struct AccountGuarantor {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A financial tool for tracking value accrued for a particular purpose.  In the healthcare field, used to track charges for a patient, cost centers, etc."]
@@ -489,6 +507,7 @@ pub struct Account {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "subject"]
@@ -508,6 +527,7 @@ impl Default for ActivityDefinitionSubjectTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "timing"]
@@ -532,6 +552,7 @@ impl Default for ActivityDefinitionTimingTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates who should participate in performing the action described."]
@@ -555,6 +576,7 @@ pub struct ActivityDefinitionParticipant {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "product"]
@@ -575,6 +597,7 @@ impl Default for ActivityDefinitionProductTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Dynamic values that will be evaluated to produce values for elements of the resulting resource. For example, if the dosage of a medication must be computed based on the patient's weight, a dynamic value would be used to specify an expression that calculated the weight, and the path on the request resource that would contain the result."]
@@ -598,6 +621,7 @@ pub struct ActivityDefinitionDynamicValue {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "This resource allows for the definition of some activity to be performed, independent of a particular patient, practitioner, or other performance context."]
@@ -750,6 +774,7 @@ pub struct ActivityDefinition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information on the possible cause of the event."]
@@ -778,6 +803,7 @@ pub struct AdverseEventSuspectEntityCausality {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Describes the entity that is suspected to have caused the adverse event."]
@@ -801,6 +827,7 @@ pub struct AdverseEventSuspectEntity {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Actual or  potential/avoided event causing unintended physical injury resulting from or contributed to by medical care, a research study or other healthcare setting factors that requires additional monitoring, treatment, or hospitalization, or that results in death."]
@@ -884,6 +911,7 @@ pub struct AdverseEvent {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "onset"]
@@ -908,6 +936,7 @@ impl Default for AllergyIntoleranceOnsetTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Details about each adverse reaction event linked to exposure to the identified substance."]
@@ -944,6 +973,7 @@ pub struct AllergyIntoleranceReaction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Risk of harmful or undesirable, physiological response which is unique to an individual and associated with exposure to a substance."]
@@ -1018,6 +1048,7 @@ pub struct AllergyIntolerance {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "List of participants involved in the appointment."]
@@ -1050,6 +1081,7 @@ pub struct AppointmentParticipant {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A booking of a healthcare event among patient(s), practitioner(s), related person(s) and/or device(s) for a specific date/time. This may result in one or more Encounter(s)."]
@@ -1139,6 +1171,7 @@ pub struct Appointment {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A reply to an appointment request for a patient and/or practitioner(s), such as a confirmation or rejection."]
@@ -1192,6 +1225,7 @@ pub struct AppointmentResponse {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Logical network location for application activity, if the activity has a network location."]
@@ -1217,6 +1251,7 @@ pub struct AuditEventAgentNetwork {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An actor taking an active role in the event or activity that is logged."]
@@ -1264,6 +1299,7 @@ pub struct AuditEventAgent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The system that is reporting the event."]
@@ -1290,6 +1326,7 @@ pub struct AuditEventSource {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -1311,6 +1348,7 @@ impl Default for AuditEventEntityDetailValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Tagged value pairs for conveying additional information about the entity."]
@@ -1336,6 +1374,7 @@ pub struct AuditEventEntityDetail {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specific instances of data or objects that have been accessed."]
@@ -1377,6 +1416,7 @@ pub struct AuditEventEntity {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A record of an event made for purposes of maintaining a security log. Typical uses include detection of intrusion attempts and monitoring for inappropriate usage."]
@@ -1435,6 +1475,7 @@ pub struct AuditEvent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Basic is used for handling concepts not yet defined in FHIR, narrative-only resources that don't map to an existing resource, and custom resources not appropriate for inclusion in the FHIR specification."]
@@ -1479,6 +1520,7 @@ pub struct Basic {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A resource that represents the data of a single raw artifact as digital content accessible in its native format.  A Binary resource can contain any content, whether text, image, pdf, zip archive, etc."]
@@ -1509,6 +1551,7 @@ pub struct Binary {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "collected"]
@@ -1531,6 +1574,7 @@ impl Default for BiologicallyDerivedProductCollectionCollectedTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "How this product was collected."]
@@ -1557,6 +1601,7 @@ pub struct BiologicallyDerivedProductCollection {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "time"]
@@ -1577,6 +1622,7 @@ impl Default for BiologicallyDerivedProductProcessingTimeTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Any processing of the product during collection that does not change the fundamental nature of the product. For example adding anti-coagulants during the collection of Peripheral Blood Stem Cells."]
@@ -1605,6 +1651,7 @@ pub struct BiologicallyDerivedProductProcessing {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "time"]
@@ -1625,6 +1672,7 @@ impl Default for BiologicallyDerivedProductManipulationTimeTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Any manipulation of product post-collection that is intended to alter the product.  For example a buffy-coat enrichment or CD8 reduction of Peripheral Blood Stem Cells to make it more suitable for infusion."]
@@ -1649,6 +1697,7 @@ pub struct BiologicallyDerivedProductManipulation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Product storage."]
@@ -1678,6 +1727,7 @@ pub struct BiologicallyDerivedProductStorage {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A material substance originating from a biological entity intended to be transplanted or infused\ninto another (possibly the same) biological entity."]
@@ -1736,6 +1786,7 @@ pub struct BiologicallyDerivedProduct {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Record details about an anatomical structure.  This resource may be used when a coded concept does not provide the necessary detail needed for the use case."]
@@ -1786,6 +1837,7 @@ pub struct BodyStructure {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A series of links that provide context to this bundle."]
@@ -1810,6 +1862,7 @@ pub struct BundleLink {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about the search process that lead to the creation of this entry."]
@@ -1834,6 +1887,7 @@ pub struct BundleEntrySearch {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Additional information about how this entry should be processed as part of a transaction or batch.  For history, it shows how the entry was processed to create the version contained in the entry."]
@@ -1870,6 +1924,7 @@ pub struct BundleEntryRequest {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates the results of processing the corresponding 'request' entry in the batch or transaction being responded to or what the results of an operation where when returning history."]
@@ -1902,6 +1957,7 @@ pub struct BundleEntryResponse {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An entry in a bundle resource - will either contain a resource or information about a resource (transactions and history only)."]
@@ -1933,6 +1989,7 @@ pub struct BundleEntry {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A container for a collection of resources."]
@@ -1974,6 +2031,7 @@ pub struct Bundle {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Software that is covered by this capability statement.  It is used when the capability statement describes the capabilities of a particular software version, independent of an installation."]
@@ -2001,6 +2059,7 @@ pub struct CapabilityStatementSoftware {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies a specific implementation instance that is described by the capability statement - i.e. a particular installation, rather than the capabilities of a software program."]
@@ -2028,6 +2087,7 @@ pub struct CapabilityStatementImplementation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about security implementation from an interface perspective - what a client needs to know."]
@@ -2054,6 +2114,7 @@ pub struct CapabilityStatementRestSecurity {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies a restful operation supported by the solution."]
@@ -2078,6 +2139,7 @@ pub struct CapabilityStatementRestResourceInteraction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Search parameters for implementations to support and/or make use of - either references to ones defined in the specification, or additional ones defined for/by the implementation."]
@@ -2109,6 +2171,7 @@ pub struct CapabilityStatementRestResourceSearchParam {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Definition of an operation or a named query together with its parameters and their meaning and type. Consult the definition of the operation for details about how to invoke the operation, and the parameters."]
@@ -2136,6 +2199,7 @@ pub struct CapabilityStatementRestResourceOperation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A specification of the restful capabilities of the solution for a specific resource type."]
@@ -2203,6 +2267,7 @@ pub struct CapabilityStatementRestResource {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A specification of restful operations supported by the system."]
@@ -2227,6 +2292,7 @@ pub struct CapabilityStatementRestInteraction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A definition of the restful capabilities of the solution, if any."]
@@ -2264,6 +2330,7 @@ pub struct CapabilityStatementRest {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An endpoint (network accessible address) to which messages and/or replies are to be sent."]
@@ -2287,6 +2354,7 @@ pub struct CapabilityStatementMessagingEndpoint {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "References to message definitions for messages this system can send or receive."]
@@ -2311,6 +2379,7 @@ pub struct CapabilityStatementMessagingSupportedMessage {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A description of the messaging capabilities of the solution."]
@@ -2339,6 +2408,7 @@ pub struct CapabilityStatementMessaging {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A document definition."]
@@ -2366,6 +2436,7 @@ pub struct CapabilityStatementDocument {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A Capability Statement documents a set of capabilities (behaviors) of a FHIR Server for a particular version of FHIR that may be used as a statement of actual server functionality or a statement of required or desired server implementation."]
@@ -2466,6 +2537,7 @@ pub struct CapabilityStatement {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "scheduled"]
@@ -2486,6 +2558,7 @@ impl Default for CarePlanActivityDetailScheduledTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "product"]
@@ -2506,6 +2579,7 @@ impl Default for CarePlanActivityDetailProductTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A simple summary of a planned activity suitable for a general care plan system (e.g. form driven) that doesn't know about specific resources such as procedure etc."]
@@ -2570,6 +2644,7 @@ pub struct CarePlanActivityDetail {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies a planned action to occur as part of the plan.  For example, a medication to be used, lab tests to perform, self-monitoring, education, etc."]
@@ -2600,6 +2675,7 @@ pub struct CarePlanActivity {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Describes the intention of how one or more practitioners intend to deliver care for a particular patient, group or community for a period of time, possibly limited to care for a specific condition or set of conditions."]
@@ -2695,6 +2771,7 @@ pub struct CarePlan {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies all people and organizations who are expected to be involved in the care team."]
@@ -2723,6 +2800,7 @@ pub struct CareTeamParticipant {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The Care Team includes all the people and organizations who plan to participate in the coordination and delivery of care for a patient."]
@@ -2786,6 +2864,7 @@ pub struct CareTeam {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Used for example, to point to a substance, or to a device used to administer a medication."]
@@ -2810,6 +2889,7 @@ pub struct CatalogEntryRelatedEntry {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Catalog entries are wrappers that contextualize items included in a catalog."]
@@ -2872,6 +2952,7 @@ pub struct CatalogEntry {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
@@ -2893,6 +2974,7 @@ impl Default for ChargeItemOccurrenceTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates who or what performed or participated in the charged service."]
@@ -2915,6 +2997,7 @@ pub struct ChargeItemPerformer {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "product"]
@@ -2935,6 +3018,7 @@ impl Default for ChargeItemProductTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The resource ChargeItem describes the provision of healthcare provider products for a certain patient, therefore referring not only to the product, but containing in addition details of the provision, like date, time, amounts and participating organizations and persons. Main Usage of the ChargeItem is to enable the billing process and internal cost allocation."]
@@ -3036,6 +3120,7 @@ pub struct ChargeItem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Expressions that describe applicability criteria for the billing code."]
@@ -3063,6 +3148,7 @@ pub struct ChargeItemDefinitionApplicability {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The price for a ChargeItem may be calculated as a base price with surcharges/deductions that apply in certain conditions. A ChargeItemDefinition resource that defines the prices, factors and conditions that apply to a billing code is currently under development. The priceComponent element can be used to offer transparency to the recipient of the Invoice of how the prices have been calculated."]
@@ -3092,6 +3178,7 @@ pub struct ChargeItemDefinitionPropertyGroupPriceComponent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Group of properties which are applicable under the same conditions. If no applicability rules are established for the group, then all properties always apply."]
@@ -3114,6 +3201,7 @@ pub struct ChargeItemDefinitionPropertyGroup {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The ChargeItemDefinition resource provides the properties that apply to the (billing) codes necessary to calculate costs and prices. The properties may differ largely depending on type and realm, therefore this resource gives only a rough structure and requires profiling for each type of billing code system."]
@@ -3206,6 +3294,7 @@ pub struct ChargeItemDefinition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Other claims which are related to this claim such as prior submissions or claims for related services or for the same event."]
@@ -3231,6 +3320,7 @@ pub struct ClaimRelated {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The party to be reimbursed for cost of the products and services according to the terms of the policy."]
@@ -3255,6 +3345,7 @@ pub struct ClaimPayee {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The members of the team who provided the products and services."]
@@ -3285,6 +3376,7 @@ pub struct ClaimCareTeam {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "timing"]
@@ -3304,6 +3396,7 @@ impl Default for ClaimSupportingInfoTimingTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -3329,6 +3422,7 @@ impl Default for ClaimSupportingInfoValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Additional information codes regarding exceptions, special considerations, the condition, situation, prior or concurrent issues."]
@@ -3361,6 +3455,7 @@ pub struct ClaimSupportingInfo {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "diagnosis"]
@@ -3381,6 +3476,7 @@ impl Default for ClaimDiagnosisDiagnosisTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about diagnoses relevant to the claim items."]
@@ -3411,6 +3507,7 @@ pub struct ClaimDiagnosis {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "procedure"]
@@ -3431,6 +3528,7 @@ impl Default for ClaimProcedureProcedureTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Procedures performed on the patient relevant to the billing items with the claim."]
@@ -3464,6 +3562,7 @@ pub struct ClaimProcedure {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Financial instruments for reimbursement for the health care products and services specified on the claim."]
@@ -3502,6 +3601,7 @@ pub struct ClaimInsurance {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "location"]
@@ -3522,6 +3622,7 @@ impl Default for ClaimAccidentLocationTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Details of an accident which resulted in injuries which required the products and services listed in the claim."]
@@ -3548,6 +3649,7 @@ pub struct ClaimAccident {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "serviced"]
@@ -3567,6 +3669,7 @@ impl Default for ClaimItemServicedTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "location"]
@@ -3588,6 +3691,7 @@ impl Default for ClaimItemLocationTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A claim detail line. Either a simple (a product or service) or a 'group' of sub-details which are simple items."]
@@ -3631,6 +3735,7 @@ pub struct ClaimItemDetailSubDetail {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A claim detail line. Either a simple (a product or service) or a 'group' of sub-details which are simple items."]
@@ -3676,6 +3781,7 @@ pub struct ClaimItemDetail {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A claim line. Either a simple  product or service or a 'group' of details which can each be a simple items or groups of sub-details."]
@@ -3746,6 +3852,7 @@ pub struct ClaimItem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A provider issued list of professional services and products which have been provided, or are to be provided, to a patient which is sent to an insurer for reimbursement."]
@@ -3845,6 +3952,7 @@ pub struct Claim {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "If this item is a group then the values here are a summary of the adjudication of the detail items. If this item is a simple product or service then this is the result of the adjudication of this item."]
@@ -3872,6 +3980,7 @@ pub struct ClaimResponseItemAdjudication {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A sub-detail adjudication of a simple product or service."]
@@ -3898,6 +4007,7 @@ pub struct ClaimResponseItemDetailSubDetail {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A claim detail. Either a simple (a product or service) or a 'group' of sub-details which are simple items."]
@@ -3927,6 +4037,7 @@ pub struct ClaimResponseItemDetail {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A claim line. Either a simple (a product or service) or a 'group' of details which can also be a simple items or groups of sub-details."]
@@ -3955,6 +4066,7 @@ pub struct ClaimResponseItem {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "serviced"]
@@ -3974,6 +4086,7 @@ impl Default for ClaimResponseAddItemServicedTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "location"]
@@ -3995,6 +4108,7 @@ impl Default for ClaimResponseAddItemLocationTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The third-tier service adjudications for payor added services."]
@@ -4032,6 +4146,7 @@ pub struct ClaimResponseAddItemDetailSubDetail {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The second-tier service adjudications for payor added services."]
@@ -4071,6 +4186,7 @@ pub struct ClaimResponseAddItemDetail {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The first-tier service adjudications for payor added product or service lines."]
@@ -4134,6 +4250,7 @@ pub struct ClaimResponseAddItem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Categorized monetary totals for the adjudication."]
@@ -4156,6 +4273,7 @@ pub struct ClaimResponseTotal {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Payment details for the adjudication of the claim."]
@@ -4189,6 +4307,7 @@ pub struct ClaimResponsePayment {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A note that describes or explains adjudication results in a human readable form."]
@@ -4219,6 +4338,7 @@ pub struct ClaimResponseProcessNote {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Financial instruments for reimbursement for the health care products and services specified on the claim."]
@@ -4252,6 +4372,7 @@ pub struct ClaimResponseInsurance {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Errors encountered during the processing of the adjudication."]
@@ -4281,6 +4402,7 @@ pub struct ClaimResponseError {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "This resource provides the adjudication details from the processing of a Claim resource."]
@@ -4378,6 +4500,7 @@ pub struct ClaimResponse {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "effective"]
@@ -4398,6 +4521,7 @@ impl Default for ClinicalImpressionEffectiveTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "One or more sets of investigations (signs, symptoms, etc.). The actual grouping of investigations varies greatly depending on the type and context of the assessment. These investigations may include data generated during the assessment process, or data previously generated and recorded that is pertinent to the outcomes."]
@@ -4421,6 +4545,7 @@ pub struct ClinicalImpressionInvestigation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specific findings or diagnoses that were considered likely or relevant to ongoing treatment."]
@@ -4447,6 +4572,7 @@ pub struct ClinicalImpressionFinding {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A record of a clinical assessment performed to determine what problem(s) may affect the patient and before planning the treatments or management strategies that are best to manage a patient's condition. Assessments are often 1:1 with a clinical consultation / encounter,  but this varies greatly depending on the clinical workflow. This resource is called \"ClinicalImpression\" rather than \"ClinicalAssessment\" to avoid confusion with the recording of assessment tools such as Apgar score."]
@@ -4531,6 +4657,7 @@ pub struct ClinicalImpression {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A filter that can be used in a value set compose statement when selecting concepts using a filter."]
@@ -4562,6 +4689,7 @@ pub struct CodeSystemFilter {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A property defines an additional slot through which additional information can be provided about a concept."]
@@ -4593,6 +4721,7 @@ pub struct CodeSystemProperty {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Additional representations for the concept - other languages, aliases, specialized purposes, used for particular purposes, etc."]
@@ -4619,6 +4748,7 @@ pub struct CodeSystemConceptDesignation {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -4649,6 +4779,7 @@ impl Default for CodeSystemConceptPropertyValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A property value for this concept."]
@@ -4673,6 +4804,7 @@ pub struct CodeSystemConceptProperty {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Concepts that are in the code system. The concept definitions are inherently hierarchical, but the definitions must be consulted to determine what the meanings of the hierarchical relationships are."]
@@ -4706,6 +4838,7 @@ pub struct CodeSystemConcept {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The CodeSystem resource is used to declare the existence of and describe a code system or code system supplement and its key properties, and optionally define a part or all of its content."]
@@ -4807,6 +4940,7 @@ pub struct CodeSystem {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "content"]
@@ -4829,6 +4963,7 @@ impl Default for CommunicationPayloadContentTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Text, attachment(s), or resource(s) that was communicated to the recipient."]
@@ -4850,6 +4985,7 @@ pub struct CommunicationPayload {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "An occurrence of information being transmitted; e.g. an alert that was sent to a responsible provider, a public health agency that was notified about a reportable condition."]
@@ -4941,6 +5077,7 @@ pub struct Communication {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "content"]
@@ -4963,6 +5100,7 @@ impl Default for CommunicationRequestPayloadContentTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Text, attachment(s), or resource(s) to be communicated to the recipient."]
@@ -4983,6 +5121,7 @@ pub struct CommunicationRequestPayload {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
@@ -5003,6 +5142,7 @@ impl Default for CommunicationRequestOccurrenceTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A request to convey information; e.g. the CDS system proposes that an alert be sent to a responsible provider, the CDS system proposes that the public health agency be notified about a reportable condition."]
@@ -5092,6 +5232,7 @@ pub struct CommunicationRequest {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about how a resource is related to the compartment."]
@@ -5119,6 +5260,7 @@ pub struct CompartmentDefinitionResource {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A compartment definition that defines how resources are accessed on a server."]
@@ -5188,6 +5330,7 @@ pub struct CompartmentDefinition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A participant who has attested to the accuracy of the composition/document."]
@@ -5214,6 +5357,7 @@ pub struct CompositionAttester {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "target"]
@@ -5234,6 +5378,7 @@ impl Default for CompositionRelatesToTargetTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Relationships that this composition has with other compositions or documents that already exist."]
@@ -5258,6 +5403,7 @@ pub struct CompositionRelatesTo {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The clinical service, such as a colonoscopy or an appendectomy, being documented."]
@@ -5283,6 +5429,7 @@ pub struct CompositionEvent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The root of the sections that make up the composition."]
@@ -5326,6 +5473,7 @@ pub struct CompositionSection {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A set of healthcare-related information that is assembled together into a single logical package that provides a single coherent statement of meaning, establishes its own context and that has clinical attestation with regard to who is making the statement. A Composition defines the structure and narrative content necessary for a document. However, a Composition alone does not constitute a document. Rather, the Composition must be the first entry in a Bundle where Bundle.type=document, and any other resources referenced from Composition must be included as subsequent entries in the Bundle (for example Patient, Practitioner, Encounter, etc.)."]
@@ -5396,6 +5544,7 @@ pub struct Composition {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "source"]
@@ -5416,6 +5565,7 @@ impl Default for ConceptMapSourceTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "target"]
@@ -5437,6 +5587,7 @@ impl Default for ConceptMapTargetTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A set of additional dependencies for this mapping to hold. This mapping is only applicable if the specified element can be resolved, and it has the specified value."]
@@ -5467,6 +5618,7 @@ pub struct ConceptMapGroupElementTargetDependsOn {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A concept from the target value set that this concept maps to."]
@@ -5501,6 +5653,7 @@ pub struct ConceptMapGroupElementTarget {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Mappings for an individual concept in the source to one or more concepts in the target."]
@@ -5527,6 +5680,7 @@ pub struct ConceptMapGroupElement {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "What to do when there is no mapping for the source concept. \"Unmapped\" does not include codes that are unmatched, and the unmapped element is ignored in a code is specified to have equivalence = unmatched."]
@@ -5557,6 +5711,7 @@ pub struct ConceptMapGroupUnmapped {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A group of mappings that all have the same source and target system."]
@@ -5592,6 +5747,7 @@ pub struct ConceptMapGroup {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A statement of relationships from one set of concepts to one or more other concepts - either concepts in code systems, or data element/data element concepts, or classes in class models."]
@@ -5671,6 +5827,7 @@ pub struct ConceptMap {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "onset"]
@@ -5694,6 +5851,7 @@ impl Default for ConditionOnsetTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "abatement"]
@@ -5718,6 +5876,7 @@ impl Default for ConditionAbatementTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Clinical stage or grade of a condition. May include formal severity assessments."]
@@ -5744,6 +5903,7 @@ pub struct ConditionStage {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Supporting evidence / manifestations that are the basis of the Condition's verification status, such as evidence that confirmed or refuted the condition."]
@@ -5767,6 +5927,7 @@ pub struct ConditionEvidence {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A clinical condition, problem, diagnosis, or other event, situation, issue, or clinical concept that has risen to a level of concern."]
@@ -5838,6 +5999,7 @@ pub struct Condition {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "source"]
@@ -5858,6 +6020,7 @@ impl Default for ConsentSourceTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The references to the policies that are included in this consent scope. Policies may be organizational, but are often defined jurisdictionally, or in law."]
@@ -5882,6 +6045,7 @@ pub struct ConsentPolicy {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Whether a treatment instruction (e.g. artificial respiration yes or no) was verified with the patient, his/her family or another authorized person."]
@@ -5909,6 +6073,7 @@ pub struct ConsentVerification {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Who or what is controlled by this rule. Use group to identify a set of actors by some property they share (e.g. 'admitting officers')."]
@@ -5932,6 +6097,7 @@ pub struct ConsentProvisionActor {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The resources controlled by this rule if specific resources are referenced."]
@@ -5956,6 +6122,7 @@ pub struct ConsentProvisionData {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An exception to the base policy of this consent. An exception can be an addition or removal of access permissions."]
@@ -5998,6 +6165,7 @@ pub struct ConsentProvision {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A record of a healthcare consumer’s  choices, which permits or denies identified recipient(s) or recipient role(s) to perform one or more actions within a given policy context, for specific purposes and periods of time."]
@@ -6061,6 +6229,7 @@ pub struct Consent {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "topic"]
@@ -6081,6 +6250,7 @@ impl Default for ContractTopicTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Precusory content developed with a focus and intent of supporting the formation a Contract instance, which may be associated with and transformable into a Contract."]
@@ -6115,6 +6285,7 @@ pub struct ContractContentDefinition {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "topic"]
@@ -6135,6 +6306,7 @@ impl Default for ContractTermTopicTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Security labels that protect the handling of information about the term and its elements, which may be specifically identified.."]
@@ -6162,6 +6334,7 @@ pub struct ContractTermSecurityLabel {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Offer Recipient."]
@@ -6185,6 +6358,7 @@ pub struct ContractTermOfferParty {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -6223,6 +6397,7 @@ impl Default for ContractTermOfferAnswerValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Response to offer text."]
@@ -6244,6 +6419,7 @@ pub struct ContractTermOfferAnswer {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The matter of concern in the context of this provision of the agrement."]
@@ -6288,6 +6464,7 @@ pub struct ContractTermOffer {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Circumstance of the asset."]
@@ -6313,6 +6490,7 @@ pub struct ContractTermAssetContext {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "entity"]
@@ -6333,6 +6511,7 @@ impl Default for ContractTermAssetValuedItemEntityTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Contract Valued Item List."]
@@ -6390,6 +6569,7 @@ pub struct ContractTermAssetValuedItem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Contract Term Asset List."]
@@ -6444,6 +6624,7 @@ pub struct ContractTermAsset {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Entity of the action."]
@@ -6467,6 +6648,7 @@ pub struct ContractTermActionSubject {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
@@ -6488,6 +6670,7 @@ impl Default for ContractTermActionOccurrenceTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An actor taking a role in an activity for which it can be assigned some degree of responsibility for the activity taking place."]
@@ -6562,6 +6745,7 @@ pub struct ContractTermAction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "One or more Contract Provisions, which may be related and conveyed as a group, and may contain nested groups."]
@@ -6609,6 +6793,7 @@ pub struct ContractTerm {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Parties with legal standing in the Contract, including the principal parties, the grantor(s) and grantee(s), which are any person or organization bound by the contract, and any ancillary parties, which facilitate the execution of the contract such as a notary or witness."]
@@ -6635,6 +6820,7 @@ pub struct ContractSigner {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "content"]
@@ -6655,6 +6841,7 @@ impl Default for ContractFriendlyContentTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The \"patient friendly language\" versionof the Contract in whole or in parts. \"Patient friendly language\" means the representation of the Contract and Contract Provisions in a manner that is readily accessible and understandable by a layperson in accordance with best practices for communication styles that ensure that those agreeing to or signing the Contract understand the roles, actions, obligations, responsibilities, and implication of the agreement."]
@@ -6675,6 +6862,7 @@ pub struct ContractFriendly {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "content"]
@@ -6695,6 +6883,7 @@ impl Default for ContractLegalContentTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "List of Legal expressions or representations of this Contract."]
@@ -6715,6 +6904,7 @@ pub struct ContractLegal {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "content"]
@@ -6735,6 +6925,7 @@ impl Default for ContractRuleContentTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "List of Computable Policy Rule Language Representations of this Contract."]
@@ -6755,6 +6946,7 @@ pub struct ContractRule {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "legallyBinding"]
@@ -6775,6 +6967,7 @@ impl Default for ContractLegallyBindingTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Legally enforceable, formally recorded unilateral or bilateral directive i.e., a policy or agreement."]
@@ -6892,6 +7085,7 @@ pub struct Contract {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A suite of underwriter specific classifiers."]
@@ -6918,6 +7112,7 @@ pub struct CoverageClass {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -6937,6 +7132,7 @@ impl Default for CoverageCostToBeneficiaryValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A suite of codes indicating exceptions or reductions to patient costs and their effective periods."]
@@ -6960,6 +7156,7 @@ pub struct CoverageCostToBeneficiaryException {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A suite of codes indicating the cost category and associated amount which have been detailed in the policy and may have been  included on the health card."]
@@ -6986,6 +7183,7 @@ pub struct CoverageCostToBeneficiary {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Financial instrument which may be used to reimburse or pay for health care products and services. Includes both insurance and self-payment."]
@@ -7063,6 +7261,7 @@ pub struct Coverage {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "serviced"]
@@ -7083,6 +7282,7 @@ impl Default for CoverageEligibilityRequestServicedTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Additional information codes regarding exceptions, special considerations, the condition, situation, prior or concurrent issues."]
@@ -7110,6 +7310,7 @@ pub struct CoverageEligibilityRequestSupportingInfo {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Financial instruments for reimbursement for the health care products and services."]
@@ -7136,6 +7337,7 @@ pub struct CoverageEligibilityRequestInsurance {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "diagnosis"]
@@ -7158,6 +7360,7 @@ impl Default for CoverageEligibilityRequestItemDiagnosisDiagnosisTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Patient diagnosis for which care is sought."]
@@ -7179,6 +7382,7 @@ pub struct CoverageEligibilityRequestItemDiagnosis {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Service categories or billable services for which benefit details and/or an authorization prior to service delivery may be required by the payor."]
@@ -7221,6 +7425,7 @@ pub struct CoverageEligibilityRequestItem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The CoverageEligibilityRequest provides patient and insurance coverage information to an insurer for them to respond, in the form of an CoverageEligibilityResponse, with information regarding whether the stated coverage is valid and in-force and optionally to provide the insurance details of the policy."]
@@ -7289,6 +7494,7 @@ pub struct CoverageEligibilityRequest {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "serviced"]
@@ -7308,6 +7514,7 @@ impl Default for CoverageEligibilityResponseServicedTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "allowed"]
@@ -7331,6 +7538,7 @@ impl Default for CoverageEligibilityResponseInsuranceItemBenefitAllowedTypeChoic
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "used"]
@@ -7355,6 +7563,7 @@ impl Default for CoverageEligibilityResponseInsuranceItemBenefitUsedTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Benefits used to date."]
@@ -7382,6 +7591,7 @@ pub struct CoverageEligibilityResponseInsuranceItemBenefit {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Benefits and optionally current balances, and authorization details by category or service."]
@@ -7434,6 +7644,7 @@ pub struct CoverageEligibilityResponseInsuranceItem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Financial instruments for reimbursement for the health care products and services."]
@@ -7462,6 +7673,7 @@ pub struct CoverageEligibilityResponseInsurance {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Errors encountered during the processing of the request."]
@@ -7482,6 +7694,7 @@ pub struct CoverageEligibilityResponseError {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "This resource provides eligibility and plan details from the processing of an CoverageEligibilityRequest resource."]
@@ -7554,6 +7767,7 @@ pub struct CoverageEligibilityResponse {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "identified"]
@@ -7574,6 +7788,7 @@ impl Default for DetectedIssueIdentifiedTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Supporting evidence or manifestations that provide the basis for identifying the detected issue such as a GuidanceResponse or MeasureReport."]
@@ -7597,6 +7812,7 @@ pub struct DetectedIssueEvidence {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates an action that has been taken or is committed to reduce or eliminate the likelihood of the risk identified by the detected issue from manifesting.  Can also reflect an observation of known mitigating factors that may reduce/eliminate the need for any action."]
@@ -7623,6 +7839,7 @@ pub struct DetectedIssueMitigation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Indicates an actual or potential clinical issue with or between one or more active or proposed clinical actions for a patient; e.g. Drug-drug interaction, Ineffective treatment frequency, Procedure-condition conflict, etc."]
@@ -7686,6 +7903,7 @@ pub struct DetectedIssue {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Unique device identifier (UDI) assigned to device label or package.  Note that the Device may include multiple udiCarriers as it either may include just the udiCarrier for the jurisdiction it is sold, or for multiple jurisdictions it could have been sold."]
@@ -7722,6 +7940,7 @@ pub struct DeviceUdiCarrier {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "This represents the manufacturer's name of the device as provided by the device, from a UDI label, or by a person describing the Device.  This typically would be used when a person provides the name(s) or when the device represents one of the names available from DeviceDefinition."]
@@ -7747,6 +7966,7 @@ pub struct DeviceDeviceName {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The capabilities supported on a  device, the standards to which the device conforms for a particular purpose, and used for the communication."]
@@ -7770,6 +7990,7 @@ pub struct DeviceSpecialization {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The actual design of the device or software version running on the device."]
@@ -7796,6 +8017,7 @@ pub struct DeviceVersion {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The actual configuration settings of a device as it actually operates, e.g., regulation status, time properties."]
@@ -7821,6 +8043,7 @@ pub struct DeviceProperty {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A type of a manufactured item that is used in the provision of healthcare without being substantially changed through that activity. The device may be a medical or non-medical device."]
@@ -7920,6 +8143,7 @@ pub struct Device {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Unique device identifier (UDI) assigned to device label or package.  Note that the Device may include multiple udiCarriers as it either may include just the udiCarrier for the jurisdiction it is sold, or for multiple jurisdictions it could have been sold."]
@@ -7946,6 +8170,7 @@ pub struct DeviceDefinitionUdiDeviceIdentifier {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "manufacturer"]
@@ -7967,6 +8192,7 @@ impl Default for DeviceDefinitionManufacturerTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A name given to the device to identify it."]
@@ -7992,6 +8218,7 @@ pub struct DeviceDefinitionDeviceName {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The capabilities supported on a  device, the standards to which the device conforms for a particular purpose, and used for the communication."]
@@ -8016,6 +8243,7 @@ pub struct DeviceDefinitionSpecialization {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Device capabilities."]
@@ -8039,6 +8267,7 @@ pub struct DeviceDefinitionCapability {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The actual configuration settings of a device as it actually operates, e.g., regulation status, time properties."]
@@ -8064,6 +8293,7 @@ pub struct DeviceDefinitionProperty {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A substance used to create the material(s) of which the device is made."]
@@ -8090,6 +8320,7 @@ pub struct DeviceDefinitionMaterial {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The characteristics, operational status and capabilities of a medical-related component of a medical device."]
@@ -8173,6 +8404,7 @@ pub struct DeviceDefinition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Describes the calibrations that have been performed or that are required to be performed."]
@@ -8201,6 +8433,7 @@ pub struct DeviceMetricCalibration {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Describes a measurement, calculation or setting capability of a medical device."]
@@ -8257,6 +8490,7 @@ pub struct DeviceMetric {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "code"]
@@ -8276,6 +8510,7 @@ impl Default for DeviceRequestCodeTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -8298,6 +8533,7 @@ impl Default for DeviceRequestParameterValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specific parameters for the ordered item.  For example, the prism value for lenses."]
@@ -8320,6 +8556,7 @@ pub struct DeviceRequestParameter {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
@@ -8341,6 +8578,7 @@ impl Default for DeviceRequestOccurrenceTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Represents a request for a patient to employ a medical device. The device may be an implantable device, or an external assistive device, such as a walker."]
@@ -8437,6 +8675,7 @@ pub struct DeviceRequest {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "timing"]
@@ -8458,6 +8697,7 @@ impl Default for DeviceUseStatementTimingTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A record of a device being used by a patient where the record is the result of a report from the patient or another clinician."]
@@ -8523,6 +8763,7 @@ pub struct DeviceUseStatement {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "effective"]
@@ -8543,6 +8784,7 @@ impl Default for DiagnosticReportEffectiveTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A list of key images associated with this report. The images are generally created during the diagnostic process, and may be directly of the patient, or of treated specimens (i.e. slides of interest)."]
@@ -8567,6 +8809,7 @@ pub struct DiagnosticReportMedia {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The findings and interpretation of diagnostic  tests performed on patients, groups of patients, devices, and locations, and/or specimens derived from these. The report includes clinical context such as requesting and provider information, and some mix of atomic results, images, textual and coded interpretations, and formatted representation of diagnostic reports."]
@@ -8646,6 +8889,7 @@ pub struct DiagnosticReport {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Related identifiers or resources associated with the DocumentManifest."]
@@ -8671,6 +8915,7 @@ pub struct DocumentManifestRelated {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A collection of documents compiled for a purpose together with metadata that applies to the collection."]
@@ -8736,6 +8981,7 @@ pub struct DocumentManifest {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Relationships that this document has with other document references that already exist."]
@@ -8760,6 +9006,7 @@ pub struct DocumentReferenceRelatesTo {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The document and format referenced. There may be multiple content element repetitions, each with a different format."]
@@ -8782,6 +9029,7 @@ pub struct DocumentReferenceContent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The clinical context in which the document was prepared."]
@@ -8817,6 +9065,7 @@ pub struct DocumentReferenceContext {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A reference to a document of any kind for any purpose. Provides metadata about the document so that the document can be discovered and managed. The scope of a document is any seralized object with a mime-type, so includes formal patient centric documents (CDA), cliical notes, scanned paper, and non-patient specific documents like policy text."]
@@ -8890,6 +9139,7 @@ pub struct DocumentReference {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A description of the size of the sample involved in the synthesis."]
@@ -8917,6 +9167,7 @@ pub struct EffectEvidenceSynthesisSampleSize {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A description of the results for each exposure considered in the effect estimate."]
@@ -8946,6 +9197,7 @@ pub struct EffectEvidenceSynthesisResultsByExposure {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A description of the precision of the estimate for the effect."]
@@ -8976,6 +9228,7 @@ pub struct EffectEvidenceSynthesisEffectEstimatePrecisionEstimate {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The estimated effect of the exposure variant."]
@@ -9009,6 +9262,7 @@ pub struct EffectEvidenceSynthesisEffectEstimate {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A description of a component of the overall certainty."]
@@ -9034,6 +9288,7 @@ pub struct EffectEvidenceSynthesisCertaintyCertaintySubcomponent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A description of the certainty of the effect estimate."]
@@ -9058,6 +9313,7 @@ pub struct EffectEvidenceSynthesisCertainty {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The EffectEvidenceSynthesis resource describes the difference in an outcome between exposures states in a population where the effect estimate is derived from a combination of research studies."]
@@ -9170,6 +9426,7 @@ pub struct EffectEvidenceSynthesis {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The status history permits the encounter resource to contain the status history without needing to read through the historical versions of the resource, or even have the server store them."]
@@ -9193,6 +9450,7 @@ pub struct EncounterStatusHistory {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The class history permits the tracking of the encounters transitions without needing to go  through the resource history.  This would be used for a case where an admission starts of as an emergency encounter, then transitions into an inpatient scenario. Doing this and not restarting a new encounter ensures that any lab/diagnostic results can more easily follow the patient and not require re-processing and not get lost or cancelled during a kind of discharge from emergency to inpatient."]
@@ -9215,6 +9473,7 @@ pub struct EncounterClassHistory {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The list of people responsible for providing the service."]
@@ -9241,6 +9500,7 @@ pub struct EncounterParticipant {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The list of diagnosis relevant to this encounter."]
@@ -9268,6 +9528,7 @@ pub struct EncounterDiagnosis {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Details about the admission to a healthcare service."]
@@ -9306,6 +9567,7 @@ pub struct EncounterHospitalization {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "List of locations where  the patient has been during this encounter."]
@@ -9334,6 +9596,7 @@ pub struct EncounterLocation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "An interaction between a patient and healthcare provider(s) for the purpose of providing healthcare service(s) or assessing the health status of a patient."]
@@ -9421,6 +9684,7 @@ pub struct Encounter {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The technical details of an endpoint that can be used for electronic services, such as for web services providing XDS.b or a REST endpoint for another FHIR server. This may include any security context information."]
@@ -9481,6 +9745,7 @@ pub struct Endpoint {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "This resource provides the insurance enrollment details to the insurer regarding a specified coverage."]
@@ -9532,6 +9797,7 @@ pub struct EnrollmentRequest {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "This resource provides enrollment and plan details from the processing of an EnrollmentRequest resource."]
@@ -9586,6 +9852,7 @@ pub struct EnrollmentResponse {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The history of statuses that the EpisodeOfCare has been through (without requiring processing the history of the resource)."]
@@ -9609,6 +9876,7 @@ pub struct EpisodeOfCareStatusHistory {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The list of diagnosis relevant to this episode of care."]
@@ -9635,6 +9903,7 @@ pub struct EpisodeOfCareDiagnosis {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "An association between a patient and an organization / healthcare provider(s) during which time encounters may occur. The managing organization assumes a level of responsibility for the patient during this time."]
@@ -9697,6 +9966,7 @@ pub struct EpisodeOfCare {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "subject"]
@@ -9717,6 +9987,7 @@ impl Default for EventDefinitionSubjectTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The EventDefinition resource provides a reusable description of when a particular event can occur."]
@@ -9821,6 +10092,7 @@ pub struct EventDefinition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The Evidence resource describes the conditional state (population and any exposures being compared within the population) and outcome (if specified) that the knowledge (evidence, assertion, recommendation) is about."]
@@ -9923,6 +10195,7 @@ pub struct Evidence {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "definition"]
@@ -9947,6 +10220,7 @@ impl Default for EvidenceVariableCharacteristicDefinitionTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "participantEffective"]
@@ -9971,6 +10245,7 @@ impl Default for EvidenceVariableCharacteristicParticipantEffectiveTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A characteristic that defines the members of the evidence element. Multiple characteristics are applied with \"and\" semantics."]
@@ -10008,6 +10283,7 @@ pub struct EvidenceVariableCharacteristic {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The EvidenceVariable resource describes a \"PICO\" element that knowledge (evidence, assertion, recommendation) is about."]
@@ -10109,6 +10385,7 @@ pub struct EvidenceVariable {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Actor participating in the resource."]
@@ -10140,6 +10417,7 @@ pub struct ExampleScenarioActor {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A specific version of the resource."]
@@ -10164,6 +10442,7 @@ pub struct ExampleScenarioInstanceVersion {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Resources contained in the instance (e.g. the observations contained in a bundle)."]
@@ -10188,6 +10467,7 @@ pub struct ExampleScenarioInstanceContainedInstance {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Each resource and each version that is present in the workflow."]
@@ -10222,6 +10502,7 @@ pub struct ExampleScenarioInstance {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Each interaction or action."]
@@ -10269,6 +10550,7 @@ pub struct ExampleScenarioProcessStepOperation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates an alternative step that can be taken instead of the operations on the base step in exceptional/atypical circumstances."]
@@ -10295,6 +10577,7 @@ pub struct ExampleScenarioProcessStepAlternative {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Each step of the process."]
@@ -10322,6 +10605,7 @@ pub struct ExampleScenarioProcessStep {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Each major process - a group of operations."]
@@ -10354,6 +10638,7 @@ pub struct ExampleScenarioProcess {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Example of workflow instance."]
@@ -10429,6 +10714,7 @@ pub struct ExampleScenario {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Other claims which are related to this claim such as prior submissions or claims for related services or for the same event."]
@@ -10454,6 +10740,7 @@ pub struct ExplanationOfBenefitRelated {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The party to be reimbursed for cost of the products and services according to the terms of the policy."]
@@ -10478,6 +10765,7 @@ pub struct ExplanationOfBenefitPayee {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The members of the team who provided the products and services."]
@@ -10508,6 +10796,7 @@ pub struct ExplanationOfBenefitCareTeam {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "timing"]
@@ -10527,6 +10816,7 @@ impl Default for ExplanationOfBenefitSupportingInfoTimingTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -10552,6 +10842,7 @@ impl Default for ExplanationOfBenefitSupportingInfoValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Additional information codes regarding exceptions, special considerations, the condition, situation, prior or concurrent issues."]
@@ -10584,6 +10875,7 @@ pub struct ExplanationOfBenefitSupportingInfo {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "diagnosis"]
@@ -10606,6 +10898,7 @@ impl Default for ExplanationOfBenefitDiagnosisDiagnosisTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about diagnoses relevant to the claim items."]
@@ -10636,6 +10929,7 @@ pub struct ExplanationOfBenefitDiagnosis {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "procedure"]
@@ -10658,6 +10952,7 @@ impl Default for ExplanationOfBenefitProcedureProcedureTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Procedures performed on the patient relevant to the billing items with the claim."]
@@ -10691,6 +10986,7 @@ pub struct ExplanationOfBenefitProcedure {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Financial instruments for reimbursement for the health care products and services specified on the claim."]
@@ -10717,6 +11013,7 @@ pub struct ExplanationOfBenefitInsurance {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "location"]
@@ -10737,6 +11034,7 @@ impl Default for ExplanationOfBenefitAccidentLocationTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Details of a accident which resulted in injuries which required the products and services listed in the claim."]
@@ -10763,6 +11061,7 @@ pub struct ExplanationOfBenefitAccident {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "serviced"]
@@ -10782,6 +11081,7 @@ impl Default for ExplanationOfBenefitItemServicedTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "location"]
@@ -10803,6 +11103,7 @@ impl Default for ExplanationOfBenefitItemLocationTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "If this item is a group then the values here are a summary of the adjudication of the detail items. If this item is a simple product or service then this is the result of the adjudication of this item."]
@@ -10830,6 +11131,7 @@ pub struct ExplanationOfBenefitItemAdjudication {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Third-tier of goods and services."]
@@ -10878,6 +11180,7 @@ pub struct ExplanationOfBenefitItemDetailSubDetail {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Second-tier of goods and services."]
@@ -10928,6 +11231,7 @@ pub struct ExplanationOfBenefitItemDetail {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A claim line. Either a simple (a product or service) or a 'group' of details which can also be a simple items or groups of sub-details."]
@@ -11002,6 +11306,7 @@ pub struct ExplanationOfBenefitItem {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "serviced"]
@@ -11021,6 +11326,7 @@ impl Default for ExplanationOfBenefitAddItemServicedTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "location"]
@@ -11042,6 +11348,7 @@ impl Default for ExplanationOfBenefitAddItemLocationTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The third-tier service adjudications for payor added services."]
@@ -11078,6 +11385,7 @@ pub struct ExplanationOfBenefitAddItemDetailSubDetail {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The second-tier service adjudications for payor added services."]
@@ -11116,6 +11424,7 @@ pub struct ExplanationOfBenefitAddItemDetail {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The first-tier service adjudications for payor added product or service lines."]
@@ -11178,6 +11487,7 @@ pub struct ExplanationOfBenefitAddItem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Categorized monetary totals for the adjudication."]
@@ -11200,6 +11510,7 @@ pub struct ExplanationOfBenefitTotal {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Payment details for the adjudication of the claim."]
@@ -11233,6 +11544,7 @@ pub struct ExplanationOfBenefitPayment {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A note that describes or explains adjudication results in a human readable form."]
@@ -11262,6 +11574,7 @@ pub struct ExplanationOfBenefitProcessNote {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "allowed"]
@@ -11285,6 +11598,7 @@ impl Default for ExplanationOfBenefitBenefitBalanceFinancialAllowedTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "used"]
@@ -11307,6 +11621,7 @@ impl Default for ExplanationOfBenefitBenefitBalanceFinancialUsedTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Benefits Used to date."]
@@ -11334,6 +11649,7 @@ pub struct ExplanationOfBenefitBenefitBalanceFinancial {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Balance by Benefit Category."]
@@ -11371,6 +11687,7 @@ pub struct ExplanationOfBenefitBenefitBalance {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "This resource provides: the claim details; adjudication details from the processing of a Claim; and optionally account balance information, for informing the subscriber of the benefits provided."]
@@ -11507,6 +11824,7 @@ pub struct ExplanationOfBenefit {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "born"]
@@ -11528,6 +11846,7 @@ impl Default for FamilyMemberHistoryBornTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "age"]
@@ -11548,6 +11867,7 @@ impl Default for FamilyMemberHistoryAgeTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "deceased"]
@@ -11572,6 +11892,7 @@ impl Default for FamilyMemberHistoryDeceasedTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "onset"]
@@ -11594,6 +11915,7 @@ impl Default for FamilyMemberHistoryConditionOnsetTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The significant Conditions (or condition) that the family member had. This is a repeating section to allow a system to represent more than one condition per resource, though there is nothing stopping multiple resources - one per condition."]
@@ -11624,6 +11946,7 @@ pub struct FamilyMemberHistoryCondition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Significant health conditions for a person related to the patient relevant in the context of care for the patient."]
@@ -11702,6 +12025,7 @@ pub struct FamilyMemberHistory {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Prospective warnings of potential issues when providing care to the patient."]
@@ -11752,6 +12076,7 @@ pub struct Flag {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "start"]
@@ -11771,6 +12096,7 @@ impl Default for GoalStartTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "detail"]
@@ -11797,6 +12123,7 @@ impl Default for GoalTargetDetailTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "due"]
@@ -11817,6 +12144,7 @@ impl Default for GoalTargetDueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates what should be done by when."]
@@ -11843,6 +12171,7 @@ pub struct GoalTarget {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Describes the intended objective(s) for a patient, group or organization care, for example, weight loss, restoring an activity of daily living, obtaining herd immunity via immunization, meeting a process improvement objective, etc."]
@@ -11914,6 +12243,7 @@ pub struct Goal {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Compartment Consistency Rules."]
@@ -11948,6 +12278,7 @@ pub struct GraphDefinitionLinkTargetCompartment {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Potential target for the link."]
@@ -11980,6 +12311,7 @@ pub struct GraphDefinitionLinkTarget {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Links this graph makes rules about."]
@@ -12015,6 +12347,7 @@ pub struct GraphDefinitionLink {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A formal computable definition of a graph of resources - that is, a coherent set of resources that form a graph by following references. The Graph Definition resource defines a set and makes rules about the set."]
@@ -12085,6 +12418,7 @@ pub struct GraphDefinition {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -12108,6 +12442,7 @@ impl Default for GroupCharacteristicValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies traits whose presence r absence is shared by members of the group."]
@@ -12136,6 +12471,7 @@ pub struct GroupCharacteristic {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies the resource instances that are members of the group."]
@@ -12162,6 +12498,7 @@ pub struct GroupMember {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Represents a defined collection of entities that may be discussed or acted upon collectively but which are not expected to act collectively, and are not formally or legally recognized; i.e. a collection of entities that isn't an Organization."]
@@ -12219,6 +12556,7 @@ pub struct Group {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "module"]
@@ -12241,6 +12579,7 @@ impl Default for GuidanceResponseModuleTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A guidance response is the formal response to a guidance request, including any output parameters returned by the evaluation, as well as the description of any proposed actions to be taken."]
@@ -12312,6 +12651,7 @@ pub struct GuidanceResponse {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Does this service have specific eligibility requirements that need to be met in order to use the service?"]
@@ -12335,6 +12675,7 @@ pub struct HealthcareServiceEligibility {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A collection of times that the Service Site is available."]
@@ -12365,6 +12706,7 @@ pub struct HealthcareServiceAvailableTime {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The HealthcareService is not available during this period of time due to the provided reason."]
@@ -12388,6 +12730,7 @@ pub struct HealthcareServiceNotAvailable {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The details of a healthcare service available at a location."]
@@ -12478,6 +12821,7 @@ pub struct HealthcareService {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates who or what performed the series and how they were involved."]
@@ -12501,6 +12845,7 @@ pub struct ImagingStudySeriesPerformer {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A single SOP instance within the series, e.g. an image, or presentation state."]
@@ -12530,6 +12875,7 @@ pub struct ImagingStudySeriesInstance {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Each study has one or more series of images or other content."]
@@ -12579,6 +12925,7 @@ pub struct ImagingStudySeries {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Representation of the content produced in a DICOM imaging study. A study comprises a set of series, each of which includes a set of Service-Object Pair Instances (SOP Instances - images or other data) acquired or produced in a common context.  A series is of only one modality (e.g. X-ray, CT, MR, ultrasound), but a study may have multiple series of different modalities."]
@@ -12663,6 +13010,7 @@ pub struct ImagingStudy {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
@@ -12684,6 +13032,7 @@ impl Default for ImmunizationOccurrenceTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates who performed the immunization event."]
@@ -12707,6 +13056,7 @@ pub struct ImmunizationPerformer {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Educational material presented to the patient (or guardian) at the time of vaccine administration."]
@@ -12737,6 +13087,7 @@ pub struct ImmunizationEducation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Categorical data indicating that an adverse event is associated in time to an immunization."]
@@ -12763,6 +13114,7 @@ pub struct ImmunizationReaction {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "doseNumber"]
@@ -12783,6 +13135,7 @@ impl Default for ImmunizationProtocolAppliedDoseNumberTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "seriesDoses"]
@@ -12804,6 +13157,7 @@ impl Default for ImmunizationProtocolAppliedSeriesDosesTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The protocol (set of recommendations) being followed by the provider who administered the dose."]
@@ -12836,6 +13190,7 @@ pub struct ImmunizationProtocolApplied {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Describes the event of a patient being administered a vaccine or a record of an immunization as reported by a patient, a clinician or another party."]
@@ -12934,6 +13289,7 @@ pub struct Immunization {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "doseNumber"]
@@ -12954,6 +13310,7 @@ impl Default for ImmunizationEvaluationDoseNumberTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "seriesDoses"]
@@ -12975,6 +13332,7 @@ impl Default for ImmunizationEvaluationSeriesDosesTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Describes a comparison of an immunization event against published recommendations to determine if the administration is \"valid\" in relation to those  recommendations."]
@@ -13041,6 +13399,7 @@ pub struct ImmunizationEvaluation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Vaccine date recommendations.  For example, earliest date to administer, latest date to administer, etc."]
@@ -13063,6 +13422,7 @@ pub struct ImmunizationRecommendationRecommendationDateCriterion {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "doseNumber"]
@@ -13085,6 +13445,7 @@ impl Default for ImmunizationRecommendationRecommendationDoseNumberTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "seriesDoses"]
@@ -13108,6 +13469,7 @@ impl Default for ImmunizationRecommendationRecommendationSeriesDosesTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Vaccine administration recommendations."]
@@ -13156,6 +13518,7 @@ pub struct ImmunizationRecommendationRecommendation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A patient's point-in-time set of recommendations (i.e. forecasting) according to a published schedule with optional supporting justification."]
@@ -13201,6 +13564,7 @@ pub struct ImmunizationRecommendation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Another implementation guide that this implementation depends on. Typically, an implementation guide uses value sets, profiles etc.defined in other implementation guides."]
@@ -13228,6 +13592,7 @@ pub struct ImplementationGuideDependsOn {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A set of profiles that all resources covered by this implementation guide must conform to."]
@@ -13253,6 +13618,7 @@ pub struct ImplementationGuideGlobal {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A logical group of resources. Logical groups can be used when building pages."]
@@ -13276,6 +13642,7 @@ pub struct ImplementationGuideDefinitionGrouping {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "example"]
@@ -13299,6 +13666,7 @@ impl Default for ImplementationGuideDefinitionResourceExampleTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A resource that is part of the implementation guide. Conformance resources (value set, structure definition, capability statements etc.) are obvious candidates for inclusion, but any kind of resource can be included as an example resource."]
@@ -13334,6 +13702,7 @@ pub struct ImplementationGuideDefinitionResource {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "name"]
@@ -13355,6 +13724,7 @@ impl Default for ImplementationGuideDefinitionPageNameTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A page / section in the implementation guide. The root page is the implementation guide home page."]
@@ -13384,6 +13754,7 @@ pub struct ImplementationGuideDefinitionPage {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Defines how IG is built by tools."]
@@ -13408,6 +13779,7 @@ pub struct ImplementationGuideDefinitionParameter {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A template for building resources."]
@@ -13435,6 +13807,7 @@ pub struct ImplementationGuideDefinitionTemplate {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The information needed by an IG publisher tool to publish the whole implementation guide."]
@@ -13463,6 +13836,7 @@ pub struct ImplementationGuideDefinition {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "example"]
@@ -13484,6 +13858,7 @@ impl Default for ImplementationGuideManifestResourceExampleTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A resource that is part of the implementation guide. Conformance resources (value set, structure definition, capability statements etc.) are obvious candidates for inclusion, but any kind of resource can be included as an example resource."]
@@ -13511,6 +13886,7 @@ pub struct ImplementationGuideManifestResource {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about a page within the IG."]
@@ -13538,6 +13914,7 @@ pub struct ImplementationGuideManifestPage {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about an assembled implementation guide, created by the publication tooling."]
@@ -13570,6 +13947,7 @@ pub struct ImplementationGuideManifest {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A set of rules of how a particular interoperability or standards problem is solved - typically through the use of FHIR resources. This resource is used to gather all the parts of an implementation guide into a logical whole and to publish a computable definition of all the parts."]
@@ -13654,6 +14032,7 @@ pub struct ImplementationGuide {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The contact for the health insurance product for a certain purpose."]
@@ -13680,6 +14059,7 @@ pub struct InsurancePlanContact {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The specific limits on the benefit."]
@@ -13702,6 +14082,7 @@ pub struct InsurancePlanCoverageBenefitLimit {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specific benefits under this type of coverage."]
@@ -13728,6 +14109,7 @@ pub struct InsurancePlanCoverageBenefit {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Details about the coverage offered by the insurance product."]
@@ -13755,6 +14137,7 @@ pub struct InsurancePlanCoverage {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Overall costs associated with the plan."]
@@ -13784,6 +14167,7 @@ pub struct InsurancePlanPlanGeneralCost {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "List of the costs associated with a specific benefit."]
@@ -13811,6 +14195,7 @@ pub struct InsurancePlanPlanSpecificCostBenefitCost {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "List of the specific benefits under this category of benefit."]
@@ -13834,6 +14219,7 @@ pub struct InsurancePlanPlanSpecificCostBenefit {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Costs associated with the coverage provided by the product."]
@@ -13856,6 +14242,7 @@ pub struct InsurancePlanPlanSpecificCost {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Details about an insurance plan."]
@@ -13890,6 +14277,7 @@ pub struct InsurancePlanPlan {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Details of a Health Insurance product/plan provided by an organization."]
@@ -13958,6 +14346,7 @@ pub struct InsurancePlan {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates who or what performed or participated in the charged service."]
@@ -13980,6 +14369,7 @@ pub struct InvoiceParticipant {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "chargeItem"]
@@ -14000,6 +14390,7 @@ impl Default for InvoiceLineItemChargeItemTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The price for a ChargeItem may be calculated as a base price with surcharges/deductions that apply in certain conditions. A ChargeItemDefinition resource that defines the prices, factors and conditions that apply to a billing code is currently under development. The priceComponent element can be used to offer transparency to the recipient of the Invoice as to how the prices have been calculated."]
@@ -14029,6 +14420,7 @@ pub struct InvoiceLineItemPriceComponent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Each line item represents one charge for goods and services rendered. Details such as date, code and amount are found in the referenced ChargeItem resource."]
@@ -14055,6 +14447,7 @@ pub struct InvoiceLineItem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Invoice containing collected ChargeItems from an Account with calculated individual and total price for Billing purpose."]
@@ -14126,6 +14519,7 @@ pub struct Invoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "subject"]
@@ -14146,6 +14540,7 @@ impl Default for LibrarySubjectTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The Library resource is a general-purpose container for knowledge asset definitions. It can be used to describe and expose existing knowledge assets such as logic libraries and information model descriptions, as well as to describe a collection of knowledge assets."]
@@ -14256,6 +14651,7 @@ pub struct Library {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies which record considered as the reference to the same real-world occurrence as well as how the items should be evaluated within the collection of linked items."]
@@ -14281,6 +14677,7 @@ pub struct LinkageItem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Identifies two or more records (resource instances) that refer to the same real-world \"occurrence\"."]
@@ -14320,6 +14717,7 @@ pub struct Linkage {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Entries in this list."]
@@ -14349,6 +14747,7 @@ pub struct ListEntry {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A list is a curated collection of resources."]
@@ -14413,6 +14812,7 @@ pub struct List {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The absolute geographic location of the Location, expressed using the WGS84 datum (This is the same co-ordinate system used in KML)."]
@@ -14440,6 +14840,7 @@ pub struct LocationPosition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "What days/times during a week is this location usually open."]
@@ -14470,6 +14871,7 @@ pub struct LocationHoursOfOperation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Details and position information for a physical place where services are provided and resources and participants may be stored, found, contained, or accommodated."]
@@ -14544,6 +14946,7 @@ pub struct Location {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "subject"]
@@ -14564,6 +14967,7 @@ impl Default for MeasureSubjectTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A population criteria for the measure."]
@@ -14589,6 +14993,7 @@ pub struct MeasureGroupPopulation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A component of the stratifier criteria for the measure report, specified as either the name of a valid CQL expression defined within a referenced library or a valid FHIR Resource Path."]
@@ -14614,6 +15019,7 @@ pub struct MeasureGroupStratifierComponent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The stratifier criteria for the measure report, specified as either the name of a valid CQL expression defined within a referenced library or a valid FHIR Resource Path."]
@@ -14641,6 +15047,7 @@ pub struct MeasureGroupStratifier {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A group of population criteria for the measure."]
@@ -14668,6 +15075,7 @@ pub struct MeasureGroup {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The supplemental data criteria for the measure report, specified as either the name of a valid CQL expression within a referenced library, or a valid FHIR Resource Path."]
@@ -14695,6 +15103,7 @@ pub struct MeasureSupplementalData {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The Measure resource provides the definition of a quality measure."]
@@ -14833,6 +15242,7 @@ pub struct Measure {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The populations that make up the population group, one for each type of population appropriate for the measure."]
@@ -14859,6 +15269,7 @@ pub struct MeasureReportGroupPopulation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A stratifier component value."]
@@ -14881,6 +15292,7 @@ pub struct MeasureReportGroupStratifierStratumComponent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The populations that make up the stratum, one for each type of population appropriate to the measure."]
@@ -14907,6 +15319,7 @@ pub struct MeasureReportGroupStratifierStratumPopulation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "This element contains the results for a single stratum within the stratifier. For example, when stratifying on administrative gender, there will be four strata, one for each possible gender value."]
@@ -14933,6 +15346,7 @@ pub struct MeasureReportGroupStratifierStratum {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "When a measure includes multiple stratifiers, there will be a stratifier group for each stratifier defined by the measure."]
@@ -14955,6 +15369,7 @@ pub struct MeasureReportGroupStratifier {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The results of the calculation, one for each population group in the measure."]
@@ -14981,6 +15396,7 @@ pub struct MeasureReportGroup {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The MeasureReport resource contains the results of the calculation of a measure; and optionally a reference to the resources involved in that calculation."]
@@ -15041,6 +15457,7 @@ pub struct MeasureReport {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "created"]
@@ -15061,6 +15478,7 @@ impl Default for MediaCreatedTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A photo, video, or audio recording acquired or used in healthcare. The actual content may be inline or provided by direct reference."]
@@ -15150,6 +15568,7 @@ pub struct Media {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "item"]
@@ -15170,6 +15589,7 @@ impl Default for MedicationIngredientItemTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies a particular constituent of interest in the product."]
@@ -15196,6 +15616,7 @@ pub struct MedicationIngredient {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information that only applies to packages (not products)."]
@@ -15220,6 +15641,7 @@ pub struct MedicationBatch {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "This resource is primarily used for the identification and definition of a medication for the purposes of prescribing, dispensing, and administering a medication as well as for making statements about medication use."]
@@ -15268,6 +15690,7 @@ pub struct Medication {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "medication"]
@@ -15287,6 +15710,7 @@ impl Default for MedicationAdministrationMedicationTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "effective"]
@@ -15307,6 +15731,7 @@ impl Default for MedicationAdministrationEffectiveTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates who or what performed the medication administration and how they were involved."]
@@ -15329,6 +15754,7 @@ pub struct MedicationAdministrationPerformer {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "rate"]
@@ -15348,6 +15774,7 @@ impl Default for MedicationAdministrationDosageRateTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Describes the medication dosage information details e.g. dose, rate, site, route, etc."]
@@ -15380,6 +15807,7 @@ pub struct MedicationAdministrationDosage {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Describes the event of a patient consuming or otherwise being administered a medication.  This may be as simple as swallowing a tablet or it may be a long running infusion.  Related resources tie this event to the authorizing prescription, and the specific encounter between patient and health care practitioner."]
@@ -15460,6 +15888,7 @@ pub struct MedicationAdministration {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "statusReason"]
@@ -15479,6 +15908,7 @@ impl Default for MedicationDispenseStatusReasonTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "medication"]
@@ -15499,6 +15929,7 @@ impl Default for MedicationDispenseMedicationTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates who or what performed the event."]
@@ -15522,6 +15953,7 @@ pub struct MedicationDispensePerformer {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates whether or not substitution was made as part of the dispense.  In some cases, substitution will be expected but does not happen, in other cases substitution is not expected but does happen.  This block explains what substitution did or did not happen and why.  If nothing is specified, substitution was not done."]
@@ -15551,6 +15983,7 @@ pub struct MedicationDispenseSubstitution {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Indicates that a medication product is to be or has been dispensed for a named person/patient.  This includes a description of the medication product (supply) provided and the instructions for administering the medication.  The medication dispense is the result of a pharmacy system responding to a medication order."]
@@ -15646,6 +16079,7 @@ pub struct MedicationDispense {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Associated or related knowledge about a medication."]
@@ -15671,6 +16105,7 @@ pub struct MedicationKnowledgeRelatedMedicationKnowledge {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Associated documentation about the medication."]
@@ -15694,6 +16129,7 @@ pub struct MedicationKnowledgeMonograph {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "item"]
@@ -15714,6 +16150,7 @@ impl Default for MedicationKnowledgeIngredientItemTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies a particular constituent of interest in the product."]
@@ -15740,6 +16177,7 @@ pub struct MedicationKnowledgeIngredient {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The price of the medication."]
@@ -15766,6 +16204,7 @@ pub struct MedicationKnowledgeCost {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The program under which the medication is reviewed."]
@@ -15790,6 +16229,7 @@ pub struct MedicationKnowledgeMonitoringProgram {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Dosage for the medication for the specific guidelines."]
@@ -15813,6 +16253,7 @@ pub struct MedicationKnowledgeAdministrationGuidelinesDosage {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "indication"]
@@ -15834,6 +16275,7 @@ impl Default for MedicationKnowledgeAdministrationGuidelinesIndicationTypeChoice
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "characteristic"]
@@ -15855,6 +16297,7 @@ impl Default
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Characteristics of the patient that are relevant to the administration guidelines (for example, height, weight, gender, etc.)."]
@@ -15880,6 +16323,7 @@ pub struct MedicationKnowledgeAdministrationGuidelinesPatientCharacteristics {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Guidelines for the administration of the medication."]
@@ -15906,6 +16350,7 @@ pub struct MedicationKnowledgeAdministrationGuidelines {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Categorization of the medication within a formulary or classification system."]
@@ -15929,6 +16374,7 @@ pub struct MedicationKnowledgeMedicineClassification {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information that only applies to packages (not products)."]
@@ -15951,6 +16397,7 @@ pub struct MedicationKnowledgePackaging {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -15976,6 +16423,7 @@ impl Default for MedicationKnowledgeDrugCharacteristicValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specifies descriptive properties of the medicine, such as color, shape, imprints, etc."]
@@ -16000,6 +16448,7 @@ pub struct MedicationKnowledgeDrugCharacteristic {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specifies if changes are allowed when dispensing a medication from a regulatory perspective."]
@@ -16024,6 +16473,7 @@ pub struct MedicationKnowledgeRegulatorySubstitution {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specifies the schedule of a medication in jurisdiction."]
@@ -16044,6 +16494,7 @@ pub struct MedicationKnowledgeRegulatorySchedule {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The maximum number of units of the medication that can be dispensed in a period."]
@@ -16066,6 +16517,7 @@ pub struct MedicationKnowledgeRegulatoryMaxDispense {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Regulatory information about a medication."]
@@ -16093,6 +16545,7 @@ pub struct MedicationKnowledgeRegulatory {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The time course of drug absorption, distribution, metabolism and excretion of a medication from the body."]
@@ -16117,6 +16570,7 @@ pub struct MedicationKnowledgeKinetics {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Information about a medication that is used to support knowledge."]
@@ -16196,6 +16650,7 @@ pub struct MedicationKnowledge {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "reported"]
@@ -16216,6 +16671,7 @@ impl Default for MedicationRequestReportedTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "medication"]
@@ -16236,6 +16692,7 @@ impl Default for MedicationRequestMedicationTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates the quantity or duration for the first dispense of the medication."]
@@ -16258,6 +16715,7 @@ pub struct MedicationRequestDispenseRequestInitialFill {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates the specific details for the dispense or medication supply part of a medication request (also known as a Medication Prescription or Medication Order).  Note that this information is not always sent with the order.  There may be in some settings (e.g. hospitals) institutional or system support for completing the dispense details in the pharmacy department."]
@@ -16291,6 +16749,7 @@ pub struct MedicationRequestDispenseRequest {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "allowed"]
@@ -16311,6 +16770,7 @@ impl Default for MedicationRequestSubstitutionAllowedTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates whether or not substitution can or should be part of the dispense. In some cases, substitution must happen, in other cases substitution must not happen. This block explains the prescriber's intent. If nothing is specified substitution may be done."]
@@ -16334,6 +16794,7 @@ pub struct MedicationRequestSubstitution {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "An order or request for both supply of the medication and the instructions for administration of the medication to a patient. The resource is called \"MedicationRequest\" rather than \"MedicationPrescription\" or \"MedicationOrder\" to generalize the use across inpatient and outpatient settings, including care plans, etc., and to harmonize with workflow patterns."]
@@ -16449,6 +16910,7 @@ pub struct MedicationRequest {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "medication"]
@@ -16468,6 +16930,7 @@ impl Default for MedicationStatementMedicationTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "effective"]
@@ -16488,6 +16951,7 @@ impl Default for MedicationStatementEffectiveTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A record of a medication that is being consumed by a patient.   A MedicationStatement may indicate that the patient may be taking the medication now or has taken the medication in the past or will be taking the medication in the future.  The source of this information can be the patient, significant other (such as a family member or spouse), or a clinician.  A common scenario where this information is captured is during the history taking process during a patient visit or stay.   The medication information may come from sources such as the patient's memory, from a prescription bottle,  or from a list of medications the patient, clinician or other party maintains. \n\nThe primary difference between a medication statement and a medication administration is that the medication administration has complete administration information and is based on actual administration information from the person who administered the medication.  A medication statement is often, if not always, less specific.  There is no required date/time when the medication was administered, in fact we only know that a source has reported the patient is taking this medication, where details such as time, quantity, or rate or even medication product may be incomplete or missing or less precise.  As stated earlier, the medication statement information may come from the patient's memory, from a prescription bottle or from a list of medications the patient, clinician or other party maintains.  Medication administration is more formal and is not missing detailed information."]
@@ -16564,6 +17028,7 @@ pub struct MedicationStatement {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Coding words or phrases of the name."]
@@ -16588,6 +17053,7 @@ pub struct MedicinalProductNameNamePart {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Country where the name applies."]
@@ -16612,6 +17078,7 @@ pub struct MedicinalProductNameCountryLanguage {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The product's name, including full name and possibly coded parts."]
@@ -16637,6 +17104,7 @@ pub struct MedicinalProductName {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An operation applied to the product, for manufacturing or adminsitrative purpose."]
@@ -16669,6 +17137,7 @@ pub struct MedicinalProductManufacturingBusinessOperation {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "indication"]
@@ -16691,6 +17160,7 @@ impl Default for MedicinalProductSpecialDesignationIndicationTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates if the medicinal product has an orphan designation for the treatment of a rare disease."]
@@ -16727,6 +17197,7 @@ pub struct MedicinalProductSpecialDesignation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Detailed definition of a medicinal product, typically for uses other than direct patient care (e.g. regulatory use)."]
@@ -16807,6 +17278,7 @@ pub struct MedicinalProduct {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Authorization in areas within a country."]
@@ -16835,6 +17307,7 @@ pub struct MedicinalProductAuthorizationJurisdictionalAuthorization {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "date"]
@@ -16855,6 +17328,7 @@ impl Default for MedicinalProductAuthorizationProcedureDateTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The regulatory procedure for granting or amending a marketing authorization."]
@@ -16884,6 +17358,7 @@ pub struct MedicinalProductAuthorizationProcedure {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The regulatory authorization of a medicinal product."]
@@ -16954,6 +17429,7 @@ pub struct MedicinalProductAuthorization {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "medication"]
@@ -16976,6 +17452,7 @@ impl Default for MedicinalProductContraindicationOtherTherapyMedicationTypeChoic
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about the use of the medicinal product in relation to other therapies described as part of the indication."]
@@ -16999,6 +17476,7 @@ pub struct MedicinalProductContraindicationOtherTherapy {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The clinical particulars - indications, contraindications etc. of a medicinal product, including for regulatory purposes."]
@@ -17044,6 +17522,7 @@ pub struct MedicinalProductContraindication {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "medication"]
@@ -17066,6 +17545,7 @@ impl Default for MedicinalProductIndicationOtherTherapyMedicationTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about the use of the medicinal product in relation to other therapies described as part of the indication."]
@@ -17089,6 +17569,7 @@ pub struct MedicinalProductIndicationOtherTherapy {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Indication for the Medicinal Product."]
@@ -17139,6 +17620,7 @@ pub struct MedicinalProductIndication {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Strength expressed in terms of a reference substance."]
@@ -17168,6 +17650,7 @@ pub struct MedicinalProductIngredientSpecifiedSubstanceStrengthReferenceStrength
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Quantity of the substance or specified substance present in the manufactured item or pharmaceutical product."]
@@ -17202,6 +17685,7 @@ pub struct MedicinalProductIngredientSpecifiedSubstanceStrength {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A specified substance that comprises this ingredient."]
@@ -17228,6 +17712,7 @@ pub struct MedicinalProductIngredientSpecifiedSubstance {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The ingredient substance."]
@@ -17250,6 +17735,7 @@ pub struct MedicinalProductIngredientSubstance {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "An ingredient of a manufactured item or pharmaceutical product."]
@@ -17294,6 +17780,7 @@ pub struct MedicinalProductIngredient {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "item"]
@@ -17316,6 +17803,7 @@ impl Default for MedicinalProductInteractionInteractantItemTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The specific medication, food or laboratory test that interacts."]
@@ -17337,6 +17825,7 @@ pub struct MedicinalProductInteractionInteractant {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The interactions of the medicinal product with other medicinal products, or other forms of interactions."]
@@ -17384,6 +17873,7 @@ pub struct MedicinalProductInteraction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The manufactured item as contained in the packaged medicinal product."]
@@ -17430,6 +17920,7 @@ pub struct MedicinalProductManufactured {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Batch numbering."]
@@ -17452,6 +17943,7 @@ pub struct MedicinalProductPackagedBatchIdentifier {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A packaging item, as a contained for medicine, possibly with other packaging items within."]
@@ -17499,6 +17991,7 @@ pub struct MedicinalProductPackagedPackageItem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A medicinal product in a container or package."]
@@ -17553,6 +18046,7 @@ pub struct MedicinalProductPackaged {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Characteristics e.g. a products onset of action."]
@@ -17575,6 +18069,7 @@ pub struct MedicinalProductPharmaceuticalCharacteristics {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A species specific time during which consumption of animal product is not appropriate."]
@@ -17600,6 +18095,7 @@ pub struct MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpeciesWithd
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A species for which this route applies."]
@@ -17624,6 +18120,7 @@ pub struct MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecies {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The path by which the pharmaceutical product is taken into or makes contact with the body."]
@@ -17657,6 +18154,7 @@ pub struct MedicinalProductPharmaceuticalRouteOfAdministration {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A pharmaceutical product described in terms of its composition and dose form."]
@@ -17705,6 +18203,7 @@ pub struct MedicinalProductPharmaceutical {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Describe the undesirable effects of the medicinal product."]
@@ -17745,6 +18244,7 @@ pub struct MedicinalProductUndesirableEffect {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "event"]
@@ -17765,6 +18265,7 @@ impl Default for MessageDefinitionEventTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies the resource (or resources) that are being addressed by the event.  For example, the Encounter for an admit message or two Account records for a merge."]
@@ -17795,6 +18296,7 @@ pub struct MessageDefinitionFocus {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates what types of messages may be sent as an application-level response to this message."]
@@ -17819,6 +18321,7 @@ pub struct MessageDefinitionAllowedResponse {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Defines the characteristics of a message that can be shared between systems, including the type of event that initiates the message, the content to be transmitted and what response(s), if any, are permitted."]
@@ -17915,6 +18418,7 @@ pub struct MessageDefinition {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "event"]
@@ -17935,6 +18439,7 @@ impl Default for MessageHeaderEventTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The destination application which the message is intended for."]
@@ -17965,6 +18470,7 @@ pub struct MessageHeaderDestination {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The source application from which this message originated."]
@@ -17997,6 +18503,7 @@ pub struct MessageHeaderSource {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about the message that this message is a response to.  Only present if this message is a response."]
@@ -18025,6 +18532,7 @@ pub struct MessageHeaderResponse {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The header for a message exchange that is either requesting or responding to an action.  The reference(s) that are the subject of the action as well as other information related to the action are typically transmitted in a bundle in which the MessageHeader resource instance is the first resource in the bundle."]
@@ -18084,6 +18592,7 @@ pub struct MessageHeader {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A sequence that is used as a reference to describe variants that are present in a sequence analyzed."]
@@ -18127,6 +18636,7 @@ pub struct MolecularSequenceReferenceSeq {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The definition of variant here originates from Sequence ontology ([variant_of](http://www.sequenceontology.org/browser/current_svn/term/variant_of)). This element can represent amino acid or nucleic sequence change(including insertion,deletion,SNP,etc.)  It can represent some complex mutation or segment variation with the assist of CIGAR string."]
@@ -18163,6 +18673,7 @@ pub struct MolecularSequenceVariant {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Receiver Operator Characteristic (ROC) Curve  to give sensitivity/specificity tradeoff."]
@@ -18202,6 +18713,7 @@ pub struct MolecularSequenceQualityRoc {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An experimental feature attribute that defines the quality of the feature in a quantitative way, such as a phred quality score ([SO:0001686](http://www.sequenceontology.org/browser/current_svn/term/SO:0001686))."]
@@ -18262,6 +18774,7 @@ pub struct MolecularSequenceQuality {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Configurations of the external repository. The repository shall store target's observedSeq or records related with target's observedSeq."]
@@ -18299,6 +18812,7 @@ pub struct MolecularSequenceRepository {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Structural variant outer."]
@@ -18323,6 +18837,7 @@ pub struct MolecularSequenceStructureVariantOuter {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Structural variant inner."]
@@ -18347,6 +18862,7 @@ pub struct MolecularSequenceStructureVariantInner {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about chromosome structure variation."]
@@ -18377,6 +18893,7 @@ pub struct MolecularSequenceStructureVariant {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Raw data describing a biological sequence."]
@@ -18450,6 +18967,7 @@ pub struct MolecularSequence {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates how the system may be identified when referenced in electronic exchange."]
@@ -18483,6 +19001,7 @@ pub struct NamingSystemUniqueId {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A curated namespace that issues unique symbols within that namespace for the identification of concepts, people, devices, etc.  Represents a \"System\" used within the Identifier and Coding data types."]
@@ -18549,6 +19068,7 @@ pub struct NamingSystem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Class that defines the quantity and type of nutrient modifications (for example carbohydrate, fiber or sodium) required for the oral diet."]
@@ -18571,6 +19091,7 @@ pub struct NutritionOrderOralDietNutrient {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Class that describes any texture modifications required for the patient to safely consume various types of solid foods."]
@@ -18593,6 +19114,7 @@ pub struct NutritionOrderOralDietTexture {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Diet given orally in contrast to enteral (tube) feeding."]
@@ -18625,6 +19147,7 @@ pub struct NutritionOrderOralDiet {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Oral nutritional products given in order to add further nutritional value to the patient's diet."]
@@ -18655,6 +19178,7 @@ pub struct NutritionOrderSupplement {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "rate"]
@@ -18676,6 +19200,7 @@ impl Default for NutritionOrderEnteralFormulaAdministrationRateTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Formula administration instructions as structured data.  This repeating structure allows for changing the administration rate or volume over time for both bolus and continuous feeding.  An example of this would be an instruction to increase the rate of continuous feeding every 2 hours."]
@@ -18701,6 +19226,7 @@ pub struct NutritionOrderEnteralFormulaAdministration {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Feeding provided through the gastrointestinal tract via a tube, catheter, or stoma that delivers nutrition distal to the oral cavity."]
@@ -18740,6 +19266,7 @@ pub struct NutritionOrderEnteralFormula {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A request to supply a diet, formula feeding (enteral) or oral nutritional supplement to a patient/resident."]
@@ -18814,6 +19341,7 @@ pub struct NutritionOrder {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "effective"]
@@ -18836,6 +19364,7 @@ impl Default for ObservationEffectiveTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -18869,6 +19398,7 @@ impl Default for ObservationValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Guidance on how to interpret the value by comparison to a normal or recommended range.  Multiple reference ranges are interpreted as an \"OR\".   In other words, to represent two distinct target populations, two `referenceRange` elements would be used."]
@@ -18900,6 +19430,7 @@ pub struct ObservationReferenceRange {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -18933,6 +19464,7 @@ impl Default for ObservationComponentValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Some observations have multiple component observations.  These component observations are expressed as separate code value pairs that share the same attributes.  Examples include systolic and diastolic component observations for blood pressure measurement and multiple component observations for genetics observations."]
@@ -18962,6 +19494,7 @@ pub struct ObservationComponent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Measurements and simple assertions made about a patient, device or other subject."]
@@ -19055,6 +19588,7 @@ pub struct Observation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Characteristics for quantitative results of this observation."]
@@ -19083,6 +19617,7 @@ pub struct ObservationDefinitionQuantitativeDetails {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Multiple  ranges of results qualified by different contexts for ordinal or continuous observations conforming to this ObservationDefinition."]
@@ -19120,6 +19655,7 @@ pub struct ObservationDefinitionQualifiedInterval {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Set of definitional characteristics for a kind of observation or measurement produced or consumed by an orderable health care service."]
@@ -19184,6 +19720,7 @@ pub struct ObservationDefinition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Binds to a value set if this parameter is coded (code, Coding, CodeableConcept)."]
@@ -19208,6 +19745,7 @@ pub struct OperationDefinitionParameterBinding {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies other resource parameters within the operation invocation that are expected to resolve to this resource."]
@@ -19232,6 +19770,7 @@ pub struct OperationDefinitionParameterReferencedFrom {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The parameters for the operation/query."]
@@ -19282,6 +19821,7 @@ pub struct OperationDefinitionParameter {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Defines an appropriate combination of parameters to use when invoking this operation, to help code generators when generating overloaded parameter sets for this operation."]
@@ -19306,6 +19846,7 @@ pub struct OperationDefinitionOverload {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A formal computable definition of an operation (on the RESTful interface) or a named query (using the search interaction)."]
@@ -19410,6 +19951,7 @@ pub struct OperationDefinition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An error, warning, or information message that results from a system action."]
@@ -19445,6 +19987,7 @@ pub struct OperationOutcomeIssue {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A collection of error, warning, or information messages that result from a system action."]
@@ -19478,6 +20021,7 @@ pub struct OperationOutcome {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Contact for the organization for a certain purpose."]
@@ -19504,6 +20048,7 @@ pub struct OrganizationContact {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A formally or informally recognized grouping of people or organizations formed for the purpose of achieving some form of collective action.  Includes companies, institutions, corporations, departments, community groups, healthcare practice groups, payer/insurer, etc."]
@@ -19561,6 +20106,7 @@ pub struct Organization {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Defines an affiliation/assotiation/relationship between 2 distinct oganizations, that is not a part-of relationship/sub-division relationship."]
@@ -19622,6 +20168,7 @@ pub struct OrganizationAffiliation {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -19708,6 +20255,7 @@ impl Default for ParametersParameterValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A parameter passed to or received from the operation."]
@@ -19736,6 +20284,7 @@ pub struct ParametersParameter {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "This resource is a non-persisted resource used to pass information into and back from an [operation](operations.html). It has no other use, and there is no RESTful endpoint associated with it."]
@@ -19759,6 +20308,7 @@ pub struct Parameters {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "deceased"]
@@ -19779,6 +20329,7 @@ impl Default for PatientDeceasedTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "multipleBirth"]
@@ -19800,6 +20351,7 @@ impl Default for PatientMultipleBirthTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A contact party (e.g. guardian, partner, friend) for the patient."]
@@ -19834,6 +20386,7 @@ pub struct PatientContact {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A language which may be used to communicate with the patient about his or her health."]
@@ -19857,6 +20410,7 @@ pub struct PatientCommunication {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Link to another patient resource that concerns the same actual patient."]
@@ -19882,6 +20436,7 @@ pub struct PatientLink {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Demographics and other administrative information about an individual or animal receiving care or other health-related services."]
@@ -19952,6 +20507,7 @@ pub struct Patient {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "This resource provides the status of the payment for goods and services rendered, and the request and response resource references."]
@@ -20016,6 +20572,7 @@ pub struct PaymentNotice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Distribution of the payment amount for a previously acknowledged payable."]
@@ -20062,6 +20619,7 @@ pub struct PaymentReconciliationDetail {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A note that describes or explains the processing in a human readable form."]
@@ -20087,6 +20645,7 @@ pub struct PaymentReconciliationProcessNote {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "This resource provides the details including amount of a payment and allocates the payment items being paid."]
@@ -20156,6 +20715,7 @@ pub struct PaymentReconciliation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Link to a resource that concerns the same actual person."]
@@ -20180,6 +20740,7 @@ pub struct PersonLink {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Demographics and administrative information about a person independent of a specific health-related context."]
@@ -20234,6 +20795,7 @@ pub struct Person {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "subject"]
@@ -20253,6 +20815,7 @@ impl Default for PlanDefinitionSubjectTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "detail"]
@@ -20273,6 +20836,7 @@ impl Default for PlanDefinitionGoalTargetDetailTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates what should be done and within what timeframe."]
@@ -20298,6 +20862,7 @@ pub struct PlanDefinitionGoalTarget {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Goals that describe what the activities within the plan are intended to achieve. For example, weight loss, restoring an activity of daily living, obtaining herd immunity via immunization, meeting a process improvement objective, etc."]
@@ -20329,6 +20894,7 @@ pub struct PlanDefinitionGoal {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "subject"]
@@ -20349,6 +20915,7 @@ impl Default for PlanDefinitionActionSubjectTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An expression that describes applicability criteria or start/stop conditions for the action."]
@@ -20371,6 +20938,7 @@ pub struct PlanDefinitionActionCondition {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "offset"]
@@ -20390,6 +20958,7 @@ impl Default for PlanDefinitionActionRelatedActionOffsetTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A relationship to another action such as \"before\" or \"30-60 minutes after start of\"."]
@@ -20416,6 +20985,7 @@ pub struct PlanDefinitionActionRelatedAction {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "timing"]
@@ -20440,6 +21010,7 @@ impl Default for PlanDefinitionActionTimingTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates who should participate in performing the action described."]
@@ -20463,6 +21034,7 @@ pub struct PlanDefinitionActionParticipant {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "definition"]
@@ -20484,6 +21056,7 @@ impl Default for PlanDefinitionActionDefinitionTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Customizations that should be applied to the statically defined resource. For example, if the dosage of a medication must be computed based on the patient's weight, a customization would be used to specify an expression that calculated the weight, and the path on the resource that would contain the result."]
@@ -20507,6 +21080,7 @@ pub struct PlanDefinitionActionDynamicValue {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An action or group of actions to be taken as part of the plan."]
@@ -20595,6 +21169,7 @@ pub struct PlanDefinitionAction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "This resource allows for the definition of various types of plans as a sharable, consumable, and executable artifact. The resource is general enough to support the description of a broad range of clinical artifacts such as clinical decision support rules, order sets and protocols."]
@@ -20706,6 +21281,7 @@ pub struct PlanDefinition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The official certifications, training, and licenses that authorize or otherwise pertain to the provision of care by the practitioner.  For example, a medical license issued by a medical board authorizing the practitioner to practice medicine within a certian locality."]
@@ -20734,6 +21310,7 @@ pub struct PractitionerQualification {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A person who is directly or indirectly involved in the provisioning of healthcare."]
@@ -20788,6 +21365,7 @@ pub struct Practitioner {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A collection of times the practitioner is available or performing this role at the location and/or healthcareservice."]
@@ -20818,6 +21396,7 @@ pub struct PractitionerRoleAvailableTime {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The practitioner is not available or performing this role during this period of time due to the provided reason."]
@@ -20841,6 +21420,7 @@ pub struct PractitionerRoleNotAvailable {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A specific set of Roles/Locations/specialties/services that a practitioner may perform at an organization for a period of time."]
@@ -20906,6 +21486,7 @@ pub struct PractitionerRole {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "performed"]
@@ -20930,6 +21511,7 @@ impl Default for ProcedurePerformedTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Limited to \"real\" people rather than equipment."]
@@ -20956,6 +21538,7 @@ pub struct ProcedurePerformer {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A device that is implanted, removed or otherwise manipulated (calibration, battery replacement, fitting a prosthesis, attaching a wound-vac, etc.) as a focal portion of the Procedure."]
@@ -20979,6 +21562,7 @@ pub struct ProcedureFocalDevice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "An action that is or was performed on or for a patient. This can be a physical intervention like an operation, or less invasive like long term services, counseling, or hypnotherapy."]
@@ -21080,6 +21664,7 @@ pub struct Procedure {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurred"]
@@ -21100,6 +21685,7 @@ impl Default for ProvenanceOccurredTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An actor taking a role in an activity  for which it can be assigned some degree of responsibility for the activity taking place."]
@@ -21129,6 +21715,7 @@ pub struct ProvenanceAgent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An entity used in this activity."]
@@ -21155,6 +21742,7 @@ pub struct ProvenanceEntity {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Provenance of a resource is a record that describes entities and processes involved in producing and delivering or otherwise influencing that resource. Provenance provides a critical foundation for assessing authenticity, enabling trust, and allowing reproducibility. Provenance assertions are a form of contextual metadata and can themselves become important records with their own provenance. Provenance statement indicates clinical significance in terms of confidence in authenticity, reliability, and trustworthiness, integrity, and stage in lifecycle (e.g. Document Completion - has the artifact been legally authenticated), all of which may impact security, privacy, and trust policies."]
@@ -21211,6 +21799,7 @@ pub struct Provenance {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "answer"]
@@ -21246,6 +21835,7 @@ impl Default for QuestionnaireItemEnableWhenAnswerTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A constraint indicating that this item should only be enabled (displayed/allow answers to be captured) when the specified condition is true."]
@@ -21272,6 +21862,7 @@ pub struct QuestionnaireItemEnableWhen {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -21300,6 +21891,7 @@ impl Default for QuestionnaireItemAnswerOptionValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "One of the permitted answers for a \"choice\" or \"open-choice\" question."]
@@ -21323,6 +21915,7 @@ pub struct QuestionnaireItemAnswerOption {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -21361,6 +21954,7 @@ impl Default for QuestionnaireItemInitialValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "One or more values that should be pre-populated in the answer when initially rendering the questionnaire for user input."]
@@ -21382,6 +21976,7 @@ pub struct QuestionnaireItemInitial {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A particular question, question grouping or display text that is part of the questionnaire."]
@@ -21444,6 +22039,7 @@ pub struct QuestionnaireItem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A structured set of questions intended to guide the collection of answers from end-users. Questionnaires provide detailed control over order, presentation, phraseology and grouping to allow coherent, consistent data collection."]
@@ -21533,6 +22129,7 @@ pub struct Questionnaire {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -21571,6 +22168,7 @@ impl Default for QuestionnaireResponseItemAnswerValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The respondent's answer(s) to the question."]
@@ -21594,6 +22192,7 @@ pub struct QuestionnaireResponseItemAnswer {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A group or question item from the original questionnaire for which answers are provided."]
@@ -21625,6 +22224,7 @@ pub struct QuestionnaireResponseItem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A structured set of questions and their answers. The questions are ordered and grouped into coherent subsets, corresponding to the structure of the grouping of the questionnaire being responded to."]
@@ -21687,6 +22287,7 @@ pub struct QuestionnaireResponse {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A language which may be used to communicate with about the patient's health."]
@@ -21710,6 +22311,7 @@ pub struct RelatedPersonCommunication {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Information about a person that is involved in the care for a patient, but who is not the target of healthcare, nor has a formal responsibility in the care process."]
@@ -21769,6 +22371,7 @@ pub struct RelatedPerson {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An expression that describes applicability criteria, or start/stop conditions for the action."]
@@ -21791,6 +22394,7 @@ pub struct RequestGroupActionCondition {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "offset"]
@@ -21810,6 +22414,7 @@ impl Default for RequestGroupActionRelatedActionOffsetTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A relationship to another action such as \"before\" or \"30-60 minutes after start of\"."]
@@ -21836,6 +22441,7 @@ pub struct RequestGroupActionRelatedAction {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "timing"]
@@ -21860,6 +22466,7 @@ impl Default for RequestGroupActionTimingTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The actions, if any, produced by the evaluation of the artifact."]
@@ -21930,6 +22537,7 @@ pub struct RequestGroupAction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A group of related requests that can be used to capture intended activities that have inter-dependencies such as \"give this medication after that one\"."]
@@ -22008,6 +22616,7 @@ pub struct RequestGroup {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "subject"]
@@ -22028,6 +22637,7 @@ impl Default for ResearchDefinitionSubjectTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The ResearchDefinition resource describes the conditional state (population and any exposures being compared within the population) and outcome (if specified) that the knowledge (evidence, assertion, recommendation) is about."]
@@ -22149,6 +22759,7 @@ pub struct ResearchDefinition {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "subject"]
@@ -22168,6 +22779,7 @@ impl Default for ResearchElementDefinitionSubjectTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "definition"]
@@ -22191,6 +22803,7 @@ impl Default for ResearchElementDefinitionCharacteristicDefinitionTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "studyEffective"]
@@ -22214,6 +22827,7 @@ impl Default for ResearchElementDefinitionCharacteristicStudyEffectiveTypeChoice
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "participantEffective"]
@@ -22238,6 +22852,7 @@ impl Default for ResearchElementDefinitionCharacteristicParticipantEffectiveType
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A characteristic that defines the members of the research element. Multiple characteristics are applied with \"and\" semantics."]
@@ -22289,6 +22904,7 @@ pub struct ResearchElementDefinitionCharacteristic {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The ResearchElementDefinition resource describes a \"PICO\" element that knowledge (evidence, assertion, recommendation) is about."]
@@ -22409,6 +23025,7 @@ pub struct ResearchElementDefinition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Describes an expected sequence of events for one of the participants of a study.  E.g. Exposure to drug A, wash-out, exposure to drug B, wash-out, follow-up."]
@@ -22436,6 +23053,7 @@ pub struct ResearchStudyArm {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A goal that the study is aiming to achieve in terms of a scientific question to be answered by the analysis of data collected during the study."]
@@ -22460,6 +23078,7 @@ pub struct ResearchStudyObjective {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A process where a researcher or organization plans and then executes a series of steps intended to increase the field of healthcare-related knowledge.  This includes studies of safety, efficacy, comparative effectiveness and other information about medications, devices, therapies and other interventional and investigative techniques.  A ResearchStudy involves the gathering of information about human or animal subjects."]
@@ -22548,6 +23167,7 @@ pub struct ResearchStudy {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A physical entity which is the primary unit of operational and/or administrative interest in a study."]
@@ -22600,6 +23220,7 @@ pub struct ResearchSubject {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
@@ -22619,6 +23240,7 @@ impl Default for RiskAssessmentOccurrenceTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "probability"]
@@ -22638,6 +23260,7 @@ impl Default for RiskAssessmentPredictionProbabilityTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "when"]
@@ -22657,6 +23280,7 @@ impl Default for RiskAssessmentPredictionWhenTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Describes the expected outcome for the subject."]
@@ -22691,6 +23315,7 @@ pub struct RiskAssessmentPrediction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "An assessment of the likely outcome(s) for a patient or other subject as well as the likelihood of each outcome."]
@@ -22767,6 +23392,7 @@ pub struct RiskAssessment {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A description of the size of the sample involved in the synthesis."]
@@ -22794,6 +23420,7 @@ pub struct RiskEvidenceSynthesisSampleSize {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A description of the precision of the estimate for the effect."]
@@ -22824,6 +23451,7 @@ pub struct RiskEvidenceSynthesisRiskEstimatePrecisionEstimate {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The estimated risk of the outcome."]
@@ -22861,6 +23489,7 @@ pub struct RiskEvidenceSynthesisRiskEstimate {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A description of a component of the overall certainty."]
@@ -22886,6 +23515,7 @@ pub struct RiskEvidenceSynthesisCertaintyCertaintySubcomponent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A description of the certainty of the risk estimate."]
@@ -22910,6 +23540,7 @@ pub struct RiskEvidenceSynthesisCertainty {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The RiskEvidenceSynthesis resource describes the likelihood of an outcome in a population plus exposure state where the risk estimate is derived from a combination of research studies."]
@@ -23017,6 +23648,7 @@ pub struct RiskEvidenceSynthesis {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A container for slots of time that may be available for booking appointments."]
@@ -23068,6 +23700,7 @@ pub struct Schedule {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Used to define the parts of a composite search parameter."]
@@ -23092,6 +23725,7 @@ pub struct SearchParameterComponent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A search parameter that defines a named search item that can be used to search/filter on a resource."]
@@ -23197,6 +23831,7 @@ pub struct SearchParameter {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "quantity"]
@@ -23216,6 +23851,7 @@ impl Default for ServiceRequestQuantityTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
@@ -23236,6 +23872,7 @@ impl Default for ServiceRequestOccurrenceTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "asNeeded"]
@@ -23256,6 +23893,7 @@ impl Default for ServiceRequestAsNeededTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A record of a request for service such as diagnostic investigations, treatments, or operations to be performed."]
@@ -23376,6 +24014,7 @@ pub struct ServiceRequest {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A slot of time on a schedule that may be available for booking appointments."]
@@ -23434,6 +24073,7 @@ pub struct Slot {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "collected"]
@@ -23453,6 +24093,7 @@ impl Default for SpecimenCollectionCollectedTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "fastingStatus"]
@@ -23472,6 +24113,7 @@ impl Default for SpecimenCollectionFastingStatusTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Details concerning the specimen collection."]
@@ -23506,6 +24148,7 @@ pub struct SpecimenCollection {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "time"]
@@ -23526,6 +24169,7 @@ impl Default for SpecimenProcessingTimeTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Details concerning processing and processing steps for the specimen."]
@@ -23554,6 +24198,7 @@ pub struct SpecimenProcessing {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "additive"]
@@ -23574,6 +24219,7 @@ impl Default for SpecimenContainerAdditiveTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The container holding the specimen.  The recursive nature of containers; i.e. blood in tube in tray in rack is not addressed here."]
@@ -23608,6 +24254,7 @@ pub struct SpecimenContainer {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A sample to be used for analysis."]
@@ -23670,6 +24317,7 @@ pub struct Specimen {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "minimumVolume"]
@@ -23691,6 +24339,7 @@ impl Default for SpecimenDefinitionTypeTestedContainerMinimumVolumeTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "additive"]
@@ -23713,6 +24362,7 @@ impl Default for SpecimenDefinitionTypeTestedContainerAdditiveAdditiveTypeChoice
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Substance introduced in the kind of container to preserve, maintain or enhance the specimen. Examples: Formalin, Citrate, EDTA."]
@@ -23734,6 +24384,7 @@ pub struct SpecimenDefinitionTypeTestedContainerAdditive {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The specimen's container."]
@@ -23772,6 +24423,7 @@ pub struct SpecimenDefinitionTypeTestedContainer {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Set of instructions for preservation/transport of the specimen at a defined temperature interval, prior the testing process."]
@@ -23799,6 +24451,7 @@ pub struct SpecimenDefinitionTypeTestedHandling {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specimen conditioned in a container as expected by the testing laboratory."]
@@ -23837,6 +24490,7 @@ pub struct SpecimenDefinitionTypeTested {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A kind of specimen with associated set of requirements."]
@@ -23881,6 +24535,7 @@ pub struct SpecimenDefinition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An external specification that the content is mapped to."]
@@ -23911,6 +24566,7 @@ pub struct StructureDefinitionMapping {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies the types of resource or data type elements to which the extension can be applied."]
@@ -23936,6 +24592,7 @@ pub struct StructureDefinitionContext {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A snapshot view is expressed in a standalone form that can be used and interpreted without considering the base StructureDefinition."]
@@ -23957,6 +24614,7 @@ pub struct StructureDefinitionSnapshot {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A differential view is expressed relative to the base StructureDefinition - a statement of differences that it applies."]
@@ -23978,6 +24636,7 @@ pub struct StructureDefinitionDifferential {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A definition of a FHIR structure. This resource is used to describe the underlying resources, data types defined in FHIR, and also for describing extensions and constraints on resources and data types."]
@@ -24083,6 +24742,7 @@ pub struct StructureDefinition {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A structure definition used by this map. The structure definition may describe instances that are converted, or the instances that are produced."]
@@ -24113,6 +24773,7 @@ pub struct StructureMapStructure {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A name assigned to an instance of data. The instance must be provided when the mapping is invoked."]
@@ -24143,6 +24804,7 @@ pub struct StructureMapGroupInput {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "defaultValue"]
@@ -24231,6 +24893,7 @@ impl Default for StructureMapGroupRuleSourceDefaultValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Source inputs to the mapping."]
@@ -24282,6 +24945,7 @@ pub struct StructureMapGroupRuleSource {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -24309,6 +24973,7 @@ impl Default for StructureMapGroupRuleTargetParameterValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Parameters to the transform."]
@@ -24330,6 +24995,7 @@ pub struct StructureMapGroupRuleTargetParameter {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Content to create because of this mapping rule."]
@@ -24371,6 +25037,7 @@ pub struct StructureMapGroupRuleTarget {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Which other rules to apply in the context of this rule."]
@@ -24396,6 +25063,7 @@ pub struct StructureMapGroupRuleDependent {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Transform Rule from source to target."]
@@ -24429,6 +25097,7 @@ pub struct StructureMapGroupRule {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Organizes the mapping into manageable chunks for human review/ease of maintenance."]
@@ -24465,6 +25134,7 @@ pub struct StructureMapGroup {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A Map of relationships between 2 structures that can be used to transform data."]
@@ -24545,6 +25215,7 @@ pub struct StructureMap {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Details where to send notifications when resources are received that meet the criteria."]
@@ -24576,6 +25247,7 @@ pub struct SubscriptionChannel {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The subscription resource is used to define a push-based subscription from a server to another system. Once a subscription is registered with the server, the server checks every resource that is created or updated, and if the resource matches the given criteria, it sends a message on the defined \"channel\" so that another system can take an appropriate action."]
@@ -24625,6 +25297,7 @@ pub struct Subscription {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Substance may be used to describe a kind of substance, or a specific package/container of the substance: an instance."]
@@ -24650,6 +25323,7 @@ pub struct SubstanceInstance {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "substance"]
@@ -24670,6 +25344,7 @@ impl Default for SubstanceIngredientSubstanceTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A substance can be composed of other substances."]
@@ -24693,6 +25368,7 @@ pub struct SubstanceIngredient {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A homogeneous material with a definite composition."]
@@ -24740,6 +25416,7 @@ pub struct Substance {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The linkages between sugar residues will also be captured."]
@@ -24770,6 +25447,7 @@ pub struct SubstanceNucleicAcidSubunitLinkage {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "5.3.6.8.1 Sugar ID (Mandatory)."]
@@ -24797,6 +25475,7 @@ pub struct SubstanceNucleicAcidSubunitSugar {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Subunits are listed in order of decreasing length; sequences of the same length will be ordered by molecular weight; subunits that have identical sequences will be repeated multiple times."]
@@ -24834,6 +25513,7 @@ pub struct SubstanceNucleicAcidSubunit {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Nucleic acids are defined by three distinct elements: the base, sugar and linkage. Individual substance/moiety IDs will be created for each of these elements. The nucleotide sequence will be always entered in the 5’-3’ direction."]
@@ -24876,6 +25556,7 @@ pub struct SubstanceNucleicAcid {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Todo."]
@@ -24904,6 +25585,7 @@ pub struct SubstancePolymerMonomerSetStartingMaterial {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Todo."]
@@ -24926,6 +25608,7 @@ pub struct SubstancePolymerMonomerSet {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Todo."]
@@ -24948,6 +25631,7 @@ pub struct SubstancePolymerRepeatRepeatUnitDegreeOfPolymerisation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Todo."]
@@ -24974,6 +25658,7 @@ pub struct SubstancePolymerRepeatRepeatUnitStructuralRepresentation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Todo."]
@@ -25004,6 +25689,7 @@ pub struct SubstancePolymerRepeatRepeatUnit {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Todo."]
@@ -25032,6 +25718,7 @@ pub struct SubstancePolymerRepeat {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Todo."]
@@ -25075,6 +25762,7 @@ pub struct SubstancePolymer {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "This subclause refers to the description of each subunit constituting the SubstanceProtein. A subunit is a linear sequence of amino acids linked through peptide bonds. The Subunit information shall be provided when the finished SubstanceProtein is a complex of multiple sequences; subunits are not used to delineate domains within a single sequence. Subunits are listed in order of decreasing length; sequences of the same length will be ordered by decreasing molecular weight; subunits that have identical sequences will be repeated multiple times."]
@@ -25114,6 +25802,7 @@ pub struct SubstanceProteinSubunit {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A SubstanceProtein is defined as a single unit of a linear amino acid sequence, or a combination of subunits that are either covalently linked or have a defined invariant stoichiometric relationship. This includes all synthetic, recombinant and purified SubstanceProteins of defined sequence, whether the use is therapeutic or prophylactic. This set of elements will be used to describe albumins, coagulation factors, cytokines, growth factors, peptide/SubstanceProtein hormones, enzymes, toxins, toxoids, recombinant vaccines, and immunomodulators."]
@@ -25154,6 +25843,7 @@ pub struct SubstanceProtein {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Todo."]
@@ -25179,6 +25869,7 @@ pub struct SubstanceReferenceInformationGene {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Todo."]
@@ -25205,6 +25896,7 @@ pub struct SubstanceReferenceInformationGeneElement {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Todo."]
@@ -25231,6 +25923,7 @@ pub struct SubstanceReferenceInformationClassification {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "amount"]
@@ -25252,6 +25945,7 @@ impl Default for SubstanceReferenceInformationTargetAmountTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Todo."]
@@ -25289,6 +25983,7 @@ pub struct SubstanceReferenceInformationTarget {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Todo."]
@@ -25330,6 +26025,7 @@ pub struct SubstanceReferenceInformation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Many complex materials are fractions of parts of plants, animals, or minerals. Fraction elements are often necessary to define both Substances and Specified Group 1 Substances. For substances derived from Plants, fraction information will be captured at the Substance information level ( . Oils, Juices and Exudates). Additional information for Extracts, such as extraction solvent composition, will be captured at the Specified Substance Group 1 information level. For plasma-derived products fraction information will be captured at the Substance and the Specified Substance Group 1 levels."]
@@ -25353,6 +26049,7 @@ pub struct SubstanceSourceMaterialFractionDescription {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "4.9.13.6.1 Author type (Conditional)."]
@@ -25376,6 +26073,7 @@ pub struct SubstanceSourceMaterialOrganismAuthor {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "4.9.13.8.1 Hybrid species maternal organism ID (Optional)."]
@@ -25408,6 +26106,7 @@ pub struct SubstanceSourceMaterialOrganismHybrid {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "4.9.13.7.1 Kingdom (Conditional)."]
@@ -25434,6 +26133,7 @@ pub struct SubstanceSourceMaterialOrganismOrganismGeneral {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "This subclause describes the organism which the substance is derived from. For vaccines, the parent organism shall be specified based on these subclause elements. As an example, full taxonomy will be described for the Substance Name: ., Leaf."]
@@ -25469,6 +26169,7 @@ pub struct SubstanceSourceMaterialOrganism {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "To do."]
@@ -25491,6 +26192,7 @@ pub struct SubstanceSourceMaterialPartDescription {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Source material shall capture information on the taxonomic and anatomical origins as well as the fraction of a material that can result in or can be modified to form a substance. This set of data elements shall be used to define polymer substances isolated from biological matrices. Taxonomic and anatomical origins shall be described using a controlled vocabulary as required. This information is captured for naturally derived polymers ( . starch) and structurally diverse substances. For Organisms belonging to the Kingdom Plantae the Substance level defines the fresh material of a single species or infraspecies, the Herbal Drug and the Herbal preparation. For Herbal preparations, the fraction information will be captured at the Substance information level and additional information for herbal extracts will be captured at the Specified Substance Group 1 information level. See for further explanation the Substance Class: Structurally Diverse and the herbal annex."]
@@ -25549,6 +26251,7 @@ pub struct SubstanceSourceMaterial {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "amount"]
@@ -25569,6 +26272,7 @@ impl Default for SubstanceSpecificationMoietyAmountTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Moiety, for structural modifications."]
@@ -25604,6 +26308,7 @@ pub struct SubstanceSpecificationMoiety {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "definingSubstance"]
@@ -25625,6 +26330,7 @@ impl Default for SubstanceSpecificationPropertyDefiningSubstanceTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "amount"]
@@ -25645,6 +26351,7 @@ impl Default for SubstanceSpecificationPropertyAmountTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "General specifications for this substance, including how it is related to other substances."]
@@ -25676,6 +26383,7 @@ pub struct SubstanceSpecificationProperty {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The molecular weight or weight range (for proteins, polymers or nucleic acids)."]
@@ -25701,6 +26409,7 @@ pub struct SubstanceSpecificationStructureIsotopeMolecularWeight {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Applicable for single substances that contain a radionuclide or a non-natural isotopic ratio."]
@@ -25730,6 +26439,7 @@ pub struct SubstanceSpecificationStructureIsotope {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Molecular structural representation."]
@@ -25756,6 +26466,7 @@ pub struct SubstanceSpecificationStructureRepresentation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Structural information."]
@@ -25793,6 +26504,7 @@ pub struct SubstanceSpecificationStructure {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Codes associated with the substance."]
@@ -25824,6 +26536,7 @@ pub struct SubstanceSpecificationCode {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Details of the official nature of this name."]
@@ -25849,6 +26562,7 @@ pub struct SubstanceSpecificationNameOfficial {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Names applicable to this substance."]
@@ -25892,6 +26606,7 @@ pub struct SubstanceSpecificationName {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "substance"]
@@ -25913,6 +26628,7 @@ impl Default for SubstanceSpecificationRelationshipSubstanceTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "amount"]
@@ -25935,6 +26651,7 @@ impl Default for SubstanceSpecificationRelationshipAmountTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A link between this substance and another, with details of the relationship."]
@@ -25971,6 +26688,7 @@ pub struct SubstanceSpecificationRelationship {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "The detailed description of a substance, typically at a level beyond what is used for prescribing."]
@@ -26048,6 +26766,7 @@ pub struct SubstanceSpecification {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "item"]
@@ -26068,6 +26787,7 @@ impl Default for SupplyDeliverySuppliedItemItemTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The item that is being delivered or has been supplied."]
@@ -26090,6 +26810,7 @@ pub struct SupplyDeliverySuppliedItem {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
@@ -26111,6 +26832,7 @@ impl Default for SupplyDeliveryOccurrenceTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Record of delivery of what is supplied."]
@@ -26172,6 +26894,7 @@ pub struct SupplyDelivery {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "item"]
@@ -26191,6 +26914,7 @@ impl Default for SupplyRequestItemTypeChoice {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -26213,6 +26937,7 @@ impl Default for SupplyRequestParameterValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specific parameters for the ordered item.  For example, the size of the indicated item."]
@@ -26235,6 +26960,7 @@ pub struct SupplyRequestParameter {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
@@ -26256,6 +26982,7 @@ impl Default for SupplyRequestOccurrenceTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A record of a request for a medication, substance or device used in the healthcare setting."]
@@ -26327,6 +27054,7 @@ pub struct SupplyRequest {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "If the Task.focus is a request resource and the task is seeking fulfillment (i.e. is asking for the request to be actioned), this element identifies any limitations on what parts of the referenced request should be actioned."]
@@ -26352,6 +27080,7 @@ pub struct TaskRestriction {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -26438,6 +27167,7 @@ impl Default for TaskInputValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Additional information that may be needed in the execution of the task."]
@@ -26461,6 +27191,7 @@ pub struct TaskInput {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -26547,6 +27278,7 @@ impl Default for TaskOutputValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Outputs produced by the Task."]
@@ -26571,6 +27303,7 @@ pub struct TaskOutput {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A task to be performed."]
@@ -26684,6 +27417,7 @@ pub struct Task {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Software that is covered by this terminology capability statement.  It is used when the statement describes the capabilities of a particular software version, independent of an installation."]
@@ -26708,6 +27442,7 @@ pub struct TerminologyCapabilitiesSoftware {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies a specific implementation instance that is described by the terminology capability statement - i.e. a particular installation, rather than the capabilities of a software program."]
@@ -26732,6 +27467,7 @@ pub struct TerminologyCapabilitiesImplementation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Filter Properties supported."]
@@ -26757,6 +27493,7 @@ pub struct TerminologyCapabilitiesCodeSystemVersionFilter {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "For the code system, a list of versions that are supported by the server."]
@@ -26792,6 +27529,7 @@ pub struct TerminologyCapabilitiesCodeSystemVersion {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies a code system that is supported by the server. If there is a no code system URL, then this declares the general assumptions a client can make about support for any CodeSystem resource."]
@@ -26818,6 +27556,7 @@ pub struct TerminologyCapabilitiesCodeSystem {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Supported expansion parameter."]
@@ -26842,6 +27581,7 @@ pub struct TerminologyCapabilitiesExpansionParameter {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about the [ValueSet/$expand](valueset-operation-expand.html) operation."]
@@ -26874,6 +27614,7 @@ pub struct TerminologyCapabilitiesExpansion {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about the [ValueSet/$validate-code](valueset-operation-validate-code.html) operation."]
@@ -26895,6 +27636,7 @@ pub struct TerminologyCapabilitiesValidateCode {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about the [ConceptMap/$translate](conceptmap-operation-translate.html) operation."]
@@ -26916,6 +27658,7 @@ pub struct TerminologyCapabilitiesTranslation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Whether the $closure operation is supported."]
@@ -26937,6 +27680,7 @@ pub struct TerminologyCapabilitiesClosure {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A TerminologyCapabilities resource documents a set of capabilities (behaviors) of a FHIR Terminology Server that may be used as a statement of actual server functionality or a statement of required or desired server implementation."]
@@ -27029,6 +27773,7 @@ pub struct TerminologyCapabilities {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A participant in the test execution, either the execution engine, a client, or a server."]
@@ -27057,6 +27802,7 @@ pub struct TestReportParticipant {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The operation performed."]
@@ -27084,6 +27830,7 @@ pub struct TestReportSetupActionOperation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The results of the assertion performed on the previous operations."]
@@ -27111,6 +27858,7 @@ pub struct TestReportSetupActionAssert {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Action would contain either an operation or an assertion."]
@@ -27133,6 +27881,7 @@ pub struct TestReportSetupAction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The results of the series of required setup operations before the tests were executed."]
@@ -27154,6 +27903,7 @@ pub struct TestReportSetup {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Action would contain either an operation or an assertion."]
@@ -27176,6 +27926,7 @@ pub struct TestReportTestAction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A test executed from the test script."]
@@ -27203,6 +27954,7 @@ pub struct TestReportTest {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The teardown action will only contain an operation."]
@@ -27223,6 +27975,7 @@ pub struct TestReportTeardownAction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The results of the series of operations required to clean up after all the tests were executed (successfully or otherwise)."]
@@ -27244,6 +27997,7 @@ pub struct TestReportTeardown {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A summary of information based on the results of executing a TestScript."]
@@ -27306,6 +28060,7 @@ pub struct TestReport {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An abstract server used in operations within this test script in the origin element."]
@@ -27329,6 +28084,7 @@ pub struct TestScriptOrigin {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "An abstract server used in operations within this test script in the destination element."]
@@ -27352,6 +28108,7 @@ pub struct TestScriptDestination {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A link to the FHIR specification that this test is covering."]
@@ -27376,6 +28133,7 @@ pub struct TestScriptMetadataLink {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Capabilities that must exist and are assumed to function correctly on the FHIR server being tested."]
@@ -27415,6 +28173,7 @@ pub struct TestScriptMetadataCapability {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The required capability must exist and are assumed to function correctly on the FHIR server being tested."]
@@ -27438,6 +28197,7 @@ pub struct TestScriptMetadata {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Fixture in the test script - by reference (uri). All fixtures are required for the test script to execute."]
@@ -27465,6 +28225,7 @@ pub struct TestScriptFixture {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Variable is set based either on element value in response body or on header field value in the response headers."]
@@ -27507,6 +28268,7 @@ pub struct TestScriptVariable {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Header elements would be used to set HTTP headers."]
@@ -27531,6 +28293,7 @@ pub struct TestScriptSetupActionOperationRequestHeader {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The operation to perform."]
@@ -27599,6 +28362,7 @@ pub struct TestScriptSetupActionOperation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Evaluates the results of previous operations to determine if the server under test behaves appropriately."]
@@ -27683,6 +28447,7 @@ pub struct TestScriptSetupActionAssert {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Action would contain either an operation or an assertion."]
@@ -27705,6 +28470,7 @@ pub struct TestScriptSetupAction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A series of required setup operations before tests are executed."]
@@ -27726,6 +28492,7 @@ pub struct TestScriptSetup {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Action would contain either an operation or an assertion."]
@@ -27748,6 +28515,7 @@ pub struct TestScriptTestAction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A test in this script."]
@@ -27775,6 +28543,7 @@ pub struct TestScriptTest {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The teardown action will only contain an operation."]
@@ -27795,6 +28564,7 @@ pub struct TestScriptTeardownAction {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A series of operations required to clean up after all the tests are executed (successfully or otherwise)."]
@@ -27816,6 +28586,7 @@ pub struct TestScriptTeardown {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A structured set of tests against a FHIR server or client implementation to determine compliance against the FHIR specification."]
@@ -27907,6 +28678,7 @@ pub struct TestScript {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Additional representations for this concept when used in this value set - other languages, aliases, specialized purposes, used for particular purposes, etc."]
@@ -27934,6 +28706,7 @@ pub struct ValueSetComposeIncludeConceptDesignation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specifies a concept to be included or excluded."]
@@ -27960,6 +28733,7 @@ pub struct ValueSetComposeIncludeConcept {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Select concepts by specify a matching criterion based on the properties (including relationships) defined by the system, or on filters defined by the system. If multiple filters are specified, they SHALL all be true."]
@@ -27987,6 +28761,7 @@ pub struct ValueSetComposeIncludeFilter {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Include one or more codes from a code system or other value set(s)."]
@@ -28018,6 +28793,7 @@ pub struct ValueSetComposeInclude {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A set of criteria that define the contents of the value set by including or excluding codes selected from the specified code system(s) that the value set draws from. This is also known as the Content Logical Definition (CLD)."]
@@ -28046,6 +28822,7 @@ pub struct ValueSetCompose {
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
@@ -28077,6 +28854,7 @@ impl Default for ValueSetExpansionParameterValueTypeChoice {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A parameter that controlled the expansion process. These parameters may be used by users of expanded value sets to check whether the expansion is suitable for a particular purpose, or to pick the correct expansion."]
@@ -28101,6 +28879,7 @@ pub struct ValueSetExpansionParameter {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "The codes that are contained in the value set expansion."]
@@ -28142,6 +28921,7 @@ pub struct ValueSetExpansionContains {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "A value set can also be \"expanded\", where the value set is turned into a simple collection of enumerated codes. This element holds the expansion, if it has been performed."]
@@ -28177,6 +28957,7 @@ pub struct ValueSetExpansion {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "A ValueSet resource instance specifies a set of codes drawn from one or more code systems, intended for use in a particular context. Value sets link between [CodeSystem](codesystem.html) definitions and their use in [coded elements](terminologies.html)."]
@@ -28256,6 +29037,7 @@ pub struct ValueSet {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about the primary source(s) involved in validation."]
@@ -28291,6 +29073,7 @@ pub struct VerificationResultPrimarySource {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about the entity attesting to information."]
@@ -28330,6 +29113,7 @@ pub struct VerificationResultAttestation {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about the entity validating information."]
@@ -28356,6 +29140,7 @@ pub struct VerificationResultValidator {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "Describes validation requirements, source(s), status and dates for one or more elements."]
@@ -28420,6 +29205,7 @@ pub struct VerificationResult {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Allows for adjustment on two axis."]
@@ -28444,6 +29230,7 @@ pub struct VisionPrescriptionLensSpecificationPrism {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
 #[doc = "Contain the details of  the individual lens specifications and serves as the authorization for the fullfillment by certified professionals."]
@@ -28500,6 +29287,7 @@ pub struct VisionPrescriptionLensSpecification {
     Default,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "resource"]
 #[doc = "An authorization for the provision of glasses and/or contact lenses to a patient."]

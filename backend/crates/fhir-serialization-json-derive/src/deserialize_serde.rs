@@ -175,11 +175,11 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
 
 pub fn complex_deserialization(
     input: DeriveInput,
-    deserialize_complex_type: DeserializeComplexType,
+    _deserialize_complex_type: DeserializeComplexType,
 ) -> TokenStream {
     let name = input.ident;
     match input.data {
-        Data::Struct(data) => {
+        Data::Struct(_data) => {
             let visitor_name = format_ident!("{}Visitor", name);
             let deserialize_impl = quote! {
                 impl<'de> serde::Deserialize<'de> for #name {
