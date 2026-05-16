@@ -283,6 +283,25 @@ fn process_field(field: &Field) -> FieldInformation {
     }
 }
 
+// Handle optional vs non optional for typechoice setter.
+fn typechoice_value_setter(
+    field: &FieldInformation,
+    value_ident: &Ident,
+    field_name: &str,
+) -> proc_macro2::TokenStream {
+    let typechoice_type: Type = if field.is_optional {
+        get_optional_inner_type(&field.ty).unwrap()
+    } else {
+        field.ty.clone()
+    };
+
+    if field.is_optional {
+        quote! { #value_ident = Some(#typechoice_type::try_deserialize_from_key(#field_name, &mut map)?); }
+    } else {
+        quote! { #value_ident = #typechoice_type::try_deserialize_from_key(#field_name, &mut map)?; }
+    }
+}
+
 pub fn complex_deserialization(
     input: DeriveInput,
     deserialize_complex_type: DeserializeComplexType,
@@ -371,19 +390,19 @@ pub fn complex_deserialization(
                     TypeInformation::TypeChoice(type_choice_attributes) => {
                         let complex_variants = &type_choice_attributes.complex_variants;
                         let primitives = &type_choice_attributes.primitive_variants;
-                        let typechoice_type = if field.is_optional {
-                            get_optional_inner_type(&field.ty).unwrap()
-                        } else {
-                            field.ty.clone()
-                        };
 
                         for primitive_variant_fieldname in primitives {
+                            let value_setter = typechoice_value_setter(
+                                field,
+                                &value_ident,
+                                primitive_variant_fieldname,
+                            );
                             key_match_arms.push(quote! {
                                 #primitive_variant_fieldname => {
                                     if #value_ident.is_some() {
                                         return Err(serde::de::Error::duplicate_field(#ext_field_name));
                                     }
-                                    #value_ident = Some(#typechoice_type::try_deserialize_from_key(#primitive_variant_fieldname, &mut map)?);
+                                    #value_setter
                                 }
                             });
                             key_match_arms.push(quote! {
@@ -397,12 +416,18 @@ pub fn complex_deserialization(
                         }
 
                         for complex_variant_fieldname in complex_variants {
+                            let value_setter = typechoice_value_setter(
+                                field,
+                                &value_ident,
+                                complex_variant_fieldname,
+                            );
+
                             key_match_arms.push(quote! {
                                 #complex_variant_fieldname => {
                                     if #value_ident.is_some() {
                                         return Err(serde::de::Error::duplicate_field(#complex_variant_fieldname));
                                     }
-                                    #value_ident = Some(#typechoice_type::try_deserialize_from_key(#complex_variant_fieldname, &mut map)?);
+                                    #value_setter
                                 }
                             });
                         }
@@ -492,7 +517,7 @@ pub fn complex_deserialization(
                 }
             };
 
-            if name == "ActivityDefinition" {
+            if name == "AuditEventEntityDetail" {
                 println!("{}", deserialize_impl.to_string());
             }
 
