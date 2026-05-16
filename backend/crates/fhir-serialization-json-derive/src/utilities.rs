@@ -47,6 +47,42 @@ pub fn is_attribute_present(attrs: &[Attribute], attribute: &str) -> bool {
     attrs.iter().any(|attr| attr.path().is_ident(attribute))
 }
 
+pub fn get_optional_inner_type(type_: &Type) -> Option<Type> {
+    if let Type::Path(path) = type_ {
+        if let Some(inner_type) = path.path.segments.first() {
+            if inner_type.ident == "Option" {
+                if let syn::PathArguments::AngleBracketed(args) = &inner_type.arguments {
+                    if let Some(syn::GenericArgument::Type(ty)) = args.args.first() {
+                        return Some(ty.clone());
+                    }
+                }
+            }
+        }
+    }
+    None
+}
+
+// Should return if it's a vector even if Option<Vec<T>>
+pub fn is_vector(field: &Field) -> bool {
+    let field_type = get_field_type(field);
+    if field_type == "Vec" {
+        true
+    } else if field_type == "Option" {
+        // Check if it's an Option<Vec<T>>
+        let inner_type = get_optional_inner_type(&field.ty);
+
+        if let Some(Type::Path(path)) = inner_type {
+            if let Some(inner_type) = path.path.segments.first() {
+                return inner_type.ident == "Vec";
+            }
+        }
+
+        false
+    } else {
+        false
+    }
+}
+
 pub struct CardinalityAttribute {
     pub min: Option<usize>,
     pub max: Option<usize>,

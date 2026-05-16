@@ -1,12 +1,13 @@
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
-use syn::{Data, DeriveInput, Variant};
+use syn::{Data, DeriveInput, Field, Ident, Type, Variant};
 
 use crate::{
     DeserializeComplexType,
     utilities::{
-        get_attribute_value, get_field_name, get_field_type, get_type_choice_attribute,
-        is_attribute_present,
+        CardinalityAttribute, TypeChoiceAttribute, get_attribute_value, get_cardinality_attributes,
+        get_field_name, get_field_type, get_optional_inner_type, get_type_choice_attribute,
+        is_attribute_present, is_optional_field, is_vector,
     },
 };
 
@@ -180,6 +181,108 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
     }
 }
 
+// For primitives this is the value identifier.
+fn value_ident(field_ident: &Ident) -> Ident {
+    format_ident!("__{}_value", field_ident)
+}
+
+// For primitive extensions this is the extension identifier.
+fn extension_ident(field_ident: &Ident) -> Ident {
+    format_ident!("__{}_ext", field_ident)
+}
+
+fn typechoice_variant_found(field_ident: &Ident) -> Ident {
+    format_ident!("__{}_choice_variant_", field_ident)
+}
+
+fn create_complex_field_declaration(field: &FieldInformation) -> Vec<proc_macro2::TokenStream> {
+    let field_ty = field.ty.clone();
+    let value_ident = value_ident(&field.ident);
+
+    match field.type_info {
+        TypeInformation::Primitive => {
+            let ext_ident = extension_ident(&field.ident);
+            if field.is_vector {
+                vec![
+                    quote! { let mut #value_ident: Option<#field_ty> = None; },
+                    quote! { let mut #ext_ident: Option<Vec<Option<Element>>> = None; },
+                ]
+            } else {
+                vec![
+                    quote! { let mut #value_ident: Option<#field_ty> = None; },
+                    quote! { let mut #ext_ident: Option<Element> = None; },
+                ]
+            }
+        }
+        TypeInformation::TypeChoice(_) => {
+            let ext_ident = extension_ident(&field.ident);
+            let mut tc_declarations = if field.is_vector {
+                vec![
+                    quote! { let mut #value_ident: Option<#field_ty> = None; },
+                    quote! { let mut #ext_ident: Option<Vec<Element>> = None; },
+                ]
+            } else {
+                vec![
+                    quote! { let mut #value_ident: Option<#field_ty> = None; },
+                    quote! { let mut #ext_ident: Option<Element> = None; },
+                ]
+            };
+
+            // We need to track if we've found a type choice variant for this field
+            // To check that extension field aligns or field if primitive extension found first.
+            let typechoice_variant_found = typechoice_variant_found(&field.ident);
+            tc_declarations.push(quote! {
+               let mut #typechoice_variant_found: Option<&str> = None;
+            });
+
+            tc_declarations
+        }
+        TypeInformation::Complex => {
+            vec![quote! { let mut #value_ident: Option<#field_ty> = None; }]
+        }
+    }
+}
+
+enum TypeInformation {
+    Primitive,
+    TypeChoice(TypeChoiceAttribute),
+    Complex,
+}
+
+struct FieldInformation {
+    ident: Ident,
+    ty: Type,
+    field_name: String,
+    type_info: TypeInformation,
+    is_vector: bool,
+    is_optional: bool,
+    cardinality: Option<CardinalityAttribute>,
+}
+
+// Get the various metadata extracted from the field.
+fn process_field(field: &Field) -> FieldInformation {
+    let is_primitive = is_attribute_present(&field.attrs, "primitive");
+    let type_choice_attr = get_type_choice_attribute(&field.attrs);
+    let is_type_choice = type_choice_attr.is_some();
+
+    FieldInformation {
+        ident: field.ident.clone().unwrap(),
+        ty: field.ty.clone(),
+        field_name: get_field_name(field),
+        is_vector: is_vector(field),
+        is_optional: is_optional_field(field),
+        cardinality: get_cardinality_attributes(&field.attrs),
+
+        type_info: if is_primitive {
+            TypeInformation::Primitive
+        } else if is_type_choice {
+            TypeInformation::TypeChoice(type_choice_attr.unwrap())
+        } else {
+            TypeInformation::Complex
+        },
+    }
+}
+
 pub fn complex_deserialization(
     input: DeriveInput,
     deserialize_complex_type: DeserializeComplexType,
@@ -189,46 +292,33 @@ pub fn complex_deserialization(
         Data::Struct(data) => {
             let visitor_name = format_ident!("{}Visitor", name);
             let name_str = name.to_string();
+            let seen_resource_type_ident = format_ident!("__seen_resource_type");
 
             // Declare all fields for the given struct.
             // Make all fields optional at this stage to allow for partial construction during deserialization,
             // we'll validate required fields at the end.
 
-            let field_declarations = data.fields.iter().flat_map(|field| {
-                let field_ident = field.ident.as_ref().unwrap();
-                let field_ty = field.ty.clone();
-                let value_ident = format_ident!("__{}_value", field_ident);
+            let field_meta = data.fields.iter().map(process_field).collect::<Vec<_>>();
 
-                if is_attribute_present(&field.attrs, "primitive") {
-                    let ext_ident = format_ident!("__{}_ext", field_ident);
-                    let target_ty = get_optional_inner_type(&field_ty).unwrap_or(field_ty.clone());
-                    let is_vec = get_vec_inner_type(&target_ty).is_some();
-                    if is_vec {
-                        vec![
-                            quote! { let mut #value_ident: Option<#field_ty> = None; },
-                            quote! { let mut #ext_ident: Option<Vec<Option<Element>>> = None; },
-                        ]
-                    } else {
-                        vec![
-                            quote! { let mut #value_ident: Option<#field_ty> = None; },
-                            quote! { let mut #ext_ident: Option<Element> = None; },
-                        ]
-                    }
-                } else if is_attribute_present(&field.attrs, "type_choice_variants") {
-                    let pending_ident = format_ident!("__{}_pending_ext", field_ident);
-                    vec![
-                        quote! { let mut #value_ident: Option<#field_ty> = None; },
-                        quote! { let mut #pending_ident: Vec<(String, Element)> = Vec::new(); },
-                    ]
-                } else {
-                    vec![quote! { let mut #value_ident: Option<#field_ty> = None; }]
-                }
-            });
+            let field_declarations = field_meta
+                .iter()
+                .flat_map(|field| create_complex_field_declaration(field));
+
+            let seen_resource_decl = if deserialize_complex_type == DeserializeComplexType::Resource
+            {
+                quote! { let mut #seen_resource_type_ident = false; }
+            } else {
+                quote! {}
+            };
 
             let mut key_match_arms = Vec::new();
+
             if deserialize_complex_type == DeserializeComplexType::Resource {
                 key_match_arms.push(quote! {
                     "resourceType" => {
+                        if #seen_resource_type_ident {
+                            return Err(serde::de::Error::duplicate_field("resourceType"));
+                        }
                         let resource_type: String = map.next_value()?;
                         if resource_type != #name_str {
                             return Err(serde::de::Error::custom(format!(
@@ -237,265 +327,125 @@ pub fn complex_deserialization(
                                 resource_type
                             )));
                         }
-                        __seen_resource_type = true;
+                        #seen_resource_type_ident = true;
                     }
                 });
             }
 
-            for field in &data.fields {
-                let field_ident = field.ident.as_ref().unwrap();
-                let field_ty = field.ty.clone();
-                let field_name = get_field_name(field);
-                let ext_name = format!("_{}", field_name);
-                let value_ident = format_ident!("__{}_value", field_ident);
+            for field in field_meta.iter() {
+                let value_ident = value_ident(&field.ident);
+                let ext_ident = extension_ident(&field.ident);
+                let value_field_name = &field.field_name;
+                let ext_field_name = format!("_{}", field.field_name);
 
-                if is_attribute_present(&field.attrs, "primitive") {
-                    let ext_ident = format_ident!("__{}_ext", field_ident);
-                    let target_ty = get_optional_inner_type(&field_ty).unwrap_or(field_ty.clone());
-                    let is_vec = get_vec_inner_type(&target_ty).is_some();
-                    key_match_arms.push(quote! {
-                        #field_name => {
-                            if #value_ident.is_some() {
-                                return Err(serde::de::Error::duplicate_field(#field_name));
+                match &field.type_info {
+                    TypeInformation::Primitive => {
+                        key_match_arms.push(quote! {
+                            #value_field_name => {
+                                if #value_ident.is_some() {
+                                    return Err(serde::de::Error::duplicate_field(#value_field_name));
+                                }
+                                #value_ident = Some(map.next_value()?);
                             }
-                            #value_ident = Some(map.next_value()?);
+                        });
+                        if field.is_vector {
+                            key_match_arms.push(quote! {
+                                #ext_field_name => {
+                                    if #ext_ident.is_some() {
+                                        return Err(serde::de::Error::duplicate_field(#ext_field_name));
+                                    }
+                                    #ext_ident = Some(map.next_value::<Vec<Option<Element>>>()?);
+                                }
+                            });
+                        } else {
+                            key_match_arms.push(quote! {
+                                #ext_field_name => {
+                                    if #ext_ident.is_some() {
+                                        return Err(serde::de::Error::duplicate_field(#ext_field_name));
+                                    }
+                                    #ext_ident = Some(map.next_value::<Element>()?);
+                                }
+                            });
                         }
-                    });
-                    if is_vec {
-                        key_match_arms.push(quote! {
-                            #ext_name => {
-                                if #ext_ident.is_some() {
-                                    return Err(serde::de::Error::duplicate_field(#ext_name));
-                                }
-                                #ext_ident = Some(map.next_value::<Vec<Option<Element>>>()?);
-                            }
-                        });
-                    } else {
-                        key_match_arms.push(quote! {
-                            #ext_name => {
-                                if #ext_ident.is_some() {
-                                    return Err(serde::de::Error::duplicate_field(#ext_name));
-                                }
-                                #ext_ident = Some(map.next_value::<Element>()?);
-                            }
-                        });
                     }
-                    continue;
-                }
+                    TypeInformation::TypeChoice(type_choice_attributes) => {
+                        let complex_variants = &type_choice_attributes.complex_variants;
+                        let primitives = &type_choice_attributes.primitive_variants;
+                        let typechoice_type = if field.is_optional {
+                            get_optional_inner_type(&field.ty).unwrap()
+                        } else {
+                            field.ty.clone()
+                        };
 
-                if is_attribute_present(&field.attrs, "type_choice_variants") {
-                    let pending_ident = format_ident!("__{}_pending_ext", field_ident);
-                    let type_choice_attr = get_type_choice_attribute(&field.attrs)
-                        .expect("type_choice_variants is required on type choice fields");
-                    for key in type_choice_attr.all() {
-                        key_match_arms.push(quote! {
-                            #key => {
-                                if key.starts_with('_') {
-                                    let element = map.next_value::<Element>()?;
-                                    #pending_ident.push((key.clone(), element));
-                                } else {
+                        for primitive_variant_fieldname in primitives {
+                            key_match_arms.push(quote! {
+                                #primitive_variant_fieldname => {
                                     if #value_ident.is_some() {
-                                        return Err(serde::de::Error::custom(format!(
-                                            "Duplicate typechoice assignment for field '{}'",
-                                            #field_name
-                                        )));
+                                        return Err(serde::de::Error::duplicate_field(#ext_field_name));
                                     }
-                                    #value_ident = #field_ty::try_deserialize_from_key(key.as_str(), &mut map)?;
-                                    if #value_ident.is_none() {
-                                        return Err(serde::de::Error::custom(format!(
-                                            "Invalid typechoice variant '{}' for field '{}'",
-                                            key,
-                                            #field_name
-                                        )));
-                                    }
+                                    #value_ident = Some(#typechoice_type::try_deserialize_from_key(#primitive_variant_fieldname, &mut map)?);
                                 }
+                            });
+                            key_match_arms.push(quote! {
+                                #ext_field_name => {
+                                    if #ext_ident.is_some() {
+                                        return Err(serde::de::Error::duplicate_field(#ext_field_name));
+                                    }
+                                    #ext_ident = Some(map.next_value::<Element>()?);
+                                }
+                            });
+                        }
+
+                        for complex_variant_fieldname in complex_variants {
+                            key_match_arms.push(quote! {
+                                #complex_variant_fieldname => {
+                                    if #value_ident.is_some() {
+                                        return Err(serde::de::Error::duplicate_field(#complex_variant_fieldname));
+                                    }
+                                    #value_ident = Some(#typechoice_type::try_deserialize_from_key(#complex_variant_fieldname, &mut map)?);
+                                }
+                            });
+                        }
+                    }
+                    TypeInformation::Complex => {
+                        key_match_arms.push(quote! {
+                            #value_field_name => {
+                                if #value_ident.is_some() {
+                                    return Err(serde::de::Error::duplicate_field(#value_field_name));
+                                }
+                                #value_ident = Some(map.next_value()?);
                             }
                         });
                     }
-                    continue;
                 }
-
-                key_match_arms.push(quote! {
-                    #field_name => {
-                        if #value_ident.is_some() {
-                            return Err(serde::de::Error::duplicate_field(#field_name));
-                        }
-                        #value_ident = Some(map.next_value()?);
-                    }
-                });
             }
 
-            let primitive_finalize = data.fields.iter().filter_map(|field| {
-                if !is_attribute_present(&field.attrs, "primitive") {
-                    return None;
-                }
-                let field_ident = field.ident.as_ref().unwrap();
-                let field_ty = field.ty.clone();
-                let value_ident = format_ident!("__{}_value", field_ident);
-                let ext_ident = format_ident!("__{}_ext", field_ident);
+            // let bind_fields = data.fields.iter().map(|field| {
+            //     let field_ident = field.ident.as_ref().unwrap();
+            //     let field_name = get_field_name(field);
+            //     let value_ident = format_ident!("__{}_value", field_ident);
+            //     if is_optional_field(field) {
+            //         quote! { let #field_ident = #value_ident.and_then(|v| v); }
+            //     } else {
+            //         quote! {
+            //             let #field_ident = #value_ident
+            //                 .ok_or_else(|| serde::de::Error::missing_field(#field_name))?;
+            //         }
+            //     }
+            // });
 
-                let optional_inner = get_optional_inner_type(&field_ty);
-                let target_ty = optional_inner.clone().unwrap_or(field_ty.clone());
-                let vec_inner = get_vec_inner_type(&target_ty);
-                let is_optional = optional_inner.is_some();
+            // let field_names = data.fields.iter().map(|f| f.ident.as_ref().unwrap());
 
-                if let Some(vec_item_ty) = vec_inner {
-                    let merge_code = if is_optional {
-                        quote! {
-                            if let Some(elements) = #ext_ident.take() {
-                                match #value_ident.as_mut() {
-                                    Some(existing_opt) => {
-                                        if existing_opt.is_none() {
-                                            *existing_opt = Some(Vec::new());
-                                        }
-                                        let existing_vec = existing_opt.as_mut().expect("initialized above");
-                                        if existing_vec.len() < elements.len() {
-                                            existing_vec.resize_with(elements.len(), Default::default);
-                                        }
-                                        for (i, element_opt) in elements.into_iter().enumerate() {
-                                            if let Some(element) = element_opt {
-                                                existing_vec[i].merge_element(element);
-                                            }
-                                        }
-                                    }
-                                    None => {
-                                        let mut created: Vec<#vec_item_ty> = Vec::new();
-                                        created.resize_with(elements.len(), Default::default);
-                                        for (i, element_opt) in elements.into_iter().enumerate() {
-                                            if let Some(element) = element_opt {
-                                                created[i].merge_element(element);
-                                            }
-                                        }
-                                        #value_ident = Some(Some(created));
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        quote! {
-                            if let Some(elements) = #ext_ident.take() {
-                                match #value_ident.as_mut() {
-                                    Some(existing_vec) => {
-                                        if existing_vec.len() < elements.len() {
-                                            existing_vec.resize_with(elements.len(), Default::default);
-                                        }
-                                        for (i, element_opt) in elements.into_iter().enumerate() {
-                                            if let Some(element) = element_opt {
-                                                existing_vec[i].merge_element(element);
-                                            }
-                                        }
-                                    }
-                                    None => {
-                                        let mut created: Vec<#vec_item_ty> = Vec::new();
-                                        created.resize_with(elements.len(), Default::default);
-                                        for (i, element_opt) in elements.into_iter().enumerate() {
-                                            if let Some(element) = element_opt {
-                                                created[i].merge_element(element);
-                                            }
-                                        }
-                                        #value_ident = Some(created);
-                                    }
-                                }
-                            }
-                        }
-                    };
+            // #(#bind_fields)*
 
-                    Some(merge_code)
-                } else {
-                    let merge_code = if is_optional {
-                        let inner_ty = optional_inner.expect("checked above");
-                        quote! {
-                            if let Some(element) = #ext_ident.take() {
-                                match #value_ident.as_mut() {
-                                    Some(existing_opt) => {
-                                        if let Some(existing) = existing_opt.as_mut() {
-                                            existing.merge_element(element);
-                                        } else {
-                                            let mut created: #inner_ty = Default::default();
-                                            created.merge_element(element);
-                                            *existing_opt = Some(created);
-                                        }
-                                    }
-                                    None => {
-                                        let mut created: #inner_ty = Default::default();
-                                        created.merge_element(element);
-                                        #value_ident = Some(Some(created));
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        quote! {
-                            if let Some(element) = #ext_ident.take() {
-                                match #value_ident.as_mut() {
-                                    Some(existing) => {
-                                        existing.merge_element(element);
-                                    }
-                                    None => {
-                                        let mut created: #field_ty = Default::default();
-                                        created.merge_element(element);
-                                        #value_ident = Some(created);
-                                    }
-                                }
-                            }
-                        }
-                    };
-
-                    Some(merge_code)
-                }
-            });
-
-            let typechoice_finalize = data.fields.iter().filter_map(|field| {
-                if !is_attribute_present(&field.attrs, "type_choice_variants") {
-                    return None;
-                }
-                let field_ident = field.ident.as_ref().unwrap();
-                let field_name = get_field_name(field);
-                let value_ident = format_ident!("__{}_value", field_ident);
-                let pending_ident = format_ident!("__{}_pending_ext", field_ident);
-
-                Some(quote! {
-                    if #value_ident.is_none() && !#pending_ident.is_empty() {
-                        return Err(serde::de::Error::custom(format!(
-                            "Found typechoice primitive extension without value for field '{}'",
-                            #field_name
-                        )));
-                    }
-                    if let Some(choice) = #value_ident.as_mut() {
-                        for (k, element) in #pending_ident.drain(..) {
-                            choice.merge_element(k.as_str(), element);
-                        }
-                    }
-                })
-            });
-
-            let bind_fields = data.fields.iter().map(|field| {
-                let field_ident = field.ident.as_ref().unwrap();
-                let field_name = get_field_name(field);
-                let value_ident = format_ident!("__{}_value", field_ident);
-                if is_optional_field(field) {
-                    quote! { let #field_ident = #value_ident.and_then(|v| v); }
-                } else {
-                    quote! {
-                        let #field_ident = #value_ident
-                            .ok_or_else(|| serde::de::Error::missing_field(#field_name))?;
-                    }
-                }
-            });
-
-            let field_names = data.fields.iter().map(|f| f.ident.as_ref().unwrap());
-
-            let seen_resource_decl = if deserialize_complex_type == DeserializeComplexType::Resource
-            {
-                quote! { let mut __seen_resource_type = false; }
-            } else {
-                quote! {}
-            };
+            // Ok(#name {
+            //     #(#field_names),*
+            // })
 
             let required_resource_check =
                 if deserialize_complex_type == DeserializeComplexType::Resource {
                     quote! {
-                        if !__seen_resource_type {
+                        if !#seen_resource_type_ident {
                             return Err(serde::de::Error::missing_field("resourceType"));
                         }
                     }
@@ -530,15 +480,10 @@ pub fn complex_deserialization(
                                     }
                                 }
 
-                                #(#primitive_finalize)*
-                                #(#typechoice_finalize)*
+
                                 #required_resource_check
 
-                                #(#bind_fields)*
-
-                                Ok(#name {
-                                    #(#field_names),*
-                                })
+                                todo!("Not implemented.")
                             }
                         }
 
@@ -546,6 +491,10 @@ pub fn complex_deserialization(
                     }
                 }
             };
+
+            if name == "ActivityDefinition" {
+                println!("{}", deserialize_impl.to_string());
+            }
 
             deserialize_impl.into()
         }
