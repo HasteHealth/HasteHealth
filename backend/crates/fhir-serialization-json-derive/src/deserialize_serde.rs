@@ -256,6 +256,7 @@ struct FieldInformation {
     type_info: TypeInformation,
     is_vector: bool,
     is_optional: bool,
+    #[allow(dead_code)]
     cardinality: Option<CardinalityAttribute>,
 }
 
@@ -517,9 +518,9 @@ pub fn complex_deserialization(
                 }
             };
 
-            if name == "AuditEventEntityDetail" {
-                println!("{}", deserialize_impl.to_string());
-            }
+            // if name == "AuditEventEntityDetail" {
+            //     println!("{}", deserialize_impl.to_string());
+            // }
 
             deserialize_impl.into()
         }
