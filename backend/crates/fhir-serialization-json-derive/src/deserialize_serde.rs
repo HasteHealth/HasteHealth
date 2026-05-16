@@ -1,8 +1,11 @@
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
-use syn::{Data, DeriveInput, Field, Type};
+use syn::{Data, DeriveInput, Field, Type, Variant};
 
-use crate::{DeserializeComplexType, utilities::get_attribute_value};
+use crate::{
+    DeserializeComplexType,
+    utilities::{get_attribute_value, is_attribute_present},
+};
 
 fn get_field_type(field: &Field) -> proc_macro2::Ident {
     match &field.ty {
@@ -102,7 +105,10 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
     let name = input.ident;
     match input.data {
         Data::Enum(data) => {
-            let name_str = name.to_string();
+            let (primitive_variants, complex_variants): (Vec<Variant>, Vec<Variant>) = data
+                .variants
+                .into_iter()
+                .partition(|variant| is_attribute_present(&variant.attrs, "primitive"));
 
             let deserialize_impl = quote! {
                 impl #name {
