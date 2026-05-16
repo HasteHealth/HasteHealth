@@ -102,6 +102,8 @@ pub fn valueset_deserialization(input: DeriveInput) -> TokenStream {
 }
 
 pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
+    let type_choice_field_name = get_attribute_value(&input.attrs, "type_choice_field_name")
+        .expect("type_choice_field_name attribute is required for typechoice deserialization");
     let name = input.ident;
     match input.data {
         Data::Enum(data) => {
@@ -110,10 +112,58 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
                 .into_iter()
                 .partition(|variant| is_attribute_present(&variant.attrs, "primitive"));
 
+            let complex_variant_key_matches = complex_variants.iter().map(|variant| {
+                let variant_ident = variant.ident.clone();
+                let key = format!("{}{}", type_choice_field_name, variant_ident);
+                quote! {
+                    #key => {
+                        Ok(Some(Self::#variant_ident(map.next_value()?)))
+                    }
+                }
+            });
+
+            let primitive_variant_key_matches = primitive_variants.iter().map(|variant| {
+                let variant_ident = variant.ident.clone();
+                let key = format!("{}{}", type_choice_field_name, variant_ident);
+                quote! {
+                    #key => {
+                        Ok(Some(Self::#variant_ident(map.next_value()?)))
+                    }
+                }
+            });
+
+            let primitive_merge_matches = primitive_variants.iter().map(|variant| {
+                let variant_ident = variant.ident.clone();
+                let key = format!("_{}{}", type_choice_field_name, variant_ident);
+                quote! {
+                    (#key, Self::#variant_ident(v)) => {
+                        v.extension = element.extension;
+                        v.id = element.id;
+                    }
+                }
+            });
+
             let deserialize_impl = quote! {
                 impl #name {
-                    pub fn try_deserialize_from_key(){}
-                    pub fn merge(){}
+                    // Returns Some(Self) if key matches any variant, None to skip unknown keys.
+                    pub fn try_deserialize_from_key<'de, A: serde::de::MapAccess<'de>>(
+                        key: &str,
+                        map: &mut A,
+                    ) -> Result<Option<Self>, A::Error> {
+                        match key {
+                            #(#complex_variant_key_matches,)*
+                            #(#primitive_variant_key_matches,)*
+                            _ => Ok(None),
+                        }
+                    }
+
+                    // Merge a deferred element payload from _<choiceKey> into a primitive variant.
+                    pub fn merge_element(&mut self, key: &str, element: Element) {
+                        match (key, self) {
+                            #(#primitive_merge_matches,)*
+                            _ => {}
+                        }
+                    }
                 }
             };
 

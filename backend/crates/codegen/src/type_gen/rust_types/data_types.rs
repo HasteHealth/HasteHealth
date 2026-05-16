@@ -267,7 +267,13 @@ fn create_type_choice(
 
     // haste_fhir_serialization_json::derive::FHIRJSONDeserialize
     quote! {
-        #[derive(Clone, Reflect, Debug, haste_fhir_serialization_json::derive::FHIRJSONSerialize, haste_fhir_serialization_json::derive::FHIRJSONDeserialize)]
+        #[derive(
+            Clone,
+            Reflect,
+            Debug,
+            haste_fhir_serialization_json::derive::FHIRJSONSerialize,
+            haste_fhir_serialization_json::derive::FHIRJSONDeserialize,
+            haste_fhir_serialization_json::derive::FHIRSerdeDeserialize)]
         #[fhir_serialize_type = "typechoice"]
         #[type_choice_field_name = #field_name]
         pub enum #type_name {
