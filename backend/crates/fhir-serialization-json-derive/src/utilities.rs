@@ -47,19 +47,19 @@ pub fn is_attribute_present(attrs: &[Attribute], attribute: &str) -> bool {
     attrs.iter().any(|attr| attr.path().is_ident(attribute))
 }
 
-pub fn get_optional_inner_type(type_: &Type) -> Option<Type> {
+pub fn get_inner_type_if_optional(type_: &Type) -> Type {
     if let Type::Path(path) = type_ {
         if let Some(inner_type) = path.path.segments.first() {
             if inner_type.ident == "Option" {
                 if let syn::PathArguments::AngleBracketed(args) = &inner_type.arguments {
                     if let Some(syn::GenericArgument::Type(ty)) = args.args.first() {
-                        return Some(ty.clone());
+                        return ty.clone();
                     }
                 }
             }
         }
     }
-    None
+    type_.clone()
 }
 
 // Should return if it's a vector even if Option<Vec<T>>
@@ -69,9 +69,9 @@ pub fn is_vector(field: &Field) -> bool {
         true
     } else if field_type == "Option" {
         // Check if it's an Option<Vec<T>>
-        let inner_type = get_optional_inner_type(&field.ty);
+        let inner_type = get_inner_type_if_optional(&field.ty);
 
-        if let Some(Type::Path(path)) = inner_type {
+        if let Type::Path(path) = inner_type {
             if let Some(inner_type) = path.path.segments.first() {
                 return inner_type.ident == "Vec";
             }

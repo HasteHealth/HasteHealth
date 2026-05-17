@@ -6,7 +6,7 @@ use crate::{
     DeserializeComplexType,
     utilities::{
         CardinalityAttribute, TypeChoiceAttribute, get_attribute_value, get_cardinality_attributes,
-        get_field_name, get_field_type, get_optional_inner_type, get_type_choice_attribute,
+        get_field_name, get_field_type, get_inner_type_if_optional, get_type_choice_attribute,
         is_attribute_present, is_optional_field, is_vector,
     },
 };
@@ -323,7 +323,7 @@ fn typechoice_value_setter(
     field_name: &str,
 ) -> proc_macro2::TokenStream {
     let typechoice_type: Type = if field.is_optional {
-        get_optional_inner_type(&field.ty).unwrap()
+        get_inner_type_if_optional(&field.ty)
     } else {
         field.ty.clone()
     };
@@ -403,13 +403,15 @@ fn merge_primitive_extension_tokens(field: &FieldInformation) -> proc_macro2::To
             quote! { Some(value) }
         };
 
+        let inner_type = get_inner_type_if_optional(&field.ty);
+
         quote! {
             if let Some(element) = #ext_ident.take() {
                 if let #getter_setter = #value_ident.as_mut() {
                     value.extension = element.extension;
                     value.id = element.id;
                 } else {
-                    let mut value: _ = Default::default();
+                    let mut value: #inner_type = Default::default();
                     value.extension = element.extension;
                     value.id = element.id;
                     #value_ident = #getter_setter;
@@ -440,7 +442,7 @@ fn merge_typechoice_primitive_extension_tokens(
     let matching_constraint = get_matching_constraint_for_value(field, &choice_ident);
 
     let typechoice_type: Type = if field.is_optional {
-        get_optional_inner_type(&field.ty).unwrap()
+        get_inner_type_if_optional(&field.ty)
     } else {
         field.ty.clone()
     };
@@ -511,7 +513,7 @@ pub fn complex_deserialization(
                 .iter()
                 .flat_map(|field| create_complex_field_declaration(field));
 
-            let _primitive_merge_blocks = field_meta
+            let primitive_merge_blocks = field_meta
                 .iter()
                 .filter(|field| matches!(field.type_info, TypeInformation::Primitive))
                 .map(merge_primitive_extension_tokens)
@@ -736,6 +738,7 @@ pub fn complex_deserialization(
                                     }
                                 }
 
+                                #(#primitive_merge_blocks)*
                                 #(#typechoice_merge_blocks)*
 
 
@@ -750,7 +753,7 @@ pub fn complex_deserialization(
                 }
             };
 
-            if name == "ActivityDefinition" {
+            if name == "IdentityProviderOidcClient" {
                 println!("{}", deserialize_impl.to_string());
             }
 
