@@ -492,6 +492,58 @@ fn merge_typechoice_primitive_extension_tokens(
     }
 }
 
+fn cardinality_checks(field: &FieldInformation) -> Option<proc_macro2::TokenStream> {
+    if let Some(CardinalityAttribute { min, max }) = &field.cardinality {
+        let field_name = &field.field_name;
+        let field_ident = &field.ident;
+        let cardinality_field_ident = format_ident!("__{}_cardinality", field_ident);
+        let set_cardinality_tmp_field = if field.is_optional {
+            quote! {
+                let #cardinality_field_ident = #field_ident.as_ref().map_or(0, |v| v.len());
+            }
+        } else {
+            quote! {
+                let #cardinality_field_ident = #field_ident.len();
+            }
+        };
+
+        let min = min.unwrap_or(0);
+        let min_check = if min > 0 {
+            quote! {
+                if #cardinality_field_ident < #min {
+                    return Err(serde::de::Error::custom(format!(
+                        "Field '{}' must have at least {} items.",
+                        #field_name, #min
+                    )));
+                }
+            }
+        } else {
+            quote! {}
+        };
+
+        let max_check = if let Some(max) = max {
+            quote! {
+                if #cardinality_field_ident > #max {
+                    return Err(serde::de::Error::custom(format!(
+                        "Field '{}' must have at most {} items.",
+                        #field_name, #max
+                    )));
+                }
+            }
+        } else {
+            quote! {}
+        };
+
+        Some(quote! {
+            #set_cardinality_tmp_field
+            #min_check
+            #max_check
+        })
+    } else {
+        None
+    }
+}
+
 pub fn complex_deserialization(
     input: DeriveInput,
     deserialize_complex_type: DeserializeComplexType,
@@ -523,6 +575,11 @@ pub fn complex_deserialization(
                 .iter()
                 .filter(|field| matches!(field.type_info, TypeInformation::TypeChoice(_)))
                 .map(merge_typechoice_primitive_extension_tokens)
+                .collect::<Vec<_>>();
+
+            let cardinality_checks = field_meta
+                .iter()
+                .filter_map(|field| cardinality_checks(field))
                 .collect::<Vec<_>>();
 
             let seen_resource_decl = if deserialize_complex_type == DeserializeComplexType::Resource
@@ -743,6 +800,8 @@ pub fn complex_deserialization(
 
                                 #(#bind_fields)*
 
+                                #(#cardinality_checks)*
+
                                 Ok(#name {
                                     #(#field_names),*
                                 })
@@ -754,7 +813,7 @@ pub fn complex_deserialization(
                 }
             };
 
-            // if name == "IdentityProviderOidcClient" {
+            // if name == "ClientApplication" {
             //     println!("{}", deserialize_impl.to_string());
             // }
 

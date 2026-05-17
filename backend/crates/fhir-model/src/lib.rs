@@ -5,7 +5,7 @@ mod tests {
     use super::*;
     use crate::r4::{
         datetime::Date,
-        generated::resources::{Practitioner, Resource},
+        generated::resources::{ClientApplication, Practitioner, Resource},
     };
     use haste_fhir_serialization_json::{FHIRJSONDeserializer, errors::DeserializeError};
     use haste_reflect::MetaValue;
@@ -636,5 +636,51 @@ mod tests {
                 extension: None
             })
         ));
+    }
+
+    #[test]
+    fn test_cardinality() {
+        let client_application_string = r#"{
+	    "id": "cli",
+        "resourceType": "ClientApplication",
+        "name": "CLI",
+        "grantType": ["authorization_code"],
+        "responseTypes": "token",
+        "secret": "testing",
+        "redirectUri": [
+          "http://localhost:8080/1", 
+          "http://localhost:8080/2", 
+          "http://localhost:8080/3", 
+          "http://localhost:8080/4", 
+          "http://localhost:8080/5"],
+        "scope": "openid system/*.*"
+      }"#;
+
+        let client_app = serde_json::from_str::<ClientApplication>(&client_application_string);
+
+        println!("{:#?}", client_app);
+
+        assert!(client_app.is_ok());
+
+        let client_application_string = r#"{
+	    "id": "cli",
+        "resourceType": "ClientApplication",
+        "name": "CLI",
+        "grantType": ["authorization_code"],
+        "responseTypes": "token",
+        "secret": "testing",
+        "redirectUri": [
+          "http://localhost:8080/1", 
+          "http://localhost:8080/2", 
+          "http://localhost:8080/3", 
+          "http://localhost:8080/4", 
+          "http://localhost:8080/5", 
+          "http://localhost:8080/6"],
+        "scope": "openid system/*.*"
+      }"#;
+
+        let client_app = serde_json::from_str::<ClientApplication>(&client_application_string);
+
+        assert!(client_app.is_err());
     }
 }
