@@ -694,7 +694,6 @@ pub fn generate(
             serde::Deserialize,
         )]
         #[fhir_serialize_type = "enum-variant"]
-        #[determine_by = "resourceType"]
         #[serde(tag = "resourceType")]
         pub enum Resource {
             #(#resource_type_enum_variant_idents),*

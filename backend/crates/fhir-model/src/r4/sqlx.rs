@@ -12,8 +12,7 @@ pub struct FHIRJson<T: ?Sized>(pub T);
 
 impl<T> sqlx::Type<Postgres> for FHIRJson<T>
 where
-    T: haste_fhir_serialization_json::FHIRJSONSerializer
-        + haste_fhir_serialization_json::FHIRJSONDeserializer,
+    T: haste_fhir_serialization_json::FHIRJSONSerializer + serde::de::DeserializeOwned,
 {
     fn type_info() -> PgTypeInfo {
         PgTypeInfo::with_name("jsonb")
@@ -40,8 +39,7 @@ where
 pub struct FHIRJsonRef<'a, T: ?Sized>(pub &'a T);
 impl<'a, T> sqlx::Type<Postgres> for FHIRJsonRef<'a, T>
 where
-    T: haste_fhir_serialization_json::FHIRJSONSerializer
-        + haste_fhir_serialization_json::FHIRJSONDeserializer,
+    T: haste_fhir_serialization_json::FHIRJSONSerializer + serde::de::DeserializeOwned,
 {
     fn type_info() -> PgTypeInfo {
         PgTypeInfo::with_name("jsonb")
@@ -54,8 +52,7 @@ where
 
 impl<'q, T> Encode<'q, Postgres> for FHIRJsonRef<'q, T>
 where
-    T: haste_fhir_serialization_json::FHIRJSONSerializer
-        + haste_fhir_serialization_json::FHIRJSONDeserializer,
+    T: haste_fhir_serialization_json::FHIRJSONSerializer + serde::de::DeserializeOwned,
 {
     fn encode_by_ref(&self, buf: &mut PgArgumentBuffer) -> Result<IsNull, BoxDynError> {
         // we have a tiny amount of dynamic behavior depending if we are resolved to be JSON

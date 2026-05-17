@@ -11,7 +11,6 @@ use haste_fhir_model::r4::generated::{
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_serialization_json::FHIRJSONDeserializer;
 use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -139,7 +138,7 @@ pub enum ApiCommands {
     },
 }
 
-async fn derive_resource_data_arg_file_arg_or_stdin<Type: FHIRJSONDeserializer>(
+async fn derive_resource_data_arg_file_arg_or_stdin<Type: serde::de::DeserializeOwned>(
     data_arg: &Option<String>,
     file_path: &Option<String>,
 ) -> Result<Type, OperationOutcomeError> {

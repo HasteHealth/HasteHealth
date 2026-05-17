@@ -116,7 +116,7 @@ pub fn deserialize(input: TokenStream) -> TokenStream {
 
 #[proc_macro_derive(
     FHIRSerdeDeserialize,
-    attributes(fhir_serialize_type, rename_field, type_choice_variants)
+    attributes(fhir_serialize_type, rename_field, type_choice_variants, determine_by)
 )]
 pub fn serde_deserialize(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

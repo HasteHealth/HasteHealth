@@ -1,3 +1,4 @@
+use serde::de::DeserializeOwned;
 use std::io::BufWriter;
 use std::io::Write;
 pub use traits::*;
@@ -10,8 +11,11 @@ mod traits;
 #[cfg(feature = "derive")]
 pub mod derive;
 
-pub fn from_str<T: FHIRJSONDeserializer>(s: &str) -> Result<T, errors::DeserializeError> {
-    T::from_json_str(s)
+pub fn from_str<'de, T: serde::Deserialize<'de>>(
+    s: &'de str,
+) -> Result<T, errors::DeserializeError> {
+    let value = serde_json::from_str::<T>(s)?;
+    Ok(value)
 }
 
 pub fn from_bytes<'de, T: serde::Deserialize<'de>>(
@@ -21,10 +25,12 @@ pub fn from_bytes<'de, T: serde::Deserialize<'de>>(
     Ok(value)
 }
 
-pub fn from_serde_value<T: FHIRJSONDeserializer>(
-    mut value: serde_json::Value,
+pub fn from_serde_value<'de, T: DeserializeOwned>(
+    value: serde_json::Value,
 ) -> Result<T, errors::DeserializeError> {
-    T::from_serde_value(&mut value, Context::AsValue)
+    let v = serde_json::from_value(value)?;
+
+    Ok(v)
 }
 
 pub fn to_string<T: FHIRJSONSerializer>(value: &T) -> Result<String, SerializeError> {
