@@ -109,6 +109,86 @@ pub fn valueset_deserialization(input: DeriveInput) -> TokenStream {
     }
 }
 
+pub fn enum_variant_deserialization(input: DeriveInput) -> TokenStream {
+    let name = input.ident;
+    let determine_by = get_attribute_value(&input.attrs, "determine_by")
+        .expect("determine_by attribute is required for enum variant deserialization");
+
+    match input.data {
+        Data::Enum(data) => {
+            let visitor_name = format_ident!("{}Visitor", name);
+            let name_str = name.to_string();
+
+            let variant_matches = data.variants.iter().map(|variant| {
+                let variant_ident = variant.ident.to_owned();
+                let field_name = variant_ident.to_string();
+                let variant_ty = variant
+                    .fields
+                    .iter()
+                    .next()
+                    .expect("enum variant must have a single field")
+                    .ty
+                    .clone();
+
+                quote! {
+                    #field_name => {
+                        let resource = serde_json::from_value::<#variant_ty>(value)
+                            .map_err(serde::de::Error::custom)?;
+                        Ok(#name::#variant_ident(resource))
+                    }
+                }
+            });
+
+            let deserialize_impl = quote! {
+                impl<'de> serde::Deserialize<'de> for #name {
+                    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+                    where
+                        D: serde::Deserializer<'de>,
+                    {
+                        struct #visitor_name;
+
+                        impl<'de> serde::de::Visitor<'de> for #visitor_name {
+                            type Value = #name;
+
+                            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                                write!(f, "a JSON object for {}", #name_str)
+                            }
+
+                            fn visit_map<A>(self, map: A) -> Result<#name, A::Error>
+                            where
+                                A: serde::de::MapAccess<'de>,
+                            {
+                                let value = serde_json::Value::deserialize(
+                                    serde::de::value::MapAccessDeserializer::new(map),
+                                )?;
+
+                                let determine_by_value = value
+                                    .get(#determine_by)
+                                    .and_then(serde_json::Value::as_str)
+                                    .ok_or_else(|| serde::de::Error::missing_field(#determine_by))?;
+
+                                match determine_by_value {
+                                    #(#variant_matches,)*
+                                    field => Err(serde::de::Error::custom(format!(
+                                        "Invalid enum variant for {}: {}",
+                                        #determine_by,
+                                        field,
+                                    ))),
+                                }
+                            }
+                        }
+
+                        deserializer.deserialize_map(#visitor_name)
+                    }
+                }
+            };
+
+            deserialize_impl.into()
+        }
+        _ => panic!("Only enums can be deserialized for enum variant deserializer."),
+    }
+}
+
 pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
     let type_choice_field_name = get_attribute_value(&input.attrs, "type_choice_field_name")
         .expect("type_choice_field_name attribute is required for typechoice deserialization");
@@ -678,27 +758,22 @@ pub fn complex_deserialization(
                 }
             }
 
-            // let bind_fields = data.fields.iter().map(|field| {
-            //     let field_ident = field.ident.as_ref().unwrap();
-            //     let field_name = get_field_name(field);
-            //     let value_ident = format_ident!("__{}_value", field_ident);
-            //     if is_optional_field(field) {
-            //         quote! { let #field_ident = #value_ident.and_then(|v| v); }
-            //     } else {
-            //         quote! {
-            //             let #field_ident = #value_ident
-            //                 .ok_or_else(|| serde::de::Error::missing_field(#field_name))?;
-            //         }
-            //     }
-            // });
+            let bind_fields = field_meta.iter().map(|field| {
+                let field_name = field.field_name.as_str();
+                let field_ident = &field.ident;
+                let value_ident = value_ident(field_ident);
 
-            // let field_names = data.fields.iter().map(|f| f.ident.as_ref().unwrap());
+                if field.is_optional {
+                    quote! { let #field_ident = #value_ident.and_then(|v| v); }
+                } else {
+                    quote! {
+                        let #field_ident = #value_ident
+                            .ok_or_else(|| serde::de::Error::missing_field(#field_name))?;
+                    }
+                }
+            });
 
-            // #(#bind_fields)*
-
-            // Ok(#name {
-            //     #(#field_names),*
-            // })
+            let field_names = data.fields.iter().map(|f| f.ident.as_ref().unwrap());
 
             let required_resource_check =
                 if deserialize_complex_type == DeserializeComplexType::Resource {
@@ -744,7 +819,12 @@ pub fn complex_deserialization(
 
                                 #required_resource_check
 
-                                todo!("Not implemented.")
+
+                                #(#bind_fields)*
+
+                                Ok(#name {
+                                    #(#field_names),*
+                                })
                             }
                         }
 
@@ -753,9 +833,9 @@ pub fn complex_deserialization(
                 }
             };
 
-            if name == "IdentityProviderOidcClient" {
-                println!("{}", deserialize_impl.to_string());
-            }
+            // if name == "IdentityProviderOidcClient" {
+            //     println!("{}", deserialize_impl.to_string());
+            // }
 
             deserialize_impl.into()
         }
