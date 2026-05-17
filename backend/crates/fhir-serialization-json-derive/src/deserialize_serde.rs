@@ -383,8 +383,8 @@ fn merge_primitive_extension_tokens(field: &FieldInformation) -> proc_macro2::To
                             }
 
                             let value = &mut #vector_pattern[index];
-                            value.extension = element.extension;
-                            value.id = element.id;
+                            *value.extension_mut() = element.extension;
+                            *value.id_mut() = element.id;
                         }
                     }
                     _ => {
@@ -408,12 +408,12 @@ fn merge_primitive_extension_tokens(field: &FieldInformation) -> proc_macro2::To
         quote! {
             if let Some(element) = #ext_ident.take() {
                 if let #getter_setter = #value_ident.as_mut() {
-                    value.extension = element.extension;
-                    value.id = element.id;
+                    *value.extension_mut() = element.extension;
+                    *value.id_mut() = element.id;
                 } else {
                     let mut value: #inner_type = Default::default();
-                    value.extension = element.extension;
-                    value.id = element.id;
+                    *value.extension_mut() = element.extension;
+                    *value.id_mut() = element.id;
                     #value_ident = #getter_setter;
                 }
             }
@@ -700,8 +700,6 @@ pub fn complex_deserialization(
             //     #(#field_names),*
             // })
 
-            // #(#primitive_merge_blocks)*
-
             let required_resource_check =
                 if deserialize_complex_type == DeserializeComplexType::Resource {
                     quote! {
@@ -740,7 +738,7 @@ pub fn complex_deserialization(
                                     }
                                 }
 
-
+                                #(#primitive_merge_blocks)*
                                 #(#typechoice_merge_blocks)*
 
 
