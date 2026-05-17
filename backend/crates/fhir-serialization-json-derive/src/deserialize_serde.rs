@@ -700,6 +700,8 @@ pub fn complex_deserialization(
             //     #(#field_names),*
             // })
 
+            // #(#primitive_merge_blocks)*
+
             let required_resource_check =
                 if deserialize_complex_type == DeserializeComplexType::Resource {
                     quote! {
@@ -738,7 +740,7 @@ pub fn complex_deserialization(
                                     }
                                 }
 
-                                #(#primitive_merge_blocks)*
+
                                 #(#typechoice_merge_blocks)*
 
 
