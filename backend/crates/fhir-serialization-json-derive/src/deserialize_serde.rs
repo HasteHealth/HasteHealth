@@ -511,7 +511,7 @@ pub fn complex_deserialization(
                 .iter()
                 .flat_map(|field| create_complex_field_declaration(field));
 
-            let primitive_merge_blocks = field_meta
+            let _primitive_merge_blocks = field_meta
                 .iter()
                 .filter(|field| matches!(field.type_info, TypeInformation::Primitive))
                 .map(merge_primitive_extension_tokens)
