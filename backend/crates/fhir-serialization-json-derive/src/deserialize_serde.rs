@@ -422,7 +422,7 @@ fn merge_primitive_extension_tokens(field: &FieldInformation) -> proc_macro2::To
 fn merge_typechoice_primitive_extension_tokens(
     field: &FieldInformation,
 ) -> proc_macro2::TokenStream {
-    let TypeInformation::TypeChoice(type_choice_attr) = &field.type_info else {
+    let TypeInformation::TypeChoice(_type_choice_attr) = &field.type_info else {
         panic!(
             "merge_typechoice_primitive_extension_tokens should only be called for typechoice fields."
         );
