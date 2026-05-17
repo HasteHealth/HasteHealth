@@ -303,6 +303,44 @@ fn typechoice_value_setter(
     }
 }
 
+// For optional fields have two nestings Some(Some(v)) for requried fields Some(v).
+fn get_matching_constraint_for_value(
+    field: &FieldInformation,
+    value_ident: &Ident,
+) -> proc_macro2::TokenStream {
+    if field.is_optional {
+        quote! { Some(Some(ref mut #value_ident))}
+    } else {
+        quote! {Some(ref mut #value_ident) }
+    }
+}
+
+fn z() {
+    let mut k: Option<Option<Vec<String>>> = Some(Some(vec!["hello".to_string()]));
+
+    match k {
+        Some(Some(ref mut v)) => {
+            v.push("hello".to_string());
+        }
+        _ => {
+            println!("Outer Some, but inner None");
+        }
+    }
+}
+
+fn merge_primitive_extension(field: &FieldInformation) {
+    if !matches!(field.type_info, TypeInformation::Primitive) {
+        panic!("merge_primitive_extension should only be called for primitive fields.");
+    }
+
+    let value_ident = value_ident(&field.ident);
+    let ext_ident = extension_ident(&field.ident);
+
+    if field.is_vector {
+    } else {
+    }
+}
+
 pub fn complex_deserialization(
     input: DeriveInput,
     deserialize_complex_type: DeserializeComplexType,
