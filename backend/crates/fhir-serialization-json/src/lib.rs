@@ -14,9 +14,11 @@ pub fn from_str<T: FHIRJSONDeserializer>(s: &str) -> Result<T, errors::Deseriali
     T::from_json_str(s)
 }
 
-pub fn from_bytes<T: FHIRJSONDeserializer>(bytes: &[u8]) -> Result<T, errors::DeserializeError> {
-    let mut value = serde_json::from_slice(bytes)?;
-    T::from_serde_value(&mut value, Context::AsValue)
+pub fn from_bytes<'de, T: serde::Deserialize<'de>>(
+    bytes: &'de [u8],
+) -> Result<T, errors::DeserializeError> {
+    let value = serde_json::from_slice::<T>(bytes)?;
+    Ok(value)
 }
 
 pub fn from_serde_value<T: FHIRJSONDeserializer>(

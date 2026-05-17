@@ -695,16 +695,17 @@ pub fn complex_deserialization(
 
             let field_names = data.fields.iter().map(|f| f.ident.as_ref().unwrap());
 
-            let required_resource_check =
-                if deserialize_complex_type == DeserializeComplexType::Resource {
-                    quote! {
-                        if !#seen_resource_type_ident {
-                            return Err(serde::de::Error::missing_field("resourceType"));
-                        }
-                    }
-                } else {
-                    quote! {}
-                };
+            // Temp disabling because tag removes the field. Can add this back when I alter Resource enum to not remove the field.
+            // let required_resource_check =
+            //     if deserialize_complex_type == DeserializeComplexType::Resource {
+            //         quote! {
+            //             if !#seen_resource_type_ident {
+            //                 return Err(serde::de::Error::missing_field("resourceType"));
+            //             }
+            //         }
+            //     } else {
+            //         quote! {}
+            //     };
 
             let deserialize_impl = quote! {
                 impl<'de> serde::Deserialize<'de> for #name {
@@ -737,7 +738,7 @@ pub fn complex_deserialization(
                                 #(#typechoice_merge_blocks)*
 
 
-                                #required_resource_check
+
 
 
                                 #(#bind_fields)*

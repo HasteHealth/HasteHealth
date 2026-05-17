@@ -161,6 +161,14 @@ mod tests {
         }
         "#;
         let address: Address = Address::from_json_str(address_string).unwrap();
+
+        assert_eq!(
+            haste_fhir_serialization_json::to_string(&address).unwrap(),
+            serde_json::from_str::<Address>(address_string)
+                .map(|a| haste_fhir_serialization_json::to_string(&a).unwrap())
+                .unwrap()
+        );
+
         let address_use: Option<String> = address.use_.unwrap().as_ref().into();
         assert_eq!(address_use.unwrap(), "home".to_string());
         assert_eq!(
@@ -196,6 +204,10 @@ mod tests {
         "#;
         let address = Address::from_json_str(address_string);
         assert!(matches!(address, Err(DeserializeError::InvalidType(_))));
+        assert!(matches!(
+            serde_json::from_str::<Address>(address_string),
+            Err(_)
+        ));
 
         let address_string = r#"
         {
@@ -205,6 +217,11 @@ mod tests {
         "#;
         let address = Address::from_json_str(address_string);
         assert!(matches!(address, Err(DeserializeError::InvalidType(_))));
+
+        assert!(matches!(
+            serde_json::from_str::<Address>(address_string),
+            Err(_)
+        ));
     }
 
     #[test]
@@ -223,6 +240,11 @@ mod tests {
             address.unwrap_err().to_string(),
             "Unknown field encountered: Address: 'bad_field'"
         );
+
+        assert!(matches!(
+            serde_json::from_str::<Address>(address_string),
+            Err(_)
+        ));
     }
 
     #[test]
@@ -288,10 +310,10 @@ mod tests {
 }
         "#;
 
-        let bundle: r4::generated::resources::Bundle =
+        let bundle1: r4::generated::resources::Bundle =
             r4::generated::resources::Bundle::from_json_str(bundle_string).unwrap();
-        assert_eq!(bundle.entry.as_ref().unwrap().len(), 2);
-        let k = bundle.entry.as_ref().unwrap()[0]
+        assert_eq!(bundle1.entry.as_ref().unwrap().len(), 2);
+        let k = bundle1.entry.as_ref().unwrap()[0]
             .resource
             .as_ref()
             .unwrap()
@@ -299,17 +321,22 @@ mod tests {
 
         assert!(matches!(k, "MedicationRequest"));
 
-        let bundle =
+        let bundle2 =
             serde_json::from_str::<r4::generated::resources::Bundle>(bundle_string).unwrap();
 
         assert!(matches!(
-            bundle.entry.as_ref().unwrap()[0]
+            bundle2.entry.as_ref().unwrap()[0]
                 .resource
                 .as_ref()
                 .unwrap()
                 .typename(),
             "MedicationRequest"
         ));
+
+        assert_eq!(
+            haste_fhir_serialization_json::to_string(&bundle1).unwrap(),
+            haste_fhir_serialization_json::to_string(&bundle2).unwrap()
+        );
     }
 
     #[test]

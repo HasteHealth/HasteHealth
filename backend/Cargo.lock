@@ -2613,6 +2613,7 @@ name = "haste-fhir-serialization-json"
 version = "0.15.0"
 dependencies = [
  "haste-fhir-serialization-json-derive",
+ "serde",
  "serde_json",
  "thiserror 2.0.18",
 ]

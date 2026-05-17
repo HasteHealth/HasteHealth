@@ -26,8 +26,7 @@ where
 
 impl<'r, T: 'r> Decode<'r, Postgres> for FHIRJson<T>
 where
-    T: haste_fhir_serialization_json::FHIRJSONSerializer
-        + haste_fhir_serialization_json::FHIRJSONDeserializer,
+    T: haste_fhir_serialization_json::FHIRJSONSerializer + serde::Deserialize<'r>,
 {
     fn decode(value: PgValueRef<'r>) -> Result<Self, BoxDynError> {
         let buf = value.as_bytes()?;
