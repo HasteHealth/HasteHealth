@@ -176,7 +176,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
             });
 
             return Some(quote! {
-                #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize, FHIRSerdeDeserialize)]
+                #[derive(Debug, Clone, FHIRJSONSerialize, FHIRSerdeDeserialize)]
                 #[fhir_serialize_type = "valueset"]
                 pub enum #terminology_enum_name {
                     #(#enum_variants),*,
@@ -491,7 +491,7 @@ pub async fn generate(
             use self::super::types::Element;
             use std::any::Any;
             use haste_reflect::MetaValue;
-            use haste_fhir_serialization_json::derive::{FHIRJSONSerialize, FHIRJSONDeserialize, FHIRSerdeDeserialize};
+            use haste_fhir_serialization_json::derive::{FHIRJSONSerialize, FHIRSerdeDeserialize};
             use std::io::Write;
             #(#codes)*
         },
