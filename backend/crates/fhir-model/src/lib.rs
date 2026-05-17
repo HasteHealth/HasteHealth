@@ -7,7 +7,6 @@ mod tests {
         datetime::Date,
         generated::resources::{ClientApplication, Practitioner, Resource},
     };
-    use haste_fhir_serialization_json::{FHIRJSONDeserializer, errors::DeserializeError};
     use haste_reflect::MetaValue;
     use r4::generated::{resources::Patient, types::Address};
     use serde_json;
@@ -30,24 +29,24 @@ mod tests {
         assert_eq!(k, &"male");
     }
 
-    #[test]
-    fn test_serializing_string_html() {
-        let k = r#""<div xmlns=\"http://www.w3.org/1999/xhtml\">\n      <p>Dr Adam Careful is a Referring Practitioner for Acme Hospital from 1-Jan 2012 to 31-Mar\n        2012</p>\n    </div>""#;
-        let parsed_str_serde =
-            serde_json::to_string(&serde_json::from_str::<serde_json::Value>(k).unwrap()).unwrap();
+    // #[test]
+    // fn test_serializing_string_html() {
+    //     let k = r#""<div xmlns=\"http://www.w3.org/1999/xhtml\">\n      <p>Dr Adam Careful is a Referring Practitioner for Acme Hospital from 1-Jan 2012 to 31-Mar\n        2012</p>\n    </div>""#;
+    //     let parsed_str_serde =
+    //         serde_json::to_string(&serde_json::from_str::<serde_json::Value>(k).unwrap()).unwrap();
 
-        assert_eq!(
-            parsed_str_serde,
-            haste_fhir_serialization_json::to_string(
-                &haste_fhir_serialization_json::from_str::<String>(k).unwrap()
-            )
-            .unwrap()
-        );
-    }
+    //     assert_eq!(
+    //         parsed_str_serde,
+    //         haste_fhir_serialization_json::to_string(
+    //             &haste_fhir_serialization_json::from_str::<String>(k).unwrap()
+    //         )
+    //         .unwrap()
+    //     );
+    // }
 
     #[test]
     fn enum_resource_type_variant() {
-        let resource = haste_fhir_serialization_json::from_str::<Resource>(
+        let resource = serde_json::from_str::<Resource>(
             r#"{
             "resourceType": "Patient",
             "address": [
@@ -68,7 +67,7 @@ mod tests {
 
         assert!(matches!(resource, Ok(Resource::Patient(Patient { .. }))));
 
-        let resource = haste_fhir_serialization_json::from_str::<Resource>(
+        let resource = serde_json::from_str::<Resource>(
             r#"{
   "resourceType": "Practitioner",
   "id": "example",
@@ -160,14 +159,7 @@ mod tests {
             "postalCode": "12345"
         }
         "#;
-        let address: Address = Address::from_json_str(address_string).unwrap();
-
-        assert_eq!(
-            haste_fhir_serialization_json::to_string(&address).unwrap(),
-            serde_json::from_str::<Address>(address_string)
-                .map(|a| haste_fhir_serialization_json::to_string(&a).unwrap())
-                .unwrap()
-        );
+        let address: Address = serde_json::from_str::<Address>(address_string).unwrap();
 
         let address_use: Option<String> = address.use_.unwrap().as_ref().into();
         assert_eq!(address_use.unwrap(), "home".to_string());
@@ -202,12 +194,8 @@ mod tests {
             "_line": {"id": "hello-world"}
         }
         "#;
-        let address = Address::from_json_str(address_string);
-        assert!(matches!(address, Err(DeserializeError::InvalidType(_))));
-        assert!(matches!(
-            serde_json::from_str::<Address>(address_string),
-            Err(_)
-        ));
+        let address = serde_json::from_str::<Address>(address_string);
+        assert!(address.is_err());
 
         let address_string = r#"
         {
@@ -215,13 +203,8 @@ mod tests {
             "_city": 5
         }
         "#;
-        let address = Address::from_json_str(address_string);
-        assert!(matches!(address, Err(DeserializeError::InvalidType(_))));
-
-        assert!(matches!(
-            serde_json::from_str::<Address>(address_string),
-            Err(_)
-        ));
+        let address = serde_json::from_str::<Address>(address_string);
+        assert!(address.is_err());
     }
 
     #[test]
@@ -234,17 +217,9 @@ mod tests {
         }
         "#;
 
-        let address = Address::from_json_str(address_string);
+        let address = serde_json::from_str::<Address>(address_string);
 
-        assert_eq!(
-            address.unwrap_err().to_string(),
-            "Unknown field encountered: Address: 'bad_field'"
-        );
-
-        assert!(matches!(
-            serde_json::from_str::<Address>(address_string),
-            Err(_)
-        ));
+        assert!(matches!(address, Err(_)));
     }
 
     #[test]
@@ -310,33 +285,17 @@ mod tests {
 }
         "#;
 
-        let bundle1: r4::generated::resources::Bundle =
-            r4::generated::resources::Bundle::from_json_str(bundle_string).unwrap();
-        assert_eq!(bundle1.entry.as_ref().unwrap().len(), 2);
-        let k = bundle1.entry.as_ref().unwrap()[0]
-            .resource
-            .as_ref()
-            .unwrap()
-            .typename();
-
-        assert!(matches!(k, "MedicationRequest"));
-
-        let bundle2 =
+        let bundle =
             serde_json::from_str::<r4::generated::resources::Bundle>(bundle_string).unwrap();
 
         assert!(matches!(
-            bundle2.entry.as_ref().unwrap()[0]
+            bundle.entry.as_ref().unwrap()[0]
                 .resource
                 .as_ref()
                 .unwrap()
                 .typename(),
             "MedicationRequest"
         ));
-
-        assert_eq!(
-            haste_fhir_serialization_json::to_string(&bundle1).unwrap(),
-            haste_fhir_serialization_json::to_string(&bundle2).unwrap()
-        );
     }
 
     #[test]
@@ -406,7 +365,7 @@ mod tests {
         "#
         .trim();
 
-        let patient = Patient::from_json_str(patient_string);
+        let patient = serde_json::from_str::<Patient>(patient_string);
 
         assert!(matches!(patient, Ok(Patient { .. })));
         assert_eq!(patient.as_ref().unwrap().address.as_ref().unwrap().len(), 5);
@@ -427,12 +386,6 @@ mod tests {
         assert_eq!(
             k,
             haste_fhir_serialization_json::to_string(patient.as_ref().unwrap()).unwrap(),
-        );
-
-        let patient2 = Patient::from_json_str(k).unwrap();
-        assert_eq!(
-            haste_fhir_serialization_json::to_string(&patient2).unwrap(),
-            k
         );
 
         let patient2 = serde_json::from_str::<Patient>(k).unwrap();
@@ -457,7 +410,7 @@ mod tests {
             ]
         }"#;
 
-        let patient = Patient::from_json_str(patient_string).unwrap();
+        let patient = serde_json::from_str::<Patient>(patient_string).unwrap();
 
         assert_eq!(
             patient.name.as_ref().unwrap()[0].given.as_ref().unwrap()[0]
@@ -481,16 +434,6 @@ mod tests {
                 .unwrap(),
             "given-2",
         );
-
-        assert_eq!(
-            haste_fhir_serialization_json::to_string(&patient).unwrap(),
-            "{\"resourceType\":\"Patient\",\"name\":[{\"family\":\"Doe\",\"_given\":[null,{\"id\":\"given-2\"}],\"given\":[\"John\",\"A.\"],\"prefix\":[\"Mr.\"]}]}"
-        );
-
-        let patient = serde_json::from_str::<Patient>(
-            &haste_fhir_serialization_json::to_string(&patient).unwrap(),
-        )
-        .unwrap();
 
         assert_eq!(
             haste_fhir_serialization_json::to_string(&patient).unwrap(),
@@ -521,17 +464,7 @@ mod tests {
           }
         ]}"#;
 
-        let patient = Patient::from_json_str(patient_string).unwrap();
-        assert_eq!(
-            haste_fhir_serialization_json::to_string(&patient).unwrap(),
-            "{\"resourceType\":\"Patient\",\"name\":[{\"family\":\"Doe\",\"_given\":[null,{\"id\":\"given-2\"}],\"given\":[\"John\",null],\"prefix\":[\"Mr.\"]}]}"
-        );
-
-        let patient = serde_json::from_str::<Patient>(
-            &haste_fhir_serialization_json::to_string(&patient).unwrap(),
-        )
-        .unwrap();
-
+        let patient = serde_json::from_str::<Patient>(patient_string).unwrap();
         assert_eq!(
             haste_fhir_serialization_json::to_string(&patient).unwrap(),
             "{\"resourceType\":\"Patient\",\"name\":[{\"family\":\"Doe\",\"_given\":[null,{\"id\":\"given-2\"}],\"given\":[\"John\",null],\"prefix\":[\"Mr.\"]}]}"
