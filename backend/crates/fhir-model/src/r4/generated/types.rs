@@ -61,6 +61,14 @@ pub struct FHIRBase64Binary {
     #[doc = "The actual value"]
     pub value: Option<String>,
 }
+impl FHIRBase64Binary {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -79,6 +87,14 @@ pub struct FHIRBoolean {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
     pub value: Option<bool>,
+}
+impl FHIRBoolean {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
 }
 #[derive(
     Clone,
@@ -99,6 +115,14 @@ pub struct FHIRCanonical {
     #[doc = "Primitive value for canonical"]
     pub value: Option<String>,
 }
+impl FHIRCanonical {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -117,6 +141,14 @@ pub struct FHIRCode {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for code"]
     pub value: Option<String>,
+}
+impl FHIRCode {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
 }
 #[derive(
     Clone,
@@ -137,6 +169,14 @@ pub struct FHIRDate {
     #[doc = "The actual value"]
     pub value: Option<crate::r4::datetime::Date>,
 }
+impl FHIRDate {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -155,6 +195,14 @@ pub struct FHIRDateTime {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
     pub value: Option<crate::r4::datetime::DateTime>,
+}
+impl FHIRDateTime {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
 }
 #[derive(
     Clone,
@@ -175,6 +223,14 @@ pub struct FHIRDecimal {
     #[doc = "The actual value"]
     pub value: Option<f64>,
 }
+impl FHIRDecimal {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -193,6 +249,14 @@ pub struct FHIRId {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for id"]
     pub value: Option<String>,
+}
+impl FHIRId {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
 }
 #[derive(
     Clone,
@@ -213,6 +277,14 @@ pub struct FHIRInstant {
     #[doc = "The actual value"]
     pub value: Option<crate::r4::datetime::Instant>,
 }
+impl FHIRInstant {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -231,6 +303,14 @@ pub struct FHIRInteger {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
     pub value: Option<i64>,
+}
+impl FHIRInteger {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
 }
 #[derive(
     Clone,
@@ -251,6 +331,14 @@ pub struct FHIRMarkdown {
     #[doc = "Primitive value for markdown"]
     pub value: Option<String>,
 }
+impl FHIRMarkdown {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -269,6 +357,14 @@ pub struct FHIROid {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for oid"]
     pub value: Option<String>,
+}
+impl FHIROid {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
 }
 #[derive(
     Clone,
@@ -289,6 +385,14 @@ pub struct FHIRPositiveInt {
     #[doc = "Primitive value for positiveInt"]
     pub value: Option<u64>,
 }
+impl FHIRPositiveInt {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -307,6 +411,14 @@ pub struct FHIRString {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
     pub value: Option<String>,
+}
+impl FHIRString {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
 }
 #[derive(
     Clone,
@@ -327,6 +439,14 @@ pub struct FHIRTime {
     #[doc = "The actual value"]
     pub value: Option<crate::r4::datetime::Time>,
 }
+impl FHIRTime {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -345,6 +465,14 @@ pub struct FHIRUnsignedInt {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for unsignedInt"]
     pub value: Option<u64>,
+}
+impl FHIRUnsignedInt {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
 }
 #[derive(
     Clone,
@@ -365,6 +493,14 @@ pub struct FHIRUri {
     #[doc = "The actual value"]
     pub value: Option<String>,
 }
+impl FHIRUri {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -383,6 +519,14 @@ pub struct FHIRUrl {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for url"]
     pub value: Option<String>,
+}
+impl FHIRUrl {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
 }
 #[derive(
     Clone,
@@ -403,6 +547,14 @@ pub struct FHIRUuid {
     #[doc = "Primitive value for uuid"]
     pub value: Option<String>,
 }
+impl FHIRUuid {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -422,6 +574,14 @@ pub struct FHIRXhtml {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Actual xhtml"]
     pub value: String,
+}
+impl FHIRXhtml {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+        &mut self.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        &mut self.id
+    }
 }
 #[derive(
     Clone,

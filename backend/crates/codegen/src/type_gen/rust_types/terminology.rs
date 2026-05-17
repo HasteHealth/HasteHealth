@@ -159,6 +159,22 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 }
             });
 
+            let get_extension_mut_variant = codes.iter().map(|(_code, code)| {
+                let code_ident = format_ident!("{}", format_string(&code.code));
+
+                quote! {
+                    #terminology_enum_name::#code_ident(e) => &mut e.get_or_insert_with(Default::default).extension
+                }
+            });
+
+            let get_id_mut_variant = codes.iter().map(|(_code, code)| {
+                let code_ident = format_ident!("{}", format_string(&code.code));
+
+                quote! {
+                    #terminology_enum_name::#code_ident(e) => &mut e.get_or_insert_with(Default::default).id
+                }
+            });
+
             return Some(quote! {
                 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize, FHIRSerdeDeserialize)]
                 #[fhir_serialize_type = "valueset"]
@@ -166,6 +182,22 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     #(#enum_variants),*,
                     #[doc = "If value is missing and just the element is present."]
                     Null(Option<Element>),
+                }
+
+                impl #terminology_enum_name {
+                    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<super::types::Extension>>> {
+                        match self {
+                            #(#get_extension_mut_variant),*,
+                            #terminology_enum_name::Null(e) => &mut e.get_or_insert_with(Default::default).extension,
+                        }
+                    }
+
+                    pub fn id_mut(&mut self) -> &mut Option<String> {
+                        match self {
+                            #(#get_id_mut_variant),*,
+                            #terminology_enum_name::Null(e) => &mut e.get_or_insert_with(Default::default).id,
+                        }
+                    }
                 }
 
                 impl Default for #terminology_enum_name {

@@ -315,15 +315,27 @@ fn create_complex_struct(
     types: &mut NestedTypes,
     rust_type_name_to_fhir_type: &mut HashMap<String, String>,
 ) -> TokenStream {
-    let interface_name = generate::struct_name(sd, element);
+    let struct_name = generate::struct_name(sd, element);
     let fhir_type = extract::fhir_type(sd, element);
 
-    rust_type_name_to_fhir_type.insert(interface_name.clone(), fhir_type.clone());
+    rust_type_name_to_fhir_type.insert(struct_name.clone(), fhir_type.clone());
 
-    let i = format_ident!("{}", interface_name.clone());
+    let struct_ident = format_ident!("{}", struct_name.clone());
     let description = extract::element_description(element);
+    let mut struct_functions = quote! {};
 
     let derive = if conditionals::is_root(sd, element) && conditionals::is_primitive_sd(sd) {
+        struct_functions = quote! {
+            impl #struct_ident {
+                pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+                    &mut self.extension
+                }
+                pub fn id_mut(&mut self) -> &mut Option<String> {
+                    &mut self.id
+                }
+            }
+        };
+
         quote! {
            #[derive(Clone, Reflect, Debug, Default,
                 haste_fhir_serialization_json::derive::FHIRJSONSerialize,
@@ -361,14 +373,15 @@ fn create_complex_struct(
     let type_value = quote! {
         #derive
         #[doc = #description]
-        pub struct #i {
+        pub struct #struct_ident {
             #(#children),*
         }
+        #struct_functions
     };
 
-    let i = interface_name.clone();
+    let i = struct_name.clone();
     types.insert(i, type_value);
-    let i = format_ident!("{}", interface_name.clone());
+    let i = format_ident!("{}", struct_name.clone());
     get_struct_key_value(element, quote! {#i})
 }
 
