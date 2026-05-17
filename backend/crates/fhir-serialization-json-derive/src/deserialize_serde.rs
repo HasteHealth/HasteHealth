@@ -147,6 +147,27 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
                     (#key, Self::#variant_ident(v)) => {
                         v.extension = element.extension;
                         v.id = element.id;
+                        true
+                    }
+                }
+            });
+
+            let primitive_from_element_matches = primitive_variants.iter().map(|variant| {
+                let variant_ident = variant.ident.clone();
+                let variant_ty = variant
+                    .fields
+                    .iter()
+                    .next()
+                    .expect("typechoice variant must have a single field")
+                    .ty
+                    .clone();
+                let key = format!("_{}{}", type_choice_field_name, variant_ident);
+                quote! {
+                    #key => {
+                        let mut value: #variant_ty = Default::default();
+                        value.extension = element.extension;
+                        value.id = element.id;
+                        Some(Self::#variant_ident(value))
                     }
                 }
             });
@@ -166,10 +187,21 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
                     }
 
                     // Merge a deferred element payload from _<choiceKey> into a primitive variant.
-                    pub fn merge_element(&mut self, key: &str, element: Element) {
+                    pub fn merge_element(&mut self, key: &str, element: Element) -> bool {
                         match (key, self) {
                             #(#primitive_merge_matches,)*
-                            _ => {}
+                            _ => false,
+                        }
+                    }
+
+                    // Construct a primitive variant from only an element payload (_<choiceKey>).
+                    pub fn try_deserialize_primitive_element_from_key(
+                        key: &str,
+                        element: Element,
+                    ) -> Option<Self> {
+                        match key {
+                            #(#primitive_from_element_matches,)*
+                            _ => None,
                         }
                     }
                 }
@@ -309,35 +341,152 @@ fn get_matching_constraint_for_value(
     value_ident: &Ident,
 ) -> proc_macro2::TokenStream {
     if field.is_optional {
-        quote! { Some(Some(ref mut #value_ident))}
+        quote! { Some(Some(#value_ident))}
     } else {
-        quote! {Some(ref mut #value_ident) }
+        quote! {Some(#value_ident) }
     }
 }
 
-fn z() {
-    let mut k: Option<Option<Vec<String>>> = Some(Some(vec!["hello".to_string()]));
-
-    match k {
-        Some(Some(ref mut v)) => {
-            v.push("hello".to_string());
-        }
-        _ => {
-            println!("Outer Some, but inner None");
-        }
-    }
-}
-
-fn merge_primitive_extension(field: &FieldInformation) {
+fn merge_primitive_extension_tokens(field: &FieldInformation) -> proc_macro2::TokenStream {
     if !matches!(field.type_info, TypeInformation::Primitive) {
-        panic!("merge_primitive_extension should only be called for primitive fields.");
+        panic!("merge_primitive_extension_tokens should only be called for primitive fields.");
     }
 
     let value_ident = value_ident(&field.ident);
     let ext_ident = extension_ident(&field.ident);
+    let value_name = &field.field_name;
 
     if field.is_vector {
+        let vector_pattern = format_ident!("__{}_vector", field.ident);
+        let matching_constraint = get_matching_constraint_for_value(field, &vector_pattern);
+        let initialize_empty = if field.is_optional {
+            quote! { #value_ident = Some(Some(Vec::new())); }
+        } else {
+            quote! { #value_ident = Some(Vec::new()); }
+        };
+
+        quote! {
+            if let Some(elements) = #ext_ident.take() {
+                if #value_ident.is_none() {
+                    #initialize_empty
+                }
+
+                match &mut #value_ident {
+                    #matching_constraint => {
+                        for (index, maybe_element) in elements.into_iter().enumerate() {
+                            let Some(element) = maybe_element else {
+                                continue;
+                            };
+
+                            if #vector_pattern.len() <= index {
+                                #vector_pattern.resize_with(index + 1, Default::default);
+                            }
+
+                            let value = &mut #vector_pattern[index];
+                            value.extension = element.extension;
+                            value.id = element.id;
+                        }
+                    }
+                    _ => {
+                        return Err(serde::de::Error::custom(format!(
+                            "Primitive field '{}' has extension entries but no value container",
+                            #value_name,
+                        )));
+                    }
+                }
+            }
+        }
     } else {
+        let getter_setter = if field.is_optional {
+            quote! { Some(Some(value)) }
+        } else {
+            quote! { Some(value) }
+        };
+
+        quote! {
+            if let Some(element) = #ext_ident.take() {
+                if let #getter_setter = #value_ident.as_mut() {
+                    value.extension = element.extension;
+                    value.id = element.id;
+                } else {
+                    let mut value: _ = Default::default();
+                    value.extension = element.extension;
+                    value.id = element.id;
+                    #value_ident = #getter_setter;
+                }
+            }
+        }
+    }
+}
+
+fn merge_typechoice_primitive_extension_tokens(
+    field: &FieldInformation,
+) -> proc_macro2::TokenStream {
+    let TypeInformation::TypeChoice(type_choice_attr) = &field.type_info else {
+        panic!(
+            "merge_typechoice_primitive_extension_tokens should only be called for typechoice fields."
+        );
+    };
+
+    if field.is_vector {
+        panic!("typechoice vector primitive extension merge is not supported yet.");
+    }
+
+    let value_ident = value_ident(&field.ident);
+    let ext_ident = extension_ident(&field.ident);
+    let typechoice_variant_found_ident = typechoice_variant_found_ident(&field.ident);
+    let field_name = &field.field_name;
+    let choice_ident = format_ident!("__{}_choice", field.ident);
+    let matching_constraint = get_matching_constraint_for_value(field, &choice_ident);
+
+    let typechoice_type: Type = if field.is_optional {
+        get_optional_inner_type(&field.ty).unwrap()
+    } else {
+        field.ty.clone()
+    };
+
+    let assign_created = if field.is_optional {
+        quote! { #value_ident = Some(Some(created)); }
+    } else {
+        quote! { #value_ident = Some(created); }
+    };
+
+    quote! {
+        if let Some(element) = #ext_ident.take() {
+            let primitive_variant = #typechoice_variant_found_ident.ok_or_else(|| {
+                serde::de::Error::custom(format!(
+                    "Missing primitive type choice variant for extension field '{}'.",
+                    #field_name,
+                ))
+            })?;
+            let ext_key = format!("_{}", primitive_variant);
+
+            match &mut #value_ident {
+                #matching_constraint => {
+                    if !#choice_ident.merge_element(ext_key.as_str(), element) {
+                        return Err(serde::de::Error::custom(format!(
+                            "Extension key '{}' does not match parsed type choice variant for '{}'.",
+                            ext_key,
+                            #field_name,
+                        )));
+                    }
+                }
+                _ => {
+                    let created = #typechoice_type::try_deserialize_primitive_element_from_key(
+                        ext_key.as_str(),
+                        element,
+                    )
+                    .ok_or_else(|| {
+                        serde::de::Error::custom(format!(
+                            "Extension key '{}' is not valid for type choice '{}'.",
+                            ext_key,
+                            #field_name,
+                        ))
+                    })?;
+                    #assign_created
+                }
+            }
+        }
     }
 }
 
@@ -361,6 +510,18 @@ pub fn complex_deserialization(
             let field_declarations = field_meta
                 .iter()
                 .flat_map(|field| create_complex_field_declaration(field));
+
+            let primitive_merge_blocks = field_meta
+                .iter()
+                .filter(|field| matches!(field.type_info, TypeInformation::Primitive))
+                .map(merge_primitive_extension_tokens)
+                .collect::<Vec<_>>();
+
+            let typechoice_merge_blocks = field_meta
+                .iter()
+                .filter(|field| matches!(field.type_info, TypeInformation::TypeChoice(_)))
+                .map(merge_typechoice_primitive_extension_tokens)
+                .collect::<Vec<_>>();
 
             let seen_resource_decl = if deserialize_complex_type == DeserializeComplexType::Resource
             {
@@ -394,6 +555,7 @@ pub fn complex_deserialization(
                 let value_ident = value_ident(&field.ident);
                 let ext_ident = extension_ident(&field.ident);
                 let value_field_name = &field.field_name;
+                let field_name = &field.field_name;
                 let ext_field_name = format!("_{}", field.field_name);
 
                 match &field.type_info {
@@ -436,20 +598,50 @@ pub fn complex_deserialization(
                                 &value_ident,
                                 primitive_variant_fieldname,
                             );
+                            let typechoice_variant_found_ident =
+                                typechoice_variant_found_ident(&field.ident);
+                            let primitive_ext_field_name =
+                                format!("_{}", primitive_variant_fieldname);
+
                             key_match_arms.push(quote! {
                                 #primitive_variant_fieldname => {
                                     if #value_ident.is_some() {
                                         return Err(serde::de::Error::duplicate_field(#ext_field_name));
                                     }
+
+                                    if let Some(existing_variant) = #typechoice_variant_found_ident
+                                        && existing_variant != #primitive_variant_fieldname {
+                                        return Err(serde::de::Error::custom(format!(
+                                            "Multiple primitive type choice variants for '{}': '{}' and '{}'.",
+                                            #field_name,
+                                            existing_variant,
+                                            #primitive_variant_fieldname,
+                                        )));
+                                    }
+
                                     #value_setter
+                                    #typechoice_variant_found_ident = Some(#primitive_variant_fieldname);
                                 }
                             });
+
                             key_match_arms.push(quote! {
-                                #ext_field_name => {
+                                #primitive_ext_field_name => {
                                     if #ext_ident.is_some() {
-                                        return Err(serde::de::Error::duplicate_field(#ext_field_name));
+                                        return Err(serde::de::Error::duplicate_field(#primitive_ext_field_name));
                                     }
+
+                                    if let Some(existing_variant) = #typechoice_variant_found_ident
+                                        && existing_variant != #primitive_variant_fieldname {
+                                        return Err(serde::de::Error::custom(format!(
+                                            "Extension for primitive type choice variant '{}' conflicts with already parsed variant '{}' for '{}'.",
+                                            #primitive_variant_fieldname,
+                                            existing_variant,
+                                            #field_name,
+                                        )));
+                                    }
+
                                     #ext_ident = Some(map.next_value::<Element>()?);
+                                    #typechoice_variant_found_ident = Some(#primitive_variant_fieldname);
                                 }
                             });
                         }
@@ -544,6 +736,8 @@ pub fn complex_deserialization(
                                     }
                                 }
 
+                                #(#typechoice_merge_blocks)*
+
 
                                 #required_resource_check
 
@@ -556,9 +750,9 @@ pub fn complex_deserialization(
                 }
             };
 
-            // if name == "AuditEventEntityDetail" {
-            //     println!("{}", deserialize_impl.to_string());
-            // }
+            if name == "ActivityDefinition" {
+                println!("{}", deserialize_impl.to_string());
+            }
 
             deserialize_impl.into()
         }
