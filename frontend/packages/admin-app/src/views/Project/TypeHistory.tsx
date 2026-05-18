@@ -5,7 +5,7 @@ import { generatePath, useNavigate, useParams } from "react-router-dom";
 
 import { Button, Table, Toaster } from "@haste-health/components";
 import { BundleEntry, id } from "@haste-health/fhir-types/r4/types";
-import { R4, Resource, ResourceType } from "@haste-health/fhir-types/versions";
+import { R4, ResourceType } from "@haste-health/fhir-types/versions";
 
 import { getClient } from "../../db/client";
 import { getErrorMessage } from "../../utilities";
