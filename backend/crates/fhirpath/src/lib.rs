@@ -21,10 +21,12 @@ use haste_reflect_derive::Reflect;
 use std::pin::Pin;
 use std::{
     collections::HashMap,
-    marker::PhantomData,
     sync::{Arc, LazyLock},
 };
 use tokio::sync::Mutex;
+
+mod allocators;
+use allocators::AllocatorTrait;
 
 async fn evaluate_literal<'b>(
     literal: &Literal,
@@ -33,34 +35,34 @@ async fn evaluate_literal<'b>(
     match literal {
         Literal::String(string) => Ok(context.new_context_from(vec![
             context
-                .allocate(ResolvedValue::Box(Box::new(FHIRString {
+                .allocate_literal(FHIRString {
                     value: Some(string.clone()),
                     ..Default::default()
-                })))
+                })
                 .await,
         ])),
         Literal::Integer(int) => Ok(context.new_context_from(vec![
             context
-                .allocate(ResolvedValue::Box(Box::new(FHIRInteger {
+                .allocate_literal(FHIRInteger {
                     value: Some(int.clone()),
                     ..Default::default()
-                })))
+                })
                 .await,
         ])),
         Literal::Float(decimal) => Ok(context.new_context_from(vec![
             context
-                .allocate(ResolvedValue::Box(Box::new(FHIRDecimal {
+                .allocate_literal(FHIRDecimal {
                     value: Some(decimal.clone()),
                     ..Default::default()
-                })))
+                })
                 .await,
         ])),
         Literal::Boolean(bool) => Ok(context.new_context_from(vec![
             context
-                .allocate(ResolvedValue::Box(Box::new(FHIRBoolean {
+                .allocate_literal(FHIRBoolean {
                     value: Some(bool.clone()),
                     ..Default::default()
-                })))
+                })
                 .await,
         ])),
         Literal::Null => Ok(context.new_context_from(vec![])),
@@ -341,10 +343,10 @@ async fn evaluate_function<'a>(
             let count = context.values.len() as i64;
             Ok(context.new_context_from(vec![
                 context
-                    .allocate(ResolvedValue::Box(Box::new(FHIRInteger {
+                    .allocate_literal(FHIRInteger {
                         value: Some(count),
                         ..Default::default()
-                    })))
+                    })
                     .await,
             ]))
         }
@@ -370,10 +372,10 @@ async fn evaluate_function<'a>(
             };
             Ok(context.new_context_from(vec![
                 context
-                    .allocate(ResolvedValue::Box(Box::new(FHIRString {
+                    .allocate_literal(FHIRString {
                         value: Some(transformed),
                         ..Default::default()
-                    })))
+                    })
                     .await,
             ]))
         }
@@ -387,7 +389,10 @@ async fn evaluate_function<'a>(
             validate_arguments(&function.arguments, &Cardinality::Zero)?;
             let res = Ok(context.new_context_from(vec![
                 context
-                    .allocate(ResolvedValue::Box(Box::new(context.values.is_empty())))
+                    .allocate_literal(FHIRBoolean {
+                        value: Some(context.values.is_empty()),
+                        ..Default::default()
+                    })
                     .await,
             ]));
 
@@ -412,7 +417,10 @@ async fn evaluate_function<'a>(
 
             let res = Ok(context.new_context_from(vec![
                 context
-                    .allocate(ResolvedValue::Box(Box::new(!context.values.is_empty())))
+                    .allocate_literal(FHIRBoolean {
+                        value: Some(!context.values.is_empty()),
+                        ..Default::default()
+                    })
                     .await,
             ]));
 
@@ -482,9 +490,9 @@ async fn evaluate_function<'a>(
                 let type_name = v.typename();
                 next_ctx.push(
                     context
-                        .allocate(ResolvedValue::Box(Box::new(Reflection {
+                        .allocate_literal(Reflection {
                             name: type_name.to_string(),
-                        })))
+                        })
                         .await,
                 );
             }
@@ -545,8 +553,11 @@ async fn evaluate_operation<'a>(
                         let left_value = downcast_number(left.values[0])?;
                         let right_value = downcast_number(right.values[0])?;
                         Ok(left.new_context_from(vec![
-                            left.allocate(ResolvedValue::Box(Box::new(left_value + right_value)))
-                                .await,
+                            left.allocate_literal(FHIRDecimal {
+                                value: Some(left_value + right_value),
+                                ..Default::default()
+                            })
+                            .await,
                         ]))
                     } else if STRING_TYPES.contains(left.values[0].typename())
                         && STRING_TYPES.contains(right.values[0].typename())
@@ -555,9 +566,10 @@ async fn evaluate_operation<'a>(
                         let right_string = downcast_string(right.values[0])?;
 
                         Ok(left.new_context_from(vec![
-                            left.allocate(ResolvedValue::Box(Box::new(
-                                left_string + &right_string,
-                            )))
+                            left.allocate_literal(FHIRString {
+                                value: Some(left_string + &right_string),
+                                ..Default::default()
+                            })
                             .await,
                         ]))
                     } else {
@@ -577,8 +589,11 @@ async fn evaluate_operation<'a>(
                     let right_value = downcast_number(right.values[0])?;
 
                     Ok(left.new_context_from(vec![
-                        left.allocate(ResolvedValue::Box(Box::new(left_value - right_value)))
-                            .await,
+                        left.allocate_literal(FHIRDecimal {
+                            value: Some(left_value - right_value),
+                            ..Default::default()
+                        })
+                        .await,
                     ]))
                 })
             })
@@ -591,8 +606,11 @@ async fn evaluate_operation<'a>(
                     let right_value = downcast_number(right.values[0])?;
 
                     Ok(left.new_context_from(vec![
-                        left.allocate(ResolvedValue::Box(Box::new(left_value * right_value)))
-                            .await,
+                        left.allocate_literal(FHIRDecimal {
+                            value: Some(left_value * right_value),
+                            ..Default::default()
+                        })
+                        .await,
                     ]))
                 })
             })
@@ -605,8 +623,11 @@ async fn evaluate_operation<'a>(
                     let right_value = downcast_number(right.values[0])?;
 
                     Ok(left.new_context_from(vec![
-                        left.allocate(ResolvedValue::Box(Box::new(left_value / right_value)))
-                            .await,
+                        left.allocate_literal(FHIRDecimal {
+                            value: Some(left_value / right_value),
+                            ..Default::default()
+                        })
+                        .await,
                     ]))
                 })
             })
@@ -619,9 +640,7 @@ async fn evaluate_operation<'a>(
                         value: Some(equal_check(&left, &right)?),
                         ..Default::default()
                     };
-                    Ok(left.new_context_from(vec![
-                        left.allocate(ResolvedValue::Box(Box::new(are_equal))).await,
-                    ]))
+                    Ok(left.new_context_from(vec![left.allocate_literal(are_equal).await]))
                 })
             })
             .await
@@ -633,9 +652,7 @@ async fn evaluate_operation<'a>(
                         value: Some(!equal_check(&left, &right)?),
                         ..Default::default()
                     };
-                    Ok(left.new_context_from(vec![
-                        left.allocate(ResolvedValue::Box(Box::new(not_equal))).await,
-                    ]))
+                    Ok(left.new_context_from(vec![left.allocate_literal(not_equal).await]))
                 })
             })
             .await
@@ -647,10 +664,10 @@ async fn evaluate_operation<'a>(
                     let right_value = downcast_bool(right.values[0])?;
 
                     Ok(left.new_context_from(vec![
-                        left.allocate(ResolvedValue::Box(Box::new(FHIRBoolean {
+                        left.allocate_literal(FHIRBoolean {
                             value: Some(left_value && right_value),
                             ..Default::default()
-                        })))
+                        })
                         .await,
                     ]))
                 })
@@ -664,10 +681,10 @@ async fn evaluate_operation<'a>(
                     let right_value = downcast_bool(right.values[0])?;
 
                     Ok(left.new_context_from(vec![
-                        left.allocate(ResolvedValue::Box(Box::new(FHIRBoolean {
+                        left.allocate_literal(FHIRBoolean {
                             value: Some(left_value || right_value),
                             ..Default::default()
-                        })))
+                        })
                         .await,
                     ]))
                 })
@@ -694,9 +711,10 @@ async fn evaluate_operation<'a>(
                 if let Some(type_name) = type_name.0.get(0).as_ref().map(|k| &k.0) {
                     let next_context = filter_by_type(&type_name, &left);
                     Ok(left.new_context_from(vec![
-                        left.allocate(ResolvedValue::Box(Box::new(
-                            !next_context.values.is_empty(),
-                        )))
+                        left.allocate_literal(FHIRBoolean {
+                            value: Some(!next_context.values.is_empty()),
+                            ..Default::default()
+                        })
                         .await,
                     ]))
                 } else {
@@ -748,10 +766,10 @@ async fn evaluate_operation<'a>(
                     let right_value = downcast_bool(right.values[0])?;
 
                     Ok(left.new_context_from(vec![
-                        left.allocate(ResolvedValue::Box(Box::new(FHIRBoolean {
+                        left.allocate_literal(FHIRBoolean {
                             value: Some(left_value ^ right_value),
                             ..Default::default()
-                        })))
+                        })
                         .await,
                     ]))
                 })
@@ -787,35 +805,17 @@ pub enum ResolvedValue {
     Arc(Arc<dyn MetaValue>),
 }
 
-/// Need a means to store objects that are created during evaluation.
-struct Allocator<'a> {
-    pub context: Vec<ResolvedValue>,
-    _marker: PhantomData<&'a dyn MetaValue>,
-}
-
-impl<'a> Allocator<'a> {
-    pub fn new() -> Self {
-        Allocator {
-            context: Vec::new(),
-            _marker: PhantomData,
-        }
-    }
-
-    pub fn allocate(&mut self, value: ResolvedValue) -> &'a dyn MetaValue {
-        self.context.push(value);
-
-        // Should be safe to unwrap as value guaranteed to be non-empty from above call.
-        let ptr = match &self.context.last().unwrap() {
-            ResolvedValue::Box(b) => &**b as *const _,
+impl ResolvedValue {
+    pub fn as_ref(&self) -> &dyn MetaValue {
+        match self {
+            ResolvedValue::Box(b) => &**b,
             ResolvedValue::Arc(a) => &**a,
-        };
-
-        unsafe { &*ptr }
+        }
     }
 }
 
 pub struct Context<'a> {
-    allocator: Arc<Mutex<Allocator<'a>>>,
+    allocator: Arc<Mutex<allocators::bumpalo::Allocator>>,
     values: Vec<&'a dyn MetaValue>,
 }
 
@@ -861,7 +861,10 @@ async fn resolve_external_constant<'a>(
 }
 
 impl<'a> Context<'a> {
-    fn new(values: Vec<&'a dyn MetaValue>, allocator: Arc<Mutex<Allocator<'a>>>) -> Self {
+    fn new(
+        values: Vec<&'a dyn MetaValue>,
+        allocator: Arc<Mutex<allocators::bumpalo::Allocator>>,
+    ) -> Self {
         Self {
             allocator,
             values: values,
@@ -874,7 +877,11 @@ impl<'a> Context<'a> {
         }
     }
     async fn allocate(&self, value: ResolvedValue) -> &'a dyn MetaValue {
-        self.allocator.lock().await.allocate(value)
+        self.allocator.lock().await.allocate_resolved(value)
+    }
+
+    async fn allocate_literal<T: MetaValue>(&self, value: T) -> &'a dyn MetaValue {
+        self.allocator.lock().await.allocate_literal(value)
     }
     pub fn iter(&'a self) -> Box<dyn Iterator<Item = &'a dyn MetaValue> + 'a> {
         Box::new(self.values.iter().map(|v| *v))
@@ -931,7 +938,8 @@ impl FPEngine {
         let ast = get_ast(path)?;
 
         // Store created.
-        let allocator: Arc<Mutex<Allocator<'b>>> = Arc::new(Mutex::new(Allocator::new()));
+        let allocator: Arc<Mutex<allocators::bumpalo::Allocator>> =
+            Arc::new(Mutex::new(allocators::bumpalo::Allocator::new()));
 
         let context = Context::new(values, allocator.clone());
 
@@ -956,7 +964,7 @@ impl FPEngine {
         let ast = get_ast(path)?;
 
         // Store created.
-        let allocator: Arc<Mutex<Allocator<'b>>> = Arc::new(Mutex::new(Allocator::new()));
+        let allocator = Arc::new(Mutex::new(allocators::bumpalo::Allocator::new()));
 
         let context = Context::new(values, allocator.clone());
 

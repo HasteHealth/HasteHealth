@@ -2643,6 +2643,7 @@ dependencies = [
 name = "haste-fhirpath"
 version = "0.16.0"
 dependencies = [
+ "bumpalo",
  "criterion",
  "dashmap",
  "haste-fhir-model",
