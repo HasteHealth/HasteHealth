@@ -1439,8 +1439,8 @@ mod tests {
 
         let simple_result = engine.evaluate("'Hello' + ' World'", vec![]).await.unwrap();
         for r in simple_result.iter() {
-            let s: String = r.as_any().downcast_ref::<String>().unwrap().clone();
-            assert_eq!(s, "Hello World".to_string());
+            let s = r.as_any().downcast_ref::<FHIRString>().unwrap().clone();
+            assert_eq!(s.value, Some("Hello World".to_string()));
         }
 
         let simple_result = engine
@@ -1448,8 +1448,8 @@ mod tests {
             .await
             .unwrap();
         for r in simple_result.iter() {
-            let s: String = r.as_any().downcast_ref::<String>().unwrap().clone();
-            assert_eq!(s, "Bob Miller".to_string());
+            let s = r.as_any().downcast_ref::<FHIRString>().unwrap().clone();
+            assert_eq!(s.value, Some("Bob Miller".to_string()));
         }
     }
 
@@ -1492,9 +1492,9 @@ mod tests {
         let result = engine.evaluate("45 + 2  * 3", vec![]).await.unwrap();
 
         for r in result.iter() {
-            let s = r.as_any().downcast_ref::<f64>().unwrap().clone();
+            let s = r.as_any().downcast_ref::<FHIRDecimal>().unwrap().clone();
 
-            assert_eq!(s, 51.0);
+            assert_eq!(s.value, Some(51.0));
         }
     }
 
