@@ -1,10 +1,8 @@
-import { Dialog, Transition } from "@headlessui/react";
 import classNames from "classnames";
 import { atom, useAtom, useAtomValue } from "jotai";
 import {
   CSSProperties,
   ComponentType,
-  Fragment,
   useEffect,
   useMemo,
   useState,
@@ -108,7 +106,7 @@ function SearchModal(props: SearchModalProps) {
         navigate(
           generatePath("/resources/:resourceType", {
             resourceType: searchResults?.[searchIndex]?.type,
-          })
+          }),
         );
         setOpenModal(false);
         setSearch("");
@@ -129,7 +127,7 @@ function SearchModal(props: SearchModalProps) {
       if (openModal) {
         if (e.key === "ArrowDown") {
           setSearchIndex((v) =>
-            Math.min(v + 1, searchResults ? searchResults.length - 1 : 0)
+            Math.min(v + 1, searchResults ? searchResults.length - 1 : 0),
           );
           return;
         }
