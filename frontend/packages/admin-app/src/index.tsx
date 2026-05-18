@@ -42,6 +42,7 @@ import SystemHistory from "./views/Project/SystemHistory";
 import ResourceType from "./views/Project/ResourceType";
 import TypeHistory from "./views/Project/TypeHistory";
 import Resources from "./views/Project/Resources";
+import VersionView from "./views/Project/Version";
 import Settings from "./views/Project/Settings";
 import Projects from "./views/System/Projects";
 import { deriveProjectId, deriveTenantId } from "./utilities";
@@ -54,14 +55,6 @@ import { Logo } from "./components/Logo";
 import "./index.css";
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-
-// Could potentially use HOST=haste-health.localhost but instead just going to default redirect to system.haste-health.localhost
-if (
-  process.env.NODE_ENV === "development" &&
-  window.location.hostname === "localhost"
-) {
-  window.location.href = `http://system.haste-health.localhost:${window.location.port}`;
-}
 
 function LoginWrapper() {
   const hasteHealth = useHasteHealth();
@@ -294,6 +287,11 @@ const router =
                           id: "type-history",
                           path: "resources/:resourceType/history",
                           element: <TypeHistory />,
+                        },
+                        {
+                          id: "version",
+                          path: "resources/:resourceType/:id/_history/:versionId",
+                          element: <VersionView />,
                         },
                         {
                           id: "instance",

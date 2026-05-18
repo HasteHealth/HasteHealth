@@ -1,10 +1,11 @@
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
+import { generatePath, useNavigate } from "react-router-dom";
 
 import { Button, Table, Toaster } from "@haste-health/components";
-import { BundleEntry } from "@haste-health/fhir-types/r4/types";
-import { R4 } from "@haste-health/fhir-types/versions";
+import { BundleEntry, id } from "@haste-health/fhir-types/r4/types";
+import { R4, ResourceType } from "@haste-health/fhir-types/versions";
 
 import { getClient } from "../../db/client";
 import { getErrorMessage } from "../../utilities";
@@ -13,6 +14,7 @@ const HISTORY_PAGE_SIZE = 25;
 
 export default function SystemHistory() {
   const client = useAtomValue(getClient);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -83,6 +85,17 @@ export default function SystemHistory() {
 
         <Table
           isLoading={loading}
+          onRowClick={(_row: unknown) => {
+            const entry = _row as BundleEntry;
+
+            navigate(
+              generatePath("/resources/:resourceType/:id/_history/:versionId", {
+                resourceType: entry.resource?.resourceType as ResourceType<R4>,
+                id: entry.resource?.id as id,
+                versionId: entry.resource?.meta?.versionId as id,
+              }),
+            );
+          }}
           data={history.map((entry, index) => ({ ...entry, index }))}
           columns={[
             {
