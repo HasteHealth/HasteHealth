@@ -5,6 +5,7 @@ use haste_reflect::MetaValue;
 use crate::{ResolvedValue, allocators::AllocatorTrait};
 
 /// Need a means to store objects that are created during evaluation.
+#[allow(dead_code)]
 pub struct Allocator<'a> {
     pub context: Vec<ResolvedValue>,
     _marker: PhantomData<&'a dyn MetaValue>,
@@ -12,7 +13,7 @@ pub struct Allocator<'a> {
 
 impl<'a> Allocator<'a> {
     #[allow(dead_code)]
-    fn new() -> Self {
+    pub fn new() -> Self {
         Allocator {
             context: Vec::new(),
             _marker: PhantomData,
