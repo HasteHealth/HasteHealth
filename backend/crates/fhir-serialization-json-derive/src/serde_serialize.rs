@@ -35,18 +35,18 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
     match input.data {
         Data::Struct(_data) => {
             let serialize = quote! {
-                impl Serialize for #name {
+                impl serde::Serialize for #name {
                     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
                         where
-                            S: Serializer,
+                            S: serde::Serializer,
                         {
                         self.value.serialize(serializer)
                     }
                 }
 
                 impl #name {
-                    fn serialize_as_field<M: serde::ser::SerializeMap>(&self, field_name: &str, serializer: &mut M) -> Result<(), serde::ser::Error> {
-                        serializer.serialize_field(field_name, &self.value);
+                    fn serialize_as_field<M: serde::ser::SerializeMap>(&self, field_name: &str, serializer: &mut M) -> Result<(), M::Error> {
+                        serializer.serialize_entry(field_name, &self.value)?;
                         if self.extension.is_some() || self.id.is_some() {
                             let element_key = format!("_{}", field_name);
 
@@ -62,7 +62,7 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
                         Ok(())
                     }
 
-                    fn serialize_as_vector<M: serde::ser::SerializeMap>(&self, field_name: &str, serializer: &mut M) -> Result<(), serde::ser::Error> {
+                    fn serialize_as_vector<M: serde::ser::SerializeMap>(field_name: &str, values: &[Box<Self>], serializer: &mut M) -> Result<(), M::Error> {
                         let value_array: Vec<_> = values.iter().map(|v| &v.value).collect();
                         serializer.serialize_entry(field_name, &value_array)?;
 
@@ -93,6 +93,10 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
                 }
             };
 
+            // if name.to_string() == "FHIRBase64Binary" {
+            //     println!("{}", serialize.to_string());
+            // }
+
             serialize.into()
         }
         _ => panic!("FHIR primitives must be structs with a single value field."),
@@ -101,16 +105,16 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
 
 pub fn complex_serialization(
     input: DeriveInput,
-    deserialize_complex_type: DeserializeComplexType,
+    _deserialize_complex_type: DeserializeComplexType,
 ) -> TokenStream {
     let name = input.ident;
     match input.data {
         Data::Struct(_data) => {
             let serialize = quote! {
-                impl Serialize for #name {
+                impl serde::Serialize for #name {
                     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
                     where
-                        S: Serializer,
+                        S: serde::Serializer,
                     {
                         todo!();
                     }
@@ -128,10 +132,10 @@ pub fn valueset_serialization(input: DeriveInput) -> TokenStream {
     match input.data {
         Data::Enum(_data) => {
             let serialize = quote! {
-                impl Serialize for #name {
+                impl serde::Serialize for #name {
                     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
                     where
-                        S: Serializer,
+                        S: serde::Serializer,
                     {
                         todo!();
                     }
@@ -149,10 +153,10 @@ pub fn typechoice_serialization(input: DeriveInput) -> TokenStream {
     match input.data {
         Data::Enum(_data) => {
             let serialize = quote! {
-                impl Serialize for #name {
+                impl serde::Serialize for #name {
                     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
                     where
-                        S: Serializer,
+                        S: serde::Serializer,
                     {
                         todo!();
                     }

@@ -24,33 +24,12 @@ impl<'de> Deserialize<'de> for DateTime {
     }
 }
 
-impl<'de> Deserialize<'de> for Date {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+impl serde::Serialize for DateTime {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        D: serde::Deserializer<'de>,
+        S: serde::Serializer,
     {
-        let value = String::deserialize(deserializer)?;
-        parse_date(&value).map_err(|_| serde::de::Error::custom("invalid FHIR date"))
-    }
-}
-
-impl<'de> Deserialize<'de> for Time {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = String::deserialize(deserializer)?;
-        parse_time(&value).map_err(|_| serde::de::Error::custom("invalid FHIR time"))
-    }
-}
-
-impl<'de> Deserialize<'de> for Instant {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = String::deserialize(deserializer)?;
-        parse_instant(&value).map_err(|_| serde::de::Error::custom("invalid FHIR instant"))
+        self.to_string().serialize(serializer)
     }
 }
 
@@ -107,6 +86,25 @@ impl FHIRJSONSerializer for DateTime {
     }
 }
 
+impl<'de> Deserialize<'de> for Date {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        parse_date(&value).map_err(|_| serde::de::Error::custom("invalid FHIR date"))
+    }
+}
+
+impl serde::Serialize for Date {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.to_string().serialize(serializer)
+    }
+}
+
 impl FHIRJSONDeserializer for Date {
     fn from_json_str(
         s: &str,
@@ -160,6 +158,25 @@ impl FHIRJSONSerializer for Date {
     }
 }
 
+impl serde::Serialize for Time {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.to_string().serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for Time {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        parse_time(&value).map_err(|_| serde::de::Error::custom("invalid FHIR time"))
+    }
+}
+
 impl FHIRJSONDeserializer for Time {
     fn from_json_str(
         s: &str,
@@ -210,6 +227,25 @@ impl FHIRJSONSerializer for Time {
 
     fn is_fp_primitive(&self) -> bool {
         false
+    }
+}
+
+impl serde::Serialize for Instant {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.to_string().serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for Instant {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        parse_instant(&value).map_err(|_| serde::de::Error::custom("invalid FHIR instant"))
     }
 }
 
