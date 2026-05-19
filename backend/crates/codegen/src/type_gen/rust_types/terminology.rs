@@ -163,7 +163,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 let code_ident = format_ident!("{}", format_string(&code.code));
 
                 quote! {
-                    #terminology_enum_name::#code_ident(e) => &mut e.get_or_insert_with(Default::default)
+                    #terminology_enum_name::#code_ident(e) => e.get_or_insert_with(Default::default)
                 }
             });
 
