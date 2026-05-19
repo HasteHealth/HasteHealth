@@ -1,12 +1,11 @@
 mod deserialize;
-mod deserialize_serde;
+mod serde_deserialize;
+mod serde_serialize;
 mod serialize;
 mod utilities;
 
 use proc_macro::TokenStream;
 use syn::{Attribute, DeriveInput, Expr, Lit, Meta, parse_macro_input};
-
-use crate::deserialize::{deserialize_complex, deserialize_typechoice};
 
 /// Determines the de/serialization type of the derive macro.
 fn get_attribute_serialization_type(attrs: &[Attribute]) -> Option<String> {
@@ -103,9 +102,9 @@ pub fn deserialize(input: TokenStream) -> TokenStream {
 
     let result = match serialize_type.unwrap().as_str() {
         "primitive" => deserialize::fhir_primitive_deserialization(input),
-        "typechoice" => deserialize_typechoice(input),
-        "resource" => deserialize_complex(input, DeserializeComplexType::Resource),
-        "complex" => deserialize_complex(input, DeserializeComplexType::Complex),
+        "typechoice" => deserialize::deserialize_typechoice(input),
+        "resource" => deserialize::deserialize_complex(input, DeserializeComplexType::Resource),
+        "complex" => deserialize::deserialize_complex(input, DeserializeComplexType::Complex),
         "enum-variant" => deserialize::enum_variant_deserialization(input),
         "valueset" => deserialize::deserialize_valueset(input),
         _ => panic!("Must be one of primitive, typechoice, complex or resource."),
@@ -124,14 +123,37 @@ pub fn serde_deserialize(input: TokenStream) -> TokenStream {
     let serialize_type = get_attribute_serialization_type(&input.attrs);
 
     let result = match serialize_type.unwrap().as_str() {
-        "primitive" => deserialize_serde::fhir_primitive_deserialization(input),
-        "valueset" => deserialize_serde::valueset_deserialization(input),
-        "typechoice" => deserialize_serde::typechoice_deserialization(input),
+        "primitive" => serde_deserialize::fhir_primitive_deserialization(input),
+        "valueset" => serde_deserialize::valueset_deserialization(input),
+        "typechoice" => serde_deserialize::typechoice_deserialization(input),
         "complex" => {
-            deserialize_serde::complex_deserialization(input, DeserializeComplexType::Complex)
+            serde_deserialize::complex_deserialization(input, DeserializeComplexType::Complex)
         }
         "resource" => {
-            deserialize_serde::complex_deserialization(input, DeserializeComplexType::Resource)
+            serde_deserialize::complex_deserialization(input, DeserializeComplexType::Resource)
+        }
+        _ => panic!("Only primitive and valueset supported for serde deserialization."),
+    };
+
+    result.into()
+}
+
+#[proc_macro_derive(
+    FHIRSerdeSerialize,
+    attributes(fhir_serialize_type, rename_field, type_choice_variants, determine_by)
+)]
+pub fn serde_serialize(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    let serialize_type = get_attribute_serialization_type(&input.attrs);
+
+    let result = match serialize_type.unwrap().as_str() {
+        "primitive" => serde_serialize::fhir_primitive_serialization(input),
+        "valueset" => serde_serialize::valueset_serialization(input),
+        "typechoice" => serde_serialize::typechoice_serialization(input),
+        "complex" => serde_serialize::complex_serialization(input, DeserializeComplexType::Complex),
+        "resource" => {
+            serde_serialize::complex_serialization(input, DeserializeComplexType::Resource)
         }
         _ => panic!("Only primitive and valueset supported for serde deserialization."),
     };
