@@ -271,6 +271,7 @@ fn create_type_choice(
             Reflect,
             Debug,
             haste_fhir_serialization_json::derive::FHIRJSONSerialize,
+            haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
             haste_fhir_serialization_json::derive::FHIRSerdeDeserialize)]
         #[fhir_serialize_type = "typechoice"]
         #[type_choice_field_name = #field_name]
@@ -337,6 +338,7 @@ fn create_complex_struct(
         quote! {
            #[derive(Clone, Reflect, Debug, Default,
                 haste_fhir_serialization_json::derive::FHIRJSONSerialize,
+                haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
                 haste_fhir_serialization_json::derive::FHIRSerdeDeserialize)]
            #[fhir_serialize_type = "primitive"]
         }
@@ -348,6 +350,7 @@ fn create_complex_struct(
                 Debug,
                 Default,
                 haste_fhir_serialization_json::derive::FHIRJSONSerialize,
+                haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
                 haste_fhir_serialization_json::derive::FHIRSerdeDeserialize
             )]
             #[fhir_serialize_type = "resource"]
@@ -360,6 +363,7 @@ fn create_complex_struct(
                 Debug,
                 Default,
                 haste_fhir_serialization_json::derive::FHIRJSONSerialize,
+                haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
                 haste_fhir_serialization_json::derive::FHIRSerdeDeserialize)]
             #[fhir_serialize_type = "complex"]
         }
@@ -690,7 +694,7 @@ pub fn generate(
             Reflect,
             Debug,
             haste_fhir_serialization_json::derive::FHIRJSONSerialize,
-
+            serde::Serialize,
             serde::Deserialize,
         )]
         #[fhir_serialize_type = "enum-variant"]
