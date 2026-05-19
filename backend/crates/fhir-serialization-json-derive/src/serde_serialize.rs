@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{Data, DeriveInput};
 
-use crate::DeserializeComplexType;
+use crate::{DeserializeComplexType, utilities::is_optional_field};
 
 fn extension_derive() -> proc_macro2::TokenStream {
     quote! {
@@ -33,7 +33,23 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
     let extension_derive = extension_derive();
 
     match input.data {
-        Data::Struct(_data) => {
+        Data::Struct(data) => {
+            let value_field = data
+                .fields
+                .iter()
+                .find(|f| f.ident.as_ref().unwrap() == "value")
+                .unwrap();
+            // Value could be optional or not depending on SD.
+            let function_to_check_empty = if is_optional_field(&value_field) {
+                quote! {
+                    is_none()
+                }
+            } else {
+                quote! {
+                    is_empty()
+                }
+            };
+
             let serialize = quote! {
                 impl serde::Serialize for #name {
                     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -46,7 +62,9 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
 
                 impl #name {
                     fn serialize_as_field<M: serde::ser::SerializeMap>(&self, field_name: &str, serializer: &mut M) -> Result<(), M::Error> {
-                        serializer.serialize_entry(field_name, &self.value)?;
+                        if !self.value.#function_to_check_empty {
+                            serializer.serialize_entry(field_name, &self.value)?;
+                        }
                         if self.extension.is_some() || self.id.is_some() {
                             let element_key = format!("_{}", field_name);
 
@@ -64,7 +82,10 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
 
                     fn serialize_as_vector<M: serde::ser::SerializeMap>(field_name: &str, values: &[Box<Self>], serializer: &mut M) -> Result<(), M::Error> {
                         let value_array: Vec<_> = values.iter().map(|v| &v.value).collect();
-                        serializer.serialize_entry(field_name, &value_array)?;
+
+                        if value_array.iter().any(|v| !v.#function_to_check_empty) {
+                            serializer.serialize_entry(field_name, &value_array)?;
+                        }
 
                         let has_extensions = values.iter().any(|item| item.extension.is_some() || item.id.is_some());
 
@@ -143,6 +164,41 @@ pub fn valueset_serialization(input: DeriveInput) -> TokenStream {
                     {
                         let s: Option<String> = self.into();
                         s.serialize(serializer)
+                    }
+                }
+
+                impl #name {
+                    fn serialize_as_field<M: serde::ser::SerializeMap>(&self, field_name: &str, serializer: &mut M) -> Result<(), M::Error> {
+                        let s: Option<String> = self.into();
+                        let element = self.element();
+
+                        if let Some(value) = s {
+                            serializer.serialize_entry(field_name, &value)?;
+                        }
+
+                        if let Some(element) = element {
+                            let element_key = format!("_{}", field_name);
+                            serializer.serialize_entry(&element_key, element)?;
+                        }
+
+                        Ok(())
+                    }
+
+                    fn serialize_as_vector<M: serde::ser::SerializeMap>(field_name: &str, values: &[Self], serializer: &mut M) -> Result<(), M::Error> {
+                        let value_array: Vec<Option<String>> = values.iter().map(|v| v.into()).collect();
+                        let element_array: Vec<Option<_>> = values.iter().map(|v| v.element()).collect();
+
+                        if value_array.iter().any(|v| v.is_some()) {
+                            serializer.serialize_entry(field_name, &value_array)?;
+                        }
+
+                        if element_array.iter().any(|e| e.is_some()) {
+                            let element_key = format!("_{}", field_name);
+                            let element_array: Vec<Option<_>> = values.iter().map(|v| v.element()).collect();
+                            serializer.serialize_entry(&element_key, &element_array)?;
+                        }
+
+                        Ok(())
                     }
                 }
             };
