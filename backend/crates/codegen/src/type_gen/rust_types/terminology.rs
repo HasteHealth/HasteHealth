@@ -159,19 +159,19 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 }
             });
 
-            let get_extension_mut_variant = codes.iter().map(|(_code, code)| {
+            let get_element_mut_variants = codes.iter().map(|(_code, code)| {
                 let code_ident = format_ident!("{}", format_string(&code.code));
 
                 quote! {
-                    #terminology_enum_name::#code_ident(e) => &mut e.get_or_insert_with(Default::default).extension
+                    #terminology_enum_name::#code_ident(e) => &mut e.get_or_insert_with(Default::default)
                 }
             });
 
-            let get_id_mut_variant = codes.iter().map(|(_code, code)| {
+            let get_element_variants = codes.iter().map(|(_code, code)| {
                 let code_ident = format_ident!("{}", format_string(&code.code));
 
                 quote! {
-                    #terminology_enum_name::#code_ident(e) => &mut e.get_or_insert_with(Default::default).id
+                    #terminology_enum_name::#code_ident(e) => e.as_ref()
                 }
             });
 
@@ -185,18 +185,26 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 }
 
                 impl #terminology_enum_name {
-                    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<super::types::Extension>>> {
+                    pub fn element(&self) -> Option<&Element> {
                         match self {
-                            #(#get_extension_mut_variant),*,
-                            #terminology_enum_name::Null(e) => &mut e.get_or_insert_with(Default::default).extension,
+                            #(#get_element_variants),*,
+                            #terminology_enum_name::Null(e) => e.as_ref(),
                         }
+                    }
+                    pub fn element_mut(&mut self) -> &mut Element {
+                        match self {
+                            #(#get_element_mut_variants),*,
+                            #terminology_enum_name::Null(e) => e.get_or_insert_with(Default::default),
+                        }
+                    }
+                    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<super::types::Extension>>> {
+                        let element_mut = self.element_mut();
+                        &mut element_mut.extension
                     }
 
                     pub fn id_mut(&mut self) -> &mut Option<String> {
-                        match self {
-                            #(#get_id_mut_variant),*,
-                            #terminology_enum_name::Null(e) => &mut e.get_or_insert_with(Default::default).id,
-                        }
+                        let element_mut = self.element_mut();
+                        &mut element_mut.id
                     }
                 }
 

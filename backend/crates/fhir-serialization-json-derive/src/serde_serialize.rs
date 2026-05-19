@@ -131,13 +131,18 @@ pub fn valueset_serialization(input: DeriveInput) -> TokenStream {
     let name = input.ident;
     match input.data {
         Data::Enum(_data) => {
+            // let serialize_field_variants = data.variants.iter().map(|v| {
+            //     let variant_name = &v.ident;
+            // });
+
             let serialize = quote! {
                 impl serde::Serialize for #name {
                     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
                     where
                         S: serde::Serializer,
                     {
-                        todo!();
+                        let s: Option<String> = self.into();
+                        s.serialize(serializer)
                     }
                 }
             };
