@@ -8,7 +8,7 @@ use crate::{
         ServerCTX,
         middleware::{ServerMiddlewareState, operations::ServerOperationContext},
     },
-    route_path::{api_v1_fhir_path, api_v1_mcp_path},
+    route_path::{api_fhir_root_url, api_v1_mcp_path},
 };
 use haste_fhir_client::{FHIRClient, request::InvocationRequest};
 use haste_fhir_generated_ops::generated::TenantEndpointInformation;
@@ -61,6 +61,7 @@ pub fn endpoint_metadata_op<
                                     "failed to create OIDC discovery document".to_string(),
                                 )
                             })?;
+
                     let api_url = Url::parse(&api_url_string).map_err(|e| {
                         tracing::error!("Failed to parse API URL: {:?}", e);
                         OperationOutcomeError::error(
@@ -69,15 +70,9 @@ pub fn endpoint_metadata_op<
                         )
                     })?;
 
-                    let fhir_url = api_url
-                        .join(
-                            api_v1_fhir_path(&tenant, &project)
-                                .join("r4")
-                                .to_str()
-                                .unwrap(),
-                        )
-                        .map_err(|e| {
-                            tracing::error!("Failed to derive FHIR URL: {:?}", e);
+                    let fhir_url =
+                        api_fhir_root_url(&api_url_string, &tenant, &project).map_err(|e| {
+                            tracing::error!("Failed to derive FHIR Base URL: {:?}", e);
                             OperationOutcomeError::error(
                                 IssueType::Invalid(None),
                                 "Invalid API URL configured".to_string(),

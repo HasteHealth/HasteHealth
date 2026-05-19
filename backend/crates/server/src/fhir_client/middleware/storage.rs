@@ -1,13 +1,17 @@
-use crate::fhir_client::{
-    FHIRServerClient, ServerCTX, ServerClientConfig, StorageError,
-    batch_transaction_processing::{
-        build_sorted_transaction_graph, process_batch_bundle, process_transaction_bundle,
+use crate::{
+    ServerEnvironmentVariables,
+    fhir_client::{
+        FHIRServerClient, ServerCTX, ServerClientConfig, StorageError,
+        batch_transaction_processing::{
+            build_sorted_transaction_graph, process_batch_bundle, process_transaction_bundle,
+        },
+        compartment::process_compartment_request,
+        middleware::{
+            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+            ServerMiddlewareState,
+        },
     },
-    compartment::process_compartment_request,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
-    },
+    route_path::api_fhir_root_url,
 };
 use haste_fhir_client::{
     FHIRClient,
@@ -38,6 +42,7 @@ use std::{
     io::{BufWriter, Write},
     sync::Arc,
 };
+use url::Url;
 
 pub struct Middleware {}
 impl Middleware {
@@ -46,7 +51,11 @@ impl Middleware {
     }
 }
 
-pub fn to_bundle_entry(resource: Resource, request_method: Option<String>) -> BundleEntry {
+pub fn to_bundle_entry(
+    fhir_api_url: &Url,
+    resource: Resource,
+    request_method: Option<String>,
+) -> BundleEntry {
     let resource_type = resource.resource_type();
     let id = resource.id().as_ref().map(|s| s.as_str()).unwrap_or("");
 
@@ -70,10 +79,15 @@ pub fn to_bundle_entry(resource: Resource, request_method: Option<String>) -> Bu
         });
     }
 
-    entry.fullUrl = Some(Box::new(FHIRUri {
-        value: Some(format!("{}/{}", resource_type.as_ref(), id)),
-        ..Default::default()
-    }));
+    entry.fullUrl = fhir_api_url
+        .join(&format!("{}/{}", resource_type.as_ref(), id))
+        .ok()
+        .map(|url| {
+            Box::new(FHIRUri {
+                value: Some(url.to_string()),
+                ..Default::default()
+            })
+        });
 
     entry.resource = Some(Box::new(resource));
 
@@ -309,6 +323,12 @@ impl<
                             .history(&context.ctx.tenant, &context.ctx.project, &history_request)
                             .await?;
 
+                        let fhir_api_root = api_fhir_root_url(
+                            &state.config.get(ServerEnvironmentVariables::APIURI)?,
+                            &context.ctx.tenant,
+                            &context.ctx.project,
+                        )?;
+
                         Ok(Some(FHIRResponse::History(HistoryResponse::Instance(
                             FHIRHistoryInstanceResponse {
                                 bundle: to_bundle(
@@ -317,7 +337,11 @@ impl<
                                     history_resources
                                         .into_iter()
                                         .map(|r| {
-                                            to_bundle_entry(r.resource, Some(r.request_method))
+                                            to_bundle_entry(
+                                                &fhir_api_root,
+                                                r.resource,
+                                                Some(r.request_method),
+                                            )
                                         })
                                         .collect(),
                                 ),
@@ -330,6 +354,12 @@ impl<
                             .history(&context.ctx.tenant, &context.ctx.project, &history_request)
                             .await?;
 
+                        let fhir_api_root = api_fhir_root_url(
+                            &state.config.get(ServerEnvironmentVariables::APIURI)?,
+                            &context.ctx.tenant,
+                            &context.ctx.project,
+                        )?;
+
                         Ok(Some(FHIRResponse::History(HistoryResponse::Type(
                             FHIRHistoryTypeResponse {
                                 bundle: to_bundle(
@@ -338,7 +368,11 @@ impl<
                                     history_resources
                                         .into_iter()
                                         .map(|r| {
-                                            to_bundle_entry(r.resource, Some(r.request_method))
+                                            to_bundle_entry(
+                                                &fhir_api_root,
+                                                r.resource,
+                                                Some(r.request_method),
+                                            )
                                         })
                                         .collect(),
                                 ),
@@ -351,6 +385,12 @@ impl<
                             .history(&context.ctx.tenant, &context.ctx.project, &history_request)
                             .await?;
 
+                        let fhir_api_root = api_fhir_root_url(
+                            &state.config.get(ServerEnvironmentVariables::APIURI)?,
+                            &context.ctx.tenant,
+                            &context.ctx.project,
+                        )?;
+
                         Ok(Some(FHIRResponse::History(HistoryResponse::System(
                             FHIRHistorySystemResponse {
                                 bundle: to_bundle(
@@ -359,7 +399,11 @@ impl<
                                     history_resources
                                         .into_iter()
                                         .map(|r| {
-                                            to_bundle_entry(r.resource, Some(r.request_method))
+                                            to_bundle_entry(
+                                                &fhir_api_root,
+                                                r.resource,
+                                                Some(r.request_method),
+                                            )
                                         })
                                         .collect(),
                                 ),
@@ -555,6 +599,12 @@ impl<
                 },
                 FHIRRequest::Search(search_request) => match search_request {
                     SearchRequest::Type(_) => {
+                        let fhir_api_root = api_fhir_root_url(
+                            &state.config.get(ServerEnvironmentVariables::APIURI)?,
+                            &context.ctx.tenant,
+                            &context.ctx.project,
+                        )?;
+
                         let search_results = state
                             .search
                             .search(
@@ -588,13 +638,18 @@ impl<
                                     search_results.total,
                                     resources
                                         .into_iter()
-                                        .map(|r| to_bundle_entry(r, None))
+                                        .map(|r| to_bundle_entry(&fhir_api_root, r, None))
                                         .collect(),
                                 ),
                             },
                         ))))
                     }
                     SearchRequest::System(_) => {
+                        let fhir_api_root = api_fhir_root_url(
+                            &state.config.get(ServerEnvironmentVariables::APIURI)?,
+                            &context.ctx.tenant,
+                            &context.ctx.project,
+                        )?;
                         let search_results = state
                             .search
                             .search(
@@ -628,7 +683,7 @@ impl<
                                     search_results.total,
                                     resources
                                         .into_iter()
-                                        .map(|r| to_bundle_entry(r, None))
+                                        .map(|r| to_bundle_entry(&fhir_api_root, r, None))
                                         .collect(),
                                 ),
                             },
