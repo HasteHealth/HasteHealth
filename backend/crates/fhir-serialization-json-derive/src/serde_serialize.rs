@@ -103,28 +103,64 @@ pub fn complex_serialization(
     input: DeriveInput,
     deserialize_complex_type: DeserializeComplexType,
 ) -> TokenStream {
-    let serialize = quote! {
-        impl Serialize for Person {
-            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where
-                S: Serializer,
-            {
-                let mut s = serializer.serialize_struct("Person", 3)?;
-                s.serialize_field("name", &self.name)?;
-                s.serialize_field("age", &self.age)?;
-                s.serialize_field("phones", &self.phones)?;
-                s.end()
-            }
-        }
-    };
+    let name = input.ident;
+    match input.data {
+        Data::Struct(_data) => {
+            let serialize = quote! {
+                impl Serialize for #name {
+                    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+                    where
+                        S: Serializer,
+                    {
+                        todo!();
+                    }
+                }
+            };
 
-    serialize.into()
+            serialize.into()
+        }
+        _ => panic!("Complex types must be structs."),
+    }
 }
 
 pub fn valueset_serialization(input: DeriveInput) -> TokenStream {
-    todo!();
+    let name = input.ident;
+    match input.data {
+        Data::Enum(_data) => {
+            let serialize = quote! {
+                impl Serialize for #name {
+                    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+                    where
+                        S: Serializer,
+                    {
+                        todo!();
+                    }
+                }
+            };
+
+            serialize.into()
+        }
+        _ => panic!("ValueSets must be enums."),
+    }
 }
 
 pub fn typechoice_serialization(input: DeriveInput) -> TokenStream {
-    todo!();
+    let name = input.ident;
+    match input.data {
+        Data::Enum(_data) => {
+            let serialize = quote! {
+                impl Serialize for #name {
+                    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+                    where
+                        S: Serializer,
+                    {
+                        todo!();
+                    }
+                }
+            };
+
+            serialize.into()
+        }
+        _ => panic!("Typechoice must be enums."),
+    }
 }
