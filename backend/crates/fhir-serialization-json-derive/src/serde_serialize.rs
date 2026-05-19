@@ -4,8 +4,33 @@ use syn::{Data, DeriveInput};
 
 use crate::DeserializeComplexType;
 
+fn extension_derive() -> proc_macro2::TokenStream {
+    quote! {
+         struct Companion<'a, Ext: serde::Serialize> {
+            id: &'a Option<String>,
+            extension: &'a Option<Vec<Box<Ext>>>,
+        }
+
+        impl<'a, Ext: serde::Serialize> serde::Serialize for Companion<'a, Ext> {
+            fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+                use serde::ser::SerializeMap;
+                let mut m = serializer.serialize_map(None)?;
+                if let Some(id) = self.id {
+                    m.serialize_entry("id", id)?;
+                }
+                if let Some(ext) = self.extension {
+                    m.serialize_entry("extension", ext)?;
+                }
+                m.end()
+            }
+        }
+    }
+}
+
 pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
     let name = input.ident;
+
+    let extension_derive = extension_derive();
 
     match input.data {
         Data::Struct(_data) => {
@@ -20,35 +45,47 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
                 }
 
                 impl #name {
-                    fn serialize_as_field(&self, field_name: &str, serializer: &mut dyn SerializeStruct) -> Result<(), serde::ser::Error> {
+                    fn serialize_as_field<M: serde::ser::SerializeMap>(&self, field_name: &str, serializer: &mut M) -> Result<(), serde::ser::Error> {
                         serializer.serialize_field(field_name, &self.value);
                         if self.extension.is_some() || self.id.is_some() {
                             let element_key = format!("_{}", field_name);
 
                             // Inline companion serializer so we don't depend on Element type here.
-                            struct Companion<'a, Ext: serde::Serialize> {
-                                id: &'a Option<String>,
-                                extension: &'a Option<Vec<Box<Ext>>>,
-                            }
+                            #extension_derive
 
-                            impl<'a, Ext: serde::Serialize> serde::Serialize for Companion<'a, Ext> {
-                                fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-                                    use serde::ser::SerializeMap;
-                                    let mut m = serializer.serialize_map(None)?;
-                                    if let Some(id) = self.id {
-                                        m.serialize_entry("id", id)?;
-                                    }
-                                    if let Some(ext) = self.extension {
-                                        m.serialize_entry("extension", ext)?;
-                                    }
-                                    m.end()
-                                }
-                            }
-
-                            map.serialize_entry(
+                            serializer.serialize_entry(
                                 &element_key,
                                 &Companion { id: &self.id, extension: &self.extension },
                             )?;
+                        }
+
+                        Ok(())
+                    }
+
+                    fn serialize_as_vector<M: serde::ser::SerializeMap>(&self, field_name: &str, serializer: &mut M) -> Result<(), serde::ser::Error> {
+                        let value_array: Vec<_> = values.iter().map(|v| &v.value).collect();
+                        serializer.serialize_entry(field_name, &value_array)?;
+
+                        let has_extensions = values.iter().any(|item| item.extension.is_some() || item.id.is_some());
+
+                        if has_extensions {
+                            let element_key = format!("_{}", field_name);
+
+                            // Inline companion serializer so we don't depend on Element type here.
+                            #extension_derive
+
+                            let extension_serializations: Vec<Option<_>> = values
+                                .iter()
+                                .map(|item| {
+                                    if item.extension.is_some() || item.id.is_some() {
+                                        Some(Companion { id: &item.id, extension: &item.extension })
+                                    } else {
+                                        None
+                                    }
+                                })
+                                .collect();
+
+                            serializer.serialize_entry(&element_key, &extension_serializations)?;
                         }
 
                         Ok(())
