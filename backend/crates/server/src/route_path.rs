@@ -5,8 +5,6 @@ use haste_jwt::{ProjectId, TenantId};
 use std::path::PathBuf;
 use url::Url;
 
-use crate::ServerEnvironmentVariables;
-
 pub fn tenant_path(tenant: &TenantId) -> PathBuf {
     let mut path = PathBuf::new();
     path.push(format!("/w/{}", tenant));
