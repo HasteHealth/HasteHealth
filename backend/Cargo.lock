@@ -2455,9 +2455,9 @@ name = "haste-artifacts"
 version = "0.16.0"
 dependencies = [
  "haste-fhir-model",
- "haste-fhir-serialization-json",
  "haste-jwt",
  "rust-embed",
+ "serde_json",
 ]
 
 [[package]]
@@ -2540,6 +2540,7 @@ dependencies = [
  "haste-fhir-model",
  "haste-fhir-operation-error-derive",
  "haste-fhir-serialization-json",
+ "serde_json",
 ]
 
 [[package]]

@@ -86,9 +86,9 @@ async fn index_patient(
 }
 
 fn index_synthea_patient(c: &mut Criterion) {
-    let patient = haste_fhir_serialization_json::from_str::<
-        haste_fhir_model::r4::generated::resources::Patient,
-    >(SYNTHEA_PATIENT)
+    let patient = serde_json::from_str::<haste_fhir_model::r4::generated::resources::Patient>(
+        SYNTHEA_PATIENT,
+    )
     .unwrap();
 
     let engine = FPEngine::new();

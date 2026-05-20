@@ -19,10 +19,8 @@ fn load_resources() -> Vec<Box<Resource>> {
 
     for path in EmbededResourceAssets::iter() {
         let data = EmbededResourceAssets::get(path.as_ref()).unwrap();
-        let resource = haste_fhir_serialization_json::from_str::<Resource>(
-            str::from_utf8(&data.data).unwrap(),
-        )
-        .expect("Failed to parse artifact parameters JSON");
+        let resource = serde_json::from_str::<Resource>(str::from_utf8(&data.data).unwrap())
+            .expect("Failed to parse artifact parameters JSON");
 
         resources.extend(flatten_if_bundle(resource));
     }
@@ -51,10 +49,8 @@ pub static R4_SEARCH_PARAMETERS: LazyLock<Vec<Box<SearchParameter>>> = LazyLock:
 
     for path in EmbededSearchParameterAssets::iter() {
         let data = EmbededSearchParameterAssets::get(path.as_ref()).unwrap();
-        let bundle = haste_fhir_serialization_json::from_str::<Resource>(
-            std::str::from_utf8(&data.data).unwrap(),
-        )
-        .expect("Failed to parse search parameters JSON");
+        let bundle = serde_json::from_str::<Resource>(std::str::from_utf8(&data.data).unwrap())
+            .expect("Failed to parse search parameters JSON");
 
         search_parameters.extend(flatten_if_bundle(bundle).into_iter().filter_map(|r| {
             if let Resource::SearchParameter(param) = *r {

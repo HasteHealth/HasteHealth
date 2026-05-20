@@ -130,8 +130,7 @@ impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
                     project,
                     fhir_method,
                     resource_type: resource_type.expect("Failed to extract resource_type"),
-                    resource: haste_fhir_serialization_json::from_serde_value(resource_json)
-                        .unwrap(),
+                    resource: serde_json::from_value(resource_json).unwrap(),
                 }
             })
             .collect::<Vec<_>>();

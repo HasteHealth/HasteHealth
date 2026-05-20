@@ -22,7 +22,7 @@ use haste_repository::{Repository, fhir::CachePolicy, types::SupportedFHIRVersio
 use sha1::{Digest, Sha1};
 
 fn generate_sha256_hash(value: &Resource) -> String {
-    let json = haste_fhir_serialization_json::to_string(value).expect("failed to serialize value.");
+    let json = serde_json::to_string(value).expect("failed to serialize value.");
     let mut sha_hasher = Sha1::new();
     sha_hasher.update(json.as_bytes());
     let sha1 = sha_hasher.finalize();

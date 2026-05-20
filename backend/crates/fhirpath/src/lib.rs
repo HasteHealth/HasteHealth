@@ -989,7 +989,7 @@ mod tests {
             },
         },
     };
-    use haste_fhir_serialization_json;
+
     use haste_reflect_derive::Reflect;
 
     #[derive(Reflect, Debug)]
@@ -1010,7 +1010,7 @@ mod tests {
     fn load_search_parameters() -> Vec<SearchParameter> {
         let json =
             include_str!("../../artifacts/artifacts/r4/hl7/minified/search-parameters.min.json");
-        let bundle = haste_fhir_serialization_json::from_str::<Bundle>(json).unwrap();
+        let bundle = serde_json::from_str::<Bundle>(json).unwrap();
 
         let search_parameters: Vec<SearchParameter> = bundle
             .entry
@@ -1520,10 +1520,9 @@ mod tests {
     async fn domain_resource_filter() {
         let engine = FPEngine::new();
 
-        let patient = haste_fhir_serialization_json::from_str::<Resource>(
-            r#"{"id": "patient-id", "resourceType": "Patient"}"#,
-        )
-        .unwrap();
+        let patient =
+            serde_json::from_str::<Resource>(r#"{"id": "patient-id", "resourceType": "Patient"}"#)
+                .unwrap();
         let result = engine
             .evaluate("Resource.id", vec![&patient])
             .await
@@ -1569,7 +1568,7 @@ mod tests {
     #[tokio::test]
     async fn resolve_test() {
         let engine = FPEngine::new();
-        let observation = haste_fhir_serialization_json::from_str::<Resource>(r#"
+        let observation = serde_json::from_str::<Resource>(r#"
              {
                 "resourceType": "Observation",
                 "id": "f001",

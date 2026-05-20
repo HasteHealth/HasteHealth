@@ -9,7 +9,7 @@ fn parse_fhir_data() -> Result<Resource, OperationOutcomeError> {
             "Failed to read from stdin.".into(),
         )
     })?;
-    let resource = haste_fhir_serialization_json::from_str::<Resource>(&buffer).map_err(|e| {
+    let resource = serde_json::from_str::<Resource>(&buffer).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::Exception(None),
             format!(

@@ -29,8 +29,8 @@ impl IntoResponse for OperationOutcomeError {
             axum::http::header::CONTENT_TYPE,
             "application/fhir+json".parse().unwrap(),
         );
-        let response = haste_fhir_serialization_json::to_string(outcome)
-            .expect("Failed to serialize OperationOutcome");
+        let response =
+            serde_json::to_string(outcome).expect("Failed to serialize OperationOutcome");
 
         // Attach the original error to the response extensions for logging middleware to access and content-type handling.
         let mut response = (status_code, headers, response).into_response();

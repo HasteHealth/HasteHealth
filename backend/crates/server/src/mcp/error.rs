@@ -24,7 +24,7 @@ impl From<OperationOutcomeError> for MCPError<serde_json::Value> {
         let status_code = err.status();
         let outcome = err.outcome();
 
-        if let Ok(json_string) = haste_fhir_serialization_json::to_string(outcome)
+        if let Ok(json_string) = serde_json::to_string(outcome)
             && let Ok(data) = serde_json::to_value(&json_string)
         {
             MCPError {

@@ -11,7 +11,7 @@ homepage = { workspace = true }
 haste-fhir-model = { path = "../fhir-model", version = "0.*", features = [
     "sqlx",
 ] }
-haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
+serde_json = { workspace = true }
 haste-jwt = { path = "../jwt", version = "0.*" }
 rust-embed = { version = "8.11.0", features = [
     "compression",

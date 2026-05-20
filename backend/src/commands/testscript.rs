@@ -31,7 +31,7 @@ fn load_testscript_files(path: &Path) -> Vec<TestScript> {
         return vec![];
     };
 
-    let resource = match haste_fhir_serialization_json::from_str::<Resource>(&data) {
+    let resource = match serde_json::from_str::<Resource>(&data) {
         Ok(resource) => resource,
         Err(e) => {
             println!(
@@ -185,7 +185,7 @@ pub async fn testscript_commands(
             if let Some(output) = output {
                 std::fs::write(
                     output,
-                    haste_fhir_serialization_json::to_string(&testreport_bundle).map_err(|e| {
+                    serde_json::to_string(&testreport_bundle).map_err(|e| {
                         OperationOutcomeError::fatal(
                             IssueType::Exception(None),
                             format!("Failed to serialize TestReport bundle: {}", e),
@@ -196,7 +196,7 @@ pub async fn testscript_commands(
             } else {
                 println!(
                     "{}",
-                    haste_fhir_serialization_json::to_string(&testreport_bundle).map_err(|e| {
+                    serde_json::to_string(&testreport_bundle).map_err(|e| {
                         OperationOutcomeError::fatal(
                             IssueType::Exception(None),
                             format!("Failed to serialize TestReport bundle: {}", e),

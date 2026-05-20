@@ -71,7 +71,7 @@ pub async fn tools_call<
                 .search_type(ctx.clone(), resource_type, parsed_parameters)
                 .await?;
 
-            let result = haste_fhir_serialization_json::to_string(&result).map_err(|e| {
+            let result = serde_json::to_string(&result).map_err(|e| {
                 OperationOutcomeError::error(
                     IssueType::Processing(None),
                     format!("Failed to serialize search result: '{}'", e.to_string()),

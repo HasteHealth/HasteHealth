@@ -169,8 +169,8 @@ fn fhir_request_to_http_request<'a>(
                     ))
                     .map_err(|_e| FHIRHTTPError::UrlParseError("Create request".to_string()))?;
 
-                let body = haste_fhir_serialization_json::to_string(&create_request.resource)
-                    .map_err(FHIRHTTPError::from)?;
+                let body =
+                    serde_json::to_string(&create_request.resource).map_err(FHIRHTTPError::from)?;
 
                 let request = state
                     .client
@@ -209,7 +209,7 @@ fn fhir_request_to_http_request<'a>(
                 Ok(request)
             }
             FHIRRequest::Transaction(transaction_request) => {
-                let body = haste_fhir_serialization_json::to_string(&transaction_request.resource)
+                let body = serde_json::to_string(&transaction_request.resource)
                     .map_err(FHIRHTTPError::from)?;
 
                 let request = state
@@ -264,7 +264,7 @@ fn fhir_request_to_http_request<'a>(
                         .header("Accept", "application/fhir+json")
                         .header("Content-Type", "application/fhir+json, application/json")
                         .body(
-                            haste_fhir_serialization_json::to_string(&update_request.resource)
+                            serde_json::to_string(&update_request.resource)
                                 .map_err(FHIRHTTPError::from)?,
                         )
                         .build()
@@ -294,10 +294,8 @@ fn fhir_request_to_http_request<'a>(
                         .header("Accept", "application/fhir+json")
                         .header("Content-Type", "application/fhir+json, application/json")
                         .body(
-                            haste_fhir_serialization_json::to_string(
-                                &fhirconditional_update_request.resource,
-                            )
-                            .map_err(FHIRHTTPError::from)?,
+                            serde_json::to_string(&fhirconditional_update_request.resource)
+                                .map_err(FHIRHTTPError::from)?,
                         )
                         .build()
                         .map_err(FHIRHTTPError::from)?;
@@ -538,10 +536,8 @@ fn fhir_request_to_http_request<'a>(
                         })?;
 
                     // Parameters for invoke are passed in the body as a Parameters resource.
-                    let body = haste_fhir_serialization_json::to_string(
-                        &fhirinvoke_instance_request.parameters,
-                    )
-                    .map_err(FHIRHTTPError::from)?;
+                    let body = serde_json::to_string(&fhirinvoke_instance_request.parameters)
+                        .map_err(FHIRHTTPError::from)?;
 
                     let request = state
                         .client
@@ -568,10 +564,8 @@ fn fhir_request_to_http_request<'a>(
                         })?;
 
                     // Parameters for invoke are passed in the body as a Parameters resource.
-                    let body = haste_fhir_serialization_json::to_string(
-                        &fhirinvoke_type_request.parameters,
-                    )
-                    .map_err(FHIRHTTPError::from)?;
+                    let body = serde_json::to_string(&fhirinvoke_type_request.parameters)
+                        .map_err(FHIRHTTPError::from)?;
 
                     let request = state
                         .client
@@ -597,10 +591,8 @@ fn fhir_request_to_http_request<'a>(
                         })?;
 
                     // Parameters for invoke are passed in the body as a Parameters resource.
-                    let body = haste_fhir_serialization_json::to_string(
-                        &fhirinvoke_system_request.parameters,
-                    )
-                    .map_err(FHIRHTTPError::from)?;
+                    let body = serde_json::to_string(&fhirinvoke_system_request.parameters)
+                        .map_err(FHIRHTTPError::from)?;
 
                     let request = state
                         .client
@@ -615,7 +607,7 @@ fn fhir_request_to_http_request<'a>(
                 }
             },
             FHIRRequest::Batch(fhirbatch_request) => {
-                let body = haste_fhir_serialization_json::to_string(&fhirbatch_request.resource)
+                let body = serde_json::to_string(&fhirbatch_request.resource)
                     .map_err(FHIRHTTPError::from)?;
 
                 let request = state
@@ -657,8 +649,7 @@ async fn check_for_errors(
 ) -> Result<(), OperationOutcomeError> {
     if !status.is_success() {
         if let Some(body) = body
-            && let Ok(operation_outcome) =
-                haste_fhir_serialization_json::from_bytes::<OperationOutcome>(&body)
+            && let Ok(operation_outcome) = serde_json::from_slice::<OperationOutcome>(&body)
         {
             return Err(OperationOutcomeError::new(None, operation_outcome));
         }
@@ -686,8 +677,8 @@ fn http_response_to_fhir_response<'a>(
 
                 check_for_errors(&status, Some(&body)).await?;
 
-                let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                    .map_err(FHIRHTTPError::from)?;
+                let resource =
+                    serde_json::from_slice::<Resource>(&body).map_err(FHIRHTTPError::from)?;
                 Ok(FHIRResponse::Read(FHIRReadResponse {
                     resource: Some(resource),
                 }))
@@ -704,8 +695,8 @@ fn http_response_to_fhir_response<'a>(
 
                 check_for_errors(&status, Some(&body)).await?;
 
-                let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                    .map_err(FHIRHTTPError::from)?;
+                let resource =
+                    serde_json::from_slice::<Resource>(&body).map_err(FHIRHTTPError::from)?;
                 Ok(FHIRResponse::Create(FHIRCreateResponse { resource }))
             }
             FHIRRequest::Patch(_) => {
@@ -717,8 +708,8 @@ fn http_response_to_fhir_response<'a>(
 
                 check_for_errors(&status, Some(&body)).await?;
 
-                let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                    .map_err(FHIRHTTPError::from)?;
+                let resource =
+                    serde_json::from_slice::<Resource>(&body).map_err(FHIRHTTPError::from)?;
                 Ok(FHIRResponse::Patch(FHIRPatchResponse { resource }))
             }
             FHIRRequest::Transaction(_) => {
@@ -730,8 +721,8 @@ fn http_response_to_fhir_response<'a>(
 
                 check_for_errors(&status, Some(&body)).await?;
 
-                let resource = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
-                    .map_err(FHIRHTTPError::from)?;
+                let resource =
+                    serde_json::from_slice::<Bundle>(&body).map_err(FHIRHTTPError::from)?;
 
                 Ok(FHIRResponse::Transaction(
                     request::FHIRTransactionResponse { resource },
@@ -746,8 +737,8 @@ fn http_response_to_fhir_response<'a>(
 
                 check_for_errors(&status, Some(&body)).await?;
 
-                let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                    .map_err(FHIRHTTPError::from)?;
+                let resource =
+                    serde_json::from_slice::<Resource>(&body).map_err(FHIRHTTPError::from)?;
                 Ok(FHIRResponse::VersionRead(
                     request::FHIRVersionReadResponse { resource },
                 ))
@@ -762,8 +753,8 @@ fn http_response_to_fhir_response<'a>(
 
                     check_for_errors(&status, Some(&body)).await?;
 
-                    let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                        .map_err(FHIRHTTPError::from)?;
+                    let resource =
+                        serde_json::from_slice::<Resource>(&body).map_err(FHIRHTTPError::from)?;
 
                     Ok(FHIRResponse::Update(request::FHIRUpdateResponse {
                         resource,
@@ -778,8 +769,8 @@ fn http_response_to_fhir_response<'a>(
 
                     check_for_errors(&status, Some(&body)).await?;
 
-                    let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                        .map_err(FHIRHTTPError::from)?;
+                    let resource =
+                        serde_json::from_slice::<Resource>(&body).map_err(FHIRHTTPError::from)?;
 
                     Ok(FHIRResponse::Update(request::FHIRUpdateResponse {
                         resource,
@@ -797,8 +788,8 @@ fn http_response_to_fhir_response<'a>(
 
                     check_for_errors(&status, Some(&body)).await?;
 
-                    let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                        .map_err(FHIRHTTPError::from)?;
+                    let resource =
+                        serde_json::from_slice::<Resource>(&body).map_err(FHIRHTTPError::from)?;
 
                     Ok(FHIRResponse::Delete(DeleteResponse::Instance(
                         request::FHIRDeleteInstanceResponse { resource },
@@ -840,9 +831,8 @@ fn http_response_to_fhir_response<'a>(
 
                 check_for_errors(&status, Some(&body)).await?;
 
-                let capabilities =
-                    haste_fhir_serialization_json::from_bytes::<CapabilityStatement>(&body)
-                        .map_err(FHIRHTTPError::from)?;
+                let capabilities = serde_json::from_slice::<CapabilityStatement>(&body)
+                    .map_err(FHIRHTTPError::from)?;
 
                 Ok(FHIRResponse::Capabilities(
                     request::FHIRCapabilitiesResponse { capabilities },
@@ -859,8 +849,8 @@ fn http_response_to_fhir_response<'a>(
 
                     check_for_errors(&status, Some(&body)).await?;
 
-                    let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
-                        .map_err(FHIRHTTPError::from)?;
+                    let bundle =
+                        serde_json::from_slice::<Bundle>(&body).map_err(FHIRHTTPError::from)?;
 
                     Ok(FHIRResponse::Search(SearchResponse::Type(
                         request::FHIRSearchTypeResponse { bundle },
@@ -875,8 +865,8 @@ fn http_response_to_fhir_response<'a>(
 
                     check_for_errors(&status, Some(&body)).await?;
 
-                    let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
-                        .map_err(FHIRHTTPError::from)?;
+                    let bundle =
+                        serde_json::from_slice::<Bundle>(&body).map_err(FHIRHTTPError::from)?;
 
                     Ok(FHIRResponse::Search(SearchResponse::System(
                         request::FHIRSearchSystemResponse { bundle },
@@ -894,8 +884,8 @@ fn http_response_to_fhir_response<'a>(
 
                     check_for_errors(&status, Some(&body)).await?;
 
-                    let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
-                        .map_err(FHIRHTTPError::from)?;
+                    let bundle =
+                        serde_json::from_slice::<Bundle>(&body).map_err(FHIRHTTPError::from)?;
 
                     Ok(FHIRResponse::History(HistoryResponse::Instance(
                         request::FHIRHistoryInstanceResponse { bundle },
@@ -910,8 +900,8 @@ fn http_response_to_fhir_response<'a>(
 
                     check_for_errors(&status, Some(&body)).await?;
 
-                    let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
-                        .map_err(FHIRHTTPError::from)?;
+                    let bundle =
+                        serde_json::from_slice::<Bundle>(&body).map_err(FHIRHTTPError::from)?;
 
                     Ok(FHIRResponse::History(HistoryResponse::Type(
                         request::FHIRHistoryTypeResponse { bundle },
@@ -926,8 +916,8 @@ fn http_response_to_fhir_response<'a>(
 
                     check_for_errors(&status, Some(&body)).await?;
 
-                    let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
-                        .map_err(FHIRHTTPError::from)?;
+                    let bundle =
+                        serde_json::from_slice::<Bundle>(&body).map_err(FHIRHTTPError::from)?;
 
                     Ok(FHIRResponse::History(HistoryResponse::System(
                         request::FHIRHistorySystemResponse { bundle },
@@ -945,8 +935,8 @@ fn http_response_to_fhir_response<'a>(
 
                     check_for_errors(&status, Some(&body)).await?;
 
-                    let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                        .map_err(FHIRHTTPError::from)?;
+                    let resource =
+                        serde_json::from_slice::<Resource>(&body).map_err(FHIRHTTPError::from)?;
 
                     Ok(FHIRResponse::Invoke(InvokeResponse::Instance(
                         request::FHIRInvokeInstanceResponse { resource },
@@ -961,8 +951,8 @@ fn http_response_to_fhir_response<'a>(
 
                     check_for_errors(&status, Some(&body)).await?;
 
-                    let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                        .map_err(FHIRHTTPError::from)?;
+                    let resource =
+                        serde_json::from_slice::<Resource>(&body).map_err(FHIRHTTPError::from)?;
 
                     Ok(FHIRResponse::Invoke(InvokeResponse::Type(
                         request::FHIRInvokeTypeResponse { resource },
@@ -977,8 +967,8 @@ fn http_response_to_fhir_response<'a>(
 
                     check_for_errors(&status, Some(&body)).await?;
 
-                    let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                        .map_err(FHIRHTTPError::from)?;
+                    let resource =
+                        serde_json::from_slice::<Resource>(&body).map_err(FHIRHTTPError::from)?;
 
                     Ok(FHIRResponse::Invoke(InvokeResponse::System(
                         request::FHIRInvokeSystemResponse { resource },
@@ -995,8 +985,8 @@ fn http_response_to_fhir_response<'a>(
 
                 check_for_errors(&status, Some(&body)).await?;
 
-                let resource = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
-                    .map_err(FHIRHTTPError::from)?;
+                let resource =
+                    serde_json::from_slice::<Bundle>(&body).map_err(FHIRHTTPError::from)?;
 
                 Ok(FHIRResponse::Batch(request::FHIRBatchResponse { resource }))
             }

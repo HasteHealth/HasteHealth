@@ -143,7 +143,7 @@ async fn derive_resource_data_arg_file_arg_or_stdin<Type: serde::de::Deserialize
     file_path: &Option<String>,
 ) -> Result<Type, OperationOutcomeError> {
     if let Some(data) = data_arg {
-        haste_fhir_serialization_json::from_str::<Type>(data).map_err(|e| {
+        serde_json::from_str::<Type>(data).map_err(|e| {
             OperationOutcomeError::error(
                 IssueType::Exception(None),
                 format!("Failed to parse transaction data: {}", e),
@@ -157,7 +157,7 @@ async fn derive_resource_data_arg_file_arg_or_stdin<Type: serde::de::Deserialize
             )
         })?;
 
-        haste_fhir_serialization_json::from_str::<Type>(&file_content).map_err(|e| {
+        serde_json::from_str::<Type>(&file_content).map_err(|e| {
             OperationOutcomeError::error(
                 IssueType::Exception(None),
                 format!("Failed to parse file: {}", e),
@@ -174,7 +174,7 @@ async fn derive_resource_data_arg_file_arg_or_stdin<Type: serde::de::Deserialize
             )
         })?;
 
-        haste_fhir_serialization_json::from_str::<Type>(&buffer).map_err(|e| {
+        serde_json::from_str::<Type>(&buffer).map_err(|e| {
             OperationOutcomeError::error(
                 IssueType::Exception(None),
                 format!("Failed to parse transaction from stdin: {}", e),
@@ -212,8 +212,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
 
             Ok(())
@@ -233,8 +232,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
 
             Ok(())
@@ -289,8 +287,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
 
             Ok(())
@@ -320,8 +317,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
             Ok(())
         }
@@ -351,7 +347,7 @@ pub async fn api_commands(
                 if let Some(true) = output {
                     println!(
                         "{}",
-                        haste_fhir_serialization_json::to_string(&bundle)
+                        serde_json::to_string_pretty(&bundle)
                             .expect("Failed to serialize response")
                     );
                 }
@@ -380,8 +376,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
 
             Ok(())
@@ -394,8 +389,7 @@ pub async fn api_commands(
             if let Some(true) = output {
                 println!(
                     "{}",
-                    haste_fhir_serialization_json::to_string(&result)
-                        .expect("Failed to serialize response")
+                    serde_json::to_string_pretty(&result).expect("Failed to serialize response")
                 );
             }
 
@@ -411,8 +405,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
 
             Ok(())
@@ -441,8 +434,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
 
             Ok(())
@@ -473,8 +465,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
 
             Ok(())
@@ -503,8 +494,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
 
             Ok(())
@@ -519,8 +509,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
 
             Ok(())
@@ -541,8 +530,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
 
             Ok(())
@@ -574,8 +562,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
 
             Ok(())
@@ -614,8 +601,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
 
             Ok(())
@@ -625,8 +611,7 @@ pub async fn api_commands(
 
             println!(
                 "{}",
-                haste_fhir_serialization_json::to_string(&result)
-                    .expect("Failed to serialize response")
+                serde_json::to_string_pretty(&result).expect("Failed to serialize response")
             );
 
             Ok(())

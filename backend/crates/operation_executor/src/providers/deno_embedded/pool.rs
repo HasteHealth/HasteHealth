@@ -107,20 +107,13 @@ fn get_parameters<'a>(input: &'a InvocationRequest) -> &'a Parameters {
 }
 
 fn request_to_json(input: &InvocationRequest) -> Result<serde_json::Value, OperationOutcomeError> {
-    let parameter_json: serde_json::Value = serde_json::from_str(
-        &haste_fhir_serialization_json::to_string(get_parameters(input)).map_err(|error| {
+    let parameter_json: serde_json::Value =
+        serde_json::to_value(get_parameters(input)).map_err(|_| {
             OperationOutcomeError::error(
                 IssueType::Invalid(None),
-                format!("Failed to serialize operation input parameters: {error}"),
+                "Failed to convert operation input parameters to JSON value".to_string(),
             )
-        })?,
-    )
-    .map_err(|_| {
-        OperationOutcomeError::error(
-            IssueType::Invalid(None),
-            "Failed to convert operation input parameters to JSON value".to_string(),
-        )
-    })?;
+        })?;
 
     match input {
         InvocationRequest::Instance(instance_request) => Ok(json!({
@@ -191,13 +184,12 @@ impl OperationExecutor for DenoPool {
                 )
             })?;
 
-        let output = haste_fhir_serialization_json::from_serde_value::<Parameters>(output)
-            .map_err(|error| {
-                OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    format!("Operation custom code returned invalid Parameters payload: {error}"),
-                )
-            })?;
+        let output = serde_json::from_value::<Parameters>(output).map_err(|error| {
+            OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                format!("Operation custom code returned invalid Parameters payload: {error}"),
+            )
+        })?;
 
         validate_parameters(
             &output,

@@ -226,7 +226,7 @@ pub async fn fhir_read_resource<
         })?;
 
     if let Some(resource) = resource {
-        serde_json::from_str(&haste_fhir_serialization_json::to_string(&resource).unwrap())
+        serde_json::to_value(&resource)
             .map_err(|_| deno_error::JsErrorBox::type_error("Failed to serialize resource"))
     } else {
         Ok(serde_json::Value::Null)

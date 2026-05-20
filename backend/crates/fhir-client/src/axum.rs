@@ -85,7 +85,7 @@ impl IntoResponse for FHIRResponse {
                 StatusCode::CREATED,
                 header,
                 // Unwrap should be safe here.
-                haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                serde_json::to_string(&response.resource).unwrap(),
             )
                 .into_response(),
             FHIRResponse::Read(response) => {
@@ -94,7 +94,7 @@ impl IntoResponse for FHIRResponse {
                         StatusCode::OK,
                         header,
                         // Unwrap should be safe here.
-                        haste_fhir_serialization_json::to_string(&resource).unwrap(),
+                        serde_json::to_string(&resource).unwrap(),
                     )
                         .into_response()
                 } else {
@@ -109,21 +109,21 @@ impl IntoResponse for FHIRResponse {
                 StatusCode::OK,
                 header,
                 // Unwrap should be safe here.
-                haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                serde_json::to_string(&response.resource).unwrap(),
             )
                 .into_response(),
             FHIRResponse::Update(response) => (
                 StatusCode::OK,
                 header,
                 // Unwrap should be safe here.
-                haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                serde_json::to_string(&response.resource).unwrap(),
             )
                 .into_response(),
             FHIRResponse::Capabilities(response) => (
                 StatusCode::OK,
                 header,
                 // Unwrap should be safe here.
-                haste_fhir_serialization_json::to_string(&response.capabilities).unwrap(),
+                serde_json::to_string(&response.capabilities).unwrap(),
             )
                 .into_response(),
             FHIRResponse::History(history_response) => match history_response {
@@ -131,21 +131,21 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
+                    serde_json::to_string(&response.bundle).unwrap(),
                 )
                     .into_response(),
                 HistoryResponse::Type(response) => (
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
+                    serde_json::to_string(&response.bundle).unwrap(),
                 )
                     .into_response(),
                 HistoryResponse::System(response) => (
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
+                    serde_json::to_string(&response.bundle).unwrap(),
                 )
                     .into_response(),
             },
@@ -154,14 +154,14 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
+                    serde_json::to_string(&response.bundle).unwrap(),
                 )
                     .into_response(),
                 SearchResponse::System(response) => (
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
+                    serde_json::to_string(&response.bundle).unwrap(),
                 )
                     .into_response(),
             },
@@ -170,7 +170,7 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                    serde_json::to_string(&response.resource).unwrap(),
                 )
                     .into_response()
             }
@@ -180,8 +180,7 @@ impl IntoResponse for FHIRResponse {
                         StatusCode::OK,
                         header,
                         // Unwrap should be safe here.
-                        haste_fhir_serialization_json::to_string(&invoke_response.resource)
-                            .unwrap(),
+                        serde_json::to_string(&invoke_response.resource).unwrap(),
                     )
                         .into_response()
                 }
@@ -190,8 +189,7 @@ impl IntoResponse for FHIRResponse {
                         StatusCode::OK,
                         header,
                         // Unwrap should be safe here.
-                        haste_fhir_serialization_json::to_string(&invoke_response.resource)
-                            .unwrap(),
+                        serde_json::to_string(&invoke_response.resource).unwrap(),
                     )
                         .into_response()
                 }
@@ -200,8 +198,7 @@ impl IntoResponse for FHIRResponse {
                         StatusCode::OK,
                         header,
                         // Unwrap should be safe here.
-                        haste_fhir_serialization_json::to_string(&invoke_response.resource)
-                            .unwrap(),
+                        serde_json::to_string(&invoke_response.resource).unwrap(),
                     )
                         .into_response()
                 }
@@ -211,7 +208,7 @@ impl IntoResponse for FHIRResponse {
                 DeleteResponse::Instance(instance_delete) => (
                     StatusCode::OK,
                     header,
-                    haste_fhir_serialization_json::to_string(&instance_delete.resource).unwrap(),
+                    serde_json::to_string(&instance_delete.resource).unwrap(),
                 )
                     .into_response(),
                 DeleteResponse::Type(_) => (StatusCode::NO_CONTENT, header, "").into_response(),
@@ -222,7 +219,7 @@ impl IntoResponse for FHIRResponse {
                 StatusCode::OK,
                 header,
                 // Unwrap should be safe here.
-                haste_fhir_serialization_json::to_string(&fhirpatch_response.resource).unwrap(),
+                serde_json::to_string(&fhirpatch_response.resource).unwrap(),
             )
                 .into_response(),
 
@@ -231,8 +228,7 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&fhirtransaction_response.resource)
-                        .unwrap(),
+                    serde_json::to_string(&fhirtransaction_response.resource).unwrap(),
                 )
                     .into_response()
             }

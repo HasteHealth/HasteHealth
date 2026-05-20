@@ -98,7 +98,7 @@ fn get_parameters(req: HTTPRequest) -> Result<Parameters, FHIRRequestParsingErro
                 return Err(FHIRRequestParsingError::InvalidBody);
             }
         }
-        HTTPBody::String(body) => haste_fhir_serialization_json::from_str::<Parameters>(&body),
+        HTTPBody::String(body) => serde_json::from_str::<Parameters>(&body),
     }?;
     Ok(params)
 }
@@ -112,7 +112,7 @@ fn get_bundle(req: HTTPRequest) -> Result<Bundle, FHIRRequestParsingError> {
                 return Err(FHIRRequestParsingError::InvalidBody);
             }
         }
-        HTTPBody::String(body) => haste_fhir_serialization_json::from_str::<Bundle>(&body),
+        HTTPBody::String(body) => serde_json::from_str::<Bundle>(&body),
     }?;
     Ok(bundle)
 }

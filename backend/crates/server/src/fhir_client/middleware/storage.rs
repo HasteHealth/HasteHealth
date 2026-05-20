@@ -794,39 +794,14 @@ impl<
                         ));
                     };
 
-                    let mut writer = BufWriter::new(Vec::new());
-                    haste_fhir_serialization_json::to_writer(&mut writer, &resource).map_err(
-                        |e| {
+                    let mut json: serde_json::Value =
+                        serde_json::to_value(&resource).map_err(|e| {
                             OperationOutcomeError::fatal(
                                 IssueType::Exception(None),
-                                "Failed to serialize resource for patching: ".to_string()
-                                    + e.to_string().as_str(),
+                                "Failed to deserialize JSON for patching: ".to_string()
+                                    + (e.to_string().as_str()),
                             )
-                        },
-                    )?;
-                    writer.flush().map_err(|e| {
-                        OperationOutcomeError::fatal(
-                            IssueType::Exception(None),
-                            "Failed to flush buffer: ".to_string() + e.to_string().as_str(),
-                        )
-                    })?;
-
-                    let content: Vec<u8> = writer.into_inner().map_err(|e| {
-                        OperationOutcomeError::fatal(
-                            IssueType::Exception(None),
-                            "Failed to retrieve buffer content: ".to_string()
-                                + (e.to_string().as_str()),
-                        )
-                    })?;
-
-                    let mut json: serde_json::Value = serde_json::from_reader(content.as_slice())
-                        .map_err(|e| {
-                        OperationOutcomeError::fatal(
-                            IssueType::Exception(None),
-                            "Failed to deserialize JSON for patching: ".to_string()
-                                + (e.to_string().as_str()),
-                        )
-                    })?;
+                        })?;
 
                     json_patch::patch(&mut json, &fhir_patch_request.patch).map_err(|e| {
                         OperationOutcomeError::fatal(
@@ -835,15 +810,13 @@ impl<
                         )
                     })?;
 
-                    let mut patched_resource = haste_fhir_serialization_json::from_serde_value::<
-                        Resource,
-                    >(json)
-                    .map_err(|e| {
-                        OperationOutcomeError::fatal(
-                            IssueType::Exception(None),
-                            format!("Failed to deserialize patched resource '{}'.", e),
-                        )
-                    })?;
+                    let mut patched_resource = serde_json::from_serde_value::<Resource>(json)
+                        .map_err(|e| {
+                            OperationOutcomeError::fatal(
+                                IssueType::Exception(None),
+                                format!("Failed to deserialize patched resource '{}'.", e),
+                            )
+                        })?;
 
                     if std::mem::discriminant(&resource)
                         != std::mem::discriminant(&patched_resource)

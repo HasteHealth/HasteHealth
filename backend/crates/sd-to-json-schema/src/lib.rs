@@ -373,8 +373,8 @@ mod test {
         let sd_str =
             include_str!("../../artifacts/artifacts/r4/hl7/minified/profiles-resources.min.json");
 
-        let bundle: Bundle = haste_fhir_serialization_json::from_str(sd_str)
-            .expect("Failed to parse StructureDefinitions");
+        let bundle: Bundle =
+            serde_json::from_str(sd_str).expect("Failed to parse StructureDefinitions");
 
         bundle
             .entry
@@ -399,8 +399,8 @@ mod test {
             let sd_str =
                 include_str!("../../artifacts/artifacts/r4/hl7/minified/profiles-types.min.json");
 
-            let bundle: Bundle = haste_fhir_serialization_json::from_str(sd_str)
-                .expect("Failed to parse StructureDefinitions");
+            let bundle: Bundle =
+                serde_json::from_str(sd_str).expect("Failed to parse StructureDefinitions");
 
             bundle
             .entry
@@ -455,7 +455,7 @@ mod test {
 
         // println!("{}", serde_json::to_string_pretty(&schema).unwrap());
 
-        let patient_data = haste_fhir_serialization_json::to_string(&Patient {
+        let patient_data = serde_json::to_string(&Patient {
             name: Some(vec![Box::new(HumanName {
                 family: Some(Box::new(FHIRString {
                     value: Some("Doe".to_string()),
