@@ -1,5 +1,5 @@
 use proc_macro::TokenStream;
-use quote::quote;
+use quote::{format_ident, quote};
 use syn::{Data, DeriveInput};
 
 use crate::{
@@ -138,13 +138,48 @@ pub fn complex_serialization(
     match input.data {
         Data::Struct(data) => {
             let field_information = data.fields.iter().map(process_field).collect::<Vec<_>>();
+            let map_serializer = format_ident!("___serializer");
 
             let instantiation_serialize = field_information.iter().map(|field| {
-                let field_ident = field.ident;
-                match field.type_info {
-                    TypeInformation::Primitive => {}
-                    TypeInformation::Complex => {}
-                    TypeInformation::TypeChoice(_) => {}
+                let field_ident = &field.ident;
+                let field_name = &field.field_name;
+                let field_type = &field.field_type;
+
+                let serialize_field = match field.type_info {
+                    TypeInformation::Primitive => {
+                        if field.is_vector {
+                            quote!{
+                                #field_type::serialize_as_vector(#field_name, #field_ident.as_slice(), &mut #map_serializer)?;
+                            }
+                        } else {
+                            quote!{
+                                #field_ident.serialize_as_field(#field_name, &mut #map_serializer)?;
+                            }
+                        }
+                    }
+                    TypeInformation::Complex => {
+                        quote! {
+                            #map_serializer.serialize_entry(#field_name, #field_ident)?;
+                        }
+                    }
+                    TypeInformation::TypeChoice(_) => {
+                        quote! {
+                            #field_ident.serialize_as_field(#field_name, &mut #map_serializer)?;
+                        }
+                    }
+                };
+
+                if field.is_optional {
+                    quote! {
+                        if let Some(#field_ident) = &self.#field_ident {
+                            #serialize_field
+                        }
+                    }
+                } else {
+                    quote! {
+                        let #field_ident = &self.#field_ident;
+                        #serialize_field
+                    }
                 }
             });
 
@@ -154,10 +189,17 @@ pub fn complex_serialization(
                     where
                         S: serde::Serializer,
                     {
-                        todo!();
+                        use serde::ser::SerializeMap;
+                        let mut #map_serializer = serializer.serialize_map(None)?;
+                        #(#instantiation_serialize)*
+                        #map_serializer.end()
                     }
                 }
             };
+
+            if name.to_string() == "ExampleScenario" {
+                println!("{}", serialize.to_string());
+            }
 
             serialize.into()
         }
@@ -201,8 +243,8 @@ pub fn valueset_serialization(input: DeriveInput) -> TokenStream {
                         Ok(())
                     }
 
-                    pub fn serialize_as_vector<M: serde::ser::SerializeMap>(field_name: &str, values: &[Self], serializer: &mut M) -> Result<(), M::Error> {
-                        let value_array: Vec<Option<String>> = values.iter().map(|v| v.into()).collect();
+                    pub fn serialize_as_vector<M: serde::ser::SerializeMap>(field_name: &str, values: &[Box<Self>], serializer: &mut M) -> Result<(), M::Error> {
+                        let value_array: Vec<Option<String>> = values.iter().map(|v| v.as_ref().into()).collect();
                         let element_array: Vec<Option<_>> = values.iter().map(|v| v.element()).collect();
 
                         if value_array.iter().any(|v| v.is_some()) {

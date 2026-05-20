@@ -64,6 +64,24 @@ pub fn get_inner_type_if_optional(type_: &Type) -> Type {
     type_.clone()
 }
 
+fn get_inner_type_if_vector_or_optional_or_box(type_: &Type) -> Type {
+    if let Type::Path(path) = type_ {
+        if let Some(inner_type) = path.path.segments.first() {
+            if inner_type.ident == "Option"
+                || inner_type.ident == "Vec"
+                || inner_type.ident == "Box"
+            {
+                if let syn::PathArguments::AngleBracketed(args) = &inner_type.arguments {
+                    if let Some(syn::GenericArgument::Type(ty)) = args.args.first() {
+                        return get_inner_type_if_vector_or_optional_or_box(ty);
+                    }
+                }
+            }
+        }
+    }
+    type_.clone()
+}
+
 // Should return if it's a vector even if Option<Vec<T>>
 pub fn is_vector(field: &Field) -> bool {
     let field_type = get_field_type(field);
@@ -85,6 +103,7 @@ pub fn is_vector(field: &Field) -> bool {
     }
 }
 
+#[derive(Debug)]
 pub struct CardinalityAttribute {
     pub min: Option<usize>,
     pub max: Option<usize>,
@@ -148,6 +167,7 @@ pub fn get_cardinality_attributes(attrs: &[Attribute]) -> Option<CardinalityAttr
     }
 }
 
+#[derive(Debug)]
 pub struct TypeChoiceAttribute {
     pub complex_variants: Vec<String>,
     pub primitive_variants: Vec<String>,
@@ -292,20 +312,22 @@ fn get_attribute_list(attrs: &[Attribute], attribute: &str) -> Option<MetaList> 
     })
 }
 
+#[derive(Debug)]
 pub enum TypeInformation {
     Primitive,
     TypeChoice(TypeChoiceAttribute),
     Complex,
 }
 
+#[derive(Debug)]
 pub struct FieldInformation {
     pub ident: Ident,
     pub ty: Type,
+    pub field_type: Type,
     pub field_name: String,
     pub type_info: TypeInformation,
     pub is_vector: bool,
     pub is_optional: bool,
-    #[allow(dead_code)]
     pub cardinality: Option<CardinalityAttribute>,
 }
 
@@ -318,6 +340,7 @@ pub fn process_field(field: &Field) -> FieldInformation {
     FieldInformation {
         ident: field.ident.clone().unwrap(),
         ty: field.ty.clone(),
+        field_type: get_inner_type_if_vector_or_optional_or_box(&field.ty),
         field_name: get_field_name(field),
         is_vector: is_vector(field),
         is_optional: is_optional_field(field),
