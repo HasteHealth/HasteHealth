@@ -10,7 +10,6 @@ use std::io::Write;
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -27,7 +26,6 @@ pub struct Element {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -46,7 +44,6 @@ pub struct BackboneElement {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -73,7 +70,6 @@ impl FHIRBase64Binary {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -100,7 +96,6 @@ impl FHIRBoolean {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -127,7 +122,6 @@ impl FHIRCanonical {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -154,7 +148,6 @@ impl FHIRCode {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -181,7 +174,6 @@ impl FHIRDate {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -208,7 +200,6 @@ impl FHIRDateTime {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -235,7 +226,6 @@ impl FHIRDecimal {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -262,7 +252,6 @@ impl FHIRId {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -289,7 +278,6 @@ impl FHIRInstant {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -316,7 +304,6 @@ impl FHIRInteger {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -343,7 +330,6 @@ impl FHIRMarkdown {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -370,7 +356,6 @@ impl FHIROid {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -397,7 +382,6 @@ impl FHIRPositiveInt {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -424,7 +408,6 @@ impl FHIRString {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -451,7 +434,6 @@ impl FHIRTime {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -478,7 +460,6 @@ impl FHIRUnsignedInt {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -505,7 +486,6 @@ impl FHIRUri {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -532,7 +512,6 @@ impl FHIRUrl {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -559,7 +538,6 @@ impl FHIRUuid {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -587,7 +565,6 @@ impl FHIRXhtml {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -635,7 +612,6 @@ pub struct Address {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -666,7 +642,6 @@ pub struct Age {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -688,7 +663,6 @@ impl Default for AnnotationAuthorTypeChoice {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -714,7 +688,6 @@ pub struct Annotation {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -755,7 +728,6 @@ pub struct Attachment {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -777,7 +749,6 @@ pub struct CodeableConcept {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -809,7 +780,6 @@ pub struct Coding {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -831,7 +801,6 @@ pub struct ContactDetail {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -863,7 +832,6 @@ pub struct ContactPoint {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -889,7 +857,6 @@ pub struct Contributor {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -920,7 +887,6 @@ pub struct Count {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -941,7 +907,6 @@ impl Default for DataRequirementSubjectTypeChoice {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -968,7 +933,6 @@ pub struct DataRequirementCodeFilter {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -990,7 +954,6 @@ impl Default for DataRequirementDateFilterValueTypeChoice {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1016,7 +979,6 @@ pub struct DataRequirementDateFilter {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1039,7 +1001,6 @@ pub struct DataRequirementSort {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1078,7 +1039,6 @@ pub struct DataRequirement {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1109,7 +1069,6 @@ pub struct Distance {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1129,7 +1088,6 @@ impl Default for DosageAsNeededTypeChoice {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1148,7 +1106,6 @@ impl Default for DosageDoseAndRateDoseTypeChoice {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1169,7 +1126,6 @@ impl Default for DosageDoseAndRateRateTypeChoice {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1195,7 +1151,6 @@ pub struct DosageDoseAndRate {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1244,7 +1199,6 @@ pub struct Dosage {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1276,7 +1230,6 @@ pub struct Duration {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1300,7 +1253,6 @@ pub struct ElementDefinitionSlicingDiscriminator {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1328,7 +1280,6 @@ pub struct ElementDefinitionSlicing {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1354,7 +1305,6 @@ pub struct ElementDefinitionBase {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1385,7 +1335,6 @@ pub struct ElementDefinitionType {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1471,7 +1420,6 @@ impl Default for ElementDefinitionDefaultValueTypeChoice {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1557,7 +1505,6 @@ impl Default for ElementDefinitionFixedTypeChoice {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1643,7 +1590,6 @@ impl Default for ElementDefinitionPatternTypeChoice {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1730,7 +1676,6 @@ impl Default for ElementDefinitionExampleValueTypeChoice {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1752,7 +1697,6 @@ pub struct ElementDefinitionExample {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1786,7 +1730,6 @@ impl Default for ElementDefinitionMinValueTypeChoice {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1821,7 +1764,6 @@ impl Default for ElementDefinitionMaxValueTypeChoice {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1859,7 +1801,6 @@ pub struct ElementDefinitionConstraint {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1885,7 +1826,6 @@ pub struct ElementDefinitionBinding {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -1914,7 +1854,6 @@ pub struct ElementDefinitionMapping {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2028,7 +1967,6 @@ pub struct ElementDefinition {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2059,7 +1997,6 @@ pub struct Expression {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2146,7 +2083,6 @@ impl Default for ExtensionValueTypeChoice {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2168,7 +2104,6 @@ pub struct Extension {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2206,7 +2141,6 @@ pub struct HumanName {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2241,7 +2175,6 @@ pub struct Identifier {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2271,7 +2204,6 @@ pub struct MarketingStatus {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2304,7 +2236,6 @@ pub struct Meta {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2327,7 +2258,6 @@ pub struct Money {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2350,7 +2280,6 @@ pub struct Narrative {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2390,7 +2319,6 @@ pub struct ParameterDefinition {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2412,7 +2340,6 @@ pub struct Period {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2432,7 +2359,6 @@ impl Default for PopulationAgeTypeChoice {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2460,7 +2386,6 @@ pub struct Population {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2504,7 +2429,6 @@ pub struct ProdCharacteristic {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2533,7 +2457,6 @@ pub struct ProductShelfLife {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2565,7 +2488,6 @@ pub struct Quantity {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2586,7 +2508,6 @@ pub struct Range {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2607,7 +2528,6 @@ pub struct Ratio {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2637,7 +2557,6 @@ pub struct Reference {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2675,7 +2594,6 @@ pub struct RelatedArtifact {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2712,7 +2630,6 @@ pub struct SampledData {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2750,7 +2667,6 @@ pub struct Signature {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2772,7 +2688,6 @@ impl Default for SubstanceAmountAmountTypeChoice {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2793,7 +2708,6 @@ pub struct SubstanceAmountReferenceRange {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2821,7 +2735,6 @@ pub struct SubstanceAmount {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2842,7 +2755,6 @@ impl Default for TimingRepeatBoundsTypeChoice {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2904,7 +2816,6 @@ pub struct TimingRepeat {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2929,7 +2840,6 @@ pub struct Timing {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2954,7 +2864,6 @@ impl Default for TriggerDefinitionTimingTypeChoice {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -2984,7 +2893,6 @@ pub struct TriggerDefinition {
     Clone,
     Reflect,
     Debug,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -3007,7 +2915,6 @@ impl Default for UsageContextValueTypeChoice {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
@@ -3029,7 +2936,6 @@ pub struct UsageContext {
     Reflect,
     Debug,
     Default,
-    haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]

@@ -482,7 +482,7 @@ pub mod load {
         let data = std::fs::read_to_string(file_path)
             .map_err(|e| format!("Failed to read file: {}", e))?;
 
-        let resource = haste_fhir_serialization_json::from_str::<Resource>(&data)
+        let resource = serde_json::from_str::<Resource>(&data)
             .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
         Ok(resource)

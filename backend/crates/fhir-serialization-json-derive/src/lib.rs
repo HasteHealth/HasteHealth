@@ -115,7 +115,25 @@ pub fn deserialize(input: TokenStream) -> TokenStream {
 
 #[proc_macro_derive(
     FHIRSerdeDeserialize,
-    attributes(fhir_serialize_type, rename_field, type_choice_variants, determine_by)
+    attributes(
+        fhir_serialize_type,
+        rename_field,
+
+        // Used on the enum itself for typechoice.
+        type_choice_field_name,
+
+        // Used on field itself for variants.
+        type_choice_variants,
+
+        primitive,
+
+        // Used for enum serialization.
+        determine_by,
+
+        // For validation on vector min maxes.
+        cardinality,
+        reference
+    )
 )]
 pub fn serde_deserialize(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -140,7 +158,19 @@ pub fn serde_deserialize(input: TokenStream) -> TokenStream {
 
 #[proc_macro_derive(
     FHIRSerdeSerialize,
-    attributes(fhir_serialize_type, rename_field, type_choice_variants, determine_by)
+    attributes(
+        fhir_serialize_type,
+        rename_field,
+        // Used on the enum itself for typechoice.
+        type_choice_field_name,
+         // Used on field itself for variants.
+        type_choice_variants,
+        primitive,
+        code,
+        // For validation on vector min maxes.
+        cardinality,
+        reference
+    )
 )]
 pub fn serde_serialize(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
