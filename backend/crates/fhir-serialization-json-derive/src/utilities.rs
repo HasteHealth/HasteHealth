@@ -1,6 +1,8 @@
 use core::panic;
 use quote::ToTokens;
-use syn::{Attribute, Expr, Field, Lit, Meta, MetaList, Token, Type, punctuated::Punctuated};
+use syn::{
+    Attribute, Expr, Field, Ident, Lit, Meta, MetaList, Token, Type, punctuated::Punctuated,
+};
 
 /// Use rename_field attribute if present else use the struct name
 pub fn get_field_name(field: &Field) -> String {
@@ -288,4 +290,45 @@ fn get_attribute_list(attrs: &[Attribute], attribute: &str) -> Option<MetaList> 
         }
         _ => None,
     })
+}
+
+pub enum TypeInformation {
+    Primitive,
+    TypeChoice(TypeChoiceAttribute),
+    Complex,
+}
+
+pub struct FieldInformation {
+    pub ident: Ident,
+    pub ty: Type,
+    pub field_name: String,
+    pub type_info: TypeInformation,
+    pub is_vector: bool,
+    pub is_optional: bool,
+    #[allow(dead_code)]
+    pub cardinality: Option<CardinalityAttribute>,
+}
+
+// Get the various metadata extracted from the field.
+pub fn process_field(field: &Field) -> FieldInformation {
+    let is_primitive = is_attribute_present(&field.attrs, "primitive");
+    let type_choice_attr = get_type_choice_attribute(&field.attrs);
+    let is_type_choice = type_choice_attr.is_some();
+
+    FieldInformation {
+        ident: field.ident.clone().unwrap(),
+        ty: field.ty.clone(),
+        field_name: get_field_name(field),
+        is_vector: is_vector(field),
+        is_optional: is_optional_field(field),
+        cardinality: get_cardinality_attributes(&field.attrs),
+
+        type_info: if is_primitive {
+            TypeInformation::Primitive
+        } else if is_type_choice {
+            TypeInformation::TypeChoice(type_choice_attr.unwrap())
+        } else {
+            TypeInformation::Complex
+        },
+    }
 }

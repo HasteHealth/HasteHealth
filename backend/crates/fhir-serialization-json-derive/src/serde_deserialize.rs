@@ -1,13 +1,12 @@
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
-use syn::{Data, DeriveInput, Field, Ident, Type, Variant};
+use syn::{Data, DeriveInput, Ident, Type, Variant};
 
 use crate::{
     DeserializeComplexType,
     utilities::{
-        CardinalityAttribute, TypeChoiceAttribute, get_attribute_value, get_cardinality_attributes,
-        get_field_name, get_field_type, get_inner_type_if_optional, get_type_choice_attribute,
-        is_attribute_present, is_optional_field, is_vector,
+        CardinalityAttribute, FieldInformation, TypeInformation, get_attribute_value,
+        get_field_type, get_inner_type_if_optional, is_attribute_present, process_field,
     },
 };
 
@@ -272,47 +271,6 @@ fn create_complex_field_declaration(field: &FieldInformation) -> Vec<proc_macro2
         TypeInformation::Complex => {
             vec![quote! { let mut #value_ident: Option<#field_ty> = None; }]
         }
-    }
-}
-
-enum TypeInformation {
-    Primitive,
-    TypeChoice(TypeChoiceAttribute),
-    Complex,
-}
-
-struct FieldInformation {
-    ident: Ident,
-    ty: Type,
-    field_name: String,
-    type_info: TypeInformation,
-    is_vector: bool,
-    is_optional: bool,
-    #[allow(dead_code)]
-    cardinality: Option<CardinalityAttribute>,
-}
-
-// Get the various metadata extracted from the field.
-fn process_field(field: &Field) -> FieldInformation {
-    let is_primitive = is_attribute_present(&field.attrs, "primitive");
-    let type_choice_attr = get_type_choice_attribute(&field.attrs);
-    let is_type_choice = type_choice_attr.is_some();
-
-    FieldInformation {
-        ident: field.ident.clone().unwrap(),
-        ty: field.ty.clone(),
-        field_name: get_field_name(field),
-        is_vector: is_vector(field),
-        is_optional: is_optional_field(field),
-        cardinality: get_cardinality_attributes(&field.attrs),
-
-        type_info: if is_primitive {
-            TypeInformation::Primitive
-        } else if is_type_choice {
-            TypeInformation::TypeChoice(type_choice_attr.unwrap())
-        } else {
-            TypeInformation::Complex
-        },
     }
 }
 
