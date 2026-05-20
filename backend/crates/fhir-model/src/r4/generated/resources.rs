@@ -29340,7 +29340,7 @@ pub struct VisionPrescription {
     Reflect,
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRJSONSerialize,
-    serde :: Serialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     serde :: Deserialize,
 )]
 #[fhir_serialize_type = "enum-variant"]

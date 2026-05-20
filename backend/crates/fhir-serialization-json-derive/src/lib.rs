@@ -155,6 +155,7 @@ pub fn serde_serialize(input: TokenStream) -> TokenStream {
         "resource" => {
             serde_serialize::complex_serialization(input, DeserializeComplexType::Resource)
         }
+        "enum-variant" => serde_serialize::enum_variant_serialization(input),
         _ => panic!("Only primitive and valueset supported for serde deserialization."),
     };
 

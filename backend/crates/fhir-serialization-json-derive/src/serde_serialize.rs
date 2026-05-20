@@ -132,13 +132,23 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
 
 pub fn complex_serialization(
     input: DeriveInput,
-    _deserialize_complex_type: DeserializeComplexType,
+    deserialize_complex_type: DeserializeComplexType,
 ) -> TokenStream {
     let name = input.ident;
+    let name_string = name.to_string();
     match input.data {
         Data::Struct(data) => {
             let field_information = data.fields.iter().map(process_field).collect::<Vec<_>>();
             let map_serializer = format_ident!("___serializer");
+
+            let serialize_resourcetype =
+                if deserialize_complex_type == DeserializeComplexType::Resource {
+                    quote! {
+                        #map_serializer.serialize_entry("resourceType", #name_string)?;
+                    }
+                } else {
+                    quote! {}
+                };
 
             let instantiation_serialize = field_information.iter().map(|field| {
                 let field_ident = &field.ident;
@@ -191,6 +201,7 @@ pub fn complex_serialization(
                     {
                         use serde::ser::SerializeMap;
                         let mut #map_serializer = serializer.serialize_map(None)?;
+                        #serialize_resourcetype
                         #(#instantiation_serialize)*
                         #map_serializer.end()
                     }
@@ -306,5 +317,35 @@ pub fn typechoice_serialization(input: DeriveInput) -> TokenStream {
             serialize.into()
         }
         _ => panic!("Typechoice must be enums."),
+    }
+}
+
+pub fn enum_variant_serialization(input: DeriveInput) -> TokenStream {
+    let name = input.ident;
+    match input.data {
+        Data::Enum(data) => {
+            let serialize_field_variants = data.variants.iter().map(|v| {
+                let variant_name = &v.ident;
+                quote! {
+                    #name::#variant_name(v) => v.serialize(serializer)?,
+                }
+            });
+
+            let serialize = quote! {
+                impl serde::Serialize for #name {
+                    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+                    where
+                        S: serde::Serializer,
+                    {
+                        match self {
+                            #(#serialize_field_variants)*
+                        }
+                    }
+                }
+            };
+
+            serialize.into()
+        }
+        _ => panic!("Enum variants must be enums."),
     }
 }
