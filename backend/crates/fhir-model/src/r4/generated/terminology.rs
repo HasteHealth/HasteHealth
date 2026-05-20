@@ -4,7 +4,6 @@ use self::super::types::Element;
 use haste_fhir_serialization_json::derive::{FHIRSerdeDeserialize, FHIRSerdeSerialize};
 use haste_reflect::MetaValue;
 use std::any::Any;
-use std::io::Write;
 #[derive(Debug, Clone, FHIRSerdeDeserialize, FHIRSerdeSerialize)]
 #[fhir_serialize_type = "valueset"]
 pub enum FHIRVersion {

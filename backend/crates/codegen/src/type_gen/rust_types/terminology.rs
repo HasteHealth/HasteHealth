@@ -500,7 +500,6 @@ pub async fn generate(
             use std::any::Any;
             use haste_reflect::MetaValue;
             use haste_fhir_serialization_json::derive::{FHIRSerdeDeserialize, FHIRSerdeSerialize};
-            use std::io::Write;
             #(#codes)*
         },
     })
