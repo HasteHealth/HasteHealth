@@ -4,7 +4,10 @@ use syn::{Data, DeriveInput};
 
 use crate::{
     DeserializeComplexType,
-    utilities::{get_attribute_value, is_attribute_present, is_optional_field},
+    utilities::{
+        TypeInformation, get_attribute_value, is_attribute_present, is_optional_field,
+        process_field,
+    },
 };
 
 fn extension_derive() -> proc_macro2::TokenStream {
@@ -133,7 +136,18 @@ pub fn complex_serialization(
 ) -> TokenStream {
     let name = input.ident;
     match input.data {
-        Data::Struct(_data) => {
+        Data::Struct(data) => {
+            let field_information = data.fields.iter().map(process_field).collect::<Vec<_>>();
+
+            let instantiation_serialize = field_information.iter().map(|field| {
+                let field_ident = field.ident;
+                match field.type_info {
+                    TypeInformation::Primitive => {}
+                    TypeInformation::Complex => {}
+                    TypeInformation::TypeChoice(_) => {}
+                }
+            });
+
             let serialize = quote! {
                 impl serde::Serialize for #name {
                     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
