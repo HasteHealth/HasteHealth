@@ -1,6 +1,5 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use haste_fhir_model::r4::generated::resources::{Patient, Resource};
-use haste_fhir_serialization_json::FHIRJSONDeserializer;
+use haste_fhir_model::r4::generated::resources::{Bundle, Patient, Resource};
 
 fn complex_patient(c: &mut Criterion) {
     let patient_string = r#"
@@ -124,8 +123,18 @@ fn complex_patient(c: &mut Criterion) {
     //     b.iter(|| Patient::from_json_str(patient_string).unwrap())
     // });
 
-    c.bench_function("complex_patient_serde", |b| {
+    c.bench_function("complex_patient_serde deserialize", |b| {
         b.iter(|| serde_json::from_str::<Patient>(patient_string).unwrap())
+    });
+
+    let patient = serde_json::from_str::<Patient>(patient_string).unwrap();
+
+    c.bench_function("complex_patient_serde serialize", |b| {
+        b.iter(|| serde_json::to_string(&patient).unwrap())
+    });
+
+    c.bench_function("complex_patient serialize", |b| {
+        b.iter(|| haste_fhir_serialization_json::to_string(&patient).unwrap())
     });
 }
 
@@ -255,6 +264,16 @@ fn raw_json_complex_patient(c: &mut Criterion) {
     c.bench_function("raw_json_complex_patient_serde", |b| {
         b.iter(|| serde_json::from_str::<Patient>(patient_string).unwrap())
     });
+
+    let patient = serde_json::from_str::<Patient>(patient_string).unwrap();
+
+    c.bench_function("raw_json_complex_patient_serde serialize", |b| {
+        b.iter(|| serde_json::to_string(&patient).unwrap())
+    });
+
+    c.bench_function("raw_json_complex_patient serialize", |b| {
+        b.iter(|| haste_fhir_serialization_json::to_string(&patient).unwrap())
+    });
 }
 
 fn synthea_transaction_bundle(c: &mut Criterion) {
@@ -266,6 +285,16 @@ fn synthea_transaction_bundle(c: &mut Criterion) {
 
     c.bench_function("synthia_transaction_bundle_serde", |b| {
         b.iter(|| serde_json::from_str::<Resource>(bundle_string).unwrap())
+    });
+
+    let bundle = serde_json::from_str::<Bundle>(bundle_string).unwrap();
+
+    c.bench_function("synthia_transaction_bundle_serde serialize", |b| {
+        b.iter(|| serde_json::to_string(&bundle).unwrap())
+    });
+
+    c.bench_function("synthia_transaction_bundle serialize", |b| {
+        b.iter(|| haste_fhir_serialization_json::to_string(&bundle).unwrap())
     });
 }
 
@@ -444,6 +473,16 @@ fn hl7_general_patient_example(c: &mut Criterion) {
 
     c.bench_function("hl7_general_patient_example_serde", |b| {
         b.iter(|| serde_json::from_str::<Patient>(patient_string).unwrap())
+    });
+
+    let patient = serde_json::from_str::<Patient>(patient_string).unwrap();
+
+    c.bench_function("hl7_general_patient_example_serialize_serde", |b| {
+        b.iter(|| serde_json::to_string(&patient).unwrap())
+    });
+
+    c.bench_function("hl7_general_patient_example_serialize", |b| {
+        b.iter(|| haste_fhir_serialization_json::to_string(&patient).unwrap())
     });
 }
 criterion_group!(
