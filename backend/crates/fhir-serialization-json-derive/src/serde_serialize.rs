@@ -197,9 +197,9 @@ pub fn complex_serialization(
                 }
             };
 
-            if name.to_string() == "ExampleScenario" {
-                println!("{}", serialize.to_string());
-            }
+            // if name.to_string() == "ExampleScenario" {
+            //     println!("{}", serialize.to_string());
+            // }
 
             serialize.into()
         }
