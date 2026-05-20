@@ -38,10 +38,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::ResourceId;
 use haste_reflect::MetaValue;
 use haste_repository::{Repository, fhir::FHIRRepository};
-use std::{
-    io::{BufWriter, Write},
-    sync::Arc,
-};
+use std::sync::Arc;
 use url::Url;
 
 pub struct Middleware {}
@@ -810,8 +807,8 @@ impl<
                         )
                     })?;
 
-                    let mut patched_resource = serde_json::from_serde_value::<Resource>(json)
-                        .map_err(|e| {
+                    let mut patched_resource =
+                        serde_json::from_value::<Resource>(json).map_err(|e| {
                             OperationOutcomeError::fatal(
                                 IssueType::Exception(None),
                                 format!("Failed to deserialize patched resource '{}'.", e),
