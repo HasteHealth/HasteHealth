@@ -270,7 +270,6 @@ fn create_type_choice(
             Clone,
             Reflect,
             Debug,
-            haste_fhir_serialization_json::derive::FHIRJSONSerialize,
             haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
             haste_fhir_serialization_json::derive::FHIRSerdeDeserialize)]
         #[fhir_serialize_type = "typechoice"]
@@ -337,7 +336,6 @@ fn create_complex_struct(
 
         quote! {
            #[derive(Clone, Reflect, Debug, Default,
-                haste_fhir_serialization_json::derive::FHIRJSONSerialize,
                 haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
                 haste_fhir_serialization_json::derive::FHIRSerdeDeserialize)]
            #[fhir_serialize_type = "primitive"]
@@ -349,7 +347,6 @@ fn create_complex_struct(
                 Reflect,
                 Debug,
                 Default,
-                haste_fhir_serialization_json::derive::FHIRJSONSerialize,
                 haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
                 haste_fhir_serialization_json::derive::FHIRSerdeDeserialize
             )]
@@ -362,7 +359,6 @@ fn create_complex_struct(
                 Reflect,
                 Debug,
                 Default,
-                haste_fhir_serialization_json::derive::FHIRJSONSerialize,
                 haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
                 haste_fhir_serialization_json::derive::FHIRSerdeDeserialize)]
             #[fhir_serialize_type = "complex"]
@@ -693,7 +689,6 @@ pub fn generate(
             Clone,
             Reflect,
             Debug,
-            haste_fhir_serialization_json::derive::FHIRJSONSerialize,
             haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
             serde::Deserialize,
         )]
