@@ -71,6 +71,7 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
                         if !self.value.#function_to_check_empty {
                             serializer.serialize_entry(field_name, &self.value)?;
                         }
+
                         if self.extension.is_some() || self.id.is_some() {
                             let element_key = format!("_{}", field_name);
 
@@ -87,12 +88,6 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
                     }
 
                     pub fn serialize_as_vector<M: serde::ser::SerializeMap>(field_name: &str, values: &[Box<Self>], serializer: &mut M) -> Result<(), M::Error> {
-                        let value_array: Vec<_> = values.iter().map(|v| &v.value).collect();
-
-                        if value_array.iter().any(|v| !v.#function_to_check_empty) {
-                            serializer.serialize_entry(field_name, &value_array)?;
-                        }
-
                         let has_extensions = values.iter().any(|item| item.extension.is_some() || item.id.is_some());
 
                         if has_extensions {
@@ -114,6 +109,14 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
 
                             serializer.serialize_entry(&element_key, &extension_serializations)?;
                         }
+
+                        let value_array: Vec<_> = values.iter().map(|v| &v.value).collect();
+
+                        if value_array.iter().any(|v| !v.#function_to_check_empty) {
+                            serializer.serialize_entry(field_name, &value_array)?;
+                        }
+
+
 
                         Ok(())
                     }
@@ -327,7 +330,7 @@ pub fn enum_variant_serialization(input: DeriveInput) -> TokenStream {
             let serialize_field_variants = data.variants.iter().map(|v| {
                 let variant_name = &v.ident;
                 quote! {
-                    #name::#variant_name(v) => v.serialize(serializer)?,
+                    #name::#variant_name(v) => v.serialize(serializer),
                 }
             });
 

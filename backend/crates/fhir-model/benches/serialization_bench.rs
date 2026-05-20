@@ -120,9 +120,9 @@ fn complex_patient(c: &mut Criterion) {
             ]
         }"#;
 
-    c.bench_function("complex_patient", |b| {
-        b.iter(|| Patient::from_json_str(patient_string).unwrap())
-    });
+    // c.bench_function("complex_patient", |b| {
+    //     b.iter(|| Patient::from_json_str(patient_string).unwrap())
+    // });
 
     c.bench_function("complex_patient_serde", |b| {
         b.iter(|| serde_json::from_str::<Patient>(patient_string).unwrap())
@@ -260,9 +260,9 @@ fn raw_json_complex_patient(c: &mut Criterion) {
 fn synthea_transaction_bundle(c: &mut Criterion) {
     let bundle_string = include_str!("./fixtures/synthea_transaction_bundle.json");
 
-    c.bench_function("synthia_transaction_bundle", |b| {
-        b.iter(|| Resource::from_json_str(bundle_string).unwrap())
-    });
+    // c.bench_function("synthia_transaction_bundle", |b| {
+    //     b.iter(|| Resource::from_json_str(bundle_string).unwrap())
+    // });
 
     c.bench_function("synthia_transaction_bundle_serde", |b| {
         b.iter(|| serde_json::from_str::<Resource>(bundle_string).unwrap())
@@ -438,9 +438,9 @@ fn hl7_general_patient_example(c: &mut Criterion) {
             }
         "#;
 
-    c.bench_function("hl7_general_patient_example", |b| {
-        b.iter(|| Patient::from_json_str(patient_string).unwrap())
-    });
+    // c.bench_function("hl7_general_patient_example", |b| {
+    //     b.iter(|| Patient::from_json_str(patient_string).unwrap())
+    // });
 
     c.bench_function("hl7_general_patient_example_serde", |b| {
         b.iter(|| serde_json::from_str::<Patient>(patient_string).unwrap())

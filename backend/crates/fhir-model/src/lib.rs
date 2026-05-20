@@ -392,11 +392,20 @@ mod tests {
             k,
             haste_fhir_serialization_json::to_string(patient.as_ref().unwrap()).unwrap(),
         );
+        assert_eq!(
+            haste_fhir_serialization_json::to_string(patient.as_ref().unwrap()).unwrap(),
+            serde_json::to_string(patient.as_ref().unwrap()).unwrap()
+        );
 
         let patient2 = serde_json::from_str::<Patient>(k).unwrap();
         assert_eq!(
             haste_fhir_serialization_json::to_string(&patient2).unwrap(),
             k
+        );
+
+        assert_eq!(
+            haste_fhir_serialization_json::to_string(&patient2).unwrap(),
+            serde_json::to_string(&patient2).unwrap()
         );
     }
 
@@ -444,6 +453,11 @@ mod tests {
             haste_fhir_serialization_json::to_string(&patient).unwrap(),
             "{\"resourceType\":\"Patient\",\"name\":[{\"family\":\"Doe\",\"_given\":[null,{\"id\":\"given-2\"}],\"given\":[\"John\",\"A.\"],\"prefix\":[\"Mr.\"]}]}"
         );
+
+        assert_eq!(
+            haste_fhir_serialization_json::to_string(&patient).unwrap(),
+            serde_json::to_string(&patient).unwrap()
+        );
     }
 
     #[test]
@@ -473,6 +487,11 @@ mod tests {
         assert_eq!(
             haste_fhir_serialization_json::to_string(&patient).unwrap(),
             "{\"resourceType\":\"Patient\",\"name\":[{\"family\":\"Doe\",\"_given\":[null,{\"id\":\"given-2\"}],\"given\":[\"John\",null],\"prefix\":[\"Mr.\"]}]}"
+        );
+
+        assert_eq!(
+            haste_fhir_serialization_json::to_string(&patient).unwrap(),
+            serde_json::to_string(&patient).unwrap()
         );
     }
 
