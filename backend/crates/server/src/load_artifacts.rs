@@ -148,11 +148,14 @@ pub async fn reset_artifacts(
         )
         .await?;
 
+    _load_artifacts(ctx.clone()).await?;
+
     transaction.commit().await?;
 
     Ok(())
 }
 
+// Used for both reloading artifacts and reset.
 async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>>(
     ctx: Arc<ServerCTX<Client>>,
 ) -> Result<(), OperationOutcomeError> {

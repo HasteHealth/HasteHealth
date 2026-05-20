@@ -19,7 +19,8 @@ use haste_repository::admin::Migrate;
 use haste_server::{
     ServerEnvironmentVariables,
     fhir_client::ServerCTX,
-    load_artifacts, services,
+    load_artifacts::{self, reset_artifacts},
+    services,
     tenants::{create_tenant, create_user},
 };
 use std::sync::Arc;
@@ -155,7 +156,7 @@ pub async fn admin(command: &AdminCommands) -> Result<(), OperationOutcomeError>
     match &command {
         AdminCommands::Migrate { command } => match command {
             MigrationCommands::Artifacts {} => migrate_artifacts(config).await,
-            MigrationCommands::ResetArtifacts {} => {}
+            MigrationCommands::ResetArtifacts {} => reset_artifacts(config).await,
             MigrationCommands::Repo {} => migrate_repo(config).await,
             MigrationCommands::Search {} => migrate_search(config).await,
             MigrationCommands::All => {
