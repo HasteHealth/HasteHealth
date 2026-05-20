@@ -83,6 +83,7 @@ pub enum AdminCommands {
 #[derive(Subcommand, Debug)]
 pub enum MigrationCommands {
     Artifacts {},
+    ResetArtifacts {},
     Repo {},
     Search {},
     All,
@@ -154,6 +155,7 @@ pub async fn admin(command: &AdminCommands) -> Result<(), OperationOutcomeError>
     match &command {
         AdminCommands::Migrate { command } => match command {
             MigrationCommands::Artifacts {} => migrate_artifacts(config).await,
+            MigrationCommands::ResetArtifacts {} => {}
             MigrationCommands::Repo {} => migrate_repo(config).await,
             MigrationCommands::Search {} => migrate_search(config).await,
             MigrationCommands::All => {
