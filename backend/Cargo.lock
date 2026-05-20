@@ -2929,6 +2929,7 @@ dependencies = [
  "haste-fhirpath",
  "haste-jwt",
  "haste-repository",
+ "serde_json",
  "sqlx",
  "sqlx-postgres",
  "tokio",
