@@ -152,7 +152,7 @@ pub async fn reset_artifacts(
                 ParsedParameters::new(vec![]),
             )
             .await?;
-        // _load_artifacts(ctx.clone()).await?;
+        _load_artifacts(ctx.clone()).await?;
     }
 
     transaction.commit().await?;
