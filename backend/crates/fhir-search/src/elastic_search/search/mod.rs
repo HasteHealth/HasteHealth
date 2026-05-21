@@ -14,7 +14,7 @@ use haste_fhir_client::{
 };
 use haste_fhir_model::r4::generated::{
     resources::{ResourceType, SearchParameter},
-    terminology::SearchParamType,
+    terminology::{IssueType, SearchParamType},
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_jwt::{ProjectId, TenantId};
@@ -242,7 +242,7 @@ fn parameter_to_elasticsearch_clauses(
 
 // Default value for Elasticsearch is 10k
 // see index.max_result_window
-// static ABSOLUTE_MAX: usize = 10_000;
+static ABSOLUTE_MAX: usize = 10_000;
 static DEFAULT_MAX_COUNT: usize = 50;
 
 fn get_resource_type<'a>(request: &'a SearchRequest) -> Option<&'a ResourceType> {
@@ -270,7 +270,13 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
     let parameters = get_parameters(request);
 
     let mut clauses: Vec<serde_json::Value> = vec![];
-    let mut size = if let Some(count_limit) = options.as_ref().and_then(|o| o.count_limit) {
+    let mut max_count = if let Some(count_limit) = options.as_ref().and_then(|o| o.count_limit) {
+        if count_limit > ABSOLUTE_MAX {
+            return Err(OperationOutcomeError::fatal(
+                IssueType::TooCostly(None),
+                "Count limit passed exceeds maxiumum allowed by ES".to_string(),
+            ));
+        }
         count_limit
     } else {
         DEFAULT_MAX_COUNT
@@ -293,7 +299,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
             }
             ParsedParameter::Result(result_param) => match result_param.name.as_str() {
                 "_count" => {
-                    size = std::cmp::min(
+                    max_count = std::cmp::min(
                         result_param
                             .value
                             .get(0)
@@ -397,7 +403,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
 
     let query = json!({
         "fields": ["version_id", "id", "resource_type", "project"],
-        "size": size,
+        "size": max_count,
         "track_total_hits": show_total,
         "_source": false,
         "from": offset,
@@ -440,10 +446,18 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
         .map_err(SearchError::from)?;
 
     if !search_response.status_code().is_success() {
-        return Err(SearchError::ElasticSearchResponseError(
+        println!("Elasticsearch search error: {:?}", search_response);
+        let response = Err(SearchError::ElasticSearchResponseError(
             search_response.status_code().as_u16(),
         )
         .into());
+
+        println!(
+            "Elasticsearch search error response: {:?}",
+            search_response.json::<serde_json::Value>().await
+        );
+
+        return response;
     }
 
     let search_results = search_response
