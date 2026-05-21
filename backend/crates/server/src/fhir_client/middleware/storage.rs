@@ -13,6 +13,7 @@ use crate::{
     },
     route_path::api_fhir_root_url,
 };
+use haste_config::Config;
 use haste_fhir_client::{
     FHIRClient,
     middleware::MiddlewareChain,
@@ -46,6 +47,14 @@ impl Middleware {
     pub fn new() -> Self {
         Middleware {}
     }
+}
+
+fn get_delete_limit(config: &dyn Config<ServerEnvironmentVariables>) -> usize {
+    config
+        .get(ServerEnvironmentVariables::FHIRDeleteLimit)
+        .ok()
+        .and_then(|s| s.parse::<usize>().ok())
+        .unwrap_or(20)
 }
 
 pub fn to_bundle_entry(
@@ -224,10 +233,13 @@ impl<
                             )
                             .await?;
 
-                        if search_results.entries.len() > 20 {
+                        if search_results.entries.len() > get_delete_limit(state.config.as_ref()) {
                             return Err(OperationOutcomeError::error(
                                 IssueType::Invalid(None),
-                                "Too many resources to delete at once. Limit to 20.".to_string(),
+                                format!(
+                                    "Too many resources to delete at once. Limit to '{}'.",
+                                    get_delete_limit(state.config.as_ref())
+                                ),
                             ));
                         }
 

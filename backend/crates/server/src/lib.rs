@@ -37,6 +37,9 @@ pub enum ServerEnvironmentVariables {
     RateLimitWindowInSeconds,
     RateLimitOperationPoints,
     IpSource,
+
+    // Max Delete Limit for type delete and system delete operations.
+    FHIRDeleteLimit,
 }
 
 impl From<ServerEnvironmentVariables> for String {
@@ -70,6 +73,7 @@ impl From<ServerEnvironmentVariables> for String {
                 "RATE_LIMIT_OPERATION_POINTS".to_string()
             }
             ServerEnvironmentVariables::IpSource => "IP_SOURCE".to_string(),
+            ServerEnvironmentVariables::FHIRDeleteLimit => "FHIR_DELETE_LIMIT".to_string(),
         }
     }
 }
