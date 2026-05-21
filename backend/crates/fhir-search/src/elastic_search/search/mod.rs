@@ -242,7 +242,7 @@ fn parameter_to_elasticsearch_clauses(
 
 // Default value for Elasticsearch is 10k
 // see index.max_result_window
-static ABSOLUTE_MAX: usize = 10_000;
+// static ABSOLUTE_MAX: usize = 10_000;
 static DEFAULT_MAX_COUNT: usize = 50;
 
 fn get_resource_type<'a>(request: &'a SearchRequest) -> Option<&'a ResourceType> {
@@ -270,10 +270,8 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
     let parameters = get_parameters(request);
 
     let mut clauses: Vec<serde_json::Value> = vec![];
-    let mut size = if let Some(options) = options
-        && !options.count_limit
-    {
-        ABSOLUTE_MAX
+    let mut size = if let Some(count_limit) = options.as_ref().and_then(|o| o.count_limit) {
+        count_limit
     } else {
         DEFAULT_MAX_COUNT
     };

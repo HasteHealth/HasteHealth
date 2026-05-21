@@ -34,7 +34,7 @@ use haste_fhir_model::r4::generated::{
     types::{FHIRUnsignedInt, FHIRUri},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
+use haste_fhir_search::{SearchEngine, SearchOptions};
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::ResourceId;
 use haste_reflect::MetaValue;
@@ -222,6 +222,8 @@ impl<
                             }
                         };
 
+                        let delete_limit = get_delete_limit(state.config.as_ref());
+
                         let search_results = state
                             .search
                             .search(
@@ -229,16 +231,23 @@ impl<
                                 &context.ctx.tenant,
                                 &context.ctx.project,
                                 &delete_search_request,
-                                None,
+                                Some(SearchOptions {
+                                    count_limit: Some(delete_limit + 1),
+                                }),
                             )
                             .await?;
 
-                        if search_results.entries.len() > get_delete_limit(state.config.as_ref()) {
+                        tracing::info!(
+                            "Found {} resources to delete",
+                            search_results.entries.len()
+                        );
+
+                        if search_results.entries.len() > delete_limit {
                             return Err(OperationOutcomeError::error(
                                 IssueType::Invalid(None),
                                 format!(
                                     "Too many resources to delete at once. Limit to '{}'.",
-                                    get_delete_limit(state.config.as_ref())
+                                    delete_limit
                                 ),
                             ));
                         }

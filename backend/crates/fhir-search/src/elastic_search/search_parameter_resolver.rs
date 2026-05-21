@@ -52,7 +52,9 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
             resource_type: ResourceType::SearchParameter,
             parameters: ParsedParameters::new(vec![]),
         }),
-        &Some(SearchOptions { count_limit: false }),
+        &Some(SearchOptions {
+            count_limit: Some(10_000),
+        }),
     )
     .await?;
 

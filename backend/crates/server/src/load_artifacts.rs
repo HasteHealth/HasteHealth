@@ -112,43 +112,48 @@ pub async fn reset_artifacts(
 
     let transaction = services.transaction().await?;
 
-    let ctx = Arc::new(ServerCTX::system(
-        TenantId::System,
-        ProjectId::System,
-        transaction.fhir_client.clone(),
-        transaction.rate_limit.clone(),
-    ));
+    {
+        let ctx = Arc::new(ServerCTX::system(
+            TenantId::System,
+            ProjectId::System,
+            transaction.fhir_client.clone(),
+            transaction.rate_limit.clone(),
+        ));
 
-    ctx.client
-        .delete_type(
-            ctx.clone(),
-            ResourceType::CodeSystem,
-            ParsedParameters::new(vec![]),
-        )
-        .await?;
-    ctx.client
-        .delete_type(
-            ctx.clone(),
-            ResourceType::ValueSet,
-            ParsedParameters::new(vec![]),
-        )
-        .await?;
-    ctx.client
-        .delete_type(
-            ctx.clone(),
-            ResourceType::StructureDefinition,
-            ParsedParameters::new(vec![]),
-        )
-        .await?;
-    ctx.client
-        .delete_type(
-            ctx.clone(),
-            ResourceType::SearchParameter,
-            ParsedParameters::new(vec![]),
-        )
-        .await?;
-
-    _load_artifacts(ctx.clone()).await?;
+        tracing::info!("Deleting existing CodeSystems");
+        ctx.client
+            .delete_type(
+                ctx.clone(),
+                ResourceType::CodeSystem,
+                ParsedParameters::new(vec![]),
+            )
+            .await?;
+        tracing::info!("Deleting existing ValueSets");
+        ctx.client
+            .delete_type(
+                ctx.clone(),
+                ResourceType::ValueSet,
+                ParsedParameters::new(vec![]),
+            )
+            .await?;
+        tracing::info!("Deleting existing StructureDefinitions");
+        ctx.client
+            .delete_type(
+                ctx.clone(),
+                ResourceType::StructureDefinition,
+                ParsedParameters::new(vec![]),
+            )
+            .await?;
+        tracing::info!("Deleting existing SearchParameters");
+        ctx.client
+            .delete_type(
+                ctx.clone(),
+                ResourceType::SearchParameter,
+                ParsedParameters::new(vec![]),
+            )
+            .await?;
+        // _load_artifacts(ctx.clone()).await?;
+    }
 
     transaction.commit().await?;
 
@@ -301,7 +306,9 @@ pub async fn get_all_sds<Repo: Repository, Search: SearchEngine>(
             &TenantId::System,
             &ProjectId::System,
             &SearchRequest::Type(sd_search),
-            Some(SearchOptions { count_limit: false }),
+            Some(SearchOptions {
+                count_limit: Some(10_000),
+            }),
         )
         .await?;
 
@@ -342,7 +349,9 @@ pub async fn get_all_sps<Repo: Repository, Search: SearchEngine>(
             &TenantId::System,
             &ProjectId::System,
             &SearchRequest::Type(sp_search),
-            Some(SearchOptions { count_limit: false }),
+            Some(SearchOptions {
+                count_limit: Some(10_000),
+            }),
         )
         .await?;
 
