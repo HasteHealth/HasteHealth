@@ -23,19 +23,23 @@ fn load_resources() -> Vec<Box<Resource>> {
             .expect("Failed to parse artifact parameters JSON");
 
         flatten_if_bundle(resource).into_iter().for_each(|r| {
+            let resource_type = r.resource_type();
             let id = r.id().clone().unwrap_or_else(|| {
                 panic!("Resource in '{}' does not have an ID", path.as_ref());
             });
 
-            if resources.contains_key(&id) {
+            let key = (resource_type, id);
+
+            if resources.contains_key(&key) {
                 println!(
-                    "Duplicate resource ID '{}' found in '{}'",
-                    id,
+                    "Duplicate resource ID '{}' '{}' found in '{}'",
+                    &key.0.as_ref(),
+                    &key.1,
                     path.as_ref()
                 );
             }
 
-            resources.insert(id.clone(), r);
+            resources.insert(key, r);
         });
     }
 
