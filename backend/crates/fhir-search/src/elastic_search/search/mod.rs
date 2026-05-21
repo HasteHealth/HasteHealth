@@ -446,16 +446,10 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
         .map_err(SearchError::from)?;
 
     if !search_response.status_code().is_success() {
-        println!("Elasticsearch search error: {:?}", search_response);
         let response = Err(SearchError::ElasticSearchResponseError(
             search_response.status_code().as_u16(),
         )
         .into());
-
-        println!(
-            "Elasticsearch search error response: {:?}",
-            search_response.json::<serde_json::Value>().await
-        );
 
         return response;
     }

@@ -237,11 +237,6 @@ impl<
                             )
                             .await?;
 
-                        tracing::info!(
-                            "Found {} resources to delete",
-                            search_results.entries.len()
-                        );
-
                         if search_results.entries.len() > delete_limit {
                             return Err(OperationOutcomeError::error(
                                 IssueType::Invalid(None),
