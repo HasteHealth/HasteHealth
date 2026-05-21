@@ -14,9 +14,11 @@ use haste_fhir_client::{
     FHIRClient,
     middleware::{Middleware, MiddlewareChain},
     request::{
-        FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRReadRequest,
-        FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, FHIRTransactionRequest,
-        FHIRUpdateInstanceRequest, SearchRequest, SearchResponse, UpdateRequest,
+        DeleteRequest, DeleteResponse, FHIRBatchRequest, FHIRConditionalUpdateRequest,
+        FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
+        FHIRDeleteTypeRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest,
+        FHIRTransactionRequest, FHIRUpdateInstanceRequest, FHIRVersionReadRequest, SearchRequest,
+        SearchResponse, UpdateRequest,
     },
     url::ParsedParameters,
 };
@@ -27,7 +29,7 @@ use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcome
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{
-    AuthorId, AuthorKind, ProjectId, TenantId, UserRole,
+    AuthorId, AuthorKind, ProjectId, TenantId, UserRole, VersionId,
     claims::SubscriptionTier,
     scopes::{
         SMARTResourceScope, Scope, Scopes, SmartResourceScopeLevel, SmartResourceScopePermission,
@@ -622,38 +624,100 @@ impl<
 
     async fn vread(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _resource_type: ResourceType,
-        _id: String,
-        _version_id: String,
+        ctx: Arc<ServerCTX<Self>>,
+        resource_type: ResourceType,
+        id: String,
+        version_id: String,
     ) -> Result<Option<Resource>, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::VersionRead(FHIRVersionReadRequest {
+                    resource_type,
+                    id,
+                    version_id: VersionId::new(version_id),
+                }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::VersionRead(version_read_response)) => {
+                Ok(Some(version_read_response.resource))
+            }
+            _ => panic!("Unexpected response type"),
+        }
     }
 
     async fn delete_instance(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _resource_type: ResourceType,
-        _id: String,
+        ctx: Arc<ServerCTX<Self>>,
+        resource_type: ResourceType,
+        id: String,
     ) -> Result<(), OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::Delete(DeleteRequest::Instance(FHIRDeleteInstanceRequest {
+                    resource_type,
+                    id,
+                })),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Delete(DeleteResponse::Instance(_delete_response))) => Ok(()),
+            _ => panic!("Unexpected response type"),
+        }
     }
 
     async fn delete_type(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _resource_type: ResourceType,
-        _parameters: ParsedParameters,
+        ctx: Arc<ServerCTX<Self>>,
+        resource_type: ResourceType,
+        parameters: ParsedParameters,
     ) -> Result<(), OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::Delete(DeleteRequest::Type(FHIRDeleteTypeRequest {
+                    resource_type,
+                    parameters,
+                })),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Delete(DeleteResponse::Type(_delete_response))) => Ok(()),
+            _ => panic!("Unexpected response type"),
+        }
     }
 
     async fn delete_system(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _parameters: ParsedParameters,
+        ctx: Arc<ServerCTX<Self>>,
+        parameters: ParsedParameters,
     ) -> Result<(), OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::Delete(DeleteRequest::System(FHIRDeleteSystemRequest {
+                    parameters,
+                })),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Delete(DeleteResponse::System(_delete_response))) => Ok(()),
+            _ => panic!("Unexpected response type"),
+        }
     }
 
     async fn history_system(
