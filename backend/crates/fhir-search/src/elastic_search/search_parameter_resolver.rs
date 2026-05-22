@@ -1,7 +1,7 @@
 use elasticsearch::Elasticsearch;
 use haste_fhir_client::{
     request::{FHIRSearchTypeRequest, SearchRequest},
-    url::ParsedParameters,
+    url::{Parameter, ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -50,7 +50,12 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
         project,
         &SearchRequest::Type(FHIRSearchTypeRequest {
             resource_type: ResourceType::SearchParameter,
-            parameters: ParsedParameters::new(vec![]),
+            parameters: ParsedParameters::new(vec![ParsedParameter::Resource(Parameter {
+                name: "status".to_string(),
+                value: vec!["active".to_string()],
+                chains: None,
+                modifier: None,
+            })]),
         }),
         &Some(SearchOptions {
             count_limit: Some(10_000),
