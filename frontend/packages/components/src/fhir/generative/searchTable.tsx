@@ -489,14 +489,11 @@ function SearchParameterSortControl({
     default: {
       return (
         <ArrowDownIcon
-          className={classNames(
-            "cursor-pointer w-4 h-4 hover:text-brand-400",
-            {
-              "text-brand-400": (sortParam?.value ?? []).includes(
-                `-${searchParameter.code}`,
-              ),
-            },
-          )}
+          className={classNames("cursor-pointer w-4 h-4 hover:text-brand-400", {
+            "text-brand-400": (sortParam?.value ?? []).includes(
+              `-${searchParameter.code}`,
+            ),
+          })}
           onClick={() => {
             if (sortParam?.value.includes(`-${searchParameter.code}`)) {
               onChange({
