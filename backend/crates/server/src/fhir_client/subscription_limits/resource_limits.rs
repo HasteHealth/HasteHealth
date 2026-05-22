@@ -14,6 +14,9 @@ pub enum TenantResourceLimit {
 static FREE_TIER_OPERATION_DEFINITION_LIMITS: usize = 0;
 static FREE_TIER_SUBSCRIPTION_LIMITS: usize = 0;
 static FREE_TIER_SEARCH_PARAMETER_LIMITS: usize = 0;
+static FREE_TIER_IDP_LIMITS: usize = 0;
+// Allow users to have two for system project and one for basic clinical resources.
+static FREE_TIER_PROJECT_LIMITS: usize = 2;
 
 static SUBSCRIPTION_LIMITS: LazyLock<
     HashMap<SubscriptionTier, HashMap<ResourceType, TenantResourceLimit>>,
@@ -39,7 +42,14 @@ static SUBSCRIPTION_LIMITS: LazyLock<
             FREE_TIER_SEARCH_PARAMETER_LIMITS,
         ),
     );
-
+    free_tier_limits.insert(
+        ResourceType::IdentityProvider,
+        TenantResourceLimit::Count(ResourceType::IdentityProvider, FREE_TIER_IDP_LIMITS),
+    );
+    free_tier_limits.insert(
+        ResourceType::Project,
+        TenantResourceLimit::Count(ResourceType::Project, FREE_TIER_PROJECT_LIMITS),
+    );
     limits.insert(SubscriptionTier::Free, free_tier_limits);
 
     limits
