@@ -1,6 +1,7 @@
 {
     "label": "Types",
     "position": 1,
+    "key": "reference-fhir-model-types",
     "link": {
         "type": "generated-index",
         "description": "FHIR Types Reference Documentation for Haste Health."

@@ -88,8 +88,10 @@ const config: Config = {
           trackingID: "G-HH00J38YZ5",
         },
         blog: {
+          authorsBasePath: "team",
           blogSidebarTitle: "All posts",
           blogSidebarCount: "ALL",
+
           showReadingTime: true,
           feedOptions: {
             type: ["rss", "atom"],
@@ -176,6 +178,10 @@ const config: Config = {
         {
           title: "Community",
           items: [
+            {
+              label: "Team",
+              href: "/blog/team",
+            },
             {
               label: "Report an Issue",
               href: "https://github.com/hastehealth/hastehealth/issues",

@@ -1,6 +1,7 @@
 {
     "label": "FHIR",
     "position": 1,
+    "key": "integration-healthcare-systems",
     "link": {
         "type": "generated-index",
         "description": "A collection of healthcare systems and their FHIR compatibility details. We support integration with a wide range of EHRs, PHRs, and other healthcare platforms through the R4 FHIR standards."

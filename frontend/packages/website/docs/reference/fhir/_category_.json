@@ -1,6 +1,7 @@
 {
     "label": "FHIR",
     "position": 0,
+    "key": "reference-fhir",
     "link": {
         "type": "generated-index",
         "description": "FHIR Reference Documentation for Haste Health."

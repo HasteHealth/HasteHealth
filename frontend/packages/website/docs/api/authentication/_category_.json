@@ -1,3 +1,4 @@
 {
-    "label": "Authentication"
+    "label": "Authentication",
+    "key": "api-authentication"
 }

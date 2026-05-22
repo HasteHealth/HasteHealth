@@ -1,6 +1,7 @@
 {
     "label": "FHIR",
     "position": 1,
+    "key": "api-rest-api-fhir",
     "link": {
         "type": "generated-index",
         "description": "FHIR API Documentation."

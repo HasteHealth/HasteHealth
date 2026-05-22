@@ -1,6 +1,7 @@
 {
     "label": "OAuth Grant Types",
     "position": 1,
+    "key": "api-authentication-grant-types",
     "link": {
         "type": "generated-index",
         "description": "OAuth grant types supported by Haste Health."

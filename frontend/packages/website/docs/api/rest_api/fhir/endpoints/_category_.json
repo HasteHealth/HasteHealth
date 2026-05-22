@@ -1,6 +1,7 @@
 {
     "label": "Endpoints",
     "position": 1,
+    "key": "api-rest-api-fhir-endpoints",
     "link": {
         "type": "generated-index",
         "description": "FHIR Endpoints."

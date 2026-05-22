@@ -1,6 +1,7 @@
 {
     "label": "Identity Providers",
     "position": 1,
+    "key": "integration-identity-providers",
     "link": {
         "type": "generated-index"
     }

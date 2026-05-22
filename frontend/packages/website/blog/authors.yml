@@ -1,6 +1,8 @@
 ralph-parkison:
   name: Ralph Parkison
   title: Haste Health maintainer
+  description: Healthcare engineer with over a decade of experience building clinical data platforms, interoperability tooling, and provider-facing workflows; Background includes working at Epic Systems and Commure and building FHIR tools with Augolit, Genfhi, and IGUHealth.
+  image_url: https://github.com/confused-moniker.png
   url: https://www.linkedin.com/in/ralph-parkison-7b759bb3/
   page: true
   socials:
