@@ -17,10 +17,7 @@ pub enum EnvironmentConfigError {
 impl EnvironmentConfig {
     pub fn new(config_files: &[&str]) -> Result<Self, OperationOutcomeError> {
         for file in config_files {
-            let file_result = dotenvy::from_filename(file).map_err(EnvironmentConfigError::from);
-            if let Err(e) = file_result {
-                tracing::warn!("Failed to load environment file '{}' '{:?}'", file, e)
-            }
+            let _file_result = dotenvy::from_filename(file).map_err(EnvironmentConfigError::from);
         }
 
         Ok(EnvironmentConfig())

@@ -7,42 +7,42 @@ import Heading from "@theme/Heading";
 const capabilityCards = [
   {
     title: "FHIR Native",
-    body: "Support clinical interoperability with modern FHIR APIs, search, and operations.",
+    body: "Interoperate out of the box with FHIR APIs, search, and operations.",
   },
   {
     title: "Extensible Platform",
-    body: "Support for extending the server at runtime with TypeScript plugins for custom logic and APIs.",
+    body: "Extend server behavior with TypeScript plugins for custom business logic and APIs.",
   },
   {
     title: "SMART and OIDC",
-    body: "Use standards-based authN and authZ for provider apps, patient apps, and backend services.",
+    body: "Use standards-based authN/authZ for provider apps, patient apps, and backend services.",
   },
   {
     title: "High-Performance Core",
-    body: "Rust-native server architecture optimized for throughput, latency, and predictable operations.",
+    body: "Run on a Rust-native core optimized for low latency and predictable high throughput.",
   },
 ];
 
 const architectureSteps = [
   {
     title: "Ingest",
-    body: "Receive data through FHIR APIs, HL7v2 messages, and system-to-system pipelines.",
+    body: "Accept data through FHIR APIs, HL7v2 messages, and system-to-system pipelines.",
   },
   {
     title: "Normalize",
-    body: "Store resources in a consistent model with indexing for fast retrieval and search.",
+    body: "Store resources in a consistent model and index them for fast retrieval and search.",
   },
   {
     title: "Serve",
-    body: "Deliver secure real-time data to EHR workflows, analytics, and AI-enabled products.",
+    body: "Deliver secure, real-time data to EHR workflows, analytics, and AI-driven products.",
   },
 ];
 
 const outcomeStats = [
   { value: "<10ms", label: "Create and update latency" },
-  { value: ">25k/s", label: "Writes per second (10 threads)" },
+  { value: ">25k/s", label: "Writes per second on 10 threads" },
   { value: "<50ms", label: "Typical search response" },
-  { value: "<100MB", label: "Single-instance memory footprint" },
+  { value: "<100MB", label: "Memory footprint per instance" },
 ];
 
 const useCases = [
@@ -105,13 +105,13 @@ export default function Home(): ReactNode {
               as="h1"
               className="text-4xl md:text-6xl font-bold tracking-tight text-brand-950"
             >
-              {siteConfig.title}: Enterprise Clinical Data Infrastructure
+              {siteConfig.title}: API-First Clinical Data Infrastructure
             </Heading>
 
             <p className="max-w-4xl text-lg md:text-2xl text-slate-700 leading-relaxed">
-              Build healthcare products on a modern, standards-first data
-              platform designed for interoperability, security, and operational
-              scale.
+              Build healthcare products on a standards-based platform designed
+              for interoperability, operational scale, and enterprise-grade
+              security.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -125,7 +125,7 @@ export default function Home(): ReactNode {
                 className="inline-flex items-center justify-center rounded-lg border border-brand-300 bg-white px-7 py-3 text-lg font-semibold text-brand-900 transition-colors hover:bg-brand-50"
                 to="/docs/overview/what_is_haste_health"
               >
-                Explore Architecture
+                Read the Overview
               </Link>
             </div>
           </div>
@@ -133,8 +133,27 @@ export default function Home(): ReactNode {
 
         <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
           <SectionTitle
+            title="Build Your Own Applications on an API-First Core"
+            subtitle="Use the same standards-based API surface to power your own product experiences, workflows, and integrations."
+          />
+          <figure className="mt-6 overflow-hidden rounded-2xl border border-brand-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.16)]">
+            <img
+              src="/img/admin_app.png"
+              alt="Haste Health admin app screenshot"
+              className="h-auto w-full"
+              loading="eager"
+            />
+          </figure>
+          <p className="mt-3 text-xs md:text-sm text-slate-600">
+            Our Admin App, which is built on the same API your custom
+            applications can use.
+          </p>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
+          <SectionTitle
             title="Standards-Based by Design"
-            subtitle="Adopt quickly with the protocols your enterprise teams and partners already rely on."
+            subtitle="Adopt quickly with standards your enterprise teams and partners already trust."
           />
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {capabilityCards.map((item) => (
@@ -181,7 +200,7 @@ export default function Home(): ReactNode {
         <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
           <SectionTitle
             title="Performance for Real Clinical Workloads"
-            subtitle="Built to keep latency low and throughput high under production pressure."
+            subtitle="Built to keep latency low and throughput high under production traffic."
           />
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {outcomeStats.map((stat) => (
