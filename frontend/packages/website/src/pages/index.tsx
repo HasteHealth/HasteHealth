@@ -144,7 +144,7 @@ export default function Home(): ReactNode {
               loading="eager"
             />
           </figure>
-          <p className="mt-3 text-xs md:text-sm text-slate-600">
+          <p className="ml-2 mt-3 text-xs md:text-sm text-slate-500">
             Our Admin App, which is built on the same API your custom
             applications can use.
           </p>
