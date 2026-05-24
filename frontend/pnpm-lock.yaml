@@ -309,8 +309,14 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       immer:
-        specifier: ^10.1.1
+        specifier: ^10.2.0
         version: 10.2.0
+      jotai:
+        specifier: ^2.15.1
+        version: 2.15.1(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(react@19.2.0)
+      jotai-immer:
+        specifier: ^0.4.3
+        version: 0.4.3(immer@10.2.0)(jotai@2.15.1(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(react@19.2.0))
       js-file-download:
         specifier: ^0.4.12
         version: 0.4.12
@@ -407,7 +413,7 @@ importers:
         version: 8.5.10
       postcss-cli:
         specifier: ^11.0.0
-        version: 11.0.1(jiti@2.6.1)(postcss@8.5.10)(tsx@4.11.2)
+        version: 11.0.1(jiti@1.21.7)(postcss@8.5.10)(tsx@4.11.2)
       react:
         specifier: ^19.2.0
         version: 19.2.0
@@ -5703,6 +5709,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@vercel/oidc@3.0.5':
     resolution: {integrity: sha512-fnYhv671l+eTTp48gB4zEsTW/YtRgRPnkI2nT7x6qw5rkI1Lq2hTmQIpHPgyThI0znLK+vX2n9XxKdXZ7BUbbw==}
@@ -9146,6 +9153,12 @@ packages:
 
   jose@6.1.2:
     resolution: {integrity: sha512-MpcPtHLE5EmztuFIqB0vzHAWJPpmN1E6L4oo+kze56LIs3MyXIj9ZHMDxqOvkP38gBR7K1v3jqd4WU2+nrfONQ==}
+
+  jotai-immer@0.4.3:
+    resolution: {integrity: sha512-sJWiSweR294aDA/jeH6bKSKYVxRqgfxnLWaZmKw0/Hd6iGKLN4TSB3AHpFWQFDf0W+P3sEIkROr0ALlWQfCSeA==}
+    peerDependencies:
+      immer: '>=9.0.0'
+      jotai: '>=2.0.0'
 
   jotai@2.15.1:
     resolution: {integrity: sha512-yHT1HAZ3ba2Q8wgaUQ+xfBzEtcS8ie687I8XVCBinfg4bNniyqLIN+utPXWKQE93LMF5fPbQSVRZqgpcN5yd6Q==}
@@ -13122,10 +13135,12 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   v8-to-istanbul@8.1.1:
@@ -19974,7 +19989,7 @@ snapshots:
 
   babel-plugin-macros@3.1.0:
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.29.2
       cosmiconfig: 7.1.0
       resolve: 1.22.11
 
@@ -23978,6 +23993,11 @@ snapshots:
 
   jose@6.1.2: {}
 
+  jotai-immer@0.4.3(immer@10.2.0)(jotai@2.15.1(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(react@19.2.0)):
+    dependencies:
+      immer: 10.2.0
+      jotai: 2.15.1(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(react@19.2.0)
+
   jotai@2.15.1(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(react@19.2.0):
     optionalDependencies:
       '@babel/core': 7.28.5
@@ -25555,6 +25575,24 @@ snapshots:
       postcss: 8.5.6
       postcss-value-parser: 4.2.0
 
+  postcss-cli@11.0.1(jiti@1.21.7)(postcss@8.5.10)(tsx@4.11.2):
+    dependencies:
+      chokidar: 3.6.0
+      dependency-graph: 1.0.0
+      fs-extra: 11.3.2
+      picocolors: 1.1.1
+      postcss: 8.5.10
+      postcss-load-config: 5.1.0(jiti@1.21.7)(postcss@8.5.10)(tsx@4.11.2)
+      postcss-reporter: 7.1.0(postcss@8.5.10)
+      pretty-hrtime: 1.0.3
+      read-cache: 1.0.0
+      slash: 5.1.0
+      tinyglobby: 0.2.15
+      yargs: 17.7.2
+    transitivePeerDependencies:
+      - jiti
+      - tsx
+
   postcss-cli@11.0.1(jiti@2.6.1)(postcss@8.5.10)(tsx@4.11.2):
     dependencies:
       chokidar: 3.6.0
@@ -25868,6 +25906,15 @@ snapshots:
       yaml: 1.10.2
     optionalDependencies:
       postcss: 8.5.10
+
+  postcss-load-config@5.1.0(jiti@1.21.7)(postcss@8.5.10)(tsx@4.11.2):
+    dependencies:
+      lilconfig: 3.1.3
+      yaml: 2.8.1
+    optionalDependencies:
+      jiti: 1.21.7
+      postcss: 8.5.10
+      tsx: 4.11.2
 
   postcss-load-config@5.1.0(jiti@2.6.1)(postcss@8.5.10)(tsx@4.11.2):
     dependencies:
@@ -29049,7 +29096,7 @@ snapshots:
       '@apideck/better-ajv-errors': 0.3.6(ajv@8.17.1)
       '@babel/core': 7.28.5
       '@babel/preset-env': 7.28.5(@babel/core@7.28.5)
-      '@babel/runtime': 7.28.6
+      '@babel/runtime': 7.29.2
       '@rollup/plugin-babel': 5.3.1(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@2.80.0)
       '@rollup/plugin-node-resolve': 11.2.1(rollup@2.80.0)
       '@rollup/plugin-replace': 2.4.2(rollup@2.80.0)
