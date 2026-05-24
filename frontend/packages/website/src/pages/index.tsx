@@ -133,7 +133,7 @@ export default function Home(): ReactNode {
 
         <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
           <SectionTitle
-            title="Build Your Own Applications on an API-First Core"
+            title="Build Your Own Healthcare Applications on API-First Platform"
             subtitle="Use the same standards-based API surface to power your own product experiences, workflows, and integrations."
           />
           <figure className="mt-6 overflow-hidden rounded-2xl border border-brand-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.16)]">
@@ -155,7 +155,7 @@ export default function Home(): ReactNode {
             title="Standards-Based by Design"
             subtitle="Adopt quickly with standards your enterprise teams and partners already trust."
           />
-          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-2">
             {capabilityCards.map((item) => (
               <article
                 key={item.title}
@@ -177,23 +177,25 @@ export default function Home(): ReactNode {
             title="How Haste Health Works"
             subtitle="A predictable data pipeline for enterprise healthcare operations."
           />
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {architectureSteps.map((step, idx) => (
-              <article
-                key={step.title}
-                className="rounded-xl border border-brand-200 p-5"
-              >
-                <p className="text-sm font-semibold text-brand-600">
-                  Step {idx + 1}
-                </p>
-                <h3 className="mt-1 text-2xl font-semibold text-brand-900">
-                  {step.title}
-                </h3>
-                <p className="mt-3 text-sm text-slate-700 leading-6">
-                  {step.body}
-                </p>
-              </article>
-            ))}
+          <div className="mt-8 relative">
+            <div className="hidden md:block absolute left-10 right-10 top-5 border-t border-brand-200" />
+            <ol className="grid gap-6 md:grid-cols-3">
+              {architectureSteps.map((step, idx) => (
+                <li key={step.title} className="relative">
+                  <div className="relative z-10 mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 border-brand-300 bg-white text-sm font-bold text-brand-700">
+                    {idx + 1}
+                  </div>
+                  <article className="rounded-xl border border-brand-200 bg-brand-50/30 p-5">
+                    <h3 className="text-2xl font-semibold text-brand-900">
+                      {step.title}
+                    </h3>
+                    <p className="mt-3 text-sm text-slate-700 leading-6">
+                      {step.body}
+                    </p>
+                  </article>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 
@@ -227,21 +229,23 @@ export default function Home(): ReactNode {
             title="Built for Enterprise Healthcare Teams"
             subtitle="Deploy one platform across clinical, operational, and intelligent application domains."
           />
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="mt-6 divide-y divide-brand-200 rounded-xl border border-brand-200">
             {useCases.map((useCase) => (
               <article
                 key={useCase.title}
-                className="rounded-xl border border-brand-200 p-5"
+                className="grid gap-3 p-5 md:grid-cols-[1fr_auto] md:items-center"
               >
-                <h3 className="text-xl font-semibold text-brand-900">
-                  {useCase.title}
-                </h3>
-                <p className="mt-3 text-sm text-slate-700 leading-6">
-                  {useCase.body}
-                </p>
+                <div>
+                  <h3 className="text-xl font-semibold text-brand-900">
+                    {useCase.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-slate-700 leading-6">
+                    {useCase.body}
+                  </p>
+                </div>
                 <Link
                   to={useCase.href}
-                  className="mt-4 inline-block text-sm font-semibold text-brand-700 hover:text-brand-600"
+                  className="inline-flex items-center justify-center rounded-lg border border-brand-300 px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50 hover:text-brand-600"
                 >
                   Learn more
                 </Link>
