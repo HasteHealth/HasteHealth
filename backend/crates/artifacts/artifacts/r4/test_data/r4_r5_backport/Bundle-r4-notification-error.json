@@ -1,0 +1,57 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "r4-notification-error",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription-notification-r4"]
+  },
+  "type" : "history",
+  "timestamp" : "2020-05-29T11:44:13.1882432-05:00",
+  "entry" : [{
+    "fullUrl" : "urn:uuid:7bd91d26-c951-4520-9ac6-67f41bfbe897",
+    "resource" : {
+      "resourceType" : "Parameters",
+      "id" : "7bd91d26-c951-4520-9ac6-67f41bfbe897",
+      "meta" : {
+        "profile" : ["http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription-status-r4"]
+      },
+      "parameter" : [{
+        "name" : "subscription",
+        "valueReference" : {
+          "reference" : "https://example.org/fhir/Subscription/admission"
+        }
+      },
+      {
+        "name" : "topic",
+        "valueCanonical" : "http://hl7.org/SubscriptionTopic/admission"
+      },
+      {
+        "name" : "status",
+        "valueCode" : "error"
+      },
+      {
+        "name" : "type",
+        "valueCode" : "query-status"
+      },
+      {
+        "name" : "events-since-subscription-start",
+        "valueString" : "3"
+      },
+      {
+        "name" : "error",
+        "valueCodeableConcept" : {
+          "coding" : [{
+            "system" : "http://terminology.hl7.org/CodeSystem/subscription-error",
+            "code" : "no-response"
+          }]
+        }
+      }]
+    },
+    "request" : {
+      "method" : "GET",
+      "url" : "https://example.org/fhir/Subscription/admission/$status"
+    },
+    "response" : {
+      "status" : "200"
+    }
+  }]
+}

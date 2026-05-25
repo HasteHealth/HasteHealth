@@ -1,0 +1,48 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "r4-notification-heartbeat",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription-notification-r4"]
+  },
+  "type" : "history",
+  "timestamp" : "2020-05-29T11:44:13.1882432-05:00",
+  "entry" : [{
+    "fullUrl" : "urn:uuid:385b23bd-6d03-462e-894d-a0694045d65c",
+    "resource" : {
+      "resourceType" : "Parameters",
+      "id" : "385b23bd-6d03-462e-894d-a0694045d65c",
+      "meta" : {
+        "profile" : ["http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription-status-r4"]
+      },
+      "parameter" : [{
+        "name" : "subscription",
+        "valueReference" : {
+          "reference" : "https://example.org/fhir/Subscription/admission"
+        }
+      },
+      {
+        "name" : "topic",
+        "valueCanonical" : "http://hl7.org/SubscriptionTopic/admission"
+      },
+      {
+        "name" : "status",
+        "valueCode" : "active"
+      },
+      {
+        "name" : "type",
+        "valueCode" : "heartbeat"
+      },
+      {
+        "name" : "events-since-subscription-start",
+        "valueString" : "2"
+      }]
+    },
+    "request" : {
+      "method" : "GET",
+      "url" : "https://example.org/fhir/Subscription/admission/$status"
+    },
+    "response" : {
+      "status" : "200"
+    }
+  }]
+}
