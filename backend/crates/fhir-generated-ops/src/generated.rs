@@ -3,6 +3,127 @@ use haste_fhir_model::r4::generated::resources::*;
 use haste_fhir_model::r4::generated::types::*;
 use haste_fhir_operation_error::*;
 use haste_fhir_ops::derive::{FromParameters, ToParameters};
+pub mod BackportSubscriptionStatus {
+    use super::*;
+    pub const CODE: &str = "status";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        pub id: Option<Vec<FHIRId>>,
+        pub status: Option<Vec<FHIRCode>>,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
+    pub struct Output {
+        #[parameter_rename = "return"]
+        pub return_: Bundle,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Bundle(value.return_)
+        }
+    }
+}
+pub mod BackportSubscriptionGetWsBindingToken {
+    use super::*;
+    pub const CODE: &str = "get-ws-binding-token";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        pub id: Option<Vec<FHIRId>>,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        pub token: FHIRString,
+        pub expiration: FHIRDateTime,
+        pub subscription: Option<Vec<FHIRString>>,
+        #[parameter_rename = "websocket-url"]
+        pub websocket_url: FHIRUrl,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
+pub mod BackportSubscriptionResend {
+    use super::*;
+    pub const CODE: &str = "resend";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        pub eventsSinceNumber: Option<FHIRString>,
+        pub eventsUntilNumber: Option<FHIRString>,
+        pub eventsSinceInstant: Option<FHIRInstant>,
+        pub eventsUntilInstant: Option<FHIRInstant>,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
+    pub struct Output {
+        #[parameter_rename = "return"]
+        pub return_: OperationOutcome,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::OperationOutcome(value.return_)
+        }
+    }
+}
+pub mod BackportSubscriptionEvents {
+    use super::*;
+    pub const CODE: &str = "events";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        pub eventsSinceNumber: Option<FHIRString>,
+        pub eventsUntilNumber: Option<FHIRString>,
+        pub content: Option<FHIRCode>,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
+    pub struct Output {
+        #[parameter_rename = "return"]
+        pub return_: Bundle,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Bundle(value.return_)
+        }
+    }
+}
 pub mod HasteHealthDeleteRefreshToken {
     use super::*;
     pub const CODE: &str = "delete-refresh-token";

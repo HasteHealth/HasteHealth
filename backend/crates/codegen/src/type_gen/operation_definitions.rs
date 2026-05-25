@@ -324,9 +324,16 @@ pub fn generate_operation_definitions_from_files(
 
     for dir_path in file_paths {
         let walker = WalkDir::new(dir_path).into_iter();
+
         for entry in walker
             .filter_map(|e| e.ok())
             .filter(|e| e.metadata().unwrap().is_file())
+            .filter(|e| {
+                e.path()
+                    .extension()
+                    .map(|ext| ext == "json")
+                    .unwrap_or(false)
+            })
         {
             let generated_types = generate_operation_definition(entry.path())?;
 
