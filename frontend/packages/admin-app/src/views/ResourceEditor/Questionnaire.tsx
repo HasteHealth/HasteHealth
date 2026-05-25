@@ -1,7 +1,6 @@
 import {
   Questionnaire,
   QuestionnaireResponse,
-  ResourceType,
 } from "@haste-health/fhir-types/lib/generated/r4/types";
 import ResourceEditorComponent, {
   AdditionalContent,
