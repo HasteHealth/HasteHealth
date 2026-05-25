@@ -224,6 +224,13 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
                             tracing::error!("{:#?}", err);
                             panic!("INVALID");
                         }
+                        IssueType::Conflict => {
+                            tracing::info!(
+                                "Resource '{}' with id '{}' is up to date. Skipping.",
+                                resource_type.as_ref(),
+                                id
+                            );
+                        }
                         _ => {
                             tracing::error!(
                                 "Failed to update '{}' with id '{}'. Issue code: '{:?}', diagnostic: '{}'",

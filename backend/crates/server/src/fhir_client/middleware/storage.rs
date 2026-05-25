@@ -524,7 +524,7 @@ impl<
 
                                     if latest.is_some() {
                                         return Err(OperationOutcomeError::error(
-                                            IssueType::NotFound(None),
+                                            IssueType::Conflict(None),
                                             "Resource exists but not found in conditional criteria."
                                                 .to_string(),
                                         ));
