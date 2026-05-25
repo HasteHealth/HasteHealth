@@ -1,4 +1,2 @@
-import { FHIROperationOutcomeDisplay } from "./OperationOutcome";
-import { FHIRQuestionnaireRenderer } from "./Questionnaire";
-
-export { FHIROperationOutcomeDisplay, FHIRQuestionnaireRenderer };
+export { FHIROperationOutcomeDisplay } from "./OperationOutcome";
+export { FHIRQuestionnaireRenderer } from "./Questionnaire";

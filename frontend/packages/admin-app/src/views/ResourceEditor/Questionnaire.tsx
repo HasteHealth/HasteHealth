@@ -30,7 +30,7 @@ export default function QuestionnaireView({
       id={id}
       actions={actions}
       structureDefinition={structureDefinition}
-      resourceType={resourceType as ResourceType}
+      resourceType={resourceType}
       resource={resource}
       onChange={onChange}
       rightTabs={[

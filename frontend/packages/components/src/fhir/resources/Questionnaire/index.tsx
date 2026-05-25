@@ -34,11 +34,11 @@ function normalizeQuestionnaireResponse(
   schema: Questionnaire,
   value?: QuestionnaireResponse,
 ): QuestionnaireResponse {
-  const base: QuestionnaireResponse = value
-    ? value
-    : ({
-        resourceType: "QuestionnaireResponse",
-      } as QuestionnaireResponse);
+  const base: QuestionnaireResponse =
+    value ??
+    ({
+      resourceType: "QuestionnaireResponse",
+    } as QuestionnaireResponse);
 
   if (!base.status) {
     base.status = "in-progress" as unknown as code;
@@ -72,6 +72,12 @@ function getResponseItemAtPath(
   return cursor;
 }
 
+const UnsupportedItemRenderer: QuestionnaireItemRenderer = ({ item }) => (
+  <div className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+    Unsupported Questionnaire item type: {item.type}
+  </div>
+);
+
 export function FHIRQuestionnaireRenderer({
   schema,
   value,
@@ -103,12 +109,6 @@ export function FHIRQuestionnaireRenderer({
     });
   }
 
-  const UnsupportedItemRenderer: QuestionnaireItemRenderer = ({ item }) => (
-    <div className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-      Unsupported Questionnaire item type: {item.type}
-    </div>
-  );
-
   function renderItem(
     itemSchema: QuestionnaireItem,
     responseItem: QuestionnaireResponseItem,
@@ -126,14 +126,6 @@ export function FHIRQuestionnaireRenderer({
         nextAnswer: QuestionnaireResponseItemAnswer | undefined,
       ) => {
         mutateResponseItem(path, (target) => {
-          console.log(
-            "Updating answer at path",
-            path,
-            "index",
-            answerIndex,
-            "to",
-            nextAnswer,
-          );
           const answers = [...(target.answer || [])];
           if (nextAnswer) {
             answers[answerIndex] = nextAnswer;

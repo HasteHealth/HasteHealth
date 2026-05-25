@@ -445,7 +445,7 @@ function jsonRenderer<T>(
             <textarea
               className="h-24 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs"
               readOnly={item.readOnly}
-              value={JSON.stringify(read(answer) || {}, null, 2)}
+              value={JSON.stringify(read(answer) ?? {}, null, 2)}
               placeholder={`${typeLabel} JSON`}
               onChange={(event) => {
                 const raw = event.target.value.trim();
@@ -573,11 +573,10 @@ const StringRenderer = primitiveRenderer(
       onChange={
         item.readOnly
           ? undefined
-          : (value) => {
-              const next = value || "";
+          : (value = "") => {
               onAnswerChange(
                 answerIndex,
-                next.trim().length > 0 ? { valueString: next } : undefined,
+                value.trim().length > 0 ? { valueString: value } : undefined,
               );
             }
       }
