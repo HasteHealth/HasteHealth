@@ -9,6 +9,7 @@ import {
   Bundle,
   IdentityProvider,
   OperationDefinition,
+  Questionnaire,
   Resource,
   ResourceType,
   StructureDefinition,
@@ -24,6 +25,7 @@ import AccessPolicyView from "./AccessPolicy";
 import IdentityProviderView from "./IdentityProvider";
 import OperationDefinitionView from "./OperationDefinition";
 import SubscriptionView from "./Subscription";
+import QuestionnaireView from "./Questionnaire";
 
 function ResourceEditorTabs({
   onStructureDefinitionChange,
@@ -214,6 +216,17 @@ function ResourceEditorTabs({
         />
       );
     }
+    case "Questionnaire":
+      return (
+        <QuestionnaireView
+          id={id as id}
+          resourceType={resourceType as ResourceType}
+          actions={actions}
+          resource={resource as Questionnaire}
+          structureDefinition={structureDefinition}
+          onChange={setResource}
+        />
+      );
     default:
       return (
         <ResourceEditorComponent
