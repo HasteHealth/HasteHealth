@@ -106,7 +106,7 @@ jobs:
         working-directory: ./backend
 
       - name: R4 Backport Testscripts
-        run: ./target/debug/haste-health testscript run -i testscripts/r4-backport -w 2000
+        run: ./target/debug/haste-health testscript run -i testscripts/r4-r5-backport -w 2000
         working-directory: ./backend
 
 
