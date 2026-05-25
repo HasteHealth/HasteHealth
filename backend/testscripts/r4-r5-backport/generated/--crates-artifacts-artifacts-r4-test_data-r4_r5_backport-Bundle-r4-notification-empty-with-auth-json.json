@@ -1,1 +1,125 @@
-{"resourceType":"TestScript","id":"--crates-artifacts-artifacts-r4-test_data-r4_r5_backport-Bundle-r4-notification-empty-with-auth-json","contained":[{"resourceType":"Parameters","id":"fixture-Parameters-0","meta":{"profile":["http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription-status-r4"],"tag":[{"code":"--crates-artifacts-artifacts-r4-test_data-r4_r5_backport-Bundle-r4-notification-empty-with-auth-json"}]},"parameter":[{"name":"subscription","valueReference":{"reference":"https://example.org/fhir/Subscription/admission"}},{"name":"topic","valueCanonical":"http://hl7.org/SubscriptionTopic/admission"},{"name":"status","valueCode":"active"},{"name":"type","valueCode":"event-notification"},{"name":"events-since-subscription-start","valueString":"2"},{"name":"notification-event","part":[{"name":"event-number","valueString":"2"},{"name":"timestamp","valueInstant":"2020-05-29T16:44:13.188243200+00:00"},{"name":"authorization-type","valueCoding":{"system":"http://example.org/auth","code":"authorization_base","display":"OAuth request token"}},{"name":"authorization-value","valueString":"ZGFhNDFjY2MtZGFmMi00YjZkLThiNDYtN2JlZDk1MWEyYzk2"}]}]}],"url":"--crates-artifacts-artifacts-r4-test_data-r4_r5_backport-Bundle-r4-notification-empty-with-auth-json","name":"--crates-artifacts-artifacts-r4-test_data-r4_r5_backport-Bundle-r4-notification-empty-with-auth-json","status":"active","fixture":[{"id":"fixture-Parameters-0","autocreate":false,"autodelete":false,"resource":{"reference":"#fixture-Parameters-0"}}],"test":[{"name":"Test for resource with tag: --crates-artifacts-artifacts-r4-test_data-r4_r5_backport-Bundle-r4-notification-empty-with-auth-json","action":[{"operation":{"type":{"system":"http://terminology.hl7.org/CodeSystem/testscript-operation-codes","code":"create"},"resource":"Parameters","encodeRequestUrl":true,"responseId":"fixture-Parameters-0","sourceId":"fixture-Parameters-0"}},{"assert":{"label":"Read created resource","description":"Confirm resource of type Parameters created.","direction":"response","resource":"Parameters","warningOnly":false}}]}],"teardown":{"action":[{"operation":{"type":{"system":"http://terminology.hl7.org/CodeSystem/testscript-operation-codes","code":"deleteCondMultiple"},"description":"Delete resources created in test.","encodeRequestUrl":true,"params":"_tag=--crates-artifacts-artifacts-r4-test_data-r4_r5_backport-Bundle-r4-notification-empty-with-auth-json"}}]}}
+{
+  "resourceType": "TestScript",
+  "id": "--crates-artifacts-artifacts-r4-test_data-r4_r5_backport-Bundle-r4-notification-empty-with-auth-json",
+  "contained": [
+    {
+      "resourceType": "Parameters",
+      "id": "fixture-Parameters-0",
+      "meta": {
+        "profile": [
+          "http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription-status-r4"
+        ],
+        "tag": [
+          {
+            "code": "--crates-artifacts-artifacts-r4-test_data-r4_r5_backport-Bundle-r4-notification-empty-with-auth-json"
+          }
+        ]
+      },
+      "parameter": [
+        {
+          "name": "subscription",
+          "valueReference": {
+            "reference": "https://example.org/fhir/Subscription/admission"
+          }
+        },
+        {
+          "name": "topic",
+          "valueCanonical": "http://hl7.org/SubscriptionTopic/admission"
+        },
+        {
+          "name": "status",
+          "valueCode": "active"
+        },
+        {
+          "name": "type",
+          "valueCode": "event-notification"
+        },
+        {
+          "name": "events-since-subscription-start",
+          "valueString": "2"
+        },
+        {
+          "name": "notification-event",
+          "part": [
+            {
+              "name": "event-number",
+              "valueString": "2"
+            },
+            {
+              "name": "timestamp",
+              "valueInstant": "2020-05-29T16:44:13.188243200+00:00"
+            },
+            {
+              "name": "authorization-type",
+              "valueCoding": {
+                "system": "http://example.org/auth",
+                "code": "authorization_base",
+                "display": "OAuth request token"
+              }
+            },
+            {
+              "name": "authorization-value",
+              "valueString": "ZGFhNDFjY2MtZGFmMi00YjZkLThiNDYtN2JlZDk1MWEyYzk2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "url": "--crates-artifacts-artifacts-r4-test_data-r4_r5_backport-Bundle-r4-notification-empty-with-auth-json",
+  "name": "--crates-artifacts-artifacts-r4-test_data-r4_r5_backport-Bundle-r4-notification-empty-with-auth-json",
+  "status": "active",
+  "fixture": [
+    {
+      "id": "fixture-Parameters-0",
+      "autocreate": false,
+      "autodelete": false,
+      "resource": {
+        "reference": "#fixture-Parameters-0"
+      }
+    }
+  ],
+  "test": [
+    {
+      "name": "Test for resource with tag: --crates-artifacts-artifacts-r4-test_data-r4_r5_backport-Bundle-r4-notification-empty-with-auth-json",
+      "action": [
+        {
+          "operation": {
+            "type": {
+              "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+              "code": "create"
+            },
+            "resource": "Parameters",
+            "encodeRequestUrl": true,
+            "responseId": "fixture-Parameters-0",
+            "sourceId": "fixture-Parameters-0"
+          }
+        },
+        {
+          "assert": {
+            "label": "Read created resource",
+            "description": "Confirm resource of type Parameters created.",
+            "direction": "response",
+            "resource": "Parameters",
+            "warningOnly": false
+          }
+        }
+      ]
+    }
+  ],
+  "teardown": {
+    "action": [
+      {
+        "operation": {
+          "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+            "code": "deleteCondMultiple"
+          },
+          "description": "Delete resources created in test.",
+          "encodeRequestUrl": true,
+          "params": "_tag=--crates-artifacts-artifacts-r4-test_data-r4_r5_backport-Bundle-r4-notification-empty-with-auth-json"
+        }
+      }
+    ]
+  }
+}

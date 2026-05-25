@@ -157,7 +157,7 @@ pub async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeError> {
 
                 std::fs::write(
                     testscript_path,
-                    serde_json::to_string(testscript)
+                    serde_json::to_string_pretty(testscript)
                         .expect("Failed to serialize TestScript to JSON"),
                 )
                 .map_err(|e| {
