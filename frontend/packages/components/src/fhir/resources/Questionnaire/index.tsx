@@ -126,6 +126,14 @@ export function FHIRQuestionnaireRenderer({
         nextAnswer: QuestionnaireResponseItemAnswer | undefined,
       ) => {
         mutateResponseItem(path, (target) => {
+          console.log(
+            "Updating answer at path",
+            path,
+            "index",
+            answerIndex,
+            "to",
+            nextAnswer,
+          );
           const answers = [...(target.answer || [])];
           if (nextAnswer) {
             answers[answerIndex] = nextAnswer;

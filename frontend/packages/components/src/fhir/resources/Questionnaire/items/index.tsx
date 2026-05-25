@@ -4,10 +4,6 @@ import {
   Attachment,
   base64Binary,
   code,
-  date,
-  dateTime,
-  decimal,
-  integer,
   QuestionnaireItem,
   QuestionnaireItemAnswerOption,
   QuestionnaireResponseItem,
@@ -15,8 +11,19 @@ import {
   Quantity,
   Reference,
   time,
-  uri,
 } from "@haste-health/fhir-types/r4/types";
+
+import { Option, Select } from "../../../../base/select";
+import {
+  FHIRBooleanEditable,
+  FHIRDateEditable,
+  FHIRDateTimeEditable,
+  FHIRDecimalEditable,
+  FHIRIntegerEditable,
+  FHIRStringEditable,
+  FHIRTimeEditable,
+  FHIRUriEditable,
+} from "../../../primitives";
 
 export type QuestionnaireItemRendererProps = {
   item: QuestionnaireItem;
@@ -100,37 +107,44 @@ function itemControl(item: QuestionnaireItem): string | undefined {
 }
 
 function optionLabel(option: QuestionnaireItemAnswerOption): string {
-  if (option.valueCoding) {
-    return (
-      option.valueCoding.display || option.valueCoding.code || "Coding option"
-    );
+  let valueKey = Object.keys(option).find((key) => key.startsWith("value"));
+
+  switch (valueKey) {
+    case "valueCoding": {
+      const coding = option.valueCoding;
+      return coding?.display || coding?.code || "Coding option";
+    }
+    case "valueString": {
+      return option.valueString ?? "Option";
+    }
+    case "valueInteger":
+    case "valueDate":
+    case "valueDateTime":
+    case "valueTime": {
+      return String(option[valueKey as keyof QuestionnaireItemAnswerOption]);
+    }
+    case "valueReference": {
+      return (
+        option.valueReference?.display ||
+        option.valueReference?.reference ||
+        "Reference"
+      );
+    }
+    default: {
+      return "Option";
+    }
   }
-  if (option.valueString !== undefined) return option.valueString;
-  if (option.valueInteger !== undefined) return String(option.valueInteger);
-  if (option.valueDate !== undefined) return String(option.valueDate);
-  if (option.valueTime !== undefined) return String(option.valueTime);
-  if (option.valueReference) {
-    return (
-      option.valueReference.display ||
-      option.valueReference.reference ||
-      "Reference"
-    );
-  }
-  return "Option";
 }
 
 function optionToAnswer(
   option: QuestionnaireItemAnswerOption,
 ): QuestionnaireResponseItemAnswer | undefined {
-  if (option.valueCoding) return { valueCoding: option.valueCoding };
-  if (option.valueString !== undefined)
-    return { valueString: option.valueString };
-  if (option.valueInteger !== undefined)
-    return { valueInteger: option.valueInteger };
-  if (option.valueDate !== undefined) return { valueDate: option.valueDate };
-  if (option.valueTime !== undefined) return { valueTime: option.valueTime };
-  if (option.valueReference) return { valueReference: option.valueReference };
-  return undefined;
+  const valueKey = Object.keys(option).find((key) => key.startsWith("value"));
+  if (!valueKey) return undefined;
+
+  return {
+    [valueKey]: option[valueKey as keyof QuestionnaireItemAnswerOption],
+  };
 }
 
 function findSelectedOptionIndex(
@@ -140,37 +154,33 @@ function findSelectedOptionIndex(
   if (!answer) return -1;
 
   return options.findIndex((option) => {
-    if (answer.valueCoding && option.valueCoding) {
-      return option.valueCoding.code === answer.valueCoding.code;
-    }
-    if (answer.valueString !== undefined && option.valueString !== undefined) {
-      return option.valueString === answer.valueString;
-    }
-    if (
-      answer.valueInteger !== undefined &&
-      option.valueInteger !== undefined
-    ) {
-      return option.valueInteger === answer.valueInteger;
-    }
-    if (answer.valueDate !== undefined && option.valueDate !== undefined) {
-      return option.valueDate === answer.valueDate;
-    }
-    if (answer.valueTime !== undefined && option.valueTime !== undefined) {
-      return option.valueTime === answer.valueTime;
-    }
-    if (answer.valueReference && option.valueReference) {
+    const valueKey = Object.keys(option).find((key) => key.startsWith("value"));
+    if (!valueKey) return false;
+
+    let value = option[valueKey as keyof QuestionnaireItemAnswerOption];
+    if (typeof value === "object") {
       return (
-        option.valueReference.reference === answer.valueReference.reference
+        JSON.stringify(value) ==
+        JSON.stringify(
+          answer[valueKey as keyof QuestionnaireResponseItemAnswer],
+        )
       );
     }
-    return false;
+
+    return answer[valueKey as keyof QuestionnaireResponseItemAnswer] === value;
   });
 }
 
-function primitiveInputRenderer(
-  htmlType: string,
-  read: (answer: QuestionnaireResponseItemAnswer | undefined) => string,
-  write: (raw: string) => QuestionnaireResponseItemAnswer | undefined,
+function primitiveRenderer(
+  renderControl: (props: {
+    item: QuestionnaireItem;
+    answer: QuestionnaireResponseItemAnswer | undefined;
+    answerIndex: number;
+    onAnswerChange: (
+      answerIndex: number,
+      nextAnswer: QuestionnaireResponseItemAnswer | undefined,
+    ) => void;
+  }) => React.ReactNode,
 ): QuestionnaireItemRenderer {
   return ({
     item,
@@ -188,15 +198,14 @@ function primitiveInputRenderer(
             key={`${item.linkId}-${answerIndex}`}
             className="flex items-center gap-2"
           >
-            <input
-              type={htmlType}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
-              value={read(answer)}
-              readOnly={item.readOnly}
-              onChange={(event) =>
-                onAnswerChange(answerIndex, write(event.target.value))
-              }
-            />
+            <div className="w-full">
+              {renderControl({
+                item,
+                answer,
+                answerIndex,
+                onAnswerChange,
+              })}
+            </div>
             {item.repeats && answer
               ? removeButton(() => onRemoveAnswer(answerIndex))
               : null}
@@ -227,43 +236,19 @@ const DisplayRenderer: QuestionnaireItemRenderer = ({
   </div>
 );
 
-const BooleanRenderer: QuestionnaireItemRenderer = ({
-  item,
-  answers,
-  onAnswerChange,
-  onAddAnswer,
-  onRemoveAnswer,
-  renderChildren,
-}) => (
-  <div className="space-y-2">
-    {header(item, onAddAnswer, Boolean(item.repeats))}
-    <div className="space-y-2">
-      {rows(item, answers).map(({ answer, answerIndex }) => (
-        <div
-          key={`${item.linkId}-${answerIndex}`}
-          className="flex items-center gap-2"
-        >
-          <label className="inline-flex items-center gap-2 text-sm text-slate-700">
-            <input
-              type="checkbox"
-              checked={Boolean(answer?.valueBoolean)}
-              disabled={item.readOnly}
-              onChange={(event) =>
-                onAnswerChange(answerIndex, {
-                  valueBoolean: event.target.checked,
-                })
-              }
-            />
-            <span>{Boolean(answer?.valueBoolean) ? "Yes" : "No"}</span>
-          </label>
-          {item.repeats && answer
-            ? removeButton(() => onRemoveAnswer(answerIndex))
-            : null}
-        </div>
-      ))}
-    </div>
-    {renderChildren()}
-  </div>
+const BooleanRenderer = primitiveRenderer(
+  ({ item, answer, answerIndex, onAnswerChange }) => (
+    <FHIRBooleanEditable
+      value={answer?.valueBoolean}
+      label={item.repeats ? `${label(item)} ${answerIndex + 1}` : undefined}
+      onChange={
+        item.readOnly
+          ? undefined
+          : (value) =>
+              onAnswerChange(answerIndex, { valueBoolean: Boolean(value) })
+      }
+    />
+  ),
 );
 
 const ChoiceRenderer: QuestionnaireItemRenderer = ({
@@ -276,6 +261,10 @@ const ChoiceRenderer: QuestionnaireItemRenderer = ({
 }) => {
   const options = item.answerOption || [];
   const control = itemControl(item);
+  const selectOptions: Option[] = options.map((option, index) => ({
+    value: index,
+    label: optionLabel(option),
+  }));
 
   return (
     <div className="space-y-2">
@@ -310,31 +299,38 @@ const ChoiceRenderer: QuestionnaireItemRenderer = ({
                   ))}
                 </div>
               ) : (
-                <select
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
-                  value={selectedIndex >= 0 ? String(selectedIndex) : ""}
-                  disabled={item.readOnly}
-                  onChange={(event) => {
-                    if (event.target.value === "") {
-                      onAnswerChange(answerIndex, undefined);
-                      return;
+                <div className="w-full">
+                  <Select
+                    options={selectOptions}
+                    value={selectedIndex >= 0 ? selectedIndex : undefined}
+                    label={
+                      item.repeats
+                        ? `${label(item)} ${answerIndex + 1}`
+                        : undefined
                     }
-
-                    const option =
-                      options[Number.parseInt(event.target.value, 10)];
-                    onAnswerChange(answerIndex, optionToAnswer(option));
-                  }}
-                >
-                  <option value="">Select an option</option>
-                  {options.map((option, index) => (
-                    <option
-                      key={`${item.linkId}-option-${index}`}
-                      value={String(index)}
-                    >
-                      {optionLabel(option)}
-                    </option>
-                  ))}
-                </select>
+                    onChange={
+                      item.readOnly
+                        ? undefined
+                        : (selected) => {
+                            if (!selected) {
+                              onAnswerChange(answerIndex, undefined);
+                              return;
+                            }
+                            const optionIndex = Number(selected.value);
+                            if (Number.isNaN(optionIndex)) {
+                              onAnswerChange(answerIndex, undefined);
+                              return;
+                            }
+                            const option = options[optionIndex];
+                            if (!option) {
+                              onAnswerChange(answerIndex, undefined);
+                              return;
+                            }
+                            onAnswerChange(answerIndex, optionToAnswer(option));
+                          }
+                    }
+                  />
+                </div>
               )}
               {item.repeats && answer
                 ? removeButton(() => onRemoveAnswer(answerIndex))
@@ -357,6 +353,10 @@ const OpenChoiceRenderer: QuestionnaireItemRenderer = ({
   renderChildren,
 }) => {
   const options = item.answerOption || [];
+  const selectOptions: Option[] = options.map((option, index) => ({
+    value: index,
+    label: optionLabel(option),
+  }));
 
   return (
     <div className="space-y-2">
@@ -364,59 +364,54 @@ const OpenChoiceRenderer: QuestionnaireItemRenderer = ({
       <div className="space-y-2">
         {rows(item, answers).map(({ answer, answerIndex }) => {
           const selectedIndex = findSelectedOptionIndex(answer, options);
-          const currentString = answer?.valueString || "";
+          const currentCustom = answer?.valueString;
+          const selectValue =
+            selectedIndex >= 0
+              ? selectedIndex
+              : currentCustom && currentCustom.length > 0
+                ? currentCustom
+                : undefined;
 
           return (
             <div
               key={`${item.linkId}-${answerIndex}`}
               className="space-y-2 rounded border border-slate-200 p-2"
             >
-              {options.length > 0 ? (
-                <select
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
-                  value={selectedIndex >= 0 ? String(selectedIndex) : "custom"}
-                  disabled={item.readOnly}
-                  onChange={(event) => {
-                    if (event.target.value === "custom") {
-                      onAnswerChange(
-                        answerIndex,
-                        currentString.trim().length > 0
-                          ? { valueString: currentString }
-                          : undefined,
-                      );
-                      return;
-                    }
+              <Select
+                options={selectOptions}
+                value={selectValue}
+                open
+                label={
+                  item.repeats ? `${label(item)} ${answerIndex + 1}` : undefined
+                }
+                onChange={
+                  item.readOnly
+                    ? undefined
+                    : (selected) => {
+                        if (!selected) {
+                          onAnswerChange(answerIndex, undefined);
+                          return;
+                        }
 
-                    const option =
-                      options[Number.parseInt(event.target.value, 10)];
-                    onAnswerChange(answerIndex, optionToAnswer(option));
-                  }}
-                >
-                  {options.map((option, index) => (
-                    <option
-                      key={`${item.linkId}-open-option-${index}`}
-                      value={String(index)}
-                    >
-                      {optionLabel(option)}
-                    </option>
-                  ))}
-                  <option value="custom">Custom value</option>
-                </select>
-              ) : null}
-              <input
-                type="text"
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
-                value={currentString}
-                readOnly={item.readOnly}
-                placeholder="Enter custom value"
-                onChange={(event) => {
-                  const next = event.target.value;
-                  onAnswerChange(
-                    answerIndex,
-                    next.trim().length > 0 ? { valueString: next } : undefined,
-                  );
-                }}
+                        if (typeof selected.value === "number") {
+                          const option = options[selected.value];
+                          onAnswerChange(answerIndex, optionToAnswer(option));
+                          return;
+                        }
+
+                        const customValue = String(selected.value);
+                        onAnswerChange(
+                          answerIndex,
+                          customValue.trim().length > 0
+                            ? { valueString: customValue }
+                            : undefined,
+                        );
+                      }
+                }
               />
+              <p className="text-xs text-slate-500">
+                Type to select an option or create a custom value.
+              </p>
               {item.repeats && answer
                 ? removeButton(() => onRemoveAnswer(answerIndex))
                 : null}
@@ -477,76 +472,140 @@ function jsonRenderer<T>(
   );
 }
 
-const DecimalRenderer = primitiveInputRenderer(
-  "number",
-  (answer) =>
-    answer?.valueDecimal === undefined || answer.valueDecimal === null
-      ? ""
-      : String(answer.valueDecimal),
-  (raw) => {
-    if (raw.trim().length === 0) return undefined;
-    const parsed = Number.parseFloat(raw);
-    return Number.isNaN(parsed)
-      ? undefined
-      : { valueDecimal: parsed as unknown as decimal };
-  },
+const DecimalRenderer = primitiveRenderer(
+  ({ item, answer, answerIndex, onAnswerChange }) => (
+    <FHIRDecimalEditable
+      label={item.repeats ? `${label(item)} ${answerIndex + 1}` : undefined}
+      value={answer?.valueDecimal}
+      onChange={
+        item.readOnly
+          ? undefined
+          : (value) =>
+              onAnswerChange(
+                answerIndex,
+                value === undefined ? undefined : { valueDecimal: value },
+              )
+      }
+    />
+  ),
 );
 
-const IntegerRenderer = primitiveInputRenderer(
-  "number",
-  (answer) =>
-    answer?.valueInteger === undefined || answer.valueInteger === null
-      ? ""
-      : String(answer.valueInteger),
-  (raw) => {
-    if (raw.trim().length === 0) return undefined;
-    const parsed = Number.parseInt(raw, 10);
-    return Number.isNaN(parsed)
-      ? undefined
-      : { valueInteger: parsed as unknown as integer };
-  },
+const IntegerRenderer = primitiveRenderer(
+  ({ item, answer, answerIndex, onAnswerChange }) => (
+    <FHIRIntegerEditable
+      label={item.repeats ? `${label(item)} ${answerIndex + 1}` : undefined}
+      value={answer?.valueInteger}
+      onChange={
+        item.readOnly
+          ? undefined
+          : (value) =>
+              onAnswerChange(
+                answerIndex,
+                value === undefined ? undefined : { valueInteger: value },
+              )
+      }
+    />
+  ),
 );
 
-const DateRenderer = primitiveInputRenderer(
-  "date",
-  (answer) => (answer?.valueDate ? String(answer.valueDate) : ""),
-  (raw) =>
-    raw.trim().length === 0 ? undefined : { valueDate: raw as unknown as date },
+const DateRenderer = primitiveRenderer(
+  ({ item, answer, answerIndex, onAnswerChange }) => (
+    <FHIRDateEditable
+      label={item.repeats ? `${label(item)} ${answerIndex + 1}` : undefined}
+      value={answer?.valueDate}
+      onChange={
+        item.readOnly
+          ? undefined
+          : (value) =>
+              onAnswerChange(
+                answerIndex,
+                value === undefined ? undefined : { valueDate: value },
+              )
+      }
+    />
+  ),
 );
 
-const DateTimeRenderer = primitiveInputRenderer(
-  "datetime-local",
-  (answer) => (answer?.valueDateTime ? String(answer.valueDateTime) : ""),
-  (raw) =>
-    raw.trim().length === 0
-      ? undefined
-      : { valueDateTime: raw as unknown as dateTime },
+const DateTimeRenderer = primitiveRenderer(
+  ({ item, answer, answerIndex, onAnswerChange }) => (
+    <FHIRDateTimeEditable
+      label={item.repeats ? `${label(item)} ${answerIndex + 1}` : undefined}
+      value={answer?.valueDateTime}
+      onChange={
+        item.readOnly
+          ? undefined
+          : (value) =>
+              onAnswerChange(
+                answerIndex,
+                value === undefined ? undefined : { valueDateTime: value },
+              )
+      }
+    />
+  ),
 );
 
-const TimeRenderer = primitiveInputRenderer(
-  "time",
-  (answer) => (answer?.valueTime ? String(answer.valueTime) : ""),
-  (raw) =>
-    raw.trim().length === 0 ? undefined : { valueTime: raw as unknown as time },
+const TimeRenderer = primitiveRenderer(
+  ({ item, answer, answerIndex, onAnswerChange }) => (
+    <FHIRTimeEditable
+      label={item.repeats ? `${label(item)} ${answerIndex + 1}` : undefined}
+      value={answer?.valueTime}
+      onChange={
+        item.readOnly
+          ? undefined
+          : (value) =>
+              onAnswerChange(
+                answerIndex,
+                value === undefined
+                  ? undefined
+                  : { valueTime: value as unknown as time },
+              )
+      }
+    />
+  ),
 );
 
-const StringRenderer = primitiveInputRenderer(
-  "text",
-  (answer) => answer?.valueString || "",
-  (raw) => (raw.trim().length === 0 ? undefined : { valueString: raw }),
+const StringRenderer = primitiveRenderer(
+  ({ item, answer, answerIndex, onAnswerChange }) => (
+    <FHIRStringEditable
+      label={item.repeats ? `${label(item)} ${answerIndex + 1}` : undefined}
+      value={answer?.valueString}
+      disabled={Boolean(item.readOnly)}
+      onChange={
+        item.readOnly
+          ? undefined
+          : (value) => {
+              const next = value || "";
+              onAnswerChange(
+                answerIndex,
+                next.trim().length > 0 ? { valueString: next } : undefined,
+              );
+            }
+      }
+    />
+  ),
 );
 
-const TextRenderer = primitiveInputRenderer(
-  "text",
-  (answer) => answer?.valueString || "",
-  (raw) => (raw.trim().length === 0 ? undefined : { valueString: raw }),
-);
+const TextRenderer = StringRenderer;
 
-const UrlRenderer = primitiveInputRenderer(
-  "url",
-  (answer) => (answer?.valueUri ? String(answer.valueUri) : ""),
-  (raw) =>
-    raw.trim().length === 0 ? undefined : { valueUri: raw as unknown as uri },
+const UrlRenderer = primitiveRenderer(
+  ({ item, answer, answerIndex, onAnswerChange }) => (
+    <FHIRUriEditable
+      label={item.repeats ? `${label(item)} ${answerIndex + 1}` : undefined}
+      value={answer?.valueUri}
+      disabled={Boolean(item.readOnly)}
+      onChange={
+        item.readOnly
+          ? undefined
+          : (value) =>
+              onAnswerChange(
+                answerIndex,
+                value && value.trim().length > 0
+                  ? { valueUri: value }
+                  : undefined,
+              )
+      }
+    />
+  ),
 );
 
 const AttachmentRenderer: QuestionnaireItemRenderer = ({
@@ -628,6 +687,7 @@ export const questionnaireItemRenderers: Record<
   string: StringRenderer,
   text: TextRenderer,
   url: UrlRenderer,
+  uri: UrlRenderer,
   choice: ChoiceRenderer,
   "open-choice": OpenChoiceRenderer,
   attachment: AttachmentRenderer,
