@@ -14,7 +14,7 @@ pub mod operations;
 pub mod rate_limit;
 pub mod set_artifact_tenant;
 pub mod storage;
-pub mod subscription_tier_limit;
+pub mod tenant_tier_limits;
 pub mod transaction;
 pub mod validation;
 
