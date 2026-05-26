@@ -1,0 +1,223 @@
+{
+    "resourceType": "StructureDefinition",
+    "id": "xv-r5-scr.identifier",
+    "url": "http://hl7.org/fhir/5.0/StructureDefinition/extension-Subscription.identifier",
+    "name": "XVerExtensionSubscription.identifierR5",
+    "title": "Cross-Version Extension for Subscription.identifier in R5",
+    "status": "active",
+    "experimental": false,
+    "publisher": "Health Level Seven International (FHIR Infrastructure)",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "http://hl7.org/fhir"
+                }
+            ]
+        },
+        {
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "http://www.hl7.org/Special/committees/fiwg/index.cfm"
+                }
+            ]
+        }
+    ],
+    "description": "Cross-Version Extension for Subscription.identifier.\r\n\r\nValid in versions R2, R3, R4, R4B\r\n\r\nThis is a valid cross-version extension because it's counted as a new element",
+    "jurisdiction": [
+        {
+            "coding": [
+                {
+                    "system": "http://unstats.un.org/unsd/methods/m49/m49.htm",
+                    "code": "001"
+                }
+            ]
+        }
+    ],
+    "fhirVersion": "4.0.1",
+    "kind": "complex-type",
+    "abstract": false,
+    "context": [
+        {
+            "extension": [
+                {
+                    "extension": [
+                        {
+                            "url": "startFhirVersion",
+                            "valueCode": "4.3"
+                        },
+                        {
+                            "url": "endFhirVersion",
+                            "valueCode": "4.3"
+                        }
+                    ],
+                    "url": "http://hl7.org/fhir/StructureDefinition/version-specific-use"
+                }
+            ],
+            "type": "element",
+            "expression": "Subscription"
+        },
+        {
+            "type": "extension",
+            "expression": "http://hl7.org/fhir/4.3/StructureDefinition/extension-Subscription"
+        },
+        {
+            "extension": [
+                {
+                    "extension": [
+                        {
+                            "url": "startFhirVersion",
+                            "valueCode": "4.0"
+                        },
+                        {
+                            "url": "endFhirVersion",
+                            "valueCode": "4.0"
+                        }
+                    ],
+                    "url": "http://hl7.org/fhir/StructureDefinition/version-specific-use"
+                }
+            ],
+            "type": "element",
+            "expression": "Subscription"
+        },
+        {
+            "type": "extension",
+            "expression": "http://hl7.org/fhir/4.0/StructureDefinition/extension-Subscription"
+        },
+        {
+            "extension": [
+                {
+                    "extension": [
+                        {
+                            "url": "startFhirVersion",
+                            "valueCode": "3.0"
+                        },
+                        {
+                            "url": "endFhirVersion",
+                            "valueCode": "3.0"
+                        }
+                    ],
+                    "url": "http://hl7.org/fhir/StructureDefinition/version-specific-use"
+                }
+            ],
+            "type": "element",
+            "expression": "Subscription"
+        },
+        {
+            "type": "extension",
+            "expression": "http://hl7.org/fhir/3.0/StructureDefinition/extension-Subscription"
+        }
+    ],
+    "type": "Extension",
+    "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Extension",
+    "derivation": "constraint",
+    "snapshot": {
+        "element": [
+            {
+                "id": "Extension",
+                "path": "Extension",
+                "short": "Backport of Subscription.identifier to R4",
+                "definition": "Backport of Subscription.identifier to R4",
+                "min": 0,
+                "max": "*",
+                "base": {
+                    "path": "Extension",
+                    "min": 0,
+                    "max": "*"
+                },
+                "condition": [
+                    "ele-1"
+                ],
+                "constraint": [
+                    {
+                        "key": "ele-1",
+                        "severity": "error",
+                        "human": "All FHIR elements must have a @value or children unless an empty Parameters resource",
+                        "expression": "hasValue() or (children().count() > id.count()) or $this is Parameters",
+                        "xpath": "@value|f:*|h:div|self::f:Parameters",
+                        "source": "http://hl7.org/fhir/StructureDefinition/Element"
+                    },
+                    {
+                        "key": "ext-1",
+                        "severity": "error",
+                        "human": "Must have either extensions or value[x], not both",
+                        "expression": "extension.exists() != value.exists()",
+                        "xpath": "exists(f:extension)!=exists(f:*[starts-with(local-name(.), 'value')])",
+                        "source": "http://hl7.org/fhir/StructureDefinition/Extension"
+                    }
+                ],
+                "isModifier": false
+            },
+            {
+                "id": "Extension.id",
+                "path": "Extension.id",
+                "representation": [
+                    "xmlAttr"
+                ],
+                "short": "Unique id for inter-element referencing",
+                "definition": "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+                "min": 0,
+                "max": "1",
+                "base": {
+                    "path": "Element.id",
+                    "min": 0,
+                    "max": "1"
+                },
+                "type": [
+                    {
+                        "extension": [
+                            {
+                                "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type",
+                                "valueUrl": "id"
+                            }
+                        ],
+                        "code": "http://hl7.org/fhirpath/System.String"
+                    }
+                ],
+                "isModifier": false,
+                "isSummary": false,
+                "mapping": [
+                    {
+                        "identity": "rim",
+                        "map": "n/a"
+                    }
+                ]
+            },
+            {
+                "id": "Extension.extension",
+                "path": "Extension.extension",
+                "short": "Extension",
+                "definition": "An Extension",
+                "min": 0,
+                "max": "0",
+                "base": {
+                    "path": "Element.extension",
+                    "min": 0,
+                    "max": "*"
+                },
+                "type": [
+                    {
+                        "code": "Extension"
+                    }
+                ]
+            },
+            {
+                "id": "Extension.url",
+                "path": "Extension.url",
+                "fixedUri": "http://hl7.org/fhir/5.0/StructureDefinition/extension-Subscription.identifier"
+            },
+            {
+                "id": "Extension.value[x]",
+                "path": "Extension.value[x]",
+                "min": 1,
+                "type": [
+                    {
+                        "code": "Identifier"
+                    }
+                ]
+            }
+        ]
+    }
+}
