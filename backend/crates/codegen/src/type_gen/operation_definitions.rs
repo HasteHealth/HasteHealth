@@ -110,6 +110,11 @@ fn generate_parameter_type(
     for p in parameters.iter() {
         let is_array = p.max.value != Some("1".to_string());
         let required = p.min.value.unwrap_or(0) > 0;
+        let description = p
+            .documentation
+            .as_ref()
+            .and_then(|d| d.value.clone())
+            .unwrap_or_default();
         let initial_field_name = p.name.value.as_ref().expect("Parameter must have a name");
         let formatted_field_name = initial_field_name.replace("-", "_");
 
@@ -144,6 +149,7 @@ fn generate_parameter_type(
             );
 
             fields.push(quote! {
+                #[doc = #description]
                 #attribute_rename
                 pub #field_ident: #field
             })
@@ -167,6 +173,7 @@ fn generate_parameter_type(
 
             let type_ = create_field_value(&name, is_array, required);
             fields.push(quote! {
+                #[doc = #description]
                 #attribute_rename
                 #[parameter_nested]
                 pub #field_ident: #type_
@@ -294,10 +301,17 @@ fn generate_operation_definition(file_path: &Path) -> Result<TokenStream, String
             .map(Cow::Borrowed)
             .unwrap_or(Cow::Owned(vec![]));
 
+        let operation_description = op_def
+            .description
+            .as_ref()
+            .and_then(|d| d.value.clone())
+            .unwrap_or("".to_string());
+
         let generate_input = generate_input(&parameters);
         let generate_output = generate_output(&parameters);
 
         generated.extend(quote! {
+            #[doc = #operation_description]
             pub mod #name {
                 use super::*;
                 pub const CODE: &str = #op_code;
