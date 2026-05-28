@@ -13,21 +13,22 @@ pub enum WorkerCommands {
 
 pub async fn worker(command: &Option<WorkerCommands>) -> Result<(), OperationOutcomeError> {
     match command {
-        None | Some(WorkerCommands::Worker) => indexing_worker()
-            .await
-            .expect("Failed to run indexing worker"),
+        None | Some(WorkerCommands::Worker) => {
+            let indexing_worker = search_indexing::IndexingWorker::new().await?;
+
+            let handler = indexing_worker.run().await?;
+
+            handler.await.map_err(|e| {
+                OperationOutcomeError::fatal(
+                    haste_fhir_model::r4::generated::terminology::IssueType::Exception(None),
+                    format!("Worker task failed: {:?}", e),
+                )
+            })?;
+
+            Ok(())
+        }
         Some(WorkerCommands::WalWorker) => todo!(),
-    };
-
-    Ok(())
-}
-
-async fn indexing_worker() -> Result<(), OperationOutcomeError> {
-    let indexing_worker = search_indexing::IndexingWorker::new().await?;
-
-    indexing_worker.run().await?;
-
-    Ok(())
+    }
 }
 
 // async fn create_wal_worker() -> Result<(), Box<dyn std::error::Error>> {
