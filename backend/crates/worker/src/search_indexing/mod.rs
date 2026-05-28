@@ -11,7 +11,10 @@ use haste_fhir_search::{
 };
 use haste_fhirpath::FHIRPathError;
 use haste_jwt::{TenantId, VersionId};
-use haste_repository::{fhir::FHIRRepository, pg::PGConnection, types::SupportedFHIRVersions};
+use haste_repository::{
+    fhir::FHIRRepository, pg::PGConnection, sequence::ResourceSequential,
+    types::SupportedFHIRVersions,
+};
 use sqlx::{Acquire, query_as, types::time::OffsetDateTime};
 use std::sync::Arc;
 use tokio::{sync::Mutex, task::JoinHandle};
@@ -97,21 +100,21 @@ static TOTAL_INDEXED: std::sync::LazyLock<Mutex<usize>> =
     std::sync::LazyLock::new(|| Mutex::new(0));
 
 async fn index_tenant_next_sequence<
-    Repo: FHIRRepository + IndexLockProvider,
+    Repo: ResourceSequential + IndexLockProvider,
     Engine: SearchEngine,
 >(
     search_client: Arc<Engine>,
-    tx: &Repo,
+    repo: &Repo,
     tenant_id: &TenantId,
 ) -> Result<(), IndexingWorkerError> {
     let start = std::time::Instant::now();
-    let tenant_locks = tx.get_available_locks(vec![tenant_id]).await?;
+    let tenant_locks = repo.get_available_locks(vec![tenant_id]).await?;
 
     if tenant_locks.is_empty() {
         return Ok(());
     }
 
-    let resources = tx
+    let resources = repo
         .get_sequence(
             tenant_id,
             tenant_locks[0].index_sequence_position as u64,
@@ -167,7 +170,7 @@ async fn index_tenant_next_sequence<
                 );
             }
 
-            tx.update_lock(tenant_id.as_ref(), resource.sequence as usize)
+            repo.update_lock(tenant_id.as_ref(), resource.sequence as usize)
                 .await?;
 
             let elapsed = start.elapsed();
@@ -186,7 +189,10 @@ async fn index_tenant_next_sequence<
     Ok(())
 }
 
-async fn index_for_tenant<Search: SearchEngine, Repository: FHIRRepository + IndexLockProvider>(
+async fn index_for_tenant<
+    Search: SearchEngine,
+    Repository: FHIRRepository + ResourceSequential + IndexLockProvider,
+>(
     repo: Arc<Repository>,
     search_client: Arc<Search>,
     tenant_id: &TenantId,
