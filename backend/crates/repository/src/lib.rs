@@ -1,6 +1,7 @@
 use crate::{
     admin::{Login, Migrate, ProjectAuthAdmin, SystemAdmin, TenantAuthAdmin},
     fhir::FHIRRepository,
+    sequence::ResourceSequential,
     types::{
         authorization_code::{
             AuthorizationCode, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
@@ -16,6 +17,7 @@ use crate::{
 pub mod admin;
 pub mod fhir;
 pub mod pg;
+pub mod sequence;
 pub mod types;
 pub mod utilities;
 
@@ -41,6 +43,7 @@ pub trait Repository:
     > + ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, Membership, String>
     + ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeKey>
     + Login
+    + ResourceSequential
     + Migrate
 {
 }

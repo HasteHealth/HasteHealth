@@ -15,6 +15,7 @@ mod migrate;
 mod project;
 mod rate_limit;
 mod scope;
+mod sequence;
 mod system;
 mod tenant;
 mod user;
