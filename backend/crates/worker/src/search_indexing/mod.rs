@@ -185,7 +185,10 @@ async fn index_for_tenant<Search: SearchEngine, Repository: FHIRRepository + Ind
     search_client: Arc<Search>,
     tenant_id: &TenantId,
 ) -> Result<(), IndexingWorkerError> {
-    let tx = repo.transaction(false).await.unwrap();
+    let tx = repo
+        .transaction(false)
+        .await
+        .map_err(IndexingWorkerError::from)?;
     let res = index_tenant_next_sequence(search_client, &tx, &tenant_id).await;
 
     match res {
