@@ -1,4 +1,7 @@
-use crate::{indexing_lock::IndexLockProvider, traits::Worker};
+use crate::{
+    indexing_lock::{IndexLockProvider, postgres::TenantLockIndex},
+    traits::Worker,
+};
 use haste_config::get_config;
 use haste_fhir_model::r4::generated::resources::ResourceTypeError;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -100,7 +103,7 @@ static TOTAL_INDEXED: std::sync::LazyLock<Mutex<usize>> =
     std::sync::LazyLock::new(|| Mutex::new(0));
 
 async fn index_tenant_next_sequence<
-    Repo: ResourceSequential + IndexLockProvider,
+    Repo: ResourceSequential + IndexLockProvider<TenantId, TenantLockIndex>,
     Engine: SearchEngine,
 >(
     search_client: Arc<Engine>,
@@ -170,8 +173,14 @@ async fn index_tenant_next_sequence<
                 );
             }
 
-            repo.update_lock(tenant_id.as_ref(), resource.sequence as usize)
-                .await?;
+            repo.update_lock(
+                &tenant_id,
+                TenantLockIndex {
+                    id: tenant_id.clone(),
+                    index_sequence_position: resource.sequence as i64,
+                },
+            )
+            .await?;
 
             let elapsed = start.elapsed();
             tracing::info!(
@@ -191,7 +200,7 @@ async fn index_tenant_next_sequence<
 
 async fn index_for_tenant<
     Search: SearchEngine,
-    Repository: FHIRRepository + ResourceSequential + IndexLockProvider,
+    Repository: FHIRRepository + ResourceSequential + IndexLockProvider<TenantId, TenantLockIndex>,
 >(
     repo: Arc<Repository>,
     search_client: Arc<Search>,

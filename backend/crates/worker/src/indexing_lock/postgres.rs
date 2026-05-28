@@ -1,4 +1,4 @@
-use crate::indexing_lock::{IndexLockProvider, TenantLockIndex};
+use crate::indexing_lock::IndexLockProvider;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_jwt::TenantId;
 use haste_repository::pg::PGConnection;
@@ -15,7 +15,14 @@ pub enum TenantLockIndexError {
     InvalidConnection,
 }
 
-impl IndexLockProvider for PGConnection {
+#[derive(sqlx::FromRow, Debug)]
+pub struct TenantLockIndex {
+    #[allow(dead_code)]
+    pub id: TenantId,
+    pub index_sequence_position: i64,
+}
+
+impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
     async fn get_available_locks(
         &self,
         tenants: Vec<&TenantId>,
@@ -55,8 +62,8 @@ impl IndexLockProvider for PGConnection {
 
     async fn update_lock(
         &self,
-        tenant_id: &str,
-        next_position: usize,
+        tenant_id: &TenantId,
+        model: TenantLockIndex,
     ) -> Result<(), OperationOutcomeError> {
         match self {
             PGConnection::Transaction(tx, _) => {
@@ -68,8 +75,8 @@ impl IndexLockProvider for PGConnection {
                 // Implementation for retrieving available locks from PostgreSQL
                 sqlx::query!(
                     "UPDATE tenants SET index_sequence_position = $1 WHERE id = $2",
-                    next_position as i64,
-                    tenant_id
+                    model.index_sequence_position,
+                    tenant_id.as_ref()
                 )
                 .execute(conn)
                 .await
