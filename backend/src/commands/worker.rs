@@ -1,7 +1,7 @@
 use clap::Subcommand;
 // use haste_config::get_config;
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_worker::run_worker;
+use haste_worker::search_indexing;
 // use haste_wal_worker::{WALWorkerEnvironmentVariables, wal_worker};
 
 #[derive(Subcommand, Debug)]
@@ -22,7 +22,7 @@ pub async fn worker(command: &Option<WorkerCommands>) -> Result<(), OperationOut
 }
 
 async fn indexing_worker() -> Result<(), OperationOutcomeError> {
-    run_worker().await
+    search_indexing::run_worker().await
 }
 
 // async fn create_wal_worker() -> Result<(), Box<dyn std::error::Error>> {
