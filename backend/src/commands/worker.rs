@@ -1,7 +1,10 @@
+use std::time::Duration;
+
 use clap::Subcommand;
 // use haste_config::get_config;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_worker::{search_indexing, traits::Worker as _};
+use tokio::time::sleep;
 // use haste_wal_worker::{WALWorkerEnvironmentVariables, wal_worker};
 
 #[derive(Subcommand, Debug)]
@@ -22,9 +25,12 @@ pub async fn worker(command: &Option<WorkerCommands>) -> Result<(), OperationOut
 }
 
 async fn indexing_worker() -> Result<(), OperationOutcomeError> {
-    let indexing_worker = search_indexing::IndexingWorker::new().await?;
+    let mut indexing_worker = search_indexing::IndexingWorker::new().await?;
 
     indexing_worker.run().await?;
+
+    sleep(Duration::from_secs(5)).await;
+    indexing_worker.stop().await?;
 
     Ok(())
 }

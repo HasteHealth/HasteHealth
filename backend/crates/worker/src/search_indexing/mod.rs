@@ -12,9 +12,9 @@ use haste_fhir_search::{
 use haste_fhirpath::FHIRPathError;
 use haste_jwt::{TenantId, VersionId};
 use haste_repository::{fhir::FHIRRepository, pg::PGConnection, types::SupportedFHIRVersions};
-use sqlx::{Acquire, Postgres, query_as, types::time::OffsetDateTime};
+use sqlx::{Acquire, query_as, types::time::OffsetDateTime};
 use std::sync::Arc;
-use tokio::sync::Mutex;
+use tokio::{sync::Mutex, task::JoinHandle};
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum IndexingWorkerError {
@@ -48,28 +48,6 @@ struct TenantReturn {
     created_at: OffsetDateTime,
 }
 
-async fn _get_tenants<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
-    cursor: &OffsetDateTime,
-    count: usize,
-) -> Result<Vec<TenantReturn>, OperationOutcomeError> {
-    let mut conn = connection
-        .acquire()
-        .await
-        .map_err(IndexingWorkerError::from)?;
-    let result = query_as!(
-        TenantReturn,
-        r#"SELECT id as "id: TenantId", created_at FROM tenants WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
-        cursor,
-        count as i64
-    )
-    .fetch_all(&mut *conn)
-    .await
-    .map_err(IndexingWorkerError::from)?;
-
-    Ok(result)
-}
-
 async fn get_tenants(
     repo: &PGConnection,
     cursor: &OffsetDateTime,
@@ -77,12 +55,40 @@ async fn get_tenants(
 ) -> Result<Vec<TenantReturn>, OperationOutcomeError> {
     match repo {
         PGConnection::Pool(pool, _) => {
-            let mut conn = pool.acquire().await.map_err(IndexingWorkerError::from)?;
-            _get_tenants(&mut conn, cursor, count).await
+            let mut connection = pool.acquire().await.map_err(IndexingWorkerError::from)?;
+            let conn = connection
+                .acquire()
+                .await
+                .map_err(IndexingWorkerError::from)?;
+            let result = query_as!(
+                TenantReturn,
+                r#"SELECT id as "id: TenantId", created_at FROM tenants WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
+                cursor,
+                count as i64
+            )
+            .fetch_all(&mut *conn)
+            .await
+            .map_err(IndexingWorkerError::from)?;
+
+            Ok(result)
         }
         PGConnection::Transaction(tx, _) => {
-            let mut conn = tx.lock().await;
-            _get_tenants(&mut *conn, cursor, count).await
+            let mut connection = tx.lock().await;
+            let conn = connection
+                .acquire()
+                .await
+                .map_err(IndexingWorkerError::from)?;
+            let result = query_as!(
+                TenantReturn,
+                r#"SELECT id as "id: TenantId", created_at FROM tenants WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
+                cursor,
+                count as i64
+            )
+            .fetch_all(&mut *conn)
+            .await
+            .map_err(IndexingWorkerError::from)?;
+
+            Ok(result)
         }
     }
 }
@@ -226,6 +232,7 @@ impl From<IndexingWorkerEnvironmentVariables> for String {
 }
 
 pub struct IndexingWorker {
+    running: Arc<tokio::sync::Mutex<bool>>,
     repo: Arc<PGConnection>,
     search_engine: Arc<ElasticSearchEngine<ElasticSearchParameterResolver<PGConnection>>>,
 }
@@ -282,6 +289,7 @@ impl IndexingWorker {
         }
 
         Ok(Self {
+            running: Arc::new(tokio::sync::Mutex::new(true)),
             repo,
             search_engine,
         })
@@ -289,7 +297,7 @@ impl IndexingWorker {
 }
 
 impl Worker for IndexingWorker {
-    async fn run(&self) -> Result<(), OperationOutcomeError> {
+    async fn run(&self) -> Result<JoinHandle<()>, OperationOutcomeError> {
         let mut cursor = OffsetDateTime::UNIX_EPOCH;
         let tenants_limit: usize = 100;
 
@@ -297,36 +305,49 @@ impl Worker for IndexingWorker {
 
         let mut k = *TOTAL_INDEXED.lock().await;
 
-        loop {
-            let tenants_to_check = get_tenants(self.repo.as_ref(), &cursor, tenants_limit).await;
-            if let Ok(tenants_to_check) = tenants_to_check {
-                if tenants_to_check.is_empty() || tenants_to_check.len() < tenants_limit {
-                    cursor = OffsetDateTime::UNIX_EPOCH; // Reset cursor if no tenants found
-                } else {
-                    cursor = tenants_to_check[0].created_at;
-                }
+        let repo = self.repo.clone();
+        let search_engine = self.search_engine.clone();
+        let running = self.running.clone();
 
-                for tenant in tenants_to_check {
-                    let result =
-                        index_for_tenant(self.repo.clone(), self.search_engine.clone(), &tenant.id)
-                            .await;
-
-                    if let Err(_error) = result {
-                        tracing::error!(
-                            "Failed to index tenant: '{}' cause: '{:?}'",
-                            &tenant.id,
-                            _error
-                        );
+        let spawned = tokio::spawn(async move {
+            while *running.lock().await {
+                let tenants_to_check = get_tenants(repo.as_ref(), &cursor, tenants_limit).await;
+                if let Ok(tenants_to_check) = tenants_to_check {
+                    if tenants_to_check.is_empty() || tenants_to_check.len() < tenants_limit {
+                        cursor = OffsetDateTime::UNIX_EPOCH; // Reset cursor if no tenants found
+                    } else {
+                        cursor = tenants_to_check[0].created_at;
                     }
-                }
-            } else if let Err(error) = tenants_to_check {
-                tracing::error!("Failed to retrieve tenants: {:?}", error);
-            }
 
-            if k != *TOTAL_INDEXED.lock().await {
-                k = *TOTAL_INDEXED.lock().await;
-                tracing::info!("TOTAL INDEXED SO FAR: {}", k);
+                    for tenant in tenants_to_check {
+                        let result =
+                            index_for_tenant(repo.clone(), search_engine.clone(), &tenant.id).await;
+
+                        if let Err(_error) = result {
+                            tracing::error!(
+                                "Failed to index tenant: '{}' cause: '{:?}'",
+                                &tenant.id,
+                                _error
+                            );
+                        }
+                    }
+                } else if let Err(error) = tenants_to_check {
+                    tracing::error!("Failed to retrieve tenants: {:?}", error);
+                }
+
+                if k != *TOTAL_INDEXED.lock().await {
+                    k = *TOTAL_INDEXED.lock().await;
+                    tracing::info!("TOTAL INDEXED SO FAR: {}", k);
+                }
             }
-        }
+        });
+
+        Ok(spawned)
+    }
+
+    async fn stop(&mut self) -> Result<(), OperationOutcomeError> {
+        let mut running = self.running.lock().await;
+        *running = false;
+        Ok(())
     }
 }
