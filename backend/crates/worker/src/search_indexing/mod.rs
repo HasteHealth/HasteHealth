@@ -11,8 +11,8 @@ use haste_fhir_search::{
 };
 use haste_fhirpath::FHIRPathError;
 use haste_jwt::{TenantId, VersionId};
-use haste_repository::{fhir::FHIRRepository, types::SupportedFHIRVersions};
-use sqlx::{Pool, Postgres, query_as, types::time::OffsetDateTime};
+use haste_repository::{fhir::FHIRRepository, pg::PGConnection, types::SupportedFHIRVersions};
+use sqlx::{Acquire, Postgres, query_as, types::time::OffsetDateTime};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -48,22 +48,43 @@ struct TenantReturn {
     created_at: OffsetDateTime,
 }
 
-async fn get_tenants(
-    client: &Pool<Postgres>,
+async fn _get_tenants<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
     cursor: &OffsetDateTime,
     count: usize,
 ) -> Result<Vec<TenantReturn>, OperationOutcomeError> {
+    let mut conn = connection
+        .acquire()
+        .await
+        .map_err(IndexingWorkerError::from)?;
     let result = query_as!(
         TenantReturn,
         r#"SELECT id as "id: TenantId", created_at FROM tenants WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
         cursor,
         count as i64
     )
-    .fetch_all(client)
+    .fetch_all(&mut *conn)
     .await
     .map_err(IndexingWorkerError::from)?;
 
     Ok(result)
+}
+
+async fn get_tenants(
+    repo: &PGConnection,
+    cursor: &OffsetDateTime,
+    count: usize,
+) -> Result<Vec<TenantReturn>, OperationOutcomeError> {
+    match repo {
+        PGConnection::Pool(pool, _) => {
+            let mut conn = pool.acquire().await.map_err(IndexingWorkerError::from)?;
+            _get_tenants(&mut conn, cursor, count).await
+        }
+        PGConnection::Transaction(tx, _) => {
+            let mut conn = tx.lock().await;
+            _get_tenants(&mut *conn, cursor, count).await
+        }
+    }
 }
 
 static TOTAL_INDEXED: std::sync::LazyLock<Mutex<usize>> =
@@ -201,61 +222,61 @@ impl From<IndexingWorkerEnvironmentVariables> for String {
     }
 }
 
-struct IndexingWorker<R: haste_repository::Repository, S: SearchEngine> {
-    repo: Arc<R>,
-    search_engine: Arc<S>,
+pub struct IndexingWorker {
+    repo: Arc<PGConnection>,
+    search_engine: Arc<ElasticSearchEngine<ElasticSearchParameterResolver<PGConnection>>>,
 }
 
-impl<R: haste_repository::Repository, S: SearchEngine> IndexingWorker<R, S> {
-    pub async fn new(repo: Arc<R>, search_engine: Arc<S>) -> Result<Self, OperationOutcomeError> {
-        // let config = get_config::<IndexingWorkerEnvironmentVariables>("environment".into());
-        // let fp_engine = Arc::new(haste_fhirpath::FPEngine::new());
+impl IndexingWorker {
+    pub async fn new() -> Result<Self, OperationOutcomeError> {
+        let config = get_config::<IndexingWorkerEnvironmentVariables>("environment".into());
+        let fp_engine = Arc::new(haste_fhirpath::FPEngine::new());
 
-        // let pg_pool = sqlx::PgPool::connect(
-        //     &config
-        //         .get(IndexingWorkerEnvironmentVariables::DatabaseURL)
-        //         .unwrap(),
-        // )
-        // .await
-        // .expect("Failed to connect to the database");
-        // let repo = Arc::new(haste_repository::pg::PGConnection::pool(pg_pool.clone()));
-        // let es_client = create_es_client(
-        //     &config
-        //         .get(IndexingWorkerEnvironmentVariables::ElasticSearchURL)
-        //         .expect(&format!(
-        //             "'{}' variable not set",
-        //             String::from(IndexingWorkerEnvironmentVariables::ElasticSearchURL)
-        //         )),
-        //     config
-        //         .get(IndexingWorkerEnvironmentVariables::ElasticSearchUsername)
-        //         .expect(&format!(
-        //             "'{}' variable not set",
-        //             String::from(IndexingWorkerEnvironmentVariables::ElasticSearchUsername)
-        //         )),
-        //     config
-        //         .get(IndexingWorkerEnvironmentVariables::ElasticSearchPassword)
-        //         .expect(&format!(
-        //             "'{}' variable not set",
-        //             String::from(IndexingWorkerEnvironmentVariables::ElasticSearchPassword)
-        //         )),
-        // )
-        // .expect("Failed to create Elasticsearch client");
+        let pg_pool = sqlx::PgPool::connect(
+            &config
+                .get(IndexingWorkerEnvironmentVariables::DatabaseURL)
+                .unwrap(),
+        )
+        .await
+        .expect("Failed to connect to the database");
+        let repo = Arc::new(haste_repository::pg::PGConnection::pool(pg_pool.clone()));
+        let es_client = create_es_client(
+            &config
+                .get(IndexingWorkerEnvironmentVariables::ElasticSearchURL)
+                .expect(&format!(
+                    "'{}' variable not set",
+                    String::from(IndexingWorkerEnvironmentVariables::ElasticSearchURL)
+                )),
+            config
+                .get(IndexingWorkerEnvironmentVariables::ElasticSearchUsername)
+                .expect(&format!(
+                    "'{}' variable not set",
+                    String::from(IndexingWorkerEnvironmentVariables::ElasticSearchUsername)
+                )),
+            config
+                .get(IndexingWorkerEnvironmentVariables::ElasticSearchPassword)
+                .expect(&format!(
+                    "'{}' variable not set",
+                    String::from(IndexingWorkerEnvironmentVariables::ElasticSearchPassword)
+                )),
+        )
+        .expect("Failed to create Elasticsearch client");
 
-        // let search_engine = Arc::new(ElasticSearchEngine::new(
-        //     Arc::new(ElasticSearchParameterResolver::new(
-        //         es_client.clone(),
-        //         repo.clone(),
-        //     )),
-        //     fp_engine.clone(),
-        //     es_client,
-        // ));
+        let search_engine = Arc::new(ElasticSearchEngine::new(
+            Arc::new(ElasticSearchParameterResolver::new(
+                es_client.clone(),
+                repo.clone(),
+            )),
+            fp_engine.clone(),
+            es_client,
+        ));
 
-        // let mut attempts = 0;
-        // while !self.search_engine.is_connected().await.is_ok() && attempts < 5 {
-        //     tracing::error!("Elasticsearch is not connected, retrying in 5 seconds...");
-        //     tokio::time::sleep(std::time::Duration::from_secs(5)).await;
-        //     attempts += 1;
-        // }
+        let mut attempts = 0;
+        while !search_engine.is_connected().await.is_ok() && attempts < 5 {
+            tracing::error!("Elasticsearch is not connected, retrying in 5 seconds...");
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+            attempts += 1;
+        }
 
         Ok(Self {
             repo,
@@ -264,7 +285,7 @@ impl<R: haste_repository::Repository, S: SearchEngine> IndexingWorker<R, S> {
     }
 }
 
-impl<R: haste_repository::Repository, S: SearchEngine> Worker for IndexingWorker<R, S> {
+impl Worker for IndexingWorker {
     async fn run(&self) -> Result<(), OperationOutcomeError> {
         let mut cursor = OffsetDateTime::UNIX_EPOCH;
         let tenants_limit: usize = 100;
@@ -274,7 +295,7 @@ impl<R: haste_repository::Repository, S: SearchEngine> Worker for IndexingWorker
         let mut k = *TOTAL_INDEXED.lock().await;
 
         loop {
-            let tenants_to_check = get_tenants(&self.repo, &cursor, tenants_limit).await;
+            let tenants_to_check = get_tenants(self.repo.as_ref(), &cursor, tenants_limit).await;
             if let Ok(tenants_to_check) = tenants_to_check {
                 if tenants_to_check.is_empty() || tenants_to_check.len() < tenants_limit {
                     cursor = OffsetDateTime::UNIX_EPOCH; // Reset cursor if no tenants found
