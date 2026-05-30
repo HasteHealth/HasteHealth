@@ -8,6 +8,7 @@ use axum::{
     middleware::Next,
     response::{IntoResponse as _, Response},
 };
+use derivative::Derivative;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
@@ -21,8 +22,11 @@ use std::{
 };
 use url::Url;
 
+#[derive(Derivative)]
+#[derivative(Debug)]
 pub struct User {
     #[allow(dead_code)]
+    #[derivative(Debug = "ignore")]
     pub token: Option<String>,
     pub claims: haste_jwt::claims::UserTokenClaims,
 }

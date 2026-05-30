@@ -2716,6 +2716,7 @@ dependencies = [
 name = "haste-jwt"
 version = "0.16.0"
 dependencies = [
+ "derivative",
  "haste-fhir-model",
  "haste-fhir-operation-error",
  "haste-reflect",
@@ -2828,6 +2829,7 @@ dependencies = [
  "axum-extra",
  "base64",
  "chrono",
+ "derivative",
  "dotenvy",
  "email_address",
  "haste-access-control",

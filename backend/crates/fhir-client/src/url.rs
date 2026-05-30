@@ -15,9 +15,12 @@ pub struct Parameter {
 
 /// Represnet both resource parameters IE Patient.name and
 /// result parameters IE _count
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub enum ParsedParameter {
+    #[derivative(Debug = "transparent")]
     Result(Parameter),
+    #[derivative(Debug = "transparent")]
     Resource(Parameter),
 }
 
@@ -118,7 +121,8 @@ static RESULT_PARAMETERS: &[&str] = &[
     "_since",
 ];
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub struct ParsedParameters(Vec<ParsedParameter>);
 
 impl ParsedParameters {

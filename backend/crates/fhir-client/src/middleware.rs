@@ -1,6 +1,7 @@
-use std::{pin::Pin, sync::Arc};
+use std::{fmt::Debug, pin::Pin, sync::Arc};
 
-pub struct Context<CTX, Request, Response> {
+#[derive(Debug)]
+pub struct Context<CTX: Debug, Request: Debug, Response: Debug> {
     pub ctx: CTX,
     pub request: Request,
     pub response: Option<Response>,
@@ -21,7 +22,9 @@ pub type MiddlewareChainOld<State, CTX, Request, Response, Error> = Box<
         + Sync,
 >;
 
-pub trait MiddlewareChain<State, CTX, Request, Response, Error>: Send + Sync {
+pub trait MiddlewareChain<State, CTX: Debug, Request: Debug, Response: Debug, Error>:
+    Send + Sync
+{
     fn call(
         &self,
         state: State,
@@ -30,7 +33,7 @@ pub trait MiddlewareChain<State, CTX, Request, Response, Error>: Send + Sync {
     ) -> MiddlewareOutput<Context<CTX, Request, Response>, Error>;
 }
 
-pub struct Middleware<State, CTX, Request, Response, Error> {
+pub struct Middleware<State, CTX: Debug, Request: Debug, Response: Debug, Error> {
     _state: std::marker::PhantomData<State>,
     _phantom: std::marker::PhantomData<CTX>,
     _execute: Arc<Next<State, Context<CTX, Request, Response>, Error>>,
@@ -38,9 +41,9 @@ pub struct Middleware<State, CTX, Request, Response, Error> {
 
 impl<
     State: 'static + Send + Sync,
-    CTX: 'static + Send + Sync,
-    Request: 'static + Send + Sync,
-    Response: 'static + Send + Sync,
+    CTX: 'static + Send + Sync + Debug,
+    Request: 'static + Send + Sync + Debug,
+    Response: 'static + Send + Sync + Debug,
     Error: 'static + Send + Sync,
 > Middleware<State, CTX, Request, Response, Error>
 {

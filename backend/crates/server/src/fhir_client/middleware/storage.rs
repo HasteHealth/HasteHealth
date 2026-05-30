@@ -130,7 +130,7 @@ impl<
         OperationOutcomeError,
     > for Middleware
 {
-    #[tracing::instrument(name = "Storage Middleware", skip(self, state, context, next))]
+    #[tracing::instrument(name = "storage_middleware", skip(self, state, next))]
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,
@@ -140,6 +140,7 @@ impl<
         >,
     ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
+            tracing::info!("Test");
             let response = match &mut context.request {
                 FHIRRequest::Create(create_request) => {
                     Ok(Some(FHIRResponse::Create(FHIRCreateResponse {

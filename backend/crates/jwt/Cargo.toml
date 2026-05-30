@@ -11,6 +11,7 @@ sqlx = ["dep:sqlx"]
 reflect = ["dep:haste-reflect"]
 
 [dependencies]
+derivative = { workspace = true }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*", optional = true }

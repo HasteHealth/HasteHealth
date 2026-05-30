@@ -8,6 +8,7 @@ use crate::{
     },
     url::{ParsedParameter, ParsedParameters},
 };
+use derivative::Derivative;
 use haste_fhir_model::r4::generated::{
     resources::{
         Bundle, CapabilityStatement, OperationOutcome, Parameters, Resource, ResourceType,
@@ -18,11 +19,15 @@ use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcome
 use haste_jwt::VersionId;
 use http::HeaderValue;
 use reqwest::Url;
-use std::{pin::Pin, sync::Arc};
+use std::{fmt::Debug, pin::Pin, sync::Arc};
 
+#[derive(Derivative)]
+#[derivative(Debug)]
 pub struct FHIRHttpState {
+    #[derivative(Debug = "ignore")]
     client: reqwest::Client,
     api_url: Url,
+    #[derivative(Debug = "ignore")]
     get_access_token: Option<
         Arc<
             dyn Fn() -> Pin<
@@ -59,7 +64,7 @@ impl FHIRHttpState {
     }
 }
 
-pub struct FHIRHttpClient<CTX> {
+pub struct FHIRHttpClient<CTX: Debug> {
     state: Arc<FHIRHttpState>,
     middleware:
         Middleware<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, OperationOutcomeError>,
@@ -1000,7 +1005,7 @@ impl HTTPMiddleware {
         HTTPMiddleware {}
     }
 }
-impl<CTX: Send + 'static>
+impl<CTX: Send + 'static + Debug>
     MiddlewareChain<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, OperationOutcomeError>
     for HTTPMiddleware
 {
@@ -1042,7 +1047,7 @@ impl<CTX: Send + 'static>
     }
 }
 
-impl<CTX: 'static + Send + Sync> FHIRHttpClient<CTX> {
+impl<CTX: 'static + Send + Sync + Debug> FHIRHttpClient<CTX> {
     pub fn new(state: FHIRHttpState) -> Self {
         let middleware = Middleware::new(vec![Box::new(HTTPMiddleware::new())]);
         FHIRHttpClient {
@@ -1052,7 +1057,9 @@ impl<CTX: 'static + Send + Sync> FHIRHttpClient<CTX> {
     }
 }
 
-impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIRHttpClient<CTX> {
+impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
+    for FHIRHttpClient<CTX>
+{
     async fn request(
         &self,
         ctx: CTX,

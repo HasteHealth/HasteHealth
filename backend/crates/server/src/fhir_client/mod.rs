@@ -9,6 +9,7 @@ use crate::{
         utilities::request_to_resource_type,
     },
 };
+use derivative::Derivative;
 use haste_config::Config;
 use haste_fhir_client::{
     FHIRClient,
@@ -70,12 +71,16 @@ pub enum StorageError {
     InvalidType,
 }
 
+#[derive(Derivative)]
+#[derivative(Debug)]
 pub struct ServerCTX<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> {
     pub tenant: TenantId,
     pub project: ProjectId,
     pub fhir_version: SupportedFHIRVersions,
     pub user: Arc<User>,
+    #[derivative(Debug = "ignore")]
     pub client: Arc<Client>,
+    #[derivative(Debug = "ignore")]
     pub rate_limit: Arc<dyn haste_rate_limit::RateLimit>,
 }
 
@@ -450,7 +455,7 @@ impl<
 > FHIRClient<Arc<ServerCTX<Self>>, OperationOutcomeError>
     for FHIRServerClient<Repo, Search, Terminology>
 {
-    #[tracing::instrument(name = "FHIR Server Client Request", skip(self, _ctx))]
+    #[tracing::instrument(name = "fhir_server_client", skip(self))]
     async fn request(
         &self,
         _ctx: Arc<ServerCTX<Self>>,

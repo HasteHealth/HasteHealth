@@ -1,3 +1,4 @@
+use derivative::Derivative;
 use haste_fhir_model::r4::generated::terminology::UserRole as FHIRUserRole;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
@@ -33,7 +34,8 @@ impl From<FHIRUserRole> for UserRole {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub enum AuthorId {
     // System is used for system level actions such as tenant creation etc..
     System,
@@ -112,9 +114,11 @@ impl Display for AuthorKind {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Derivative, Clone, PartialEq, Eq, Hash)]
+#[derivative(Debug = "transparent")]
 pub enum TenantId {
     System,
+    #[derivative(Debug = "transparent")]
     Custom(String),
 }
 
@@ -171,9 +175,11 @@ impl Display for TenantId {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Derivative, Clone, PartialEq, Eq, Hash)]
+#[derivative(Debug = "transparent")]
 pub enum ProjectId {
     System,
+    #[derivative(Debug = "transparent")]
     Custom(String),
 }
 impl ProjectId {
@@ -240,7 +246,8 @@ impl<'a> From<&'a VersionId> for VersionIdRef<'a> {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Derivative, Deserialize, Serialize, Clone, PartialEq, Eq, Hash)]
+#[derivative(Debug = "transparent")]
 pub struct VersionId(String);
 impl VersionId {
     pub fn new(id: String) -> Self {
@@ -258,7 +265,8 @@ impl AsRef<str> for VersionId {
     }
 }
 
-#[derive(Clone, Deserialize, Serialize, Debug)]
+#[derive(Derivative, Clone, Deserialize, Serialize)]
+#[derivative(Debug = "transparent")]
 pub struct ResourceId(String);
 impl ResourceId {
     pub fn new(id: String) -> Self {

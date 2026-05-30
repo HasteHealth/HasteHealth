@@ -177,36 +177,54 @@ pub struct FHIRTransactionRequest {
     pub resource: Bundle,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub enum InvocationRequest {
+    #[derivative(Debug = "transparent")]
     Instance(FHIRInvokeInstanceRequest),
+    #[derivative(Debug = "transparent")]
     Type(FHIRInvokeTypeRequest),
+    #[derivative(Debug = "transparent")]
     System(FHIRInvokeSystemRequest),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub enum HistoryRequest {
+    #[derivative(Debug = "transparent")]
     Instance(FHIRHistoryInstanceRequest),
+    #[derivative(Debug = "transparent")]
     Type(FHIRHistoryTypeRequest),
+    #[derivative(Debug = "transparent")]
     System(FHIRHistorySystemRequest),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub enum SearchRequest {
+    #[derivative(Debug = "transparent")]
     Type(FHIRSearchTypeRequest),
+    #[derivative(Debug = "transparent")]
     System(FHIRSearchSystemRequest),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub enum DeleteRequest {
+    #[derivative(Debug = "transparent")]
     Instance(FHIRDeleteInstanceRequest),
+    #[derivative(Debug = "transparent")]
     Type(FHIRDeleteTypeRequest),
+    #[derivative(Debug = "transparent")]
     System(FHIRDeleteSystemRequest),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub enum UpdateRequest {
+    #[derivative(Debug = "transparent")]
     Instance(FHIRUpdateInstanceRequest),
+    #[derivative(Debug = "transparent")]
     Conditional(FHIRConditionalUpdateRequest),
 }
 
@@ -219,30 +237,33 @@ pub struct CompartmentRequest {
     pub request: Box<FHIRRequest>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub enum FHIRRequest {
+    #[derivative(Debug = "transparent")]
     Create(FHIRCreateRequest),
-
+    #[derivative(Debug = "transparent")]
     Read(FHIRReadRequest),
+    #[derivative(Debug = "transparent")]
     VersionRead(FHIRVersionReadRequest),
-
+    #[derivative(Debug = "transparent")]
     Update(UpdateRequest),
-
+    #[derivative(Debug = "transparent")]
     Patch(FHIRPatchRequest),
-
+    #[derivative(Debug = "transparent")]
     Delete(DeleteRequest),
-
     Capabilities,
-
+    #[derivative(Debug = "transparent")]
     Search(SearchRequest),
-
+    #[derivative(Debug = "transparent")]
     History(HistoryRequest),
-
+    #[derivative(Debug = "transparent")]
     Invocation(InvocationRequest),
-
+    #[derivative(Debug = "transparent")]
     Batch(FHIRBatchRequest),
+    #[derivative(Debug = "transparent")]
     Transaction(FHIRTransactionRequest),
-
+    #[derivative(Debug = "transparent")]
     Compartment(CompartmentRequest),
 }
 #[derive(Derivative, Clone)]
@@ -354,54 +375,73 @@ pub struct FHIRTransactionResponse {
     pub resource: Bundle,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub enum HistoryResponse {
+    #[derivative(Debug = "transparent")]
     Instance(FHIRHistoryInstanceResponse),
+    #[derivative(Debug = "transparent")]
     Type(FHIRHistoryTypeResponse),
+    #[derivative(Debug = "transparent")]
     System(FHIRHistorySystemResponse),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub enum SearchResponse {
+    #[derivative(Debug = "transparent")]
     Type(FHIRSearchTypeResponse),
+    #[derivative(Debug = "transparent")]
     System(FHIRSearchSystemResponse),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub enum DeleteResponse {
+    #[derivative(Debug = "transparent")]
     Instance(FHIRDeleteInstanceResponse),
+    #[derivative(Debug = "transparent")]
     Type(FHIRDeleteTypeResponse),
+    #[derivative(Debug = "transparent")]
     System(FHIRDeleteSystemResponse),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub enum InvokeResponse {
+    #[derivative(Debug = "transparent")]
     Instance(FHIRInvokeInstanceResponse),
+    #[derivative(Debug = "transparent")]
     Type(FHIRInvokeTypeResponse),
+    #[derivative(Debug = "transparent")]
     System(FHIRInvokeSystemResponse),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug = "transparent")]
 pub enum FHIRResponse {
+    #[derivative(Debug = "transparent")]
     Create(FHIRCreateResponse),
-
+    #[derivative(Debug = "transparent")]
     Read(FHIRReadResponse),
+    #[derivative(Debug = "transparent")]
     VersionRead(FHIRVersionReadResponse),
-
+    #[derivative(Debug = "transparent")]
     Update(FHIRUpdateResponse),
-
+    #[derivative(Debug = "transparent")]
     Patch(FHIRPatchResponse),
-
+    #[derivative(Debug = "transparent")]
     Delete(DeleteResponse),
-
+    #[derivative(Debug = "transparent")]
     Capabilities(FHIRCapabilitiesResponse),
-
+    #[derivative(Debug = "transparent")]
     Search(SearchResponse),
-
+    #[derivative(Debug = "transparent")]
     History(HistoryResponse),
-
+    #[derivative(Debug = "transparent")]
     Invoke(InvokeResponse),
-
+    #[derivative(Debug = "transparent")]
     Batch(FHIRBatchResponse),
+    #[derivative(Debug = "transparent")]
     Transaction(FHIRTransactionResponse),
 }
