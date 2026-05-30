@@ -20,6 +20,7 @@ jobs:
       ELASTICSEARCH_USERNAME: elastic
       ELASTICSEARCH_PASSWORD: elastic
       ADMIN_APP_REDIRECT_URI: http://*.localhost:3001
+      RUST_LOG: none
       SQLX_OFFLINE: true
 
     services:
