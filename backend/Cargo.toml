@@ -59,6 +59,7 @@ edition = "2024"
 [workspace.dependencies]
 axum = "0.8.9"
 chrono = "0.4.44"
+derivative = "2.2.0"
 dotenvy = "0.15.7"
 jsonwebtoken = "10.4.0"
 moka = "0.12.15"
