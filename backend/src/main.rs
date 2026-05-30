@@ -8,6 +8,8 @@ use haste_config::{ConfigType, get_config};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
 use tokio::sync::Mutex;
+use tracing_subscriber::{EnvFilter, layer::SubscriberExt, registry::Registry};
+use tracing_tree::HierarchicalLayer;
 
 use crate::commands::config::{CLIConfiguration, load_config};
 
@@ -103,8 +105,15 @@ impl From<CLIEnvironmentVariables> for String {
     }
 }
 
+fn tracing_subscriber() -> impl tracing::Subscriber {
+    let subscriber = Registry::default()
+        .with(HierarchicalLayer::new(2))
+        .with(EnvFilter::from_default_env());
+    subscriber
+}
+
 fn main() -> Result<(), OperationOutcomeError> {
-    tracing_subscriber::fmt::init();
+    tracing::subscriber::set_global_default(tracing_subscriber()).unwrap();
     let cli = Cli::parse();
     let config = CLI_STATE.clone();
     let env = get_config(ConfigType::Environment);
