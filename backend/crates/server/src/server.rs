@@ -48,7 +48,6 @@ use tower_sessions::{
     cookie::{SameSite, time::Duration},
 };
 use tower_sessions_sqlx_store::PostgresStore;
-use tracing::{Instrument, Level, span};
 
 const SERVER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -80,8 +79,7 @@ async fn fhir_handler<
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
     let fhir_location = path.fhir_location.unwrap_or_default();
-    let method_str = method.to_string();
-    let span = span!(Level::ERROR, "FHIR-HTTP", method_str, fhir_location);
+
     async {
         let http_req = HTTPRequest::new(
             method,
@@ -112,7 +110,6 @@ async fn fhir_handler<
         let http_response = response.into_response();
         Ok(http_response)
     }
-    .instrument(span)
     .await
 }
 

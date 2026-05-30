@@ -130,6 +130,7 @@ impl<
         OperationOutcomeError,
     > for Middleware
 {
+    #[tracing::instrument(name = "Storage Middleware", skip(self, state, context, next))]
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,

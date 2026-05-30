@@ -37,7 +37,10 @@ use haste_jwt::{
     },
 };
 use haste_repository::{Repository, types::SupportedFHIRVersions};
-use std::sync::{Arc, LazyLock};
+use std::{
+    fmt::Debug,
+    sync::{Arc, LazyLock},
+};
 
 mod batch_transaction_processing;
 mod compartment;
@@ -447,11 +450,13 @@ impl<
 > FHIRClient<Arc<ServerCTX<Self>>, OperationOutcomeError>
     for FHIRServerClient<Repo, Search, Terminology>
 {
+    #[tracing::instrument(name = "FHIR Server Client Request", skip(self, _ctx))]
     async fn request(
         &self,
         _ctx: Arc<ServerCTX<Self>>,
         request: FHIRRequest,
     ) -> Result<FHIRResponse, OperationOutcomeError> {
+        tracing::info!("Processing request");
         let response = self
             .middleware
             .call(self.state.clone(), _ctx, request)

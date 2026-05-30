@@ -34,6 +34,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
 use std::sync::{Arc, LazyLock};
 use tokio::sync::Mutex;
+use tracing::instrument;
 
 static CAPABILITIES: LazyLock<Mutex<Option<CapabilityStatement>>> =
     LazyLock::new(|| Mutex::new(None));
@@ -167,6 +168,7 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
     })
 }
 
+#[derive(Debug)]
 pub struct Middleware {}
 impl Middleware {
     pub fn new() -> Self {
@@ -187,6 +189,7 @@ impl<
         OperationOutcomeError,
     > for Middleware
 {
+    #[instrument(name = "Capabilities Middleware", skip(self, state, context, next))]
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,

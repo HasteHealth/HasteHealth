@@ -18,6 +18,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::ProjectId;
 use haste_repository::Repository;
 use std::sync::Arc;
+use tracing::instrument;
 
 pub struct Middleware {
     project_id: ProjectId,
@@ -33,6 +34,7 @@ impl<
 > MiddlewareChain<State, Arc<ServerCTX<Client>>, FHIRRequest, FHIRResponse, OperationOutcomeError>
     for Middleware
 {
+    #[instrument(name = "Check Project Middleware", skip(self, state, context, next))]
     fn call(
         &self,
         state: State,
