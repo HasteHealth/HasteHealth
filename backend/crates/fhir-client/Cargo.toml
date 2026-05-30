@@ -12,6 +12,7 @@ http = ["dep:reqwest"]
 
 [dependencies]
 axum = { workspace = true, optional = true }
+derivative = "2.2.0"
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*", features = [
     "derive",

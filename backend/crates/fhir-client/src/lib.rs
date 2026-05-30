@@ -18,6 +18,11 @@ pub mod middleware;
 pub mod request;
 pub mod url;
 
+/// Redacts the value of a string when printed, for use in debug implementations of request types that may contain sensitive information.
+fn redact<V>(_: &V, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    write!(f, "***")
+}
+
 pub trait FHIRClient<CTX, Error>: Send + Sync {
     fn request(
         &self,

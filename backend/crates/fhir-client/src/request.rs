@@ -1,3 +1,4 @@
+use derivative::Derivative;
 use haste_fhir_model::r4::generated::resources::{
     Bundle, CapabilityStatement, Parameters, Resource, ResourceType,
 };
@@ -7,88 +8,113 @@ use thiserror::Error;
 
 use crate::url::ParsedParameters;
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRCreateRequest {
     pub resource_type: ResourceType,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Resource,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRReadRequest {
     pub resource_type: ResourceType,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub id: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRVersionReadRequest {
     pub resource_type: ResourceType,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub id: String,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub version_id: VersionId,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRUpdateInstanceRequest {
     pub resource_type: ResourceType,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub id: String,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Resource,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRConditionalUpdateRequest {
     pub resource_type: ResourceType,
     pub parameters: ParsedParameters,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Resource,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRPatchRequest {
     pub resource_type: ResourceType,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub id: String,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub patch: Patch,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRHistoryInstanceRequest {
     pub resource_type: ResourceType,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub id: String,
     pub parameters: ParsedParameters,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRHistoryTypeRequest {
     pub resource_type: ResourceType,
     pub parameters: ParsedParameters,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRHistorySystemRequest {
     pub parameters: ParsedParameters,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRDeleteInstanceRequest {
     pub resource_type: ResourceType,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub id: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRDeleteTypeRequest {
     pub resource_type: ResourceType,
     pub parameters: ParsedParameters,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRDeleteSystemRequest {
     pub parameters: ParsedParameters,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRSearchTypeRequest {
     pub resource_type: ResourceType,
     pub parameters: ParsedParameters,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRSearchSystemRequest {
     pub parameters: ParsedParameters,
 }
@@ -99,7 +125,8 @@ pub enum OperationParseError {
     Invalid,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct Operation(String);
 impl Operation {
     pub fn new(name: &str) -> Result<Self, OperationParseError> {
@@ -111,34 +138,42 @@ impl Operation {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRInvokeInstanceRequest {
     pub operation: Operation,
     pub resource_type: ResourceType,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub id: String,
     pub parameters: Parameters,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRInvokeTypeRequest {
     pub operation: Operation,
     pub resource_type: ResourceType,
     pub parameters: Parameters,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRInvokeSystemRequest {
     pub operation: Operation,
     pub parameters: Parameters,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRBatchRequest {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Bundle,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRTransactionRequest {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Bundle,
 }
 
@@ -175,9 +210,11 @@ pub enum UpdateRequest {
     Conditional(FHIRConditionalUpdateRequest),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct CompartmentRequest {
     pub resource_type: ResourceType,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub id: String,
     pub request: Box<FHIRRequest>,
 }
@@ -208,77 +245,112 @@ pub enum FHIRRequest {
 
     Compartment(CompartmentRequest),
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRCreateResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRReadResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Option<Resource>,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRVersionReadResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRUpdateResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRPatchResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRDeleteInstanceResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRDeleteTypeResponse {}
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRDeleteSystemResponse {}
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRCapabilitiesResponse {
     pub capabilities: CapabilityStatement,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRSearchTypeResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub bundle: Bundle,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRSearchSystemResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub bundle: Bundle,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRHistoryInstanceResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub bundle: Bundle,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRHistoryTypeResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub bundle: Bundle,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRHistorySystemResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub bundle: Bundle,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRInvokeInstanceResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRInvokeTypeResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRInvokeSystemResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRBatchResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Bundle,
 }
-#[derive(Debug, Clone)]
+#[derive(Derivative, Clone)]
+#[derivative(Debug)]
 pub struct FHIRTransactionResponse {
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub resource: Bundle,
 }
 

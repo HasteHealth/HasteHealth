@@ -1,10 +1,13 @@
+use derivative::Derivative;
 use haste_fhir_operation_error::derive::OperationOutcomeError;
 use haste_reflect::{MetaValue, derive::Reflect};
 use std::{collections::HashMap, fmt::Display};
 
-#[derive(Debug, Clone, Reflect)]
+#[derive(Derivative, Clone, Reflect)]
+#[derivative(Debug)]
 pub struct Parameter {
     pub name: String,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub value: Vec<String>,
     pub modifier: Option<String>,
     pub chains: Option<Vec<String>>,
