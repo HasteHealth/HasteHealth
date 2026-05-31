@@ -1,21 +1,23 @@
 use std::{
+    collections::HashMap,
     path::PathBuf,
     sync::{Arc, LazyLock},
     time::Duration,
 };
 
 use clap::{Parser, Subcommand};
-use haste_config::{ConfigType, get_config};
+use haste_config::{Config, ConfigType, get_config};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
 use opentelemetry::KeyValue;
 use opentelemetry::trace::TracerProvider as _;
 use opentelemetry_appender_tracing::layer::OpenTelemetryTracingBridge;
-use opentelemetry_otlp::Protocol;
 use opentelemetry_otlp::WithExportConfig;
+use opentelemetry_otlp::{Protocol, WithHttpConfig};
 use opentelemetry_sdk::Resource;
 use opentelemetry_sdk::logs::SdkLoggerProvider;
 use opentelemetry_sdk::trace::SdkTracerProvider;
+use reqwest::Url;
 use tokio::sync::Mutex;
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, registry::Registry};
 use tracing_tree::HierarchicalLayer;
@@ -104,12 +106,16 @@ static CLI_STATE: LazyLock<Arc<Mutex<CLIState>>> = LazyLock::new(|| {
 
 enum CLIEnvironmentVariables {
     SentryDSN,
+    OTELEndpoint,
+    OTELHeaders,
 }
 
 impl From<CLIEnvironmentVariables> for String {
     fn from(value: CLIEnvironmentVariables) -> Self {
         match value {
             CLIEnvironmentVariables::SentryDSN => "SENTRY_DSN".to_string(),
+            CLIEnvironmentVariables::OTELEndpoint => "OTEL_ENDPOINT".to_string(),
+            CLIEnvironmentVariables::OTELHeaders => "OTEL_HEADERS".to_string(),
         }
     }
 }
@@ -119,55 +125,93 @@ struct OtelGuard {
     _logger_provider: SdkLoggerProvider,
 }
 
-fn otel_subscriber() -> OtelGuard {
-    let oltp_span_exporter = opentelemetry_otlp::SpanExporter::builder()
-        .with_http()
-        .with_protocol(Protocol::HttpBinary)
-        .with_timeout(Duration::from_secs(5))
-        .build()
-        .expect("Failed to create OpenTelemetry span exporter");
-
-    let oltp_log_exporter = opentelemetry_otlp::LogExporter::builder()
-        .with_http()
-        .with_protocol(Protocol::HttpBinary)
-        .with_timeout(Duration::from_secs(5))
-        .build()
-        .expect("Failed to create OpenTelemetry log exporter");
-
-    let resource = Resource::builder()
-        .with_attribute(KeyValue::new("service.name", "haste-health"))
-        .build();
-
-    let tracer_provider = SdkTracerProvider::builder()
-        .with_resource(resource.clone())
-        .with_batch_exporter(oltp_span_exporter)
-        .build();
-
-    let logger_provider = SdkLoggerProvider::builder()
-        .with_resource(resource)
-        .with_batch_exporter(oltp_log_exporter)
-        .build();
-
-    opentelemetry::global::set_tracer_provider(tracer_provider.clone());
-
-    let tracer = tracer_provider.tracer("haste-health");
-
-    let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
-    let otel_logs = OpenTelemetryTracingBridge::new(&logger_provider);
-
-    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
-
+fn otel_subscriber(config: &dyn Config<CLIEnvironmentVariables>) -> Option<OtelGuard> {
     let subscriber = Registry::default()
-        .with(env_filter)
-        .with(tracing_subscriber::fmt::Layer::default())
-        .with(telemetry)
-        .with(otel_logs);
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
+        .with(tracing_subscriber::fmt::Layer::default().json());
 
-    tracing::subscriber::set_global_default(subscriber).unwrap();
+    if let Ok(endpoint) = config.get(CLIEnvironmentVariables::OTELEndpoint) {
+        let headers_str = config
+            .get(CLIEnvironmentVariables::OTELHeaders)
+            .unwrap_or_default();
+        let headers = headers_str
+            .split(',')
+            .filter_map(|pair| {
+                let mut parts = pair.splitn(2, '=');
+                if let (Some(key), Some(value)) = (parts.next(), parts.next()) {
+                    Some((key.trim().to_string(), value.trim().to_string()))
+                } else {
+                    None
+                }
+            })
+            .collect::<HashMap<String, String>>();
 
-    OtelGuard {
-        _tracer_provider: tracer_provider,
-        _logger_provider: logger_provider,
+        let root_otel_endpoint = Url::parse(&endpoint).expect("Invalid OTLP endpoint URL");
+
+        // See https://opentelemetry.io/docs/specs/otlp/#otlphttp-request
+        // v1/traces for spans, v1/logs for logs
+        let mut trace_endpoint = root_otel_endpoint.clone();
+        trace_endpoint
+            .path_segments_mut()
+            .expect("OTEL endpoint cannot be a base URL")
+            .extend(&["v1", "traces"]);
+
+        let mut log_endpoint = root_otel_endpoint.clone();
+        log_endpoint
+            .path_segments_mut()
+            .expect("OTEL endpoint cannot be a base URL")
+            .extend(&["v1", "logs"]);
+
+        let oltp_span_exporter = opentelemetry_otlp::SpanExporter::builder()
+            .with_http()
+            .with_protocol(Protocol::HttpBinary)
+            .with_endpoint(trace_endpoint.as_str())
+            .with_headers(headers.clone())
+            .with_timeout(Duration::from_secs(5))
+            .build()
+            .expect("Failed to create OpenTelemetry span exporter");
+
+        let oltp_log_exporter = opentelemetry_otlp::LogExporter::builder()
+            .with_http()
+            .with_protocol(Protocol::HttpBinary)
+            .with_endpoint(log_endpoint.as_str())
+            .with_headers(headers)
+            .with_timeout(Duration::from_secs(5))
+            .build()
+            .expect("Failed to create OpenTelemetry log exporter");
+
+        let resource = Resource::builder()
+            .with_attribute(KeyValue::new("service.name", "haste-health"))
+            .build();
+
+        let tracer_provider = SdkTracerProvider::builder()
+            .with_resource(resource.clone())
+            .with_batch_exporter(oltp_span_exporter)
+            .build();
+
+        let logger_provider = SdkLoggerProvider::builder()
+            .with_resource(resource)
+            .with_batch_exporter(oltp_log_exporter)
+            .build();
+
+        opentelemetry::global::set_tracer_provider(tracer_provider.clone());
+
+        let tracer = tracer_provider.tracer("haste-health");
+
+        let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
+        let otel_logs = OpenTelemetryTracingBridge::new(&logger_provider);
+
+        let subscriber = subscriber.with(telemetry).with(otel_logs);
+
+        tracing::subscriber::set_global_default(subscriber).unwrap();
+
+        Some(OtelGuard {
+            _tracer_provider: tracer_provider,
+            _logger_provider: logger_provider,
+        })
+    } else {
+        tracing::subscriber::set_global_default(subscriber).unwrap();
+        None
     }
 }
 
@@ -180,12 +224,12 @@ fn tree_subscriber() -> impl tracing::Subscriber {
 }
 
 fn main() -> Result<(), OperationOutcomeError> {
-    let env = get_config(ConfigType::Environment);
+    let config = get_config(ConfigType::Environment);
 
     let cli = Cli::parse();
-    let config = CLI_STATE.clone();
+    let cli_state = CLI_STATE.clone();
 
-    let sentry_location = env.get(CLIEnvironmentVariables::SentryDSN);
+    let sentry_location = config.get(CLIEnvironmentVariables::SentryDSN);
 
     let _guard = sentry::init((
         sentry_location.unwrap_or_default(),
@@ -210,16 +254,20 @@ fn main() -> Result<(), OperationOutcomeError> {
             // #[cfg(debug_assertions)]
             // tracing::subscriber::set_global_default(tree_subscriber()).unwrap();
             // #[cfg(not(debug_assertions))]
-            let _otel_provider = otel_subscriber();
+            let _otel_provider = otel_subscriber(config.as_ref());
             match &cli.command {
                 CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath).await,
                 CLICommand::Generate { command } => commands::codegen::codegen(command).await,
                 CLICommand::Server { command } => commands::server::server(command).await,
                 CLICommand::Worker { command } => commands::worker::worker(command).await,
-                CLICommand::Config { command } => commands::config::config(&config, command).await,
-                CLICommand::Api { command } => commands::api::api_commands(config, command).await,
+                CLICommand::Config { command } => {
+                    commands::config::config(&cli_state, command).await
+                }
+                CLICommand::Api { command } => {
+                    commands::api::api_commands(cli_state, command).await
+                }
                 CLICommand::Testscript { command } => {
-                    commands::testscript::testscript_commands(config, command).await
+                    commands::testscript::testscript_commands(cli_state, command).await
                 }
                 CLICommand::Admin { command } => commands::admin::admin(command).await,
             }
