@@ -1,14 +1,19 @@
 use std::{
     path::PathBuf,
     sync::{Arc, LazyLock},
+    time::Duration,
 };
 
 use clap::{Parser, Subcommand};
 use haste_config::{ConfigType, get_config};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
+use opentelemetry::KeyValue;
 use opentelemetry::trace::TracerProvider as _;
 use opentelemetry_appender_tracing::layer::OpenTelemetryTracingBridge;
+use opentelemetry_otlp::Protocol;
+use opentelemetry_otlp::WithExportConfig;
+use opentelemetry_sdk::Resource;
 use opentelemetry_sdk::logs::SdkLoggerProvider;
 use opentelemetry_sdk::trace::SdkTracerProvider;
 use tokio::sync::Mutex;
@@ -109,39 +114,58 @@ impl From<CLIEnvironmentVariables> for String {
     }
 }
 
-struct OTelProviders {
+struct OtelGuard {
     _tracer_provider: SdkTracerProvider,
     _logger_provider: SdkLoggerProvider,
 }
 
-#[allow(dead_code)]
-fn otel_subscriber() -> OTelProviders {
-    let logger_provider = SdkLoggerProvider::builder()
-        .with_simple_exporter(opentelemetry_stdout::LogExporter::default())
+fn otel_subscriber() -> OtelGuard {
+    let oltp_span_exporter = opentelemetry_otlp::SpanExporter::builder()
+        .with_http()
+        .with_protocol(Protocol::HttpBinary)
+        .with_timeout(Duration::from_secs(5))
+        .build()
+        .expect("Failed to create OpenTelemetry span exporter");
+
+    let oltp_log_exporter = opentelemetry_otlp::LogExporter::builder()
+        .with_http()
+        .with_protocol(Protocol::HttpBinary)
+        .with_timeout(Duration::from_secs(5))
+        .build()
+        .expect("Failed to create OpenTelemetry log exporter");
+
+    let resource = Resource::builder()
+        .with_attribute(KeyValue::new("service.name", "haste-health"))
         .build();
 
     let tracer_provider = SdkTracerProvider::builder()
-        .with_simple_exporter(opentelemetry_stdout::SpanExporter::default())
+        .with_resource(resource.clone())
+        .with_batch_exporter(oltp_span_exporter)
         .build();
+
+    let logger_provider = SdkLoggerProvider::builder()
+        .with_resource(resource)
+        .with_batch_exporter(oltp_log_exporter)
+        .build();
+
+    opentelemetry::global::set_tracer_provider(tracer_provider.clone());
+
     let tracer = tracer_provider.tracer("haste-health");
 
-    // Export tracing spans through OpenTelemetry.
     let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
-    // Export tracing events as OpenTelemetry logs through the SDK logger provider.
     let otel_logs = OpenTelemetryTracingBridge::new(&logger_provider);
 
     let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
 
-    // Use the tracing subscriber `Registry`, or any other subscriber
-    // that impls `LookupSpan`
     let subscriber = Registry::default()
+        .with(env_filter)
+        .with(tracing_subscriber::fmt::Layer::default())
         .with(telemetry)
-        .with(otel_logs)
-        .with(env_filter);
+        .with(otel_logs);
 
     tracing::subscriber::set_global_default(subscriber).unwrap();
 
-    OTelProviders {
+    OtelGuard {
         _tracer_provider: tracer_provider,
         _logger_provider: logger_provider,
     }
@@ -156,16 +180,11 @@ fn tree_subscriber() -> impl tracing::Subscriber {
 }
 
 fn main() -> Result<(), OperationOutcomeError> {
-    // Set up tracing with a tree subscriber in debug builds for better visibility during development,
-    // and OpenTelemetry in release builds for production monitoring.
-    #[cfg(debug_assertions)]
-    tracing::subscriber::set_global_default(tree_subscriber()).unwrap();
-    #[cfg(not(debug_assertions))]
-    let _otel_provider = otel_subscriber();
+    let env = get_config(ConfigType::Environment);
 
     let cli = Cli::parse();
     let config = CLI_STATE.clone();
-    let env = get_config(ConfigType::Environment);
+
     let sentry_location = env.get(CLIEnvironmentVariables::SentryDSN);
 
     let _guard = sentry::init((
@@ -186,6 +205,12 @@ fn main() -> Result<(), OperationOutcomeError> {
         .build()
         .unwrap()
         .block_on(async {
+            // Set up tracing with a tree subscriber in debug builds for better visibility during development,
+            // and OpenTelemetry in release builds for production monitoring.
+            // #[cfg(debug_assertions)]
+            // tracing::subscriber::set_global_default(tree_subscriber()).unwrap();
+            // #[cfg(not(debug_assertions))]
+            let _otel_provider = otel_subscriber();
             match &cli.command {
                 CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath).await,
                 CLICommand::Generate { command } => commands::codegen::codegen(command).await,

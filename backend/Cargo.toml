@@ -96,6 +96,7 @@ json-patch = "4.2.0"
 jsonwebtoken = { workspace = true, features = ["rust_crypto"] }
 opentelemetry = "0.32.0"
 opentelemetry-appender-tracing = "0.32.0"
+opentelemetry-otlp = { version = "0.32.0", features = ["http-proto"] }
 opentelemetry-stdout = "0.32.0"
 opentelemetry_sdk = "0.32.1"
 quote = { workspace = true }
