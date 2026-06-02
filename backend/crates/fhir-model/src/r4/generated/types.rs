@@ -64,6 +64,13 @@ impl FHIRBase64Binary {
         &mut self.id
     }
 }
+impl From<String> for FHIRBase64Binary {
+    fn from(value: String) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -88,6 +95,13 @@ impl FHIRBoolean {
     }
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
+    }
+}
+impl From<bool> for FHIRBoolean {
+    fn from(value: bool) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
     }
 }
 #[derive(
@@ -116,6 +130,13 @@ impl FHIRCanonical {
         &mut self.id
     }
 }
+impl From<String> for FHIRCanonical {
+    fn from(value: String) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -140,6 +161,13 @@ impl FHIRCode {
     }
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
+    }
+}
+impl From<String> for FHIRCode {
+    fn from(value: String) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
     }
 }
 #[derive(
@@ -168,6 +196,13 @@ impl FHIRDate {
         &mut self.id
     }
 }
+impl From<crate::r4::datetime::Date> for FHIRDate {
+    fn from(value: crate::r4::datetime::Date) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -192,6 +227,13 @@ impl FHIRDateTime {
     }
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
+    }
+}
+impl From<crate::r4::datetime::DateTime> for FHIRDateTime {
+    fn from(value: crate::r4::datetime::DateTime) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
     }
 }
 #[derive(
@@ -220,6 +262,13 @@ impl FHIRDecimal {
         &mut self.id
     }
 }
+impl From<f64> for FHIRDecimal {
+    fn from(value: f64) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -244,6 +293,13 @@ impl FHIRId {
     }
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
+    }
+}
+impl From<String> for FHIRId {
+    fn from(value: String) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
     }
 }
 #[derive(
@@ -272,6 +328,13 @@ impl FHIRInstant {
         &mut self.id
     }
 }
+impl From<crate::r4::datetime::Instant> for FHIRInstant {
+    fn from(value: crate::r4::datetime::Instant) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -296,6 +359,13 @@ impl FHIRInteger {
     }
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
+    }
+}
+impl From<i64> for FHIRInteger {
+    fn from(value: i64) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
     }
 }
 #[derive(
@@ -324,6 +394,13 @@ impl FHIRMarkdown {
         &mut self.id
     }
 }
+impl From<String> for FHIRMarkdown {
+    fn from(value: String) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -348,6 +425,13 @@ impl FHIROid {
     }
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
+    }
+}
+impl From<String> for FHIROid {
+    fn from(value: String) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
     }
 }
 #[derive(
@@ -376,6 +460,13 @@ impl FHIRPositiveInt {
         &mut self.id
     }
 }
+impl From<u64> for FHIRPositiveInt {
+    fn from(value: u64) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -400,6 +491,13 @@ impl FHIRString {
     }
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
+    }
+}
+impl From<String> for FHIRString {
+    fn from(value: String) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
     }
 }
 #[derive(
@@ -428,6 +526,13 @@ impl FHIRTime {
         &mut self.id
     }
 }
+impl From<crate::r4::datetime::Time> for FHIRTime {
+    fn from(value: crate::r4::datetime::Time) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -452,6 +557,13 @@ impl FHIRUnsignedInt {
     }
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
+    }
+}
+impl From<u64> for FHIRUnsignedInt {
+    fn from(value: u64) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
     }
 }
 #[derive(
@@ -480,6 +592,13 @@ impl FHIRUri {
         &mut self.id
     }
 }
+impl From<String> for FHIRUri {
+    fn from(value: String) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -504,6 +623,13 @@ impl FHIRUrl {
     }
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
+    }
+}
+impl From<String> for FHIRUrl {
+    fn from(value: String) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
     }
 }
 #[derive(
@@ -532,6 +658,13 @@ impl FHIRUuid {
         &mut self.id
     }
 }
+impl From<String> for FHIRUuid {
+    fn from(value: String) -> Self {
+        let mut instance = Self::default();
+        instance.value = Some(value);
+        instance
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -557,6 +690,14 @@ impl FHIRXhtml {
     }
     pub fn id_mut(&mut self) -> &mut Option<String> {
         &mut self.id
+    }
+}
+impl From<String> for FHIRXhtml {
+    fn from(value: String) -> Self {
+        Self {
+            value: value,
+            ..Default::default()
+        }
     }
 }
 #[derive(

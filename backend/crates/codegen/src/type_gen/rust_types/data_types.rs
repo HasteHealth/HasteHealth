@@ -19,7 +19,7 @@ use haste_fhir_model::r4::generated::{
     types::ElementDefinition,
 };
 use indexmap::IndexMap;
-use proc_macro2::TokenStream;
+use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use walkdir::WalkDir;
 
@@ -306,12 +306,70 @@ fn process_leaf(
     }
 }
 
+fn from_rust_type_to_fhir_primitive<'a>(
+    sd_ident: &Ident,
+    sd: &'a StructureDefinition,
+    inlined_terminology: &HashMap<String, String>,
+) -> TokenStream {
+    let value_element = sd
+        .snapshot
+        .as_ref()
+        .map(|s| &s.element)
+        .and_then(|element_definitions| {
+            element_definitions
+                .iter()
+                .filter(|e| {
+                    e.path
+                        .value
+                        .as_ref()
+                        .map(|p| p.ends_with(".value"))
+                        .unwrap_or(false)
+                })
+                .next()
+        });
+
+    if let Some(value_element) = value_element
+        && let Some(fhir_type) = extract::field_types(&*value_element).get(0)
+    {
+        let value_type = fhir_type_to_rust_type(value_element, *fhir_type, inlined_terminology);
+
+        if value_element
+            .min
+            .as_ref()
+            .and_then(|min| min.value)
+            .unwrap_or(0)
+            > 0
+        {
+            quote! {
+                impl From<#value_type> for #sd_ident {
+                    fn from(value: #value_type) -> Self {
+                        Self { value: value, ..Default::default() }
+                    }
+                }
+            }
+        } else {
+            quote! {
+                impl From<#value_type> for #sd_ident {
+                    fn from(value: #value_type) -> Self {
+                        let mut instance = Self::default();
+                        instance.value = Some(value);
+                        instance
+                    }
+                }
+            }
+        }
+    } else {
+        quote! {}
+    }
+}
+
 fn create_complex_struct(
     sd: &StructureDefinition,
     element: &ElementDefinition,
     children: Vec<TokenStream>,
     types: &mut NestedTypes,
     rust_type_name_to_fhir_type: &mut HashMap<String, String>,
+    inlined_terminology: &HashMap<String, String>,
 ) -> TokenStream {
     let struct_name = generate::struct_name(sd, element);
     let fhir_type = extract::fhir_type(sd, element);
@@ -320,10 +378,11 @@ fn create_complex_struct(
 
     let struct_ident = format_ident!("{}", struct_name.clone());
     let description = extract::element_description(element);
-    let mut struct_functions = quote! {};
+    let mut additional_impls = quote! {};
 
     let derive = if conditionals::is_root(sd, element) && conditionals::is_primitive_sd(sd) {
-        struct_functions = quote! {
+        let from_impl = from_rust_type_to_fhir_primitive(&struct_ident, sd, inlined_terminology);
+        additional_impls = quote! {
             impl #struct_ident {
                 pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
                     &mut self.extension
@@ -332,6 +391,7 @@ fn create_complex_struct(
                     &mut self.id
                 }
             }
+            #from_impl
         };
 
         quote! {
@@ -371,7 +431,7 @@ fn create_complex_struct(
         pub struct #struct_ident {
             #(#children),*
         }
-        #struct_functions
+        #additional_impls
     };
 
     let i = struct_name.clone();
@@ -398,6 +458,7 @@ fn generate_from_structure_definition(
                     children,
                     &mut nested_types,
                     rust_type_name_to_fhir_type,
+                    inlined_terminology,
                 )
             }
         };

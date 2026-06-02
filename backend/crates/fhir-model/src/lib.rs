@@ -539,6 +539,7 @@ mod tests {
         ));
 
         let fhir_positive_int = serde_json::from_str::<FHIRPositiveInt>("42");
+
         assert!(matches!(
             fhir_positive_int,
             Ok(FHIRPositiveInt {

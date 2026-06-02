@@ -9,7 +9,7 @@ use haste_fhir_model::r4::generated::{
         TestScriptTest, TestScriptTestAction,
     },
     terminology::{AssertDirectionCodes, DefinedTypes, PublicationStatus},
-    types::{Coding, FHIRBoolean, FHIRCode, FHIRId, FHIRString, FHIRUri, Meta, Reference},
+    types::{Coding, Meta, Reference},
 };
 use haste_reflect::MetaValue;
 use walkdir::WalkDir;
@@ -47,10 +47,7 @@ fn set_resource_tag(tag: &str, resource: &mut Resource) -> Result<(), String> {
     let meta = get_meta_mutable(resource)?;
 
     meta.tag = Some(vec![Box::new(Coding {
-        code: Some(Box::new(FHIRCode {
-            value: Some(tag.to_string()),
-            ..Default::default()
-        })),
+        code: Some(Box::new(tag.to_string().into())),
         ..Default::default()
     })]);
 
@@ -87,63 +84,46 @@ fn generate_testcases_for_resource(
     ));
 
     vec![TestScriptTest {
-        name: Some(Box::new(FHIRString {
-            value: Some(format!("Test for resource with tag: {}", tag)),
-            ..Default::default()
-        })),
+        name: Some(Box::new(
+            format!("Test for resource with tag: {}", tag).into(),
+        )),
         action: vec![
             TestScriptTestAction {
                 operation: Some(TestScriptSetupActionOperation {
                     type_: Some(Box::new(Coding {
-                        system: Some(Box::new(FHIRUri {
-                            value: Some(
-                                "http://terminology.hl7.org/CodeSystem/testscript-operation-codes"
-                                    .to_string(),
-                            ),
-                            ..Default::default()
-                        })),
-                        code: Some(Box::new(FHIRCode {
-                            value: Some("create".to_string()),
-                            ..Default::default()
-                        })),
+                        system: Some(Box::new(
+                            "http://terminology.hl7.org/CodeSystem/testscript-operation-codes"
+                                .to_string()
+                                .into(),
+                        )),
+                        code: Some(Box::new("create".to_string().into())),
                         ..Default::default()
                     })),
                     resource: defined_type.clone(),
-                    sourceId: Some(Box::new(FHIRId {
-                        value: Some(fixture_name(index, resource_type.as_ref()).to_string()),
-                        ..Default::default()
-                    })),
-                    responseId: Some(Box::new(FHIRId {
-                        value: Some(fixture_name(index, resource_type.as_ref())),
-                        ..Default::default()
-                    })),
-                    encodeRequestUrl: Box::new(FHIRBoolean {
-                        value: Some(true),
-                        ..Default::default()
-                    }),
+                    sourceId: Some(Box::new(
+                        fixture_name(index, resource_type.as_ref())
+                            .to_string()
+                            .into(),
+                    )),
+                    responseId: Some(Box::new(fixture_name(index, resource_type.as_ref()).into())),
+                    encodeRequestUrl: Box::new(true.into()),
                     ..Default::default()
                 }),
                 ..Default::default()
             },
             TestScriptTestAction {
                 assert: Some(TestScriptSetupActionAssert {
-                    label: Some(Box::new(FHIRString {
-                        value: Some("Read created resource".to_string()),
-                        ..Default::default()
-                    })),
-                    description: Some(Box::new(FHIRString {
-                        value: Some(format!(
+                    label: Some(Box::new("Read created resource".to_string().into())),
+                    description: Some(Box::new(
+                        format!(
                             "Confirm resource of type {} created.",
                             resource_type.as_ref()
-                        )),
-                        ..Default::default()
-                    })),
+                        )
+                        .into(),
+                    )),
                     direction: Some(Box::new(AssertDirectionCodes::Response(None))),
                     resource: defined_type.clone(),
-                    warningOnly: Box::new(FHIRBoolean {
-                        value: Some(false),
-                        ..Default::default()
-                    }),
+                    warningOnly: Box::new(false.into()),
                     ..Default::default()
                 }),
                 ..Default::default()
@@ -166,19 +146,10 @@ fn generate_fixtures_for_resource(
 
         fixtures.push(TestScriptFixture {
             id: Some(fixture_id.clone()),
-            autocreate: Box::new(FHIRBoolean {
-                value: Some(false),
-                ..Default::default()
-            }),
-            autodelete: Box::new(FHIRBoolean {
-                value: Some(false),
-                ..Default::default()
-            }),
+            autocreate: Box::new(false.into()),
+            autodelete: Box::new(false.into()),
             resource: Some(Box::new(Reference {
-                reference: Some(Box::new(FHIRString {
-                    value: Some(format!("#{}", fixture_id)),
-                    ..Default::default()
-                })),
+                reference: Some(Box::new(format!("#{}", fixture_id).into())),
                 ..Default::default()
             })),
             ..Default::default()
@@ -207,16 +178,10 @@ fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String>
 
     let tag = create_tag(file_path);
 
-    testscript.url = Box::new(FHIRUri {
-        value: Some(tag.to_string()),
-        ..Default::default()
-    });
+    testscript.url = Box::new(tag.to_string().into());
     testscript.status = Box::new(PublicationStatus::Active(None));
     testscript.id = Some(tag.to_string());
-    testscript.name = Box::new(FHIRString {
-        value: Some(tag.to_string()),
-        ..Default::default()
-    });
+    testscript.name = Box::new(tag.to_string().into());
 
     for (i, resource) in resources.iter_mut().enumerate() {
         set_resource_tag(&tag, resource).expect("Failed to set resource tag");
@@ -242,32 +207,20 @@ fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String>
         action: vec![TestScriptTeardownAction {
             operation: TestScriptSetupActionOperation {
                 type_: Some(Box::new(Coding {
-                    system: Some(Box::new(FHIRUri {
-                        value: Some(
-                            "http://terminology.hl7.org/CodeSystem/testscript-operation-codes"
-                                .to_string(),
-                        ),
-                        ..Default::default()
-                    })),
-                    code: Some(Box::new(FHIRCode {
-                        value: Some("deleteCondMultiple".to_string()),
-                        ..Default::default()
-                    })),
+                    system: Some(Box::new(
+                        "http://terminology.hl7.org/CodeSystem/testscript-operation-codes"
+                            .to_string()
+                            .into(),
+                    )),
+                    code: Some(Box::new("deleteCondMultiple".to_string().into())),
                     ..Default::default()
                 })),
-                encodeRequestUrl: Box::new(FHIRBoolean {
-                    value: Some(true),
-                    ..Default::default()
-                }),
+                encodeRequestUrl: Box::new(true.into()),
                 resource: None,
-                params: Some(Box::new(FHIRString {
-                    value: Some(format!("_tag={}", tag)),
-                    ..Default::default()
-                })),
-                description: Some(Box::new(FHIRString {
-                    value: Some("Delete resources created in test.".to_string()),
-                    ..Default::default()
-                })),
+                params: Some(Box::new(format!("_tag={}", tag).into())),
+                description: Some(Box::new(
+                    "Delete resources created in test.".to_string().into(),
+                )),
 
                 ..Default::default()
             },
