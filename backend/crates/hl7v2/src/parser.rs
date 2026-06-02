@@ -221,7 +221,7 @@ mod tests {
         let input = std::fs::read_to_string("./test_data/message1.bin").unwrap();
 
         let result = Hl7V2Message::try_from(input.as_str());
-        println!("{:#?}", result);
+
         assert!(result.is_ok());
 
         let message = result.unwrap();
