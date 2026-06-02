@@ -4,7 +4,6 @@ use haste_fhir_model::r4::generated::{
         ParametersParameter, RUST_TO_FHIR_TYPE_MAP,
     },
     terminology::{IssueSeverity, IssueType, OperationParameterUse},
-    types::FHIRString,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_reflect::MetaValue as _;
@@ -24,10 +23,7 @@ fn create_issue(
     OperationOutcomeIssue {
         severity: Box::new(severity),
         code: Box::new(type_),
-        diagnostics: Some(Box::new(FHIRString {
-            value: Some(diagnostics),
-            ..Default::default()
-        })),
+        diagnostics: Some(Box::new(diagnostics.into())),
         ..Default::default()
     }
 }
