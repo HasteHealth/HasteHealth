@@ -149,7 +149,7 @@ impl TryFrom<&str> for Hl7V2Message {
                                     .unwrap_or('^'),
                             )
                             .map(|component| {
-                                let subcomponent = field
+                                let subcomponent = component
                                     .split(
                                         message_header
                                             .encoding_characters
