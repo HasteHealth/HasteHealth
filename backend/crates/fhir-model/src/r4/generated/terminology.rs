@@ -4367,6 +4367,9 @@ pub enum AllTypes {
     #[doc = "GuidanceResponse"]
     #[code = "GuidanceResponse"]
     GuidanceResponse(Option<Element>),
+    #[doc = "HL7V2"]
+    #[code = "HL7V2"]
+    HL7V2(Option<Element>),
     #[doc = "HealthcareService"]
     #[code = "HealthcareService"]
     HealthcareService(Option<Element>),
@@ -4866,6 +4869,7 @@ impl AllTypes {
             AllTypes::GraphDefinition(e) => e.as_ref(),
             AllTypes::Group(e) => e.as_ref(),
             AllTypes::GuidanceResponse(e) => e.as_ref(),
+            AllTypes::HL7V2(e) => e.as_ref(),
             AllTypes::HealthcareService(e) => e.as_ref(),
             AllTypes::HumanName(e) => e.as_ref(),
             AllTypes::Identifier(e) => e.as_ref(),
@@ -5090,6 +5094,7 @@ impl AllTypes {
             AllTypes::GraphDefinition(e) => e.get_or_insert_with(Default::default),
             AllTypes::Group(e) => e.get_or_insert_with(Default::default),
             AllTypes::GuidanceResponse(e) => e.get_or_insert_with(Default::default),
+            AllTypes::HL7V2(e) => e.get_or_insert_with(Default::default),
             AllTypes::HealthcareService(e) => e.get_or_insert_with(Default::default),
             AllTypes::HumanName(e) => e.get_or_insert_with(Default::default),
             AllTypes::Identifier(e) => e.get_or_insert_with(Default::default),
@@ -5332,6 +5337,7 @@ impl TryFrom<String> for AllTypes {
             "GraphDefinition" => Ok(AllTypes::GraphDefinition(None)),
             "Group" => Ok(AllTypes::Group(None)),
             "GuidanceResponse" => Ok(AllTypes::GuidanceResponse(None)),
+            "HL7V2" => Ok(AllTypes::HL7V2(None)),
             "HealthcareService" => Ok(AllTypes::HealthcareService(None)),
             "HumanName" => Ok(AllTypes::HumanName(None)),
             "Identifier" => Ok(AllTypes::Identifier(None)),
@@ -5568,6 +5574,7 @@ impl Into<Option<String>> for &AllTypes {
             AllTypes::GraphDefinition(_) => Some("GraphDefinition".to_string()),
             AllTypes::Group(_) => Some("Group".to_string()),
             AllTypes::GuidanceResponse(_) => Some("GuidanceResponse".to_string()),
+            AllTypes::HL7V2(_) => Some("HL7V2".to_string()),
             AllTypes::HealthcareService(_) => Some("HealthcareService".to_string()),
             AllTypes::HumanName(_) => Some("HumanName".to_string()),
             AllTypes::Identifier(_) => Some("Identifier".to_string()),
@@ -5828,6 +5835,7 @@ impl MetaValue for AllTypes {
                 AllTypes::GraphDefinition(Some(e)) => e.get_field(field),
                 AllTypes::Group(Some(e)) => e.get_field(field),
                 AllTypes::GuidanceResponse(Some(e)) => e.get_field(field),
+                AllTypes::HL7V2(Some(e)) => e.get_field(field),
                 AllTypes::HealthcareService(Some(e)) => e.get_field(field),
                 AllTypes::HumanName(Some(e)) => e.get_field(field),
                 AllTypes::Identifier(Some(e)) => e.get_field(field),
@@ -6056,6 +6064,7 @@ impl MetaValue for AllTypes {
                 AllTypes::GraphDefinition(Some(e)) => e.get_field_mut(field),
                 AllTypes::Group(Some(e)) => e.get_field_mut(field),
                 AllTypes::GuidanceResponse(Some(e)) => e.get_field_mut(field),
+                AllTypes::HL7V2(Some(e)) => e.get_field_mut(field),
                 AllTypes::HealthcareService(Some(e)) => e.get_field_mut(field),
                 AllTypes::HumanName(Some(e)) => e.get_field_mut(field),
                 AllTypes::Identifier(Some(e)) => e.get_field_mut(field),
@@ -89255,6 +89264,9 @@ pub enum ResourceTypes {
     #[doc = "GuidanceResponse"]
     #[code = "GuidanceResponse"]
     GuidanceResponse(Option<Element>),
+    #[doc = "HL7V2"]
+    #[code = "HL7V2"]
+    HL7V2(Option<Element>),
     #[doc = "HealthcareService"]
     #[code = "HealthcareService"]
     HealthcareService(Option<Element>),
@@ -89599,6 +89611,7 @@ impl ResourceTypes {
             ResourceTypes::GraphDefinition(e) => e.as_ref(),
             ResourceTypes::Group(e) => e.as_ref(),
             ResourceTypes::GuidanceResponse(e) => e.as_ref(),
+            ResourceTypes::HL7V2(e) => e.as_ref(),
             ResourceTypes::HealthcareService(e) => e.as_ref(),
             ResourceTypes::IdentityProvider(e) => e.as_ref(),
             ResourceTypes::ImagingStudy(e) => e.as_ref(),
@@ -89758,6 +89771,7 @@ impl ResourceTypes {
             ResourceTypes::GraphDefinition(e) => e.get_or_insert_with(Default::default),
             ResourceTypes::Group(e) => e.get_or_insert_with(Default::default),
             ResourceTypes::GuidanceResponse(e) => e.get_or_insert_with(Default::default),
+            ResourceTypes::HL7V2(e) => e.get_or_insert_with(Default::default),
             ResourceTypes::HealthcareService(e) => e.get_or_insert_with(Default::default),
             ResourceTypes::IdentityProvider(e) => e.get_or_insert_with(Default::default),
             ResourceTypes::ImagingStudy(e) => e.get_or_insert_with(Default::default),
@@ -89945,6 +89959,7 @@ impl TryFrom<String> for ResourceTypes {
             "GraphDefinition" => Ok(ResourceTypes::GraphDefinition(None)),
             "Group" => Ok(ResourceTypes::Group(None)),
             "GuidanceResponse" => Ok(ResourceTypes::GuidanceResponse(None)),
+            "HL7V2" => Ok(ResourceTypes::HL7V2(None)),
             "HealthcareService" => Ok(ResourceTypes::HealthcareService(None)),
             "IdentityProvider" => Ok(ResourceTypes::IdentityProvider(None)),
             "ImagingStudy" => Ok(ResourceTypes::ImagingStudy(None)),
@@ -90124,6 +90139,7 @@ impl Into<Option<String>> for &ResourceTypes {
             ResourceTypes::GraphDefinition(_) => Some("GraphDefinition".to_string()),
             ResourceTypes::Group(_) => Some("Group".to_string()),
             ResourceTypes::GuidanceResponse(_) => Some("GuidanceResponse".to_string()),
+            ResourceTypes::HL7V2(_) => Some("HL7V2".to_string()),
             ResourceTypes::HealthcareService(_) => Some("HealthcareService".to_string()),
             ResourceTypes::IdentityProvider(_) => Some("IdentityProvider".to_string()),
             ResourceTypes::ImagingStudy(_) => Some("ImagingStudy".to_string()),
@@ -90331,6 +90347,7 @@ impl MetaValue for ResourceTypes {
                 ResourceTypes::GraphDefinition(Some(e)) => e.get_field(field),
                 ResourceTypes::Group(Some(e)) => e.get_field(field),
                 ResourceTypes::GuidanceResponse(Some(e)) => e.get_field(field),
+                ResourceTypes::HL7V2(Some(e)) => e.get_field(field),
                 ResourceTypes::HealthcareService(Some(e)) => e.get_field(field),
                 ResourceTypes::IdentityProvider(Some(e)) => e.get_field(field),
                 ResourceTypes::ImagingStudy(Some(e)) => e.get_field(field),
@@ -90494,6 +90511,7 @@ impl MetaValue for ResourceTypes {
                 ResourceTypes::GraphDefinition(Some(e)) => e.get_field_mut(field),
                 ResourceTypes::Group(Some(e)) => e.get_field_mut(field),
                 ResourceTypes::GuidanceResponse(Some(e)) => e.get_field_mut(field),
+                ResourceTypes::HL7V2(Some(e)) => e.get_field_mut(field),
                 ResourceTypes::HealthcareService(Some(e)) => e.get_field_mut(field),
                 ResourceTypes::IdentityProvider(Some(e)) => e.get_field_mut(field),
                 ResourceTypes::ImagingStudy(Some(e)) => e.get_field_mut(field),

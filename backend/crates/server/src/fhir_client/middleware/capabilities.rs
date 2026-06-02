@@ -211,8 +211,7 @@ impl<
                     } else {
                         let capabilities =
                             generate_capabilities(state.repo.as_ref(), state.search.as_ref())
-                                .await
-                                .unwrap();
+                                .await?;
                         *guard = Some(capabilities.clone());
 
                         context.response =

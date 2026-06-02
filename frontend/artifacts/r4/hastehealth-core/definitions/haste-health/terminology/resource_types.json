@@ -36,6 +36,10 @@
         {
             "code": "User",
             "display": "User"
+        },
+        {
+            "code": "HL7V2",
+            "display": "HL7V2"
         }
     ]
 }

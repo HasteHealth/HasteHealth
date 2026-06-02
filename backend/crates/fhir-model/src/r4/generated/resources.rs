@@ -297,6 +297,143 @@ pub struct AccessPolicyV2 {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_serialize_type = "complex"]
+#[doc = "The metadata about hl7v2 resource pulled from MSH."]
+pub struct HL7V2Header {
+    #[primitive]
+    #[doc = "Field separator"]
+    pub field_separator: Box<FHIRCode>,
+    #[primitive]
+    #[doc = "Component separator, repetition separator, escape character, and subcomponent separator."]
+    pub encodingCharacters: Box<FHIRCode>,
+    #[primitive]
+    #[doc = "Sending application (MSH-3)."]
+    pub sendingApplication: Option<Box<FHIRId>>,
+    #[primitive]
+    #[doc = "Sending facility (MSH-4)."]
+    pub sendingFacility: Option<Box<FHIRId>>,
+    #[primitive]
+    #[doc = "Receiving application (MSH-5)."]
+    pub receivingApplication: Option<Box<FHIRId>>,
+    #[primitive]
+    #[doc = "Receiving facility (MSH-6)."]
+    pub receivingFacility: Option<Box<FHIRId>>,
+    #[primitive]
+    #[doc = "Date/time the message was created (MSH-7)."]
+    pub datetimeOfMessage: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Security context for the message (MSH-8)."]
+    pub security: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Message type, event, and structure (MSH-9)."]
+    pub messageType: Option<Box<FHIRCode>>,
+    #[primitive]
+    #[doc = "Unique identifier for the message (MSH-10)."]
+    pub messageControlId: Option<Box<FHIRId>>,
+    #[primitive]
+    #[doc = "Processing ID indicating production, debug, or training (MSH-11)."]
+    pub processingId: Option<Box<FHIRId>>,
+    #[primitive]
+    #[doc = "HL7 version used in the message (MSH-12)."]
+    pub versionId: Option<Box<FHIRId>>,
+    #[doc = "Additional MSH fields beyond the standard set (MSH-13+)."]
+    pub additionalFields: Option<Vec<HL7V2SegmentsFields>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_serialize_type = "complex"]
+#[doc = "The component when no sub-components are present."]
+pub struct HL7V2SegmentsFieldsValueValue {
+    #[primitive]
+    #[doc = "The string value of the component."]
+    pub value: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Subcomponent values when the component is further divided by the subcomponent separator."]
+    pub subcomponents: Option<Vec<Box<FHIRString>>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_serialize_type = "complex"]
+#[doc = "The field value when no repetitions are present."]
+pub struct HL7V2SegmentsFieldsValue {
+    #[doc = "Components when the field value is divided by the component separator."]
+    pub components: Option<Vec<HL7V2SegmentsFieldsValueValue>>,
+    #[doc = "The component when no sub-components are present."]
+    pub value: Option<HL7V2SegmentsFieldsValueValue>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_serialize_type = "complex"]
+#[doc = "Fields within the segment."]
+pub struct HL7V2SegmentsFields {
+    #[doc = "Repeated field values when the field contains the repetition separator."]
+    pub repetitions: Option<Vec<HL7V2SegmentsFieldsValue>>,
+    #[doc = "The field value when no repetitions are present."]
+    pub value: Option<HL7V2SegmentsFieldsValue>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_serialize_type = "complex"]
+#[doc = "Non-MSH segments in the HL7v2 message."]
+pub struct HL7V2Segments {
+    #[primitive]
+    #[doc = "Three-character segment identifier (e.g. PID, OBX)."]
+    pub id: Box<FHIRId>,
+    #[doc = "Fields within the segment."]
+    pub fields: Option<Vec<HL7V2SegmentsFields>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_serialize_type = "resource"]
+#[doc = "Parsed Hl7V2 message."]
+pub struct HL7V2 {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[doc = "The metadata about hl7v2 resource pulled from MSH."]
+    pub header: HL7V2Header,
+    #[doc = "Non-MSH segments in the HL7v2 message."]
+    pub segments: Option<Vec<HL7V2Segments>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
 #[fhir_serialize_type = "resource"]
 #[doc = ""]
 pub struct ClientApplication {
@@ -28560,6 +28697,7 @@ pub enum Resource {
     Membership(Membership),
     Project(Project),
     AccessPolicyV2(AccessPolicyV2),
+    HL7V2(HL7V2),
     ClientApplication(ClientApplication),
     User(User),
     Account(Account),
@@ -28716,6 +28854,7 @@ impl Resource {
             Resource::Membership(_) => ResourceType::Membership,
             Resource::Project(_) => ResourceType::Project,
             Resource::AccessPolicyV2(_) => ResourceType::AccessPolicyV2,
+            Resource::HL7V2(_) => ResourceType::HL7V2,
             Resource::ClientApplication(_) => ResourceType::ClientApplication,
             Resource::User(_) => ResourceType::User,
             Resource::Account(_) => ResourceType::Account,
@@ -28882,6 +29021,7 @@ impl Resource {
             Resource::Membership(r) => &r.id,
             Resource::Project(r) => &r.id,
             Resource::AccessPolicyV2(r) => &r.id,
+            Resource::HL7V2(r) => &r.id,
             Resource::ClientApplication(r) => &r.id,
             Resource::User(r) => &r.id,
             Resource::Account(r) => &r.id,
@@ -29046,6 +29186,7 @@ pub enum ResourceType {
     Membership,
     Project,
     AccessPolicyV2,
+    HL7V2,
     ClientApplication,
     User,
     Account,
@@ -29213,6 +29354,7 @@ impl ResourceType {
             ResourceType::AccessPolicyV2 => Ok(Resource::AccessPolicyV2(serde_json::from_str::<
                 AccessPolicyV2,
             >(data)?)),
+            ResourceType::HL7V2 => Ok(Resource::HL7V2(serde_json::from_str::<HL7V2>(data)?)),
             ResourceType::ClientApplication => {
                 Ok(Resource::ClientApplication(serde_json::from_str::<
                     ClientApplication,
@@ -29743,6 +29885,7 @@ impl AsRef<str> for ResourceType {
             ResourceType::Membership => "Membership",
             ResourceType::Project => "Project",
             ResourceType::AccessPolicyV2 => "AccessPolicyV2",
+            ResourceType::HL7V2 => "HL7V2",
             ResourceType::ClientApplication => "ClientApplication",
             ResourceType::User => "User",
             ResourceType::Account => "Account",
@@ -29902,6 +30045,7 @@ impl TryFrom<String> for ResourceType {
             "Membership" => Ok(ResourceType::Membership),
             "Project" => Ok(ResourceType::Project),
             "AccessPolicyV2" => Ok(ResourceType::AccessPolicyV2),
+            "HL7V2" => Ok(ResourceType::HL7V2),
             "ClientApplication" => Ok(ResourceType::ClientApplication),
             "User" => Ok(ResourceType::User),
             "Account" => Ok(ResourceType::Account),
@@ -30066,6 +30210,7 @@ impl TryFrom<&str> for ResourceType {
             "Membership" => Ok(ResourceType::Membership),
             "Project" => Ok(ResourceType::Project),
             "AccessPolicyV2" => Ok(ResourceType::AccessPolicyV2),
+            "HL7V2" => Ok(ResourceType::HL7V2),
             "ClientApplication" => Ok(ResourceType::ClientApplication),
             "User" => Ok(ResourceType::User),
             "Account" => Ok(ResourceType::Account),
@@ -30574,6 +30719,12 @@ pub static RUST_TO_FHIR_TYPE_MAP: std::sync::LazyLock<
     rust_to_fhir_type_map.insert("GroupCharacteristic", "BackboneElement");
     rust_to_fhir_type_map.insert("GroupMember", "BackboneElement");
     rust_to_fhir_type_map.insert("GuidanceResponse", "GuidanceResponse");
+    rust_to_fhir_type_map.insert("HL7V2", "HL7V2");
+    rust_to_fhir_type_map.insert("HL7V2Header", "BackboneElement");
+    rust_to_fhir_type_map.insert("HL7V2Segments", "BackboneElement");
+    rust_to_fhir_type_map.insert("HL7V2SegmentsFields", "BackboneElement");
+    rust_to_fhir_type_map.insert("HL7V2SegmentsFieldsValue", "BackboneElement");
+    rust_to_fhir_type_map.insert("HL7V2SegmentsFieldsValueValue", "BackboneElement");
     rust_to_fhir_type_map.insert("HealthcareService", "HealthcareService");
     rust_to_fhir_type_map.insert("HealthcareServiceAvailableTime", "BackboneElement");
     rust_to_fhir_type_map.insert("HealthcareServiceEligibility", "BackboneElement");
