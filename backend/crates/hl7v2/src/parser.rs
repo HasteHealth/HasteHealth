@@ -69,7 +69,7 @@ impl TryFrom<&str> for ParsedHL7V2Header {
     }
 }
 
-pub struct ParsedHL7V2Message(HL7V2);
+pub struct ParsedHL7V2Message(pub HL7V2);
 
 impl TryFrom<&str> for ParsedHL7V2Message {
     type Error = OperationOutcomeError;
