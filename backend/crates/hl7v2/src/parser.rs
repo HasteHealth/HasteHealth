@@ -1,3 +1,7 @@
+use haste_fhir_model::r4::generated::resources::{
+    HL7V2, HL7V2Header, HL7V2SegmentsFields, HL7V2SegmentsFieldsValue,
+    HL7V2SegmentsFieldsValueValue,
+};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 
@@ -50,7 +54,7 @@ pub struct Hl7V2Message {
     pub segments: Vec<Segment>,
 }
 
-impl TryFrom<&str> for MessageHeader {
+impl TryFrom<&str> for HL7V2Header {
     type Error = OperationOutcomeError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
@@ -70,39 +74,44 @@ impl TryFrom<&str> for MessageHeader {
 
         let mut fields = value[4..].split(field_separator);
 
-        Ok(MessageHeader {
-            field_separator: field_separator,
-            encoding_characters: fields
-                .next()
-                .ok_or_else(|| {
-                    OperationOutcomeError::error(
-                        IssueType::Exception(None),
-                        "Missing encoding characters".to_string(),
-                    )
-                })?
-                .to_string(),
-            sending_application: fields.next().map(|s| s.to_string()),
-            sending_facility: fields.next().map(|s| s.to_string()),
-            receiving_application: fields.next().map(|s| s.to_string()),
-            receiving_facility: fields.next().map(|s| s.to_string()),
-            datetime_of_message: (fields.next().map(|s| s.to_string())),
-            security: fields.next().map(|s| s.to_string()),
-            message_type: fields.next().map(|s| s.to_string()),
-            message_control_id: fields.next().map(|s| s.to_string()),
-            processing_id: fields.next().map(|s| s.to_string()),
-            version_id: fields.next().map(|s| s.to_string()),
-            additional_fields: fields
-                .map(|f| Field {
-                    value: Some(FieldValue {
-                        value: Some(Component {
-                            value: Some(f.to_string()),
-                            subcomponents: None,
+        Ok(HL7V2Header {
+            field_separator: Box::new(field_separator.to_string().into()),
+            encodingCharacters: Box::new(
+                fields
+                    .next()
+                    .ok_or_else(|| {
+                        OperationOutcomeError::error(
+                            IssueType::Exception(None),
+                            "Missing encoding characters".to_string(),
+                        )
+                    })?
+                    .to_string()
+                    .into(),
+            ),
+            sendingApplication: fields.next().map(|s| Box::new(s.to_string().into())),
+            sendingFacility: fields.next().map(|s| Box::new(s.to_string().into())),
+            receivingApplication: fields.next().map(|s| Box::new(s.to_string().into())),
+            receivingFacility: fields.next().map(|s| Box::new(s.to_string().into())),
+            datetimeOfMessage: fields.next().map(|s| Box::new(s.to_string().into())),
+            security: fields.next().map(|s| Box::new(s.to_string().into())),
+            messageType: fields.next().map(|s| Box::new(s.to_string().into())),
+            messageControlId: fields.next().map(|s| Box::new(s.to_string().into())),
+            processingId: fields.next().map(|s| Box::new(s.to_string().into())),
+            versionId: fields.next().map(|s| Box::new(s.to_string().into())),
+            additionalFields: Some(
+                fields
+                    .map(|f| HL7V2SegmentsFields {
+                        value: Some(HL7V2SegmentsFieldsValue {
+                            value: Some(HL7V2SegmentsFieldsValueValue {
+                                value: Some(Box::new(f.to_string().into())),
+                                subcomponents: None,
+                            }),
+                            components: None,
                         }),
-                        components: None,
-                    }),
-                    repetitions: None,
-                })
-                .collect(),
+                        repetitions: None,
+                    })
+                    .collect(),
+            ),
         })
     }
 }
@@ -114,7 +123,7 @@ impl TryFrom<&str> for Hl7V2Message {
         let mut segments = vec![];
         let mut segment_lines = value.lines();
 
-        let message_header = MessageHeader::try_from(segment_lines.next().ok_or_else(|| {
+        let message_header = HL7V2Header::try_from(segment_lines.next().ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::Invalid(None),
                 "Missing MSH segment".to_string(),
@@ -122,7 +131,14 @@ impl TryFrom<&str> for Hl7V2Message {
         })?)?;
 
         for segment in segment_lines {
-            let mut segment = segment.split(message_header.field_separator);
+            let mut segment = segment.split(
+                message_header
+                    .field_separator
+                    .value
+                    .as_ref()
+                    .and_then(|s| s.chars().next())
+                    .unwrap_or('|'),
+            );
             let segment_id = segment.next().ok_or_else(|| {
                 OperationOutcomeError::error(
                     IssueType::Exception(None),
@@ -134,27 +150,30 @@ impl TryFrom<&str> for Hl7V2Message {
                 let fields = field
                     .split(
                         message_header
-                            .encoding_characters
-                            .chars()
-                            .nth(1)
+                            .encodingCharacters
+                            .value
+                            .as_ref()
+                            .and_then(|s| s.chars().nth(1))
                             .unwrap_or('~'),
                     )
                     .map(|field| {
                         let components = field
                             .split(
                                 message_header
-                                    .encoding_characters
-                                    .chars()
-                                    .nth(0)
+                                    .encodingCharacters
+                                    .value
+                                    .as_ref()
+                                    .and_then(|s| s.chars().nth(0))
                                     .unwrap_or('^'),
                             )
                             .map(|component| {
                                 let subcomponent = component
                                     .split(
                                         message_header
-                                            .encoding_characters
-                                            .chars()
-                                            .nth(3)
+                                            .encodingCharacters
+                                            .value
+                                            .as_ref()
+                                            .and_then(|s| s.chars().nth(3))
                                             .unwrap_or('&'),
                                     )
                                     .collect::<Vec<_>>();
