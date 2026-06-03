@@ -1,40 +1,11 @@
 use haste_fhir_model::r4::generated::resources::{
-    HL7V2Header, HL7V2SegmentsFields, HL7V2SegmentsFieldsValue, HL7V2SegmentsFieldsValueValue,
+    HL7V2, HL7V2Header, HL7V2Segments, HL7V2SegmentsFields, HL7V2SegmentsFieldsValue,
+    HL7V2SegmentsFieldsValueValue,
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub struct Component {
-    pub value: Option<String>,
-    pub subcomponents: Option<Vec<String>>,
-}
-
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub struct FieldValue {
-    pub value: Option<Component>,
-    pub components: Option<Vec<Component>>,
-}
-
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub struct Field {
-    pub value: Option<FieldValue>,
-    pub repetitions: Option<Vec<FieldValue>>,
-}
-
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub struct Segment {
-    pub id: String,
-    pub fields: Vec<Field>,
-}
-
-#[derive(Debug, Clone)]
-pub struct Hl7V2Message {
-    pub header: HL7V2Header,
-    pub segments: Vec<Segment>,
-}
-
-struct ParsedHL7V2Header(HL7V2Header);
+pub struct ParsedHL7V2Header(pub HL7V2Header);
 
 impl TryFrom<&str> for ParsedHL7V2Header {
     type Error = OperationOutcomeError;
@@ -98,7 +69,9 @@ impl TryFrom<&str> for ParsedHL7V2Header {
     }
 }
 
-impl TryFrom<&str> for Hl7V2Message {
+pub struct ParsedHL7V2Message(HL7V2);
+
+impl TryFrom<&str> for ParsedHL7V2Message {
     type Error = OperationOutcomeError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
@@ -162,56 +135,60 @@ impl TryFrom<&str> for Hl7V2Message {
                                     )
                                     .collect::<Vec<_>>();
                                 if subcomponent.len() > 1 {
-                                    Component {
+                                    HL7V2SegmentsFieldsValueValue {
                                         value: None,
                                         subcomponents: Some(
-                                            subcomponent.iter().map(|s| s.to_string()).collect(),
+                                            subcomponent
+                                                .iter()
+                                                .map(|s| Box::new(s.to_string().into()))
+                                                .collect(),
                                         ),
                                     }
                                 } else {
-                                    Component {
-                                        value: Some(component.to_string()),
+                                    HL7V2SegmentsFieldsValueValue {
+                                        value: Some(Box::new(component.to_string().into())),
                                         subcomponents: None,
                                     }
                                 }
                             })
                             .collect::<Vec<_>>();
                         if components.len() > 1 {
-                            FieldValue {
+                            HL7V2SegmentsFieldsValue {
                                 value: None,
                                 components: Some(components),
                             }
                         } else {
-                            FieldValue {
-                                value: Some(components.into_iter().next().unwrap()),
+                            HL7V2SegmentsFieldsValue {
+                                value: components.into_iter().next(),
                                 components: None,
                             }
                         }
                     })
                     .collect::<Vec<_>>();
                 if fields.len() > 1 {
-                    Field {
+                    HL7V2SegmentsFields {
                         value: None,
                         repetitions: Some(fields),
                     }
                 } else {
-                    Field {
+                    HL7V2SegmentsFields {
                         value: Some(fields.into_iter().next().unwrap()),
                         repetitions: None,
                     }
                 }
             });
 
-            segments.push(Segment {
-                id: segment_id.to_string(),
-                fields: segment_fields.collect(),
+            segments.push(HL7V2Segments {
+                id: Box::new(segment_id.to_string().into()),
+                fields: Some(segment_fields.collect()),
             });
         }
 
-        Ok(Hl7V2Message {
+        Ok(ParsedHL7V2Message(HL7V2 {
             header: message_header,
-            segments,
-        })
+            segments: Some(segments),
+            ..Default::default()
+        }))
     }
 }
 
@@ -223,38 +200,39 @@ mod tests {
     fn test_parse_hl7v2_message() {
         let input = std::fs::read_to_string("./test_data/message1.bin").unwrap();
 
-        let result = Hl7V2Message::try_from(input.as_str());
+        let result = ParsedHL7V2Message::try_from(input.as_str());
 
         assert!(result.is_ok());
 
-        let message = result.unwrap();
-        assert_eq!(message.segments.len(), 7);
+        let message = result.unwrap().0;
+        let segments = message.segments.expect("message should contain segments");
+        assert_eq!(segments.len(), 7);
 
-        assert_eq!(message.segments[0].id, "SCH");
-        assert_eq!(message.segments[0].fields.len(), 25);
+        assert_eq!(segments[0].id.value.as_deref(), Some("SCH"));
+
+        let sch_fields = segments[0]
+            .fields
+            .clone()
+            .expect("SCH should contain fields");
+        assert_eq!(sch_fields.len(), 25);
         assert_eq!(
-            message.segments[0].fields[0]
+            sch_fields[0]
                 .value
                 .clone()
                 .unwrap()
-                .components,
-            Some(vec![
-                Component {
-                    value: Some("10345".to_string()),
-                    subcomponents: None,
-                },
-                Component {
-                    value: Some("10345".to_string()),
-                    subcomponents: None,
-                },
-            ])
+                .components
+                .unwrap()
+                .into_iter()
+                .map(|c| c.value.unwrap().value.unwrap())
+                .collect::<Vec<_>>(),
+            vec!["10345".to_string(), "10345".to_string()]
         );
 
-        assert_eq!(message.segments[1].id, "PID");
-        assert_eq!(message.segments[2].id, "PV1");
-        assert_eq!(message.segments[3].id, "RGS");
-        assert_eq!(message.segments[4].id, "AIG");
-        assert_eq!(message.segments[5].id, "AIL");
-        assert_eq!(message.segments[6].id, "AIP");
+        assert_eq!(segments[1].id.value.as_deref(), Some("PID"));
+        assert_eq!(segments[2].id.value.as_deref(), Some("PV1"));
+        assert_eq!(segments[3].id.value.as_deref(), Some("RGS"));
+        assert_eq!(segments[4].id.value.as_deref(), Some("AIG"));
+        assert_eq!(segments[5].id.value.as_deref(), Some("AIL"));
+        assert_eq!(segments[6].id.value.as_deref(), Some("AIP"));
     }
 }
