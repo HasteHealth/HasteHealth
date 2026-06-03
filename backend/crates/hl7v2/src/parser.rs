@@ -1,6 +1,5 @@
 use haste_fhir_model::r4::generated::resources::{
-    HL7V2, HL7V2Header, HL7V2SegmentsFields, HL7V2SegmentsFieldsValue,
-    HL7V2SegmentsFieldsValueValue,
+    HL7V2Header, HL7V2SegmentsFields, HL7V2SegmentsFieldsValue, HL7V2SegmentsFieldsValueValue,
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -29,32 +28,15 @@ pub struct Segment {
     pub fields: Vec<Field>,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub struct MessageHeader {
-    field_separator: char,
-    /// component separator, repetition separator, escape character, and subcomponent separator
-    encoding_characters: String,
-    sending_application: Option<String>,
-    sending_facility: Option<String>,
-    receiving_application: Option<String>,
-    receiving_facility: Option<String>,
-    datetime_of_message: Option<String>,
-    security: Option<String>,
-    message_type: Option<String>,
-    message_control_id: Option<String>,
-    processing_id: Option<String>,
-    version_id: Option<String>,
-
-    additional_fields: Vec<Field>,
-}
-
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, Clone)]
 pub struct Hl7V2Message {
-    pub header: MessageHeader,
+    pub header: HL7V2Header,
     pub segments: Vec<Segment>,
 }
 
-impl TryFrom<&str> for HL7V2Header {
+struct ParsedHL7V2Header(HL7V2Header);
+
+impl TryFrom<&str> for ParsedHL7V2Header {
     type Error = OperationOutcomeError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
@@ -74,7 +56,7 @@ impl TryFrom<&str> for HL7V2Header {
 
         let mut fields = value[4..].split(field_separator);
 
-        Ok(HL7V2Header {
+        Ok(ParsedHL7V2Header(HL7V2Header {
             field_separator: Box::new(field_separator.to_string().into()),
             encodingCharacters: Box::new(
                 fields
@@ -112,7 +94,7 @@ impl TryFrom<&str> for HL7V2Header {
                     })
                     .collect(),
             ),
-        })
+        }))
     }
 }
 
@@ -123,12 +105,14 @@ impl TryFrom<&str> for Hl7V2Message {
         let mut segments = vec![];
         let mut segment_lines = value.lines();
 
-        let message_header = HL7V2Header::try_from(segment_lines.next().ok_or_else(|| {
-            OperationOutcomeError::error(
-                IssueType::Invalid(None),
-                "Missing MSH segment".to_string(),
-            )
-        })?)?;
+        let message_header =
+            ParsedHL7V2Header::try_from(segment_lines.next().ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Missing MSH segment".to_string(),
+                )
+            })?)?
+            .0;
 
         for segment in segment_lines {
             let mut segment = segment.split(
