@@ -134,35 +134,61 @@ impl From<ParsedHL7V2Header> for String {
 
         let mut result = [
             "MSH",
-            &hl7v2_message
+            hl7v2_message
                 .encodingCharacters
                 .value
                 .as_ref()
-                .map(|s| s.as_str())
+                .map(|v| v.as_str())
                 .unwrap_or(""),
             hl7v2_message
                 .sendingApplication
                 .as_ref()
-                .and_then(|s| s.value.as_ref())
-                .map(|s| s.as_str())
+                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
                 .unwrap_or(""),
             hl7v2_message
                 .sendingFacility
                 .as_ref()
-                .and_then(|s| s.value.as_ref())
-                .map(|s| s.as_str())
+                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
                 .unwrap_or(""),
             hl7v2_message
                 .receivingApplication
                 .as_ref()
-                .and_then(|s| s.value.as_ref())
-                .map(|s| s.as_str())
+                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
                 .unwrap_or(""),
             hl7v2_message
                 .receivingFacility
                 .as_ref()
-                .and_then(|s| s.value.as_ref())
-                .map(|s| s.as_str())
+                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
+                .unwrap_or(""),
+            hl7v2_message
+                .datetimeOfMessage
+                .as_ref()
+                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
+                .unwrap_or(""),
+            hl7v2_message
+                .security
+                .as_ref()
+                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
+                .unwrap_or(""),
+            hl7v2_message
+                .messageType
+                .as_ref()
+                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
+                .unwrap_or(""),
+            hl7v2_message
+                .messageControlId
+                .as_ref()
+                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
+                .unwrap_or(""),
+            hl7v2_message
+                .processingId
+                .as_ref()
+                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
+                .unwrap_or(""),
+            hl7v2_message
+                .versionId
+                .as_ref()
+                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
                 .unwrap_or(""),
         ]
         .join(&encoding_characters.field_separator);
