@@ -26,6 +26,10 @@
       "resourceType": "OperationDefinition"
     },
     {
+      "filename": "definitions/haste-health/operation/hl7v2_parse.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
       "filename": "definitions/haste-health/operation/idp-registration-info.json",
       "resourceType": "OperationDefinition"
     },
@@ -175,6 +179,10 @@
     },
     {
       "filename": "definitions/haste-health/structuredefinition/client_application.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/structuredefinition/hl7v2.json",
       "resourceType": "StructureDefinition"
     },
     {

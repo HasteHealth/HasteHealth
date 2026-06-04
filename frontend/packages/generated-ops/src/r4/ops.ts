@@ -292,6 +292,45 @@ export namespace HasteHealthEvaluatePolicy {
     ],
   } as fhirTypes.OperationDefinition);
 }
+export namespace Hl7v2Parse {
+  export type Input = { hl7v2: fhirTypes.string };
+  export type Output = { hl7v2: fhirTypes.HL7V2 };
+  export type IOp = IOperation<Input, Output>;
+  export const Op: IOp = new Operation<Input, Output>({
+    resourceType: "OperationDefinition",
+    id: "hl7v2-parse",
+    url: "https://haste.health/OperationDefinition/hl7v2-parse",
+    version: "4.0.1",
+    name: "HL7v2 Parse",
+    status: "draft",
+    kind: "operation",
+    date: "2023-11-16T09:29:23+11:00",
+    publisher: "HasteHealth",
+    description: "Parse HL7v2 messages.",
+    code: "hl7v2-parse",
+    system: true,
+    type: false,
+    instance: false,
+    parameter: [
+      {
+        name: "hl7v2",
+        use: "in",
+        min: 1,
+        max: "1",
+        documentation: "HL7v2 message to be parsed.",
+        type: "string",
+      },
+      {
+        name: "hl7v2",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "Parsed HL7v2 message.",
+        type: "HL7V2",
+      },
+    ],
+  } as fhirTypes.OperationDefinition);
+}
 export namespace HasteHealthIdpRegistrationInfo {
   export type Input = Record<string, never>;
   export type Output = {
