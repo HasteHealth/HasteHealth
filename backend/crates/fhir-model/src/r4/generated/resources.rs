@@ -298,56 +298,6 @@ pub struct AccessPolicyV2 {
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
-#[doc = "The metadata about hl7v2 resource pulled from MSH."]
-pub struct HL7V2Header {
-    #[primitive]
-    #[doc = "Field separator"]
-    pub field_separator: Box<FHIRCode>,
-    #[primitive]
-    #[doc = "Component separator, repetition separator, escape character, and subcomponent separator."]
-    pub encodingCharacters: Box<FHIRCode>,
-    #[primitive]
-    #[doc = "Sending application (MSH-3)."]
-    pub sendingApplication: Option<Box<FHIRId>>,
-    #[primitive]
-    #[doc = "Sending facility (MSH-4)."]
-    pub sendingFacility: Option<Box<FHIRId>>,
-    #[primitive]
-    #[doc = "Receiving application (MSH-5)."]
-    pub receivingApplication: Option<Box<FHIRId>>,
-    #[primitive]
-    #[doc = "Receiving facility (MSH-6)."]
-    pub receivingFacility: Option<Box<FHIRId>>,
-    #[primitive]
-    #[doc = "Date/time the message was created (MSH-7)."]
-    pub datetimeOfMessage: Option<Box<FHIRString>>,
-    #[primitive]
-    #[doc = "Security context for the message (MSH-8)."]
-    pub security: Option<Box<FHIRString>>,
-    #[primitive]
-    #[doc = "Message type, event, and structure (MSH-9)."]
-    pub messageType: Option<Box<FHIRCode>>,
-    #[primitive]
-    #[doc = "Unique identifier for the message (MSH-10)."]
-    pub messageControlId: Option<Box<FHIRId>>,
-    #[primitive]
-    #[doc = "Processing ID indicating production, debug, or training (MSH-11)."]
-    pub processingId: Option<Box<FHIRId>>,
-    #[primitive]
-    #[doc = "HL7 version used in the message (MSH-12)."]
-    pub versionId: Option<Box<FHIRId>>,
-    #[doc = "Additional MSH fields beyond the standard set (MSH-13+)."]
-    pub additionalFields: Option<Vec<HL7V2SegmentsFields>>,
-}
-#[derive(
-    Clone,
-    Reflect,
-    Debug,
-    Default,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
-)]
-#[fhir_serialize_type = "complex"]
 #[doc = "The component when no sub-components are present."]
 pub struct HL7V2SegmentsFieldsValueValue {
     #[primitive]
@@ -421,8 +371,6 @@ pub struct HL7V2 {
     pub id: Option<String>,
     #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
     pub meta: Option<Box<Meta>>,
-    #[doc = "The metadata about hl7v2 resource pulled from MSH."]
-    pub header: HL7V2Header,
     #[doc = "Non-MSH segments in the HL7v2 message."]
     pub segments: Option<Vec<HL7V2Segments>>,
 }
@@ -30720,7 +30668,6 @@ pub static RUST_TO_FHIR_TYPE_MAP: std::sync::LazyLock<
     rust_to_fhir_type_map.insert("GroupMember", "BackboneElement");
     rust_to_fhir_type_map.insert("GuidanceResponse", "GuidanceResponse");
     rust_to_fhir_type_map.insert("HL7V2", "HL7V2");
-    rust_to_fhir_type_map.insert("HL7V2Header", "BackboneElement");
     rust_to_fhir_type_map.insert("HL7V2Segments", "BackboneElement");
     rust_to_fhir_type_map.insert("HL7V2SegmentsFields", "BackboneElement");
     rust_to_fhir_type_map.insert("HL7V2SegmentsFieldsValue", "BackboneElement");
