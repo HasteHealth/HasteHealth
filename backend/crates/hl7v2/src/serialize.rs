@@ -1,6 +1,7 @@
 use crate::parser::ParsedHL7V2Message;
 use haste_fhir_model::r4::generated::resources::{
-    HL7V2Segments, HL7V2SegmentsFields, HL7V2SegmentsFieldsValue, HL7V2SegmentsFieldsValueValue,
+    HL7V2, HL7V2Segments, HL7V2SegmentsFields, HL7V2SegmentsFieldsValue,
+    HL7V2SegmentsFieldsValueValue,
 };
 
 struct EncodingInformation {
@@ -100,135 +101,74 @@ fn segment_to_string(encoding_characters: &EncodingInformation, segment: HL7V2Se
     result
 }
 
+fn get_encoding_characters(hl7v2_message: &HL7V2) -> Option<String> {
+    let Some(msh) = hl7v2_message.segments.as_ref().and_then(|segments| {
+        segments
+            .iter()
+            .find(|s| s.id.value.as_ref().map(|s| s.as_str()) == Some("MSH"))
+    }) else {
+        return Some("".to_string());
+    };
+
+    let Some(encoding_characters_str) = msh
+        .fields
+        .as_ref()
+        .and_then(|fields| fields.into_iter().next())
+        .and_then(|field| {
+            field.value.as_ref().and_then(|v| {
+                v.value
+                    .as_ref()
+                    .and_then(|s| s.value.as_ref())
+                    .and_then(|s| s.value.as_ref().map(|s| s.as_str()))
+            })
+        })
+    else {
+        return Some("".to_string());
+    };
+
+    Some(encoding_characters_str.to_string())
+}
+
 impl From<ParsedHL7V2Message> for String {
     fn from(value: ParsedHL7V2Message) -> Self {
         let hl7v2_message = value.0;
         let field_seperator = hl7v2_message
-            .header
-            .field_separator
+            .fieldSeparator
             .value
-            .unwrap_or('|'.to_string());
+            .as_ref()
+            .map(|s| s.as_str())
+            .unwrap_or("|");
+        let encoding_characters_str =
+            get_encoding_characters(&hl7v2_message).unwrap_or("^~\\&".to_string());
+
+        let mut result = "".to_string();
+
         let encoding_characters = EncodingInformation {
-            field_separator: field_seperator,
-            component_separator: hl7v2_message
-                .header
-                .encodingCharacters
-                .value
-                .as_ref()
-                .and_then(|s| s.chars().nth(0))
+            field_separator: field_seperator.to_string(),
+            component_separator: encoding_characters_str
+                .chars()
+                .nth(0)
                 .unwrap_or('^')
                 .to_string(),
-            repetition_separator: hl7v2_message
-                .header
-                .encodingCharacters
-                .value
-                .as_ref()
-                .and_then(|s| s.chars().nth(1))
+            repetition_separator: encoding_characters_str
+                .chars()
+                .nth(1)
                 .unwrap_or('~')
                 .to_string(),
-            escape_character: hl7v2_message
-                .header
-                .encodingCharacters
-                .value
-                .as_ref()
-                .and_then(|s| s.chars().nth(2))
+            escape_character: encoding_characters_str
+                .chars()
+                .nth(2)
                 .unwrap_or('\\')
                 .to_string(),
-            subcomponent_separator: hl7v2_message
-                .header
-                .encodingCharacters
-                .value
-                .as_ref()
-                .and_then(|s| s.chars().nth(3))
+
+            subcomponent_separator: encoding_characters_str
+                .chars()
+                .nth(3)
                 .unwrap_or('&')
                 .to_string(),
         };
 
-        let mut result = [
-            "MSH",
-            hl7v2_message
-                .header
-                .encodingCharacters
-                .value
-                .as_ref()
-                .map(|v| v.as_str())
-                .unwrap_or(""),
-            hl7v2_message
-                .header
-                .sendingApplication
-                .as_ref()
-                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
-                .unwrap_or(""),
-            hl7v2_message
-                .header
-                .sendingFacility
-                .as_ref()
-                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
-                .unwrap_or(""),
-            hl7v2_message
-                .header
-                .receivingApplication
-                .as_ref()
-                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
-                .unwrap_or(""),
-            hl7v2_message
-                .header
-                .receivingFacility
-                .as_ref()
-                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
-                .unwrap_or(""),
-            hl7v2_message
-                .header
-                .datetimeOfMessage
-                .as_ref()
-                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
-                .unwrap_or(""),
-            hl7v2_message
-                .header
-                .security
-                .as_ref()
-                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
-                .unwrap_or(""),
-            hl7v2_message
-                .header
-                .messageType
-                .as_ref()
-                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
-                .unwrap_or(""),
-            hl7v2_message
-                .header
-                .messageControlId
-                .as_ref()
-                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
-                .unwrap_or(""),
-            hl7v2_message
-                .header
-                .processingId
-                .as_ref()
-                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
-                .unwrap_or(""),
-            hl7v2_message
-                .header
-                .versionId
-                .as_ref()
-                .and_then(|v| v.value.as_ref().map(|v| v.as_str()))
-                .unwrap_or(""),
-        ]
-        .join(&encoding_characters.field_separator);
-
-        for additional_field in hl7v2_message
-            .header
-            .additionalFields
-            .unwrap_or_default()
-            .into_iter()
-        {
-            let field_string = segment_field_to_string(&encoding_characters, additional_field);
-            result.push_str(&encoding_characters.field_separator);
-            result.push_str(&field_string);
-        }
-
         if let Some(segments) = hl7v2_message.segments {
-            result.push('\n');
             let k = segments
                 .into_iter()
                 .map(|s| segment_to_string(&encoding_characters, s))

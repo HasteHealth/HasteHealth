@@ -371,6 +371,9 @@ pub struct HL7V2 {
     pub id: Option<String>,
     #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
     pub meta: Option<Box<Meta>>,
+    #[primitive]
+    #[doc = "The character used to separate fields in the HL7v2 message."]
+    pub fieldSeparator: Box<FHIRString>,
     #[doc = "Non-MSH segments in the HL7v2 message."]
     pub segments: Option<Vec<HL7V2Segments>>,
 }

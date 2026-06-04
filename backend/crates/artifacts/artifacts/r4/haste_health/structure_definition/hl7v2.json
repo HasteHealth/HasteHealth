@@ -87,6 +87,19 @@
                 "isSummary": true
             },
             {
+                "id": "HL7V2.fieldSeparator",
+                "path": "HL7V2.fieldSeparator",
+                "definition": "The character used to separate fields in the HL7v2 message.",
+                "short": "Field separator",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ],
+                "min": 1,
+                "max": "1"
+            },
+            {
                 "id": "HL7V2.segments",
                 "path": "HL7V2.segments",
                 "definition": "Non-MSH segments in the HL7v2 message.",

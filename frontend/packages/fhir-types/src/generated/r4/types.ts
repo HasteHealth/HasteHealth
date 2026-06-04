@@ -4384,108 +4384,6 @@ resourceType: "ClientApplication"
   _policyUri?: Element
 }
 
-export interface HL7V2Header {
-  /** 
-   * Field separator
-   */
-  field_separator: code;
-  /** 
-   * Field separator
-   */
-  _field_separator?: Element
-  /** 
-   * Encoding characters
-   */
-  encodingCharacters: code;
-  /** 
-   * Encoding characters
-   */
-  _encodingCharacters?: Element
-  /** 
-   * Sending application
-   */
-  sendingApplication?: id;
-  /** 
-   * Sending application
-   */
-  _sendingApplication?: Element
-  /** 
-   * Sending facility
-   */
-  sendingFacility?: id;
-  /** 
-   * Sending facility
-   */
-  _sendingFacility?: Element
-  /** 
-   * Receiving application
-   */
-  receivingApplication?: id;
-  /** 
-   * Receiving application
-   */
-  _receivingApplication?: Element
-  /** 
-   * Receiving facility
-   */
-  receivingFacility?: id;
-  /** 
-   * Receiving facility
-   */
-  _receivingFacility?: Element
-  /** 
-   * Date/time of message
-   */
-  datetimeOfMessage?: string;
-  /** 
-   * Date/time of message
-   */
-  _datetimeOfMessage?: Element
-  /** 
-   * Security
-   */
-  security?: string;
-  /** 
-   * Security
-   */
-  _security?: Element
-  /** 
-   * Message type
-   */
-  messageType?: code;
-  /** 
-   * Message type
-   */
-  _messageType?: Element
-  /** 
-   * Message control ID
-   */
-  messageControlId?: id;
-  /** 
-   * Message control ID
-   */
-  _messageControlId?: Element
-  /** 
-   * Processing ID
-   */
-  processingId?: id;
-  /** 
-   * Processing ID
-   */
-  _processingId?: Element
-  /** 
-   * Version ID
-   */
-  versionId?: id;
-  /** 
-   * Version ID
-   */
-  _versionId?: Element
-  /** 
-   * Additional MSH fields
-   */
-  additionalFields?: Array<HL7V2SegmentsFields>;
-}
 export interface HL7V2SegmentsFieldsValueValue {
   /** 
    * Component value
@@ -4548,10 +4446,6 @@ resourceType: "HL7V2"
    * Metadata about the resource
    */
   meta?: Meta;
-  /** 
-   * The metadata about hl7v2 resource pulled from MSH.
-   */
-  header: HL7V2Header;
   /** 
    * Message segments
    */
