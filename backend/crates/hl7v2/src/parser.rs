@@ -79,6 +79,29 @@ impl TryFrom<&str> for ParsedHL7V2Message {
         let mut segments = vec![];
         let mut segment_lines = value.lines();
 
+        let header = value[..3].to_string();
+
+        if header != "MSH" {
+            return Err(OperationOutcomeError::error(
+                IssueType::Exception(None),
+                "Message does not start with MSH segment".to_string(),
+            ));
+        }
+
+        let field_seperator = value.chars().nth(3).ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                "Missing field separator".to_string(),
+            )
+        })?;
+
+        let encoding_characters = value[3..].split(field_seperator).next().ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                "Missing encoding characters".to_string(),
+            )
+        })?;
+
         let message_header =
             ParsedHL7V2Header::try_from(segment_lines.next().ok_or_else(|| {
                 OperationOutcomeError::error(
@@ -106,34 +129,13 @@ impl TryFrom<&str> for ParsedHL7V2Message {
 
             let segment_fields = segment.map(|field| {
                 let fields = field
-                    .split(
-                        message_header
-                            .encodingCharacters
-                            .value
-                            .as_ref()
-                            .and_then(|s| s.chars().nth(1))
-                            .unwrap_or('~'),
-                    )
+                    .split(encoding_characters.chars().nth(1).unwrap_or('~'))
                     .map(|field| {
                         let components = field
-                            .split(
-                                message_header
-                                    .encodingCharacters
-                                    .value
-                                    .as_ref()
-                                    .and_then(|s| s.chars().nth(0))
-                                    .unwrap_or('^'),
-                            )
+                            .split(encoding_characters.chars().nth(0).unwrap_or('^'))
                             .map(|component| {
                                 let subcomponent = component
-                                    .split(
-                                        message_header
-                                            .encodingCharacters
-                                            .value
-                                            .as_ref()
-                                            .and_then(|s| s.chars().nth(3))
-                                            .unwrap_or('&'),
-                                    )
+                                    .split(encoding_characters.chars().nth(3).unwrap_or('&'))
                                     .collect::<Vec<_>>();
                                 if subcomponent.len() > 1 {
                                     HL7V2SegmentsFieldsValueValue {
@@ -202,6 +204,7 @@ mod tests {
         let input = std::fs::read_to_string("./test_data/message1.bin").unwrap();
 
         let result = ParsedHL7V2Message::try_from(input.as_str());
+        println!("Parse result: {:#?}", result);
 
         assert!(result.is_ok());
 
