@@ -107,7 +107,7 @@ fn get_encoding_characters(hl7v2_message: &HL7V2) -> Option<String> {
             .iter()
             .find(|s| s.id.value.as_ref().map(|s| s.as_str()) == Some("MSH"))
     }) else {
-        return Some("".to_string());
+        return None;
     };
 
     let Some(encoding_characters_str) = msh
@@ -123,7 +123,7 @@ fn get_encoding_characters(hl7v2_message: &HL7V2) -> Option<String> {
             })
         })
     else {
-        return Some("".to_string());
+        return None;
     };
 
     Some(encoding_characters_str.to_string())
