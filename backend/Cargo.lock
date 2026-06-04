@@ -2852,6 +2852,7 @@ dependencies = [
  "haste-fhir-serialization-json",
  "haste-fhir-terminology",
  "haste-fhirpath",
+ "haste-hl7v2",
  "haste-jwt",
  "haste-openapi-schema-generator",
  "haste-operation-executor",

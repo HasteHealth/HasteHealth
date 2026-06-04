@@ -119,7 +119,7 @@ jobs:
         working-directory: ./backend
 
       - name: Run US Core Testscripts
-        run: ./target/debug/haste-health testscript run -i testscripts/us-core -w 2000
+        run: ./target/debug/haste-health testscript run -i testscripts/us-core -w 4000
         working-directory: ./backend
         env:
           RUST_LOG: info

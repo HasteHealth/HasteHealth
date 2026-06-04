@@ -227,6 +227,39 @@ pub mod HasteHealthListRefreshTokens {
         }
     }
 }
+#[doc = "Parse HL7v2 messages."]
+pub mod Hl7v2Parse {
+    use super::*;
+    pub const CODE: &str = "hl7v2-parse";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        #[doc = "HL7v2 message to be parsed."]
+        pub hl7v2: FHIRString,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[doc = "Parsed HL7v2 message."]
+        pub hl7v2: HL7V2,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
 #[doc = "Get tenant endpoint information for the current tenant."]
 pub mod TenantEndpointInformation {
     use super::*;

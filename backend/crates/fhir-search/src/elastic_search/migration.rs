@@ -180,6 +180,7 @@ pub async fn create_elasticsearch_searchparameter_mappings(
     );
 
     Ok(json!({
+        "dynamic": true,
         "properties" : property_mapping
     }))
 }
@@ -235,7 +236,7 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
                                     "limit": 2000
                                 },
                                 "total_fields": {
-                                    "limit": 5000
+                                    "limit": 10000
                                 }
                             }
                        }

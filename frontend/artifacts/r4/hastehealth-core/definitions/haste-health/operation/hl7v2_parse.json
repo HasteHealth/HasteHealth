@@ -1,0 +1,34 @@
+{
+    "resourceType": "OperationDefinition",
+    "id": "hl7v2-parse",
+    "url": "https://haste.health/OperationDefinition/hl7v2-parse",
+    "version": "4.0.1",
+    "name": "HL7v2 Parse",
+    "status": "draft",
+    "kind": "operation",
+    "date": "2023-11-16T09:29:23+11:00",
+    "publisher": "HasteHealth",
+    "description": "Parse HL7v2 messages.",
+    "code": "hl7v2-parse",
+    "system": true,
+    "type": false,
+    "instance": false,
+    "parameter": [
+        {
+            "name": "hl7v2",
+            "use": "in",
+            "min": 1,
+            "max": "1",
+            "documentation": "HL7v2 message to be parsed.",
+            "type": "string"
+        },
+        {
+            "name": "hl7v2",
+            "use": "out",
+            "min": 1,
+            "max": "1",
+            "documentation": "Parsed HL7v2 message.",
+            "type": "Hl7V2Message"
+        }
+    ]
+}

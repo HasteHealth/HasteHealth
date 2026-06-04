@@ -41,6 +41,7 @@ haste-fhir-search = { path = "../fhir-search", version = "0.*" }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
 haste-fhir-terminology = { path = "../fhir-terminology", version = "0.*" }
 haste-fhirpath = { path = "../fhirpath", version = "0.*" }
+haste-hl7v2 = { path = "../hl7v2", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*" }
 haste-openapi-schema-generator = { path = "../openapi-schema-generator", version = "0.*" }
 haste-operation-executor = { path = "../operation_executor", version = "0.*" }
