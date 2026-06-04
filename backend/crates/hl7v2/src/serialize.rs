@@ -134,7 +134,6 @@ impl From<ParsedHL7V2Header> for String {
 
         let mut result = [
             "MSH",
-            &encoding_characters.field_separator,
             &hl7v2_message
                 .encodingCharacters
                 .value
