@@ -124,7 +124,6 @@ mod tests {
         let input = std::fs::read_to_string("./test_data/message1.bin").unwrap();
 
         let result = ParsedHL7V2Message::try_from(input.as_str());
-        println!("Parse result: {:#?}", result);
 
         assert!(result.is_ok());
 
