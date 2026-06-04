@@ -11,7 +11,7 @@ impl TryFrom<&str> for ParsedHL7V2Header {
     type Error = OperationOutcomeError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let h = value.get(..3);
+        let h: Option<&str> = value.get(..3);
         if h != Some("MSH") {
             return Err(OperationOutcomeError::error(
                 IssueType::Exception(None),
@@ -69,6 +69,7 @@ impl TryFrom<&str> for ParsedHL7V2Header {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct ParsedHL7V2Message(pub HL7V2);
 
 impl TryFrom<&str> for ParsedHL7V2Message {
@@ -234,5 +235,17 @@ mod tests {
         assert_eq!(segments[4].id.value.as_deref(), Some("AIG"));
         assert_eq!(segments[5].id.value.as_deref(), Some("AIL"));
         assert_eq!(segments[6].id.value.as_deref(), Some("AIP"));
+    }
+
+    #[test]
+    fn round_trip() {
+        let input = std::fs::read_to_string("./test_data/message1.bin").unwrap();
+        let result = ParsedHL7V2Message::try_from(input.as_str());
+        assert!(result.is_ok());
+
+        let message = result.unwrap();
+        let serialized: String = message.into();
+
+        pretty_assertions::assert_eq!(serialized, input);
     }
 }

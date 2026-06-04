@@ -1,4 +1,4 @@
-use crate::parser::{ParsedHL7V2Header, ParsedHL7V2Message};
+use crate::parser::ParsedHL7V2Message;
 use haste_fhir_model::r4::generated::resources::{
     HL7V2Segments, HL7V2SegmentsFields, HL7V2SegmentsFieldsValue, HL7V2SegmentsFieldsValueValue,
 };
@@ -7,6 +7,7 @@ struct EncodingInformation {
     field_separator: String,
     component_separator: String,
     repetition_separator: String,
+    #[allow(dead_code)]
     escape_character: String,
     subcomponent_separator: String,
 }
@@ -84,11 +85,17 @@ fn segment_to_string(encoding_characters: &EncodingInformation, segment: HL7V2Se
         .unwrap_or("")
         .to_string();
 
-    for field in segment.fields.unwrap_or_default().into_iter() {
-        let field_string = segment_field_to_string(encoding_characters, field);
-        result.push_str(&encoding_characters.field_separator);
-        result.push_str(&field_string);
-    }
+    result.push_str(&encoding_characters.field_separator);
+
+    result.push_str(
+        &segment
+            .fields
+            .unwrap_or_default()
+            .into_iter()
+            .map(|s| segment_field_to_string(encoding_characters, s))
+            .collect::<Vec<_>>()
+            .join(&encoding_characters.field_separator),
+    );
 
     result
 }
@@ -220,10 +227,15 @@ impl From<ParsedHL7V2Message> for String {
             result.push_str(&field_string);
         }
 
-        for segment in hl7v2_message.segments.unwrap_or_default().into_iter() {
-            let segment_string = segment_to_string(&encoding_characters, segment);
-            result.push_str("\r");
-            result.push_str(&segment_string);
+        if let Some(segments) = hl7v2_message.segments {
+            result.push('\n');
+            let k = segments
+                .into_iter()
+                .map(|s| segment_to_string(&encoding_characters, s))
+                .collect::<Vec<_>>()
+                .join("\n");
+
+            result.push_str(&k);
         }
 
         result
