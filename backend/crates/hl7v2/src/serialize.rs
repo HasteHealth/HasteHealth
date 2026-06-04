@@ -43,14 +43,6 @@ impl From<ParsedHL7V2Header> for String {
         ]
         .join(&field_seperator);
 
-        if let Some(timestamp) = value.timestamp.value {
-            result.push_str(&timestamp);
-        }
-
-        if let Some(security) = value.security.value {
-            result.push_str(&security);
-        }
-
         result
     }
 }
