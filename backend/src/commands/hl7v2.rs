@@ -89,7 +89,10 @@ pub async fn hl7v2(
 
             Ok(())
         }
-        HL7v2Commands::Sender { address, port } => {
+        HL7v2Commands::Sender {
+            address: _,
+            port: _,
+        } => {
             todo!("HL7v2 sender not implemented yet");
         }
     }
