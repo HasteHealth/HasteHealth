@@ -2690,6 +2690,7 @@ dependencies = [
  "haste-fhir-search",
  "haste-fhir-serialization-json",
  "haste-fhirpath",
+ "haste-hl7v2",
  "haste-jwt",
  "haste-repository",
  "haste-server",

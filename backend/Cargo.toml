@@ -92,6 +92,7 @@ haste-server = { path = "./crates/server" }
 haste-testscript-runner = { path = "./crates/testscript-runner" }
 haste-worker = { path = "./crates/worker" }
 haste_wal_worker = { path = "./crates/wal_worker" }
+haste-hl7v2 = { path = "./crates/hl7v2" }
 json-patch = "4.2.0"
 jsonwebtoken = { workspace = true, features = ["rust_crypto"] }
 opentelemetry = "0.32.0"

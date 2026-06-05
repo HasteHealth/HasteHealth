@@ -72,6 +72,10 @@ enum CLICommand {
         #[command(subcommand)]
         command: commands::admin::AdminCommands,
     },
+    Hl7v2 {
+        #[command(subcommand)]
+        command: commands::hl7v2::HL7v2Commands,
+    },
 }
 
 static CONFIG_LOCATION: LazyLock<PathBuf> = LazyLock::new(|| {
@@ -293,6 +297,7 @@ fn main() -> Result<(), OperationOutcomeError> {
                     commands::testscript::testscript_commands(cli_state, command).await
                 }
                 CLICommand::Admin { command } => commands::admin::admin(command).await,
+                CLICommand::Hl7v2 { command } => commands::hl7v2::hl7v2(cli_state, command).await,
             }
         })
 }
