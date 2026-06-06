@@ -36,6 +36,10 @@ impl MetaValue for i64 {
         "http://hl7.org/fhirpath/System.Integer"
     }
 
+    fn fhir_type(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.Integer"
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -70,6 +74,10 @@ impl MetaValue for u64 {
     }
 
     fn typename(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.Integer"
+    }
+
+    fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.Integer"
     }
 
@@ -110,6 +118,10 @@ impl MetaValue for f64 {
         "http://hl7.org/fhirpath/System.Decimal"
     }
 
+    fn fhir_type(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.Decimal"
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -144,6 +156,10 @@ impl MetaValue for bool {
     }
 
     fn typename(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.Boolean"
+    }
+
+    fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.Boolean"
     }
 
@@ -184,6 +200,10 @@ impl MetaValue for String {
         "http://hl7.org/fhirpath/System.String"
     }
 
+    fn fhir_type(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.String"
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -218,6 +238,10 @@ impl MetaValue for &'static str {
     }
 
     fn typename(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.String"
+    }
+
+    fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.String"
     }
 
@@ -280,6 +304,14 @@ where
         }
     }
 
+    fn fhir_type(&self) -> &'static str {
+        if let Some(first) = self.first() {
+            first.fhir_type()
+        } else {
+            ""
+        }
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -312,6 +344,13 @@ where
     fn typename(&self) -> &'static str {
         match self {
             Some(value) => value.typename(),
+            None => "",
+        }
+    }
+
+    fn fhir_type(&self) -> &'static str {
+        match self {
+            Some(value) => value.fhir_type(),
             None => "",
         }
     }
@@ -358,6 +397,10 @@ where
 
     fn typename(&self) -> &'static str {
         self.as_ref().typename()
+    }
+
+    fn fhir_type(&self) -> &'static str {
+        self.as_ref().fhir_type()
     }
 
     fn as_any(&self) -> &dyn Any {

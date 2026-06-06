@@ -27,6 +27,10 @@ impl MetaValue for Time {
         "http://hl7.org/fhirpath/System.Time"
     }
 
+    fn fhir_type(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.Time"
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -61,6 +65,10 @@ impl MetaValue for DateTime {
     }
 
     fn typename(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.DateTime"
+    }
+
+    fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.DateTime"
     }
 
@@ -101,6 +109,10 @@ impl MetaValue for Date {
         "http://hl7.org/fhirpath/System.Date"
     }
 
+    fn fhir_type(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.Date"
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -135,6 +147,10 @@ impl MetaValue for Instant {
     }
 
     fn typename(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.Instant"
+    }
+
+    fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.Instant"
     }
 

@@ -289,6 +289,10 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                         "FHIRCode"
                     }
 
+                    fn fhir_type(&self) -> &'static str {
+                        "code"
+                    }
+
                     fn is_many(&self) -> bool {
                         false
                     }

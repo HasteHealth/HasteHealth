@@ -30,6 +30,25 @@ fn is_optional(field: &Field) -> bool {
     false
 }
 
+fn get_attribute_fhir_type(attrs: &[Attribute]) -> Option<String> {
+    attrs.iter().find_map(|attr| match &attr.meta {
+        Meta::NameValue(name_value) => {
+            if name_value.path.is_ident("fhir_type") {
+                match &name_value.value {
+                    Expr::Lit(lit) => match &lit.lit {
+                        Lit::Str(lit) => Some(lit.value()),
+                        _ => panic!("Expected a string literal"),
+                    },
+                    _ => panic!("Expected a string literal"),
+                }
+            } else {
+                None
+            }
+        }
+        _ => None,
+    })
+}
+
 #[proc_macro_derive(Reflect, attributes(rename_field, fhir_type))]
 pub fn haste_reflect(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
@@ -37,6 +56,7 @@ pub fn haste_reflect(input: TokenStream) -> TokenStream {
 
     match input.data {
         Data::Struct(data) => {
+            let fhir_type = get_attribute_fhir_type(&input.attrs);
             let all_fields = data
                 .fields
                 .iter()
@@ -119,6 +139,10 @@ pub fn haste_reflect(input: TokenStream) -> TokenStream {
                         #name_str
                     }
 
+                    fn fhir_type(&self) -> &'static str {
+                        #fhir_type
+                    }
+
                     fn as_any(&self) -> &dyn std::any::Any {
                         self
                     }
@@ -196,6 +220,13 @@ pub fn haste_reflect(input: TokenStream) -> TokenStream {
                 }
             });
 
+            let variants_fhir_type = data.variants.iter().map(|variant| {
+                let name = variant.ident.to_owned();
+                quote! {
+                    Self::#name(k) => k.fhir_type()
+                }
+            });
+
             let expanded = quote! {
                 impl haste_reflect::MetaValue for #enum_name {
                     fn fields(&self) -> Vec<&'static str> {
@@ -231,6 +262,12 @@ pub fn haste_reflect(input: TokenStream) -> TokenStream {
                     fn typename(&self) ->  &'static str {
                         match self {
                             #(#variants_typename),*
+                        }
+                    }
+
+                    fn fhir_type(&self) -> &'static str {
+                        match self {
+                            #(#variants_fhir_type),*
                         }
                     }
 

@@ -274,6 +274,10 @@ impl MetaValue for RequestReflection {
         "FHIRRequest"
     }
 
+    fn fhir_type(&self) -> &'static str {
+        "BackboneElement"
+    }
+
     fn is_many(&self) -> bool {
         false
     }

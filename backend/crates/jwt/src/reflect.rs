@@ -27,6 +27,10 @@ impl MetaValue for TenantId {
         "http://hl7.org/fhirpath/System.TenantId"
     }
 
+    fn fhir_type(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.TenantId"
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -62,6 +66,10 @@ impl MetaValue for ProjectId {
     }
 
     fn typename(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.ProjectId"
+    }
+
+    fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.ProjectId"
     }
 
@@ -103,6 +111,10 @@ impl MetaValue for ResourceId {
         "http://hl7.org/fhirpath/System.ResourceId"
     }
 
+    fn fhir_type(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.ResourceId"
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -137,6 +149,10 @@ impl MetaValue for VersionId {
     }
 
     fn typename(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.VersionId"
+    }
+
+    fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.VersionId"
     }
 

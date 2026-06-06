@@ -49,6 +49,7 @@ impl TryFrom<i8> for PermissionLevel {
 }
 
 #[derive(Debug, Reflect)]
+#[fhir_type = "BackboneElement"]
 pub struct UserInfo {
     pub id: String,
 }

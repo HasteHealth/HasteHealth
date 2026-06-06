@@ -4,6 +4,7 @@ use haste_reflect::{MetaValue, derive::Reflect};
 use std::{collections::HashMap, fmt::Display};
 
 #[derive(Derivative, Clone, Reflect)]
+#[fhir_type = "BackboneElement"]
 #[derivative(Debug)]
 pub struct Parameter {
     pub name: String,
@@ -78,6 +79,12 @@ impl MetaValue for ParsedParameter {
     fn typename(&self) -> &'static str {
         match self {
             ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.typename(),
+        }
+    }
+
+    fn fhir_type(&self) -> &'static str {
+        match self {
+            ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.fhir_type(),
         }
     }
 
@@ -177,6 +184,10 @@ impl MetaValue for ParsedParameters {
 
     fn typename(&self) -> &'static str {
         "ParsedParameters"
+    }
+
+    fn fhir_type(&self) -> &'static str {
+        "BackboneElement"
     }
 
     fn is_many(&self) -> bool {

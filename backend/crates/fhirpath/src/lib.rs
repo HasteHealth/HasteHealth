@@ -295,6 +295,7 @@ fn filter_by_type<'a>(type_name: &str, context: &Context<'a>) -> Context<'a> {
 }
 
 #[derive(Debug, Reflect)]
+#[fhir_type = "Element"]
 struct Reflection {
     name: String,
 }
