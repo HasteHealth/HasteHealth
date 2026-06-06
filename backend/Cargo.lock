@@ -2535,7 +2535,10 @@ dependencies = [
 name = "haste-fhir-converter"
 version = "0.16.0"
 dependencies = [
+ "haste-fhirpath",
  "liquid",
+ "liquid-core",
+ "tokio",
 ]
 
 [[package]]

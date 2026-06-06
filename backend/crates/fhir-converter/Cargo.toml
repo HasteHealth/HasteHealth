@@ -8,3 +8,6 @@ edition.workspace = true
 
 [dependencies]
 liquid = "0.26.11"
+haste-fhirpath = { path = "../fhirpath" }
+liquid-core = {version = "0.26.11", features = ["derive"]}
+tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }
