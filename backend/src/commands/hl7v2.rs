@@ -35,8 +35,6 @@ pub async fn hl7v2(
                     }
                 };
 
-                println!("Received connection from {:?}", stream.peer_addr());
-
                 loop {
                     let frame = match MllpFormatter::read_frame(&mut stream) {
                         Ok(f) => f,

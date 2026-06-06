@@ -13,7 +13,8 @@ impl TryFrom<&str> for ParsedHL7V2Message {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let mut segments = vec![];
-        let segment_lines = value.lines();
+
+        let segment_lines = value.split(['\r', '\n']).filter(|s| !s.is_empty());
 
         let header = value[..3].to_string();
 
@@ -31,7 +32,7 @@ impl TryFrom<&str> for ParsedHL7V2Message {
             )
         })?;
 
-        let encoding_characters = value[3..].split(field_seperator).next().ok_or_else(|| {
+        let encoding_characters = value[4..].split(field_seperator).next().ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::Exception(None),
                 "Missing encoding characters".to_string(),
