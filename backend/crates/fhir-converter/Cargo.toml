@@ -1,0 +1,10 @@
+[package]
+name = "haste-fhir-converter"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+edition.workspace = true
+
+[dependencies]
+liquid = "0.26.11"

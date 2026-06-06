@@ -17,7 +17,7 @@ members = [
     "crates/artifacts",
     "crates/codegen",
     "crates/config",
-    "crates/fhir-client",
+    "crates/fhir-client", "crates/fhir-converter",
     "crates/fhir-generated-ops",
     "crates/fhir-model",
     "crates/fhir-operation-error",
