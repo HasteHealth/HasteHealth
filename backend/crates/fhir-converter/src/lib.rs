@@ -74,7 +74,7 @@ pub fn fhir_converter() {
         .filter(FHIRPath)
         .build()
         .unwrap()
-        .parse("Liquid! {{num | fhirpath: '5 + 3'}}")
+        .parse("Liquid! {{num | fhirpath: '5.5 / 2'}}")
         .unwrap();
 
     let globals = liquid::object!({
