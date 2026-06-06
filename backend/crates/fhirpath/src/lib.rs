@@ -994,16 +994,19 @@ mod tests {
     use haste_reflect_derive::Reflect;
 
     #[derive(Reflect, Debug)]
+    #[fhir_type = "BackboneElement"]
     struct C {
         c: String,
     }
 
     #[derive(Reflect, Debug)]
+    #[fhir_type = "BackboneElement"]
     struct B {
         b: Vec<Box<C>>,
     }
 
     #[derive(Reflect, Debug)]
+    #[fhir_type = "BackboneElement"]
     struct A {
         a: Vec<Box<B>>,
     }
