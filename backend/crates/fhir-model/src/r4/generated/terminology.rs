@@ -292,7 +292,7 @@ impl MetaValue for FHIRVersion {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -406,7 +406,7 @@ impl MetaValue for AbstractTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -547,7 +547,7 @@ impl MetaValue for AccountStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -661,7 +661,7 @@ impl MetaValue for ActionCardinalityBehavior {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -784,7 +784,7 @@ impl MetaValue for ActionConditionKind {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -907,7 +907,7 @@ impl MetaValue for ActionGroupingBehavior {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -1039,7 +1039,7 @@ impl MetaValue for ActionParticipantType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -1153,7 +1153,7 @@ impl MetaValue for ActionPrecheckBehavior {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -1334,7 +1334,7 @@ impl MetaValue for ActionRelationshipType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -1461,7 +1461,7 @@ impl MetaValue for ActionRequiredBehavior {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -1611,7 +1611,7 @@ impl MetaValue for ActionSelectionBehavior {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -1743,7 +1743,7 @@ impl MetaValue for ActionType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -1866,7 +1866,7 @@ impl MetaValue for ActivityDefinitionCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -2016,7 +2016,7 @@ impl MetaValue for Additionalmaterials {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -2139,7 +2139,7 @@ impl MetaValue for AddressType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -2280,7 +2280,7 @@ impl MetaValue for AddressUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -2448,7 +2448,7 @@ impl MetaValue for Adjudication {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -2562,7 +2562,7 @@ impl MetaValue for AdjudicationError {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -2676,7 +2676,7 @@ impl MetaValue for AdjudicationReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -2808,7 +2808,7 @@ impl MetaValue for AdministrativeGender {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -2922,7 +2922,7 @@ impl MetaValue for AdverseEventActuality {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -3178,7 +3178,7 @@ impl MetaValue for AdverseEventCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -3348,7 +3348,7 @@ impl MetaValue for AdverseEventCausalityAssess {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -3475,7 +3475,7 @@ impl MetaValue for AdverseEventCausalityMethod {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -3627,7 +3627,7 @@ impl MetaValue for AdverseEventOutcome {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -3839,7 +3839,7 @@ impl MetaValue for AdverseEventSeriousness {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -3962,7 +3962,7 @@ impl MetaValue for AdverseEventSeverity {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -4112,7 +4112,7 @@ impl MetaValue for AgeUnits {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -6220,7 +6220,7 @@ impl MetaValue for AllTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -6342,7 +6342,7 @@ impl MetaValue for AllergIntolSubstanceExpRisk {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -6474,7 +6474,7 @@ impl MetaValue for AllergyIntoleranceCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -6601,7 +6601,7 @@ impl MetaValue for AllergyIntoleranceCriticality {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -6715,7 +6715,7 @@ impl MetaValue for AllergyIntoleranceType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -6838,7 +6838,7 @@ impl MetaValue for AllergyintoleranceClinical {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -6976,7 +6976,7 @@ impl MetaValue for AllergyintoleranceVerification {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -7099,7 +7099,7 @@ impl MetaValue for AnimalGenderstatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -7285,7 +7285,7 @@ impl MetaValue for AnimalSpecies {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -7471,7 +7471,7 @@ impl MetaValue for Appointmentstatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -7585,7 +7585,7 @@ impl MetaValue for AssertDirectionCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -7780,7 +7780,7 @@ impl MetaValue for AssertOperatorCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -7988,7 +7988,7 @@ impl MetaValue for AssertResponseCodeTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -8093,7 +8093,7 @@ impl MetaValue for AssetAvailability {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -9643,7 +9643,7 @@ impl MetaValue for AuditEntityType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -9784,7 +9784,7 @@ impl MetaValue for AuditEventAction {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -9916,7 +9916,7 @@ impl MetaValue for AuditEventOutcome {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -10349,7 +10349,7 @@ impl MetaValue for AuditEventSubType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -10817,7 +10817,7 @@ impl MetaValue for AuditEventType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -10994,7 +10994,7 @@ impl MetaValue for AuditSourceType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -11234,7 +11234,7 @@ impl MetaValue for BasicResourceType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -11348,7 +11348,7 @@ impl MetaValue for BenefitNetwork {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -11471,7 +11471,7 @@ impl MetaValue for BenefitTerm {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -11675,7 +11675,7 @@ impl MetaValue for BenefitType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -11789,7 +11789,7 @@ impl MetaValue for BenefitUnit {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -11921,7 +11921,7 @@ impl MetaValue for BindingStrength {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -12044,7 +12044,7 @@ impl MetaValue for BodysiteLaterality {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -12248,7 +12248,7 @@ impl MetaValue for BodystructureRelativeLocation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -12425,7 +12425,7 @@ impl MetaValue for BundleType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -13232,7 +13232,7 @@ impl MetaValue for C80Facilitycodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -14363,7 +14363,7 @@ impl MetaValue for C80PracticeCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -14486,7 +14486,7 @@ impl MetaValue for CapabilityStatementKind {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -14648,7 +14648,7 @@ impl MetaValue for CarePlanActivityKind {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -14825,7 +14825,7 @@ impl MetaValue for CarePlanActivityStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -14953,7 +14953,7 @@ impl MetaValue for CarePlanIntent {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -15094,7 +15094,7 @@ impl MetaValue for CareTeamStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -15217,7 +15217,7 @@ impl MetaValue for CatalogType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -15340,7 +15340,7 @@ impl MetaValue for CdshooksIndicator {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -15539,7 +15539,7 @@ impl MetaValue for CertaintySubcomponentRating {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -15715,7 +15715,7 @@ impl MetaValue for CertaintySubcomponentType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -15838,7 +15838,7 @@ impl MetaValue for ChargeitemBillingcodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -15997,7 +15997,7 @@ impl MetaValue for ChargeitemStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -16111,7 +16111,7 @@ impl MetaValue for ChoiceListOrientation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -16423,7 +16423,7 @@ impl MetaValue for ChromosomeHuman {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -16555,7 +16555,7 @@ impl MetaValue for ClaimCareteamrole {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -16669,7 +16669,7 @@ impl MetaValue for ClaimException {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -16899,7 +16899,7 @@ impl MetaValue for ClaimInformationcategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -17049,7 +17049,7 @@ impl MetaValue for ClaimModifiers {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -17163,7 +17163,7 @@ impl MetaValue for ClaimSubtype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -17304,7 +17304,7 @@ impl MetaValue for ClaimType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -17427,7 +17427,7 @@ impl MetaValue for ClaimUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -17547,7 +17547,7 @@ impl MetaValue for ClinicalimpressionStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -17661,7 +17661,7 @@ impl MetaValue for CodeSearchSupport {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -17802,7 +17802,7 @@ impl MetaValue for CodesystemAltcodeKind {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -17943,7 +17943,7 @@ impl MetaValue for CodesystemContentMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -18075,7 +18075,7 @@ impl MetaValue for CodesystemHierarchyMeaning {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -18180,7 +18180,7 @@ impl MetaValue for CommonTags {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -18312,7 +18312,7 @@ impl MetaValue for CommunicationCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -18476,7 +18476,7 @@ impl MetaValue for CommunicationNotDoneReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -18632,7 +18632,7 @@ impl MetaValue for CommunicationTopic {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -18773,7 +18773,7 @@ impl MetaValue for CompartmentType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -18905,7 +18905,7 @@ impl MetaValue for CompositeMeasureScoring {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -19046,7 +19046,7 @@ impl MetaValue for CompositionAltcodeKind {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -19178,7 +19178,7 @@ impl MetaValue for CompositionAttestationMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -19310,7 +19310,7 @@ impl MetaValue for CompositionStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -19496,7 +19496,7 @@ impl MetaValue for ConceptMapEquivalence {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -19655,7 +19655,7 @@ impl MetaValue for ConceptPropertyType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -19787,7 +19787,7 @@ impl MetaValue for ConceptSubsumptionOutcome {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -19910,7 +19910,7 @@ impl MetaValue for ConceptmapUnmappedMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -20024,7 +20024,7 @@ impl MetaValue for ConditionCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -20174,7 +20174,7 @@ impl MetaValue for ConditionClinical {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -20294,7 +20294,7 @@ impl MetaValue for ConditionSeverity {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -20417,7 +20417,7 @@ impl MetaValue for ConditionState {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -20567,7 +20567,7 @@ impl MetaValue for ConditionVerStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -20690,7 +20690,7 @@ impl MetaValue for ConditionalDeleteStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -20822,7 +20822,7 @@ impl MetaValue for ConditionalReadStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -20954,7 +20954,7 @@ impl MetaValue for ConformanceExpectation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -21095,7 +21095,7 @@ impl MetaValue for ConsentAction {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -21227,7 +21227,7 @@ impl MetaValue for ConsentDataMeaning {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -21368,7 +21368,7 @@ impl MetaValue for ConsentPerformer {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -21700,7 +21700,7 @@ impl MetaValue for ConsentPolicy {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -21814,7 +21814,7 @@ impl MetaValue for ConsentProvisionType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -21946,7 +21946,7 @@ impl MetaValue for ConsentScope {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -22096,7 +22096,7 @@ impl MetaValue for ConsentStateCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -22228,7 +22228,7 @@ impl MetaValue for ConsistencyType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -22342,7 +22342,7 @@ impl MetaValue for ConstraintSeverity {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -22501,7 +22501,7 @@ impl MetaValue for ContactPointSystem {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -22642,7 +22642,7 @@ impl MetaValue for ContactPointUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -22792,7 +22792,7 @@ impl MetaValue for ContactentityType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -22996,7 +22996,7 @@ impl MetaValue for ContainerCap {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -23119,7 +23119,7 @@ impl MetaValue for ContainerMaterial {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -23233,7 +23233,7 @@ impl MetaValue for ContractAction {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -23338,7 +23338,7 @@ impl MetaValue for ContractActionstatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -23452,7 +23452,7 @@ impl MetaValue for ContractActorrole {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -23557,7 +23557,7 @@ impl MetaValue for ContractAssetcontext {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -23662,7 +23662,7 @@ impl MetaValue for ContractAssetscope {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -23767,7 +23767,7 @@ impl MetaValue for ContractAssetsubtype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -23872,7 +23872,7 @@ impl MetaValue for ContractAssettype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -24004,7 +24004,7 @@ impl MetaValue for ContractContentDerivative {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -24136,7 +24136,7 @@ impl MetaValue for ContractDataMeaning {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -24241,7 +24241,7 @@ impl MetaValue for ContractDecisionMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -24346,7 +24346,7 @@ impl MetaValue for ContractDefinitionSubtype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -24451,7 +24451,7 @@ impl MetaValue for ContractDefinitionType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -24556,7 +24556,7 @@ impl MetaValue for ContractExpirationType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -24787,7 +24787,7 @@ impl MetaValue for ContractLegalstate {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -24892,7 +24892,7 @@ impl MetaValue for ContractPartyRole {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -25123,7 +25123,7 @@ impl MetaValue for ContractPublicationstatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -25228,7 +25228,7 @@ impl MetaValue for ContractScope {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -25333,7 +25333,7 @@ impl MetaValue for ContractSecurityCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -25438,7 +25438,7 @@ impl MetaValue for ContractSecurityClassification {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -25543,7 +25543,7 @@ impl MetaValue for ContractSecurityControl {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -26071,7 +26071,7 @@ impl MetaValue for ContractSignerType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -26302,7 +26302,7 @@ impl MetaValue for ContractStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -26416,7 +26416,7 @@ impl MetaValue for ContractSubtype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -26539,7 +26539,7 @@ impl MetaValue for ContractTermSubtype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -26653,7 +26653,7 @@ impl MetaValue for ContractTermType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -26794,7 +26794,7 @@ impl MetaValue for ContractType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -26926,7 +26926,7 @@ impl MetaValue for ContributorType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -27049,7 +27049,7 @@ impl MetaValue for CopyNumberEvent {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -27244,7 +27244,7 @@ impl MetaValue for CoverageClass {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -27430,7 +27430,7 @@ impl MetaValue for CoverageCopayType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -27544,7 +27544,7 @@ impl MetaValue for CoverageFinancialException {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -27649,7 +27649,7 @@ impl MetaValue for CoverageSelfpay {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -27873,7 +27873,7 @@ impl MetaValue for CoverageeligibilityresponseExAuthSupport {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -28104,7 +28104,7 @@ impl MetaValue for DataAbsentReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -28767,7 +28767,7 @@ impl MetaValue for DataTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -28926,7 +28926,7 @@ impl MetaValue for DaysOfWeek {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -30973,7 +30973,7 @@ impl MetaValue for DefinedTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -31131,7 +31131,7 @@ impl MetaValue for DefinitionResourceTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -31263,7 +31263,7 @@ impl MetaValue for DefinitionStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -31386,7 +31386,7 @@ impl MetaValue for DefinitionTopic {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -31536,7 +31536,7 @@ impl MetaValue for DefinitionUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -31648,7 +31648,7 @@ impl MetaValue for DesignationUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -31771,7 +31771,7 @@ impl MetaValue for DetectedissueSeverity {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -31957,7 +31957,7 @@ impl MetaValue for DeviceComponentProperty {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -32089,7 +32089,7 @@ impl MetaValue for DeviceDefinitionStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -32239,7 +32239,7 @@ impl MetaValue for DeviceNametype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -32389,7 +32389,7 @@ impl MetaValue for DeviceSafety {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -32539,7 +32539,7 @@ impl MetaValue for DeviceStatementStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -32671,7 +32671,7 @@ impl MetaValue for DeviceStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -32839,7 +32839,7 @@ impl MetaValue for DeviceStatusReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -32998,7 +32998,7 @@ impl MetaValue for DiagnosisRole {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -33184,7 +33184,7 @@ impl MetaValue for DiagnosticReportStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -33360,7 +33360,7 @@ impl MetaValue for Dicm405Mediatype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -33501,7 +33501,7 @@ impl MetaValue for DiscriminatorType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -33642,7 +33642,7 @@ impl MetaValue for DistanceUnits {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -34178,7 +34178,7 @@ impl MetaValue for DocSectionCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -34679,7 +34679,7 @@ impl MetaValue for DocumentClasscodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -34793,7 +34793,7 @@ impl MetaValue for DocumentMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -34916,7 +34916,7 @@ impl MetaValue for DocumentReferenceStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -35048,7 +35048,7 @@ impl MetaValue for DocumentRelationshipType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -35162,7 +35162,7 @@ impl MetaValue for DoseRateType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -35330,7 +35330,7 @@ impl MetaValue for DurationUnits {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -35489,7 +35489,7 @@ impl MetaValue for EffectEstimateType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -35623,7 +35623,7 @@ impl MetaValue for EligibilityrequestPurpose {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -35759,7 +35759,7 @@ impl MetaValue for EligibilityresponsePurpose {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -35945,7 +35945,7 @@ impl MetaValue for EncounterAdmitSource {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -36104,7 +36104,7 @@ impl MetaValue for EncounterDiet {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -36299,7 +36299,7 @@ impl MetaValue for EncounterDischargeDisposition {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -36431,7 +36431,7 @@ impl MetaValue for EncounterLocationStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -37109,7 +37109,7 @@ impl MetaValue for EncounterParticipantType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -37250,7 +37250,7 @@ impl MetaValue for EncounterSpecialArrangements {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -37394,7 +37394,7 @@ impl MetaValue for EncounterSpecialCourtesy {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -37571,7 +37571,7 @@ impl MetaValue for EncounterStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -37703,7 +37703,7 @@ impl MetaValue for EncounterType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -37925,7 +37925,7 @@ impl MetaValue for EndpointConnectionType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -39064,7 +39064,7 @@ impl MetaValue for EndpointPayloadType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -39214,7 +39214,7 @@ impl MetaValue for EndpointStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -39382,7 +39382,7 @@ impl MetaValue for EnteralRoute {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -39523,7 +39523,7 @@ impl MetaValue for EntformulaAdditive {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -39943,7 +39943,7 @@ impl MetaValue for EntformulaType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -40102,7 +40102,7 @@ impl MetaValue for EpisodeOfCareStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -40243,7 +40243,7 @@ impl MetaValue for EpisodeofcareType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -40357,7 +40357,7 @@ impl MetaValue for EventCapabilityMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -40995,7 +40995,7 @@ impl MetaValue for EventOrRequestResourceTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -41405,7 +41405,7 @@ impl MetaValue for EventResourceTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -41573,7 +41573,7 @@ impl MetaValue for EventStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -41889,7 +41889,7 @@ impl MetaValue for EventTiming {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -42021,7 +42021,7 @@ impl MetaValue for EvidenceQuality {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -42144,7 +42144,7 @@ impl MetaValue for EvidenceVariantState {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -42492,7 +42492,7 @@ impl MetaValue for ExBenefitcategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -42624,7 +42624,7 @@ impl MetaValue for ExDiagnosisOnAdmission {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -42756,7 +42756,7 @@ impl MetaValue for ExDiagnosisrelatedgroup {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -42960,7 +42960,7 @@ impl MetaValue for ExDiagnosistype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -43083,7 +43083,7 @@ impl MetaValue for ExOnsettype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -43215,7 +43215,7 @@ impl MetaValue for ExPayeeResourceType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -43329,7 +43329,7 @@ impl MetaValue for ExPaymenttype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -43443,7 +43443,7 @@ impl MetaValue for ExProcedureType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -43575,7 +43575,7 @@ impl MetaValue for ExProgramCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -43752,7 +43752,7 @@ impl MetaValue for ExRevenueCenter {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -43884,7 +43884,7 @@ impl MetaValue for ExampleExtensional {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -44007,7 +44007,7 @@ impl MetaValue for ExampleFilter {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -44207,7 +44207,7 @@ impl MetaValue for ExampleHierarchical {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -44321,7 +44321,7 @@ impl MetaValue for ExamplescenarioActorType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -44444,7 +44444,7 @@ impl MetaValue for ExpansionParameterSource {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -44567,7 +44567,7 @@ impl MetaValue for ExpansionProcessingRule {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -44699,7 +44699,7 @@ impl MetaValue for ExplanationofbenefitStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -44813,7 +44813,7 @@ impl MetaValue for ExposureState {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -44938,7 +44938,7 @@ impl MetaValue for ExpressionLanguage {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -45061,7 +45061,7 @@ impl MetaValue for ExtensionContextType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -45238,7 +45238,7 @@ impl MetaValue for FilterOperator {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -45379,7 +45379,7 @@ impl MetaValue for FinancialTaskcode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -45538,7 +45538,7 @@ impl MetaValue for FinancialTaskinputtype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -45724,7 +45724,7 @@ impl MetaValue for FlagCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -45856,7 +45856,7 @@ impl MetaValue for FlagPriority {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -45979,7 +45979,7 @@ impl MetaValue for FlagStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -46084,7 +46084,7 @@ impl MetaValue for FmConditions {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -46207,7 +46207,7 @@ impl MetaValue for FmItemtype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -46339,7 +46339,7 @@ impl MetaValue for FmStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -46462,7 +46462,7 @@ impl MetaValue for FocalSubject {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -46576,7 +46576,7 @@ impl MetaValue for Forms {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -46699,7 +46699,7 @@ impl MetaValue for Fundsreserve {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -46858,7 +46858,7 @@ impl MetaValue for GenderIdentity {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -46981,7 +46981,7 @@ impl MetaValue for GoalAcceptanceStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -47158,7 +47158,7 @@ impl MetaValue for GoalAchievement {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -47299,7 +47299,7 @@ impl MetaValue for GoalCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -47422,7 +47422,7 @@ impl MetaValue for GoalPriority {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -47563,7 +47563,7 @@ impl MetaValue for GoalRelationshipType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -47695,7 +47695,7 @@ impl MetaValue for GoalStartEvent {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -47872,7 +47872,7 @@ impl MetaValue for GoalStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -48051,7 +48051,7 @@ impl MetaValue for GoalStatusReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -48183,7 +48183,7 @@ impl MetaValue for GraphCompartmentRule {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -48297,7 +48297,7 @@ impl MetaValue for GraphCompartmentUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -48447,7 +48447,7 @@ impl MetaValue for GroupMeasure {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -48597,7 +48597,7 @@ impl MetaValue for GroupType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -48747,7 +48747,7 @@ impl MetaValue for GuidanceResponseStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -48879,7 +48879,7 @@ impl MetaValue for GuidePageGeneration {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -49065,7 +49065,7 @@ impl MetaValue for GuideParameterCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -49188,7 +49188,7 @@ impl MetaValue for HandlingCondition {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -49320,7 +49320,7 @@ impl MetaValue for HistoryAbsentReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -49452,7 +49452,7 @@ impl MetaValue for HistoryStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -49764,7 +49764,7 @@ impl MetaValue for Hl7WorkGroup {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -49923,7 +49923,7 @@ impl MetaValue for HttpOperations {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -50073,7 +50073,7 @@ impl MetaValue for HttpVerb {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -50232,7 +50232,7 @@ impl MetaValue for Icd10 {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -50355,7 +50355,7 @@ impl MetaValue for Icd10Procedures {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -50595,7 +50595,7 @@ impl MetaValue for IdentifierType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -50736,7 +50736,7 @@ impl MetaValue for IdentifierUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -50868,7 +50868,7 @@ impl MetaValue for IdentityAssuranceLevel {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -51009,7 +51009,7 @@ impl MetaValue for ImagingstudyStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -51123,7 +51123,7 @@ impl MetaValue for ImmunizationEvaluationDoseStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -51286,7 +51286,7 @@ impl MetaValue for ImmunizationEvaluationDoseStatusReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -51400,7 +51400,7 @@ impl MetaValue for ImmunizationEvaluationStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -51586,7 +51586,7 @@ impl MetaValue for ImmunizationEvaluationTargetDisease {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -51698,7 +51698,7 @@ impl MetaValue for ImmunizationFunction {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -51812,7 +51812,7 @@ impl MetaValue for ImmunizationFundingSource {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -51944,7 +51944,7 @@ impl MetaValue for ImmunizationOrigin {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -52058,7 +52058,7 @@ impl MetaValue for ImmunizationProgramEligibility {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -52170,7 +52170,7 @@ impl MetaValue for ImmunizationReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -52308,7 +52308,7 @@ impl MetaValue for ImmunizationRecommendationDateCriterion {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -52424,7 +52424,7 @@ impl MetaValue for ImmunizationRecommendationReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -52571,7 +52571,7 @@ impl MetaValue for ImmunizationRecommendationStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -52777,7 +52777,7 @@ impl MetaValue for ImmunizationRecommendationTargetDisease {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -52936,7 +52936,7 @@ impl MetaValue for ImmunizationRoute {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -53050,7 +53050,7 @@ impl MetaValue for ImmunizationSite {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -53170,7 +53170,7 @@ impl MetaValue for ImmunizationStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -53295,7 +53295,7 @@ impl MetaValue for ImmunizationSubpotentReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -53463,7 +53463,7 @@ impl MetaValue for ImmunizationTargetDisease {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -53595,7 +53595,7 @@ impl MetaValue for ImplantStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -53943,7 +53943,7 @@ impl MetaValue for Inactive {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -54071,7 +54071,7 @@ impl MetaValue for InstanceAvailability {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -54194,7 +54194,7 @@ impl MetaValue for InsuranceplanApplicability {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -54380,7 +54380,7 @@ impl MetaValue for InsuranceplanType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -54494,7 +54494,7 @@ impl MetaValue for Intervention {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -54608,7 +54608,7 @@ impl MetaValue for InvestigationSets {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -54758,7 +54758,7 @@ impl MetaValue for InvoicePriceComponentType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -54899,7 +54899,7 @@ impl MetaValue for InvoiceStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -57236,7 +57236,7 @@ impl MetaValue for Iso316612 {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -57368,7 +57368,7 @@ impl MetaValue for IssueSeverity {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -57743,7 +57743,7 @@ impl MetaValue for IssueType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -57992,7 +57992,7 @@ impl MetaValue for ItemType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -58173,7 +58173,7 @@ impl MetaValue for KnowledgeResourceTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -58287,7 +58287,7 @@ impl MetaValue for LanguagePreferenceType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -58887,7 +58887,7 @@ impl MetaValue for Languages {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -59001,7 +59001,7 @@ impl MetaValue for LdlcholesterolCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -59133,7 +59133,7 @@ impl MetaValue for LibraryType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -59265,7 +59265,7 @@ impl MetaValue for LinkType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -59388,7 +59388,7 @@ impl MetaValue for LinkageType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -59538,7 +59538,7 @@ impl MetaValue for ListEmptyReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -59715,7 +59715,7 @@ impl MetaValue for ListExampleCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -59865,7 +59865,7 @@ impl MetaValue for ListItemFlag {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -59988,7 +59988,7 @@ impl MetaValue for ListMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -60156,7 +60156,7 @@ impl MetaValue for ListOrder {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -60279,7 +60279,7 @@ impl MetaValue for ListStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -60393,7 +60393,7 @@ impl MetaValue for LocationMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -60615,7 +60615,7 @@ impl MetaValue for LocationPhysicalType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -60738,7 +60738,7 @@ impl MetaValue for LocationStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -60852,7 +60852,7 @@ impl MetaValue for MapContextType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -60975,7 +60975,7 @@ impl MetaValue for MapGroupTypeMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -61089,7 +61089,7 @@ impl MetaValue for MapInputMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -61221,7 +61221,7 @@ impl MetaValue for MapModelMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -61362,7 +61362,7 @@ impl MetaValue for MapSourceListMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -61494,7 +61494,7 @@ impl MetaValue for MapTargetListMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -61743,7 +61743,7 @@ impl MetaValue for MapTransform {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -61937,7 +61937,7 @@ impl MetaValue for MaritalStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -62069,7 +62069,7 @@ impl MetaValue for MatchGrade {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -62183,7 +62183,7 @@ impl MetaValue for MeasureDataUsage {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -62297,7 +62297,7 @@ impl MetaValue for MeasureImprovementNotation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -62480,7 +62480,7 @@ impl MetaValue for MeasurePopulation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -62603,7 +62603,7 @@ impl MetaValue for MeasureReportStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -62735,7 +62735,7 @@ impl MetaValue for MeasureReportType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -62867,7 +62867,7 @@ impl MetaValue for MeasureScoring {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -63008,7 +63008,7 @@ impl MetaValue for MeasureType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -63131,7 +63131,7 @@ impl MetaValue for MedAdminPerformFunction {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -63254,7 +63254,7 @@ impl MetaValue for MediaType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -63377,7 +63377,7 @@ impl MetaValue for MedicationAdminCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -63536,7 +63536,7 @@ impl MetaValue for MedicationAdminStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -63672,7 +63672,7 @@ impl MetaValue for MedicationStatementCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -63840,7 +63840,7 @@ impl MetaValue for MedicationStatementStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -63963,7 +63963,7 @@ impl MetaValue for MedicationStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -64095,7 +64095,7 @@ impl MetaValue for MedicationdispenseCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -64239,7 +64239,7 @@ impl MetaValue for MedicationdispensePerformerFunction {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -64416,7 +64416,7 @@ impl MetaValue for MedicationdispenseStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -64701,7 +64701,7 @@ impl MetaValue for MedicationdispenseStatusReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -64862,7 +64862,7 @@ impl MetaValue for MedicationknowledgeCharacteristic {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -65156,7 +65156,7 @@ impl MetaValue for MedicationknowledgePackageType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -65279,7 +65279,7 @@ impl MetaValue for MedicationknowledgeStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -65411,7 +65411,7 @@ impl MetaValue for MedicationrequestCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -65536,7 +65536,7 @@ impl MetaValue for MedicationrequestCourseOfTherapy {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -65704,7 +65704,7 @@ impl MetaValue for MedicationrequestIntent {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -65872,7 +65872,7 @@ impl MetaValue for MedicationrequestStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -66085,7 +66085,7 @@ impl MetaValue for MedicationrequestStatusReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -66235,7 +66235,7 @@ impl MetaValue for MessageReasonEncounter {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -66358,7 +66358,7 @@ impl MetaValue for MessageSignificanceCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -66481,7 +66481,7 @@ impl MetaValue for MessageTransport {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -66613,7 +66613,7 @@ impl MetaValue for MessageheaderResponseRequest {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -66749,7 +66749,7 @@ impl MetaValue for MetricCalibrationState {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -66881,7 +66881,7 @@ impl MetaValue for MetricCalibrationType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -67013,7 +67013,7 @@ impl MetaValue for MetricCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -67181,7 +67181,7 @@ impl MetaValue for MetricColor {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -67313,7 +67313,7 @@ impl MetaValue for MetricOperationalStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -67445,7 +67445,7 @@ impl MetaValue for MissingToothReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -67667,7 +67667,7 @@ impl MetaValue for ModifiedFoodtype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -67826,7 +67826,7 @@ impl MetaValue for NameAssemblyOrder {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -68030,7 +68030,7 @@ impl MetaValue for NamePartQualifier {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -68189,7 +68189,7 @@ impl MetaValue for NameUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -68309,7 +68309,7 @@ impl MetaValue for NameV3Representation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -68441,7 +68441,7 @@ impl MetaValue for NamingsystemIdentifierType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -68564,7 +68564,7 @@ impl MetaValue for NamingsystemType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -68696,7 +68696,7 @@ impl MetaValue for NarrativeStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -68837,7 +68837,7 @@ impl MetaValue for NetworkType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -69176,7 +69176,7 @@ impl MetaValue for NhinPurposeofuse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -69299,7 +69299,7 @@ impl MetaValue for NoteType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -69773,7 +69773,7 @@ impl MetaValue for ObjectLifecycleEvents {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -70085,7 +70085,7 @@ impl MetaValue for ObjectRole {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -70262,7 +70262,7 @@ impl MetaValue for ObservationCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -70951,7 +70951,7 @@ impl MetaValue for ObservationInterpretation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -71074,7 +71074,7 @@ impl MetaValue for ObservationRangeCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -71359,7 +71359,7 @@ impl MetaValue for ObservationStatistics {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -71527,7 +71527,7 @@ impl MetaValue for ObservationStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -71727,7 +71727,7 @@ impl MetaValue for ObservationVitalsignresult {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -71841,7 +71841,7 @@ impl MetaValue for OperationKind {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -72429,7 +72429,7 @@ impl MetaValue for OperationOutcome {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -72543,7 +72543,7 @@ impl MetaValue for OperationParameterUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -72675,7 +72675,7 @@ impl MetaValue for OralProsthodonticMaterial {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -72843,7 +72843,7 @@ impl MetaValue for OrganizationRole {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -73047,7 +73047,7 @@ impl MetaValue for OrganizationType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -73161,7 +73161,7 @@ impl MetaValue for OrientationType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -73338,7 +73338,7 @@ impl MetaValue for ParameterGroup {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -77211,7 +77211,7 @@ impl MetaValue for ParentRelationshipCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -77334,7 +77334,7 @@ impl MetaValue for Participantrequired {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -77466,7 +77466,7 @@ impl MetaValue for Participationstatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -77589,7 +77589,7 @@ impl MetaValue for Payeetype {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -77703,7 +77703,7 @@ impl MetaValue for PaymentAdjustmentReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -77817,7 +77817,7 @@ impl MetaValue for PaymentStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -77940,7 +77940,7 @@ impl MetaValue for PaymentType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -78148,7 +78148,7 @@ impl MetaValue for PerformerFunction {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -78343,7 +78343,7 @@ impl MetaValue for PermittedDataType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -78475,7 +78475,7 @@ impl MetaValue for PlanDefinitionType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -78643,7 +78643,7 @@ impl MetaValue for PostalAddressUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -78784,7 +78784,7 @@ impl MetaValue for PractitionerSpecialty {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -78916,7 +78916,7 @@ impl MetaValue for PrecisionEstimateType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -79093,7 +79093,7 @@ impl MetaValue for ProbabilityDistributionType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -79245,7 +79245,7 @@ impl MetaValue for ProcedureCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -79421,7 +79421,7 @@ impl MetaValue for ProcedureFollowup {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -79541,7 +79541,7 @@ impl MetaValue for ProcedureOutcome {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -79703,7 +79703,7 @@ impl MetaValue for ProcedureProgressStatusCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -79826,7 +79826,7 @@ impl MetaValue for ProcessPriority {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -79967,7 +79967,7 @@ impl MetaValue for ProductCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -80081,7 +80081,7 @@ impl MetaValue for ProductStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -80204,7 +80204,7 @@ impl MetaValue for ProductStorageScale {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -80345,7 +80345,7 @@ impl MetaValue for PropertyRepresentation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -81084,7 +81084,7 @@ impl MetaValue for ProvenanceActivityType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -81270,7 +81270,7 @@ impl MetaValue for ProvenanceAgentRole {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -81456,7 +81456,7 @@ impl MetaValue for ProvenanceAgentType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -81597,7 +81597,7 @@ impl MetaValue for ProvenanceEntityRole {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -81729,7 +81729,7 @@ impl MetaValue for ProvenanceHistoryAgentType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -81952,7 +81952,7 @@ impl MetaValue for ProvenanceHistoryRecordActivity {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -82075,7 +82075,7 @@ impl MetaValue for ProviderQualification {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -82207,7 +82207,7 @@ impl MetaValue for PublicationStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -82330,7 +82330,7 @@ impl MetaValue for QualityType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -82462,7 +82462,7 @@ impl MetaValue for QuantityComparator {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -82567,7 +82567,7 @@ impl MetaValue for QuestionMaxOccurs {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -82708,7 +82708,7 @@ impl MetaValue for QuestionnaireAnswersStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -82849,7 +82849,7 @@ impl MetaValue for QuestionnaireCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -82972,7 +82972,7 @@ impl MetaValue for QuestionnaireDisplayCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -83086,7 +83086,7 @@ impl MetaValue for QuestionnaireEnableBehavior {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -83245,7 +83245,7 @@ impl MetaValue for QuestionnaireEnableOperator {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -83563,7 +83563,7 @@ impl MetaValue for QuestionnaireItemControl {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -83708,7 +83708,7 @@ impl MetaValue for QuestionnaireUsageMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -83828,7 +83828,7 @@ impl MetaValue for QuestionnaireresponseMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -83960,7 +83960,7 @@ impl MetaValue for ReactionEventCertainty {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -84083,7 +84083,7 @@ impl MetaValue for ReactionEventSeverity {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -84206,7 +84206,7 @@ impl MetaValue for ReasonMedicationGivenCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -84320,7 +84320,7 @@ impl MetaValue for RecommendationStrength {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -84461,7 +84461,7 @@ impl MetaValue for ReferenceHandlingPolicy {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -84584,7 +84584,7 @@ impl MetaValue for ReferenceVersionRules {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -84797,7 +84797,7 @@ impl MetaValue for ReferencerangeMeaning {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -84938,7 +84938,7 @@ impl MetaValue for RejectionCriteria {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -85106,7 +85106,7 @@ impl MetaValue for RelatedArtifactType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -85220,7 +85220,7 @@ impl MetaValue for RelatedClaimRelationship {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -85334,7 +85334,7 @@ impl MetaValue for RelationType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -85475,7 +85475,7 @@ impl MetaValue for Relationship {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -85607,7 +85607,7 @@ impl MetaValue for RemittanceOutcome {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -85748,7 +85748,7 @@ impl MetaValue for ReportActionResultCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -85871,7 +85871,7 @@ impl MetaValue for ReportParticipantType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -85994,7 +85994,7 @@ impl MetaValue for ReportResultCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -86135,7 +86135,7 @@ impl MetaValue for ReportStatusCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -86276,7 +86276,7 @@ impl MetaValue for RepositoryType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -86453,7 +86453,7 @@ impl MetaValue for RequestIntent {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -86585,7 +86585,7 @@ impl MetaValue for RequestPriority {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -86824,7 +86824,7 @@ impl MetaValue for RequestResourceTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -86983,7 +86983,7 @@ impl MetaValue for RequestStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -87106,7 +87106,7 @@ impl MetaValue for ResearchElementType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -87229,7 +87229,7 @@ impl MetaValue for ResearchStudyObjectiveType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -87397,7 +87397,7 @@ impl MetaValue for ResearchStudyPhase {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -87577,7 +87577,7 @@ impl MetaValue for ResearchStudyPrimPurpType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -87733,7 +87733,7 @@ impl MetaValue for ResearchStudyReasonStopped {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -87958,7 +87958,7 @@ impl MetaValue for ResearchStudyStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -88175,7 +88175,7 @@ impl MetaValue for ResearchSubjectStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -88298,7 +88298,7 @@ impl MetaValue for ResourceAggregationMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -88439,7 +88439,7 @@ impl MetaValue for ResourceSecurityCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -88562,7 +88562,7 @@ impl MetaValue for ResourceSlicingRules {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -88937,7 +88937,7 @@ impl MetaValue for ResourceStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -89069,7 +89069,7 @@ impl MetaValue for ResourceTypeLink {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -90622,7 +90622,7 @@ impl MetaValue for ResourceTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -90754,7 +90754,7 @@ impl MetaValue for ResourceValidationMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -90877,7 +90877,7 @@ impl MetaValue for ResponseCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -90991,7 +90991,7 @@ impl MetaValue for RestfulCapabilityMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -91141,7 +91141,7 @@ impl MetaValue for RestfulSecurityService {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -91291,7 +91291,7 @@ impl MetaValue for RiskEstimateType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -91432,7 +91432,7 @@ impl MetaValue for RiskProbability {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -91609,7 +91609,7 @@ impl MetaValue for SearchComparator {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -91732,7 +91732,7 @@ impl MetaValue for SearchEntryMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -91936,7 +91936,7 @@ impl MetaValue for SearchModifierCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -92113,7 +92113,7 @@ impl MetaValue for SearchParamType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -92254,7 +92254,7 @@ impl MetaValue for SearchXpathUsage {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -92368,7 +92368,7 @@ impl MetaValue for SecondaryFinding {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -92491,7 +92491,7 @@ impl MetaValue for SequenceType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -92632,7 +92632,7 @@ impl MetaValue for SeriesPerformerFunction {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -92746,7 +92746,7 @@ impl MetaValue for ServiceModifiers {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -92896,7 +92896,7 @@ impl MetaValue for ServicePharmacy {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -93145,7 +93145,7 @@ impl MetaValue for ServicePlace {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -93259,7 +93259,7 @@ impl MetaValue for ServiceProduct {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -93382,7 +93382,7 @@ impl MetaValue for ServiceProvisionConditions {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -93523,7 +93523,7 @@ impl MetaValue for ServiceReferralMethod {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -93799,7 +93799,7 @@ impl MetaValue for ServiceUscls {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -93940,7 +93940,7 @@ impl MetaValue for ServicerequestCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -94081,7 +94081,7 @@ impl MetaValue for ServicerequestOrderdetail {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -97960,7 +97960,7 @@ impl MetaValue for SiblingRelationshipCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -98218,7 +98218,7 @@ impl MetaValue for SignatureType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -98359,7 +98359,7 @@ impl MetaValue for Slotstatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -98603,7 +98603,7 @@ impl MetaValue for SmartCapabilities {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -98717,7 +98717,7 @@ impl MetaValue for SortDirection {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -101943,7 +101943,7 @@ impl MetaValue for SpdxLicense {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -102093,7 +102093,7 @@ impl MetaValue for SpecialValues {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -102279,7 +102279,7 @@ impl MetaValue for SpecimenCollection {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -102465,7 +102465,7 @@ impl MetaValue for SpecimenCollectionMethod {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -102624,7 +102624,7 @@ impl MetaValue for SpecimenCollectionPriority {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -102738,7 +102738,7 @@ impl MetaValue for SpecimenContainedPreference {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -102870,7 +102870,7 @@ impl MetaValue for SpecimenStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -103020,7 +103020,7 @@ impl MetaValue for StandardsStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -103134,7 +103134,7 @@ impl MetaValue for StrandType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -103266,7 +103266,7 @@ impl MetaValue for StructureDefinitionKind {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -103425,7 +103425,7 @@ impl MetaValue for StudyType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -103561,7 +103561,7 @@ impl MetaValue for SubjectType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -103720,7 +103720,7 @@ impl MetaValue for SubscriberRelationship {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -103861,7 +103861,7 @@ impl MetaValue for SubscriptionChannelType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -103993,7 +103993,7 @@ impl MetaValue for SubscriptionStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -104107,7 +104107,7 @@ impl MetaValue for SubscriptionTag {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -104266,7 +104266,7 @@ impl MetaValue for SubstanceCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -104389,7 +104389,7 @@ impl MetaValue for SubstanceStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -104890,7 +104890,7 @@ impl MetaValue for SupplementType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -105022,7 +105022,7 @@ impl MetaValue for SupplydeliveryStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -105136,7 +105136,7 @@ impl MetaValue for SupplydeliveryType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -105250,7 +105250,7 @@ impl MetaValue for SupplyrequestKind {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -105364,7 +105364,7 @@ impl MetaValue for SupplyrequestReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -105523,7 +105523,7 @@ impl MetaValue for SupplyrequestStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -105718,7 +105718,7 @@ impl MetaValue for Surface {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -105868,7 +105868,7 @@ impl MetaValue for SynthesisType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -105996,7 +105996,7 @@ impl MetaValue for SystemRestfulInteraction {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -106155,7 +106155,7 @@ impl MetaValue for TaskCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -106324,7 +106324,7 @@ impl MetaValue for TaskIntent {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -106528,7 +106528,7 @@ impl MetaValue for TaskStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -106912,7 +106912,7 @@ impl MetaValue for Teeth {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -107080,7 +107080,7 @@ impl MetaValue for TemplateStatusCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -107585,7 +107585,7 @@ impl MetaValue for TestscriptOperationCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -107749,7 +107749,7 @@ impl MetaValue for TestscriptProfileDestinationTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -107867,7 +107867,7 @@ impl MetaValue for TestscriptProfileOriginTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -108089,7 +108089,7 @@ impl MetaValue for TextureCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -108329,7 +108329,7 @@ impl MetaValue for TimingAbbreviation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -108794,7 +108794,7 @@ impl MetaValue for Tooth {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -108926,7 +108926,7 @@ impl MetaValue for TransactionMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -109094,7 +109094,7 @@ impl MetaValue for TriggerType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -109208,7 +109208,7 @@ impl MetaValue for TypeDerivationRule {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -109376,7 +109376,7 @@ impl MetaValue for TypeRestfulInteraction {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -109498,7 +109498,7 @@ impl MetaValue for UcumBodylength {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -109616,7 +109616,7 @@ impl MetaValue for UcumBodytemp {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -109746,7 +109746,7 @@ impl MetaValue for UcumBodyweight {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -109990,7 +109990,7 @@ impl MetaValue for UcumVitalsCommon {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -110095,7 +110095,7 @@ impl MetaValue for Udi {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -110245,7 +110245,7 @@ impl MetaValue for UdiEntryType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -110404,7 +110404,7 @@ impl MetaValue for UnitsOfTime {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -110536,7 +110536,7 @@ impl MetaValue for UnknownContentCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -110713,7 +110713,7 @@ impl MetaValue for UsageContextType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -110836,7 +110836,7 @@ impl MetaValue for VariableType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -110959,7 +110959,7 @@ impl MetaValue for VariantState {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -111084,7 +111084,7 @@ impl MetaValue for VerificationresultCanPushUpdates {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -111226,7 +111226,7 @@ impl MetaValue for VerificationresultCommunicationMethod {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -111358,7 +111358,7 @@ impl MetaValue for VerificationresultFailureAction {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -111481,7 +111481,7 @@ impl MetaValue for VerificationresultNeed {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -111672,7 +111672,7 @@ impl MetaValue for VerificationresultPrimarySourceType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -111799,7 +111799,7 @@ impl MetaValue for VerificationresultPushTypeAvailable {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -111949,7 +111949,7 @@ impl MetaValue for VerificationresultStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -112109,7 +112109,7 @@ impl MetaValue for VerificationresultValidationProcess {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -112236,7 +112236,7 @@ impl MetaValue for VerificationresultValidationStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -112359,7 +112359,7 @@ impl MetaValue for VerificationresultValidationType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -112482,7 +112482,7 @@ impl MetaValue for VersioningPolicy {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -112614,7 +112614,7 @@ impl MetaValue for VisionBaseCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -112728,7 +112728,7 @@ impl MetaValue for VisionEyeCodes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -112842,7 +112842,7 @@ impl MetaValue for VisionProduct {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -113172,7 +113172,7 @@ impl MetaValue for WrittenLanguage {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -113304,7 +113304,7 @@ impl MetaValue for V3AcknowledgementCondition {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -113662,7 +113662,7 @@ impl MetaValue for V3AcknowledgementDetailCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -113809,7 +113809,7 @@ impl MetaValue for V3AcknowledgementDetailType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -113959,7 +113959,7 @@ impl MetaValue for V3AcknowledgementType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -115152,7 +115152,7 @@ impl MetaValue for V3ActClass {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -116369,7 +116369,7 @@ impl MetaValue for V3ActClassClinicalDocument {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -117570,7 +117570,7 @@ impl MetaValue for V3ActClassDocument {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -118787,7 +118787,7 @@ impl MetaValue for V3ActClassInvestigation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -119992,7 +119992,7 @@ impl MetaValue for V3ActClassObservation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -121195,7 +121195,7 @@ impl MetaValue for V3ActClassProcedure {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -122392,7 +122392,7 @@ impl MetaValue for V3ActClassROI {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -123589,7 +123589,7 @@ impl MetaValue for V3ActClassSupply {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -123725,7 +123725,7 @@ impl MetaValue for V3ActExposureLevelCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -123857,7 +123857,7 @@ impl MetaValue for V3ActInvoiceElementModifier {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -124205,7 +124205,7 @@ impl MetaValue for V3ActMood {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -124555,7 +124555,7 @@ impl MetaValue for V3ActMoodIntent {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -124907,7 +124907,7 @@ impl MetaValue for V3ActMoodPredicate {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -125138,7 +125138,7 @@ impl MetaValue for V3ActPriority {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -127913,7 +127913,7 @@ impl MetaValue for V3ActReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -128054,7 +128054,7 @@ impl MetaValue for V3ActRelationshipCheckpoint {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -129463,7 +129463,7 @@ impl MetaValue for V3ActRelationshipConditional {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -130868,7 +130868,7 @@ impl MetaValue for V3ActRelationshipFulfills {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -132277,7 +132277,7 @@ impl MetaValue for V3ActRelationshipHasComponent {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -132409,7 +132409,7 @@ impl MetaValue for V3ActRelationshipJoin {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -133814,7 +133814,7 @@ impl MetaValue for V3ActRelationshipPertains {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -133946,7 +133946,7 @@ impl MetaValue for V3ActRelationshipSplit {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -134190,7 +134190,7 @@ impl MetaValue for V3ActRelationshipSubset {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -135577,7 +135577,7 @@ impl MetaValue for V3ActRelationshipType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -136165,7 +136165,7 @@ impl MetaValue for V3ActSite {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -136351,7 +136351,7 @@ impl MetaValue for V3ActStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -136549,7 +136549,7 @@ impl MetaValue for V3ActSubstanceAdminSubstitutionCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -136708,7 +136708,7 @@ impl MetaValue for V3ActUSPrivacyLaw {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -136822,7 +136822,7 @@ impl MetaValue for V3ActUncertainty {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -137188,7 +137188,7 @@ impl MetaValue for V3AddressPartType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -137457,7 +137457,7 @@ impl MetaValue for V3AddressUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -137580,7 +137580,7 @@ impl MetaValue for V3AdministrativeGender {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -140787,7 +140787,7 @@ impl MetaValue for V3AmericanIndianAlaskaNativeLanguages {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -140892,7 +140892,7 @@ impl MetaValue for V3Calendar {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -141154,7 +141154,7 @@ impl MetaValue for V3CalendarCycle {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -141259,7 +141259,7 @@ impl MetaValue for V3CalendarType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -141445,7 +141445,7 @@ impl MetaValue for V3Charset {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -141613,7 +141613,7 @@ impl MetaValue for V3CodingRationale {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -141736,7 +141736,7 @@ impl MetaValue for V3CommunicationFunctionType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -141886,7 +141886,7 @@ impl MetaValue for V3CompressionAlgorithm {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -142176,7 +142176,7 @@ impl MetaValue for V3Confidentiality {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -142320,7 +142320,7 @@ impl MetaValue for V3ConfidentialityClassification {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -142479,7 +142479,7 @@ impl MetaValue for V3ContainerCap {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -142593,7 +142593,7 @@ impl MetaValue for V3ContainerSeparator {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -142707,7 +142707,7 @@ impl MetaValue for V3ContentProcessingMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -142891,7 +142891,7 @@ impl MetaValue for V3ContextControl {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -143167,7 +143167,7 @@ impl MetaValue for V3DataOperation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -145999,7 +145999,7 @@ impl MetaValue for V3Dentition {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -146131,7 +146131,7 @@ impl MetaValue for V3DeviceAlertLevel {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -146308,7 +146308,7 @@ impl MetaValue for V3DocumentCompletion {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -146440,7 +146440,7 @@ impl MetaValue for V3DocumentStorage {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -146617,7 +146617,7 @@ impl MetaValue for V3EducationLevel {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -146731,7 +146731,7 @@ impl MetaValue for V3EmployeeJobClass {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -146854,7 +146854,7 @@ impl MetaValue for V3EncounterAdmissionSource {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -146995,7 +146995,7 @@ impl MetaValue for V3EncounterSpecialCourtesy {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -147334,7 +147334,7 @@ impl MetaValue for V3EntityClass {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -147673,7 +147673,7 @@ impl MetaValue for V3EntityClassDevice {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -148012,7 +148012,7 @@ impl MetaValue for V3EntityClassLivingSubject {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -148353,7 +148353,7 @@ impl MetaValue for V3EntityClassManufacturedMaterial {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -148692,7 +148692,7 @@ impl MetaValue for V3EntityClassOrganization {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -149031,7 +149031,7 @@ impl MetaValue for V3EntityClassPlace {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -149370,7 +149370,7 @@ impl MetaValue for V3EntityClassRoot {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -150785,7 +150785,7 @@ impl MetaValue for V3EntityCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -150926,7 +150926,7 @@ impl MetaValue for V3EntityDeterminer {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -151069,7 +151069,7 @@ impl MetaValue for V3EntityDeterminerDetermined {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -151327,7 +151327,7 @@ impl MetaValue for V3EntityHandling {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -151740,7 +151740,7 @@ impl MetaValue for V3EntityNamePartQualifier {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -152089,7 +152089,7 @@ impl MetaValue for V3EntityNamePartQualifierR2 {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -152230,7 +152230,7 @@ impl MetaValue for V3EntityNamePartType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -152362,7 +152362,7 @@ impl MetaValue for V3EntityNamePartTypeR2 {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -152595,7 +152595,7 @@ impl MetaValue for V3EntityNameUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -152855,7 +152855,7 @@ impl MetaValue for V3EntityNameUseR2 {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -153050,7 +153050,7 @@ impl MetaValue for V3EntityRisk {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -153191,7 +153191,7 @@ impl MetaValue for V3EntityStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -153323,7 +153323,7 @@ impl MetaValue for V3EquipmentAlertLevel {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -153806,7 +153806,7 @@ impl MetaValue for V3Ethnicity {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -153947,7 +153947,7 @@ impl MetaValue for V3ExposureMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -157742,7 +157742,7 @@ impl MetaValue for V3FamilyMember {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -158244,7 +158244,7 @@ impl MetaValue for V3GTSAbbreviation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -158358,7 +158358,7 @@ impl MetaValue for V3GenderStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -158526,7 +158526,7 @@ impl MetaValue for V3GeneralPurposeOfUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -158649,7 +158649,7 @@ impl MetaValue for V3HL7ContextConductionStyle {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -158970,7 +158970,7 @@ impl MetaValue for V3HL7StandardVersionCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -159210,7 +159210,7 @@ impl MetaValue for V3HL7UpdateMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -159441,7 +159441,7 @@ impl MetaValue for V3HtmlLinkType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -159564,7 +159564,7 @@ impl MetaValue for V3IdentifierReliability {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -159696,7 +159696,7 @@ impl MetaValue for V3IdentifierScope {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -159810,7 +159810,7 @@ impl MetaValue for V3IntegrityCheckAlgorithm {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -159960,7 +159960,7 @@ impl MetaValue for V3LanguageAbilityMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -160092,7 +160092,7 @@ impl MetaValue for V3LanguageAbilityProficiency {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -160296,7 +160296,7 @@ impl MetaValue for V3LivingArrangement {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -160410,7 +160410,7 @@ impl MetaValue for V3LocalMarkupIgnore {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -160524,7 +160524,7 @@ impl MetaValue for V3LocalRemoteControlState {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -160674,7 +160674,7 @@ impl MetaValue for V3ManagedParticipationStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -160797,7 +160797,7 @@ impl MetaValue for V3MapRelationship {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -160983,7 +160983,7 @@ impl MetaValue for V3MaritalStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -161106,7 +161106,7 @@ impl MetaValue for V3MessageWaitingPriority {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -164935,7 +164935,7 @@ impl MetaValue for V3MilitaryRoleType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -165049,7 +165049,7 @@ impl MetaValue for V3ModifyIndicator {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -165298,7 +165298,7 @@ impl MetaValue for V3NullFlavor {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -165466,7 +165466,7 @@ impl MetaValue for V3ObservationCategory {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -166155,7 +166155,7 @@ impl MetaValue for V3ObservationInterpretation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -169003,7 +169003,7 @@ impl MetaValue for V3ObservationMethod {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -171447,7 +171447,7 @@ impl MetaValue for V3ObservationValue {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -172062,7 +172062,7 @@ impl MetaValue for V3ParticipationFunction {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -172727,7 +172727,7 @@ impl MetaValue for V3ParticipationIndirectTarget {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -173404,7 +173404,7 @@ impl MetaValue for V3ParticipationInformationGenerator {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -174113,7 +174113,7 @@ impl MetaValue for V3ParticipationInformationTranscriber {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -174344,7 +174344,7 @@ impl MetaValue for V3ParticipationMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -175009,7 +175009,7 @@ impl MetaValue for V3ParticipationPhysicalPerformer {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -175132,7 +175132,7 @@ impl MetaValue for V3ParticipationSignature {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -175795,7 +175795,7 @@ impl MetaValue for V3ParticipationTargetDirect {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -176460,7 +176460,7 @@ impl MetaValue for V3ParticipationTargetLocation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -177125,7 +177125,7 @@ impl MetaValue for V3ParticipationTargetSubject {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -177784,7 +177784,7 @@ impl MetaValue for V3ParticipationType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -178443,7 +178443,7 @@ impl MetaValue for V3ParticipationVerifier {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -178620,7 +178620,7 @@ impl MetaValue for V3PatientImportance {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -178752,7 +178752,7 @@ impl MetaValue for V3PaymentTerms {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -178938,7 +178938,7 @@ impl MetaValue for V3PersonDisabilityType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -182885,7 +182885,7 @@ impl MetaValue for V3PersonalRelationshipRoleType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -183062,7 +183062,7 @@ impl MetaValue for V3ProbabilityDistributionType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -183185,7 +183185,7 @@ impl MetaValue for V3ProcessingID {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -183317,7 +183317,7 @@ impl MetaValue for V3ProcessingMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -183501,7 +183501,7 @@ impl MetaValue for V3ProvenanceEventCurrentState {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -183645,7 +183645,7 @@ impl MetaValue for V3ProvenanceEventCurrentStateAS {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -183781,7 +183781,7 @@ impl MetaValue for V3ProvenanceEventCurrentStateDC {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -186596,7 +186596,7 @@ impl MetaValue for V3PurposeOfUse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -186854,7 +186854,7 @@ impl MetaValue for V3QueryParameterValue {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -186968,7 +186968,7 @@ impl MetaValue for V3QueryPriority {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -187082,7 +187082,7 @@ impl MetaValue for V3QueryRequestLimit {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -187214,7 +187214,7 @@ impl MetaValue for V3QueryResponse {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -187359,7 +187359,7 @@ impl MetaValue for V3QueryStatusCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -187527,7 +187527,7 @@ impl MetaValue for V3RelationalOperator {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -187650,7 +187650,7 @@ impl MetaValue for V3RelationshipConjunction {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -188484,7 +188484,7 @@ impl MetaValue for V3ReligiousAffiliation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -188643,7 +188643,7 @@ impl MetaValue for V3ResponseLevel {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -188766,7 +188766,7 @@ impl MetaValue for V3ResponseModality {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -188889,7 +188889,7 @@ impl MetaValue for V3ResponseMode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -189997,7 +189997,7 @@ impl MetaValue for V3RoleClass {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -191113,7 +191113,7 @@ impl MetaValue for V3RoleClassAgent {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -192245,7 +192245,7 @@ impl MetaValue for V3RoleClassAssociative {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -193401,7 +193401,7 @@ impl MetaValue for V3RoleClassManufacturedProduct {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -194551,7 +194551,7 @@ impl MetaValue for V3RoleClassMutualRelationship {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -195679,7 +195679,7 @@ impl MetaValue for V3RoleClassPartitive {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -196799,7 +196799,7 @@ impl MetaValue for V3RoleClassPassive {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -197949,7 +197949,7 @@ impl MetaValue for V3RoleClassRelationshipFormal {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -199065,7 +199065,7 @@ impl MetaValue for V3RoleClassRoot {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -200247,7 +200247,7 @@ impl MetaValue for V3RoleClassServiceDeliveryLocation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -201371,7 +201371,7 @@ impl MetaValue for V3RoleClassSpecimen {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -205134,7 +205134,7 @@ impl MetaValue for V3RoleCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -205284,7 +205284,7 @@ impl MetaValue for V3RoleLinkStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -205452,7 +205452,7 @@ impl MetaValue for V3RoleLinkType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -205611,7 +205611,7 @@ impl MetaValue for V3RoleStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -209499,7 +209499,7 @@ impl MetaValue for V3RouteOfAdministration {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -212361,7 +212361,7 @@ impl MetaValue for V3SecurityIntegrityObservationValue {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -212484,7 +212484,7 @@ impl MetaValue for V3Sequencing {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -216527,7 +216527,7 @@ impl MetaValue for V3ServiceDeliveryLocationRoleType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -216677,7 +216677,7 @@ impl MetaValue for V3SetOperator {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -219145,7 +219145,7 @@ impl MetaValue for V3SeverityObservation {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -220357,7 +220357,7 @@ impl MetaValue for V3SpecimenType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -221257,7 +221257,7 @@ impl MetaValue for V3SubstanceAdminSubstitutionReason {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -221398,7 +221398,7 @@ impl MetaValue for V3SubstitutionCondition {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -221539,7 +221539,7 @@ impl MetaValue for V3TableCellHorizontalAlign {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -221671,7 +221671,7 @@ impl MetaValue for V3TableCellScope {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -221803,7 +221803,7 @@ impl MetaValue for V3TableCellVerticalAlign {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -221980,7 +221980,7 @@ impl MetaValue for V3TableFrame {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -222121,7 +222121,7 @@ impl MetaValue for V3TableRules {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -222271,7 +222271,7 @@ impl MetaValue for V3TargetAwareness {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -222412,7 +222412,7 @@ impl MetaValue for V3TelecommunicationCapabilities {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -222670,7 +222670,7 @@ impl MetaValue for V3TimingEvent {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -222775,7 +222775,7 @@ impl MetaValue for V3TransmissionRelationshipTypeCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -223231,7 +223231,7 @@ impl MetaValue for V3VaccineManufacturer {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -226083,7 +226083,7 @@ impl MetaValue for V3VerificationMethod {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -226260,7 +226260,7 @@ impl MetaValue for V3WorkClassificationODH {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -228698,7 +228698,7 @@ impl MetaValue for V3WorkScheduleODH {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -231166,7 +231166,7 @@ impl MetaValue for V3EmploymentStatusODH {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -231442,7 +231442,7 @@ impl MetaValue for V3Hl7ApprovalStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -231609,7 +231609,7 @@ impl MetaValue for V3Hl7CMETAttribution {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -231723,7 +231723,7 @@ impl MetaValue for V3Hl7ITSType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -231828,7 +231828,7 @@ impl MetaValue for V3Hl7ITSVersionCode {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -232302,7 +232302,7 @@ impl MetaValue for V3Hl7PublishingDomain {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -232434,7 +232434,7 @@ impl MetaValue for V3Hl7PublishingSection {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -232620,7 +232620,7 @@ impl MetaValue for V3Hl7PublishingSubSection {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -233121,7 +233121,7 @@ impl MetaValue for V3Hl7Realm {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -233271,7 +233271,7 @@ impl MetaValue for V3Hl7V3Conformance {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -233486,7 +233486,7 @@ impl MetaValue for V3Hl7VoteResolution {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -235043,7 +235043,7 @@ impl MetaValue for V3OrderableDrugForm {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -235328,7 +235328,7 @@ impl MetaValue for V3StyleType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -235524,7 +235524,7 @@ impl MetaValue for V3SubstanceAdminSubstitution {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -235719,7 +235719,7 @@ impl MetaValue for V3TriggerEventID {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -235839,7 +235839,7 @@ impl MetaValue for V3XBasicConfidentialityKind {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -235970,7 +235970,7 @@ impl MetaValue for AccessPolicyAttributeOperationTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -236084,7 +236084,7 @@ impl MetaValue for AccessPolicyv2Engine {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -236207,7 +236207,7 @@ impl MetaValue for AccessPolicyFhirApiLevel {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -236411,7 +236411,7 @@ impl MetaValue for AccessPolicyFhirApiMethods {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -236534,7 +236534,7 @@ impl MetaValue for AccessPolicyFhirApiParameter {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -236648,7 +236648,7 @@ impl MetaValue for AccessPolicyType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -236762,7 +236762,7 @@ impl MetaValue for AccessPolicyv2CombineBehavior {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -236878,7 +236878,7 @@ impl MetaValue for AccessPolicyv2RuleConditionOperator {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -236992,7 +236992,7 @@ impl MetaValue for AccessPolicyRuleEffect {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -237393,7 +237393,7 @@ impl MetaValue for CanonicalResourceTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -237533,7 +237533,7 @@ impl MetaValue for ClientapplicationGrantType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -237647,7 +237647,7 @@ impl MetaValue for ClientapplicationResponseTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -237752,7 +237752,7 @@ impl MetaValue for IdentityProviderAccessType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -237866,7 +237866,7 @@ impl MetaValue for IdentityProviderPkceChallengeMethod {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -237980,7 +237980,7 @@ impl MetaValue for IdentityProviderStatus {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -238094,7 +238094,7 @@ impl MetaValue for MembershipRole {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -238199,7 +238199,7 @@ impl MetaValue for MessageBrokerType {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -239746,7 +239746,7 @@ impl MetaValue for HasteHealthTypes {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -239851,7 +239851,7 @@ impl MetaValue for SupportedFhirVersion {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
@@ -239974,7 +239974,7 @@ impl MetaValue for UserRole {
         self
     }
     fn typename(&self) -> &'static str {
-        "code"
+        "FHIRCode"
     }
     fn is_many(&self) -> bool {
         false
