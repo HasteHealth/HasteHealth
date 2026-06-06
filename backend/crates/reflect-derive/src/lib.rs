@@ -30,7 +30,7 @@ fn is_optional(field: &Field) -> bool {
     false
 }
 
-#[proc_macro_derive(Reflect, attributes(rename_field))]
+#[proc_macro_derive(Reflect, attributes(rename_field, fhir_type))]
 pub fn haste_reflect(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);

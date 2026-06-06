@@ -398,6 +398,7 @@ fn create_complex_struct(
            #[derive(Clone, Reflect, Debug, Default,
                 haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
                 haste_fhir_serialization_json::derive::FHIRSerdeDeserialize)]
+            #[fhir_type = #fhir_type]
            #[fhir_serialize_type = "primitive"]
         }
     } else if conditionals::is_root(sd, element) && conditionals::is_resource_sd(sd) {
@@ -410,6 +411,7 @@ fn create_complex_struct(
                 haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
                 haste_fhir_serialization_json::derive::FHIRSerdeDeserialize
             )]
+            #[fhir_type = #fhir_type]
             #[fhir_serialize_type = "resource"]
         }
     } else {
@@ -421,6 +423,7 @@ fn create_complex_struct(
                 Default,
                 haste_fhir_serialization_json::derive::FHIRSerdeSerialize,
                 haste_fhir_serialization_json::derive::FHIRSerdeDeserialize)]
+            #[fhir_type = #fhir_type]
             #[fhir_serialize_type = "complex"]
         }
     };

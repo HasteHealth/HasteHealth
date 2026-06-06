@@ -12,6 +12,7 @@ use haste_reflect::{derive::Reflect, MetaValue};
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Base definition for all elements in a resource."]
 pub struct Element {
@@ -28,6 +29,7 @@ pub struct Element {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "BackboneElement"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Base definition for all elements that are defined inside a resource - but not those in a data type."]
 pub struct BackboneElement {
@@ -46,6 +48,7 @@ pub struct BackboneElement {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "base64Binary"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "A stream of bytes"]
 pub struct FHIRBase64Binary {
@@ -79,6 +82,7 @@ impl From<String> for FHIRBase64Binary {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "boolean"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "Value of \"true\" or \"false\""]
 pub struct FHIRBoolean {
@@ -112,6 +116,7 @@ impl From<bool> for FHIRBoolean {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "canonical"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "A URI that is a reference to a canonical URL on a FHIR resource"]
 pub struct FHIRCanonical {
@@ -145,6 +150,7 @@ impl From<String> for FHIRCanonical {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "code"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "A string which has at least one character and no leading or trailing whitespace and where there is no whitespace other than single spaces in the contents"]
 pub struct FHIRCode {
@@ -178,6 +184,7 @@ impl From<String> for FHIRCode {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "date"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "A date or partial date (e.g. just year or year + month). There is no time zone. The format is a union of the schema types gYear, gYearMonth and date.  Dates SHALL be valid dates."]
 pub struct FHIRDate {
@@ -211,6 +218,7 @@ impl From<crate::r4::datetime::Date> for FHIRDate {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "dateTime"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "A date, date-time or partial date (e.g. just year or year + month).  If hours and minutes are specified, a time zone SHALL be populated. The format is a union of the schema types gYear, gYearMonth, date and dateTime. Seconds must be provided due to schema type constraints but may be zero-filled and may be ignored.                 Dates SHALL be valid dates."]
 pub struct FHIRDateTime {
@@ -244,6 +252,7 @@ impl From<crate::r4::datetime::DateTime> for FHIRDateTime {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "decimal"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "A rational number with implicit precision"]
 pub struct FHIRDecimal {
@@ -277,6 +286,7 @@ impl From<f64> for FHIRDecimal {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "id"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "Any combination of letters, numerals, \"-\" and \".\", with a length limit of 64 characters.  (This might be an integer, an unprefixed OID, UUID or any other identifier pattern that meets these constraints.)  Ids are case-insensitive."]
 pub struct FHIRId {
@@ -310,6 +320,7 @@ impl From<String> for FHIRId {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "instant"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "An instant in time - known at least to the second"]
 pub struct FHIRInstant {
@@ -343,6 +354,7 @@ impl From<crate::r4::datetime::Instant> for FHIRInstant {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "integer"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "A whole number"]
 pub struct FHIRInteger {
@@ -376,6 +388,7 @@ impl From<i64> for FHIRInteger {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "markdown"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "A string that may contain Github Flavored Markdown syntax for optional processing by a mark down presentation engine"]
 pub struct FHIRMarkdown {
@@ -409,6 +422,7 @@ impl From<String> for FHIRMarkdown {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "oid"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "An OID represented as a URI"]
 pub struct FHIROid {
@@ -442,6 +456,7 @@ impl From<String> for FHIROid {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "positiveInt"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "An integer with a value that is positive (e.g. >0)"]
 pub struct FHIRPositiveInt {
@@ -475,6 +490,7 @@ impl From<u64> for FHIRPositiveInt {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "string"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "A sequence of Unicode characters"]
 pub struct FHIRString {
@@ -508,6 +524,7 @@ impl From<String> for FHIRString {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "time"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "A time during the day, with no date specified"]
 pub struct FHIRTime {
@@ -541,6 +558,7 @@ impl From<crate::r4::datetime::Time> for FHIRTime {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "unsignedInt"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "An integer with a value that is not negative (e.g. >= 0)"]
 pub struct FHIRUnsignedInt {
@@ -574,6 +592,7 @@ impl From<u64> for FHIRUnsignedInt {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "uri"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "String of characters used to identify a name or a resource"]
 pub struct FHIRUri {
@@ -607,6 +626,7 @@ impl From<String> for FHIRUri {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "url"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "A URI that is a literal reference"]
 pub struct FHIRUrl {
@@ -640,6 +660,7 @@ impl From<String> for FHIRUrl {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "uuid"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "A UUID, represented as a URI"]
 pub struct FHIRUuid {
@@ -673,6 +694,7 @@ impl From<String> for FHIRUuid {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "xhtml"]
 #[fhir_serialize_type = "primitive"]
 #[doc = "XHTML"]
 pub struct FHIRXhtml {
@@ -708,6 +730,7 @@ impl From<String> for FHIRXhtml {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Address"]
 #[fhir_serialize_type = "complex"]
 #[doc = "An address expressed using postal conventions (as opposed to GPS or other location definition formats).  This data type may be used to convey addresses for use in delivering mail as well as for visiting locations which might not be valid for mail delivery.  There are a variety of postal address formats defined around the world."]
 pub struct Address {
@@ -755,6 +778,7 @@ pub struct Address {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Age"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A duration of time during which an organism (or a process) has existed."]
 pub struct Age {
@@ -806,6 +830,7 @@ impl Default for AnnotationAuthorTypeChoice {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Annotation"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A  text note which also  contains information about who made the statement and when."]
 pub struct Annotation {
@@ -831,6 +856,7 @@ pub struct Annotation {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Attachment"]
 #[fhir_serialize_type = "complex"]
 #[doc = "For referring to data content defined in other formats."]
 pub struct Attachment {
@@ -871,6 +897,7 @@ pub struct Attachment {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "CodeableConcept"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A concept that may be defined by a formal reference to a terminology or ontology or may be provided by text."]
 pub struct CodeableConcept {
@@ -892,6 +919,7 @@ pub struct CodeableConcept {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Coding"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A reference to a code defined by a terminology system."]
 pub struct Coding {
@@ -923,6 +951,7 @@ pub struct Coding {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "ContactDetail"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specifies contact information for a person or organization."]
 pub struct ContactDetail {
@@ -944,6 +973,7 @@ pub struct ContactDetail {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "ContactPoint"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Details for all kinds of technology mediated contact points for a person or organization, including telephone, email, etc."]
 pub struct ContactPoint {
@@ -975,6 +1005,7 @@ pub struct ContactPoint {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Contributor"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A contributor to the content of a knowledge asset, including authors, editors, reviewers, and endorsers."]
 pub struct Contributor {
@@ -1000,6 +1031,7 @@ pub struct Contributor {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Count"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A measured amount (or an amount that can potentially be measured). Note that measured amounts include amounts that are not precisely quantified, including amounts involving arbitrary units and floating currencies."]
 pub struct Count {
@@ -1050,6 +1082,7 @@ impl Default for DataRequirementSubjectTypeChoice {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Code filters specify additional constraints on the data, specifying the value set of interest for a particular element of the data. Each code filter defines an additional constraint on the data, i.e. code filters are AND'ed, not OR'ed."]
 pub struct DataRequirementCodeFilter {
@@ -1097,6 +1130,7 @@ impl Default for DataRequirementDateFilterValueTypeChoice {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Date filters specify additional constraints on the data in terms of the applicable date range for specific elements. Each date filter specifies an additional constraint on the data, i.e. date filters are AND'ed, not OR'ed."]
 pub struct DataRequirementDateFilter {
@@ -1122,6 +1156,7 @@ pub struct DataRequirementDateFilter {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specifies the order of the results to be returned."]
 pub struct DataRequirementSort {
@@ -1144,6 +1179,7 @@ pub struct DataRequirementSort {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "DataRequirement"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Describes a required data item for evaluation in terms of the type of data, and optional code or date-based filters of the data."]
 pub struct DataRequirement {
@@ -1182,6 +1218,7 @@ pub struct DataRequirement {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Distance"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A length - a value with a unit that is a physical distance."]
 pub struct Distance {
@@ -1269,6 +1306,7 @@ impl Default for DosageDoseAndRateRateTypeChoice {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "The amount of medication administered."]
 pub struct DosageDoseAndRate {
@@ -1294,6 +1332,7 @@ pub struct DosageDoseAndRate {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Dosage"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates how the medication is/was taken or should be taken by the patient."]
 pub struct Dosage {
@@ -1342,6 +1381,7 @@ pub struct Dosage {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Duration"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A length of time."]
 pub struct Duration {
@@ -1373,6 +1413,7 @@ pub struct Duration {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Designates which child elements are used to discriminate between the slices when processing an instance. If one or more discriminators are provided, the value of the child elements in the instance data SHALL completely distinguish which slice the element in the resource matches based on the allowed values for those elements in each of the slices."]
 pub struct ElementDefinitionSlicingDiscriminator {
@@ -1396,6 +1437,7 @@ pub struct ElementDefinitionSlicingDiscriminator {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Indicates that the element is sliced into a set of alternative definitions (i.e. in a structure definition, there are multiple different constraints on a single element in the base resource). Slicing can be used in any resource that has cardinality ..* on the base resource, or any resource with a choice of types. The set of slices is any elements that come after this in the element sequence that have the same path, until a shorter path occurs (the shorter path terminates the set)."]
 pub struct ElementDefinitionSlicing {
@@ -1423,6 +1465,7 @@ pub struct ElementDefinitionSlicing {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Information about the base definition of the element, provided to make it unnecessary for tools to trace the deviation of the element through the derived and related profiles. When the element definition is not the original definition of an element - i.g. either in a constraint on another type, or for elements from a super type in a snap shot - then the information in provided in the element definition may be different to the base definition. On the original definition of the element, it will be same."]
 pub struct ElementDefinitionBase {
@@ -1448,6 +1491,7 @@ pub struct ElementDefinitionBase {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "The data type or resource that the value of this element is permitted to be."]
 pub struct ElementDefinitionType {
@@ -1819,6 +1863,7 @@ impl Default for ElementDefinitionExampleValueTypeChoice {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A sample value for this element demonstrating the type of information that would typically be found in the element."]
 pub struct ElementDefinitionExample {
@@ -1907,6 +1952,7 @@ impl Default for ElementDefinitionMaxValueTypeChoice {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Formal constraints such as co-occurrence and other constraints that can be computationally evaluated within the context of the instance."]
 pub struct ElementDefinitionConstraint {
@@ -1944,6 +1990,7 @@ pub struct ElementDefinitionConstraint {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Binds to a value set if this element is coded (code, Coding, CodeableConcept, Quantity), or the data types (string, uri)."]
 pub struct ElementDefinitionBinding {
@@ -1969,6 +2016,7 @@ pub struct ElementDefinitionBinding {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Identifies a concept from an external specification that roughly corresponds to this element."]
 pub struct ElementDefinitionMapping {
@@ -1997,6 +2045,7 @@ pub struct ElementDefinitionMapping {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "ElementDefinition"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Captures constraints on each element within the resource, profile, or extension."]
 pub struct ElementDefinition {
@@ -2110,6 +2159,7 @@ pub struct ElementDefinition {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Expression"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A expression that is evaluated in a specified context and returns a value. The context of use of the expression must specify the context in which the expression is evaluated, and how the result of the expression is used."]
 pub struct Expression {
@@ -2226,6 +2276,7 @@ impl Default for ExtensionValueTypeChoice {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Extension"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Optional Extension Element - found in all resources."]
 pub struct Extension {
@@ -2247,6 +2298,7 @@ pub struct Extension {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "HumanName"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A human's name with the ability to identify parts and usage."]
 pub struct HumanName {
@@ -2284,6 +2336,7 @@ pub struct HumanName {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Identifier"]
 #[fhir_serialize_type = "complex"]
 #[doc = "An identifier - identifies some entity uniquely and unambiguously. Typically this is used for business identifiers."]
 pub struct Identifier {
@@ -2318,6 +2371,7 @@ pub struct Identifier {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "MarketingStatus"]
 #[fhir_serialize_type = "complex"]
 #[doc = "The marketing status describes the date when a medicinal product is actually put on the market or the date as of which it is no longer available."]
 pub struct MarketingStatus {
@@ -2347,6 +2401,7 @@ pub struct MarketingStatus {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Meta"]
 #[fhir_serialize_type = "complex"]
 #[doc = "The metadata about a resource. This is content in the resource that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
 pub struct Meta {
@@ -2379,6 +2434,7 @@ pub struct Meta {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Money"]
 #[fhir_serialize_type = "complex"]
 #[doc = "An amount of economic utility in some recognized currency."]
 pub struct Money {
@@ -2401,6 +2457,7 @@ pub struct Money {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Narrative"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A human-readable summary of the resource conveying the essential clinical and business information for the resource."]
 pub struct Narrative {
@@ -2423,6 +2480,7 @@ pub struct Narrative {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "ParameterDefinition"]
 #[fhir_serialize_type = "complex"]
 #[doc = "The parameters to the module. This collection specifies both the input and output parameters. Input parameters are provided by the caller as part of the $evaluate operation. Output parameters are included in the GuidanceResponse."]
 pub struct ParameterDefinition {
@@ -2462,6 +2520,7 @@ pub struct ParameterDefinition {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Period"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A time period defined by a start and end date and optionally time."]
 pub struct Period {
@@ -2502,6 +2561,7 @@ impl Default for PopulationAgeTypeChoice {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Population"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A populatioof people with some set of grouping criteria."]
 pub struct Population {
@@ -2529,6 +2589,7 @@ pub struct Population {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "ProdCharacteristic"]
 #[fhir_serialize_type = "complex"]
 #[doc = "The marketing status describes the date when a medicinal product is actually put on the market or the date as of which it is no longer available."]
 pub struct ProdCharacteristic {
@@ -2572,6 +2633,7 @@ pub struct ProdCharacteristic {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "ProductShelfLife"]
 #[fhir_serialize_type = "complex"]
 #[doc = "The shelf-life and storage information for a medicinal product item or container can be described using this class."]
 pub struct ProductShelfLife {
@@ -2600,6 +2662,7 @@ pub struct ProductShelfLife {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Quantity"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A measured amount (or an amount that can potentially be measured). Note that measured amounts include amounts that are not precisely quantified, including amounts involving arbitrary units and floating currencies."]
 pub struct Quantity {
@@ -2631,6 +2694,7 @@ pub struct Quantity {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Range"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A set of ordered Quantities defined by a low and high limit."]
 pub struct Range {
@@ -2651,6 +2715,7 @@ pub struct Range {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Ratio"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A relationship of two Quantity values - expressed as a numerator and a denominator."]
 pub struct Ratio {
@@ -2671,6 +2736,7 @@ pub struct Ratio {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Reference"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A reference from one resource to another."]
 pub struct Reference {
@@ -2700,6 +2766,7 @@ pub struct Reference {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "RelatedArtifact"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Related artifacts such as additional documentation, justification, or bibliographic references."]
 pub struct RelatedArtifact {
@@ -2737,6 +2804,7 @@ pub struct RelatedArtifact {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "SampledData"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A series of measurements taken by a device, with upper and lower limits. There may be more than one dimension in the data."]
 pub struct SampledData {
@@ -2773,6 +2841,7 @@ pub struct SampledData {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Signature"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A signature along with supporting context. The signature may be a digital signature that is cryptographic in nature, or some other signature acceptable to the domain. This other signature may be as simple as a graphical image representing a hand-written signature, or a signature ceremony Different signature approaches have different utilities."]
 pub struct Signature {
@@ -2831,6 +2900,7 @@ impl Default for SubstanceAmountAmountTypeChoice {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Reference range of possible or expected values."]
 pub struct SubstanceAmountReferenceRange {
@@ -2851,6 +2921,7 @@ pub struct SubstanceAmountReferenceRange {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "SubstanceAmount"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Chemical substances are a single substance type whose primary defining element is the molecular structure. Chemical substances shall be defined on the basis of their complete covalent molecular structure; the presence of a salt (counter-ion) and/or solvates (water, alcohols) is also captured. Purity, grade, physical form or particle size are not taken into account in the definition of a chemical substance or in the assignment of a Substance ID."]
 pub struct SubstanceAmount {
@@ -2898,6 +2969,7 @@ impl Default for TimingRepeatBoundsTypeChoice {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Element"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A set of rules that describe when the event is scheduled."]
 pub struct TimingRepeat {
@@ -2959,6 +3031,7 @@ pub struct TimingRepeat {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "Timing"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specifies an event that may occur multiple times. Timing schedules are used to record when things are planned, expected or requested to occur. The most common usage is in dosage instructions for medications. They are also used when planning care of various kinds, and may be used for reporting the schedule to which past regular activities were carried out."]
 pub struct Timing {
@@ -3007,6 +3080,7 @@ impl Default for TriggerDefinitionTimingTypeChoice {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "TriggerDefinition"]
 #[fhir_serialize_type = "complex"]
 #[doc = "A description of a triggering event. Triggering events can be named events, data events, or periodic, as determined by the type element."]
 pub struct TriggerDefinition {
@@ -3058,6 +3132,7 @@ impl Default for UsageContextValueTypeChoice {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "UsageContext"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Specifies clinical/business/etc. metadata that can be used to retrieve, index and/or categorize an artifact. This metadata can either be specific to the applicable population (e.g., age category, DRG) or the specific context of care (e.g., venue, care setting, provider of care)."]
 pub struct UsageContext {
@@ -3079,6 +3154,7 @@ pub struct UsageContext {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "MetadataResource"]
 #[fhir_serialize_type = "complex"]
 #[doc = "Common Ancestor declaration for conformance and knowledge artifact resources."]
 pub struct MetadataResource {
