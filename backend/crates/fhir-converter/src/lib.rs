@@ -35,6 +35,8 @@ impl Filter for FHIRPathFilter {
 
         let fhirpath = args.fhirpath;
 
+        // let view_value = input.to_value();
+
         if !fhirpath.is_empty() {
             let result = tokio::task::block_in_place(|| {
                 Handle::current().block_on(async {
@@ -54,18 +56,6 @@ impl Filter for FHIRPathFilter {
         } else {
             Err(Error::with_msg("FHIRPath expression cannot be empty"))
         }
-
-        // let date = input.as_scalar().and_then(|s| s.to_date_time());
-        // match date {
-        //     Some(date) if !args.fhirpath.is_empty() => {
-        //         let s = date.format(args.fhirpath.as_str()).map_err(|_err| {
-        //             Error::with_msg(format!("Invalid date-format string: {}", args.fhirpath))
-        //         })?;
-
-        //         Ok(Value::scalar(s))
-        //     }
-        //     _ => Ok(input.to_value()),
-        // }
     }
 }
 
