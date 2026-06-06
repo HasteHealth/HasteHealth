@@ -30,7 +30,7 @@ struct FHIRPathFilter {
 }
 
 impl Filter for FHIRPathFilter {
-    fn evaluate(&self, input: &dyn ValueView, runtime: &dyn Runtime) -> Result<Value> {
+    fn evaluate(&self, _input: &dyn ValueView, runtime: &dyn Runtime) -> Result<Value> {
         let args = self.args.evaluate(runtime)?;
 
         let fhirpath = args.fhirpath;
