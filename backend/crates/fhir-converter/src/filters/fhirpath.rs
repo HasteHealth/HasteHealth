@@ -71,22 +71,21 @@ fn liquid_to_fhir(value: Value) -> Option<Box<dyn MetaValue + Send + Sync>> {
 /// Convert a `MetaValue` result to a liquid `Value` using `fhir_type()`.
 fn fhir_to_liquid(value: &dyn MetaValue) -> Value {
     let fhir_type = value.fhir_type();
-    if NUMBER_TYPES.contains(fhir_type) {
-        if let Ok(n) = downcast_number(value) {
-            return Value::scalar(n);
-        }
+    if NUMBER_TYPES.contains(fhir_type)
+        && let Ok(n) = downcast_number(value)
+    {
+        Value::scalar(n)
+    } else if BOOLEAN_TYPES.contains(fhir_type)
+        && let Ok(b) = downcast_bool(value)
+    {
+        Value::scalar(b)
+    } else if STRING_TYPES.contains(fhir_type)
+        && let Ok(s) = downcast_string(value)
+    {
+        Value::scalar(s)
+    } else {
+        Value::scalar(format!("{:?}", value))
     }
-    if BOOLEAN_TYPES.contains(fhir_type) {
-        if let Ok(b) = downcast_bool(value) {
-            return Value::scalar(b);
-        }
-    }
-    if STRING_TYPES.contains(fhir_type) {
-        if let Ok(s) = downcast_string(value) {
-            return Value::scalar(s);
-        }
-    }
-    Value::scalar(format!("{:?}", value))
 }
 
 impl Filter for FHIRPathFilter {
