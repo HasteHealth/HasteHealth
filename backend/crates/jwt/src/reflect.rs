@@ -23,10 +23,6 @@ impl MetaValue for TenantId {
         None
     }
 
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.TenantId"
-    }
-
     fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.TenantId"
     }
@@ -63,10 +59,6 @@ impl MetaValue for ProjectId {
 
     fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
         None
-    }
-
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.ProjectId"
     }
 
     fn fhir_type(&self) -> &'static str {
@@ -107,10 +99,6 @@ impl MetaValue for ResourceId {
         None
     }
 
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.ResourceId"
-    }
-
     fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.ResourceId"
     }
@@ -146,10 +134,6 @@ impl MetaValue for VersionId {
 
     fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
         None
-    }
-
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.VersionId"
     }
 
     fn fhir_type(&self) -> &'static str {

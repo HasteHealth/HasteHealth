@@ -23,10 +23,6 @@ impl MetaValue for Time {
         None
     }
 
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.Time"
-    }
-
     fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.Time"
     }
@@ -62,10 +58,6 @@ impl MetaValue for DateTime {
 
     fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
         None
-    }
-
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.DateTime"
     }
 
     fn fhir_type(&self) -> &'static str {
@@ -105,10 +97,6 @@ impl MetaValue for Date {
         None
     }
 
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.Date"
-    }
-
     fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.Date"
     }
@@ -144,10 +132,6 @@ impl MetaValue for Instant {
 
     fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
         None
-    }
-
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.Instant"
     }
 
     fn fhir_type(&self) -> &'static str {

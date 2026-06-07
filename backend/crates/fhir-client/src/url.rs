@@ -76,12 +76,6 @@ impl MetaValue for ParsedParameter {
         }
     }
 
-    fn typename(&self) -> &'static str {
-        match self {
-            ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.typename(),
-        }
-    }
-
     fn fhir_type(&self) -> &'static str {
         match self {
             ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.fhir_type(),
@@ -180,10 +174,6 @@ impl MetaValue for ParsedParameters {
 
     fn as_any(&self) -> &dyn std::any::Any {
         self
-    }
-
-    fn typename(&self) -> &'static str {
-        "ParsedParameters"
     }
 
     fn fhir_type(&self) -> &'static str {

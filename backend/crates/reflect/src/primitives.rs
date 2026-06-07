@@ -32,10 +32,6 @@ impl MetaValue for i64 {
         None
     }
 
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.Integer"
-    }
-
     fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.Integer"
     }
@@ -71,10 +67,6 @@ impl MetaValue for u64 {
 
     fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
         None
-    }
-
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.Integer"
     }
 
     fn fhir_type(&self) -> &'static str {
@@ -114,10 +106,6 @@ impl MetaValue for f64 {
         None
     }
 
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.Decimal"
-    }
-
     fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.Decimal"
     }
@@ -153,10 +141,6 @@ impl MetaValue for bool {
 
     fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
         None
-    }
-
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.Boolean"
     }
 
     fn fhir_type(&self) -> &'static str {
@@ -196,10 +180,6 @@ impl MetaValue for String {
         None
     }
 
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.String"
-    }
-
     fn fhir_type(&self) -> &'static str {
         "http://hl7.org/fhirpath/System.String"
     }
@@ -235,10 +215,6 @@ impl MetaValue for &'static str {
 
     fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
         None
-    }
-
-    fn typename(&self) -> &'static str {
-        "http://hl7.org/fhirpath/System.String"
     }
 
     fn fhir_type(&self) -> &'static str {
@@ -296,14 +272,6 @@ where
         }
     }
 
-    fn typename(&self) -> &'static str {
-        if let Some(first) = self.first() {
-            first.typename()
-        } else {
-            ""
-        }
-    }
-
     fn fhir_type(&self) -> &'static str {
         if let Some(first) = self.first() {
             first.fhir_type()
@@ -339,13 +307,6 @@ where
 
     fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
         self.as_ref().and_then(|value| value.get_field(field))
-    }
-
-    fn typename(&self) -> &'static str {
-        match self {
-            Some(value) => value.typename(),
-            None => "",
-        }
     }
 
     fn fhir_type(&self) -> &'static str {
@@ -393,10 +354,6 @@ where
 
     fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
         self.as_ref().get_field(field)
-    }
-
-    fn typename(&self) -> &'static str {
-        self.as_ref().typename()
     }
 
     fn fhir_type(&self) -> &'static str {

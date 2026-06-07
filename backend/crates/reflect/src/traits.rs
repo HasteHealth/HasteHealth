@@ -13,8 +13,6 @@ pub trait MetaValue: Any + Debug + Send + Sync {
 
     fn as_any(&self) -> &dyn Any;
 
-    fn typename(&self) -> &'static str;
-
     fn fhir_type(&self) -> &'static str;
 
     fn is_many(&self) -> bool;

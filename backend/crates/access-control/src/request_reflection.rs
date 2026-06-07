@@ -270,10 +270,6 @@ impl MetaValue for RequestReflection {
         self
     }
 
-    fn typename(&self) -> &'static str {
-        "FHIRRequest"
-    }
-
     fn fhir_type(&self) -> &'static str {
         "BackboneElement"
     }

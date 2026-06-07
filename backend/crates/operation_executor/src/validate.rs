@@ -1,7 +1,7 @@
 use haste_fhir_model::r4::generated::{
     resources::{
         OperationDefinitionParameter, OperationOutcome, OperationOutcomeIssue, Parameters,
-        ParametersParameter, RUST_TO_FHIR_TYPE_MAP,
+        ParametersParameter,
     },
     terminology::{IssueSeverity, IssueType, OperationParameterUse},
 };
@@ -93,12 +93,12 @@ pub fn validate_parameters(
             let type_name: Option<String> = parameter_def_type.as_ref().into();
             for found_parameter in found_parameters.iter() {
                 let type_ = if let Some(resource) = found_parameter.resource.as_ref() {
-                    RUST_TO_FHIR_TYPE_MAP.get(resource.resource_type().as_ref())
+                    resource.fhir_type()
                 } else {
-                    RUST_TO_FHIR_TYPE_MAP.get(found_parameter.value.typename())
+                    found_parameter.value.fhir_type()
                 };
 
-                if type_ != Some(&type_name.as_deref().unwrap_or_default()) {
+                if type_ != type_name.as_deref().unwrap_or_default() {
                     issues.push(create_issue(
                         IssueSeverity::Error(None),
                         IssueType::Invalid(None),
@@ -106,7 +106,7 @@ pub fn validate_parameters(
                             "Parameter '{}' expects type '{}' but found '{}'.",
                             name,
                             type_name.as_deref().unwrap_or("<unknown>"),
-                            type_.unwrap_or(&"<unknown>")
+                            type_
                         ),
                     ));
                 }

@@ -291,9 +291,6 @@ impl MetaValue for FHIRVersion {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -407,9 +404,6 @@ impl MetaValue for AbstractTypes {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -552,9 +546,6 @@ impl MetaValue for AccountStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -668,9 +659,6 @@ impl MetaValue for ActionCardinalityBehavior {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -795,9 +783,6 @@ impl MetaValue for ActionConditionKind {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -920,9 +905,6 @@ impl MetaValue for ActionGroupingBehavior {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -1056,9 +1038,6 @@ impl MetaValue for ActionParticipantType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -1172,9 +1151,6 @@ impl MetaValue for ActionPrecheckBehavior {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -1357,9 +1333,6 @@ impl MetaValue for ActionRelationshipType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -1486,9 +1459,6 @@ impl MetaValue for ActionRequiredBehavior {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -1640,9 +1610,6 @@ impl MetaValue for ActionSelectionBehavior {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -1775,9 +1742,6 @@ impl MetaValue for ActionType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -1900,9 +1864,6 @@ impl MetaValue for ActivityDefinitionCategory {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -2054,9 +2015,6 @@ impl MetaValue for Additionalmaterials {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -2179,9 +2137,6 @@ impl MetaValue for AddressType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -2323,9 +2278,6 @@ impl MetaValue for AddressUse {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -2495,9 +2447,6 @@ impl MetaValue for Adjudication {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -2612,9 +2561,6 @@ impl MetaValue for AdjudicationError {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -2728,9 +2674,6 @@ impl MetaValue for AdjudicationReason {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -2864,9 +2807,6 @@ impl MetaValue for AdministrativeGender {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -2980,9 +2920,6 @@ impl MetaValue for AdverseEventActuality {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -3240,9 +3177,6 @@ impl MetaValue for AdverseEventCategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -3413,9 +3347,6 @@ impl MetaValue for AdverseEventCausalityAssess {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -3542,9 +3473,6 @@ impl MetaValue for AdverseEventCausalityMethod {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -3697,9 +3625,6 @@ impl MetaValue for AdverseEventOutcome {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -3913,9 +3838,6 @@ impl MetaValue for AdverseEventSeriousness {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -4038,9 +3960,6 @@ impl MetaValue for AdverseEventSeverity {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -4191,9 +4110,6 @@ impl MetaValue for AgeUnits {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -6303,9 +6219,6 @@ impl MetaValue for AllTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -6427,9 +6340,6 @@ impl MetaValue for AllergIntolSubstanceExpRisk {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -6563,9 +6473,6 @@ impl MetaValue for AllergyIntoleranceCategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -6693,9 +6600,6 @@ impl MetaValue for AllergyIntoleranceCriticality {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -6809,9 +6713,6 @@ impl MetaValue for AllergyIntoleranceType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -6935,9 +6836,6 @@ impl MetaValue for AllergyintoleranceClinical {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -7077,9 +6975,6 @@ impl MetaValue for AllergyintoleranceVerification {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -7202,9 +7097,6 @@ impl MetaValue for AnimalGenderstatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -7392,9 +7284,6 @@ impl MetaValue for AnimalSpecies {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -7581,9 +7470,6 @@ impl MetaValue for Appointmentstatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -7697,9 +7583,6 @@ impl MetaValue for AssertDirectionCodes {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -7895,9 +7778,6 @@ impl MetaValue for AssertOperatorCodes {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -8107,9 +7987,6 @@ impl MetaValue for AssertResponseCodeTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -8214,9 +8091,6 @@ impl MetaValue for AssetAvailability {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -9768,9 +9642,6 @@ impl MetaValue for AuditEntityType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -9912,9 +9783,6 @@ impl MetaValue for AuditEventAction {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -10046,9 +9914,6 @@ impl MetaValue for AuditEventOutcome {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -10482,9 +10347,6 @@ impl MetaValue for AuditEventSubType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -10954,9 +10816,6 @@ impl MetaValue for AuditEventType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -11133,9 +10992,6 @@ impl MetaValue for AuditSourceType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -11377,9 +11233,6 @@ impl MetaValue for BasicResourceType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -11493,9 +11346,6 @@ impl MetaValue for BenefitNetwork {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -11619,9 +11469,6 @@ impl MetaValue for BenefitTerm {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -11827,9 +11674,6 @@ impl MetaValue for BenefitType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -11943,9 +11787,6 @@ impl MetaValue for BenefitUnit {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -12079,9 +11920,6 @@ impl MetaValue for BindingStrength {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -12204,9 +12042,6 @@ impl MetaValue for BodysiteLaterality {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -12412,9 +12247,6 @@ impl MetaValue for BodystructureRelativeLocation {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -12591,9 +12423,6 @@ impl MetaValue for BundleType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -13401,9 +13230,6 @@ impl MetaValue for C80Facilitycodes {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -14536,9 +14362,6 @@ impl MetaValue for C80PracticeCodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -14661,9 +14484,6 @@ impl MetaValue for CapabilityStatementKind {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -14826,9 +14646,6 @@ impl MetaValue for CarePlanActivityKind {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -15007,9 +14824,6 @@ impl MetaValue for CarePlanActivityStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -15137,9 +14951,6 @@ impl MetaValue for CarePlanIntent {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -15282,9 +15093,6 @@ impl MetaValue for CareTeamStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -15408,9 +15216,6 @@ impl MetaValue for CatalogType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -15533,9 +15338,6 @@ impl MetaValue for CdshooksIndicator {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -15736,9 +15538,6 @@ impl MetaValue for CertaintySubcomponentRating {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -15915,9 +15714,6 @@ impl MetaValue for CertaintySubcomponentType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -16040,9 +15836,6 @@ impl MetaValue for ChargeitemBillingcodes {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -16203,9 +15996,6 @@ impl MetaValue for ChargeitemStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -16319,9 +16109,6 @@ impl MetaValue for ChoiceListOrientation {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -16635,9 +16422,6 @@ impl MetaValue for ChromosomeHuman {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -16770,9 +16554,6 @@ impl MetaValue for ClaimCareteamrole {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -16886,9 +16667,6 @@ impl MetaValue for ClaimException {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -17120,9 +16898,6 @@ impl MetaValue for ClaimInformationcategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -17273,9 +17048,6 @@ impl MetaValue for ClaimModifiers {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -17389,9 +17161,6 @@ impl MetaValue for ClaimSubtype {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -17534,9 +17303,6 @@ impl MetaValue for ClaimType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -17660,9 +17426,6 @@ impl MetaValue for ClaimUse {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -17783,9 +17546,6 @@ impl MetaValue for ClinicalimpressionStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -17899,9 +17659,6 @@ impl MetaValue for CodeSearchSupport {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -18044,9 +17801,6 @@ impl MetaValue for CodesystemAltcodeKind {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -18188,9 +17942,6 @@ impl MetaValue for CodesystemContentMode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -18323,9 +18074,6 @@ impl MetaValue for CodesystemHierarchyMeaning {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -18430,9 +18178,6 @@ impl MetaValue for CommonTags {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -18565,9 +18310,6 @@ impl MetaValue for CommunicationCategory {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -18733,9 +18475,6 @@ impl MetaValue for CommunicationNotDoneReason {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -18892,9 +18631,6 @@ impl MetaValue for CommunicationTopic {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -19036,9 +18772,6 @@ impl MetaValue for CompartmentType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -19170,9 +18903,6 @@ impl MetaValue for CompositeMeasureScoring {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -19315,9 +19045,6 @@ impl MetaValue for CompositionAltcodeKind {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -19450,9 +19177,6 @@ impl MetaValue for CompositionAttestationMode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -19584,9 +19308,6 @@ impl MetaValue for CompositionStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -19774,9 +19495,6 @@ impl MetaValue for ConceptMapEquivalence {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -19936,9 +19654,6 @@ impl MetaValue for ConceptPropertyType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -20071,9 +19786,6 @@ impl MetaValue for ConceptSubsumptionOutcome {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -20197,9 +19909,6 @@ impl MetaValue for ConceptmapUnmappedMode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -20313,9 +20022,6 @@ impl MetaValue for ConditionCategory {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -20467,9 +20173,6 @@ impl MetaValue for ConditionClinical {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -20589,9 +20292,6 @@ impl MetaValue for ConditionSeverity {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -20715,9 +20415,6 @@ impl MetaValue for ConditionState {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -20869,9 +20566,6 @@ impl MetaValue for ConditionVerStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -20994,9 +20688,6 @@ impl MetaValue for ConditionalDeleteStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -21130,9 +20821,6 @@ impl MetaValue for ConditionalReadStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -21264,9 +20952,6 @@ impl MetaValue for ConformanceExpectation {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -21409,9 +21094,6 @@ impl MetaValue for ConsentAction {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -21543,9 +21225,6 @@ impl MetaValue for ConsentDataMeaning {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -21687,9 +21366,6 @@ impl MetaValue for ConsentPerformer {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -22023,9 +21699,6 @@ impl MetaValue for ConsentPolicy {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -22139,9 +21812,6 @@ impl MetaValue for ConsentProvisionType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -22274,9 +21944,6 @@ impl MetaValue for ConsentScope {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -22428,9 +22095,6 @@ impl MetaValue for ConsentStateCodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -22563,9 +22227,6 @@ impl MetaValue for ConsistencyType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -22679,9 +22340,6 @@ impl MetaValue for ConstraintSeverity {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -22842,9 +22500,6 @@ impl MetaValue for ContactPointSystem {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -22985,9 +22640,6 @@ impl MetaValue for ContactPointUse {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -23138,9 +22790,6 @@ impl MetaValue for ContactentityType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -23346,9 +22995,6 @@ impl MetaValue for ContainerCap {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -23472,9 +23118,6 @@ impl MetaValue for ContainerMaterial {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -23589,9 +23232,6 @@ impl MetaValue for ContractAction {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -23696,9 +23336,6 @@ impl MetaValue for ContractActionstatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -23814,9 +23451,6 @@ impl MetaValue for ContractActorrole {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -23921,9 +23555,6 @@ impl MetaValue for ContractAssetcontext {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -24030,9 +23661,6 @@ impl MetaValue for ContractAssetscope {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -24138,9 +23766,6 @@ impl MetaValue for ContractAssetsubtype {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -24245,9 +23870,6 @@ impl MetaValue for ContractAssettype {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -24381,9 +24003,6 @@ impl MetaValue for ContractContentDerivative {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -24516,9 +24135,6 @@ impl MetaValue for ContractDataMeaning {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -24623,9 +24239,6 @@ impl MetaValue for ContractDecisionMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -24732,9 +24345,6 @@ impl MetaValue for ContractDefinitionSubtype {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -24840,9 +24450,6 @@ impl MetaValue for ContractDefinitionType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -24947,9 +24554,6 @@ impl MetaValue for ContractExpirationType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -25182,9 +24786,6 @@ impl MetaValue for ContractLegalstate {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -25289,9 +24890,6 @@ impl MetaValue for ContractPartyRole {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -25524,9 +25122,6 @@ impl MetaValue for ContractPublicationstatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -25631,9 +25226,6 @@ impl MetaValue for ContractScope {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -25740,9 +25332,6 @@ impl MetaValue for ContractSecurityCategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -25848,9 +25437,6 @@ impl MetaValue for ContractSecurityClassification {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -25955,9 +25541,6 @@ impl MetaValue for ContractSecurityControl {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -26487,9 +26070,6 @@ impl MetaValue for ContractSignerType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -26721,9 +26301,6 @@ impl MetaValue for ContractStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -26837,9 +26414,6 @@ impl MetaValue for ContractSubtype {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -26964,9 +26538,6 @@ impl MetaValue for ContractTermSubtype {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -27080,9 +26651,6 @@ impl MetaValue for ContractTermType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -27225,9 +26793,6 @@ impl MetaValue for ContractType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -27360,9 +26925,6 @@ impl MetaValue for ContributorType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -27485,9 +27047,6 @@ impl MetaValue for CopyNumberEvent {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -27684,9 +27243,6 @@ impl MetaValue for CoverageClass {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -27873,9 +27429,6 @@ impl MetaValue for CoverageCopayType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -27990,9 +27543,6 @@ impl MetaValue for CoverageFinancialException {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -28097,9 +27647,6 @@ impl MetaValue for CoverageSelfpay {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -28324,9 +27871,6 @@ impl MetaValue for CoverageeligibilityresponseExAuthSupport {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -28558,9 +28102,6 @@ impl MetaValue for DataAbsentReason {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -29225,9 +28766,6 @@ impl MetaValue for DataTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -29386,9 +28924,6 @@ impl MetaValue for DaysOfWeek {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -31437,9 +30972,6 @@ impl MetaValue for DefinedTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -31598,9 +31130,6 @@ impl MetaValue for DefinitionResourceTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -31733,9 +31262,6 @@ impl MetaValue for DefinitionStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -31858,9 +31384,6 @@ impl MetaValue for DefinitionTopic {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -32012,9 +31535,6 @@ impl MetaValue for DefinitionUse {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -32126,9 +31646,6 @@ impl MetaValue for DesignationUse {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -32252,9 +31769,6 @@ impl MetaValue for DetectedissueSeverity {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -32442,9 +31956,6 @@ impl MetaValue for DeviceComponentProperty {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -32576,9 +32087,6 @@ impl MetaValue for DeviceDefinitionStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -32730,9 +32238,6 @@ impl MetaValue for DeviceNametype {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -32882,9 +32387,6 @@ impl MetaValue for DeviceSafety {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -33036,9 +32538,6 @@ impl MetaValue for DeviceStatementStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -33170,9 +32669,6 @@ impl MetaValue for DeviceStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -33342,9 +32838,6 @@ impl MetaValue for DeviceStatusReason {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -33503,9 +32996,6 @@ impl MetaValue for DiagnosisRole {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -33693,9 +33183,6 @@ impl MetaValue for DiagnosticReportStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -33872,9 +33359,6 @@ impl MetaValue for Dicm405Mediatype {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -34016,9 +33500,6 @@ impl MetaValue for DiscriminatorType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -34159,9 +33640,6 @@ impl MetaValue for DistanceUnits {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -34699,9 +34177,6 @@ impl MetaValue for DocSectionCodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -35203,9 +34678,6 @@ impl MetaValue for DocumentClasscodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -35319,9 +34791,6 @@ impl MetaValue for DocumentMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -35445,9 +34914,6 @@ impl MetaValue for DocumentReferenceStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -35581,9 +35047,6 @@ impl MetaValue for DocumentRelationshipType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -35697,9 +35160,6 @@ impl MetaValue for DoseRateType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -35869,9 +35329,6 @@ impl MetaValue for DurationUnits {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -36031,9 +35488,6 @@ impl MetaValue for EffectEstimateType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -36167,9 +35621,6 @@ impl MetaValue for EligibilityrequestPurpose {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -36306,9 +35757,6 @@ impl MetaValue for EligibilityresponsePurpose {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -36496,9 +35944,6 @@ impl MetaValue for EncounterAdmitSource {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -36657,9 +36102,6 @@ impl MetaValue for EncounterDiet {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -36856,9 +36298,6 @@ impl MetaValue for EncounterDischargeDisposition {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -36990,9 +36429,6 @@ impl MetaValue for EncounterLocationStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -37672,9 +37108,6 @@ impl MetaValue for EncounterParticipantType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -37815,9 +37248,6 @@ impl MetaValue for EncounterSpecialArrangements {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -37962,9 +37392,6 @@ impl MetaValue for EncounterSpecialCourtesy {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -38143,9 +37570,6 @@ impl MetaValue for EncounterStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -38277,9 +37701,6 @@ impl MetaValue for EncounterType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -38502,9 +37923,6 @@ impl MetaValue for EndpointConnectionType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -39645,9 +39063,6 @@ impl MetaValue for EndpointPayloadType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -39797,9 +39212,6 @@ impl MetaValue for EndpointStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -39969,9 +39381,6 @@ impl MetaValue for EnteralRoute {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -40112,9 +39521,6 @@ impl MetaValue for EntformulaAdditive {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -40536,9 +39942,6 @@ impl MetaValue for EntformulaType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -40698,9 +40101,6 @@ impl MetaValue for EpisodeOfCareStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -40842,9 +40242,6 @@ impl MetaValue for EpisodeofcareType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -40958,9 +40355,6 @@ impl MetaValue for EventCapabilityMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -41600,9 +40994,6 @@ impl MetaValue for EventOrRequestResourceTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -42013,9 +41404,6 @@ impl MetaValue for EventResourceTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -42183,9 +41571,6 @@ impl MetaValue for EventStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -42503,9 +41888,6 @@ impl MetaValue for EventTiming {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -42638,9 +42020,6 @@ impl MetaValue for EvidenceQuality {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -42763,9 +42142,6 @@ impl MetaValue for EvidenceVariantState {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -43115,9 +42491,6 @@ impl MetaValue for ExBenefitcategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -43250,9 +42623,6 @@ impl MetaValue for ExDiagnosisOnAdmission {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -43384,9 +42754,6 @@ impl MetaValue for ExDiagnosisrelatedgroup {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -43592,9 +42959,6 @@ impl MetaValue for ExDiagnosistype {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -43717,9 +43081,6 @@ impl MetaValue for ExOnsettype {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -43853,9 +43214,6 @@ impl MetaValue for ExPayeeResourceType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -43970,9 +43328,6 @@ impl MetaValue for ExPaymenttype {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -44086,9 +43441,6 @@ impl MetaValue for ExProcedureType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -44221,9 +43573,6 @@ impl MetaValue for ExProgramCode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -44402,9 +43751,6 @@ impl MetaValue for ExRevenueCenter {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -44537,9 +43883,6 @@ impl MetaValue for ExampleExtensional {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -44662,9 +44005,6 @@ impl MetaValue for ExampleFilter {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -44866,9 +44206,6 @@ impl MetaValue for ExampleHierarchical {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -44982,9 +44319,6 @@ impl MetaValue for ExamplescenarioActorType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -45109,9 +44443,6 @@ impl MetaValue for ExpansionParameterSource {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -45234,9 +44565,6 @@ impl MetaValue for ExpansionProcessingRule {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -45370,9 +44698,6 @@ impl MetaValue for ExplanationofbenefitStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -45486,9 +44811,6 @@ impl MetaValue for ExposureState {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -45615,9 +44937,6 @@ impl MetaValue for ExpressionLanguage {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -45740,9 +45059,6 @@ impl MetaValue for ExtensionContextType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -45921,9 +45237,6 @@ impl MetaValue for FilterOperator {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -46064,9 +45377,6 @@ impl MetaValue for FinancialTaskcode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -46226,9 +45536,6 @@ impl MetaValue for FinancialTaskinputtype {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -46416,9 +45723,6 @@ impl MetaValue for FlagCategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -46551,9 +45855,6 @@ impl MetaValue for FlagPriority {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -46677,9 +45978,6 @@ impl MetaValue for FlagStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -46784,9 +46082,6 @@ impl MetaValue for FmConditions {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -46910,9 +46205,6 @@ impl MetaValue for FmItemtype {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -47046,9 +46338,6 @@ impl MetaValue for FmStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -47172,9 +46461,6 @@ impl MetaValue for FocalSubject {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -47288,9 +46574,6 @@ impl MetaValue for Forms {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -47414,9 +46697,6 @@ impl MetaValue for Fundsreserve {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -47577,9 +46857,6 @@ impl MetaValue for GenderIdentity {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -47702,9 +46979,6 @@ impl MetaValue for GoalAcceptanceStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -47883,9 +47157,6 @@ impl MetaValue for GoalAchievement {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -48027,9 +47298,6 @@ impl MetaValue for GoalCategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -48152,9 +47420,6 @@ impl MetaValue for GoalPriority {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -48297,9 +47562,6 @@ impl MetaValue for GoalRelationshipType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -48431,9 +47693,6 @@ impl MetaValue for GoalStartEvent {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -48611,9 +47870,6 @@ impl MetaValue for GoalStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -48794,9 +48050,6 @@ impl MetaValue for GoalStatusReason {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -48929,9 +48182,6 @@ impl MetaValue for GraphCompartmentRule {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -49045,9 +48295,6 @@ impl MetaValue for GraphCompartmentUse {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -49199,9 +48446,6 @@ impl MetaValue for GroupMeasure {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -49351,9 +48595,6 @@ impl MetaValue for GroupType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -49505,9 +48746,6 @@ impl MetaValue for GuidanceResponseStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -49639,9 +48877,6 @@ impl MetaValue for GuidePageGeneration {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -49829,9 +49064,6 @@ impl MetaValue for GuideParameterCode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -49954,9 +49186,6 @@ impl MetaValue for HandlingCondition {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -50090,9 +49319,6 @@ impl MetaValue for HistoryAbsentReason {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -50224,9 +49450,6 @@ impl MetaValue for HistoryStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -50540,9 +49763,6 @@ impl MetaValue for Hl7WorkGroup {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -50702,9 +49922,6 @@ impl MetaValue for HttpOperations {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -50854,9 +50071,6 @@ impl MetaValue for HttpVerb {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -51017,9 +50231,6 @@ impl MetaValue for Icd10 {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -51142,9 +50353,6 @@ impl MetaValue for Icd10Procedures {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -51386,9 +50594,6 @@ impl MetaValue for IdentifierType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -51530,9 +50735,6 @@ impl MetaValue for IdentifierUse {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -51664,9 +50866,6 @@ impl MetaValue for IdentityAssuranceLevel {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -51809,9 +51008,6 @@ impl MetaValue for ImagingstudyStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -51925,9 +51121,6 @@ impl MetaValue for ImmunizationEvaluationDoseStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -52092,9 +51285,6 @@ impl MetaValue for ImmunizationEvaluationDoseStatusReason {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -52208,9 +51398,6 @@ impl MetaValue for ImmunizationEvaluationStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -52398,9 +51585,6 @@ impl MetaValue for ImmunizationEvaluationTargetDisease {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -52512,9 +51696,6 @@ impl MetaValue for ImmunizationFunction {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -52629,9 +51810,6 @@ impl MetaValue for ImmunizationFundingSource {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -52765,9 +51943,6 @@ impl MetaValue for ImmunizationOrigin {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -52882,9 +52057,6 @@ impl MetaValue for ImmunizationProgramEligibility {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -52996,9 +52168,6 @@ impl MetaValue for ImmunizationReason {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -53138,9 +52307,6 @@ impl MetaValue for ImmunizationRecommendationDateCriterion {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -53256,9 +52422,6 @@ impl MetaValue for ImmunizationRecommendationReason {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -53406,9 +52569,6 @@ impl MetaValue for ImmunizationRecommendationStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -53616,9 +52776,6 @@ impl MetaValue for ImmunizationRecommendationTargetDisease {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -53778,9 +52935,6 @@ impl MetaValue for ImmunizationRoute {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -53894,9 +53048,6 @@ impl MetaValue for ImmunizationSite {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -54017,9 +53168,6 @@ impl MetaValue for ImmunizationStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -54145,9 +53293,6 @@ impl MetaValue for ImmunizationSubpotentReason {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -54317,9 +53462,6 @@ impl MetaValue for ImmunizationTargetDisease {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -54451,9 +53593,6 @@ impl MetaValue for ImplantStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -54803,9 +53942,6 @@ impl MetaValue for Inactive {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -54934,9 +54070,6 @@ impl MetaValue for InstanceAvailability {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -55059,9 +54192,6 @@ impl MetaValue for InsuranceplanApplicability {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -55249,9 +54379,6 @@ impl MetaValue for InsuranceplanType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -55366,9 +54493,6 @@ impl MetaValue for Intervention {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -55482,9 +54606,6 @@ impl MetaValue for InvestigationSets {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -55636,9 +54757,6 @@ impl MetaValue for InvoicePriceComponentType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -55779,9 +54897,6 @@ impl MetaValue for InvoiceStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -58120,9 +57235,6 @@ impl MetaValue for Iso316612 {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -58254,9 +57366,6 @@ impl MetaValue for IssueSeverity {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -58633,9 +57742,6 @@ impl MetaValue for IssueType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -58885,9 +57991,6 @@ impl MetaValue for ItemType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -59069,9 +58172,6 @@ impl MetaValue for KnowledgeResourceTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -59185,9 +58285,6 @@ impl MetaValue for LanguagePreferenceType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -59789,9 +58886,6 @@ impl MetaValue for Languages {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -59905,9 +58999,6 @@ impl MetaValue for LdlcholesterolCodes {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -60041,9 +59132,6 @@ impl MetaValue for LibraryType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -60176,9 +59264,6 @@ impl MetaValue for LinkType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -60301,9 +59386,6 @@ impl MetaValue for LinkageType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -60454,9 +59536,6 @@ impl MetaValue for ListEmptyReason {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -60635,9 +59714,6 @@ impl MetaValue for ListExampleCodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -60788,9 +59864,6 @@ impl MetaValue for ListItemFlag {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -60913,9 +59986,6 @@ impl MetaValue for ListMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -61085,9 +60155,6 @@ impl MetaValue for ListOrder {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -61211,9 +60278,6 @@ impl MetaValue for ListStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -61327,9 +60391,6 @@ impl MetaValue for LocationMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -61553,9 +60614,6 @@ impl MetaValue for LocationPhysicalType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -61679,9 +60737,6 @@ impl MetaValue for LocationStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -61795,9 +60850,6 @@ impl MetaValue for MapContextType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -61922,9 +60974,6 @@ impl MetaValue for MapGroupTypeMode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -62038,9 +61087,6 @@ impl MetaValue for MapInputMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -62173,9 +61219,6 @@ impl MetaValue for MapModelMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -62318,9 +61361,6 @@ impl MetaValue for MapSourceListMode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -62452,9 +61492,6 @@ impl MetaValue for MapTargetListMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -62705,9 +61742,6 @@ impl MetaValue for MapTransform {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -62902,9 +61936,6 @@ impl MetaValue for MaritalStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -63037,9 +62068,6 @@ impl MetaValue for MatchGrade {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -63154,9 +62182,6 @@ impl MetaValue for MeasureDataUsage {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -63270,9 +62295,6 @@ impl MetaValue for MeasureImprovementNotation {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -63457,9 +62479,6 @@ impl MetaValue for MeasurePopulation {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -63582,9 +62601,6 @@ impl MetaValue for MeasureReportStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -63718,9 +62734,6 @@ impl MetaValue for MeasureReportType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -63852,9 +62865,6 @@ impl MetaValue for MeasureScoring {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -63997,9 +63007,6 @@ impl MetaValue for MeasureType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -64122,9 +63129,6 @@ impl MetaValue for MedAdminPerformFunction {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -64249,9 +63253,6 @@ impl MetaValue for MediaType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -64374,9 +63375,6 @@ impl MetaValue for MedicationAdminCategory {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -64537,9 +63535,6 @@ impl MetaValue for MedicationAdminStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -64675,9 +63670,6 @@ impl MetaValue for MedicationStatementCategory {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -64847,9 +63839,6 @@ impl MetaValue for MedicationStatementStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -64972,9 +63961,6 @@ impl MetaValue for MedicationStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -65107,9 +64093,6 @@ impl MetaValue for MedicationdispenseCategory {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -65254,9 +64237,6 @@ impl MetaValue for MedicationdispensePerformerFunction {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -65434,9 +64414,6 @@ impl MetaValue for MedicationdispenseStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -65723,9 +64700,6 @@ impl MetaValue for MedicationdispenseStatusReason {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -65886,9 +64860,6 @@ impl MetaValue for MedicationknowledgeCharacteristic {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -66184,9 +65155,6 @@ impl MetaValue for MedicationknowledgePackageType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -66309,9 +65277,6 @@ impl MetaValue for MedicationknowledgeStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -66445,9 +65410,6 @@ impl MetaValue for MedicationrequestCategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -66572,9 +65534,6 @@ impl MetaValue for MedicationrequestCourseOfTherapy {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -66744,9 +65703,6 @@ impl MetaValue for MedicationrequestIntent {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -66914,9 +65870,6 @@ impl MetaValue for MedicationrequestStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -67131,9 +66084,6 @@ impl MetaValue for MedicationrequestStatusReason {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -67284,9 +66234,6 @@ impl MetaValue for MessageReasonEncounter {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -67410,9 +66357,6 @@ impl MetaValue for MessageSignificanceCategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -67535,9 +66479,6 @@ impl MetaValue for MessageTransport {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -67670,9 +66611,6 @@ impl MetaValue for MessageheaderResponseRequest {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -67810,9 +66748,6 @@ impl MetaValue for MetricCalibrationState {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -67945,9 +66880,6 @@ impl MetaValue for MetricCalibrationType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -68079,9 +67011,6 @@ impl MetaValue for MetricCategory {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -68251,9 +67180,6 @@ impl MetaValue for MetricColor {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -68386,9 +67312,6 @@ impl MetaValue for MetricOperationalStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -68520,9 +67443,6 @@ impl MetaValue for MissingToothReason {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -68746,9 +67666,6 @@ impl MetaValue for ModifiedFoodtype {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -68907,9 +67824,6 @@ impl MetaValue for NameAssemblyOrder {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -69115,9 +68029,6 @@ impl MetaValue for NamePartQualifier {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -69277,9 +68188,6 @@ impl MetaValue for NameUse {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -69399,9 +68307,6 @@ impl MetaValue for NameV3Representation {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -69535,9 +68440,6 @@ impl MetaValue for NamingsystemIdentifierType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -69660,9 +68562,6 @@ impl MetaValue for NamingsystemType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -69795,9 +68694,6 @@ impl MetaValue for NarrativeStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -69939,9 +68835,6 @@ impl MetaValue for NetworkType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -70282,9 +69175,6 @@ impl MetaValue for NhinPurposeofuse {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -70407,9 +69297,6 @@ impl MetaValue for NoteType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -70885,9 +69772,6 @@ impl MetaValue for ObjectLifecycleEvents {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -71200,9 +70084,6 @@ impl MetaValue for ObjectRole {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -71379,9 +70260,6 @@ impl MetaValue for ObservationCategory {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -72072,9 +70950,6 @@ impl MetaValue for ObservationInterpretation {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -72197,9 +71072,6 @@ impl MetaValue for ObservationRangeCategory {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -72486,9 +71358,6 @@ impl MetaValue for ObservationStatistics {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -72656,9 +71525,6 @@ impl MetaValue for ObservationStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -72860,9 +71726,6 @@ impl MetaValue for ObservationVitalsignresult {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -72976,9 +71839,6 @@ impl MetaValue for OperationKind {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -73568,9 +72428,6 @@ impl MetaValue for OperationOutcome {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -73684,9 +72541,6 @@ impl MetaValue for OperationParameterUse {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -73819,9 +72673,6 @@ impl MetaValue for OralProsthodonticMaterial {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -73990,9 +72841,6 @@ impl MetaValue for OrganizationRole {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -74198,9 +73046,6 @@ impl MetaValue for OrganizationType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -74314,9 +73159,6 @@ impl MetaValue for OrientationType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -74494,9 +73336,6 @@ impl MetaValue for ParameterGroup {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -78371,9 +77210,6 @@ impl MetaValue for ParentRelationshipCodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -78496,9 +77332,6 @@ impl MetaValue for Participantrequired {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -78632,9 +77465,6 @@ impl MetaValue for Participationstatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -78758,9 +77588,6 @@ impl MetaValue for Payeetype {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -78875,9 +77702,6 @@ impl MetaValue for PaymentAdjustmentReason {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -78991,9 +77815,6 @@ impl MetaValue for PaymentStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -79117,9 +77938,6 @@ impl MetaValue for PaymentType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -79329,9 +78147,6 @@ impl MetaValue for PerformerFunction {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -79527,9 +78342,6 @@ impl MetaValue for PermittedDataType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -79661,9 +78473,6 @@ impl MetaValue for PlanDefinitionType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -79833,9 +78642,6 @@ impl MetaValue for PostalAddressUse {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -79977,9 +78783,6 @@ impl MetaValue for PractitionerSpecialty {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -80111,9 +78914,6 @@ impl MetaValue for PrecisionEstimateType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -80292,9 +79092,6 @@ impl MetaValue for ProbabilityDistributionType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -80446,9 +79243,6 @@ impl MetaValue for ProcedureCategory {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -80626,9 +79420,6 @@ impl MetaValue for ProcedureFollowup {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -80748,9 +79539,6 @@ impl MetaValue for ProcedureOutcome {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -80914,9 +79702,6 @@ impl MetaValue for ProcedureProgressStatusCodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -81039,9 +79824,6 @@ impl MetaValue for ProcessPriority {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -81184,9 +79966,6 @@ impl MetaValue for ProductCategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -81300,9 +80079,6 @@ impl MetaValue for ProductStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -81426,9 +80202,6 @@ impl MetaValue for ProductStorageScale {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -81570,9 +80343,6 @@ impl MetaValue for PropertyRepresentation {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -82313,9 +81083,6 @@ impl MetaValue for ProvenanceActivityType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -82501,9 +81268,6 @@ impl MetaValue for ProvenanceAgentRole {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -82691,9 +81455,6 @@ impl MetaValue for ProvenanceAgentType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -82835,9 +81596,6 @@ impl MetaValue for ProvenanceEntityRole {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -82969,9 +81727,6 @@ impl MetaValue for ProvenanceHistoryAgentType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -83196,9 +81951,6 @@ impl MetaValue for ProvenanceHistoryRecordActivity {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -83321,9 +82073,6 @@ impl MetaValue for ProviderQualification {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -83457,9 +82206,6 @@ impl MetaValue for PublicationStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -83582,9 +82328,6 @@ impl MetaValue for QualityType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -83718,9 +82461,6 @@ impl MetaValue for QuantityComparator {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -83825,9 +82565,6 @@ impl MetaValue for QuestionMaxOccurs {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -83970,9 +82707,6 @@ impl MetaValue for QuestionnaireAnswersStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -84114,9 +82848,6 @@ impl MetaValue for QuestionnaireCategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -84240,9 +82971,6 @@ impl MetaValue for QuestionnaireDisplayCategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -84356,9 +83084,6 @@ impl MetaValue for QuestionnaireEnableBehavior {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -84518,9 +83243,6 @@ impl MetaValue for QuestionnaireEnableOperator {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -84840,9 +83562,6 @@ impl MetaValue for QuestionnaireItemControl {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -84988,9 +83707,6 @@ impl MetaValue for QuestionnaireUsageMode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -85110,9 +83826,6 @@ impl MetaValue for QuestionnaireresponseMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -85246,9 +83959,6 @@ impl MetaValue for ReactionEventCertainty {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -85371,9 +84081,6 @@ impl MetaValue for ReactionEventSeverity {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -85498,9 +84205,6 @@ impl MetaValue for ReasonMedicationGivenCodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -85614,9 +84318,6 @@ impl MetaValue for RecommendationStrength {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -85759,9 +84460,6 @@ impl MetaValue for ReferenceHandlingPolicy {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -85884,9 +84582,6 @@ impl MetaValue for ReferenceVersionRules {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -86101,9 +84796,6 @@ impl MetaValue for ReferencerangeMeaning {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -86244,9 +84936,6 @@ impl MetaValue for RejectionCriteria {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -86416,9 +85105,6 @@ impl MetaValue for RelatedArtifactType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -86533,9 +85219,6 @@ impl MetaValue for RelatedClaimRelationship {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -86649,9 +85332,6 @@ impl MetaValue for RelationType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -86794,9 +85474,6 @@ impl MetaValue for Relationship {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -86928,9 +85605,6 @@ impl MetaValue for RemittanceOutcome {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -87073,9 +85747,6 @@ impl MetaValue for ReportActionResultCodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -87199,9 +85870,6 @@ impl MetaValue for ReportParticipantType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -87324,9 +85992,6 @@ impl MetaValue for ReportResultCodes {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -87469,9 +86134,6 @@ impl MetaValue for ReportStatusCodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -87612,9 +86274,6 @@ impl MetaValue for RepositoryType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -87793,9 +86452,6 @@ impl MetaValue for RequestIntent {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -87927,9 +86583,6 @@ impl MetaValue for RequestPriority {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -88170,9 +86823,6 @@ impl MetaValue for RequestResourceTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -88332,9 +86982,6 @@ impl MetaValue for RequestStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -88458,9 +87105,6 @@ impl MetaValue for ResearchElementType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -88583,9 +87227,6 @@ impl MetaValue for ResearchStudyObjectiveType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -88754,9 +87395,6 @@ impl MetaValue for ResearchStudyPhase {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -88938,9 +87576,6 @@ impl MetaValue for ResearchStudyPrimPurpType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -89096,9 +87731,6 @@ impl MetaValue for ResearchStudyReasonStopped {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -89325,9 +87957,6 @@ impl MetaValue for ResearchStudyStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -89545,9 +88174,6 @@ impl MetaValue for ResearchSubjectStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -89670,9 +88296,6 @@ impl MetaValue for ResourceAggregationMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -89815,9 +88438,6 @@ impl MetaValue for ResourceSecurityCategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -89940,9 +88560,6 @@ impl MetaValue for ResourceSlicingRules {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -90319,9 +88936,6 @@ impl MetaValue for ResourceStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -90453,9 +89067,6 @@ impl MetaValue for ResourceTypeLink {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -92010,9 +90621,6 @@ impl MetaValue for ResourceTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -92145,9 +90753,6 @@ impl MetaValue for ResourceValidationMode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -92271,9 +90876,6 @@ impl MetaValue for ResponseCode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -92387,9 +90989,6 @@ impl MetaValue for RestfulCapabilityMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -92541,9 +91140,6 @@ impl MetaValue for RestfulSecurityService {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -92694,9 +91290,6 @@ impl MetaValue for RiskEstimateType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -92837,9 +91430,6 @@ impl MetaValue for RiskProbability {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -93018,9 +91608,6 @@ impl MetaValue for SearchComparator {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -93143,9 +91730,6 @@ impl MetaValue for SearchEntryMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -93351,9 +91935,6 @@ impl MetaValue for SearchModifierCode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -93531,9 +92112,6 @@ impl MetaValue for SearchParamType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -93675,9 +92253,6 @@ impl MetaValue for SearchXpathUsage {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -93791,9 +92366,6 @@ impl MetaValue for SecondaryFinding {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -93917,9 +92489,6 @@ impl MetaValue for SequenceType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -94062,9 +92631,6 @@ impl MetaValue for SeriesPerformerFunction {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -94178,9 +92744,6 @@ impl MetaValue for ServiceModifiers {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -94331,9 +92894,6 @@ impl MetaValue for ServicePharmacy {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -94584,9 +93144,6 @@ impl MetaValue for ServicePlace {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -94700,9 +93257,6 @@ impl MetaValue for ServiceProduct {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -94826,9 +93380,6 @@ impl MetaValue for ServiceProvisionConditions {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -94970,9 +93521,6 @@ impl MetaValue for ServiceReferralMethod {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -95250,9 +93798,6 @@ impl MetaValue for ServiceUscls {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -95394,9 +93939,6 @@ impl MetaValue for ServicerequestCategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -95537,9 +94079,6 @@ impl MetaValue for ServicerequestOrderdetail {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -99420,9 +97959,6 @@ impl MetaValue for SiblingRelationshipCodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -99681,9 +98217,6 @@ impl MetaValue for SignatureType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -99824,9 +98357,6 @@ impl MetaValue for Slotstatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -100072,9 +98602,6 @@ impl MetaValue for SmartCapabilities {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -100188,9 +98715,6 @@ impl MetaValue for SortDirection {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -103418,9 +101942,6 @@ impl MetaValue for SpdxLicense {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -103570,9 +102091,6 @@ impl MetaValue for SpecialValues {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -103760,9 +102278,6 @@ impl MetaValue for SpecimenCollection {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -103949,9 +102464,6 @@ impl MetaValue for SpecimenCollectionMethod {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -104111,9 +102623,6 @@ impl MetaValue for SpecimenCollectionPriority {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -104227,9 +102736,6 @@ impl MetaValue for SpecimenContainedPreference {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -104362,9 +102868,6 @@ impl MetaValue for SpecimenStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -104516,9 +103019,6 @@ impl MetaValue for StandardsStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -104632,9 +103132,6 @@ impl MetaValue for StrandType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -104767,9 +103264,6 @@ impl MetaValue for StructureDefinitionKind {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -104930,9 +103424,6 @@ impl MetaValue for StudyType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -105068,9 +103559,6 @@ impl MetaValue for SubjectType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -105231,9 +103719,6 @@ impl MetaValue for SubscriberRelationship {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -105375,9 +103860,6 @@ impl MetaValue for SubscriptionChannelType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -105510,9 +103992,6 @@ impl MetaValue for SubscriptionStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -105626,9 +104105,6 @@ impl MetaValue for SubscriptionTag {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -105789,9 +104265,6 @@ impl MetaValue for SubstanceCategory {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -105914,9 +104387,6 @@ impl MetaValue for SubstanceStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -106419,9 +104889,6 @@ impl MetaValue for SupplementType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -106554,9 +105021,6 @@ impl MetaValue for SupplydeliveryStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -106670,9 +105134,6 @@ impl MetaValue for SupplydeliveryType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -106788,9 +105249,6 @@ impl MetaValue for SupplyrequestKind {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -106904,9 +105362,6 @@ impl MetaValue for SupplyrequestReason {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -107066,9 +105521,6 @@ impl MetaValue for SupplyrequestStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -107265,9 +105717,6 @@ impl MetaValue for Surface {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -107418,9 +105867,6 @@ impl MetaValue for SynthesisType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -107548,9 +105994,6 @@ impl MetaValue for SystemRestfulInteraction {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -107710,9 +106153,6 @@ impl MetaValue for TaskCode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -107882,9 +106322,6 @@ impl MetaValue for TaskIntent {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -108089,9 +106526,6 @@ impl MetaValue for TaskStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -108477,9 +106911,6 @@ impl MetaValue for Teeth {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -108647,9 +107078,6 @@ impl MetaValue for TemplateStatusCode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -109156,9 +107584,6 @@ impl MetaValue for TestscriptOperationCodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -109323,9 +107748,6 @@ impl MetaValue for TestscriptProfileDestinationTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -109443,9 +107865,6 @@ impl MetaValue for TestscriptProfileOriginTypes {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -109668,9 +108087,6 @@ impl MetaValue for TextureCode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -109911,9 +108327,6 @@ impl MetaValue for TimingAbbreviation {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -110380,9 +108793,6 @@ impl MetaValue for Tooth {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -110514,9 +108924,6 @@ impl MetaValue for TransactionMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -110686,9 +109093,6 @@ impl MetaValue for TriggerType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -110802,9 +109206,6 @@ impl MetaValue for TypeDerivationRule {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -110974,9 +109375,6 @@ impl MetaValue for TypeRestfulInteraction {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -111099,9 +109497,6 @@ impl MetaValue for UcumBodylength {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -111219,9 +109614,6 @@ impl MetaValue for UcumBodytemp {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -111352,9 +109744,6 @@ impl MetaValue for UcumBodyweight {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -111600,9 +109989,6 @@ impl MetaValue for UcumVitalsCommon {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -111707,9 +110093,6 @@ impl MetaValue for Udi {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -111860,9 +110243,6 @@ impl MetaValue for UdiEntryType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -112023,9 +110403,6 @@ impl MetaValue for UnitsOfTime {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -112157,9 +110534,6 @@ impl MetaValue for UnknownContentCode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -112338,9 +110712,6 @@ impl MetaValue for UsageContextType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -112464,9 +110835,6 @@ impl MetaValue for VariableType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -112589,9 +110957,6 @@ impl MetaValue for VariantState {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -112717,9 +111082,6 @@ impl MetaValue for VerificationresultCanPushUpdates {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -112863,9 +111225,6 @@ impl MetaValue for VerificationresultCommunicationMethod {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -112998,9 +111357,6 @@ impl MetaValue for VerificationresultFailureAction {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -113123,9 +111479,6 @@ impl MetaValue for VerificationresultNeed {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -113318,9 +111671,6 @@ impl MetaValue for VerificationresultPrimarySourceType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -113447,9 +111797,6 @@ impl MetaValue for VerificationresultPushTypeAvailable {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -113600,9 +111947,6 @@ impl MetaValue for VerificationresultStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -113764,9 +112108,6 @@ impl MetaValue for VerificationresultValidationProcess {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -113894,9 +112235,6 @@ impl MetaValue for VerificationresultValidationStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -114020,9 +112358,6 @@ impl MetaValue for VerificationresultValidationType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -114145,9 +112480,6 @@ impl MetaValue for VersioningPolicy {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -114281,9 +112613,6 @@ impl MetaValue for VisionBaseCodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -114398,9 +112727,6 @@ impl MetaValue for VisionEyeCodes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -114514,9 +112840,6 @@ impl MetaValue for VisionProduct {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -114848,9 +113171,6 @@ impl MetaValue for WrittenLanguage {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -114982,9 +113302,6 @@ impl MetaValue for V3AcknowledgementCondition {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -115344,9 +113661,6 @@ impl MetaValue for V3AcknowledgementDetailCode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -115493,9 +113807,6 @@ impl MetaValue for V3AcknowledgementDetailType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -115646,9 +113957,6 @@ impl MetaValue for V3AcknowledgementType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -116842,9 +115150,6 @@ impl MetaValue for V3ActClass {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -118063,9 +116368,6 @@ impl MetaValue for V3ActClassClinicalDocument {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -119266,9 +117568,6 @@ impl MetaValue for V3ActClassDocument {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -120487,9 +118786,6 @@ impl MetaValue for V3ActClassInvestigation {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -121695,9 +119991,6 @@ impl MetaValue for V3ActClassObservation {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -122901,9 +121194,6 @@ impl MetaValue for V3ActClassProcedure {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -124100,9 +122390,6 @@ impl MetaValue for V3ActClassROI {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -125301,9 +123588,6 @@ impl MetaValue for V3ActClassSupply {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -125440,9 +123724,6 @@ impl MetaValue for V3ActExposureLevelCode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -125574,9 +123855,6 @@ impl MetaValue for V3ActInvoiceElementModifier {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -125925,9 +124203,6 @@ impl MetaValue for V3ActMood {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -126278,9 +124553,6 @@ impl MetaValue for V3ActMoodIntent {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -126634,9 +124906,6 @@ impl MetaValue for V3ActMoodPredicate {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -126867,9 +125136,6 @@ impl MetaValue for V3ActPriority {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -129646,9 +127912,6 @@ impl MetaValue for V3ActReason {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -129789,9 +128052,6 @@ impl MetaValue for V3ActRelationshipCheckpoint {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -131202,9 +129462,6 @@ impl MetaValue for V3ActRelationshipConditional {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -132609,9 +130866,6 @@ impl MetaValue for V3ActRelationshipFulfills {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -134022,9 +132276,6 @@ impl MetaValue for V3ActRelationshipHasComponent {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -134156,9 +132407,6 @@ impl MetaValue for V3ActRelationshipJoin {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -135565,9 +133813,6 @@ impl MetaValue for V3ActRelationshipPertains {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -135699,9 +133944,6 @@ impl MetaValue for V3ActRelationshipSplit {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -135946,9 +134188,6 @@ impl MetaValue for V3ActRelationshipSubset {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -137337,9 +135576,6 @@ impl MetaValue for V3ActRelationshipType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -137928,9 +136164,6 @@ impl MetaValue for V3ActSite {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -138116,9 +136349,6 @@ impl MetaValue for V3ActStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -138318,9 +136548,6 @@ impl MetaValue for V3ActSubstanceAdminSubstitutionCode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -138480,9 +136707,6 @@ impl MetaValue for V3ActUSPrivacyLaw {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -138596,9 +136820,6 @@ impl MetaValue for V3ActUncertainty {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -138966,9 +137187,6 @@ impl MetaValue for V3AddressPartType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -139238,9 +137456,6 @@ impl MetaValue for V3AddressUse {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -139363,9 +137578,6 @@ impl MetaValue for V3AdministrativeGender {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -142574,9 +140786,6 @@ impl MetaValue for V3AmericanIndianAlaskaNativeLanguages {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -142681,9 +140890,6 @@ impl MetaValue for V3Calendar {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -142947,9 +141153,6 @@ impl MetaValue for V3CalendarCycle {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -143054,9 +141257,6 @@ impl MetaValue for V3CalendarType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -143244,9 +141444,6 @@ impl MetaValue for V3Charset {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -143415,9 +141612,6 @@ impl MetaValue for V3CodingRationale {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -143540,9 +141734,6 @@ impl MetaValue for V3CommunicationFunctionType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -143693,9 +141884,6 @@ impl MetaValue for V3CompressionAlgorithm {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -143987,9 +142175,6 @@ impl MetaValue for V3Confidentiality {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -144133,9 +142318,6 @@ impl MetaValue for V3ConfidentialityClassification {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -144296,9 +142478,6 @@ impl MetaValue for V3ContainerCap {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -144413,9 +142592,6 @@ impl MetaValue for V3ContainerSeparator {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -144529,9 +142705,6 @@ impl MetaValue for V3ContentProcessingMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -144716,9 +142889,6 @@ impl MetaValue for V3ContextControl {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -144995,9 +143165,6 @@ impl MetaValue for V3DataOperation {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -147831,9 +145998,6 @@ impl MetaValue for V3Dentition {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -147965,9 +146129,6 @@ impl MetaValue for V3DeviceAlertLevel {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -148146,9 +146307,6 @@ impl MetaValue for V3DocumentCompletion {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -148280,9 +146438,6 @@ impl MetaValue for V3DocumentStorage {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -148461,9 +146616,6 @@ impl MetaValue for V3EducationLevel {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -148577,9 +146729,6 @@ impl MetaValue for V3EmployeeJobClass {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -148703,9 +146852,6 @@ impl MetaValue for V3EncounterAdmissionSource {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -148847,9 +146993,6 @@ impl MetaValue for V3EncounterSpecialCourtesy {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -149190,9 +147333,6 @@ impl MetaValue for V3EntityClass {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -149532,9 +147672,6 @@ impl MetaValue for V3EntityClassDevice {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -149873,9 +148010,6 @@ impl MetaValue for V3EntityClassLivingSubject {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -150218,9 +148352,6 @@ impl MetaValue for V3EntityClassManufacturedMaterial {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -150559,9 +148690,6 @@ impl MetaValue for V3EntityClassOrganization {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -150902,9 +149030,6 @@ impl MetaValue for V3EntityClassPlace {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -151243,9 +149368,6 @@ impl MetaValue for V3EntityClassRoot {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -152662,9 +150784,6 @@ impl MetaValue for V3EntityCode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -152805,9 +150924,6 @@ impl MetaValue for V3EntityDeterminer {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -152951,9 +151067,6 @@ impl MetaValue for V3EntityDeterminerDetermined {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -153212,9 +151325,6 @@ impl MetaValue for V3EntityHandling {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -153629,9 +151739,6 @@ impl MetaValue for V3EntityNamePartQualifier {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -153981,9 +152088,6 @@ impl MetaValue for V3EntityNamePartQualifierR2 {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -154125,9 +152229,6 @@ impl MetaValue for V3EntityNamePartType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -154259,9 +152360,6 @@ impl MetaValue for V3EntityNamePartTypeR2 {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -154495,9 +152593,6 @@ impl MetaValue for V3EntityNameUse {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -154759,9 +152854,6 @@ impl MetaValue for V3EntityNameUseR2 {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -154957,9 +153049,6 @@ impl MetaValue for V3EntityRisk {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -155101,9 +153190,6 @@ impl MetaValue for V3EntityStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -155235,9 +153321,6 @@ impl MetaValue for V3EquipmentAlertLevel {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -155722,9 +153805,6 @@ impl MetaValue for V3Ethnicity {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -155865,9 +153945,6 @@ impl MetaValue for V3ExposureMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -159664,9 +157741,6 @@ impl MetaValue for V3FamilyMember {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -160169,9 +158243,6 @@ impl MetaValue for V3GTSAbbreviation {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -160285,9 +158356,6 @@ impl MetaValue for V3GenderStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -160457,9 +158525,6 @@ impl MetaValue for V3GeneralPurposeOfUse {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -160582,9 +158647,6 @@ impl MetaValue for V3HL7ContextConductionStyle {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -160907,9 +158969,6 @@ impl MetaValue for V3HL7StandardVersionCode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -161150,9 +159209,6 @@ impl MetaValue for V3HL7UpdateMode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -161384,9 +159440,6 @@ impl MetaValue for V3HtmlLinkType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -161509,9 +159562,6 @@ impl MetaValue for V3IdentifierReliability {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -161645,9 +159695,6 @@ impl MetaValue for V3IdentifierScope {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -161761,9 +159808,6 @@ impl MetaValue for V3IntegrityCheckAlgorithm {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -161915,9 +159959,6 @@ impl MetaValue for V3LanguageAbilityMode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -162049,9 +160090,6 @@ impl MetaValue for V3LanguageAbilityProficiency {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -162257,9 +160295,6 @@ impl MetaValue for V3LivingArrangement {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -162374,9 +160409,6 @@ impl MetaValue for V3LocalMarkupIgnore {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -162490,9 +160522,6 @@ impl MetaValue for V3LocalRemoteControlState {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -162644,9 +160673,6 @@ impl MetaValue for V3ManagedParticipationStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -162769,9 +160795,6 @@ impl MetaValue for V3MapRelationship {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -162959,9 +160982,6 @@ impl MetaValue for V3MaritalStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -163084,9 +161104,6 @@ impl MetaValue for V3MessageWaitingPriority {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -166917,9 +164934,6 @@ impl MetaValue for V3MilitaryRoleType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -167033,9 +165047,6 @@ impl MetaValue for V3ModifyIndicator {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -167286,9 +165297,6 @@ impl MetaValue for V3NullFlavor {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -167456,9 +165464,6 @@ impl MetaValue for V3ObservationCategory {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -168148,9 +166153,6 @@ impl MetaValue for V3ObservationInterpretation {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -171000,9 +169002,6 @@ impl MetaValue for V3ObservationMethod {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -173447,9 +171446,6 @@ impl MetaValue for V3ObservationValue {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -174064,9 +172060,6 @@ impl MetaValue for V3ParticipationFunction {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -174732,9 +172725,6 @@ impl MetaValue for V3ParticipationIndirectTarget {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -175412,9 +173402,6 @@ impl MetaValue for V3ParticipationInformationGenerator {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -176125,9 +174112,6 @@ impl MetaValue for V3ParticipationInformationTranscriber {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -176358,9 +174342,6 @@ impl MetaValue for V3ParticipationMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -177027,9 +175008,6 @@ impl MetaValue for V3ParticipationPhysicalPerformer {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -177152,9 +175130,6 @@ impl MetaValue for V3ParticipationSignature {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -177818,9 +175793,6 @@ impl MetaValue for V3ParticipationTargetDirect {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -178487,9 +176459,6 @@ impl MetaValue for V3ParticipationTargetLocation {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -179155,9 +177124,6 @@ impl MetaValue for V3ParticipationTargetSubject {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -179816,9 +177782,6 @@ impl MetaValue for V3ParticipationType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -180479,9 +178442,6 @@ impl MetaValue for V3ParticipationVerifier {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -180659,9 +178619,6 @@ impl MetaValue for V3PatientImportance {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -180793,9 +178750,6 @@ impl MetaValue for V3PaymentTerms {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -180982,9 +178936,6 @@ impl MetaValue for V3PersonDisabilityType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -184933,9 +182884,6 @@ impl MetaValue for V3PersonalRelationshipRoleType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -185113,9 +183061,6 @@ impl MetaValue for V3ProbabilityDistributionType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -185238,9 +183183,6 @@ impl MetaValue for V3ProcessingID {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -185373,9 +183315,6 @@ impl MetaValue for V3ProcessingMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -185561,9 +183500,6 @@ impl MetaValue for V3ProvenanceEventCurrentState {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -185708,9 +183644,6 @@ impl MetaValue for V3ProvenanceEventCurrentStateAS {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -185846,9 +183779,6 @@ impl MetaValue for V3ProvenanceEventCurrentStateDC {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -188665,9 +186595,6 @@ impl MetaValue for V3PurposeOfUse {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -188926,9 +186853,6 @@ impl MetaValue for V3QueryParameterValue {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -189043,9 +186967,6 @@ impl MetaValue for V3QueryPriority {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -189159,9 +187080,6 @@ impl MetaValue for V3QueryRequestLimit {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -189294,9 +187212,6 @@ impl MetaValue for V3QueryResponse {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -189442,9 +187357,6 @@ impl MetaValue for V3QueryStatusCode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -189614,9 +187526,6 @@ impl MetaValue for V3RelationalOperator {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -189739,9 +187648,6 @@ impl MetaValue for V3RelationshipConjunction {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -190577,9 +188483,6 @@ impl MetaValue for V3ReligiousAffiliation {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -190739,9 +188642,6 @@ impl MetaValue for V3ResponseLevel {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -190865,9 +188765,6 @@ impl MetaValue for V3ResponseModality {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -190990,9 +188887,6 @@ impl MetaValue for V3ResponseMode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -192101,9 +189995,6 @@ impl MetaValue for V3RoleClass {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -193220,9 +191111,6 @@ impl MetaValue for V3RoleClassAgent {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -194355,9 +192243,6 @@ impl MetaValue for V3RoleClassAssociative {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -195515,9 +193400,6 @@ impl MetaValue for V3RoleClassManufacturedProduct {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -196668,9 +194550,6 @@ impl MetaValue for V3RoleClassMutualRelationship {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -197799,9 +195678,6 @@ impl MetaValue for V3RoleClassPartitive {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -198921,9 +196797,6 @@ impl MetaValue for V3RoleClassPassive {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -200075,9 +197948,6 @@ impl MetaValue for V3RoleClassRelationshipFormal {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -201193,9 +199063,6 @@ impl MetaValue for V3RoleClassRoot {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -202379,9 +200246,6 @@ impl MetaValue for V3RoleClassServiceDeliveryLocation {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -203505,9 +201369,6 @@ impl MetaValue for V3RoleClassSpecimen {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -207272,9 +205133,6 @@ impl MetaValue for V3RoleCode {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -207424,9 +205282,6 @@ impl MetaValue for V3RoleLinkStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -207596,9 +205451,6 @@ impl MetaValue for V3RoleLinkType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -207757,9 +205609,6 @@ impl MetaValue for V3RoleStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -211649,9 +209498,6 @@ impl MetaValue for V3RouteOfAdministration {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -214514,9 +212360,6 @@ impl MetaValue for V3SecurityIntegrityObservationValue {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -214639,9 +212482,6 @@ impl MetaValue for V3Sequencing {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -218686,9 +216526,6 @@ impl MetaValue for V3ServiceDeliveryLocationRoleType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -218838,9 +216675,6 @@ impl MetaValue for V3SetOperator {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -221310,9 +219144,6 @@ impl MetaValue for V3SeverityObservation {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -222525,9 +220356,6 @@ impl MetaValue for V3SpecimenType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -223428,9 +221256,6 @@ impl MetaValue for V3SubstanceAdminSubstitutionReason {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -223571,9 +221396,6 @@ impl MetaValue for V3SubstitutionCondition {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -223716,9 +221538,6 @@ impl MetaValue for V3TableCellHorizontalAlign {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -223851,9 +221670,6 @@ impl MetaValue for V3TableCellScope {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -223985,9 +221801,6 @@ impl MetaValue for V3TableCellVerticalAlign {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -224166,9 +221979,6 @@ impl MetaValue for V3TableFrame {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -224309,9 +222119,6 @@ impl MetaValue for V3TableRules {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -224463,9 +222270,6 @@ impl MetaValue for V3TargetAwareness {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -224606,9 +222410,6 @@ impl MetaValue for V3TelecommunicationCapabilities {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -224868,9 +222669,6 @@ impl MetaValue for V3TimingEvent {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -224975,9 +222773,6 @@ impl MetaValue for V3TransmissionRelationshipTypeCode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -225434,9 +223229,6 @@ impl MetaValue for V3VaccineManufacturer {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -228290,9 +226082,6 @@ impl MetaValue for V3VerificationMethod {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -228469,9 +226258,6 @@ impl MetaValue for V3WorkClassificationODH {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -230910,9 +228696,6 @@ impl MetaValue for V3WorkScheduleODH {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -233382,9 +231165,6 @@ impl MetaValue for V3EmploymentStatusODH {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -233661,9 +231441,6 @@ impl MetaValue for V3Hl7ApprovalStatus {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -233831,9 +231608,6 @@ impl MetaValue for V3Hl7CMETAttribution {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -233948,9 +231722,6 @@ impl MetaValue for V3Hl7ITSType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -234055,9 +231826,6 @@ impl MetaValue for V3Hl7ITSVersionCode {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -234533,9 +232301,6 @@ impl MetaValue for V3Hl7PublishingDomain {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -234667,9 +232432,6 @@ impl MetaValue for V3Hl7PublishingSection {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -234856,9 +232618,6 @@ impl MetaValue for V3Hl7PublishingSubSection {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -235361,9 +233120,6 @@ impl MetaValue for V3Hl7Realm {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -235513,9 +233269,6 @@ impl MetaValue for V3Hl7V3Conformance {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -235731,9 +233484,6 @@ impl MetaValue for V3Hl7VoteResolution {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -237292,9 +235042,6 @@ impl MetaValue for V3OrderableDrugForm {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -237580,9 +235327,6 @@ impl MetaValue for V3StyleType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -237779,9 +235523,6 @@ impl MetaValue for V3SubstanceAdminSubstitution {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -237977,9 +235718,6 @@ impl MetaValue for V3TriggerEventID {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -238099,9 +235837,6 @@ impl MetaValue for V3XBasicConfidentialityKind {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -238234,9 +235969,6 @@ impl MetaValue for AccessPolicyAttributeOperationTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -238350,9 +236082,6 @@ impl MetaValue for AccessPolicyv2Engine {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -238476,9 +236205,6 @@ impl MetaValue for AccessPolicyFhirApiLevel {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -238684,9 +236410,6 @@ impl MetaValue for AccessPolicyFhirApiMethods {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -238810,9 +236533,6 @@ impl MetaValue for AccessPolicyFhirApiParameter {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -238927,9 +236647,6 @@ impl MetaValue for AccessPolicyType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -239043,9 +236760,6 @@ impl MetaValue for AccessPolicyv2CombineBehavior {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -239163,9 +236877,6 @@ impl MetaValue for AccessPolicyv2RuleConditionOperator {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -239279,9 +236990,6 @@ impl MetaValue for AccessPolicyRuleEffect {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -239684,9 +237392,6 @@ impl MetaValue for CanonicalResourceTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -239827,9 +237532,6 @@ impl MetaValue for ClientapplicationGrantType {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -239944,9 +237646,6 @@ impl MetaValue for ClientapplicationResponseTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -240051,9 +237750,6 @@ impl MetaValue for IdentityProviderAccessType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -240169,9 +237865,6 @@ impl MetaValue for IdentityProviderPkceChallengeMethod {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -240285,9 +237978,6 @@ impl MetaValue for IdentityProviderStatus {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -240403,9 +238093,6 @@ impl MetaValue for MembershipRole {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -240510,9 +238197,6 @@ impl MetaValue for MessageBrokerType {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -242061,9 +239745,6 @@ impl MetaValue for HasteHealthTypes {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
-    }
     fn fhir_type(&self) -> &'static str {
         "code"
     }
@@ -242168,9 +239849,6 @@ impl MetaValue for SupportedFhirVersion {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"
@@ -242294,9 +239972,6 @@ impl MetaValue for UserRole {
     }
     fn as_any(&self) -> &dyn Any {
         self
-    }
-    fn typename(&self) -> &'static str {
-        "FHIRCode"
     }
     fn fhir_type(&self) -> &'static str {
         "code"

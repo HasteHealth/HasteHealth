@@ -63,7 +63,6 @@ pub fn haste_reflect(input: TokenStream) -> TokenStream {
                 .map(|field| field.ident.to_owned().unwrap().to_string());
 
             let name = input.ident;
-            let name_str = name.to_string();
 
             let accessors = data.fields.iter().map(|field| {
                 let renamed = get_attribute_rename(&field.attrs);
@@ -135,10 +134,6 @@ pub fn haste_reflect(input: TokenStream) -> TokenStream {
                         None
                     }
 
-                    fn typename(&self) -> &'static str {
-                        #name_str
-                    }
-
                     fn fhir_type(&self) -> &'static str {
                         #fhir_type
                     }
@@ -199,13 +194,6 @@ pub fn haste_reflect(input: TokenStream) -> TokenStream {
                 }
             });
 
-            let variants_typename = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
-                quote! {
-                    Self::#name(k) => k.typename()
-                }
-            });
-
             let variants_as_any = data.variants.iter().map(|variant| {
                 let name = variant.ident.to_owned();
                 quote! {
@@ -256,12 +244,6 @@ pub fn haste_reflect(input: TokenStream) -> TokenStream {
                     fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
                         match self {
                             #(#variants_get_index_mut),*
-                        }
-                    }
-
-                    fn typename(&self) ->  &'static str {
-                        match self {
-                            #(#variants_typename),*
                         }
                     }
 
