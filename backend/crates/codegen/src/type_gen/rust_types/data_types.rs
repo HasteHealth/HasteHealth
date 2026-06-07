@@ -634,6 +634,7 @@ pub struct GeneratedCode {
  * "http://hl7.org/fhirpath/System.Date"
  * 073  public static final String FP_Time = "http://hl7.org/fhirpath/System.Time";
  */
+#[allow(dead_code)]
 static PRIMITIVE_TYPES: &[&str] = &[
     "http://hl7.org/fhirpath/System.String",
     "http://hl7.org/fhirpath/System.Boolean",
@@ -697,31 +698,6 @@ pub fn generate(
         }
     }
 
-    let rust_type_map_ident = format_ident!("rust_to_fhir_type_map");
-
-    let rust_types_to_fhir_types =
-        rust_type_name_to_fhir_type
-            .iter()
-            .map(|(rust_type, fhir_type)| {
-                quote! {
-                    #rust_type_map_ident.insert(#rust_type, #fhir_type);
-                }
-            });
-    let primitive_types_to_fhir_types = PRIMITIVE_TYPES.iter().map(|primitive_type| {
-        quote! {
-            #rust_type_map_ident.insert(#primitive_type, #primitive_type);
-        }
-    });
-
-    let rust_type_map_generated = quote! {
-        pub static RUST_TO_FHIR_TYPE_MAP: std::sync::LazyLock<std::collections::HashMap<&'static str, &'static str>> = std::sync::LazyLock::new(|| {
-            let mut #rust_type_map_ident = std::collections::HashMap::new();
-            #(#rust_types_to_fhir_types)*
-            #(#primitive_types_to_fhir_types)*
-            #rust_type_map_ident
-        });
-    };
-
     let resource_type_enum_variant_idents = resource_types
         .iter()
         .map(|resource_name| format_ident!("{}", resource_name))
@@ -780,7 +756,6 @@ pub fn generate(
         #resource_code
         #resource_enum
         #resource_type_type
-        #rust_type_map_generated
     };
 
     Ok(GeneratedCode {
