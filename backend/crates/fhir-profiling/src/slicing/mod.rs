@@ -8,16 +8,12 @@ use haste_codegen::{
     utilities::extract::{Max, cardinality, field_name},
 };
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
-use haste_fhir_model::r4::{
-    generated::{
-        resources::{OperationOutcomeIssue, ResourceType, StructureDefinition},
-        terminology::{DiscriminatorType, IssueSeverity, IssueType},
-        types::{
-            CodeableConcept, Coding, ElementDefinition, ElementDefinitionSlicingDiscriminator,
-            FHIRUri,
-        },
+use haste_fhir_model::r4::generated::{
+    resources::{OperationOutcomeIssue, ResourceType, StructureDefinition},
+    terminology::{DiscriminatorType, IssueSeverity, IssueType},
+    types::{
+        CodeableConcept, Coding, ElementDefinition, ElementDefinitionSlicingDiscriminator, FHIRUri,
     },
-    get_fhir_type,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::Path;
@@ -309,10 +305,7 @@ async fn is_conformant_to_slice_descriptor(
                         )
                     })?;
 
-            let types = values
-                .iter()
-                .filter_map(|v| get_fhir_type(*v))
-                .collect::<HashSet<_>>();
+            let types = values.iter().map(|v| v.fhir_type()).collect::<HashSet<_>>();
 
             let result = expected_types.iter().find(|t| {
                 if let Some(type_name) = t.code.value.as_ref().map(|c| c.as_str()) {
@@ -361,7 +354,7 @@ async fn is_conformant_to_slice_descriptor(
                 };
 
                 for value in values.iter() {
-                    match value.typename() {
+                    match value.fhir_type() {
                         "Coding" => {
                             if validate_pattern(*value, &coding_pattern)? {
                                 return Ok(true);
@@ -373,7 +366,7 @@ async fn is_conformant_to_slice_descriptor(
                             }
                         }
                         // Not supporting coding for now as it would require validating terminology which not yet supported.
-                        "FHIRCode" | _ => {}
+                        "" | _ => {}
                     }
                 }
             } else {

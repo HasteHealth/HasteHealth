@@ -219,10 +219,10 @@ fn derive_resource_type(
             ))
         })
     } else if let Some(target) = target {
-        ResourceType::try_from(target.typename()).map_err(|_| {
+        ResourceType::try_from(target.fhir_type()).map_err(|_| {
             TestScriptError::ExecutionError(format!(
                 "Unsupported resource type '{}' for operation at '{}'.",
-                target.typename(),
+                target.fhir_type(),
                 path
             ))
         })
@@ -281,7 +281,7 @@ async fn get_variable(
                 conversion::convert_meta_value(d).ok_or_else(|| {
                     TestScriptError::ExecutionError(format!(
                         "Failed to convert comparison fixture value '{}'.",
-                        d.typename()
+                        d.fhir_type()
                     ))
                 })
             })
@@ -970,7 +970,7 @@ async fn derive_comparison_to(
                 conversion::convert_meta_value(d).ok_or_else(|| {
                     TestScriptError::ExecutionError(format!(
                         "Failed to convert comparison fixture value '{}'.",
-                        d.typename()
+                        d.fhir_type()
                     ))
                 })
             })
@@ -1035,7 +1035,7 @@ async fn run_assertion(
             operator,
             &vec![conversion::ConvertedValue::String(resource_string.clone())],
             &vec![conversion::ConvertedValue::String(
-                source.typename().to_string(),
+                source.fhir_type().to_string(),
             )],
         );
         if !operation_evaluation_result {
@@ -1044,7 +1044,7 @@ async fn run_assertion(
                 get_id(&pointer),
                 pointer.path(),
                 resource_string,
-                source.typename()
+                source.fhir_type()
             );
 
             state_guard.result = ReportResultCodes::Fail(None);

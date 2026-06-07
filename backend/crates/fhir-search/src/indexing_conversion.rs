@@ -98,7 +98,7 @@ pub enum InsertableIndexError {
 //     .as_any()
 //     .downcast_ref::<String>()
 //     .map(|v| vec![v.clone()])
-//     .ok_or_else(|| InsertableIndexError::FailedDowncast(value.typename().to_string())),
+//     .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string())),
 
 fn convert_fp_string(value: &FHIRString) -> Vec<String> {
     value
@@ -123,10 +123,10 @@ fn convert_optional_fp_string_vec(value: &Option<Vec<Box<FHIRString>>>) -> Vec<S
 }
 
 fn index_string(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError> {
-    match value.typename() {
-        "FHIRString" => {
+    match value.fhir_type() {
+        "string" => {
             let fp_string = value.as_any().downcast_ref::<FHIRString>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
             Ok(fp_string
                 .value
@@ -135,12 +135,12 @@ fn index_string(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexErr
                 .unwrap_or_else(|| vec![]))
         }
         // Even though spec states won't encounter this it does. [ImplementationGuide.description]
-        "FHIRMarkdown" => {
+        "markdown" => {
             let fp_markdown = value
                 .as_any()
                 .downcast_ref::<FHIRMarkdown>()
                 .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                    InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
             Ok(fp_markdown
                 .value
@@ -150,7 +150,7 @@ fn index_string(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexErr
         }
         "HumanName" => {
             let human_name = value.as_any().downcast_ref::<HumanName>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
 
             let mut string_index = vec![];
@@ -164,7 +164,7 @@ fn index_string(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexErr
         "Address" => {
             let mut string_index = vec![];
             let address = value.as_any().downcast_ref::<Address>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
             string_index.extend(convert_optional_fp_string(&address.text));
             string_index.extend(convert_optional_fp_string_vec(&address.line));
@@ -182,13 +182,13 @@ fn index_string(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexErr
 }
 
 fn index_number(value: &dyn MetaValue) -> Result<Vec<f64>, InsertableIndexError> {
-    match value.typename() {
-        "FHIRInteger" => {
+    match value.fhir_type() {
+        "integer" => {
             let fp_integer = value
                 .as_any()
                 .downcast_ref::<FHIRInteger>()
                 .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                    InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
             Ok(fp_integer
                 .value
@@ -196,12 +196,12 @@ fn index_number(value: &dyn MetaValue) -> Result<Vec<f64>, InsertableIndexError>
                 .map(|v| vec![*v as f64])
                 .unwrap_or_else(|| vec![]))
         }
-        "FHIRDecimal" => {
+        "decimal" => {
             let fp_decimal = value
                 .as_any()
                 .downcast_ref::<FHIRDecimal>()
                 .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                    InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
             Ok(fp_decimal
                 .value
@@ -209,12 +209,12 @@ fn index_number(value: &dyn MetaValue) -> Result<Vec<f64>, InsertableIndexError>
                 .map(|v| vec![*v as f64])
                 .unwrap_or_else(|| vec![]))
         }
-        "FHIRPositiveInt" => {
+        "positiveInt" => {
             let fp_positive_int = value
                 .as_any()
                 .downcast_ref::<FHIRPositiveInt>()
                 .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                    InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
 
             Ok(fp_positive_int
@@ -223,12 +223,12 @@ fn index_number(value: &dyn MetaValue) -> Result<Vec<f64>, InsertableIndexError>
                 .map(|v| vec![*v as f64])
                 .unwrap_or_else(|| vec![]))
         }
-        "FHIRUnsignedInt" => {
+        "unsignedInt" => {
             let fp_unsigned_int = value
                 .as_any()
                 .downcast_ref::<FHIRUnsignedInt>()
                 .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                    InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
 
             Ok(fp_unsigned_int
@@ -242,10 +242,10 @@ fn index_number(value: &dyn MetaValue) -> Result<Vec<f64>, InsertableIndexError>
 }
 
 fn index_uri(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError> {
-    match value.typename() {
-        "FHIRUrl" => {
+    match value.fhir_type() {
+        "url" => {
             let fp_uri = value.as_any().downcast_ref::<FHIRUrl>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
             Ok(fp_uri
                 .value
@@ -253,9 +253,9 @@ fn index_uri(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError>
                 .map(|v| vec![v.to_string()])
                 .unwrap_or_else(|| vec![]))
         }
-        "FHIRUuid" => {
+        "uuid" => {
             let fp_uri = value.as_any().downcast_ref::<FHIRUuid>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
             Ok(fp_uri
                 .value
@@ -263,12 +263,12 @@ fn index_uri(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError>
                 .map(|v| vec![v.to_string()])
                 .unwrap_or_else(|| vec![]))
         }
-        "FHIRCanonical" => {
+        "canonical" => {
             let fp_uri = value
                 .as_any()
                 .downcast_ref::<FHIRCanonical>()
                 .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                    InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
             Ok(fp_uri
                 .value
@@ -276,9 +276,9 @@ fn index_uri(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError>
                 .map(|v| vec![v.to_string()])
                 .unwrap_or_else(|| vec![]))
         }
-        "FHIRUri" => {
+        "uri" => {
             let fp_uri = value.as_any().downcast_ref::<FHIRUri>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
             Ok(fp_uri
                 .value
@@ -291,10 +291,10 @@ fn index_uri(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError>
 }
 
 fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndexError> {
-    match value.typename() {
+    match value.fhir_type() {
         "Coding" => {
             let fp_coding = value.as_any().downcast_ref::<Coding>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
 
             Ok(vec![TokenIndex {
@@ -307,7 +307,7 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
                 .as_any()
                 .downcast_ref::<CodeableConcept>()
                 .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                    InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
 
             Ok(fp_codeable_concept
@@ -328,7 +328,7 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
         }
         "Identifier" => {
             let fp_identifier = value.as_any().downcast_ref::<Identifier>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
 
             Ok(vec![TokenIndex {
@@ -342,7 +342,7 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
                     .as_any()
                     .downcast_ref::<ContactPoint>()
                     .ok_or_else(|| {
-                        InsertableIndexError::FailedDowncast(value.typename().to_string())
+                        InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                     })?;
 
             Ok(vec![TokenIndex {
@@ -353,7 +353,7 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
                     .and_then(|v| v.value.clone()),
             }])
         }
-        "FHIRCode" => {
+        "code" => {
             let fp_code = value
                 .get_field("value")
                 .and_then(|v| v.as_any().downcast_ref::<String>());
@@ -363,12 +363,12 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
                 code: fp_code.map(|v| v.to_string()),
             }])
         }
-        "FHIRBoolean" => {
+        "boolean" => {
             let fp_boolean = value
                 .as_any()
                 .downcast_ref::<FHIRBoolean>()
                 .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                    InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
 
             Ok(vec![TokenIndex {
@@ -378,7 +378,7 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
         }
         "http://hl7.org/fhirpath/System.String" => {
             let string = value.as_any().downcast_ref::<String>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
 
             Ok(vec![TokenIndex {
@@ -386,9 +386,9 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
                 code: Some(string.clone()),
             }])
         }
-        "FHIRString" => {
+        "string" => {
             let fp_string = value.as_any().downcast_ref::<FHIRString>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
 
             Ok(vec![TokenIndex {
@@ -396,9 +396,9 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
                 code: fp_string.value.as_ref().map(|v| v.to_string()),
             }])
         }
-        "FHIRId" => {
+        "id" => {
             let fp_id = value.as_any().downcast_ref::<FHIRId>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
 
             Ok(vec![TokenIndex {
@@ -407,7 +407,7 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
             }])
         }
         _ => Err(InsertableIndexError::FailedDowncast(
-            value.typename().to_string(),
+            value.fhir_type().to_string(),
         )),
     }
 }
@@ -453,10 +453,10 @@ fn fhirdecimal_to_quantity_range(value: &Option<Box<FHIRDecimal>>) -> Option<Dec
 }
 
 fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, InsertableIndexError> {
-    match value.typename() {
+    match value.fhir_type() {
         "Range" => {
             let fp_range = value.as_any().downcast_ref::<Range>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
             if fp_range.low.is_some() || fp_range.high.is_some() {
                 let start_value = fp_range
@@ -499,7 +499,7 @@ fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, Insertabl
         }
         "Age" => {
             let fp_age = value.as_any().downcast_ref::<Age>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
 
             if let Some(decimal_range) = fhirdecimal_to_quantity_range(&fp_age.value) {
@@ -517,7 +517,7 @@ fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, Insertabl
         }
         "Money" => {
             let fp_money = value.as_any().downcast_ref::<Money>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
 
             if let Some(decimal_range) = fhirdecimal_to_quantity_range(&fp_money.value) {
@@ -535,7 +535,7 @@ fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, Insertabl
         }
         "Duration" => {
             let fp_duration = value.as_any().downcast_ref::<Duration>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
 
             if let Some(decimal_range) = fhirdecimal_to_quantity_range(&fp_duration.value) {
@@ -553,7 +553,7 @@ fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, Insertabl
         }
         "Quantity" => {
             let fp_quantity = value.as_any().downcast_ref::<Quantity>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
 
             if let Some(decimal_range) = fhirdecimal_to_quantity_range(&fp_quantity.value) {
@@ -570,7 +570,7 @@ fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, Insertabl
             }
         }
         _ => Err(InsertableIndexError::FailedDowncast(
-            value.typename().to_string(),
+            value.fhir_type().to_string(),
         )),
     }
 }
@@ -655,10 +655,10 @@ pub fn date_time_range(value: &DateTime) -> Result<DateRange, InsertableIndexErr
 }
 
 fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexError> {
-    match value.typename() {
+    match value.fhir_type() {
         "Timing" => {
             let fp_timing = value.as_any().downcast_ref::<Timing>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
 
             if let Some(events) = fp_timing.event.as_ref() {
@@ -671,11 +671,11 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
                 Ok(vec![])
             }
         }
-        "FHIRDate" => {
+        "date" => {
             let fp_date = value
                 .as_any()
                 .downcast_ref::<FHIRDate>()
-                .ok_or_else(|| InsertableIndexError::FailedDowncast(value.typename().to_string()))?
+                .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?
                 .value
                 .as_ref();
 
@@ -690,11 +690,11 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
                 None => Ok(vec![]),
             }
         }
-        "FHIRDateTime" => {
+        "dateTime" => {
             let fp_datetime = value
                 .as_any()
                 .downcast_ref::<FHIRDateTime>()
-                .ok_or_else(|| InsertableIndexError::FailedDowncast(value.typename().to_string()))?
+                .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?
                 .value
                 .as_ref();
 
@@ -705,12 +705,12 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
                 }
             }
         }
-        "FHIRInstant" => {
+        "instant" => {
             let fp_instant = value
                 .as_any()
                 .downcast_ref::<FHIRInstant>()
                 .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                    InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
 
             match &fp_instant.value {
@@ -728,7 +728,7 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
         }
         "Period" => {
             let fp_period = value.as_any().downcast_ref::<Period>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
             let fp_start = if let Some(date) = fp_period.start.as_ref() {
                 let date = date.as_ref();
@@ -736,7 +736,7 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
                 date_range
                     .get(0)
                     .ok_or_else(|| {
-                        InsertableIndexError::FailedDowncast(value.typename().to_string())
+                        InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                     })?
                     .start
             } else {
@@ -749,7 +749,7 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
                 date_range
                     .get(0)
                     .ok_or_else(|| {
-                        InsertableIndexError::FailedDowncast(value.typename().to_string())
+                        InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                     })?
                     .end
             } else {
@@ -762,16 +762,16 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
             }])
         }
         _ => Err(InsertableIndexError::FailedDowncast(
-            value.typename().to_string(),
+            value.fhir_type().to_string(),
         )),
     }
 }
 
 fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, InsertableIndexError> {
-    match value.typename() {
+    match value.fhir_type() {
         "Reference" => {
             let fp_reference = value.as_any().downcast_ref::<Reference>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
 
             if let Some(reference) = &fp_reference
@@ -793,12 +793,12 @@ fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, Inserta
 
             Ok(vec![])
         }
-        "FHIRCanonical" => {
+        "canonical" => {
             let fp_canonical = value
                 .as_any()
                 .downcast_ref::<FHIRCanonical>()
                 .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                    InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
             if let Some(canonical) = &fp_canonical.value {
                 return Ok(vec![ReferenceIndex {
@@ -809,9 +809,9 @@ fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, Inserta
             }
             Ok(vec![])
         }
-        "FHIRUri" => {
+        "uri" => {
             let fp_uri = value.as_any().downcast_ref::<FHIRUri>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
+                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
             if let Some(uri) = &fp_uri.value {
                 return Ok(vec![ReferenceIndex {
@@ -823,7 +823,7 @@ fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, Inserta
             Ok(vec![])
         }
         _ => Err(InsertableIndexError::FailedDowncast(
-            value.typename().to_string(),
+            value.fhir_type().to_string(),
         )),
     }
 }

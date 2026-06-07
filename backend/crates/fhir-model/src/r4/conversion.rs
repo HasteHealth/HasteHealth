@@ -15,10 +15,10 @@ pub enum DowncastError {
 /// Number types to use in FHIR evaluation
 pub static NUMBER_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     let mut m = HashSet::new();
-    m.insert("FHIRInteger");
-    m.insert("FHIRDecimal");
-    m.insert("FHIRPositiveInt");
-    m.insert("FHIRUnsignedInt");
+    m.insert("integer");
+    m.insert("decimal");
+    m.insert("positiveInt");
+    m.insert("unsignedInt");
     m.insert("http://hl7.org/fhirpath/System.Decimal");
     m.insert("http://hl7.org/fhirpath/System.Integer");
     m
@@ -26,17 +26,17 @@ pub static NUMBER_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
 
 pub static BOOLEAN_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     let mut m = HashSet::new();
-    m.insert("FHIRBoolean");
+    m.insert("boolean");
     m.insert("http://hl7.org/fhirpath/System.Boolean");
     m
 });
 
 pub static DATE_TIME_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     let mut m = HashSet::new();
-    m.insert("FHIRDate");
-    m.insert("FHIRDateTime");
-    m.insert("FHIRInstant");
-    m.insert("FHIRTime");
+    m.insert("date");
+    m.insert("dateTime");
+    m.insert("instant");
+    m.insert("time");
     m.insert("http://hl7.org/fhirpath/System.DateTime");
     m.insert("http://hl7.org/fhirpath/System.Instant");
     m.insert("http://hl7.org/fhirpath/System.Date");
@@ -46,16 +46,16 @@ pub static DATE_TIME_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
 
 pub static STRING_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     let mut m = HashSet::new();
-    m.insert("FHIRBase64Binary");
-    m.insert("FHIRCanonical");
+    m.insert("base64Binary");
+    m.insert("canonical");
 
-    m.insert("FHIRCode");
-    m.insert("FHIRString");
-    m.insert("FHIROid");
-    m.insert("FHIRUri");
-    m.insert("FHIRUrl");
-    m.insert("FHIRUuid");
-    m.insert("FHIRXhtml");
+    m.insert("code");
+    m.insert("string");
+    m.insert("oid");
+    m.insert("uri");
+    m.insert("url");
+    m.insert("uuid");
+    m.insert("xhtml");
 
     m.insert("http://hl7.org/fhirpath/System.String");
     m
@@ -71,17 +71,17 @@ pub static PRIMITIVE_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
 });
 
 pub fn downcast_bool(value: &dyn MetaValue) -> Result<bool, DowncastError> {
-    match value.typename() {
+    match value.fhir_type() {
         "http://hl7.org/fhirpath/System.Boolean" => value
             .as_any()
             .downcast_ref::<bool>()
             .map(|v| *v)
-            .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string())),
-        "FHIRBoolean" => {
+            .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string())),
+        "boolean" => {
             let fp_bool = value
                 .as_any()
                 .downcast_ref::<FHIRBoolean>()
-                .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string()))?;
+                .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))?;
             downcast_bool(fp_bool.value.as_ref().unwrap_or(&false))
         }
         type_name => Err(DowncastError::FailedDowncast(type_name.to_string())),
@@ -89,51 +89,49 @@ pub fn downcast_bool(value: &dyn MetaValue) -> Result<bool, DowncastError> {
 }
 
 pub fn downcast_string(value: &dyn MetaValue) -> Result<String, DowncastError> {
-    match value.typename() {
-        "FHIRCanonical" | "FHIRBase64Binary" | "FHIRCode" | "FHIRString" | "FHIROid"
-        | "FHIRUri" | "FHIRUrl" | "FHIRUuid" | "FHIRXhtml" => {
-            downcast_string(value.get_field("value").unwrap_or(&"".to_string()))
-        }
+    match value.fhir_type() {
+        "canonical" | "base64Binary" | "code" | "string" | "oid" | "uri" | "url" | "uuid"
+        | "xhtml" => downcast_string(value.get_field("value").unwrap_or(&"".to_string())),
 
         "http://hl7.org/fhirpath/System.String" => value
             .as_any()
             .downcast_ref::<String>()
             .map(|v| v.clone())
-            .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string())),
+            .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string())),
 
         type_name => Err(DowncastError::FailedDowncast(type_name.to_string())),
     }
 }
 
 pub fn downcast_number(value: &dyn MetaValue) -> Result<f64, DowncastError> {
-    match value.typename() {
-        "FHIRInteger" => {
+    match value.fhir_type() {
+        "integer" => {
             let fp_integer = value
                 .as_any()
                 .downcast_ref::<FHIRInteger>()
-                .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string()))?;
+                .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))?;
             downcast_number(fp_integer.value.as_ref().unwrap_or(&0))
         }
-        "FHIRDecimal" => {
+        "decimal" => {
             let fp_decimal = value
                 .as_any()
                 .downcast_ref::<FHIRDecimal>()
-                .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string()))?;
+                .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))?;
             downcast_number(fp_decimal.value.as_ref().unwrap_or(&0.0))
         }
-        "FHIRPositiveInt" => {
+        "positiveInt" => {
             let fp_positive_int = value
                 .as_any()
                 .downcast_ref::<FHIRPositiveInt>()
-                .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string()))?;
+                .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))?;
 
             downcast_number(fp_positive_int.value.as_ref().unwrap_or(&0))
         }
-        "FHIRUnsignedInt" => {
+        "unsignedInt" => {
             let fp_unsigned_int = value
                 .as_any()
                 .downcast_ref::<FHIRUnsignedInt>()
-                .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string()))?;
+                .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))?;
 
             downcast_number(fp_unsigned_int.value.as_ref().unwrap_or(&0))
         }
@@ -141,28 +139,28 @@ pub fn downcast_number(value: &dyn MetaValue) -> Result<f64, DowncastError> {
             .as_any()
             .downcast_ref::<i64>()
             .map(|v| *v as f64)
-            .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string())),
+            .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string())),
 
         "http://hl7.org/fhirpath/System.Decimal" => value
             .as_any()
             .downcast_ref::<f64>()
             .map(|v| *v)
-            .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string())),
+            .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string())),
         type_name => Err(DowncastError::FailedDowncast(type_name.to_string())),
     }
 }
 
 pub fn downcast_datetime(value: &dyn MetaValue) -> Result<String, DowncastError> {
     // For simplicity, we will just downcast to string for date and datetime types, as FHIRPath evaluation only requires string representation of dates.
-    match value.typename() {
-        "FHIRDate" | "FHIRDateTime" | "FHIRInstant" | "FHIRTime" => {
+    match value.fhir_type() {
+        "date" | "dateTime" | "instant" | "time" => {
             downcast_datetime(value.get_field("value").unwrap_or(&"".to_string()))
         }
         "http://hl7.org/fhirpath/System.Date" => {
             let fp_date = value
                 .as_any()
                 .downcast_ref::<Date>()
-                .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string()))?;
+                .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))?;
 
             Ok(fp_date.to_string())
         }
@@ -170,7 +168,7 @@ pub fn downcast_datetime(value: &dyn MetaValue) -> Result<String, DowncastError>
             let fp_datetime = value
                 .as_any()
                 .downcast_ref::<DateTime>()
-                .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string()))?;
+                .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))?;
 
             Ok(fp_datetime.to_string())
         }
@@ -178,7 +176,7 @@ pub fn downcast_datetime(value: &dyn MetaValue) -> Result<String, DowncastError>
             let fp_instant = value
                 .as_any()
                 .downcast_ref::<Instant>()
-                .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string()))?;
+                .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))?;
 
             Ok(fp_instant.to_string())
         }
@@ -186,7 +184,7 @@ pub fn downcast_datetime(value: &dyn MetaValue) -> Result<String, DowncastError>
             let fp_time = value
                 .as_any()
                 .downcast_ref::<Time>()
-                .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string()))?;
+                .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string()))?;
             Ok(fp_time.to_string())
         }
         type_name => Err(DowncastError::FailedDowncast(type_name.to_string())),

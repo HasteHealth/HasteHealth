@@ -14,7 +14,6 @@ use haste_fhir_model::r4::{
         resources::ResourceType,
         types::{FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRString, Reference},
     },
-    get_fhir_type,
 };
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
@@ -259,11 +258,11 @@ fn check_type_name(type_name: &str, type_to_check: &str) -> bool {
 }
 
 fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
-    let fhir_type_name = get_fhir_type(value);
+    let fhir_type_name = value.fhir_type();
 
     match fhir_type_name {
         // Special handling for reference which is to check the reference type.
-        Some("Reference") => {
+        "Reference" => {
             if type_to_check == "Reference" {
                 return true;
             } else if let Some(reference) = value.as_any().downcast_ref::<Reference>() {
@@ -278,8 +277,7 @@ fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
             }
             false
         }
-        Some(fhir_type_name) => check_type_name(fhir_type_name, type_to_check),
-        None => false,
+        fhir_type_name => check_type_name(fhir_type_name, type_to_check),
     }
 }
 
@@ -488,7 +486,7 @@ async fn evaluate_function<'a>(
 
             let mut next_ctx = Vec::with_capacity(context.values.len());
             for v in context.values.iter() {
-                let type_name = v.typename();
+                let type_name = v.fhir_type();
                 next_ctx.push(
                     context
                         .allocate_literal(Reflection {
@@ -510,20 +508,20 @@ async fn evaluate_function<'a>(
 }
 
 fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<bool, FHIRPathError> {
-    if NUMBER_TYPES.contains(left.values[0].typename())
-        && NUMBER_TYPES.contains(right.values[0].typename())
+    if NUMBER_TYPES.contains(left.values[0].fhir_type())
+        && NUMBER_TYPES.contains(right.values[0].fhir_type())
     {
         let left_value = downcast_number(left.values[0])?;
         let right_value = downcast_number(right.values[0])?;
         Ok(left_value == right_value)
-    } else if STRING_TYPES.contains(left.values[0].typename())
-        && STRING_TYPES.contains(right.values[0].typename())
+    } else if STRING_TYPES.contains(left.values[0].fhir_type())
+        && STRING_TYPES.contains(right.values[0].fhir_type())
     {
         let left_value = downcast_string(left.values[0])?;
         let right_value = downcast_string(right.values[0])?;
         Ok(left_value == right_value)
-    } else if BOOLEAN_TYPES.contains(left.values[0].typename())
-        && BOOLEAN_TYPES.contains(right.values[0].typename())
+    } else if BOOLEAN_TYPES.contains(left.values[0].fhir_type())
+        && BOOLEAN_TYPES.contains(right.values[0].fhir_type())
     {
         let left_value = downcast_bool(left.values[0])?;
         let right_value = downcast_bool(right.values[0])?;
@@ -548,8 +546,8 @@ async fn evaluate_operation<'a>(
         Operation::Add(left, right) => {
             operation_2(left, right, context, config, |left, right| {
                 Box::pin(async move {
-                    if NUMBER_TYPES.contains(left.values[0].typename())
-                        && NUMBER_TYPES.contains(right.values[0].typename())
+                    if NUMBER_TYPES.contains(left.values[0].fhir_type())
+                        && NUMBER_TYPES.contains(right.values[0].fhir_type())
                     {
                         let left_value = downcast_number(left.values[0])?;
                         let right_value = downcast_number(right.values[0])?;
@@ -560,8 +558,8 @@ async fn evaluate_operation<'a>(
                             })
                             .await,
                         ]))
-                    } else if STRING_TYPES.contains(left.values[0].typename())
-                        && STRING_TYPES.contains(right.values[0].typename())
+                    } else if STRING_TYPES.contains(left.values[0].fhir_type())
+                        && STRING_TYPES.contains(right.values[0].fhir_type())
                     {
                         let left_string = downcast_string(left.values[0])?;
                         let right_string = downcast_string(right.values[0])?;
@@ -575,8 +573,8 @@ async fn evaluate_operation<'a>(
                         ]))
                     } else {
                         Err(FHIRPathError::OperationError(OperationError::TypeMismatch(
-                            left.values[0].typename(),
-                            right.values[0].typename(),
+                            left.values[0].fhir_type(),
+                            right.values[0].fhir_type(),
                         )))
                     }
                 })
@@ -1695,9 +1693,9 @@ mod tests {
             result
                 .values
                 .iter()
-                .map(|v| v.typename())
+                .map(|v| v.fhir_type())
                 .collect::<Vec<_>>(),
-            vec!["HumanName", "FHIRBoolean"]
+            vec!["HumanName", "boolean"]
         );
     }
 
@@ -1726,7 +1724,7 @@ mod tests {
 
         assert_eq!(result.values.len(), 1);
 
-        assert_eq!(result.values[0].typename(), "FHIRString");
+        assert_eq!(result.values[0].fhir_type(), "string");
 
         let result = engine
             .evaluate("$this.repeat(children())", vec![&patient])
@@ -1737,12 +1735,12 @@ mod tests {
             result
                 .values
                 .iter()
-                .map(|v| v.typename())
+                .map(|v| v.fhir_type())
                 .collect::<Vec<_>>(),
             vec![
                 "HumanName",
-                "FHIRBoolean",
-                "FHIRString",
+                "boolean",
+                "string",
                 "http://hl7.org/fhirpath/System.Boolean",
                 "http://hl7.org/fhirpath/System.String"
             ]
@@ -1774,12 +1772,12 @@ mod tests {
             result
                 .values
                 .iter()
-                .map(|v| v.typename())
+                .map(|v| v.fhir_type())
                 .collect::<Vec<_>>(),
             vec![
                 "HumanName",
-                "FHIRBoolean",
-                "FHIRString",
+                "boolean",
+                "string",
                 "http://hl7.org/fhirpath/System.Boolean",
                 "http://hl7.org/fhirpath/System.String"
             ]
@@ -1822,17 +1820,17 @@ mod tests {
             result
                 .values
                 .iter()
-                .map(|v| v.typename())
+                .map(|v| v.fhir_type())
                 .collect::<Vec<_>>(),
             vec![
                 "HumanName",
-                "FHIRBoolean",
+                "boolean",
                 "PatientLink",
-                "FHIRString",
+                "string",
                 "http://hl7.org/fhirpath/System.Boolean",
                 "Reference",
                 "http://hl7.org/fhirpath/System.String",
-                "FHIRString",
+                "string",
                 "http://hl7.org/fhirpath/System.String"
             ]
         );
@@ -1846,7 +1844,7 @@ mod tests {
             result
                 .values
                 .iter()
-                .map(|v| v.typename())
+                .map(|v| v.fhir_type())
                 .collect::<Vec<_>>(),
             vec!["Reference",]
         );
@@ -1899,7 +1897,7 @@ mod tests {
             result
                 .values
                 .iter()
-                .map(|v| v.typename())
+                .map(|v| v.fhir_type())
                 .collect::<Vec<_>>(),
             vec!["Reference",]
         );

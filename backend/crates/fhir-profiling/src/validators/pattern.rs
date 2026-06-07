@@ -7,7 +7,7 @@ pub fn validate_pattern(
     value: &dyn MetaValue,
     pattern: &dyn MetaValue,
 ) -> Result<bool, OperationOutcomeError> {
-    if value.typename() != pattern.typename() {
+    if value.fhir_type() != pattern.fhir_type() {
         return Ok(false);
     }
 

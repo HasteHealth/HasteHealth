@@ -2,13 +2,10 @@ use std::{iter, sync::Arc};
 
 use haste_codegen::{traversal, utilities::extract};
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
-use haste_fhir_model::r4::{
-    generated::{
-        resources::{OperationOutcomeIssue, ResourceType},
-        terminology::{IssueSeverity, IssueType},
-        types::{ElementDefinition, FHIRString},
-    },
-    get_fhir_type,
+use haste_fhir_model::r4::generated::{
+    resources::{OperationOutcomeIssue, ResourceType},
+    terminology::{IssueSeverity, IssueType},
+    types::{ElementDefinition, FHIRString},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::{Key, Path};
@@ -202,7 +199,7 @@ pub async fn validate_singular_element<'a>(
             ctx.clone(),
             element,
             &value_path,
-            get_fhir_type(value),
+            Some(value.fhir_type()),
         )
         .await?,
     );

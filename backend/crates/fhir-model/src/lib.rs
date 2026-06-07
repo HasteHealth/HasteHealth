@@ -19,7 +19,7 @@ mod tests {
                 ..r4::generated::types::Element::default()
             },
         ));
-        assert_eq!(term_.typename(), "FHIRCode");
+        assert_eq!(term_.fhir_type(), "code");
         let k = term_
             .get_field("value")
             .unwrap()

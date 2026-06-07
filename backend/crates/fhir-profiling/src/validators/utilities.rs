@@ -40,7 +40,7 @@ pub enum Primitive {
 pub fn primitive_conversion(
     value: &dyn MetaValue,
 ) -> Result<Option<Primitive>, OperationOutcomeError> {
-    let type_name = value.typename();
+    let type_name = value.fhir_type();
     if PRIMITIVE_TYPES.contains(type_name) {
         if STRING_TYPES.contains(type_name) {
             Ok(Some(Primitive::String(downcast_string(value).map_err(
@@ -93,7 +93,7 @@ pub fn check_bare_primitive_pattern(
     data_to_check: &dyn MetaValue,
     pattern: &dyn MetaValue,
 ) -> Result<bool, OperationOutcomeError> {
-    match pattern.typename() {
+    match pattern.fhir_type() {
         "http://hl7.org/fhirpath/System.String" => {
             let pattern_string = downcast_meta_value::<String>(pattern)?;
             let Ok(value_string) = downcast_meta_value::<String>(data_to_check) else {
@@ -157,7 +157,7 @@ pub fn check_bare_primitive_pattern(
 
         _ => Err(OperationOutcomeError::fatal(
             IssueType::Invalid(None),
-            format!("Unsupported pattern type: {}", pattern.typename()),
+            format!("Unsupported pattern type: {}", pattern.fhir_type()),
         )),
     }
 }

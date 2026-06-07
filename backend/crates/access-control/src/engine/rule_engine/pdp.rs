@@ -66,7 +66,7 @@ async fn should_evaluate_rule<
             haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
             format!(
                 "Target expression did not evaluate to a boolean value it resolved to '{}'",
-                values[0].typename()
+                values[0].fhir_type()
             ),
         ));
     };
@@ -91,8 +91,8 @@ fn coalesce_boolean(
         ));
     };
 
-    match value.typename() {
-        "FHIRBoolean" => value
+    match value.fhir_type() {
+        "boolean" => value
             .as_any()
             .downcast_ref::<FHIRBoolean>()
             .and_then(|b| b.value)

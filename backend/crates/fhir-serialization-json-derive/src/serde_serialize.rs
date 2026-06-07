@@ -123,10 +123,6 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
                 }
             };
 
-            // if name.to_string() == "FHIRBase64Binary" {
-            //     println!("{}", serialize.to_string());
-            // }
-
             serialize.into()
         }
         _ => panic!("FHIR primitives must be structs with a single value field."),

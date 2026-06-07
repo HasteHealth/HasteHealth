@@ -21,25 +21,23 @@ impl ToString for ConvertedValue {
 }
 
 fn downcast_string(value: &dyn MetaValue) -> Option<String> {
-    match value.typename() {
-        "FHIRCanonical" | "FHIRBase64Binary" | "FHIRCode" | "FHIRString" | "FHIROid" | "FHIRId"
-        | "FHIRUri" | "FHIRUrl" | "FHIRUuid" | "FHIRXhtml" => {
-            downcast_string(value.get_field("value").unwrap_or(&"".to_string()))
-        }
+    match value.fhir_type() {
+        "canonical" | "base64Binary" | "code" | "string" | "oid" | "id" | "uri" | "url"
+        | "uuid" | "xhtml" => downcast_string(value.get_field("value").unwrap_or(&"".to_string())),
 
-        "FHIRDate" => value
+        "date" => value
             .as_any()
             .downcast_ref::<haste_fhir_model::r4::generated::types::FHIRDate>()
             .and_then(|dt| dt.value.as_ref())
             .map(|d| d.to_string()),
 
-        "FHIRDateTime" => value
+        "dateTime" => value
             .as_any()
             .downcast_ref::<haste_fhir_model::r4::generated::types::FHIRDateTime>()
             .and_then(|dt| dt.value.as_ref())
             .map(|d| d.to_string()),
 
-        "FHIRInstant" => value
+        "instant" => value
             .as_any()
             .downcast_ref::<haste_fhir_model::r4::generated::types::FHIRInstant>()
             .and_then(|dt| dt.value.as_ref())
@@ -53,21 +51,21 @@ fn downcast_string(value: &dyn MetaValue) -> Option<String> {
 }
 
 fn downcast_number(value: &dyn MetaValue) -> Option<f64> {
-    match value.typename() {
-        "FHIRInteger" => value
+    match value.fhir_type() {
+        "integer" => value
             .as_any()
             .downcast_ref::<FHIRInteger>()
             .and_then(|fp_int| downcast_number(fp_int.value.as_ref().unwrap_or(&0))),
-        "FHIRDecimal" => value
+        "decimal" => value
             .as_any()
             .downcast_ref::<FHIRDecimal>()
             .and_then(|fp_dec| downcast_number(fp_dec.value.as_ref().unwrap_or(&(0 as f64)))),
-        "FHIRPositiveInt" => value
+        "positiveInt" => value
             .as_any()
             .downcast_ref::<FHIRPositiveInt>()
             .and_then(|fp_pint| downcast_number(fp_pint.value.as_ref().unwrap_or(&(0 as u64)))),
 
-        "FHIRUnsignedInt" => value
+        "unsignedInt" => value
             .as_any()
             .downcast_ref::<FHIRUnsignedInt>()
             .and_then(|fp_uint| downcast_number(fp_uint.value.as_ref().unwrap_or(&(0 as u64)))),
@@ -83,12 +81,12 @@ fn downcast_number(value: &dyn MetaValue) -> Option<f64> {
 }
 
 fn downcast_bool(value: &dyn MetaValue) -> Option<bool> {
-    match value.typename() {
+    match value.fhir_type() {
         "http://hl7.org/fhirpath/System.Boolean" => {
             value.as_any().downcast_ref::<bool>().map(|v| *v)
         }
 
-        "FHIRBoolean" => value
+        "boolean" => value
             .as_any()
             .downcast_ref::<FHIRBoolean>()
             .and_then(|fp_bool| downcast_bool(fp_bool.value.as_ref().unwrap_or(&false))),

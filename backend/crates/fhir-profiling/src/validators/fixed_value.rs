@@ -7,10 +7,10 @@ use crate::validators::utilities;
 /// Validates perfect match between fixed value and data.
 /// Effectively this is a deep equality check between v1 and
 pub fn is_equal(v1: &dyn MetaValue, v2: &dyn MetaValue) -> Result<bool, OperationOutcomeError> {
-    if PRIMITIVE_TYPES.contains(v1.typename()) {
+    if PRIMITIVE_TYPES.contains(v1.fhir_type()) {
         return Ok(utilities::primitive_conversion(v1)? == utilities::primitive_conversion(v2)?);
     } else {
-        if v1.typename() != v2.typename() {
+        if v1.fhir_type() != v2.fhir_type() {
             return Ok(false);
         }
         for key in v1.fields() {
