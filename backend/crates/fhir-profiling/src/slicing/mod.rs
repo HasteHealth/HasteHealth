@@ -366,7 +366,7 @@ async fn is_conformant_to_slice_descriptor(
                             }
                         }
                         // Not supporting coding for now as it would require validating terminology which not yet supported.
-                        "" | _ => {}
+                        "code" | _ => {}
                     }
                 }
             } else {
