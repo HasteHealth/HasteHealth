@@ -1825,7 +1825,7 @@ mod tests {
             vec![
                 "HumanName",
                 "boolean",
-                "PatientLink",
+                "BackboneElement",
                 "string",
                 "http://hl7.org/fhirpath/System.Boolean",
                 "Reference",
