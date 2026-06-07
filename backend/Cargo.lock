@@ -2535,7 +2535,9 @@ dependencies = [
 name = "haste-fhir-converter"
 version = "0.17.0"
 dependencies = [
+ "haste-fhir-model",
  "haste-fhirpath",
+ "haste-reflect",
  "liquid",
  "liquid-core",
  "tokio",
