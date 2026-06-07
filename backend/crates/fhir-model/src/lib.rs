@@ -293,7 +293,7 @@ mod tests {
                 .resource
                 .as_ref()
                 .unwrap()
-                .typename(),
+                .fhir_type(),
             "MedicationRequest"
         ));
     }
