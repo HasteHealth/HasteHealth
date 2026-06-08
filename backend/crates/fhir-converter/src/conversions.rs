@@ -8,6 +8,8 @@ use haste_reflect::MetaValue;
 use liquid::{Object, model::KString};
 use liquid_core::Value;
 
+struct MetaObject(Object);
+
 /// Convert a liquid `Value` to FHIR context entries.
 ///
 /// Scalars map to a single FHIR primitive. Arrays are flattened so each
@@ -41,7 +43,13 @@ pub fn liquid_to_fhir(value: Value) -> Vec<Box<dyn MetaValue + Send + Sync>> {
             }
         }
         Value::Array(arr) => arr.into_iter().flat_map(liquid_to_fhir).collect(),
-        Value::Object(_) => vec![],
+        Value::Object(object) => {
+            for (field, value) in object.into_iter() {
+                let value = liquid_to_fhir(value);
+            }
+
+            vec![]
+        }
         _ => vec![],
     }
 }
