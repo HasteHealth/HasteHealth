@@ -9,6 +9,7 @@ edition.workspace = true
 
 [dependencies]
 liquid = "0.26.11"
+serde_json = { workspace = true } 
 haste-fhirpath = { path = "../fhirpath" }
 haste-fhir-model = { path = "../fhir-model" }
 haste-reflect = { path = "../reflect" }

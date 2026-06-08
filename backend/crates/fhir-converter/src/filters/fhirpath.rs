@@ -41,7 +41,7 @@ impl Filter for FHIRPathFilter {
             return Err(Error::with_msg("FHIRPath expression cannot be empty"));
         }
 
-        let owned = liquid_to_metavalue(input.to_value());
+        let owned = liquid_to_metavalue(input.to_value())?;
 
         let values = tokio::task::block_in_place(|| {
             Handle::current().block_on(async {
@@ -59,7 +59,7 @@ impl Filter for FHIRPathFilter {
 
         match values.len() {
             0 => Ok(Value::Nil),
-            1 => Ok(values.into_iter().next().unwrap()),
+
             _ => Ok(Value::Array(values)),
         }
     }

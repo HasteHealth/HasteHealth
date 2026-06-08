@@ -2540,6 +2540,7 @@ dependencies = [
  "haste-reflect",
  "liquid",
  "liquid-core",
+ "serde_json",
  "tokio",
 ]
 
