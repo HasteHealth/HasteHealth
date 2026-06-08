@@ -8,7 +8,7 @@ use liquid_core::{Error, Result};
 use liquid_core::{Value, ValueView};
 use tokio::runtime::Handle;
 
-use crate::conversions::{fhir_to_liquid, liquid_to_fhir};
+use crate::conversions::{fhir_to_liquid, liquid_to_metavalue};
 
 #[derive(Debug, FilterParameters)]
 struct FHIRPathArgs {
@@ -41,7 +41,7 @@ impl Filter for FHIRPathFilter {
             return Err(Error::with_msg("FHIRPath expression cannot be empty"));
         }
 
-        let owned = liquid_to_fhir(input.to_value());
+        let owned = liquid_to_metavalue(input.to_value());
 
         let values = tokio::task::block_in_place(|| {
             Handle::current().block_on(async {

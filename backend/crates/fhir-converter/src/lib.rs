@@ -6,11 +6,13 @@ pub fn fhir_converter() {
         .filter(filters::fhirpath::FHIRPath)
         .build()
         .unwrap()
-        .parse("Result: {{num | fhirpath: '$this + 3'}}")
+        .parse("Result: {{num | fhirpath: '$this.value + 3'}}")
         .unwrap();
 
     let globals = liquid::object!({
-        "num": 4f64
+        "num": liquid::object!({
+            "value": 5
+        })
     });
 
     let output = template.render(&globals).unwrap();
