@@ -2537,6 +2537,7 @@ version = "0.17.0"
 dependencies = [
  "haste-fhir-model",
  "haste-fhirpath",
+ "haste-hl7v2",
  "haste-reflect",
  "liquid",
  "liquid-core",

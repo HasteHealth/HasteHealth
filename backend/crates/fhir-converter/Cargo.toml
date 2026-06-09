@@ -12,6 +12,7 @@ liquid = "0.26.11"
 serde_json = { workspace = true } 
 haste-fhirpath = { path = "../fhirpath" }
 haste-fhir-model = { path = "../fhir-model" }
+haste-hl7v2 = { path = "../hl7v2" }
 haste-reflect = { path = "../reflect" }
 liquid-core = {version = "0.26.11", features = ["derive"]}
 tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }

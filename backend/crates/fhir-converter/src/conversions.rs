@@ -53,7 +53,6 @@ pub fn liquid_to_metavalue(value: Value) -> Result<Vec<Box<dyn MetaValue + Send 
             })
             .collect::<Result<Vec<Box<dyn MetaValue + Send + Sync>>, Error>>(),
         Value::Object(obj) => {
-            println!("Converting object: {:?}", obj);
             let k: Resource = serde_json::from_value(
                 serde_json::to_value(&obj).map_err(|e| Error::with_msg(format!("{}", e)))?,
             )

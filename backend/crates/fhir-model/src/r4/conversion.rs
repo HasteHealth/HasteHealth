@@ -49,6 +49,7 @@ pub static STRING_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     m.insert("base64Binary");
     m.insert("canonical");
 
+    m.insert("id");
     m.insert("code");
     m.insert("string");
     m.insert("oid");
@@ -91,7 +92,7 @@ pub fn downcast_bool(value: &dyn MetaValue) -> Result<bool, DowncastError> {
 pub fn downcast_string(value: &dyn MetaValue) -> Result<String, DowncastError> {
     match value.fhir_type() {
         "canonical" | "base64Binary" | "code" | "string" | "oid" | "uri" | "url" | "uuid"
-        | "xhtml" => downcast_string(value.get_field("value").unwrap_or(&"".to_string())),
+        | "id" | "xhtml" => downcast_string(value.get_field("value").unwrap_or(&"".to_string())),
 
         "http://hl7.org/fhirpath/System.String" => value
             .as_any()

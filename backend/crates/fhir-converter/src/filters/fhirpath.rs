@@ -57,10 +57,6 @@ impl Filter for FHIRPathFilter {
         })
         .map_err(|err| Error::with_msg(format!("FHIRPath evaluation error: {}", err)))?;
 
-        match values.len() {
-            0 => Ok(Value::Nil),
-
-            _ => Ok(Value::Array(values)),
-        }
+        Ok(Value::Array(values))
     }
 }
