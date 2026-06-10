@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use haste_hl7v2::parser::ParsedHL7V2Message;
-use minijinja::{Environment, Value, context};
+use minijinja::{Environment, Value};
 
 use crate::jinja_extensions::conversions::hl7v2::JHL7V2;
 
