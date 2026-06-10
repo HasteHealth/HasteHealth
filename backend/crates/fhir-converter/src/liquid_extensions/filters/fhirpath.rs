@@ -8,7 +8,7 @@ use liquid_core::{Error, Result};
 use liquid_core::{Value, ValueView};
 use tokio::runtime::Handle;
 
-use crate::conversions::{fhir_to_liquid, liquid_to_metavalue};
+use crate::liquid_extensions::conversions::{fhir_to_liquid, liquid_to_metavalue};
 
 #[derive(Debug, FilterParameters)]
 struct FHIRPathArgs {

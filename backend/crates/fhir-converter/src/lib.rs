@@ -1,52 +1,41 @@
-use haste_fhir_model::r4::generated::{resources::Patient, types::HumanName};
-use haste_hl7v2::parser::ParsedHL7V2Message;
+use std::{collections::HashMap, sync::Arc};
 
-mod conversions;
-mod filters;
+use haste_hl7v2::parser::ParsedHL7V2Message;
+use minijinja::{Environment, Value, context};
+
+use crate::jinja_extensions::conversions::hl7v2::JHL7V2;
+
+mod jinja_extensions;
+mod liquid_extensions;
 
 static HL7V2_MESSAGE: &str = include_str!("../test_data/message1.bin");
 
-pub fn fhir_converter() {
-    let template = liquid::ParserBuilder::with_stdlib()
-        .filter(filters::fhirpath::FHIRPath)
-        .filter(filters::hl7v2::HL7V2)
-        .build()
-        .unwrap()
-        .parse(
-            "
-        Result: {{ num.value | minus: 3 }} Patient first name 
-        Result {{hl7v2 | fhirpath: \"$this.segments.where($this.id = 'MSH').fields[1].value.value.value\" | first}}
-        {% assign name = patient | fhirpath: \"$this.name\" %}
-        
-            First {{ name[0].given[0] }}
-            Last {{ name[0].family }}
+pub fn fhir_converter2() {
+    let mut env = Environment::new();
+    env.add_filter("repeat", str::repeat);
+    env.add_filter(
+        "hl7v2_segments",
+        jinja_extensions::filters::hl7v2::hl7v2_segments,
+    );
 
-        ",
-        )
-        .unwrap();
+    env.add_template(
+        "hello",
+        "{{ 'Na '|repeat(3) | hl7v2_segments }} {{ name }} {{ hl7v2.MSH }}!",
+    )
+    .unwrap();
+    let tmpl = env.get_template("hello").unwrap();
 
     let hl7v2 = ParsedHL7V2Message::try_from(HL7V2_MESSAGE)
         .expect("Failed to parse HL7V2 message")
         .0;
 
-    // println!("{}", serde_json::to_string_pretty(&hl7v2).unwrap());
+    let mut ctx = HashMap::<&str, Value>::new();
 
-    let mut patient = Patient::default();
-    patient.name = Some(vec![Box::new(HumanName {
-        family: Some(Box::new("Smith".to_string().into())),
-        given: Some(vec![Box::new("John".to_string().into())]),
-        ..Default::default()
-    })]);
+    ctx.insert("name", "Haste".to_string().into());
+    ctx.insert(
+        "hl7v2",
+        Value::from_dyn_object(Arc::new(JHL7V2::new(hl7v2))),
+    );
 
-    let globals = liquid::object!({
-        "patient": liquid::to_object(&patient).unwrap(),
-        "num": liquid::object!({
-            "value": 5
-        }),
-        "hl7v2": liquid::to_object(&hl7v2).unwrap(),
-    });
-
-    let output = template.render(&globals).unwrap();
-
-    println!("{}", output);
+    println!("{}", tmpl.render(ctx).unwrap());
 }

@@ -16,3 +16,4 @@ haste-hl7v2 = { path = "../hl7v2" }
 haste-reflect = { path = "../reflect" }
 liquid-core = {version = "0.26.11", features = ["derive"]}
 tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }
+minijinja = "2.20.0"
