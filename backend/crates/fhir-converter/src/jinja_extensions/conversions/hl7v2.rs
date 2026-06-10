@@ -83,7 +83,7 @@ static DEFAULT_ENCODING: LazyLock<EncodingInformation> = LazyLock::new(|| Encodi
 pub struct JHL7V2Segment<'a>(&'a HL7V2Segments);
 impl<'a> Object for JHL7V2Segment<'a> {
     fn repr(self: &Arc<Self>) -> ObjectRepr {
-        ObjectRepr::Map
+        ObjectRepr::Plain
     }
 
     fn get_value(self: &Arc<Self>, key: &Value) -> Option<Value> {
@@ -115,7 +115,7 @@ impl<'a> Object for JHL7V2Segment<'a> {
 pub struct JHL7V2SegmentsFields<'a>(&'a HL7V2SegmentsFields);
 impl<'a> Object for JHL7V2SegmentsFields<'a> {
     fn repr(self: &Arc<Self>) -> ObjectRepr {
-        ObjectRepr::Map
+        ObjectRepr::Plain
     }
 
     fn get_value(self: &Arc<Self>, key: &Value) -> Option<Value> {
@@ -139,7 +139,7 @@ impl<'a> Object for JHL7V2SegmentsFields<'a> {
 pub struct JHL7V2SegmentsFieldsValue<'a>(&'a HL7V2SegmentsFieldsValue);
 impl<'a> Object for JHL7V2SegmentsFieldsValue<'a> {
     fn repr(self: &Arc<Self>) -> ObjectRepr {
-        ObjectRepr::Map
+        ObjectRepr::Plain
     }
 
     fn get_value(self: &Arc<Self>, key: &Value) -> Option<Value> {
