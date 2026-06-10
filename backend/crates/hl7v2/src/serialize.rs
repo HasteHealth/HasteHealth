@@ -3,18 +3,18 @@ use haste_fhir_model::r4::generated::resources::{
     HL7V2SegmentsFieldsValueValue,
 };
 
-struct EncodingInformation {
-    field_separator: String,
-    component_separator: String,
-    repetition_separator: String,
+pub struct EncodingInformation {
+    pub field_separator: String,
+    pub component_separator: String,
+    pub repetition_separator: String,
     #[allow(dead_code)]
-    escape_character: String,
-    subcomponent_separator: String,
+    pub escape_character: String,
+    pub subcomponent_separator: String,
 }
 
 // component separator, repetition separator, escape character, and subcomponent separator.
 
-fn component_to_string(
+pub fn component_to_string(
     encoding_characters: &EncodingInformation,
     component: &HL7V2SegmentsFieldsValueValue,
 ) -> Option<String> {
@@ -37,7 +37,7 @@ fn component_to_string(
     }
 }
 
-fn segment_field_repititon_to_string(
+pub fn segment_field_repititon_to_string(
     encoding_characters: &EncodingInformation,
     segment: &HL7V2SegmentsFieldsValue,
 ) -> String {
@@ -58,7 +58,7 @@ fn segment_field_repititon_to_string(
     result
 }
 
-fn segment_field_to_string(
+pub fn segment_field_to_string(
     encoding_characters: &EncodingInformation,
     segment: &HL7V2SegmentsFields,
 ) -> String {
@@ -82,7 +82,10 @@ fn segment_field_to_string(
     result
 }
 
-fn segment_to_string(encoding_characters: &EncodingInformation, segment: &HL7V2Segments) -> String {
+pub fn segment_to_string(
+    encoding_characters: &EncodingInformation,
+    segment: &HL7V2Segments,
+) -> String {
     let mut result = segment
         .id
         .value
