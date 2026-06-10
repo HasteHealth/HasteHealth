@@ -1,4 +1,3 @@
-use crate::parser::ParsedHL7V2Message;
 use haste_fhir_model::r4::generated::resources::{
     HL7V2, HL7V2Segments, HL7V2SegmentsFields, HL7V2SegmentsFieldsValue,
     HL7V2SegmentsFieldsValueValue,
@@ -17,28 +16,34 @@ struct EncodingInformation {
 
 fn component_to_string(
     encoding_characters: &EncodingInformation,
-    component: HL7V2SegmentsFieldsValueValue,
+    component: &HL7V2SegmentsFieldsValueValue,
 ) -> Option<String> {
-    if let Some(subcomponents) = component.subcomponents {
+    if let Some(subcomponents) = &component.subcomponents {
         let value = subcomponents
             .into_iter()
-            .map(|s| s.value)
-            .map(|v| if let Some(s) = v { s } else { "".to_string() })
+            .map(|s| &s.value)
+            .map(|v| {
+                if let Some(s) = v {
+                    s.clone()
+                } else {
+                    "".to_string()
+                }
+            })
             .collect::<Vec<_>>()
             .join(&encoding_characters.subcomponent_separator);
         Some(value)
     } else {
-        component.value.and_then(|s| s.value)
+        component.value.as_ref().and_then(|s| s.value.clone())
     }
 }
 
 fn segment_field_repititon_to_string(
     encoding_characters: &EncodingInformation,
-    segment: HL7V2SegmentsFieldsValue,
+    segment: &HL7V2SegmentsFieldsValue,
 ) -> String {
     let mut result = "".to_string();
 
-    if let Some(components) = segment.components {
+    if let Some(components) = &segment.components {
         result.push_str(
             &components
                 .into_iter()
@@ -46,7 +51,7 @@ fn segment_field_repititon_to_string(
                 .collect::<Vec<_>>()
                 .join(&encoding_characters.component_separator),
         )
-    } else if let Some(value) = segment.value {
+    } else if let Some(value) = &segment.value {
         result.push_str(&component_to_string(encoding_characters, value).unwrap_or_default());
     }
 
@@ -55,11 +60,11 @@ fn segment_field_repititon_to_string(
 
 fn segment_field_to_string(
     encoding_characters: &EncodingInformation,
-    segment: HL7V2SegmentsFields,
+    segment: &HL7V2SegmentsFields,
 ) -> String {
     let mut result = "".to_string();
 
-    if let Some(repititions) = segment.repetitions {
+    if let Some(repititions) = &segment.repetitions {
         result.push_str(
             &repititions
                 .into_iter()
@@ -67,7 +72,7 @@ fn segment_field_to_string(
                 .collect::<Vec<_>>()
                 .join(&encoding_characters.repetition_separator),
         );
-    } else if let Some(value) = segment.value {
+    } else if let Some(value) = &segment.value {
         result.push_str(&segment_field_repititon_to_string(
             encoding_characters,
             value,
@@ -77,7 +82,7 @@ fn segment_field_to_string(
     result
 }
 
-fn segment_to_string(encoding_characters: &EncodingInformation, segment: HL7V2Segments) -> String {
+fn segment_to_string(encoding_characters: &EncodingInformation, segment: &HL7V2Segments) -> String {
     let mut result = segment
         .id
         .value
@@ -88,10 +93,12 @@ fn segment_to_string(encoding_characters: &EncodingInformation, segment: HL7V2Se
 
     result.push_str(&encoding_characters.field_separator);
 
+    let default_fields = vec![];
     result.push_str(
         &segment
             .fields
-            .unwrap_or_default()
+            .as_ref()
+            .unwrap_or(&default_fields)
             .into_iter()
             .map(|s| segment_field_to_string(encoding_characters, s))
             .collect::<Vec<_>>()
@@ -129,8 +136,10 @@ fn get_encoding_characters(hl7v2_message: &HL7V2) -> Option<String> {
     Some(encoding_characters_str.to_string())
 }
 
-impl From<ParsedHL7V2Message> for String {
-    fn from(value: ParsedHL7V2Message) -> Self {
+pub struct SerializeMessage<'a>(pub &'a HL7V2);
+
+impl<'a> From<SerializeMessage<'a>> for String {
+    fn from(value: SerializeMessage<'a>) -> Self {
         let hl7v2_message = value.0;
         let field_seperator = hl7v2_message
             .fieldSeparator
@@ -168,7 +177,7 @@ impl From<ParsedHL7V2Message> for String {
                 .to_string(),
         };
 
-        if let Some(segments) = hl7v2_message.segments {
+        if let Some(segments) = &hl7v2_message.segments {
             let k = segments
                 .into_iter()
                 .map(|s| segment_to_string(&encoding_characters, s))

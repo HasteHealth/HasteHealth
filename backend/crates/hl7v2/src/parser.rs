@@ -118,6 +118,8 @@ impl TryFrom<&str> for ParsedHL7V2Message {
 
 #[cfg(test)]
 mod tests {
+    use crate::serialize::SerializeMessage;
+
     use super::*;
 
     #[test]
@@ -167,7 +169,7 @@ mod tests {
         assert!(result.is_ok());
 
         let message = result.unwrap();
-        let serialized: String = message.into();
+        let serialized: String = (SerializeMessage(&message.0)).into();
 
         pretty_assertions::assert_eq!(serialized, input);
     }

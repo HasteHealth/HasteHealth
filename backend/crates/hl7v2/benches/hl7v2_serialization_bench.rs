@@ -1,5 +1,5 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use haste_hl7v2::parser::ParsedHL7V2Message;
+use haste_hl7v2::{parser::ParsedHL7V2Message, serialize::SerializeMessage};
 
 fn hl7_single_message_parse(c: &mut Criterion) {
     let hl7v2_message = include_str!("../test_data/message1.bin");
@@ -15,7 +15,7 @@ fn hl7_single_message_parse(c: &mut Criterion) {
         b.iter(|| {
             let message =
                 ParsedHL7V2Message::try_from(hl7v2_message).expect("Failed to parse HL7v2 message");
-            let _message: String = message.into();
+            let _message: String = (SerializeMessage(&message.0)).into();
         })
     });
 }

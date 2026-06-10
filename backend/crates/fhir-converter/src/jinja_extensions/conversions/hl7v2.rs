@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use haste_fhir_model::r4::generated::resources::{HL7V2, HL7V2Segments};
+use haste_hl7v2::serialize::SerializeMessage;
 use minijinja::{
     Value,
     value::{Enumerator, Object, ObjectRepr},
@@ -60,11 +61,8 @@ impl Object for JHL7V2 {
     where
         Self: Sized + 'static,
     {
-        write!(
-            f,
-            "HL7V2({} segments)",
-            self.0.segments.as_ref().map(|s| s.len()).unwrap_or(0)
-        )
+        let hl7v2_string: String = SerializeMessage(&self.0).into();
+        write!(f, "{}", hl7v2_string)
     }
 }
 
