@@ -20,7 +20,7 @@ pub fn fhir_converter2() {
 
     env.add_template(
         "hello",
-        "{{ 'Na '|repeat(3) | hl7v2_segments }} {{ name }} {{ hl7v2.MSH[0].4 }}!",
+        "{{ 'Na '|repeat(3) | hl7v2_segments }} {{ name }} {{ hl7v2.PID[0][4][0] }}!",
     )
     .unwrap();
     let tmpl = env.get_template("hello").unwrap();
