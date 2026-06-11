@@ -15,12 +15,17 @@ use tokio::sync::Mutex;
 #[derive(Subcommand)]
 pub enum HL7v2Commands {
     Receiver {
+        #[arg(short, long)]
         address: String,
+        #[arg(short, long)]
         port: u16,
+        #[arg(short, long)]
         template_file: String,
     },
     Sender {
+        #[arg(short, long)]
         address: String,
+        #[arg(short, long)]
         port: u16,
     },
 }
@@ -66,6 +71,8 @@ pub async fn hl7v2(
                         }
                     };
 
+                    let start = std::time::Instant::now();
+
                     let hl7v2_bytes = match MllpFormatter::decode(frame.as_slice()) {
                         Ok(b) => b.to_vec(),
                         Err(e) => {
@@ -94,7 +101,7 @@ pub async fn hl7v2(
                         continue;
                     };
 
-                    println!("Converted HL7v2 message to FHIR resource: {:?}", resource);
+                    tracing::info!("total transformation: {:?}", start.elapsed());
 
                     match resource {
                         Resource::Bundle(bundle) => match bundle.type_.as_ref() {
@@ -146,7 +153,7 @@ pub async fn hl7v2(
                                     }
                                 }
                                 Err(e) => {
-                                    eprintln!("Failed to store HL7v2 message: {}", e);
+                                    eprintln!("Failed to send resource {}", e);
                                     if let Err(e) = stream.write_all(&MllpFormatter::nak()) {
                                         eprintln!("Failed to send NAK: {}", e);
                                         break;
