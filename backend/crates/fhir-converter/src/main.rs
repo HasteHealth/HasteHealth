@@ -121,9 +121,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    let template = std::fs::read_to_string(template_source)
+        .map_err(|e| format!("failed to read template file: {e}"))?;
+
     let env = create_environment();
     let template = env
-        .template_from_str(template_source)
+        .template_from_str(&template)
         .map_err(|e| e.to_string())?;
 
     let output = transform(&template, context, output_type).map_err(|e| e.to_string())?;
