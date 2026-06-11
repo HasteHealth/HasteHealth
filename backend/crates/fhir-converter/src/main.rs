@@ -38,7 +38,7 @@ fn read_stdin() -> Result<String, std::io::Error> {
     Ok(input)
 }
 
-fn parse_input_value(input_type: InputType, raw_input: String) -> Result<Input, String> {
+fn parse_input_value(input_type: &InputType, raw_input: String) -> Result<Input, String> {
     match input_type {
         InputType::HL7V2 => Ok(Input::HL7V2(raw_input)),
         InputType::Fhir => serde_json::from_str::<Resource>(&raw_input)
@@ -51,7 +51,7 @@ fn parse_input_value(input_type: InputType, raw_input: String) -> Result<Input, 
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let matches = Command::new("haste-fhir-converter")
+    let command = Command::new("haste-fhir-converter")
         .about("Transforms template input from one format to another")
         .arg(
             Arg::new("template")
@@ -86,19 +86,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .get_matches();
 
-    let template_source = matches
+    let template_source = command
         .get_one::<String>("template")
         .expect("template is required");
 
-    let input_type = *matches
+    let input_type = command
         .get_one::<InputType>("input-type")
         .expect("input-type is required");
 
-    let output_type = *matches
+    let output_type = command
         .get_one::<OutputFormat>("output-type")
         .expect("output-type is required");
 
-    let raw_input = match matches.get_one::<String>("input") {
+    let raw_input = match command.get_one::<String>("input") {
         Some(input) => input.clone(),
         None => read_stdin()?,
     };

@@ -54,7 +54,7 @@ pub fn create_environment<'a>() -> Environment<'a> {
 pub fn transform<S>(
     template: &Template<'_, '_>,
     ctx: S,
-    output: OutputFormat,
+    output: &OutputFormat,
 ) -> Result<Output, OperationOutcomeError>
 where
     S: serde::Serialize,
