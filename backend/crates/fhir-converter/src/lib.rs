@@ -1,17 +1,34 @@
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 use haste_fhir_model::r4::generated::{resources::Resource, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_hl7v2::parser::ParsedHL7V2Message;
 use minijinja::{Environment, Template, Value};
 
-use crate::jinja_extensions::conversions::hl7v2::JHL7V2;
-
 mod jinja_extensions;
 mod liquid_extensions;
 
-static HL7V2_MESSAGE: &str = include_str!("../test_data/message1.bin");
+pub enum Input {
+    HL7V2(String),
+    FHIR(Resource),
+    JSON(serde_json::Value),
+}
 
+pub fn convert_input(input: Input) -> Result<minijinja::Value, OperationOutcomeError> {
+    match input {
+        Input::HL7V2(message) => {
+            let parsed_message = ParsedHL7V2Message::try_from(message.as_str())?.0;
+
+            Ok(Value::from_dyn_object(Arc::new(
+                jinja_extensions::conversions::hl7v2::JHL7V2::new(parsed_message),
+            )))
+        }
+        Input::FHIR(resource) => Ok(minijinja::Value::from_serialize(resource)),
+        Input::JSON(json) => Ok(minijinja::Value::from_serialize(json)),
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
 pub enum OutputFormat {
     FHIR,
     JSON,
