@@ -2536,12 +2536,14 @@ name = "haste-fhir-converter"
 version = "0.17.0"
 dependencies = [
  "haste-fhir-model",
+ "haste-fhir-operation-error",
  "haste-fhirpath",
  "haste-hl7v2",
  "haste-reflect",
  "liquid",
  "liquid-core",
  "minijinja",
+ "serde",
  "serde_json",
  "tokio",
 ]
