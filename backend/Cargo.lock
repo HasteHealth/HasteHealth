@@ -2709,6 +2709,7 @@ dependencies = [
  "haste-codegen",
  "haste-config",
  "haste-fhir-client",
+ "haste-fhir-converter",
  "haste-fhir-model",
  "haste-fhir-operation-error",
  "haste-fhir-search",

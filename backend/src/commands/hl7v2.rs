@@ -1,10 +1,12 @@
 use crate::CLIState;
 use clap::Subcommand;
 use haste_fhir_client::FHIRClient;
-use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
+use haste_fhir_converter::Input;
+use haste_fhir_model::r4::generated::resources::Resource;
+use haste_fhir_model::r4::generated::terminology::{BundleType, IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_hl7v2::mllp::MllpFormatter;
-use haste_hl7v2::parser::ParsedHL7V2Message;
+use std::collections::HashMap;
 use std::io::Write;
 use std::net::TcpListener;
 use std::sync::Arc;
@@ -12,8 +14,15 @@ use tokio::sync::Mutex;
 
 #[derive(Subcommand)]
 pub enum HL7v2Commands {
-    Receiver { address: String, port: u16 },
-    Sender { address: String, port: u16 },
+    Receiver {
+        address: String,
+        port: u16,
+        template_file: String,
+    },
+    Sender {
+        address: String,
+        port: u16,
+    },
 }
 
 pub async fn hl7v2(
@@ -23,8 +32,21 @@ pub async fn hl7v2(
     let fhir_client = crate::client::fhir_client(state).await?;
 
     match command {
-        HL7v2Commands::Receiver { address, port } => {
+        HL7v2Commands::Receiver {
+            address,
+            port,
+            template_file,
+        } => {
             let listener = TcpListener::bind(format!("{}:{}", address, port)).unwrap();
+
+            let environment = haste_fhir_converter::create_environment();
+
+            let template =
+                std::fs::read_to_string(&template_file).expect("Failed to read template file");
+
+            let template = environment.template_from_str(&template).map_err(|e| {
+                OperationOutcomeError::error(IssueType::Exception(None), e.to_string())
+            })?;
 
             for stream in listener.incoming() {
                 let mut stream = match stream {
@@ -55,30 +77,81 @@ pub async fn hl7v2(
 
                     let hl7v2_string = String::from_utf8_lossy(&hl7v2_bytes).to_string();
 
-                    let parsed = match ParsedHL7V2Message::try_from(hl7v2_string.as_str()) {
-                        Ok(result) => result.0,
-                        Err(e) => {
-                            eprintln!("Failed to parse HL7v2 message: {}", e);
-                            let _ = stream.write_all(&MllpFormatter::nak());
-                            continue;
-                        }
+                    let hl7v2 = haste_fhir_converter::convert_input(Input::HL7V2(hl7v2_string))?;
+
+                    let mut ctx = HashMap::new();
+                    ctx.insert("hl7v2", hl7v2);
+
+                    let haste_fhir_converter::Output::FHIR(resource) =
+                        haste_fhir_converter::transform(
+                            &template,
+                            ctx,
+                            &haste_fhir_converter::OutputFormat::FHIR,
+                        )?
+                    else {
+                        eprintln!("Unexpected output format from template");
+                        let _ = stream.write_all(&MllpFormatter::nak());
+                        continue;
                     };
 
-                    match fhir_client
-                        .create((), ResourceType::HL7V2, Resource::HL7V2(parsed))
-                        .await
-                    {
-                        Ok(_) => {
-                            if let Err(e) = stream.write_all(&MllpFormatter::ack()) {
-                                eprintln!("Failed to send ACK: {}", e);
-                                break;
+                    println!("Converted HL7v2 message to FHIR resource: {:?}", resource);
+
+                    match resource {
+                        Resource::Bundle(bundle) => match bundle.type_.as_ref() {
+                            BundleType::Batch(_) => match fhir_client.batch((), bundle).await {
+                                Ok(_) => {
+                                    if let Err(e) = stream.write_all(&MllpFormatter::ack()) {
+                                        eprintln!("Failed to send ACK: {}", e);
+                                        break;
+                                    }
+                                }
+                                Err(e) => {
+                                    eprintln!("Failed to send batch {}", e);
+                                    if let Err(e) = stream.write_all(&MllpFormatter::nak()) {
+                                        eprintln!("Failed to send NAK: {}", e);
+                                        break;
+                                    }
+                                }
+                            },
+                            BundleType::Transaction(_) => {
+                                match fhir_client.transaction((), bundle).await {
+                                    Ok(_) => {
+                                        if let Err(e) = stream.write_all(&MllpFormatter::ack()) {
+                                            eprintln!("Failed to send ACK: {}", e);
+                                            break;
+                                        }
+                                    }
+                                    Err(e) => {
+                                        eprintln!("Failed to send transaction {}", e);
+                                        if let Err(e) = stream.write_all(&MllpFormatter::nak()) {
+                                            eprintln!("Failed to send NAK: {}", e);
+                                            break;
+                                        }
+                                    }
+                                }
                             }
-                        }
-                        Err(e) => {
-                            eprintln!("Failed to store HL7v2 message: {}", e);
-                            if let Err(e) = stream.write_all(&MllpFormatter::nak()) {
-                                eprintln!("Failed to send NAK: {}", e);
-                                break;
+                            _ => {
+                                eprintln!("Unsupported Bundle type: {:?}", bundle.type_);
+                                let _ = stream.write_all(&MllpFormatter::nak());
+                                continue;
+                            }
+                        },
+                        _ => {
+                            let resource_type = resource.resource_type();
+                            match fhir_client.create((), resource_type, resource).await {
+                                Ok(_) => {
+                                    if let Err(e) = stream.write_all(&MllpFormatter::ack()) {
+                                        eprintln!("Failed to send ACK: {}", e);
+                                        break;
+                                    }
+                                }
+                                Err(e) => {
+                                    eprintln!("Failed to store HL7v2 message: {}", e);
+                                    if let Err(e) = stream.write_all(&MllpFormatter::nak()) {
+                                        eprintln!("Failed to send NAK: {}", e);
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
