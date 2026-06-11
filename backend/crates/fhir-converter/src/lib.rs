@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{path::Path, sync::Arc};
 
 use haste_fhir_model::r4::generated::{resources::Resource, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -41,6 +41,54 @@ pub enum Output {
     HL7V2(String),
 }
 
+// Uses relative path from template directory and strips ending jinja prefix.
+fn derive_template_name(template_dir: &Path, path: &Path) -> Option<String> {
+    let relative_path = path.strip_prefix(template_dir).unwrap_or(path);
+    let Some(template_file_stem) = relative_path.file_stem().and_then(|s| s.to_str()) else {
+        eprintln!("Failed to get template name from path: {:?}", path);
+        return None;
+    };
+    let Some(parent) = relative_path.parent() else {
+        eprintln!(
+            "Failed to get parent directory for template: {:?}",
+            relative_path
+        );
+        return None;
+    };
+
+    let template_name_path = parent.join(template_file_stem);
+
+    let Some(template_name) = template_name_path.to_str() else {
+        eprintln!(
+            "Failed to convert template name to string: {:?}",
+            template_name_path
+        );
+        return None;
+    };
+
+    Some(template_name.to_string())
+}
+
+fn add_template(env: &mut Environment<'_>, template_dir: &Path, path: &Path) -> Option<()> {
+    let Ok(template_content) = std::fs::read_to_string(path) else {
+        eprintln!("Failed to read template file: {:?}", path);
+        return None;
+    };
+
+    let Some(template_name) = derive_template_name(template_dir, path) else {
+        eprintln!("Failed to derive template name for file: {:?}", path);
+        return None;
+    };
+
+    println!("Adding template '{}' from file: {:?}", template_name, path);
+
+    if let Err(e) = env.add_template_owned(template_name.to_string(), template_content) {
+        eprintln!("Failed to add template '{}': {}", template_name, e);
+    }
+
+    Some(())
+}
+
 pub fn create_environment<'a>(template_dir: Option<&str>) -> Environment<'a> {
     let mut env = Environment::new();
     env.add_filter(
@@ -49,6 +97,7 @@ pub fn create_environment<'a>(template_dir: Option<&str>) -> Environment<'a> {
     );
 
     if let Some(template_dir) = template_dir {
+        let template_dir = Path::new(template_dir);
         walkdir::WalkDir::new(template_dir)
             .into_iter()
             .filter_map(|e| e.ok())
@@ -60,18 +109,7 @@ pub fn create_environment<'a>(template_dir: Option<&str>) -> Environment<'a> {
             })
             .for_each(|entry| {
                 let path = entry.path();
-
-                if let Some(template_name) = path.file_stem().and_then(|s| s.to_str()) {
-                    if let Ok(template_content) = std::fs::read_to_string(path) {
-                        if let Err(e) =
-                            env.add_template_owned(template_name.to_string(), template_content)
-                        {
-                            eprintln!("Failed to add template '{}': {}", template_name, e);
-                        }
-                    } else {
-                        eprintln!("Failed to read template file: {:?}", path);
-                    }
-                }
+                add_template(&mut env, template_dir, path);
             });
     }
 
