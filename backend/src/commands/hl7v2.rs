@@ -20,7 +20,9 @@ pub enum HL7v2Commands {
         #[arg(short, long)]
         port: u16,
         #[arg(short, long)]
-        template_file: String,
+        main: String,
+        #[arg(short, long)]
+        template_dir: String,
     },
     Sender {
         #[arg(short, long)]
@@ -40,16 +42,14 @@ pub async fn hl7v2(
         HL7v2Commands::Receiver {
             address,
             port,
-            template_file,
+            main,
+            template_dir,
         } => {
             let listener = TcpListener::bind(format!("{}:{}", address, port)).unwrap();
 
-            let environment = haste_fhir_converter::create_environment();
+            let environment = haste_fhir_converter::create_environment(Some(template_dir));
 
-            let template =
-                std::fs::read_to_string(&template_file).expect("Failed to read template file");
-
-            let template = environment.template_from_str(&template).map_err(|e| {
+            let template = environment.get_template(&main).map_err(|e| {
                 OperationOutcomeError::error(IssueType::Exception(None), e.to_string())
             })?;
 

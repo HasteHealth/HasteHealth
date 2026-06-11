@@ -41,12 +41,39 @@ pub enum Output {
     HL7V2(String),
 }
 
-pub fn create_environment<'a>() -> Environment<'a> {
+pub fn create_environment<'a>(template_dir: Option<&str>) -> Environment<'a> {
     let mut env = Environment::new();
     env.add_filter(
         "hl7v2_segments",
         jinja_extensions::filters::hl7v2::hl7v2_segments,
     );
+
+    if let Some(template_dir) = template_dir {
+        walkdir::WalkDir::new(template_dir)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .filter(|e| {
+                e.file_type().is_file()
+                    && e.path()
+                        .extension()
+                        .map_or(false, |ext| ext == "jinja" || ext == "j2")
+            })
+            .for_each(|entry| {
+                let path = entry.path();
+
+                if let Some(template_name) = path.file_stem().and_then(|s| s.to_str()) {
+                    if let Ok(template_content) = std::fs::read_to_string(path) {
+                        if let Err(e) =
+                            env.add_template_owned(template_name.to_string(), template_content)
+                        {
+                            eprintln!("Failed to add template '{}': {}", template_name, e);
+                        }
+                    } else {
+                        eprintln!("Failed to read template file: {:?}", path);
+                    }
+                }
+            });
+    }
 
     env
 }

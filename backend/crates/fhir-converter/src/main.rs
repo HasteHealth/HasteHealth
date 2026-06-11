@@ -62,6 +62,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .help("Template string used for transformation"),
         )
         .arg(
+            Arg::new("template-directory")
+                .long("template-directory")
+                .short('d')
+                .value_name("TEMPLATE_DIRECTORY")
+                .help("Directory containing template files"),
+        )
+        .arg(
             Arg::new("input-type")
                 .long("input-type")
                 .required(true)
@@ -86,9 +93,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .get_matches();
 
-    let template_source = command
+    let main_template_id = command
         .get_one::<String>("template")
         .expect("template is required");
+
+    let template_directory = command
+        .get_one::<String>("template-directory")
+        .expect("template-directory is required");
 
     let input_type = command
         .get_one::<InputType>("input-type")
@@ -121,12 +132,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    let template = std::fs::read_to_string(template_source)
-        .map_err(|e| format!("failed to read template file: {e}"))?;
-
-    let env = create_environment();
+    let env = create_environment(Some(template_directory));
     let template = env
-        .template_from_str(&template)
+        .get_template(&main_template_id)
         .map_err(|e| e.to_string())?;
 
     let output = transform(&template, context, output_type).map_err(|e| e.to_string())?;

@@ -1,17 +1,36 @@
+
 {
-    "resourceType": "Patient",
-    "identifier": [
-        {
-            "use": "usual",
-            "type": {
-                "coding": [
-                    {
-                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-                        "code": "MR"
-                    }
-                ]
-            },
-            "value": "{{ hl7v2.PID[0][6] }}"
+  "resourceType": "Bundle",
+  "type": "transaction",    
+  "entry": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "MessageHeader"
+      },
+      "resource": {% with hl7v2=hl7v2 %}{% include 'MSH' %}{% endwith %}
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "Patient"
+      },
+      "resource": {
+        "resourceType": "Patient",
+            "identifier": [
+                {
+                    "use": "usual",
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MR"
+                            }
+                        ]
+                    },
+                    "value": "{{ hl7v2.PID[0][6] }}"
+                }
+            ]
         }
-    ]
+    }]
 }
