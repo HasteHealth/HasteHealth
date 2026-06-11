@@ -2535,6 +2535,7 @@ dependencies = [
 name = "haste-fhir-converter"
 version = "0.17.0"
 dependencies = [
+ "clap",
  "haste-fhir-model",
  "haste-fhir-operation-error",
  "haste-fhirpath",

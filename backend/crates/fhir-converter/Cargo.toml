@@ -19,3 +19,4 @@ haste-reflect = { path = "../reflect" }
 liquid-core = {version = "0.26.11", features = ["derive"]}
 tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }
 minijinja = "2.20.0"
+clap = "4.6.1"

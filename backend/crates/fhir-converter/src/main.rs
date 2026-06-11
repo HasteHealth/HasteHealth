@@ -21,10 +21,10 @@ async fn main() {
 
     let mut ctx = HashMap::<&str, Value>::new();
 
-    ctx.insert("name", "Haste".to_string().into());
     ctx.insert(
         "hl7v2",
         Value::from_dyn_object(Arc::new(JHL7V2::new(hl7v2))),
     );
+
     transform(tmpl, ctx, OutputFormat::FHIR).expect("Failed to transform template");
 }
