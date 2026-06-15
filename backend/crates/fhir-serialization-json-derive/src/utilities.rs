@@ -82,6 +82,20 @@ fn get_inner_type_if_vector_or_optional_or_box(type_: &Type) -> Type {
     type_.clone()
 }
 
+pub fn is_type_string(type_: &Type) -> bool {
+    let inner_type = get_inner_type_if_vector_or_optional_or_box(type_);
+
+    match inner_type {
+        Type::Path(path) => path
+            .path
+            .segments
+            .last()
+            .map(|segment| segment.ident == "String")
+            .unwrap_or(false),
+        _ => false,
+    }
+}
+
 // Should return if it's a vector even if Option<Vec<T>>
 pub fn is_vector(field: &Field) -> bool {
     let field_type = get_field_type(field);

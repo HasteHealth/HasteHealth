@@ -6,9 +6,40 @@ use crate::{
     DeserializeComplexType,
     utilities::{
         CardinalityAttribute, FieldInformation, TypeInformation, get_attribute_value,
-        get_field_type, get_inner_type_if_optional, is_attribute_present, process_field,
+        get_field_type, get_inner_type_if_optional, is_attribute_present, is_optional_field,
+        is_type_string, process_field,
     },
 };
+
+fn fhir_primitive_value_deserialization(
+    value_field_found: &syn::Field,
+) -> proc_macro2::TokenStream {
+    let is_optional = is_optional_field(&value_field_found);
+    let value_type = get_field_type(&value_field_found);
+
+    // Empty String should be treated as None. Special handling for this case.
+    // For cases where value is required (ie non optional) we should error if value is empty string.
+    if is_type_string(&value_field_found.ty) {
+        if is_optional {
+            quote! {
+               let value = match #value_type::deserialize(deserializer)? {
+                     None => None,
+                     Some(v) if v.is_empty() => None,
+                     v => v,
+               };
+            }
+        } else {
+            quote! {
+               let value = #value_type::deserialize(deserializer)?;
+               if value.is_empty() {
+                   return Err(serde::de::Error::custom("Value field cannot be empty for non optional string primitive."));
+               }
+            }
+        }
+    } else {
+        quote! { let value = #value_type::deserialize(deserializer)?; }
+    }
+}
 
 // Generates code for deserializing the primtiive value.
 // Note field, extension deserialization is handled on struct level (parent).
@@ -19,9 +50,12 @@ pub fn fhir_primitive_deserialization(input: DeriveInput) -> TokenStream {
             let value_field_found = data
                 .fields
                 .iter()
-                .find(|f| f.ident == Some(format_ident!("value")));
+                .find(|f| f.ident == Some(format_ident!("value")))
+                .expect("value field is required for primitive deserialization");
 
-            let value_type = get_field_type(value_field_found.unwrap());
+            if is_type_string(&value_field_found.ty) {}
+
+            let value_deserialization = fhir_primitive_value_deserialization(value_field_found);
 
             let deserialize_impl = quote! {
                impl<'de> serde::Deserialize<'de> for #name {
@@ -29,11 +63,11 @@ pub fn fhir_primitive_deserialization(input: DeriveInput) -> TokenStream {
                     where
                         D: serde::Deserializer<'de>,
                     {
-                        let s = #value_type::deserialize(deserializer)?;
+                        #value_deserialization
                         Ok(#name {
                             id: None,
                             extension: None,
-                            value: s,
+                            value,
                         })
                     }
                 }
