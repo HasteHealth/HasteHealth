@@ -802,9 +802,6 @@ pub fn complex_deserialization(
                                 #(#typechoice_merge_blocks)*
 
 
-
-
-
                                 #(#bind_fields)*
 
                                 #(#cardinality_checks)*
