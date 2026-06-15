@@ -624,4 +624,23 @@ mod tests {
 
         assert_eq!(patient.name.is_none(), true);
     }
+
+    #[test]
+    fn test_empty_fields() {
+        let patient = r#"{
+            "id": "",
+            "resourceType": "Patient",
+            "name": [{"family": "", "given": [""], "prefix": [""]}]
+        }"#;
+
+        let patient =
+            serde_json::from_str::<Patient>(patient).expect("failed to deserialize patient");
+        let name = &patient.name.as_ref().unwrap()[0];
+
+        println!("{:#?}", name);
+
+        println!("{}", serde_json::to_string_pretty(&patient).unwrap());
+
+        assert_eq!(patient.name.as_ref().unwrap()[0].family.is_none(), true);
+    }
 }
