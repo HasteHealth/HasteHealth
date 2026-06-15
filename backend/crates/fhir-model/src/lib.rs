@@ -611,4 +611,17 @@ mod tests {
 
         assert!(client_app.is_err());
     }
+
+    #[test]
+    fn test_empty_vec() {
+        let patient = r#"{
+            "resourceType": "Patient",
+            "name": []
+        }"#;
+
+        let patient =
+            serde_json::from_str::<Patient>(patient).expect("failed to deserialize patient");
+
+        assert_eq!(patient.name.is_none(), true);
+    }
 }
