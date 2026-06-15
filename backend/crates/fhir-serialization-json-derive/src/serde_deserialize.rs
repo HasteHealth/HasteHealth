@@ -54,8 +54,6 @@ pub fn fhir_primitive_deserialization(input: DeriveInput) -> TokenStream {
                 .find(|f| f.ident == Some(format_ident!("value")))
                 .expect("value field is required for primitive deserialization");
 
-            if is_type_string(&value_field_found.ty) {}
-
             let value_deserialization = fhir_primitive_value_deserialization(value_field_found);
 
             let deserialize_impl = quote! {
