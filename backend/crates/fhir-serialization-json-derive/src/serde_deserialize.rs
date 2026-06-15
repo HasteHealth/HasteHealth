@@ -699,7 +699,21 @@ pub fn complex_deserialization(
                 let value_ident = value_ident(field_ident);
 
                 if field.is_optional {
-                    quote! { let #field_ident = #value_ident.and_then(|v| v); }
+                    // Special handling because empty vector should be treated as None.
+                    // Because generated type will always have Option<Vec<T>> for empty vecs we should be okay 
+                    // just handling edgecase here.
+                    if field.is_vector {
+                        quote! {
+                            let value_len = #value_ident.as_ref().and_then(|v| v.as_ref()).map_or(0, |v| v.len());
+                            let #field_ident = if value_len == 0 {
+                                None
+                            } else {
+                                #value_ident.and_then(|v| v)
+                            };
+                        }
+                    } else {
+                        quote! { let #field_ident = #value_ident.and_then(|v| v); }
+                    }
                 } else {
                     quote! {
                         let #field_ident = #value_ident
