@@ -22,10 +22,11 @@ fn fhir_primitive_value_deserialization(
     if is_type_string(&value_field_found.ty) {
         if is_optional {
             quote! {
-               let value = match #value_type::deserialize(deserializer)? {
-                     None => None,
-                     Some(v) if v.is_empty() => None,
-                     v => v,
+               let value = Option::<String>::deserialize(deserializer)?;
+               let value = if let Some(v) = value.as_ref() && v.is_empty() {
+                  None
+               } else {
+                  value
                };
             }
         } else {
