@@ -678,14 +678,6 @@ pub fn complex_deserialization(
 
             let field_meta = data.fields.iter().map(process_field).collect::<Vec<_>>();
 
-            // println!(
-            //     "{:#?}",
-            //     field_meta
-            //         .iter()
-            //         .filter(|f| f.ident == format_ident!("id"))
-            //         .collect::<Vec<_>>()
-            // );
-
             let field_declarations = field_meta
                 .iter()
                 .flat_map(|field| create_complex_field_declaration(field));
