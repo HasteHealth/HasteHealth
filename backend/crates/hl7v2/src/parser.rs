@@ -206,7 +206,5 @@ mod tests {
         let serialized: String = (SerializeMessage(&deserialized)).into();
 
         pretty_assertions::assert_eq!(serialized, input);
-
-        assert_eq!(true, false);
     }
 }
