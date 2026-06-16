@@ -586,8 +586,6 @@ mod tests {
 
         let client_app = serde_json::from_str::<ClientApplication>(&client_application_string);
 
-        println!("{:#?}", client_app);
-
         assert!(client_app.is_ok());
 
         let client_application_string = r#"{
@@ -632,9 +630,44 @@ mod tests {
             "resourceType": "Patient",
             "name": [{"family": "", "given": [""], "prefix": [""]}]
         }"#;
+        let patient = serde_json::from_str::<Patient>(patient).unwrap();
 
-        let patient = serde_json::from_str::<Patient>(patient);
+        assert_eq!(patient.name.is_none(), true);
 
-        assert_eq!(patient.is_err(), true);
+        let patient = r#"{
+            "id": "",
+            "resourceType": "Patient",
+            "name": [{"family": "test", "given": [""], "prefix": [""]}]
+        }"#;
+        let patient = serde_json::from_str::<Patient>(patient).unwrap();
+        let name = patient.name.unwrap()[0].clone();
+
+        assert_eq!(
+            name.family
+                .as_ref()
+                .and_then(|s| s.value.as_ref())
+                .map(|s| s.as_str()),
+            Some("test")
+        );
+        assert_eq!(name.given.is_none(), true);
+        assert_eq!(name.prefix.is_none(), true);
+
+        let patient = r#"{
+            "id": "",
+            "resourceType": "Patient",
+            "name": [{"family": "", "given": [""], "prefix": ["mr"]}]
+        }"#;
+        let patient = serde_json::from_str::<Patient>(patient).unwrap();
+        let name = patient.name.unwrap()[0].clone();
+
+        assert_eq!(
+            name.prefix.clone().unwrap()[0]
+                .value
+                .as_ref()
+                .map(|s| s.as_str()),
+            Some("mr")
+        );
+        assert_eq!(name.family.is_none(), true);
+        assert_eq!(name.given.is_none(), true);
     }
 }

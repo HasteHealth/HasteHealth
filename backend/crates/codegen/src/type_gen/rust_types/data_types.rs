@@ -737,6 +737,10 @@ pub fn generate(
         }
 
         impl Resource {
+            #[doc = "Returns true if the resource is empty, false otherwise."]
+            pub fn empty(&self) -> bool {
+                false
+            }
             pub fn resource_type(&self) -> ResourceType {
                 match self {
               #(#resource_to_resource_type_match_arms),*

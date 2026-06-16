@@ -29424,6 +29424,10 @@ pub enum Resource {
     VisionPrescription(VisionPrescription),
 }
 impl Resource {
+    #[doc = "Returns true if the resource is empty, false otherwise."]
+    pub fn empty(&self) -> bool {
+        false
+    }
     pub fn resource_type(&self) -> ResourceType {
         match self {
             Resource::IdentityProvider(_) => ResourceType::IdentityProvider,

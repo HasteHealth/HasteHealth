@@ -230,14 +230,11 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
                 }
             });
 
-            // let primitive_empty_check = primitive_variants.iter().map(|variant| {
-            //     let variant_ident = variant.ident.clone();
-            //     quote! {
-            //         Self::#variant_ident(v) => {
-            //             v.is_empty()
-            //         }
-            //     }
-            // });
+            let complex_variant_ident =
+                complex_variants.iter().map(|variant| variant.ident.clone());
+            let primitive_variant_ident = primitive_variants
+                .iter()
+                .map(|variant| variant.ident.clone());
 
             let deserialize_impl = quote! {
                 impl #name {
@@ -269,6 +266,17 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
                         match key {
                             #(#primitive_from_element_matches,)*
                             _ => None,
+                        }
+                    }
+
+                    pub fn empty(&self) -> bool {
+                        match self {
+                            #(
+                                Self::#complex_variant_ident(v) => v.empty(),
+                            )*
+                            #(
+                                Self::#primitive_variant_ident(v) => v.empty(),
+                            )*
                         }
                     }
                 }
@@ -518,48 +526,45 @@ fn merge_typechoice_primitive_extension_tokens(
     }
 }
 
-fn validate_primitive_not_empty(field: &FieldInformation) -> proc_macro2::TokenStream {
-    if !matches!(field.type_info, TypeInformation::Primitive) {
-        panic!("validate_primitive_not_empty should only be called for primitive fields.");
-    }
-
-    let value_ident = value_ident(&field.ident);
+// Must be post binding.
+fn filter_empty_values(field: &FieldInformation) -> proc_macro2::TokenStream {
+    let field_ident = &field.ident;
     let field_name = &field.field_name;
 
     if field.is_vector {
-        let vector_pattern = format_ident!("__{}_vector", field.ident);
-        let matching_constraint = get_matching_constraint_for_value(field, &vector_pattern);
-
-        quote! {
-            match &#value_ident {
-                #matching_constraint => {
-                    for (index, value) in #vector_pattern.iter().enumerate() {
-                        if value.empty() {
-                            return Err(serde::de::Error::custom(format!(
-                                "Primitive field '{}' at index {} has no value, id, or extension.",
-                                #field_name,
-                                index,
-                            )));
-                        }
+        let filtered_vec = if field.is_optional {
+            quote! {
+                #field_ident = #field_ident.and_then(|vec| {
+                    let tmp = vec.into_iter().filter(|v| !v.empty()).collect::<Vec<_>>();
+                    if tmp.len() == 0 {
+                        None
+                    } else {
+                        Some(tmp)
                     }
-                }
-                _ => {}
+                });
+
             }
-        }
-    } else {
-        let matching_constraint = if field.is_optional {
-            quote! { Some(Some(value)) }
         } else {
-            quote! { Some(value) }
+            quote! { #field_ident = #field_ident.into_iter().filter(|v| !v.empty()).collect(); }
         };
 
         quote! {
-            if let #matching_constraint = &#value_ident {
-                if value.empty() {
-                    return Err(serde::de::Error::custom(format!(
-                        "Primitive field '{}' has no value, id, or extension.",
-                        #field_name,
-                    )));
+          #filtered_vec
+        }
+    } else {
+        if field.is_optional {
+            quote! {
+                if let Some(v) = &#field_ident && v.empty() {
+                    #field_ident = None;
+                }
+            }
+        } else {
+            quote! {
+                if #field_ident.empty() {
+                        return Err(serde::de::Error::custom(format!(
+                            "Required field '{}' has no value, id, or extension.",
+                            #field_name,
+                        )));
                 }
             }
         }
@@ -618,15 +623,53 @@ fn cardinality_checks(field: &FieldInformation) -> Option<proc_macro2::TokenStre
     }
 }
 
+// If all fields are empty we can treat the whole complex type as empty and remove it from memory struct.
+pub fn can_complex_be_empty(field_meta: &Vec<FieldInformation>) -> bool {
+    for field in field_meta.iter() {
+        if !field.is_optional {
+            return false;
+        }
+    }
+    true
+}
+
+pub fn complex_empty_impl(
+    field_meta: &Vec<FieldInformation>,
+    struct_name: &Ident,
+) -> proc_macro2::TokenStream {
+    if can_complex_be_empty(field_meta) {
+        let empty_checks = field_meta.iter().map(|field| {
+            let field_ident = &field.ident;
+            quote! { self.#field_ident.is_none() }
+        });
+
+        quote! {
+            impl #struct_name {
+                pub fn empty(&self) -> bool {
+                    #(#empty_checks)&&*
+                }
+            }
+        }
+    } else {
+        quote! {
+            impl #struct_name {
+                pub fn empty(&self) -> bool {
+                    false
+                }
+            }
+        }
+    }
+}
+
 pub fn complex_deserialization(
     input: DeriveInput,
     deserialize_complex_type: DeserializeComplexType,
 ) -> TokenStream {
-    let name = input.ident;
+    let struct_ident = input.ident;
     match input.data {
         Data::Struct(data) => {
-            let visitor_name = format_ident!("{}Visitor", name);
-            let name_str = name.to_string();
+            let visitor_name = format_ident!("{}Visitor", struct_ident);
+            let name_str = struct_ident.to_string();
             let seen_resource_type_ident = format_ident!("__seen_resource_type");
 
             // Declare all fields for the given struct.
@@ -634,6 +677,14 @@ pub fn complex_deserialization(
             // we'll validate required fields at the end.
 
             let field_meta = data.fields.iter().map(process_field).collect::<Vec<_>>();
+
+            // println!(
+            //     "{:#?}",
+            //     field_meta
+            //         .iter()
+            //         .filter(|f| f.ident == format_ident!("id"))
+            //         .collect::<Vec<_>>()
+            // );
 
             let field_declarations = field_meta
                 .iter()
@@ -645,16 +696,16 @@ pub fn complex_deserialization(
                 .map(merge_primitive_extension_tokens)
                 .collect::<Vec<_>>();
 
-            let primitive_value_presence_validations = field_meta
-                .iter()
-                .filter(|field| matches!(field.type_info, TypeInformation::Primitive))
-                .map(validate_primitive_not_empty)
-                .collect::<Vec<_>>();
-
             let typechoice_merge_blocks = field_meta
                 .iter()
                 .filter(|field| matches!(field.type_info, TypeInformation::TypeChoice(_)))
                 .map(merge_typechoice_primitive_extension_tokens)
+                .collect::<Vec<_>>();
+
+            let value_presence_filtering = field_meta
+                .iter()
+                .filter(|f| !is_type_string(&f.field_type))
+                .map(filter_empty_values)
                 .collect::<Vec<_>>();
 
             let cardinality_checks = field_meta
@@ -821,24 +872,10 @@ pub fn complex_deserialization(
                 let value_ident = value_ident(field_ident);
 
                 if field.is_optional {
-                    // Special handling because empty vector should be treated as None.
-                    // Because generated type will always have Option<Vec<T>> for empty vecs we should be okay 
-                    // just handling edgecase here.
-                    if field.is_vector {
-                        quote! {
-                            let value_len = #value_ident.as_ref().and_then(|v| v.as_ref()).map_or(0, |v| v.len());
-                            let #field_ident = if value_len == 0 {
-                                None
-                            } else {
-                                #value_ident.and_then(|v| v)
-                            };
-                        }
-                    } else {
-                        quote! { let #field_ident = #value_ident.and_then(|v| v); }
-                    }
+                    quote! { let mut #field_ident = #value_ident.and_then(|v| v); }
                 } else {
                     quote! {
-                        let #field_ident = #value_ident
+                        let mut #field_ident = #value_ident
                             .ok_or_else(|| serde::de::Error::missing_field(#field_name))?;
                     }
                 }
@@ -846,18 +883,20 @@ pub fn complex_deserialization(
 
             let field_names = data.fields.iter().map(|f| f.ident.as_ref().unwrap());
 
+            let empty_impl = complex_empty_impl(&field_meta, &struct_ident);
+
             let deserialize_impl = quote! {
-                impl<'de> serde::Deserialize<'de> for #name {
+                impl<'de> serde::Deserialize<'de> for #struct_ident {
                     fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
                         struct #visitor_name;
                         impl<'de> serde::de::Visitor<'de> for #visitor_name {
-                            type Value = #name;
+                            type Value = #struct_ident;
 
                             fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
                                 write!(f, "a JSON object for {}", #name_str)
                             }
 
-                            fn visit_map<A>(self, mut map: A) -> Result<#name, A::Error>
+                            fn visit_map<A>(self, mut map: A) -> Result<#struct_ident, A::Error>
                             where
                                 A: serde::de::MapAccess<'de>,
                             {
@@ -875,14 +914,14 @@ pub fn complex_deserialization(
 
                                 #(#primitive_merge_blocks)*
                                 #(#typechoice_merge_blocks)*
-                                #(#primitive_value_presence_validations)*
-
 
                                 #(#bind_fields)*
 
+                                 #(#value_presence_filtering)*
+
                                 #(#cardinality_checks)*
 
-                                Ok(#name {
+                                Ok(#struct_ident {
                                     #(#field_names),*
                                 })
                             }
@@ -891,6 +930,8 @@ pub fn complex_deserialization(
                         d.deserialize_map(#visitor_name)
                     }
                 }
+
+                #empty_impl
             };
 
             // if name == "ClientApplication" {
