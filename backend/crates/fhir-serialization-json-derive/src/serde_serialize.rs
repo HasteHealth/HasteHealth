@@ -6,7 +6,7 @@ use crate::{
     DeserializeComplexType,
     utilities::{
         TypeInformation, get_attribute_value, is_attribute_present, is_optional_field,
-        process_field,
+        is_type_string, process_field,
     },
 };
 
@@ -47,9 +47,18 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
                 .unwrap();
             // Value could be optional or not depending on SD.
             let function_to_check_empty = if is_optional_field(&value_field) {
-                quote! {
-                    is_none()
+                // Special handling for string types: empty string is considered empty even if the field is present.
+                if is_type_string(&value_field.ty) {
+                    quote! {
+                        as_ref().map(|s| s.is_empty()).unwrap_or(true)
+                    }
+                } else {
+                    quote! {
+                        is_none()
+                    }
                 }
+            // Markdown has a non-optional value field, but empty string is considered empty.
+            // Should only be string that hits this.
             } else {
                 quote! {
                     is_empty()

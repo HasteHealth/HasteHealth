@@ -3,10 +3,25 @@ use haste_fhir_model::r4::generated::resources::{
     HL7V2SegmentsFieldsValueValue,
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_model::r4::generated::types::{FHIRId, FHIRString};
 use haste_fhir_operation_error::OperationOutcomeError;
 
 #[derive(Debug, Clone)]
 pub struct ParsedHL7V2Message(pub HL7V2);
+
+fn parse_empty_string(v: String) -> FHIRString {
+    let mut fhir_string: FHIRString = v.into();
+
+    fhir_string.id = Some("_non_empty".to_string());
+    fhir_string
+}
+
+fn parse_empty_id(v: String) -> FHIRId {
+    let mut fhir_id: FHIRId = v.into();
+
+    fhir_id.id = Some("_non_empty".to_string());
+    fhir_id
+}
 
 impl TryFrom<&str> for ParsedHL7V2Message {
     type Error = OperationOutcomeError;
@@ -64,13 +79,17 @@ impl TryFrom<&str> for ParsedHL7V2Message {
                                         subcomponents: Some(
                                             subcomponent
                                                 .iter()
-                                                .map(|s| Box::new(s.to_string().into()))
+                                                .map(|s| {
+                                                    Box::new(parse_empty_string(s.to_string()))
+                                                })
                                                 .collect(),
                                         ),
                                     }
                                 } else {
                                     HL7V2SegmentsFieldsValueValue {
-                                        value: Some(Box::new(component.to_string().into())),
+                                        value: Some(Box::new(parse_empty_string(
+                                            component.to_string(),
+                                        ))),
                                         subcomponents: None,
                                     }
                                 }
@@ -103,13 +122,13 @@ impl TryFrom<&str> for ParsedHL7V2Message {
             });
 
             segments.push(HL7V2Segments {
-                id: Box::new(segment_id.to_string().into()),
+                id: Box::new(parse_empty_id(segment_id.to_string())),
                 fields: Some(segment_fields.collect()),
             });
         }
 
         Ok(ParsedHL7V2Message(HL7V2 {
-            fieldSeparator: Box::new(field_seperator.to_string().into()),
+            fieldSeparator: Box::new(parse_empty_string(field_seperator.to_string())),
             segments: Some(segments),
             ..Default::default()
         }))
@@ -172,5 +191,22 @@ mod tests {
         let serialized: String = (SerializeMessage(&message.0)).into();
 
         pretty_assertions::assert_eq!(serialized, input);
+    }
+
+    #[test]
+    fn round_trip_json_serialize() {
+        let input = std::fs::read_to_string("./test_data/message1.bin").unwrap();
+        let result = ParsedHL7V2Message::try_from(input.as_str());
+        assert!(result.is_ok());
+
+        let message = result.unwrap();
+        let json = serde_json::to_string_pretty(&message.0).unwrap();
+        println!("{}", json);
+        let deserialized: HL7V2 = serde_json::from_str(&json).unwrap();
+        let serialized: String = (SerializeMessage(&deserialized)).into();
+
+        pretty_assertions::assert_eq!(serialized, input);
+
+        assert_eq!(true, false);
     }
 }
