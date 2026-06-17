@@ -239980,3 +239980,944 @@ impl MetaValue for UserRole {
         false
     }
 }
+#[derive(Debug, Clone, FHIRSerdeDeserialize, FHIRSerdeSerialize)]
+#[fhir_serialize_type = "valueset"]
+pub enum AllSQLContentTypeCodes {
+    #[doc = "SQL"]
+    #[code = "application/sql"]
+    Application_Sql(Option<Element>),
+    #[doc = "ANSI SQL"]
+    #[code = "application/sql;dialect=ansi-sql"]
+    Application_SqlSemicolondialectEqualansiSql(Option<Element>),
+    #[doc = "BigQuery"]
+    #[code = "application/sql;dialect=bigquery"]
+    Application_SqlSemicolondialectEqualbigquery(Option<Element>),
+    #[doc = "ClickHouse"]
+    #[code = "application/sql;dialect=clickhouse"]
+    Application_SqlSemicolondialectEqualclickhouse(Option<Element>),
+    #[doc = "IBM DB2"]
+    #[code = "application/sql;dialect=db2"]
+    Application_SqlSemicolondialectEqualdb2(Option<Element>),
+    #[doc = "DuckDB"]
+    #[code = "application/sql;dialect=duckdb"]
+    Application_SqlSemicolondialectEqualduckdb(Option<Element>),
+    #[doc = "H2"]
+    #[code = "application/sql;dialect=h2"]
+    Application_SqlSemicolondialectEqualh2(Option<Element>),
+    #[doc = "Hive"]
+    #[code = "application/sql;dialect=hive"]
+    Application_SqlSemicolondialectEqualhive(Option<Element>),
+    #[doc = "HSQLDB"]
+    #[code = "application/sql;dialect=hsqldb"]
+    Application_SqlSemicolondialectEqualhsqldb(Option<Element>),
+    #[doc = "MariaDB"]
+    #[code = "application/sql;dialect=mariadb"]
+    Application_SqlSemicolondialectEqualmariadb(Option<Element>),
+    #[doc = "MySQL"]
+    #[code = "application/sql;dialect=mysql"]
+    Application_SqlSemicolondialectEqualmysql(Option<Element>),
+    #[doc = "Oracle SQL"]
+    #[code = "application/sql;dialect=oracle"]
+    Application_SqlSemicolondialectEqualoracle(Option<Element>),
+    #[doc = "PostgreSQL"]
+    #[code = "application/sql;dialect=postgresql"]
+    Application_SqlSemicolondialectEqualpostgresql(Option<Element>),
+    #[doc = "Presto"]
+    #[code = "application/sql;dialect=presto"]
+    Application_SqlSemicolondialectEqualpresto(Option<Element>),
+    #[doc = "Amazon Redshift"]
+    #[code = "application/sql;dialect=redshift"]
+    Application_SqlSemicolondialectEqualredshift(Option<Element>),
+    #[doc = "Snowflake"]
+    #[code = "application/sql;dialect=snowflake"]
+    Application_SqlSemicolondialectEqualsnowflake(Option<Element>),
+    #[doc = "Spark SQL"]
+    #[code = "application/sql;dialect=spark-sql"]
+    Application_SqlSemicolondialectEqualsparkSql(Option<Element>),
+    #[doc = "SQL-2"]
+    #[code = "application/sql;dialect=sql-2"]
+    Application_SqlSemicolondialectEqualsql2(Option<Element>),
+    #[doc = "SQL Server"]
+    #[code = "application/sql;dialect=sql-server"]
+    Application_SqlSemicolondialectEqualsqlServer(Option<Element>),
+    #[doc = "SQLite"]
+    #[code = "application/sql;dialect=sqlite"]
+    Application_SqlSemicolondialectEqualsqlite(Option<Element>),
+    #[doc = "Teradata"]
+    #[code = "application/sql;dialect=teradata"]
+    Application_SqlSemicolondialectEqualteradata(Option<Element>),
+    #[doc = "Trino"]
+    #[code = "application/sql;dialect=trino"]
+    Application_SqlSemicolondialectEqualtrino(Option<Element>),
+    #[doc = "Vertica"]
+    #[code = "application/sql;dialect=vertica"]
+    Application_SqlSemicolondialectEqualvertica(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
+}
+impl AllSQLContentTypeCodes {
+    pub fn element(&self) -> Option<&Element> {
+        match self {
+            AllSQLContentTypeCodes::Application_Sql(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualansiSql(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualbigquery(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualclickhouse(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualdb2(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualduckdb(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualh2(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualhive(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualhsqldb(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualmariadb(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualmysql(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualoracle(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualpostgresql(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualpresto(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualredshift(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsnowflake(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsparkSql(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsql2(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsqlServer(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsqlite(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualteradata(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualtrino(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualvertica(e) => e.as_ref(),
+            AllSQLContentTypeCodes::Null(e) => e.as_ref(),
+        }
+    }
+    pub fn element_mut(&mut self) -> &mut Element {
+        match self {
+            AllSQLContentTypeCodes::Application_Sql(e) => e.get_or_insert_with(Default::default),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualansiSql(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualbigquery(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualclickhouse(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualdb2(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualduckdb(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualh2(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualhive(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualhsqldb(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualmariadb(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualmysql(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualoracle(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualpostgresql(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualpresto(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualredshift(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsnowflake(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsparkSql(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsql2(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsqlServer(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsqlite(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualteradata(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualtrino(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualvertica(e) => {
+                e.get_or_insert_with(Default::default)
+            }
+            AllSQLContentTypeCodes::Null(e) => e.get_or_insert_with(Default::default),
+        }
+    }
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<super::types::Extension>>> {
+        let element_mut = self.element_mut();
+        &mut element_mut.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        let element_mut = self.element_mut();
+        &mut element_mut.id
+    }
+}
+impl Default for AllSQLContentTypeCodes {
+    fn default() -> Self {
+        AllSQLContentTypeCodes::Null(None)
+    }
+}
+impl TryFrom<String> for AllSQLContentTypeCodes {
+    type Error = String;
+    fn try_from(value: String) -> Result<Self, String> {
+        match value.as_str() {
+            "application/sql" => Ok(AllSQLContentTypeCodes::Application_Sql(None)),
+            "application/sql;dialect=ansi-sql" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualansiSql(None))
+            }
+            "application/sql;dialect=bigquery" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualbigquery(None))
+            }
+            "application/sql;dialect=clickhouse" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualclickhouse(None))
+            }
+            "application/sql;dialect=db2" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualdb2(None))
+            }
+            "application/sql;dialect=duckdb" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualduckdb(None))
+            }
+            "application/sql;dialect=h2" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualh2(None))
+            }
+            "application/sql;dialect=hive" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualhive(None))
+            }
+            "application/sql;dialect=hsqldb" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualhsqldb(None))
+            }
+            "application/sql;dialect=mariadb" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualmariadb(None))
+            }
+            "application/sql;dialect=mysql" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualmysql(None))
+            }
+            "application/sql;dialect=oracle" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualoracle(None))
+            }
+            "application/sql;dialect=postgresql" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualpostgresql(None))
+            }
+            "application/sql;dialect=presto" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualpresto(None))
+            }
+            "application/sql;dialect=redshift" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualredshift(None))
+            }
+            "application/sql;dialect=snowflake" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsnowflake(None))
+            }
+            "application/sql;dialect=spark-sql" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsparkSql(None))
+            }
+            "application/sql;dialect=sql-2" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsql2(None))
+            }
+            "application/sql;dialect=sql-server" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsqlServer(None))
+            }
+            "application/sql;dialect=sqlite" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsqlite(None))
+            }
+            "application/sql;dialect=teradata" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualteradata(None))
+            }
+            "application/sql;dialect=trino" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualtrino(None))
+            }
+            "application/sql;dialect=vertica" => {
+                Ok(AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualvertica(None))
+            }
+            _ => Err(format!("Unknown code '{}'", value)),
+        }
+    }
+}
+impl Into<Option<String>> for &AllSQLContentTypeCodes {
+    fn into(self) -> Option<String> {
+        match self {
+            AllSQLContentTypeCodes::Application_Sql(_) => Some("application/sql".to_string()),
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualansiSql(_) => {
+                Some("application/sql;dialect=ansi-sql".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualbigquery(_) => {
+                Some("application/sql;dialect=bigquery".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualclickhouse(_) => {
+                Some("application/sql;dialect=clickhouse".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualdb2(_) => {
+                Some("application/sql;dialect=db2".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualduckdb(_) => {
+                Some("application/sql;dialect=duckdb".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualh2(_) => {
+                Some("application/sql;dialect=h2".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualhive(_) => {
+                Some("application/sql;dialect=hive".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualhsqldb(_) => {
+                Some("application/sql;dialect=hsqldb".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualmariadb(_) => {
+                Some("application/sql;dialect=mariadb".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualmysql(_) => {
+                Some("application/sql;dialect=mysql".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualoracle(_) => {
+                Some("application/sql;dialect=oracle".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualpostgresql(_) => {
+                Some("application/sql;dialect=postgresql".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualpresto(_) => {
+                Some("application/sql;dialect=presto".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualredshift(_) => {
+                Some("application/sql;dialect=redshift".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsnowflake(_) => {
+                Some("application/sql;dialect=snowflake".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsparkSql(_) => {
+                Some("application/sql;dialect=spark-sql".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsql2(_) => {
+                Some("application/sql;dialect=sql-2".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsqlServer(_) => {
+                Some("application/sql;dialect=sql-server".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsqlite(_) => {
+                Some("application/sql;dialect=sqlite".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualteradata(_) => {
+                Some("application/sql;dialect=teradata".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualtrino(_) => {
+                Some("application/sql;dialect=trino".to_string())
+            }
+            AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualvertica(_) => {
+                Some("application/sql;dialect=vertica".to_string())
+            }
+            AllSQLContentTypeCodes::Null(_) => None,
+        }
+    }
+}
+impl MetaValue for AllSQLContentTypeCodes {
+    fn fields(&self) -> Vec<&'static str> {
+        vec!["value", "id", "extension"]
+    }
+    fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
+        match field {
+            "value" => {
+                let code_value: Option<String> = self.into();
+                if let Some(code_value) = code_value {
+                    let v = Box::new(code_value);
+                    let code_ref: &'a String = Box::leak(v);
+                    Some(code_ref)
+                } else {
+                    None
+                }
+            }
+            _ => match self {
+                AllSQLContentTypeCodes::Application_Sql(Some(e)) => e.get_field(field),
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualansiSql(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualbigquery(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualclickhouse(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualdb2(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualduckdb(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualh2(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualhive(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualhsqldb(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualmariadb(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualmysql(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualoracle(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualpostgresql(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualpresto(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualredshift(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsnowflake(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsparkSql(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsql2(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsqlServer(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsqlite(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualteradata(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualtrino(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualvertica(Some(e)) => {
+                    e.get_field(field)
+                }
+                AllSQLContentTypeCodes::Null(Some(e)) => e.get_field(field),
+                _ => None,
+            },
+        }
+    }
+    fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+        match field {
+            "value" => None,
+            _ => match self {
+                AllSQLContentTypeCodes::Application_Sql(Some(e)) => e.get_field_mut(field),
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualansiSql(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualbigquery(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualclickhouse(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualdb2(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualduckdb(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualh2(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualhive(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualhsqldb(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualmariadb(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualmysql(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualoracle(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualpostgresql(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualpresto(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualredshift(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsnowflake(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsparkSql(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsql2(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsqlServer(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualsqlite(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualteradata(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualtrino(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Application_SqlSemicolondialectEqualvertica(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                AllSQLContentTypeCodes::Null(Some(e)) => e.get_field_mut(field),
+                _ => None,
+            },
+        }
+    }
+    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+        None
+    }
+    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+        None
+    }
+    fn flatten(&self) -> Vec<&dyn MetaValue> {
+        vec![self]
+    }
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    fn fhir_type(&self) -> &'static str {
+        "code"
+    }
+    fn is_many(&self) -> bool {
+        false
+    }
+}
+#[derive(Debug, Clone, FHIRSerdeDeserialize, FHIRSerdeSerialize)]
+#[fhir_serialize_type = "valueset"]
+pub enum ExportStatusCodes {
+    #[doc = "Accepted"]
+    #[code = "accepted"]
+    Accepted(Option<Element>),
+    #[doc = "Cancelled"]
+    #[code = "cancelled"]
+    Cancelled(Option<Element>),
+    #[doc = "Completed"]
+    #[code = "completed"]
+    Completed(Option<Element>),
+    #[doc = "Failed"]
+    #[code = "failed"]
+    Failed(Option<Element>),
+    #[doc = "In progress"]
+    #[code = "in-progress"]
+    InProgress(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
+}
+impl ExportStatusCodes {
+    pub fn element(&self) -> Option<&Element> {
+        match self {
+            ExportStatusCodes::Accepted(e) => e.as_ref(),
+            ExportStatusCodes::Cancelled(e) => e.as_ref(),
+            ExportStatusCodes::Completed(e) => e.as_ref(),
+            ExportStatusCodes::Failed(e) => e.as_ref(),
+            ExportStatusCodes::InProgress(e) => e.as_ref(),
+            ExportStatusCodes::Null(e) => e.as_ref(),
+        }
+    }
+    pub fn element_mut(&mut self) -> &mut Element {
+        match self {
+            ExportStatusCodes::Accepted(e) => e.get_or_insert_with(Default::default),
+            ExportStatusCodes::Cancelled(e) => e.get_or_insert_with(Default::default),
+            ExportStatusCodes::Completed(e) => e.get_or_insert_with(Default::default),
+            ExportStatusCodes::Failed(e) => e.get_or_insert_with(Default::default),
+            ExportStatusCodes::InProgress(e) => e.get_or_insert_with(Default::default),
+            ExportStatusCodes::Null(e) => e.get_or_insert_with(Default::default),
+        }
+    }
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<super::types::Extension>>> {
+        let element_mut = self.element_mut();
+        &mut element_mut.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        let element_mut = self.element_mut();
+        &mut element_mut.id
+    }
+}
+impl Default for ExportStatusCodes {
+    fn default() -> Self {
+        ExportStatusCodes::Null(None)
+    }
+}
+impl TryFrom<String> for ExportStatusCodes {
+    type Error = String;
+    fn try_from(value: String) -> Result<Self, String> {
+        match value.as_str() {
+            "accepted" => Ok(ExportStatusCodes::Accepted(None)),
+            "cancelled" => Ok(ExportStatusCodes::Cancelled(None)),
+            "completed" => Ok(ExportStatusCodes::Completed(None)),
+            "failed" => Ok(ExportStatusCodes::Failed(None)),
+            "in-progress" => Ok(ExportStatusCodes::InProgress(None)),
+            _ => Err(format!("Unknown code '{}'", value)),
+        }
+    }
+}
+impl Into<Option<String>> for &ExportStatusCodes {
+    fn into(self) -> Option<String> {
+        match self {
+            ExportStatusCodes::Accepted(_) => Some("accepted".to_string()),
+            ExportStatusCodes::Cancelled(_) => Some("cancelled".to_string()),
+            ExportStatusCodes::Completed(_) => Some("completed".to_string()),
+            ExportStatusCodes::Failed(_) => Some("failed".to_string()),
+            ExportStatusCodes::InProgress(_) => Some("in-progress".to_string()),
+            ExportStatusCodes::Null(_) => None,
+        }
+    }
+}
+impl MetaValue for ExportStatusCodes {
+    fn fields(&self) -> Vec<&'static str> {
+        vec!["value", "id", "extension"]
+    }
+    fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
+        match field {
+            "value" => {
+                let code_value: Option<String> = self.into();
+                if let Some(code_value) = code_value {
+                    let v = Box::new(code_value);
+                    let code_ref: &'a String = Box::leak(v);
+                    Some(code_ref)
+                } else {
+                    None
+                }
+            }
+            _ => match self {
+                ExportStatusCodes::Accepted(Some(e)) => e.get_field(field),
+                ExportStatusCodes::Cancelled(Some(e)) => e.get_field(field),
+                ExportStatusCodes::Completed(Some(e)) => e.get_field(field),
+                ExportStatusCodes::Failed(Some(e)) => e.get_field(field),
+                ExportStatusCodes::InProgress(Some(e)) => e.get_field(field),
+                ExportStatusCodes::Null(Some(e)) => e.get_field(field),
+                _ => None,
+            },
+        }
+    }
+    fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+        match field {
+            "value" => None,
+            _ => match self {
+                ExportStatusCodes::Accepted(Some(e)) => e.get_field_mut(field),
+                ExportStatusCodes::Cancelled(Some(e)) => e.get_field_mut(field),
+                ExportStatusCodes::Completed(Some(e)) => e.get_field_mut(field),
+                ExportStatusCodes::Failed(Some(e)) => e.get_field_mut(field),
+                ExportStatusCodes::InProgress(Some(e)) => e.get_field_mut(field),
+                ExportStatusCodes::Null(Some(e)) => e.get_field_mut(field),
+                _ => None,
+            },
+        }
+    }
+    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+        None
+    }
+    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+        None
+    }
+    fn flatten(&self) -> Vec<&dyn MetaValue> {
+        vec![self]
+    }
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    fn fhir_type(&self) -> &'static str {
+        "code"
+    }
+    fn is_many(&self) -> bool {
+        false
+    }
+}
+#[derive(Debug, Clone, FHIRSerdeDeserialize, FHIRSerdeSerialize)]
+#[fhir_serialize_type = "valueset"]
+pub enum OutputFormatCodes {
+    #[doc = "CSV"]
+    #[code = "csv"]
+    Csv(Option<Element>),
+    #[doc = "FHIR"]
+    #[code = "fhir"]
+    Fhir(Option<Element>),
+    #[doc = "JSON"]
+    #[code = "json"]
+    Json(Option<Element>),
+    #[doc = "NDJSON"]
+    #[code = "ndjson"]
+    Ndjson(Option<Element>),
+    #[doc = "Parquet"]
+    #[code = "parquet"]
+    Parquet(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
+}
+impl OutputFormatCodes {
+    pub fn element(&self) -> Option<&Element> {
+        match self {
+            OutputFormatCodes::Csv(e) => e.as_ref(),
+            OutputFormatCodes::Fhir(e) => e.as_ref(),
+            OutputFormatCodes::Json(e) => e.as_ref(),
+            OutputFormatCodes::Ndjson(e) => e.as_ref(),
+            OutputFormatCodes::Parquet(e) => e.as_ref(),
+            OutputFormatCodes::Null(e) => e.as_ref(),
+        }
+    }
+    pub fn element_mut(&mut self) -> &mut Element {
+        match self {
+            OutputFormatCodes::Csv(e) => e.get_or_insert_with(Default::default),
+            OutputFormatCodes::Fhir(e) => e.get_or_insert_with(Default::default),
+            OutputFormatCodes::Json(e) => e.get_or_insert_with(Default::default),
+            OutputFormatCodes::Ndjson(e) => e.get_or_insert_with(Default::default),
+            OutputFormatCodes::Parquet(e) => e.get_or_insert_with(Default::default),
+            OutputFormatCodes::Null(e) => e.get_or_insert_with(Default::default),
+        }
+    }
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<super::types::Extension>>> {
+        let element_mut = self.element_mut();
+        &mut element_mut.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        let element_mut = self.element_mut();
+        &mut element_mut.id
+    }
+}
+impl Default for OutputFormatCodes {
+    fn default() -> Self {
+        OutputFormatCodes::Null(None)
+    }
+}
+impl TryFrom<String> for OutputFormatCodes {
+    type Error = String;
+    fn try_from(value: String) -> Result<Self, String> {
+        match value.as_str() {
+            "csv" => Ok(OutputFormatCodes::Csv(None)),
+            "fhir" => Ok(OutputFormatCodes::Fhir(None)),
+            "json" => Ok(OutputFormatCodes::Json(None)),
+            "ndjson" => Ok(OutputFormatCodes::Ndjson(None)),
+            "parquet" => Ok(OutputFormatCodes::Parquet(None)),
+            _ => Err(format!("Unknown code '{}'", value)),
+        }
+    }
+}
+impl Into<Option<String>> for &OutputFormatCodes {
+    fn into(self) -> Option<String> {
+        match self {
+            OutputFormatCodes::Csv(_) => Some("csv".to_string()),
+            OutputFormatCodes::Fhir(_) => Some("fhir".to_string()),
+            OutputFormatCodes::Json(_) => Some("json".to_string()),
+            OutputFormatCodes::Ndjson(_) => Some("ndjson".to_string()),
+            OutputFormatCodes::Parquet(_) => Some("parquet".to_string()),
+            OutputFormatCodes::Null(_) => None,
+        }
+    }
+}
+impl MetaValue for OutputFormatCodes {
+    fn fields(&self) -> Vec<&'static str> {
+        vec!["value", "id", "extension"]
+    }
+    fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
+        match field {
+            "value" => {
+                let code_value: Option<String> = self.into();
+                if let Some(code_value) = code_value {
+                    let v = Box::new(code_value);
+                    let code_ref: &'a String = Box::leak(v);
+                    Some(code_ref)
+                } else {
+                    None
+                }
+            }
+            _ => match self {
+                OutputFormatCodes::Csv(Some(e)) => e.get_field(field),
+                OutputFormatCodes::Fhir(Some(e)) => e.get_field(field),
+                OutputFormatCodes::Json(Some(e)) => e.get_field(field),
+                OutputFormatCodes::Ndjson(Some(e)) => e.get_field(field),
+                OutputFormatCodes::Parquet(Some(e)) => e.get_field(field),
+                OutputFormatCodes::Null(Some(e)) => e.get_field(field),
+                _ => None,
+            },
+        }
+    }
+    fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+        match field {
+            "value" => None,
+            _ => match self {
+                OutputFormatCodes::Csv(Some(e)) => e.get_field_mut(field),
+                OutputFormatCodes::Fhir(Some(e)) => e.get_field_mut(field),
+                OutputFormatCodes::Json(Some(e)) => e.get_field_mut(field),
+                OutputFormatCodes::Ndjson(Some(e)) => e.get_field_mut(field),
+                OutputFormatCodes::Parquet(Some(e)) => e.get_field_mut(field),
+                OutputFormatCodes::Null(Some(e)) => e.get_field_mut(field),
+                _ => None,
+            },
+        }
+    }
+    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+        None
+    }
+    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+        None
+    }
+    fn flatten(&self) -> Vec<&dyn MetaValue> {
+        vec![self]
+    }
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    fn fhir_type(&self) -> &'static str {
+        "code"
+    }
+    fn is_many(&self) -> bool {
+        false
+    }
+}
+#[derive(Debug, Clone, FHIRSerdeDeserialize, FHIRSerdeSerialize)]
+#[fhir_serialize_type = "valueset"]
+pub enum SQLQueryRunOutputFormatCodes {
+    #[code = "csv"]
+    Csv(Option<Element>),
+    #[code = "fhir"]
+    Fhir(Option<Element>),
+    #[code = "json"]
+    Json(Option<Element>),
+    #[code = "ndjson"]
+    Ndjson(Option<Element>),
+    #[code = "parquet"]
+    Parquet(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
+}
+impl SQLQueryRunOutputFormatCodes {
+    pub fn element(&self) -> Option<&Element> {
+        match self {
+            SQLQueryRunOutputFormatCodes::Csv(e) => e.as_ref(),
+            SQLQueryRunOutputFormatCodes::Fhir(e) => e.as_ref(),
+            SQLQueryRunOutputFormatCodes::Json(e) => e.as_ref(),
+            SQLQueryRunOutputFormatCodes::Ndjson(e) => e.as_ref(),
+            SQLQueryRunOutputFormatCodes::Parquet(e) => e.as_ref(),
+            SQLQueryRunOutputFormatCodes::Null(e) => e.as_ref(),
+        }
+    }
+    pub fn element_mut(&mut self) -> &mut Element {
+        match self {
+            SQLQueryRunOutputFormatCodes::Csv(e) => e.get_or_insert_with(Default::default),
+            SQLQueryRunOutputFormatCodes::Fhir(e) => e.get_or_insert_with(Default::default),
+            SQLQueryRunOutputFormatCodes::Json(e) => e.get_or_insert_with(Default::default),
+            SQLQueryRunOutputFormatCodes::Ndjson(e) => e.get_or_insert_with(Default::default),
+            SQLQueryRunOutputFormatCodes::Parquet(e) => e.get_or_insert_with(Default::default),
+            SQLQueryRunOutputFormatCodes::Null(e) => e.get_or_insert_with(Default::default),
+        }
+    }
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<super::types::Extension>>> {
+        let element_mut = self.element_mut();
+        &mut element_mut.extension
+    }
+    pub fn id_mut(&mut self) -> &mut Option<String> {
+        let element_mut = self.element_mut();
+        &mut element_mut.id
+    }
+}
+impl Default for SQLQueryRunOutputFormatCodes {
+    fn default() -> Self {
+        SQLQueryRunOutputFormatCodes::Null(None)
+    }
+}
+impl TryFrom<String> for SQLQueryRunOutputFormatCodes {
+    type Error = String;
+    fn try_from(value: String) -> Result<Self, String> {
+        match value.as_str() {
+            "csv" => Ok(SQLQueryRunOutputFormatCodes::Csv(None)),
+            "fhir" => Ok(SQLQueryRunOutputFormatCodes::Fhir(None)),
+            "json" => Ok(SQLQueryRunOutputFormatCodes::Json(None)),
+            "ndjson" => Ok(SQLQueryRunOutputFormatCodes::Ndjson(None)),
+            "parquet" => Ok(SQLQueryRunOutputFormatCodes::Parquet(None)),
+            _ => Err(format!("Unknown code '{}'", value)),
+        }
+    }
+}
+impl Into<Option<String>> for &SQLQueryRunOutputFormatCodes {
+    fn into(self) -> Option<String> {
+        match self {
+            SQLQueryRunOutputFormatCodes::Csv(_) => Some("csv".to_string()),
+            SQLQueryRunOutputFormatCodes::Fhir(_) => Some("fhir".to_string()),
+            SQLQueryRunOutputFormatCodes::Json(_) => Some("json".to_string()),
+            SQLQueryRunOutputFormatCodes::Ndjson(_) => Some("ndjson".to_string()),
+            SQLQueryRunOutputFormatCodes::Parquet(_) => Some("parquet".to_string()),
+            SQLQueryRunOutputFormatCodes::Null(_) => None,
+        }
+    }
+}
+impl MetaValue for SQLQueryRunOutputFormatCodes {
+    fn fields(&self) -> Vec<&'static str> {
+        vec!["value", "id", "extension"]
+    }
+    fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
+        match field {
+            "value" => {
+                let code_value: Option<String> = self.into();
+                if let Some(code_value) = code_value {
+                    let v = Box::new(code_value);
+                    let code_ref: &'a String = Box::leak(v);
+                    Some(code_ref)
+                } else {
+                    None
+                }
+            }
+            _ => match self {
+                SQLQueryRunOutputFormatCodes::Csv(Some(e)) => e.get_field(field),
+                SQLQueryRunOutputFormatCodes::Fhir(Some(e)) => e.get_field(field),
+                SQLQueryRunOutputFormatCodes::Json(Some(e)) => e.get_field(field),
+                SQLQueryRunOutputFormatCodes::Ndjson(Some(e)) => e.get_field(field),
+                SQLQueryRunOutputFormatCodes::Parquet(Some(e)) => e.get_field(field),
+                SQLQueryRunOutputFormatCodes::Null(Some(e)) => e.get_field(field),
+                _ => None,
+            },
+        }
+    }
+    fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+        match field {
+            "value" => None,
+            _ => match self {
+                SQLQueryRunOutputFormatCodes::Csv(Some(e)) => e.get_field_mut(field),
+                SQLQueryRunOutputFormatCodes::Fhir(Some(e)) => e.get_field_mut(field),
+                SQLQueryRunOutputFormatCodes::Json(Some(e)) => e.get_field_mut(field),
+                SQLQueryRunOutputFormatCodes::Ndjson(Some(e)) => e.get_field_mut(field),
+                SQLQueryRunOutputFormatCodes::Parquet(Some(e)) => e.get_field_mut(field),
+                SQLQueryRunOutputFormatCodes::Null(Some(e)) => e.get_field_mut(field),
+                _ => None,
+            },
+        }
+    }
+    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+        None
+    }
+    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+        None
+    }
+    fn flatten(&self) -> Vec<&dyn MetaValue> {
+        vec![self]
+    }
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    fn fhir_type(&self) -> &'static str {
+        "code"
+    }
+    fn is_many(&self) -> bool {
+        false
+    }
+}
