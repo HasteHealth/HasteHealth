@@ -8,6 +8,7 @@ mod hl7v2_parse;
 mod idp_info;
 mod project_information;
 mod terminology;
+mod viewdefinition_run;
 
 pub use active_refresh_tokens::*;
 pub use approved_scopes::*;
@@ -19,3 +20,4 @@ pub use hl7v2_parse::*;
 pub use idp_info::*;
 pub use project_information::*;
 pub use terminology::*;
+pub use viewdefinition_run::*;

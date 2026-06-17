@@ -70,6 +70,7 @@ impl<
                 >,
             >,
         > = vec![
+            Box::new(custom_operations::view_definition_run()),
             Box::new(custom_operations::valueset_expand_op()),
             Box::new(custom_operations::project_information_op()),
             Box::new(custom_operations::active_refresh_tokens_op()),
