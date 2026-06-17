@@ -9,7 +9,7 @@ use haste_fhir_model::r4::{
     self,
     generated::{
         resources::{Binary, Resource, ResourceType, ViewDefinition},
-        terminology::IssueType,
+        terminology::{IssueType, OutputFormatCodes},
     },
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -97,7 +97,20 @@ async fn resolve_view_definition<
     }
 }
 
-async fn get_input<
+fn get_output_format(
+    input: &ViewDefinitionRun::Input,
+) -> Result<OutputFormatCodes, OperationOutcomeError> {
+    let output_format = input
+        ._format
+        .as_ref()
+        .and_then(|output_format| output_format.value.clone())
+        .and_then(|format| Some(OutputFormatCodes::try_from(format)))?
+        .unwrap_or(OutputFormatCodes::Ndjson(None));
+
+    Ok(output_format)
+}
+
+async fn get_resources_to_process<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
@@ -123,6 +136,7 @@ async fn process_view_definition<
     view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Binary, OperationOutcomeError> {
+    let output_format = get_output_format(input)?;
     let limit = input
         ._limit
         .as_ref()
@@ -135,7 +149,7 @@ async fn process_view_definition<
         .and_then(|since| since.value.clone())
         .unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
 
-    let input_ = get_input(context, input).await?;
+    let input_ = get_resources_to_process(context, input).await?;
 
     // Implement the logic to process the view definition and return the result as Binary
     // For now, we will return an empty Binary as a placeholder
