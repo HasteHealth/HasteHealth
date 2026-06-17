@@ -4718,6 +4718,9 @@ pub enum AllTypes {
     #[doc = "VerificationResult"]
     #[code = "VerificationResult"]
     VerificationResult(Option<Element>),
+    #[doc = "ViewDefinition"]
+    #[code = "ViewDefinition"]
+    ViewDefinition(Option<Element>),
     #[doc = "VisionPrescription"]
     #[code = "VisionPrescription"]
     VisionPrescription(Option<Element>),
@@ -4986,6 +4989,7 @@ impl AllTypes {
             AllTypes::User(e) => e.as_ref(),
             AllTypes::ValueSet(e) => e.as_ref(),
             AllTypes::VerificationResult(e) => e.as_ref(),
+            AllTypes::ViewDefinition(e) => e.as_ref(),
             AllTypes::VisionPrescription(e) => e.as_ref(),
             AllTypes::Base64Binary(e) => e.as_ref(),
             AllTypes::Boolean(e) => e.as_ref(),
@@ -5213,6 +5217,7 @@ impl AllTypes {
             AllTypes::User(e) => e.get_or_insert_with(Default::default),
             AllTypes::ValueSet(e) => e.get_or_insert_with(Default::default),
             AllTypes::VerificationResult(e) => e.get_or_insert_with(Default::default),
+            AllTypes::ViewDefinition(e) => e.get_or_insert_with(Default::default),
             AllTypes::VisionPrescription(e) => e.get_or_insert_with(Default::default),
             AllTypes::Base64Binary(e) => e.get_or_insert_with(Default::default),
             AllTypes::Boolean(e) => e.get_or_insert_with(Default::default),
@@ -5458,6 +5463,7 @@ impl TryFrom<String> for AllTypes {
             "User" => Ok(AllTypes::User(None)),
             "ValueSet" => Ok(AllTypes::ValueSet(None)),
             "VerificationResult" => Ok(AllTypes::VerificationResult(None)),
+            "ViewDefinition" => Ok(AllTypes::ViewDefinition(None)),
             "VisionPrescription" => Ok(AllTypes::VisionPrescription(None)),
             "base64Binary" => Ok(AllTypes::Base64Binary(None)),
             "boolean" => Ok(AllTypes::Boolean(None)),
@@ -5711,6 +5717,7 @@ impl Into<Option<String>> for &AllTypes {
             AllTypes::User(_) => Some("User".to_string()),
             AllTypes::ValueSet(_) => Some("ValueSet".to_string()),
             AllTypes::VerificationResult(_) => Some("VerificationResult".to_string()),
+            AllTypes::ViewDefinition(_) => Some("ViewDefinition".to_string()),
             AllTypes::VisionPrescription(_) => Some("VisionPrescription".to_string()),
             AllTypes::Base64Binary(_) => Some("base64Binary".to_string()),
             AllTypes::Boolean(_) => Some("boolean".to_string()),
@@ -5952,6 +5959,7 @@ impl MetaValue for AllTypes {
                 AllTypes::User(Some(e)) => e.get_field(field),
                 AllTypes::ValueSet(Some(e)) => e.get_field(field),
                 AllTypes::VerificationResult(Some(e)) => e.get_field(field),
+                AllTypes::ViewDefinition(Some(e)) => e.get_field(field),
                 AllTypes::VisionPrescription(Some(e)) => e.get_field(field),
                 AllTypes::Base64Binary(Some(e)) => e.get_field(field),
                 AllTypes::Boolean(Some(e)) => e.get_field(field),
@@ -6181,6 +6189,7 @@ impl MetaValue for AllTypes {
                 AllTypes::User(Some(e)) => e.get_field_mut(field),
                 AllTypes::ValueSet(Some(e)) => e.get_field_mut(field),
                 AllTypes::VerificationResult(Some(e)) => e.get_field_mut(field),
+                AllTypes::ViewDefinition(Some(e)) => e.get_field_mut(field),
                 AllTypes::VisionPrescription(Some(e)) => e.get_field_mut(field),
                 AllTypes::Base64Binary(Some(e)) => e.get_field_mut(field),
                 AllTypes::Boolean(Some(e)) => e.get_field_mut(field),
@@ -89540,6 +89549,9 @@ pub enum ResourceTypes {
     #[doc = "VerificationResult"]
     #[code = "VerificationResult"]
     VerificationResult(Option<Element>),
+    #[doc = "ViewDefinition"]
+    #[code = "ViewDefinition"]
+    ViewDefinition(Option<Element>),
     #[doc = "VisionPrescription"]
     #[code = "VisionPrescription"]
     VisionPrescription(Option<Element>),
@@ -89703,6 +89715,7 @@ impl ResourceTypes {
             ResourceTypes::User(e) => e.as_ref(),
             ResourceTypes::ValueSet(e) => e.as_ref(),
             ResourceTypes::VerificationResult(e) => e.as_ref(),
+            ResourceTypes::ViewDefinition(e) => e.as_ref(),
             ResourceTypes::VisionPrescription(e) => e.as_ref(),
             ResourceTypes::Null(e) => e.as_ref(),
         }
@@ -89875,6 +89888,7 @@ impl ResourceTypes {
             ResourceTypes::User(e) => e.get_or_insert_with(Default::default),
             ResourceTypes::ValueSet(e) => e.get_or_insert_with(Default::default),
             ResourceTypes::VerificationResult(e) => e.get_or_insert_with(Default::default),
+            ResourceTypes::ViewDefinition(e) => e.get_or_insert_with(Default::default),
             ResourceTypes::VisionPrescription(e) => e.get_or_insert_with(Default::default),
             ResourceTypes::Null(e) => e.get_or_insert_with(Default::default),
         }
@@ -90061,6 +90075,7 @@ impl TryFrom<String> for ResourceTypes {
             "User" => Ok(ResourceTypes::User(None)),
             "ValueSet" => Ok(ResourceTypes::ValueSet(None)),
             "VerificationResult" => Ok(ResourceTypes::VerificationResult(None)),
+            "ViewDefinition" => Ok(ResourceTypes::ViewDefinition(None)),
             "VisionPrescription" => Ok(ResourceTypes::VisionPrescription(None)),
             _ => Err(format!("Unknown code '{}'", value)),
         }
@@ -90263,6 +90278,7 @@ impl Into<Option<String>> for &ResourceTypes {
             ResourceTypes::User(_) => Some("User".to_string()),
             ResourceTypes::ValueSet(_) => Some("ValueSet".to_string()),
             ResourceTypes::VerificationResult(_) => Some("VerificationResult".to_string()),
+            ResourceTypes::ViewDefinition(_) => Some("ViewDefinition".to_string()),
             ResourceTypes::VisionPrescription(_) => Some("VisionPrescription".to_string()),
             ResourceTypes::Null(_) => None,
         }
@@ -90439,6 +90455,7 @@ impl MetaValue for ResourceTypes {
                 ResourceTypes::User(Some(e)) => e.get_field(field),
                 ResourceTypes::ValueSet(Some(e)) => e.get_field(field),
                 ResourceTypes::VerificationResult(Some(e)) => e.get_field(field),
+                ResourceTypes::ViewDefinition(Some(e)) => e.get_field(field),
                 ResourceTypes::VisionPrescription(Some(e)) => e.get_field(field),
                 ResourceTypes::Null(Some(e)) => e.get_field(field),
                 _ => None,
@@ -90603,6 +90620,7 @@ impl MetaValue for ResourceTypes {
                 ResourceTypes::User(Some(e)) => e.get_field_mut(field),
                 ResourceTypes::ValueSet(Some(e)) => e.get_field_mut(field),
                 ResourceTypes::VerificationResult(Some(e)) => e.get_field_mut(field),
+                ResourceTypes::ViewDefinition(Some(e)) => e.get_field_mut(field),
                 ResourceTypes::VisionPrescription(Some(e)) => e.get_field_mut(field),
                 ResourceTypes::Null(Some(e)) => e.get_field_mut(field),
                 _ => None,

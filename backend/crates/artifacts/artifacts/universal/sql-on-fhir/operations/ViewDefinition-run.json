@@ -7,7 +7,6 @@
     },
     "url": "http://sql-on-fhir.org/OperationDefinition/$viewdefinition-run",
     "version": "2.1.0-pre",
-    "versionAlgorithmString": "semver",
     "name": "ViewDefinitionRun",
     "title": "ViewDefinition Run",
     "status": "active",
@@ -39,7 +38,7 @@
     ],
     "code": "viewdefinition-run",
     "resource": [
-        "CanonicalResource"
+        "ViewDefinition"
     ],
     "system": true,
     "type": true,
@@ -48,11 +47,6 @@
         {
             "name": "_format",
             "use": "in",
-            "scope": [
-                "system",
-                "type",
-                "instance"
-            ],
             "min": 0,
             "max": "1",
             "documentation": "Output format for the result (for example json, ndjson, csv, parquet). Optional; if omitted, the server returns ndjson by default.",
@@ -65,11 +59,6 @@
         {
             "name": "header",
             "use": "in",
-            "scope": [
-                "system",
-                "type",
-                "instance"
-            ],
             "min": 0,
             "max": "1",
             "documentation": "Include CSV headers (default true). Applies only when csv output is requested.",
@@ -78,10 +67,6 @@
         {
             "name": "viewReference",
             "use": "in",
-            "scope": [
-                "system",
-                "type"
-            ],
             "min": 0,
             "max": "1",
             "documentation": "Reference to a ViewDefinition stored on the server.",
@@ -90,14 +75,10 @@
         {
             "name": "viewResource",
             "use": "in",
-            "scope": [
-                "system",
-                "type"
-            ],
             "min": 0,
             "max": "1",
             "documentation": "Inline ViewDefinition resource to execute.",
-            "type": "CanonicalResource",
+            "type": "ViewDefinition",
             "targetProfile": [
                 "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition"
             ]
@@ -105,11 +86,6 @@
         {
             "name": "patient",
             "use": "in",
-            "scope": [
-                "system",
-                "type",
-                "instance"
-            ],
             "min": 0,
             "max": "1",
             "documentation": "Restrict execution to the specified patient.",
@@ -118,11 +94,6 @@
         {
             "name": "group",
             "use": "in",
-            "scope": [
-                "system",
-                "type",
-                "instance"
-            ],
             "min": 0,
             "max": "*",
             "documentation": "Restrict execution to members of the given group(s).",
@@ -131,11 +102,6 @@
         {
             "name": "source",
             "use": "in",
-            "scope": [
-                "system",
-                "type",
-                "instance"
-            ],
             "min": 0,
             "max": "1",
             "documentation": "External data source to use (for example a URI or bucket name).",
@@ -144,11 +110,6 @@
         {
             "name": "resource",
             "use": "in",
-            "scope": [
-                "system",
-                "type",
-                "instance"
-            ],
             "min": 0,
             "max": "*",
             "documentation": "FHIR resources to transform instead of using server data.",
@@ -157,11 +118,6 @@
         {
             "name": "_limit",
             "use": "in",
-            "scope": [
-                "system",
-                "type",
-                "instance"
-            ],
             "min": 0,
             "max": "1",
             "documentation": "Maximum number of rows to return.",
@@ -170,11 +126,6 @@
         {
             "name": "_since",
             "use": "in",
-            "scope": [
-                "system",
-                "type",
-                "instance"
-            ],
             "min": 0,
             "max": "1",
             "documentation": "Include only resources modified after this instant.",

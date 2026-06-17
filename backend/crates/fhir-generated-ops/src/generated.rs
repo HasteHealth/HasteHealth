@@ -2499,3 +2499,51 @@ pub mod ValueSetValidateCode {
         }
     }
 }
+#[doc = "Execute a view definition against supplied or server data."]
+pub mod ViewDefinitionRun {
+    use super::*;
+    pub const CODE: &str = "viewdefinition-run";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        #[doc = "Output format for the result (for example json, ndjson, csv, parquet). Optional; if omitted, the server returns ndjson by default."]
+        pub _format: Option<FHIRCode>,
+        #[doc = "Include CSV headers (default true). Applies only when csv output is requested."]
+        pub header: Option<FHIRBoolean>,
+        #[doc = "Reference to a ViewDefinition stored on the server."]
+        pub viewReference: Option<Reference>,
+        #[doc = "Inline ViewDefinition resource to execute."]
+        pub viewResource: Option<ViewDefinition>,
+        #[doc = "Restrict execution to the specified patient."]
+        pub patient: Option<Reference>,
+        #[doc = "Restrict execution to members of the given group(s)."]
+        pub group: Option<Vec<Reference>>,
+        #[doc = "External data source to use (for example a URI or bucket name)."]
+        pub source: Option<FHIRString>,
+        #[doc = "FHIR resources to transform instead of using server data."]
+        pub resource: Option<Vec<Resource>>,
+        #[doc = "Maximum number of rows to return."]
+        pub _limit: Option<FHIRInteger>,
+        #[doc = "Include only resources modified after this instant."]
+        pub _since: Option<FHIRInstant>,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
+    pub struct Output {
+        #[doc = "Transformed data encoded in the requested output format."]
+        #[parameter_rename = "return"]
+        pub return_: Binary,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Binary(value.return_)
+        }
+    }
+}
