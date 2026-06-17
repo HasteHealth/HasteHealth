@@ -26,7 +26,7 @@ async fn resolve_view_definition<
     Terminology: FHIRTerminology + Send + Sync + 'static,
     Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >(
-    context: ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
+    context: &ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
     input: &ViewDefinitionRun::Input,
 ) -> Result<ViewDefinition, OperationOutcomeError> {
     if let Some(view_definition) = &input.viewResource {
@@ -104,8 +104,15 @@ fn get_output_format(
         ._format
         .as_ref()
         .and_then(|output_format| output_format.value.clone())
-        .and_then(|format| Some(OutputFormatCodes::try_from(format)))?
-        .unwrap_or(OutputFormatCodes::Ndjson(None));
+        .and_then(|format| {
+            Some(OutputFormatCodes::try_from(format).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!("Invalid output format: {}", e),
+                )
+            }))
+        })
+        .unwrap_or(Ok(OutputFormatCodes::Ndjson(None)))?;
 
     Ok(output_format)
 }
@@ -116,7 +123,7 @@ async fn get_resources_to_process<
     Terminology: FHIRTerminology + Send + Sync + 'static,
     Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >(
-    context: ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
+    _context: &ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Vec<Resource>, OperationOutcomeError> {
     if let Some(input_resource) = input.resource.clone() {
@@ -126,13 +133,26 @@ async fn get_resources_to_process<
     }
 }
 
+async fn process_resource<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+>(
+    context: &ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
+    view_definition: &ViewDefinition,
+    input: &Resource,
+) -> Result<(), OperationOutcomeError> {
+    todo!("Not implemented");
+}
+
 async fn process_view_definition<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
     Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >(
-    context: ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
+    context: &ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
     view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Binary, OperationOutcomeError> {
@@ -150,6 +170,10 @@ async fn process_view_definition<
         .unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
 
     let input_ = get_resources_to_process(context, input).await?;
+
+    let k = input_
+        .into_iter()
+        .map(|resource| process_resource(context, view_definition, &resource));
 
     // Implement the logic to process the view definition and return the result as Binary
     // For now, we will return an empty Binary as a placeholder
@@ -178,11 +202,12 @@ pub fn view_definition_run<
              _request: &InvocationRequest,
              input: ViewDefinitionRun::Input| {
                 Box::pin(async move {
-                    let view_definition = resolve_view_definition(context, &input).await?;
+                    let view_definition = resolve_view_definition(&context, &input).await?;
 
-                    Ok(ViewDefinitionRun::Output {
-                        return_: Binary::default(),
-                    })
+                    let output =
+                        process_view_definition(&context, &view_definition, &input).await?;
+
+                    Ok(ViewDefinitionRun::Output { return_: output })
                 })
             },
         ),
