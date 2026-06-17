@@ -29264,6 +29264,319 @@ pub struct VisionPrescription {
     Reflect,
     Debug,
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_serialize_type = "typechoice"]
+#[type_choice_field_name = "versionAlgorithm"]
+pub enum ViewDefinitionVersionAlgorithmTypeChoice {
+    #[primitive]
+    String(Box<FHIRString>),
+    Coding(Box<Coding>),
+}
+impl Default for ViewDefinitionVersionAlgorithmTypeChoice {
+    fn default() -> Self {
+        ViewDefinitionVersionAlgorithmTypeChoice::String(Box::new(Default::default()))
+    }
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_serialize_type = "typechoice"]
+#[type_choice_field_name = "value"]
+pub enum ViewDefinitionConstantValueTypeChoice {
+    #[primitive]
+    Base64Binary(Box<FHIRBase64Binary>),
+    #[primitive]
+    Boolean(Box<FHIRBoolean>),
+    #[primitive]
+    Canonical(Box<FHIRCanonical>),
+    #[primitive]
+    Code(Box<FHIRCode>),
+    #[primitive]
+    Date(Box<FHIRDate>),
+    #[primitive]
+    DateTime(Box<FHIRDateTime>),
+    #[primitive]
+    Decimal(Box<FHIRDecimal>),
+    #[primitive]
+    Id(Box<FHIRId>),
+    #[primitive]
+    Instant(Box<FHIRInstant>),
+    #[primitive]
+    Integer(Box<FHIRInteger>),
+    #[primitive]
+    Oid(Box<FHIROid>),
+    #[primitive]
+    String(Box<FHIRString>),
+    #[primitive]
+    PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
+    Time(Box<FHIRTime>),
+    #[primitive]
+    UnsignedInt(Box<FHIRUnsignedInt>),
+    #[primitive]
+    Uri(Box<FHIRUri>),
+    #[primitive]
+    Url(Box<FHIRUrl>),
+    #[primitive]
+    Uuid(Box<FHIRUuid>),
+}
+impl Default for ViewDefinitionConstantValueTypeChoice {
+    fn default() -> Self {
+        ViewDefinitionConstantValueTypeChoice::Base64Binary(Box::new(Default::default()))
+    }
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "A constant is a value that is injected into a FHIRPath expression through the use of a FHIRPath\nexternal constant with the same name."]
+pub struct ViewDefinitionConstant {
+    #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
+    pub id: Option<String>,
+    #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and managable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
+    pub extension: Option<Vec<Box<Extension>>>,
+    #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and managable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
+    pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[primitive]
+    #[doc = "Name of constant (referred to in FHIRPath as %[name])"]
+    pub name: Box<FHIRString>,
+    # [type_choice_variants (complex = [] , primitive = ["valueBase64Binary" , "valueBoolean" , "valueCanonical" , "valueCode" , "valueDate" , "valueDateTime" , "valueDecimal" , "valueId" , "valueInstant" , "valueInteger" , "valueOid" , "valueString" , "valuePositiveInt" , "valueTime" , "valueUnsignedInt" , "valueUri" , "valueUrl" , "valueUuid"])]
+    #[doc = "The value that will be substituted in place of the constant reference. This\nis done by including `%your_constant_name` in a FHIRPath expression, which effectively converts\nthe FHIR literal defined here to a FHIRPath literal used in the path expression.\n\nSupport for additional types may be added in the future."]
+    pub value: ViewDefinitionConstantValueTypeChoice,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Tags can be used to attach additional metadata to columns, such as implementation-specific \ndirectives or database-specific type hints."]
+pub struct ViewDefinitionSelectColumnTag {
+    #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
+    pub id: Option<String>,
+    #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and managable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
+    pub extension: Option<Vec<Box<Extension>>>,
+    #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and managable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
+    pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[primitive]
+    #[doc = "A name that identifies the meaning of the tag. A namespace should be used to scope the tag to \na particular context. For example, 'ansi/type' could be used to indicate the type that should \nbe used to represent the value within an ANSI SQL database."]
+    pub name: Box<FHIRString>,
+    #[primitive]
+    #[doc = "Value of tag"]
+    pub value: Box<FHIRString>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "A column to be produced in the resulting table. The column is relative to the select structure\nthat contains it."]
+pub struct ViewDefinitionSelectColumn {
+    #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
+    pub id: Option<String>,
+    #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and managable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
+    pub extension: Option<Vec<Box<Extension>>>,
+    #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and managable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
+    pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[primitive]
+    #[doc = "A FHIRPath expression that evaluates to the value that will be output in the column for each \nresource. The input context is the collection of resources of the type specified in the resource \nelement. Constants defined in Reference({constant}) can be referenced as %[name]."]
+    pub path: Box<FHIRString>,
+    #[primitive]
+    #[doc = "Name of the column produced in the output, must be in a database-friendly format. The column \nnames in the output must not have any duplicates."]
+    pub name: Box<FHIRString>,
+    #[primitive]
+    #[doc = "A human-readable description of the column."]
+    pub description: Option<Box<FHIRMarkdown>>,
+    #[primitive]
+    #[doc = "Indicates whether the column may have multiple values. Defaults to `false` if unset.\n\nViewDefinitions must have this set to `true` if multiple values may be returned. Implementations SHALL\nreport an error if multiple values are produced when that is not the case."]
+    pub collection: Option<Box<FHIRBoolean>>,
+    #[rename_field = "type"]
+    #[primitive]
+    #[doc = "A FHIR StructureDefinition URI for the column's type. Relative URIs are implicitly given\nthe 'http://hl7.org/fhir/StructureDefinition/' prefix. The URI may also use FHIR element ID notation to indicate\na backbone element within a structure. For instance, `Observation.referenceRange` may be specified to indicate\nthe returned type is that backbone element.\n\nThis field *must* be provided if a ViewDefinition returns a non-primitive type. Implementations should report an error\nif the returned type does not match the type set here, or if a non-primitive type is returned but this field is unset."]
+    pub type_: Option<Box<FHIRUri>>,
+    #[doc = "Tags can be used to attach additional metadata to columns, such as implementation-specific \ndirectives or database-specific type hints."]
+    pub tag: Option<Vec<ViewDefinitionSelectColumnTag>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "The select structure defines the columns to be used in the resulting view. These are expressed\nin the `column` structure below, or in nested `select`s for nested resources."]
+pub struct ViewDefinitionSelect {
+    #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
+    pub id: Option<String>,
+    #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and managable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
+    pub extension: Option<Vec<Box<Extension>>>,
+    #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and managable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
+    pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[doc = "A column to be produced in the resulting table. The column is relative to the select structure\nthat contains it."]
+    pub column: Option<Vec<ViewDefinitionSelectColumn>>,
+    #[doc = "Nested select relative to a parent expression. If the parent `select` has a `forEach` or `forEachOrNull`, this child select will apply for each item in that expression."]
+    pub select: Option<Vec<ViewDefinitionSelect>>,
+    #[primitive]
+    #[doc = "A FHIRPath expression to retrieve the parent element(s) used in the containing select, relative to the root resource or parent `select`,\nif applicable. `forEach` will produce a row for each element selected in the expression. For example, using forEach on `address` in Patient will\ngenerate a new row for each address, with columns defined in the corresponding `column` structure."]
+    pub forEach: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Same as forEach, but produces a single row with null values in the nested expression if the collection is empty. For example,\nwith a Patient resource, a `forEachOrNull` on address will produce a row for each patient even if there are no addresses; it will\nsimply set the address columns to `null`."]
+    pub forEachOrNull: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "A list of FHIRPath expressions that define paths to recursively traverse. The view runner will recursively\nfollow each path to any depth, collecting results from all levels. All results are combined using a union\noperation."]
+    pub repeat: Option<Vec<Box<FHIRString>>>,
+    #[doc = "A `unionAll` combines the results of multiple selection structures. Each structure under the `unionAll` must produce the same column names\nand types. The results from each nested selection will then have their own row."]
+    pub unionAll: Option<Vec<ViewDefinitionSelect>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "A series of zero or more FHIRPath constraints to filter resources for the view. Every constraint\nmust evaluate to true for the resource to be included in the view."]
+pub struct ViewDefinitionWhere {
+    #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
+    pub id: Option<String>,
+    #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and managable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
+    pub extension: Option<Vec<Box<Extension>>>,
+    #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and managable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
+    pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[primitive]
+    #[doc = "A FHIRPath expression that defines a filter that must evaluate to true for a resource to be\nincluded in the output. The input context is the collection of resources of the type specified in\nthe resource element. Constants defined in Reference({constant}) can be referenced as %[name]."]
+    pub path: Box<FHIRString>,
+    #[primitive]
+    #[doc = "A human-readable description of the above where constraint."]
+    pub description: Option<Box<FHIRString>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition"]
+#[fhir_serialize_type = "resource"]
+#[doc = "A ViewDefinition represents a tabular projection of a FHIR resource, where the columns and inclusion \ncriteria are defined by FHIRPath expressions. "]
+pub struct ViewDefinition {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[primitive]
+    #[doc = "A reference to a set of rules that were followed when the resource was constructed, and which must be understood when processing the content. Often, this is a reference to an implementation guide that defines the special rules along with other profiles etc."]
+    pub implicitRules: Option<Box<FHIRUri>>,
+    #[primitive]
+    #[doc = "The base language in which the resource is written."]
+    pub language: Option<Box<FHIRCode>>,
+    #[doc = "A human-readable narrative that contains a summary of the resource and can be used to represent the content of the resource to a human. The narrative need not encode all the structured data, but is required to contain sufficient detail to make it \"clinically safe\" for a human to just read the narrative. Resource definitions may define what content should be represented in the narrative to ensure clinical safety."]
+    pub text: Option<Box<Narrative>>,
+    #[doc = "These resources do not have an independent existence apart from the resource that contains them - they cannot be identified independently, nor can they have their own independent transaction scope. This is allowed to be a Parameters resource if and only if it is referenced by a resource that provides context/meaning."]
+    pub contained: Option<Vec<Box<Resource>>>,
+    #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and managable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
+    pub extension: Option<Vec<Box<Extension>>>,
+    #[doc = "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and managable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
+    pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[primitive]
+    #[doc = "An absolute URI that is used to identify this {{title}} when it is referenced in a specification, model, design or an instance; also called its canonical identifier. This SHOULD be globally unique and SHOULD be a literal address at which an authoritative instance of this {{title}} is (or will be) published. This URL can be the target of a canonical reference. It SHALL remain the same when the {{title}} is stored on different servers."]
+    pub url: Option<Box<FHIRUri>>,
+    #[rename_field = "identifier"]
+    #[doc = "A formal identifier that is used to identify this {{title}} when it is represented in other formats, or referenced in a specification, model, design or an instance."]
+    pub identifier_: Option<Vec<Box<Identifier>>>,
+    #[primitive]
+    #[doc = "The identifier that is used to identify this version of the {{title}} when it is referenced in a specification, model, design or instance. This is an arbitrary value managed by the {{title}} author and is not expected to be globally unique. For example, it might be a timestamp (e.g. yyyymmdd) if a managed version is not available. There is also no expectation that versions can be placed in a lexicographical sequence without additional knowledge.  (See the versionAlgorithm element.)"]
+    pub version: Option<Box<FHIRString>>,
+    # [type_choice_variants (complex = ["versionAlgorithmCoding"] , primitive = ["versionAlgorithmString"])]
+    #[doc = "Indicates the mechanism used to compare versions to determine which is more current."]
+    pub versionAlgorithm: Option<ViewDefinitionVersionAlgorithmTypeChoice>,
+    #[primitive]
+    #[doc = "A natural language name identifying the {{title}}. This name should be usable as an identifier for the resource by machine processing applications such as code generation."]
+    pub name: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "A short, descriptive, user-friendly title for the {{title}}."]
+    pub title: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "The current state of this {{title}}."]
+    pub status: Box<terminology::PublicationStatus>,
+    #[primitive]
+    #[doc = "A Boolean value to indicate that this {{title}} is authored for testing purposes (or education/evaluation/marketing) and is not intended for genuine usage."]
+    pub experimental: Option<Box<FHIRBoolean>>,
+    #[primitive]
+    #[doc = "The date (and optionally time) when the {{title}} was last significantly changed. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the {{title}} changes."]
+    pub date: Option<Box<FHIRDateTime>>,
+    #[primitive]
+    #[doc = "The name of the organization or individual responsible for the release and ongoing maintenance of the {{title}}."]
+    pub publisher: Option<Box<FHIRString>>,
+    #[doc = "Contact details to assist a user in finding and communicating with the publisher."]
+    pub contact: Option<Vec<Box<ContactDetail>>>,
+    #[primitive]
+    #[doc = "A free text natural language description of the {{title}} from a consumer's perspective."]
+    pub description: Option<Box<FHIRMarkdown>>,
+    #[doc = "The content was developed with a focus and intent of supporting the contexts that are listed. These contexts may be general categories (gender, age, ...) or may be references to specific programs (insurance plans, studies, ...) and may be used to assist with indexing and searching for appropriate {{title}}s."]
+    pub useContext: Option<Vec<Box<UsageContext>>>,
+    #[doc = "A legal or geographic region in which the {{title}} is intended to be used."]
+    pub jurisdiction: Option<Vec<Box<CodeableConcept>>>,
+    #[primitive]
+    #[doc = "Explanation of why this {{title}} is needed and why it has been designed as it has."]
+    pub purpose: Option<Box<FHIRMarkdown>>,
+    #[primitive]
+    #[doc = "A copyright statement relating to the {{title}} and/or its contents. Copyright statements are generally legal restrictions on the use and publishing of the {{title}}."]
+    pub copyright: Option<Box<FHIRMarkdown>>,
+    #[primitive]
+    #[doc = "A short string (<50 characters), suitable for inclusion in a page footer that identifies the copyright holder, effective period, and optionally whether rights are resctricted. (e.g. 'All rights reserved', 'Some rights reserved')."]
+    pub copyrightLabel: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "The FHIR resource that the view is based upon, e.g. 'Patient' or 'Observation'."]
+    pub resource: Box<terminology::ResourceTypes>,
+    #[primitive]
+    #[doc = "Indicates that this definition was intended to create a view over a set of resources conforming to the specified FHIR profiles. Each of these profiles SHALL be based upon the resource type specified in `resource`."]
+    pub profile: Option<Vec<Box<FHIRCanonical>>>,
+    #[primitive]
+    #[doc = "The FHIR version(s) for the FHIR resource. The value of this element is the\nformal version of the specification, without the revision number, e.g.\n[publication].[major].[minor]."]
+    pub fhirVersion: Option<Vec<Box<terminology::FHIRVersion>>>,
+    #[doc = "A constant is a value that is injected into a FHIRPath expression through the use of a FHIRPath\nexternal constant with the same name."]
+    pub constant: Option<Vec<ViewDefinitionConstant>>,
+    #[cardinality(min = 1usize)]
+    #[doc = "The select structure defines the columns to be used in the resulting view. These are expressed\nin the `column` structure below, or in nested `select`s for nested resources."]
+    pub select: Vec<ViewDefinitionSelect>,
+    #[rename_field = "where"]
+    #[doc = "A series of zero or more FHIRPath constraints to filter resources for the view. Every constraint\nmust evaluate to true for the resource to be included in the view."]
+    pub where_: Option<Vec<ViewDefinitionWhere>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     serde :: Deserialize,
 )]
 #[fhir_serialize_type = "enum-variant"]
@@ -29422,6 +29735,7 @@ pub enum Resource {
     ValueSet(ValueSet),
     VerificationResult(VerificationResult),
     VisionPrescription(VisionPrescription),
+    ViewDefinition(ViewDefinition),
 }
 impl Resource {
     #[doc = "Returns true if the resource is empty, false otherwise."]
@@ -29593,6 +29907,7 @@ impl Resource {
             Resource::ValueSet(_) => ResourceType::ValueSet,
             Resource::VerificationResult(_) => ResourceType::VerificationResult,
             Resource::VisionPrescription(_) => ResourceType::VisionPrescription,
+            Resource::ViewDefinition(_) => ResourceType::ViewDefinition,
         }
     }
     pub fn id<'a>(&'a self) -> &'a Option<String> {
@@ -29750,6 +30065,7 @@ impl Resource {
             Resource::ValueSet(r) => &r.id,
             Resource::VerificationResult(r) => &r.id,
             Resource::VisionPrescription(r) => &r.id,
+            Resource::ViewDefinition(r) => &r.id,
         }
     }
 }
@@ -29915,6 +30231,7 @@ pub enum ResourceType {
     ValueSet,
     VerificationResult,
     VisionPrescription,
+    ViewDefinition,
 }
 impl ResourceType {
     pub fn deserialize(
@@ -30455,6 +30772,9 @@ impl ResourceType {
                     VisionPrescription,
                 >(data)?))
             }
+            ResourceType::ViewDefinition => Ok(Resource::ViewDefinition(serde_json::from_str::<
+                ViewDefinition,
+            >(data)?)),
         }
     }
 }
@@ -30614,6 +30934,7 @@ impl AsRef<str> for ResourceType {
             ResourceType::ValueSet => "ValueSet",
             ResourceType::VerificationResult => "VerificationResult",
             ResourceType::VisionPrescription => "VisionPrescription",
+            ResourceType::ViewDefinition => "ViewDefinition",
         }
     }
 }
@@ -30778,6 +31099,7 @@ impl TryFrom<String> for ResourceType {
             "ValueSet" => Ok(ResourceType::ValueSet),
             "VerificationResult" => Ok(ResourceType::VerificationResult),
             "VisionPrescription" => Ok(ResourceType::VisionPrescription),
+            "ViewDefinition" => Ok(ResourceType::ViewDefinition),
             _ => Err(ResourceTypeError::Invalid(s.to_string())),
         }
     }
@@ -30943,6 +31265,7 @@ impl TryFrom<&str> for ResourceType {
             "ValueSet" => Ok(ResourceType::ValueSet),
             "VerificationResult" => Ok(ResourceType::VerificationResult),
             "VisionPrescription" => Ok(ResourceType::VisionPrescription),
+            "ViewDefinition" => Ok(ResourceType::ViewDefinition),
             _ => Err(ResourceTypeError::Invalid(s.to_string())),
         }
     }

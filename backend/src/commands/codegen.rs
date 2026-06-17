@@ -100,6 +100,7 @@ pub async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeError> {
             };
 
             let rust_code = type_gen::rust_types::generate(input, level).await?;
+
             let output_path = Path::new(output);
             let resource_path = output_path.join("resources.rs");
             std::fs::write(resource_path, format_code(rust_code.resources.to_string())).map_err(

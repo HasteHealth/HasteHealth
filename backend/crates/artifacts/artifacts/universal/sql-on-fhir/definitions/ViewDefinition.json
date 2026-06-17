@@ -59,7 +59,7 @@
             "name": "RIM Mapping"
         }
     ],
-    "kind": "logical",
+    "kind": "resource",
     "abstract": false,
     "type": "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition",
     "baseDefinition": "http://hl7.org/fhir/StructureDefinition/CanonicalResource",
@@ -1436,9 +1436,6 @@
                     },
                     {
                         "code": "integer"
-                    },
-                    {
-                        "code": "integer64"
                     },
                     {
                         "code": "oid"
