@@ -826,7 +826,7 @@ pub enum ExternalConstantResolver<'a> {
                 + Sync,
         >,
     ),
-    Variable(HashMap<String, &'a dyn MetaValue>),
+    Variable(Arc<HashMap<String, &'a dyn MetaValue>>),
 }
 
 pub struct Config<'a> {
@@ -1106,11 +1106,11 @@ mod tests {
             ..Default::default()
         };
         let config = Arc::new(Config {
-            variable_resolver: Some(ExternalConstantResolver::Variable(
+            variable_resolver: Some(ExternalConstantResolver::Variable(Arc::new(
                 vec![("patient".to_string(), &patient as &dyn MetaValue)]
                     .into_iter()
                     .collect(),
-            )),
+            ))),
         });
 
         let result = engine

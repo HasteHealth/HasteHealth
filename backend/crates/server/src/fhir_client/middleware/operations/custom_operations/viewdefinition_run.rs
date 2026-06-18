@@ -16,9 +16,11 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
+use haste_fhirpath::{Config, FPEngine};
 use haste_jwt::{ProjectId, ResourceId, TenantId};
+use haste_reflect::MetaValue;
 use haste_repository::Repository;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 async fn resolve_view_definition<
     Repo: Repository + Send + Sync + 'static,
@@ -133,6 +135,22 @@ async fn get_resources_to_process<
     }
 }
 
+fn build_hashmap_fp_variables<'a>(
+    viewdefinition: &'a ViewDefinition,
+) -> HashMap<String, &'a dyn MetaValue> {
+    let mut hashmap = HashMap::new();
+
+    if let Some(constants) = &viewdefinition.constant {
+        for constant in constants {
+            if let Some(name) = &constant.name.value.as_ref() {
+                hashmap.insert((*name).clone(), &constant.value as &dyn MetaValue);
+            }
+        }
+    }
+
+    hashmap
+}
+
 async fn process_resource<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -143,6 +161,22 @@ async fn process_resource<
     view_definition: &ViewDefinition,
     input: &Resource,
 ) -> Result<(), OperationOutcomeError> {
+    let fp_engine = FPEngine::new();
+    let variables = Arc::new(build_hashmap_fp_variables(view_definition));
+    if let Some(where_conditionals) = &view_definition.where_ {}
+
+    for select_statement in view_definition.select.iter() {
+        let context = fp_engine.evaluate_with_config(
+            "$this",
+            vec![input],
+            Arc::new(Config {
+                variable_resolver: Some(haste_fhirpath::ExternalConstantResolver::Variable(
+                    variables.clone(),
+                )),
+            }),
+        );
+    }
+
     todo!("Not implemented");
 }
 
@@ -172,8 +206,8 @@ async fn process_view_definition<
     let input_ = get_resources_to_process(context, input).await?;
 
     let k = input_
-        .into_iter()
-        .map(|resource| process_resource(context, view_definition, &resource));
+        .iter()
+        .map(|resource| process_resource(context, view_definition, resource));
 
     // Implement the logic to process the view definition and return the result as Binary
     // For now, we will return an empty Binary as a placeholder
