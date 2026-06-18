@@ -20,19 +20,21 @@ use haste_fhirpath::{Config, FPEngine};
 use haste_jwt::{ProjectId, ResourceId, TenantId};
 use haste_reflect::MetaValue;
 use haste_repository::Repository;
+use std::borrow::Cow;
 use std::{collections::HashMap, sync::Arc};
 
 async fn resolve_view_definition<
+    'a,
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
     Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >(
     context: &ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
-    input: &ViewDefinitionRun::Input,
-) -> Result<ViewDefinition, OperationOutcomeError> {
+    input: &'a ViewDefinitionRun::Input,
+) -> Result<Cow<'a, ViewDefinition>, OperationOutcomeError> {
     if let Some(view_definition) = &input.viewResource {
-        return Ok(view_definition.clone());
+        Ok(Cow::Borrowed(view_definition))
     } else if let Some(view_definition_reference) = input.viewReference.as_ref() {
         let view_definition_reference = view_definition_reference
             .reference
@@ -90,7 +92,7 @@ async fn resolve_view_definition<
             ));
         };
 
-        Ok(view_definition)
+        Ok(Cow::Owned(view_definition))
     } else {
         Err(OperationOutcomeError::error(
             IssueType::Invalid(None),
