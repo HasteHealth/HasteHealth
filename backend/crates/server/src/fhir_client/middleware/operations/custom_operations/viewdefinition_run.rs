@@ -157,16 +157,16 @@ async fn process_resource<
     Terminology: FHIRTerminology + Send + Sync + 'static,
     Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >(
-    context: &ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
+    _context: &ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
     view_definition: &ViewDefinition,
     input: &Resource,
 ) -> Result<(), OperationOutcomeError> {
     let fp_engine = FPEngine::new();
     let variables = Arc::new(build_hashmap_fp_variables(view_definition));
-    if let Some(where_conditionals) = &view_definition.where_ {}
+    if let Some(_where_conditionals) = &view_definition.where_ {}
 
-    for select_statement in view_definition.select.iter() {
-        let context = fp_engine.evaluate_with_config(
+    for _select_statement in view_definition.select.iter() {
+        let _context = fp_engine.evaluate_with_config(
             "$this",
             vec![input],
             Arc::new(Config {
@@ -190,14 +190,14 @@ async fn process_view_definition<
     view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Binary, OperationOutcomeError> {
-    let output_format = get_output_format(input)?;
-    let limit = input
+    let _output_format = get_output_format(input)?;
+    let _limit = input
         ._limit
         .as_ref()
         .and_then(|limit| limit.value.clone())
         .unwrap_or(100);
 
-    let since = input
+    let _since = input
         ._since
         .as_ref()
         .and_then(|since| since.value.clone())
@@ -205,7 +205,7 @@ async fn process_view_definition<
 
     let input_ = get_resources_to_process(context, input).await?;
 
-    let k = input_
+    let _result = input_
         .iter()
         .map(|resource| process_resource(context, view_definition, resource));
 
