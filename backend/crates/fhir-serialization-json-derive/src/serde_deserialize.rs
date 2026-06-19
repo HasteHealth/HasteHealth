@@ -230,6 +230,23 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
                 }
             });
 
+            let deserialize_straight = primitive_variants.iter().map(|variant| {
+                let variant_ident = variant.ident.clone();
+                let variant_ty = variant
+                    .fields
+                    .iter()
+                    .next()
+                    .expect("typechoice variant must have a single field")
+                    .ty
+                    .clone();
+
+                quote! {
+                    if let Ok(value) = #variant_ty::deserialize(deserializer) {
+                        return Ok(Self::#variant_ident(value));
+                    }
+                }
+            });
+
             let complex_variant_ident =
                 complex_variants.iter().map(|variant| variant.ident.clone());
             let primitive_variant_ident = primitive_variants
@@ -237,6 +254,22 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
                 .map(|variant| variant.ident.clone());
 
             let deserialize_impl = quote! {
+               impl<'de> serde::Deserialize<'de> for #name {
+                    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+                    where
+                        D: serde::Deserializer<'de>,
+                    {
+                        #(#deserialize_straight)*
+
+                        return Err(serde::de::Error::custom(format!(
+                            "Data does not match any variant for type choice '{}'",
+                            stringify!(#name)
+                        )));
+                    }
+                }
+            };
+
+            let utility_funcs = quote! {
                 impl #name {
                     // Returns Some(Self) if key matches any variant, None to skip unknown keys.
                     pub fn try_deserialize_from_key<'de, A: serde::de::MapAccess<'de>>(
@@ -282,7 +315,11 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
                 }
             };
 
-            deserialize_impl.into()
+            quote! {
+                #deserialize_impl
+                #utility_funcs
+            }
+            .into()
         }
         _ => panic!("Only enums can be deserialized for type choice deserializer."),
     }
