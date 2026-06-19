@@ -5,7 +5,12 @@ mod tests {
     use super::*;
     use crate::r4::{
         datetime::Date,
-        generated::resources::{ClientApplication, Practitioner, Resource},
+        generated::{
+            resources::{
+                ClientApplication, ObservationEffectiveTypeChoice, Practitioner, Resource,
+            },
+            types::{FHIRDateTime, Period},
+        },
     };
     use haste_reflect::MetaValue;
     use r4::generated::{resources::Patient, types::Address};
@@ -669,5 +674,31 @@ mod tests {
         );
         assert_eq!(name.family.is_none(), true);
         assert_eq!(name.given.is_none(), true);
+    }
+    #[test]
+    fn serialize_typechoicie() {
+        let type_choice = ObservationEffectiveTypeChoice::DateTime(Box::new(FHIRDateTime {
+            value: Some(r4::datetime::DateTime::Year(1960)),
+            ..Default::default()
+        }));
+
+        assert_eq!(serde_json::to_string(&type_choice).unwrap(), r#""1960""#);
+
+        let type_choice = ObservationEffectiveTypeChoice::Period(Box::new(Period {
+            start: Some(Box::new(FHIRDateTime {
+                value: Some(r4::datetime::DateTime::Year(1960)),
+                ..Default::default()
+            })),
+            end: Some(Box::new(FHIRDateTime {
+                value: Some(r4::datetime::DateTime::Year(1980)),
+                ..Default::default()
+            })),
+            ..Default::default()
+        }));
+
+        assert_eq!(
+            serde_json::to_string(&type_choice).unwrap(),
+            r#"{"start":"1960","end":"1980"}"#
+        );
     }
 }

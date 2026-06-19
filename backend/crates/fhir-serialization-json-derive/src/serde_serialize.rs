@@ -311,7 +311,25 @@ pub fn typechoice_serialization(input: DeriveInput) -> TokenStream {
                 }
             });
 
+            let variants_serialize = data.variants.iter().map(|v| {
+                let variant_name = &v.ident;
+                quote! {
+                    Self::#variant_name(value) => value.serialize(serializer),
+                }
+            });
+
             let serialize = quote! {
+                impl serde::Serialize for #name {
+                    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+                        where
+                            S: serde::Serializer,
+                        {
+                        match self {
+                            #(#variants_serialize)*
+                        }
+                    }
+                }
+
                 impl #name {
                     fn serialize_as_field<M: serde::ser::SerializeMap>(&self, field_name: &str, serializer: &mut M) -> Result<(), M::Error> {
                         match self {
