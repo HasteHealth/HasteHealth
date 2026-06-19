@@ -6,8 +6,8 @@ use crate::{
     DeserializeComplexType,
     utilities::{
         CardinalityAttribute, FieldInformation, TypeInformation, get_attribute_value,
-        get_field_type, get_inner_type_if_optional, is_attribute_present, is_optional_field,
-        is_type_string, process_field,
+        get_field_type, get_inner_type_if_optional, get_inner_type_if_vector_or_optional_or_box,
+        is_attribute_present, is_optional_field, is_type_string, process_field,
     },
 };
 
@@ -230,22 +230,27 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
                 }
             });
 
-            let deserialize_straight = primitive_variants.iter().map(|variant| {
-                let variant_ident = variant.ident.clone();
-                let variant_ty = variant
-                    .fields
-                    .iter()
-                    .next()
-                    .expect("typechoice variant must have a single field")
-                    .ty
-                    .clone();
+            let deserialize_straight = primitive_variants
+                .iter()
+                .chain(complex_variants.iter())
+                .map(|variant| {
+                    let variant_ident = variant.ident.clone();
+                    let variant_ty = variant
+                        .fields
+                        .iter()
+                        .next()
+                        .expect("typechoice variant must have a single field")
+                        .ty
+                        .clone();
 
-                quote! {
-                    if let Ok(value) = #variant_ty::deserialize(deserializer) {
-                        return Ok(Self::#variant_ident(value));
+                    let inner_type = get_inner_type_if_vector_or_optional_or_box(&variant_ty);
+
+                    quote! {
+                        if let Ok(value) = #inner_type::deserialize(deserializer) {
+                            return Ok(Self::#variant_ident(Box::new(value)));
+                        }
                     }
-                }
-            });
+                });
 
             let complex_variant_ident =
                 complex_variants.iter().map(|variant| variant.ident.clone());
@@ -253,7 +258,9 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
                 .iter()
                 .map(|variant| variant.ident.clone());
 
-            let deserialize_impl = quote! {
+            let name_str = name.to_string();
+
+            let _deserialize_impl = quote! {
                impl<'de> serde::Deserialize<'de> for #name {
                     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
                     where
@@ -263,7 +270,7 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
 
                         return Err(serde::de::Error::custom(format!(
                             "Data does not match any variant for type choice '{}'",
-                            stringify!(#name)
+                            #name_str
                         )));
                     }
                 }
@@ -316,7 +323,6 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
             };
 
             quote! {
-                #deserialize_impl
                 #utility_funcs
             }
             .into()

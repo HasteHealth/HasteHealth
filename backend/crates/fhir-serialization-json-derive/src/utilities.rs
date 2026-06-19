@@ -64,7 +64,7 @@ pub fn get_inner_type_if_optional(type_: &Type) -> Type {
     type_.clone()
 }
 
-fn get_inner_type_if_vector_or_optional_or_box(type_: &Type) -> Type {
+pub fn get_inner_type_if_vector_or_optional_or_box(type_: &Type) -> Type {
     if let Type::Path(path) = type_ {
         if let Some(inner_type) = path.path.segments.first() {
             if inner_type.ident == "Option"
