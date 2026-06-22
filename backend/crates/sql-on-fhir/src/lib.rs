@@ -10,7 +10,6 @@ use haste_fhir_model::r4::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::{Config, FPEngine};
-use haste_jwt::{ProjectId, ResourceId, TenantId};
 use haste_reflect::MetaValue;
 use std::borrow::Cow;
 use std::{collections::HashMap, sync::Arc};
@@ -20,7 +19,7 @@ async fn resolve_view_definition<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
-    context: &CTX,
+    context: CTX,
     client: &Client,
     input: &'a ViewDefinitionRun::Input,
 ) -> Result<Cow<'a, ViewDefinition>, OperationOutcomeError> {
@@ -47,43 +46,41 @@ async fn resolve_view_definition<
 
         let reference_pieces = view_definition_reference.split('/').collect::<Vec<_>>();
 
-        let view_definition_id = ResourceId::new(
-            reference_pieces
-                .last()
-                .ok_or_else(|| {
-                    OperationOutcomeError::error(
-                        IssueType::Invalid(None),
-                        "Invalid viewReference.reference format".to_string(),
-                    )
-                })?
-                .to_string(),
-        );
+        let view_definition_id = reference_pieces
+            .last()
+            .ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Invalid viewReference.reference format".to_string(),
+                )
+            })?
+            .to_string();
 
-        let Some(view_definition) = context
-            .state
-            .repo
-            .read_latest(
-                &context.ctx.tenant,
-                &context.ctx.project,
-                &ResourceType::ViewDefinition,
-                &view_definition_id,
+        let result = client
+            .read(
+                context,
+                ResourceType::ViewDefinition,
+                view_definition_id.clone(),
             )
             .await?
-            .and_then(|v| match v {
-                Resource::ViewDefinition(view_definition) => Some(view_definition),
-                _ => None,
-            })
-        else {
-            return Err(OperationOutcomeError::error(
-                IssueType::NotFound(None),
-                format!(
-                    "ViewDefinition not found with id '{:?}'",
-                    view_definition_id
-                ),
-            ));
-        };
+            .ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::NotFound(None),
+                    format!(
+                        "ViewDefinition not found with id '{:?}'",
+                        view_definition_id
+                    ),
+                )
+            })?;
 
-        Ok(Cow::Owned(view_definition))
+        if let Resource::ViewDefinition(view_definition) = result {
+            Ok(Cow::Owned(view_definition))
+        } else {
+            Err(OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                "Referenced resource is not a ViewDefinition".to_string(),
+            ))
+        }
     } else {
         Err(OperationOutcomeError::error(
             IssueType::Invalid(None),
@@ -116,7 +113,7 @@ async fn get_resources_to_process<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
-    _context: &CTX,
+    _context: CTX,
     _client: &Client,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Vec<Resource>, OperationOutcomeError> {
@@ -147,7 +144,7 @@ async fn process_resource<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
-    _context: &CTX,
+    _context: CTX,
     _client: &Client,
     view_definition: &ViewDefinition,
     input: &Resource,
@@ -175,7 +172,7 @@ async fn process_view_definition<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
-    context: &CTX,
+    context: CTX,
     client: &Client,
     view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
@@ -193,11 +190,11 @@ async fn process_view_definition<
         .and_then(|since| since.value.clone())
         .unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
 
-    let input_ = get_resources_to_process(context, client, input).await?;
+    let input_ = get_resources_to_process(context.clone(), client, input).await?;
 
     let _result = input_
         .iter()
-        .map(|resource| process_resource(context, client, view_definition, resource));
+        .map(|resource| process_resource(context.clone(), client, view_definition, resource));
 
     // Implement the logic to process the view definition and return the result as Binary
     // For now, we will return an empty Binary as a placeholder
@@ -208,13 +205,13 @@ pub async fn view_definition_run<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
-    context: &CTX,
+    context: CTX,
     client: &Client,
     input: &ViewDefinitionRun::Input,
 ) -> Result<ViewDefinitionRun::Output, OperationOutcomeError> {
-    let view_definition = resolve_view_definition(&context, client, &input).await?;
+    let view_definition = resolve_view_definition(context.clone(), client, &input).await?;
 
-    let output = process_view_definition(&context, client, &view_definition, &input).await?;
+    let output = process_view_definition(context, client, &view_definition, &input).await?;
 
     Ok(ViewDefinitionRun::Output { return_: output })
 }
