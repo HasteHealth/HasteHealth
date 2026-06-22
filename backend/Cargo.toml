@@ -42,7 +42,7 @@ members = [
     "crates/reflect-derive",
     "crates/repository",
     "crates/sd-to-json-schema",
-    "crates/server",
+    "crates/server", "crates/sql-on-fhir",
     "crates/testscript-runner",
     "crates/wal_worker",
     "crates/worker",

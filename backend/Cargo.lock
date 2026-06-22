@@ -6370,6 +6370,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "sql-on-fhir"
+version = "0.18.0"
+dependencies = [
+ "haste-fhir-client",
+ "haste-fhir-generated-ops",
+ "haste-fhir-model",
+ "haste-fhir-operation-error",
+ "haste-fhirpath",
+ "haste-jwt",
+ "haste-reflect",
+]
+
+[[package]]
 name = "sqlx"
 version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"

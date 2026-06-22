@@ -1,0 +1,16 @@
+[package]
+name = "sql-on-fhir"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+edition.workspace = true
+
+[dependencies]
+haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
+haste-fhir-model = { path = "../fhir-model", version = "0.*" }
+haste-fhir-client = { path = "../fhir-client", version = "0.*" }
+haste-fhirpath = { path = "../fhirpath", version = "0.*" }
+haste-reflect = { path = "../reflect", version = "0.*" }
+haste-fhir-generated-ops = { path = "../fhir-generated-ops", version = "0.*" }
+haste-jwt = { path = "../jwt", version = "0.*" }
