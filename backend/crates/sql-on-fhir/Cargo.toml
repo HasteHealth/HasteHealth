@@ -1,5 +1,5 @@
 [package]
-name = "sql-on-fhir"
+name = "haste-sql-on-fhir"
 publish = false
 description = "A crate for executing SQL queries on FHIR resources using a ViewDefinition."
 version.workspace = true
