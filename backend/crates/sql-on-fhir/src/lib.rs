@@ -193,11 +193,11 @@ async fn process_view_definition<
         .and_then(|since| since.value.clone())
         .unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
 
-    let input_ = get_resources_to_process(context, input).await?;
+    let input_ = get_resources_to_process(context, client, input).await?;
 
     let _result = input_
         .iter()
-        .map(|resource| process_resource(context, view_definition, resource));
+        .map(|resource| process_resource(context, client, view_definition, resource));
 
     // Implement the logic to process the view definition and return the result as Binary
     // For now, we will return an empty Binary as a placeholder
@@ -209,11 +209,12 @@ pub async fn view_definition_run<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: &CTX,
+    client: &Client,
     input: &ViewDefinitionRun::Input,
 ) -> Result<ViewDefinitionRun::Output, OperationOutcomeError> {
-    let view_definition = resolve_view_definition(&context, &input).await?;
+    let view_definition = resolve_view_definition(&context, client, &input).await?;
 
-    let output = process_view_definition(&context, &view_definition, &input).await?;
+    let output = process_view_definition(&context, client, &view_definition, &input).await?;
 
     Ok(ViewDefinitionRun::Output { return_: output })
 }
