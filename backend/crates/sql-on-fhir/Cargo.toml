@@ -1,5 +1,7 @@
 [package]
 name = "sql-on-fhir"
+publish = false
+description = "A crate for executing SQL queries on FHIR resources using a ViewDefinition."
 version.workspace = true
 authors.workspace = true
 license.workspace = true
