@@ -4,7 +4,7 @@ use haste_fhir_generated_ops::generated::ViewDefinitionRun;
 use haste_fhir_model::r4::{
     self,
     generated::{
-        resources::{Binary, Resource, ResourceType, ViewDefinition},
+        resources::{AllergyIntoleranceReaction, Binary, Resource, ResourceType, ViewDefinition},
         terminology::{IssueType, OutputFormatCodes},
     },
 };
@@ -13,6 +13,8 @@ use haste_fhirpath::{Config, FPEngine};
 use haste_reflect::MetaValue;
 use std::borrow::Cow;
 use std::{collections::HashMap, sync::Arc};
+
+use crate::conversions::primitives::PrimitiveValue;
 
 mod conversions;
 mod output;
@@ -162,32 +164,30 @@ async fn process_resource<
     }
 
     for select_statement in view_definition.select.iter() {
-        let mut context: Vec<&dyn MetaValue> = vec![input];
+        let fp_config = Arc::new(Config {
+            variable_resolver: Some(haste_fhirpath::ExternalConstantResolver::Variable(
+                variables.clone(),
+            )),
+        });
+
+        let mut iterable_context = None;
 
         if let Some(for_each) = select_statement
             .forEach
             .as_ref()
             .and_then(|f| f.value.as_ref())
         {
-            context = fp_engine
-                .evaluate_with_config(
-                    for_each,
-                    context,
-                    Arc::new(Config {
-                        variable_resolver: Some(
-                            haste_fhirpath::ExternalConstantResolver::Variable(variables.clone()),
-                        ),
-                    }),
-                )
-                .await
-                .map_err(|e| {
-                    OperationOutcomeError::error(
-                        IssueType::Exception(None),
-                        format!("Error evaluating forEach expression: {}", e),
-                    )
-                })?
-                .iter()
-                .collect::<Vec<_>>();
+            iterable_context = Some(
+                fp_engine
+                    .evaluate_with_config(for_each, vec![input], fp_config.clone())
+                    .await
+                    .map_err(|e| {
+                        OperationOutcomeError::error(
+                            IssueType::Exception(None),
+                            format!("Error evaluating forEach expression: {}", e),
+                        )
+                    })?,
+            );
         } else if let Some(_for_each_or_null) = select_statement.forEachOrNull.as_ref() {
             return Err(OperationOutcomeError::error(
                 IssueType::NotSupported(None),
@@ -199,6 +199,12 @@ async fn process_resource<
                 "repeat is not yet supported".to_string(),
             ));
         }
+
+        let context: Vec<&dyn MetaValue> = if let Some(iterable) = iterable_context.as_ref() {
+            iterable.iter().collect()
+        } else {
+            vec![input]
+        };
 
         for column in select_statement.column.as_ref().into_iter().flatten() {
             let _column_type = column
@@ -216,7 +222,19 @@ async fn process_resource<
                 ));
             };
 
-            // let result = fp_engine.evaluate(path, context.clone());
+            let result = fp_engine
+                .evaluate(path, context.clone())
+                .await
+                .map_err(|e| {
+                    OperationOutcomeError::error(
+                        IssueType::Exception(None),
+                        format!("Error evaluating expression: {}", e),
+                    )
+                })?;
+            let k = result
+                .iter()
+                .map(|value| conversions::primitives::convert_meta_value(_column_type, value))
+                .collect::<Result<Vec<Option<PrimitiveValue>>, OperationOutcomeError>>()?;
         }
     }
 

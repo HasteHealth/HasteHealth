@@ -51,7 +51,6 @@ where
     Ok(extractor(value))
 }
 
-#[allow(dead_code)]
 pub fn convert_meta_value(
     type_: &str,
     value: &dyn MetaValue,
