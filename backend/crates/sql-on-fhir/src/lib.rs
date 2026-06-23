@@ -151,18 +151,55 @@ async fn process_resource<
 ) -> Result<(), OperationOutcomeError> {
     let fp_engine = FPEngine::new();
     let variables = Arc::new(build_hashmap_fp_variables(view_definition));
-    if let Some(_where_conditionals) = &view_definition.where_ {}
+    if let Some(_where_conditionals) = &view_definition.where_ {
+        return Err(OperationOutcomeError::error(
+            IssueType::NotSupported(None),
+            "where conditionals are not yet supported".to_string(),
+        ));
+    }
 
-    for _select_statement in view_definition.select.iter() {
-        let _context = fp_engine.evaluate_with_config(
-            "$this",
-            vec![input],
-            Arc::new(Config {
-                variable_resolver: Some(haste_fhirpath::ExternalConstantResolver::Variable(
-                    variables.clone(),
-                )),
-            }),
-        );
+    for select_statement in view_definition.select.iter() {
+        let mut context: Vec<&dyn MetaValue> = vec![input];
+
+        if let Some(for_each) = select_statement
+            .forEach
+            .as_ref()
+            .and_then(|f| f.value.as_ref())
+        {
+            context = fp_engine
+                .evaluate_with_config(
+                    for_each,
+                    context,
+                    Arc::new(Config {
+                        variable_resolver: Some(
+                            haste_fhirpath::ExternalConstantResolver::Variable(variables.clone()),
+                        ),
+                    }),
+                )
+                .await
+                .map_err(|e| {
+                    OperationOutcomeError::error(
+                        IssueType::Exception(None),
+                        format!("Error evaluating forEach expression: {}", e),
+                    )
+                })?
+                .iter()
+                .collect::<Vec<_>>();
+        } else if let Some(_for_each_or_null) = select_statement.forEachOrNull.as_ref() {
+            return Err(OperationOutcomeError::error(
+                IssueType::NotSupported(None),
+                "forEachOrNull is not yet supported".to_string(),
+            ));
+        } else if let Some(_repeat) = select_statement.repeat.as_ref() {
+            return Err(OperationOutcomeError::error(
+                IssueType::NotSupported(None),
+                "repeat is not yet supported".to_string(),
+            ));
+        }
+
+        for column in select_statement.column.as_ref().into_iter().flatten() {
+            let type_ = column.type_.as_ref().and_then(|t| t.value.as_ref());
+        }
     }
 
     todo!("Not implemented");
