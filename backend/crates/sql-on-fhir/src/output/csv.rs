@@ -1,4 +1,3 @@
-#[allow(dead_code)]
 pub fn csv() {}
 
 #[cfg(test)]

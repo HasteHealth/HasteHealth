@@ -53,9 +53,17 @@ where
 
 #[allow(dead_code)]
 pub fn convert_meta_value(
+    type_: &str,
     value: &dyn MetaValue,
 ) -> Result<Option<PrimitiveValue>, OperationOutcomeError> {
-    match value.fhir_type() {
+    if value.fhir_type() != type_ {
+        return Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            format!("Expected type '{type_}' but got '{}'", value.fhir_type()),
+        ));
+    }
+
+    match type_ {
         "instant" => convert_with::<FHIRInstant, _, _>(value, "instant", |primitive| {
             primitive
                 .value

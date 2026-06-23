@@ -153,7 +153,12 @@ async fn process_resource<
     input: &Resource,
 ) -> Result<(), OperationOutcomeError> {
     let fp_engine = FPEngine::new();
-    let variables = Arc::new(build_hashmap_fp_variables(view_definition));
+    let fp_config = Arc::new(Config {
+        variable_resolver: Some(haste_fhirpath::ExternalConstantResolver::Variable(
+            Arc::new(build_hashmap_fp_variables(view_definition)),
+        )),
+    });
+
     if let Some(_where_conditionals) = &view_definition.where_ {
         return Err(OperationOutcomeError::error(
             IssueType::NotSupported(None),
@@ -170,15 +175,7 @@ async fn process_resource<
             .and_then(|f| f.value.as_ref())
         {
             context = fp_engine
-                .evaluate_with_config(
-                    for_each,
-                    context,
-                    Arc::new(Config {
-                        variable_resolver: Some(
-                            haste_fhirpath::ExternalConstantResolver::Variable(variables.clone()),
-                        ),
-                    }),
-                )
+                .evaluate_with_config(for_each, context, fp_config.clone())
                 .await
                 .map_err(|e| {
                     OperationOutcomeError::error(
@@ -208,6 +205,15 @@ async fn process_resource<
                 .map(|t| t.as_str())
                 // Default to string.
                 .unwrap_or("string");
+
+            let Some(path) = column.path.value.as_ref().map(|s| s.as_str()) else {
+                return Err(OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Column path is required".to_string(),
+                ));
+            };
+
+            let result = fp_engine.evaluate_with_config(path, context.clone(), fp_config.clone());
         }
     }
 
