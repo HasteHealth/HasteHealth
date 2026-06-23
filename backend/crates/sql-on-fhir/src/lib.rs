@@ -14,6 +14,9 @@ use haste_reflect::MetaValue;
 use std::borrow::Cow;
 use std::{collections::HashMap, sync::Arc};
 
+mod conversions;
+mod output;
+
 async fn resolve_view_definition<
     'a,
     CTX: Send + Sync + Clone + 'static,
@@ -198,7 +201,13 @@ async fn process_resource<
         }
 
         for column in select_statement.column.as_ref().into_iter().flatten() {
-            let type_ = column.type_.as_ref().and_then(|t| t.value.as_ref());
+            let column_type = column
+                .type_
+                .as_ref()
+                .and_then(|t| t.value.as_ref())
+                .map(|t| t.as_str())
+                // Default to string.
+                .unwrap_or("string");
         }
     }
 

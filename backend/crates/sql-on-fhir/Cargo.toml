@@ -17,3 +17,7 @@ haste-fhirpath = { path = "../fhirpath", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
 haste-fhir-generated-ops = { path = "../fhir-generated-ops", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*" }
+csv = "1.4.0"
+
+[dev-dependencies]
+serde = { workspace = true, features = ["derive"] }
