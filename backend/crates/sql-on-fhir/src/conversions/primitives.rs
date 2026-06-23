@@ -19,6 +19,7 @@ pub enum PrimitiveValue {
     String(String),
 }
 
+#[allow(dead_code)]
 fn downcast_meta_value<'a, T: 'static>(value: &'a dyn MetaValue) -> Option<&'a T> {
     value.as_any().downcast_ref::<T>().or_else(|| {
         value
@@ -28,33 +29,32 @@ fn downcast_meta_value<'a, T: 'static>(value: &'a dyn MetaValue) -> Option<&'a T
     })
 }
 
-fn missing_value_error(type_name: &str) -> OperationOutcomeError {
-    OperationOutcomeError::error(
-        IssueType::Invalid(None),
-        format!("{type_name} value is missing."),
-    )
-}
-
 fn convert_with<T, R, F>(
     value: &dyn MetaValue,
     type_name: &str,
     extractor: F,
-) -> Result<R, OperationOutcomeError>
+) -> Result<Option<R>, OperationOutcomeError>
 where
     T: 'static,
     F: FnOnce(&T) -> Option<R>,
 {
-    downcast_meta_value::<T>(value)
-        .and_then(extractor)
-        .ok_or_else(|| {
-            OperationOutcomeError::error(
-                IssueType::Invalid(None),
-                format!("{type_name} value is missing."),
-            )
-        })
+    let value = downcast_meta_value::<T>(value).ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            format!(
+                "Expected type '{type_name}' but got '{}'",
+                value.fhir_type()
+            ),
+        )
+    })?;
+
+    Ok(extractor(value))
 }
 
-pub fn convert_meta_value(value: &dyn MetaValue) -> Result<PrimitiveValue, OperationOutcomeError> {
+#[allow(dead_code)]
+pub fn convert_meta_value(
+    value: &dyn MetaValue,
+) -> Result<Option<PrimitiveValue>, OperationOutcomeError> {
     match value.fhir_type() {
         "instant" => convert_with::<FHIRInstant, _, _>(value, "instant", |primitive| {
             primitive
@@ -173,7 +173,7 @@ pub fn convert_meta_value(value: &dyn MetaValue) -> Result<PrimitiveValue, Opera
                 .cloned()
                 .map(PrimitiveValue::String)
         }),
-        "http://hl7.org/fhirpath/System.String" => value
+        "http://hl7.org/fhirpath/System.String" => Ok(value
             .as_any()
             .downcast_ref::<String>()
             .or_else(|| {
@@ -183,46 +183,38 @@ pub fn convert_meta_value(value: &dyn MetaValue) -> Result<PrimitiveValue, Opera
                     .map(|boxed| boxed.as_ref())
             })
             .cloned()
-            .map(PrimitiveValue::String)
-            .ok_or_else(|| missing_value_error("http://hl7.org/fhirpath/System.String")),
-        "http://hl7.org/fhirpath/System.Boolean" => value
+            .map(PrimitiveValue::String)),
+        "http://hl7.org/fhirpath/System.Boolean" => Ok(value
             .as_any()
             .downcast_ref::<bool>()
             .copied()
-            .map(PrimitiveValue::Boolean)
-            .ok_or_else(|| missing_value_error("http://hl7.org/fhirpath/System.Boolean")),
-        "http://hl7.org/fhirpath/System.Integer" => value
+            .map(PrimitiveValue::Boolean)),
+        "http://hl7.org/fhirpath/System.Integer" => Ok(value
             .as_any()
             .downcast_ref::<i64>()
             .copied()
-            .map(|number| PrimitiveValue::Number(number as f64))
-            .ok_or_else(|| missing_value_error("http://hl7.org/fhirpath/System.Integer")),
-        "http://hl7.org/fhirpath/System.Decimal" => value
+            .map(|number| PrimitiveValue::Number(number as f64))),
+        "http://hl7.org/fhirpath/System.Decimal" => Ok(value
             .as_any()
             .downcast_ref::<f64>()
             .copied()
-            .map(PrimitiveValue::Number)
-            .ok_or_else(|| missing_value_error("http://hl7.org/fhirpath/System.Decimal")),
-        "http://hl7.org/fhirpath/System.Date" => value
+            .map(PrimitiveValue::Number)),
+        "http://hl7.org/fhirpath/System.Date" => Ok(value
             .as_any()
             .downcast_ref::<Date>()
-            .map(|date| PrimitiveValue::String(date.to_string()))
-            .ok_or_else(|| missing_value_error("http://hl7.org/fhirpath/System.Date")),
-        "http://hl7.org/fhirpath/System.DateTime" => value
+            .map(|date| PrimitiveValue::String(date.to_string()))),
+        "http://hl7.org/fhirpath/System.DateTime" => Ok(value
             .as_any()
             .downcast_ref::<DateTime>()
-            .map(|date_time| PrimitiveValue::String(date_time.to_string()))
-            .ok_or_else(|| missing_value_error("http://hl7.org/fhirpath/System.DateTime")),
-        "http://hl7.org/fhirpath/System.Instant" => value
+            .map(|date_time| PrimitiveValue::String(date_time.to_string()))),
+        "http://hl7.org/fhirpath/System.Instant" => Ok(value
             .as_any()
             .downcast_ref::<Instant>()
-            .map(|instant| PrimitiveValue::String(instant.to_string()))
-            .ok_or_else(|| missing_value_error("http://hl7.org/fhirpath/System.Instant")),
-        "http://hl7.org/fhirpath/System.Time" => value
+            .map(|instant| PrimitiveValue::String(instant.to_string()))),
+        "http://hl7.org/fhirpath/System.Time" => Ok(value
             .as_any()
             .downcast_ref::<Time>()
-            .map(|time| PrimitiveValue::String(time.to_string()))
-            .ok_or_else(|| missing_value_error("http://hl7.org/fhirpath/System.Time")),
+            .map(|time| PrimitiveValue::String(time.to_string()))),
         type_name => Err(OperationOutcomeError::error(
             IssueType::Invalid(None),
             format!("Unsupported primitive type: '{type_name}'"),

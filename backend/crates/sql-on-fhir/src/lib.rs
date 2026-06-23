@@ -201,7 +201,7 @@ async fn process_resource<
         }
 
         for column in select_statement.column.as_ref().into_iter().flatten() {
-            let column_type = column
+            let _column_type = column
                 .type_
                 .as_ref()
                 .and_then(|t| t.value.as_ref())
