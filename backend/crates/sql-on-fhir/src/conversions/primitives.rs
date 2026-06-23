@@ -46,7 +46,12 @@ where
 {
     downcast_meta_value::<T>(value)
         .and_then(extractor)
-        .ok_or_else(|| missing_value_error(type_name))
+        .ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                format!("{type_name} value is missing."),
+            )
+        })
 }
 
 pub fn convert_meta_value(value: &dyn MetaValue) -> Result<PrimitiveValue, OperationOutcomeError> {
