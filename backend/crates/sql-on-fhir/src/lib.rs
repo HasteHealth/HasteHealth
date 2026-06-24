@@ -1,3 +1,4 @@
+use base64::{Engine as _, engine::general_purpose};
 use chrono::Utc;
 use haste_fhir_client::FHIRClient;
 use haste_fhir_generated_ops::generated::ViewDefinitionRun;
@@ -6,12 +7,13 @@ use haste_fhir_model::r4::{
     generated::{
         resources::{Binary, Resource, ResourceType, ViewDefinition},
         terminology::{IssueType, OutputFormatCodes},
+        types::FHIRBase64Binary,
     },
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::{Config, FPEngine};
 use haste_reflect::MetaValue;
-use std::borrow::Cow;
+use std::{borrow::Cow, collections::BTreeMap};
 use std::{collections::HashMap, sync::Arc};
 
 use crate::conversions::primitives::PrimitiveValue;
@@ -153,7 +155,7 @@ async fn process_resource<
     _client: Arc<Client>,
     view_definition: &ViewDefinition,
     input: Resource,
-) -> Result<HashMap<String, Vec<Option<PrimitiveValue>>>, OperationOutcomeError> {
+) -> Result<BTreeMap<String, Vec<Option<PrimitiveValue>>>, OperationOutcomeError> {
     let fp_engine = FPEngine::new();
     let variables = Arc::new(build_hashmap_fp_variables(view_definition));
     if let Some(_where_conditionals) = &view_definition.where_ {
@@ -163,7 +165,7 @@ async fn process_resource<
         ));
     }
 
-    let mut output_result = HashMap::<String, Vec<Option<PrimitiveValue>>>::new();
+    let mut output_result = BTreeMap::<String, Vec<Option<PrimitiveValue>>>::new();
 
     for select_statement in view_definition.select.iter() {
         let fp_config = Arc::new(Config {
@@ -271,6 +273,7 @@ async fn process_view_definition<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: CTX,
+    output_format: &OutputFormatCodes,
     client: Arc<Client>,
     view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
@@ -321,9 +324,25 @@ async fn process_view_definition<
         })??);
     }
 
-    // Implement the logic to process the view definition and return the result as Binary
-    // For now, we will return an empty Binary as a placeholder
-    Ok(Binary::default())
+    match output_format {
+        OutputFormatCodes::Csv(_) => {
+            let data = output::csv::csv(results)?;
+
+            let base64_string: String = general_purpose::STANDARD.encode(&data);
+
+            Ok(Binary {
+                data: Some(Box::new(FHIRBase64Binary {
+                    value: Some(base64_string),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            })
+        }
+        _ => Err(OperationOutcomeError::error(
+            IssueType::NotSupported(None),
+            format!("Output format '{:?}' is not supported", output_format),
+        )),
+    }
 }
 
 pub async fn view_definition_run<
@@ -334,9 +353,17 @@ pub async fn view_definition_run<
     client: Arc<Client>,
     input: &ViewDefinitionRun::Input,
 ) -> Result<ViewDefinitionRun::Output, OperationOutcomeError> {
+    let output_format = input
+        ._format
+        .as_ref()
+        .and_then(|v| v.value.as_ref())
+        .and_then(|s| OutputFormatCodes::try_from(s.to_string()).ok())
+        .unwrap_or(OutputFormatCodes::Csv(None));
+
     let view_definition = resolve_view_definition(context.clone(), client.as_ref(), &input).await?;
 
-    let output = process_view_definition(context, client, &view_definition, &input).await?;
+    let output =
+        process_view_definition(context, &output_format, client, &view_definition, &input).await?;
 
     Ok(ViewDefinitionRun::Output { return_: output })
 }

@@ -2933,6 +2933,7 @@ dependencies = [
 name = "haste-sql-on-fhir"
 version = "0.18.0"
 dependencies = [
+ "base64",
  "chrono",
  "haste-fhir-client",
  "haste-fhir-generated-ops",
