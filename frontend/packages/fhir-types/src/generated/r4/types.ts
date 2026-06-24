@@ -4674,6 +4674,544 @@ resourceType: "User"
   federated?: Reference;
 }
 
+export interface ViewDefinitionConstant {
+  /** 
+   * Unique id for inter-element referencing
+   */
+  id?: id;
+  /** 
+   * Additional content defined by implementations
+   */
+  extension?: Array<Extension>;
+  /** 
+   * Extensions that cannot be ignored even if unrecognized
+   */
+  modifierExtension?: Array<Extension>;
+  /** 
+   * Name of constant (referred to in FHIRPath as %[name])
+   */
+  name: string;
+  /** 
+   * Name of constant (referred to in FHIRPath as %[name])
+   */
+  _name?: Element
+  /** 
+   * Value of constant
+   */
+  valueBase64Binary?: base64Binary;
+  /** 
+   * Value of constant
+   */
+  _valueBase64Binary?: Element
+  /** 
+   * Value of constant
+   */
+  valueBoolean?: boolean;
+  /** 
+   * Value of constant
+   */
+  _valueBoolean?: Element
+  /** 
+   * Value of constant
+   */
+  valueCanonical?: canonical;
+  /** 
+   * Value of constant
+   */
+  _valueCanonical?: Element
+  /** 
+   * Value of constant
+   */
+  valueCode?: code;
+  /** 
+   * Value of constant
+   */
+  _valueCode?: Element
+  /** 
+   * Value of constant
+   */
+  valueDate?: date;
+  /** 
+   * Value of constant
+   */
+  _valueDate?: Element
+  /** 
+   * Value of constant
+   */
+  valueDateTime?: dateTime;
+  /** 
+   * Value of constant
+   */
+  _valueDateTime?: Element
+  /** 
+   * Value of constant
+   */
+  valueDecimal?: decimal;
+  /** 
+   * Value of constant
+   */
+  _valueDecimal?: Element
+  /** 
+   * Value of constant
+   */
+  valueId?: id;
+  /** 
+   * Value of constant
+   */
+  _valueId?: Element
+  /** 
+   * Value of constant
+   */
+  valueInstant?: instant;
+  /** 
+   * Value of constant
+   */
+  _valueInstant?: Element
+  /** 
+   * Value of constant
+   */
+  valueInteger?: integer;
+  /** 
+   * Value of constant
+   */
+  _valueInteger?: Element
+  /** 
+   * Value of constant
+   */
+  valueOid?: oid;
+  /** 
+   * Value of constant
+   */
+  _valueOid?: Element
+  /** 
+   * Value of constant
+   */
+  valueString?: string;
+  /** 
+   * Value of constant
+   */
+  _valueString?: Element
+  /** 
+   * Value of constant
+   */
+  valuePositiveInt?: positiveInt;
+  /** 
+   * Value of constant
+   */
+  _valuePositiveInt?: Element
+  /** 
+   * Value of constant
+   */
+  valueTime?: time;
+  /** 
+   * Value of constant
+   */
+  _valueTime?: Element
+  /** 
+   * Value of constant
+   */
+  valueUnsignedInt?: unsignedInt;
+  /** 
+   * Value of constant
+   */
+  _valueUnsignedInt?: Element
+  /** 
+   * Value of constant
+   */
+  valueUri?: uri;
+  /** 
+   * Value of constant
+   */
+  _valueUri?: Element
+  /** 
+   * Value of constant
+   */
+  valueUrl?: url;
+  /** 
+   * Value of constant
+   */
+  _valueUrl?: Element
+  /** 
+   * Value of constant
+   */
+  valueUuid?: uuid;
+  /** 
+   * Value of constant
+   */
+  _valueUuid?: Element
+}
+export interface ViewDefinitionSelectColumnTag {
+  /** 
+   * Unique id for inter-element referencing
+   */
+  id?: id;
+  /** 
+   * Additional content defined by implementations
+   */
+  extension?: Array<Extension>;
+  /** 
+   * Extensions that cannot be ignored even if unrecognized
+   */
+  modifierExtension?: Array<Extension>;
+  /** 
+   * Name of tag
+   */
+  name: string;
+  /** 
+   * Name of tag
+   */
+  _name?: Element
+  /** 
+   * Value of tag
+   */
+  value: string;
+  /** 
+   * Value of tag
+   */
+  _value?: Element
+}
+export interface ViewDefinitionSelectColumn {
+  /** 
+   * Unique id for inter-element referencing
+   */
+  id?: id;
+  /** 
+   * Additional content defined by implementations
+   */
+  extension?: Array<Extension>;
+  /** 
+   * Extensions that cannot be ignored even if unrecognized
+   */
+  modifierExtension?: Array<Extension>;
+  /** 
+   * FHIRPath expression that creates a column and defines its content
+   */
+  path: string;
+  /** 
+   * FHIRPath expression that creates a column and defines its content
+   */
+  _path?: Element
+  /** 
+   * Column name produced in the output
+   */
+  name: string;
+  /** 
+   * Column name produced in the output
+   */
+  _name?: Element
+  /** 
+   * Description of the column
+   */
+  description?: markdown;
+  /** 
+   * Description of the column
+   */
+  _description?: Element
+  /** 
+   * Indicates whether the column may have multiple values.
+   */
+  collection?: boolean;
+  /** 
+   * Indicates whether the column may have multiple values.
+   */
+  _collection?: Element
+  /** 
+   * A FHIR StructureDefinition URI for the column's type.
+   */
+  type?: uri;
+  /** 
+   * A FHIR StructureDefinition URI for the column's type.
+   */
+  _type?: Element
+  /** 
+   * Additional metadata describing the column
+   */
+  tag?: Array<ViewDefinitionSelectColumnTag>;
+}
+export interface ViewDefinitionSelect {
+  /** 
+   * Unique id for inter-element referencing
+   */
+  id?: id;
+  /** 
+   * Additional content defined by implementations
+   */
+  extension?: Array<Extension>;
+  /** 
+   * Extensions that cannot be ignored even if unrecognized
+   */
+  modifierExtension?: Array<Extension>;
+  /** 
+   * A column to be produced in the resulting table.
+   */
+  column?: Array<ViewDefinitionSelectColumn>;
+  /** 
+   * Nested select relative to a parent expression.
+   */
+  select?: Array<ViewDefinitionSelect>;
+  /** 
+   * A FHIRPath expression to retrieve the parent element(s) used in the containing select. The default is effectively `$this`.
+   */
+  forEach?: string;
+  /** 
+   * A FHIRPath expression to retrieve the parent element(s) used in the containing select. The default is effectively `$this`.
+   */
+  _forEach?: Element
+  /** 
+   * Same as forEach, but will produce a row with null values if the collection is empty.
+   */
+  forEachOrNull?: string;
+  /** 
+   * Same as forEach, but will produce a row with null values if the collection is empty.
+   */
+  _forEachOrNull?: Element
+  /** 
+   * FHIRPath expressions to recursively select from.
+   */
+  repeat?: Array<string>;
+  /** 
+   * FHIRPath expressions to recursively select from.
+   */
+  _repeat?: Array<Element>
+  /** 
+   * Creates a union of all rows in the given selection structures.
+   */
+  unionAll?: Array<ViewDefinitionSelect>;
+}
+export interface ViewDefinitionWhere {
+  /** 
+   * Unique id for inter-element referencing
+   */
+  id?: id;
+  /** 
+   * Additional content defined by implementations
+   */
+  extension?: Array<Extension>;
+  /** 
+   * Extensions that cannot be ignored even if unrecognized
+   */
+  modifierExtension?: Array<Extension>;
+  /** 
+   * A FHIRPath expression defining a filter condition
+   */
+  path: string;
+  /** 
+   * A FHIRPath expression defining a filter condition
+   */
+  _path?: Element
+  /** 
+   * A human-readable description of the above where constraint.
+   */
+  description?: string;
+  /** 
+   * A human-readable description of the above where constraint.
+   */
+  _description?: Element
+}
+export interface ViewDefinition {
+resourceType: "ViewDefinition"
+  /** 
+   * Logical id of this artifact
+   */
+  id?: id;
+  /** 
+   * Metadata about the resource
+   */
+  meta?: Meta;
+  /** 
+   * A set of rules under which this content was created
+   */
+  implicitRules?: uri;
+  /** 
+   * A set of rules under which this content was created
+   */
+  _implicitRules?: Element
+  /** 
+   * Language of the resource content
+   */
+  language?: code;
+  /** 
+   * Language of the resource content
+   */
+  _language?: Element
+  /** 
+   * Text summary of the resource, for human interpretation
+   */
+  text?: Narrative;
+  /** 
+   * Contained, inline Resources
+   */
+  contained?: Array<Resource>;
+  /** 
+   * Additional content defined by implementations
+   */
+  extension?: Array<Extension>;
+  /** 
+   * Extensions that cannot be ignored
+   */
+  modifierExtension?: Array<Extension>;
+  /** 
+   * Canonical identifier for this {{title}}, represented as an absolute URI (globally unique)
+   */
+  url?: uri;
+  /** 
+   * Canonical identifier for this {{title}}, represented as an absolute URI (globally unique)
+   */
+  _url?: Element
+  /** 
+   * Additional identifier for the {{title}}
+   */
+  identifier?: Array<Identifier>;
+  /** 
+   * Business version of the {{title}}
+   */
+  version?: string;
+  /** 
+   * Business version of the {{title}}
+   */
+  _version?: Element
+  /** 
+   * How to compare versions
+   */
+  versionAlgorithmString?: string;
+  /** 
+   * How to compare versions
+   */
+  _versionAlgorithmString?: Element
+  /** 
+   * How to compare versions
+   */
+  versionAlgorithmCoding?: Coding;
+  /** 
+   * Name for this {{title}} (computer friendly)
+   */
+  name?: string;
+  /** 
+   * Name for this {{title}} (computer friendly)
+   */
+  _name?: Element
+  /** 
+   * Name for this {{title}} (human friendly)
+   */
+  title?: string;
+  /** 
+   * Name for this {{title}} (human friendly)
+   */
+  _title?: Element
+  /** 
+   * draft | active | retired | unknown
+   */
+  status: code;
+  /** 
+   * draft | active | retired | unknown
+   */
+  _status?: Element
+  /** 
+   * For testing purposes, not real usage
+   */
+  experimental?: boolean;
+  /** 
+   * For testing purposes, not real usage
+   */
+  _experimental?: Element
+  /** 
+   * Date last changed
+   */
+  date?: dateTime;
+  /** 
+   * Date last changed
+   */
+  _date?: Element
+  /** 
+   * Name of the publisher/steward (organization or individual)
+   */
+  publisher?: string;
+  /** 
+   * Name of the publisher/steward (organization or individual)
+   */
+  _publisher?: Element
+  /** 
+   * Contact details for the publisher
+   */
+  contact?: Array<ContactDetail>;
+  /** 
+   * Natural language description of the {{title}}
+   */
+  description?: markdown;
+  /** 
+   * Natural language description of the {{title}}
+   */
+  _description?: Element
+  /** 
+   * The context that the content is intended to support
+   */
+  useContext?: Array<UsageContext>;
+  /** 
+   * Intended jurisdiction for {{title}} (if applicable)
+   */
+  jurisdiction?: Array<CodeableConcept>;
+  /** 
+   * Why this {{title}} is defined
+   */
+  purpose?: markdown;
+  /** 
+   * Why this {{title}} is defined
+   */
+  _purpose?: Element
+  /** 
+   * Use and/or publishing restrictions
+   */
+  copyright?: markdown;
+  /** 
+   * Use and/or publishing restrictions
+   */
+  _copyright?: Element
+  /** 
+   * Copyright holder and year(s)
+   */
+  copyrightLabel?: string;
+  /** 
+   * Copyright holder and year(s)
+   */
+  _copyrightLabel?: Element
+  /** 
+   * FHIR resource for the ViewDefinition
+   */
+  resource: code;
+  /** 
+   * FHIR resource for the ViewDefinition
+   */
+  _resource?: Element
+  /** 
+   * FHIR profiles that this view definition was intended to be executed against
+   */
+  profile?: Array<canonical>;
+  /** 
+   * FHIR profiles that this view definition was intended to be executed against
+   */
+  _profile?: Array<Element>
+  /** 
+   * FHIR version(s) of the resource for the ViewDefinition
+   */
+  fhirVersion?: Array<code>;
+  /** 
+   * FHIR version(s) of the resource for the ViewDefinition
+   */
+  _fhirVersion?: Array<Element>
+  /** 
+   * Constant that can be used in FHIRPath expressions
+   */
+  constant?: Array<ViewDefinitionConstant>;
+  /** 
+   * A collection of columns and nested selects to include in the view.
+   */
+  select: Array<ViewDefinitionSelect>;
+  /** 
+   * A series of zero or more FHIRPath constraints to filter resources for the view.
+   */
+  where?: Array<ViewDefinitionWhere>;
+}
+
 export interface AccountCoverage {
   /** 
    * Unique id for inter-element referencing
@@ -45155,6 +45693,7 @@ export type ResourceMap = {
   Membership: Membership;
   Project: Project;
   User: User;
+  ViewDefinition: ViewDefinition;
   Account: Account;
   ActivityDefinition: ActivityDefinition;
   AdverseEvent: AdverseEvent;
