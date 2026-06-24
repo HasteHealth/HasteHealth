@@ -1,14 +1,12 @@
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use std::{
-    collections::BTreeMap,
-    io::{BufWriter, Write},
-};
+use ordermap::OrderMap;
+use std::io::{BufWriter, Write};
 
 use crate::conversions::primitives::PrimitiveValue;
 
 pub fn csv(
-    results: Vec<BTreeMap<String, Vec<Option<PrimitiveValue>>>>,
+    results: Vec<OrderMap<String, Vec<Option<PrimitiveValue>>>>,
 ) -> Result<Vec<u8>, OperationOutcomeError> {
     let mut byte_vector = Vec::new();
     let mut writer = BufWriter::new(&mut byte_vector);

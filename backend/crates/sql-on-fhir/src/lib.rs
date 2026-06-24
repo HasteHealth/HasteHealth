@@ -13,8 +13,8 @@ use haste_fhir_model::r4::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::{Config, FPEngine};
 use haste_reflect::MetaValue;
-use std::{borrow::Cow, collections::BTreeMap};
-use std::{collections::HashMap, sync::Arc};
+use ordermap::OrderMap;
+use std::{borrow::Cow, collections::HashMap, sync::Arc};
 
 use crate::conversions::primitives::PrimitiveValue;
 
@@ -155,7 +155,7 @@ async fn process_resource<
     _client: Arc<Client>,
     view_definition: &ViewDefinition,
     input: Resource,
-) -> Result<BTreeMap<String, Vec<Option<PrimitiveValue>>>, OperationOutcomeError> {
+) -> Result<OrderMap<String, Vec<Option<PrimitiveValue>>>, OperationOutcomeError> {
     let fp_engine = FPEngine::new();
     let variables = Arc::new(build_hashmap_fp_variables(view_definition));
     if let Some(_where_conditionals) = &view_definition.where_ {
@@ -165,7 +165,7 @@ async fn process_resource<
         ));
     }
 
-    let mut output_result = BTreeMap::<String, Vec<Option<PrimitiveValue>>>::new();
+    let mut output_result = OrderMap::<String, Vec<Option<PrimitiveValue>>>::new();
 
     for select_statement in view_definition.select.iter() {
         let fp_config = Arc::new(Config {

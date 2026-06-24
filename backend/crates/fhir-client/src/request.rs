@@ -145,6 +145,7 @@ pub struct FHIRInvokeInstanceRequest {
     pub resource_type: ResourceType,
     #[derivative(Debug(format_with = "crate::redact"))]
     pub id: String,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub parameters: Parameters,
 }
 
@@ -153,6 +154,7 @@ pub struct FHIRInvokeInstanceRequest {
 pub struct FHIRInvokeTypeRequest {
     pub operation: Operation,
     pub resource_type: ResourceType,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub parameters: Parameters,
 }
 
@@ -160,6 +162,7 @@ pub struct FHIRInvokeTypeRequest {
 #[derivative(Debug)]
 pub struct FHIRInvokeSystemRequest {
     pub operation: Operation,
+    #[derivative(Debug(format_with = "crate::redact"))]
     pub parameters: Parameters,
 }
 
