@@ -360,6 +360,22 @@
     {
       "filename": "definitions/haste-health/terminology/supportedFhirVersion.json",
       "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/sql-on-fhir/definitions/ViewDefinition.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/sql-on-fhir/operations/ViewDefinition-run.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/sql-on-fhir/terminology/bundle.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/sql-on-fhir/terminology/bundle.json",
+      "resourceType": "CodeSystem"
     }
   ]
 }

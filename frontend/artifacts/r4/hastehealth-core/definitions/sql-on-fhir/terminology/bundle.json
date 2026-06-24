@@ -1,0 +1,589 @@
+{
+    "resourceType": "Bundle",
+    "type": "collection",
+    "entry": [
+        {
+            "request": {
+                "method": "POST",
+                "url": "ValueSet"
+            },
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "ExportStatusCodes",
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: ValueSet ExportStatusCodes</b></p><a name=\"ExportStatusCodes\"> </a><a name=\"hcExportStatusCodes\"> </a><ul><li>Include all codes defined in <a href=\"CodeSystem-ExportStatusCodes.html\"><code>https://sql-on-fhir.org/ig/CodeSystem/ExportStatusCodes</code></a><span title=\"Version is not explicitly stated, which means it is fixed to the version provided in this specification\"> version &#x1F4E6;2.1.0-pre</span></li></ul></div>"
+                },
+                "url": "https://sql-on-fhir.org/ig/ValueSet/ExportStatusCodes",
+                "version": "2.1.0-pre",
+                "name": "ExportStatusCodes",
+                "title": "Export Status Codes",
+                "status": "draft",
+                "date": "2026-05-21T08:53:46+00:00",
+                "publisher": "SQL on FHIR Working Group",
+                "contact": [
+                    {
+                        "name": "SQL on FHIR Working Group",
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "https://sql-on-fhir.org"
+                            }
+                        ]
+                    }
+                ],
+                "description": "ValueSet of all codes from Export Status Codes codesystem",
+                "jurisdiction": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://unstats.un.org/unsd/methods/m49/m49.htm",
+                                "code": "001",
+                                "display": "World"
+                            }
+                        ]
+                    }
+                ],
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://sql-on-fhir.org/ig/CodeSystem/ExportStatusCodes"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "POST",
+                "url": "ValueSet"
+            },
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "AllSQLContentTypeCodes",
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: ValueSet AllSQLContentTypeCodes</b></p><a name=\"AllSQLContentTypeCodes\"> </a><a name=\"hcAllSQLContentTypeCodes\"> </a><ul><li>Include all codes defined in <a href=\"CodeSystem-SQLContentTypeCodes.html\"><code>https://sql-on-fhir.org/ig/CodeSystem/SQLContentTypeCodes</code></a><span title=\"Version is not explicitly stated, which means it is fixed to the version provided in this specification\"> version &#x1F4E6;2.1.0-pre</span></li></ul></div>"
+                },
+                "url": "https://sql-on-fhir.org/ig/ValueSet/AllSQLContentTypeCodes",
+                "version": "2.1.0-pre",
+                "name": "AllSQLContentTypeCodes",
+                "title": "All SQL Content Type Codes",
+                "status": "draft",
+                "date": "2026-05-21T08:53:46+00:00",
+                "publisher": "SQL on FHIR Working Group",
+                "contact": [
+                    {
+                        "name": "SQL on FHIR Working Group",
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "https://sql-on-fhir.org"
+                            }
+                        ]
+                    }
+                ],
+                "description": "ValueSet of all codes from SQL Content Type Codes codesystem",
+                "jurisdiction": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://unstats.un.org/unsd/methods/m49/m49.htm",
+                                "code": "001",
+                                "display": "World"
+                            }
+                        ]
+                    }
+                ],
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://sql-on-fhir.org/ig/CodeSystem/SQLContentTypeCodes"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "OutputFormatCodes",
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: ValueSet OutputFormatCodes</b></p><a name=\"OutputFormatCodes\"> </a><a name=\"hcOutputFormatCodes\"> </a><ul><li>Include all codes defined in <a href=\"CodeSystem-OutputFormatCodes.html\"><code>https://sql-on-fhir.org/ig/CodeSystem/OutputFormatCodes</code></a><span title=\"Version is not explicitly stated, which means it is fixed to the version provided in this specification\"> version &#x1F4E6;2.1.0-pre</span></li></ul></div>"
+                },
+                "url": "https://sql-on-fhir.org/ig/ValueSet/OutputFormatCodes",
+                "version": "2.1.0-pre",
+                "name": "OutputFormatCodes",
+                "title": "Output Format Codes",
+                "status": "draft",
+                "date": "2026-05-21T08:53:46+00:00",
+                "publisher": "SQL on FHIR Working Group",
+                "contact": [
+                    {
+                        "name": "SQL on FHIR Working Group",
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "https://sql-on-fhir.org"
+                            }
+                        ]
+                    }
+                ],
+                "description": "ValueSet of all codes from Output Format Codes codesystem",
+                "jurisdiction": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://unstats.un.org/unsd/methods/m49/m49.htm",
+                                "code": "001",
+                                "display": "World"
+                            }
+                        ]
+                    }
+                ],
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://sql-on-fhir.org/ig/CodeSystem/OutputFormatCodes"
+                        }
+                    ]
+                }
+            },
+            "request": {
+                "method": "POST",
+                "url": "ValueSet"
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "SQLQueryRunOutputFormatCodes",
+                "text": {
+                    "status": "extensions",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: ValueSet SQLQueryRunOutputFormatCodes</b></p><a name=\"SQLQueryRunOutputFormatCodes\"> </a><a name=\"hcSQLQueryRunOutputFormatCodes\"> </a><ul><li>Include these codes as defined in <a href=\"CodeSystem-OutputFormatCodes.html\"><code>https://sql-on-fhir.org/ig/CodeSystem/OutputFormatCodes</code></a><span title=\"Version is not explicitly stated, which means it is fixed to the version provided in this specification\"> version &#x1F4E6;2.1.0-pre</span><table class=\"none\"><tr><td style=\"white-space:nowrap\"><b>Code</b></td><td><b>Display</b></td><td><b>Definition</b></td></tr><tr><td><a href=\"CodeSystem-OutputFormatCodes.html#OutputFormatCodes-csv\">csv</a></td><td style=\"color: #cccccc\">CSV</td><td>Comma-separated values</td></tr><tr><td><a href=\"CodeSystem-OutputFormatCodes.html#OutputFormatCodes-ndjson\">ndjson</a></td><td style=\"color: #cccccc\">NDJSON</td><td>Newline-delimited JSON</td></tr><tr><td><a href=\"CodeSystem-OutputFormatCodes.html#OutputFormatCodes-parquet\">parquet</a></td><td style=\"color: #cccccc\">Parquet</td><td>Apache Parquet</td></tr><tr><td><a href=\"CodeSystem-OutputFormatCodes.html#OutputFormatCodes-json\">json</a></td><td style=\"color: #cccccc\">JSON</td><td>JavaScript Object Notation</td></tr><tr><td><a href=\"CodeSystem-OutputFormatCodes.html#OutputFormatCodes-fhir\">fhir</a></td><td style=\"color: #cccccc\">FHIR</td><td>FHIR Parameters resource</td></tr></table></li></ul></div>"
+                },
+                "url": "https://sql-on-fhir.org/ig/ValueSet/SQLQueryRunOutputFormatCodes",
+                "version": "2.1.0-pre",
+                "name": "SQLQueryRunOutputFormatCodes",
+                "title": "SQLQuery Run Output Format Codes",
+                "status": "draft",
+                "date": "2026-05-21T08:53:46+00:00",
+                "publisher": "SQL on FHIR Working Group",
+                "contact": [
+                    {
+                        "name": "SQL on FHIR Working Group",
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "https://sql-on-fhir.org"
+                            }
+                        ]
+                    }
+                ],
+                "description": "Output format codes supported by the $sqlquery-run operation.",
+                "jurisdiction": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://unstats.un.org/unsd/methods/m49/m49.htm",
+                                "code": "001",
+                                "display": "World"
+                            }
+                        ]
+                    }
+                ],
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://sql-on-fhir.org/ig/CodeSystem/OutputFormatCodes",
+                            "concept": [
+                                {
+                                    "code": "csv"
+                                },
+                                {
+                                    "code": "ndjson"
+                                },
+                                {
+                                    "code": "parquet"
+                                },
+                                {
+                                    "code": "json"
+                                },
+                                {
+                                    "code": "fhir"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "request": {
+                "method": "POST",
+                "url": "ValueSet"
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "CodeSystem",
+                "id": "ExportStatusCodes",
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: CodeSystem ExportStatusCodes</b></p><a name=\"ExportStatusCodes\"> </a><a name=\"hcExportStatusCodes\"> </a><p>This  code system <code>https://sql-on-fhir.org/ig/CodeSystem/ExportStatusCodes</code> defines the following codes:</p><table class=\"codes\"><tr><td style=\"white-space:nowrap\"><b>Code</b></td><td><b>Display</b></td><td><b>Definition</b></td></tr><tr><td style=\"white-space:nowrap\">accepted<a name=\"ExportStatusCodes-accepted\"> </a></td><td>Accepted</td><td>The export has been accepted and is awaiting processing</td></tr><tr><td style=\"white-space:nowrap\">cancelled<a name=\"ExportStatusCodes-cancelled\"> </a></td><td>Cancelled</td><td>The export has been cancelled</td></tr><tr><td style=\"white-space:nowrap\">completed<a name=\"ExportStatusCodes-completed\"> </a></td><td>Completed</td><td>The export has been completed</td></tr><tr><td style=\"white-space:nowrap\">failed<a name=\"ExportStatusCodes-failed\"> </a></td><td>Failed</td><td>The export has failed</td></tr><tr><td style=\"white-space:nowrap\">in-progress<a name=\"ExportStatusCodes-in-progress\"> </a></td><td>In progress</td><td>The export is currently in progress</td></tr></table></div>"
+                },
+                "url": "https://sql-on-fhir.org/ig/CodeSystem/ExportStatusCodes",
+                "version": "2.1.0-pre",
+                "name": "ExportStatusCodes",
+                "title": "Export Status Code System",
+                "status": "draft",
+                "date": "2026-05-21T08:53:46+00:00",
+                "publisher": "SQL on FHIR Working Group",
+                "contact": [
+                    {
+                        "name": "SQL on FHIR Working Group",
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "https://sql-on-fhir.org"
+                            }
+                        ]
+                    }
+                ],
+                "description": "Export status codes for SQL on FHIR.",
+                "jurisdiction": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://unstats.un.org/unsd/methods/m49/m49.htm",
+                                "code": "001",
+                                "display": "World"
+                            }
+                        ]
+                    }
+                ],
+                "content": "complete",
+                "count": 5,
+                "concept": [
+                    {
+                        "code": "accepted",
+                        "display": "Accepted",
+                        "definition": "The export has been accepted and is awaiting processing"
+                    },
+                    {
+                        "code": "cancelled",
+                        "display": "Cancelled",
+                        "definition": "The export has been cancelled"
+                    },
+                    {
+                        "code": "completed",
+                        "display": "Completed",
+                        "definition": "The export has been completed"
+                    },
+                    {
+                        "code": "failed",
+                        "display": "Failed",
+                        "definition": "The export has failed"
+                    },
+                    {
+                        "code": "in-progress",
+                        "display": "In progress",
+                        "definition": "The export is currently in progress"
+                    }
+                ]
+            },
+            "request": {
+                "method": "POST",
+                "url": "CodeSystem"
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "CodeSystem",
+                "id": "OutputFormatCodes",
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: CodeSystem OutputFormatCodes</b></p><a name=\"OutputFormatCodes\"> </a><a name=\"hcOutputFormatCodes\"> </a><p>This  code system <code>https://sql-on-fhir.org/ig/CodeSystem/OutputFormatCodes</code> defines the following codes:</p><table class=\"codes\"><tr><td style=\"white-space:nowrap\"><b>Code</b></td><td><b>Display</b></td><td><b>Definition</b></td></tr><tr><td style=\"white-space:nowrap\">csv<a name=\"OutputFormatCodes-csv\"> </a></td><td>CSV</td><td>Comma-separated values</td></tr><tr><td style=\"white-space:nowrap\">ndjson<a name=\"OutputFormatCodes-ndjson\"> </a></td><td>NDJSON</td><td>Newline-delimited JSON</td></tr><tr><td style=\"white-space:nowrap\">parquet<a name=\"OutputFormatCodes-parquet\"> </a></td><td>Parquet</td><td>Apache Parquet</td></tr><tr><td style=\"white-space:nowrap\">json<a name=\"OutputFormatCodes-json\"> </a></td><td>JSON</td><td>JavaScript Object Notation</td></tr><tr><td style=\"white-space:nowrap\">fhir<a name=\"OutputFormatCodes-fhir\"> </a></td><td>FHIR</td><td>FHIR Parameters resource</td></tr></table></div>"
+                },
+                "url": "https://sql-on-fhir.org/ig/CodeSystem/OutputFormatCodes",
+                "version": "2.1.0-pre",
+                "name": "OutputFormatCodes",
+                "title": "Output Format Codes",
+                "status": "draft",
+                "date": "2026-05-21T08:53:46+00:00",
+                "publisher": "SQL on FHIR Working Group",
+                "contact": [
+                    {
+                        "name": "SQL on FHIR Working Group",
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "https://sql-on-fhir.org"
+                            }
+                        ]
+                    }
+                ],
+                "description": "Output format codes for SQL on FHIR.",
+                "jurisdiction": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://unstats.un.org/unsd/methods/m49/m49.htm",
+                                "code": "001",
+                                "display": "World"
+                            }
+                        ]
+                    }
+                ],
+                "content": "complete",
+                "count": 5,
+                "concept": [
+                    {
+                        "code": "csv",
+                        "display": "CSV",
+                        "definition": "Comma-separated values"
+                    },
+                    {
+                        "code": "ndjson",
+                        "display": "NDJSON",
+                        "definition": "Newline-delimited JSON"
+                    },
+                    {
+                        "code": "parquet",
+                        "display": "Parquet",
+                        "definition": "Apache Parquet"
+                    },
+                    {
+                        "code": "json",
+                        "display": "JSON",
+                        "definition": "JavaScript Object Notation"
+                    },
+                    {
+                        "code": "fhir",
+                        "display": "FHIR",
+                        "definition": "FHIR Parameters resource"
+                    }
+                ]
+            },
+            "request": {
+                "method": "POST",
+                "url": "CodeSystem"
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "CodeSystem",
+                "id": "SQLContentTypeCodes",
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: CodeSystem SQLContentTypeCodes</b></p><a name=\"SQLContentTypeCodes\"> </a><a name=\"hcSQLContentTypeCodes\"> </a><p>This  code system <code>https://sql-on-fhir.org/ig/CodeSystem/SQLContentTypeCodes</code> defines the following codes:</p><table class=\"codes\"><tr><td style=\"white-space:nowrap\"><b>Code</b></td><td><b>Display</b></td><td><b>Definition</b></td></tr><tr><td style=\"white-space:nowrap\">application/sql<a name=\"SQLContentTypeCodes-application.47sql\"> </a></td><td>SQL</td><td>Standard SQL content (no dialect specified)</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=ansi-sql<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61ansi-sql\"> </a></td><td>ANSI SQL</td><td>SQL content using ANSI SQL dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=bigquery<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61bigquery\"> </a></td><td>BigQuery</td><td>SQL content using Google BigQuery dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=clickhouse<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61clickhouse\"> </a></td><td>ClickHouse</td><td>SQL content using ClickHouse dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=db2<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61db2\"> </a></td><td>IBM DB2</td><td>SQL content using IBM DB2 dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=duckdb<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61duckdb\"> </a></td><td>DuckDB</td><td>SQL content using DuckDB dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=h2<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61h2\"> </a></td><td>H2</td><td>SQL content using H2 dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=hive<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61hive\"> </a></td><td>Hive</td><td>SQL content using Apache Hive dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=hsqldb<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61hsqldb\"> </a></td><td>HSQLDB</td><td>SQL content using HyperSQL dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=mariadb<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61mariadb\"> </a></td><td>MariaDB</td><td>SQL content using MariaDB dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=mysql<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61mysql\"> </a></td><td>MySQL</td><td>SQL content using MySQL dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=oracle<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61oracle\"> </a></td><td>Oracle SQL</td><td>SQL content using Oracle dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=postgresql<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61postgresql\"> </a></td><td>PostgreSQL</td><td>SQL content using PostgreSQL dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=presto<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61presto\"> </a></td><td>Presto</td><td>SQL content using Presto dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=redshift<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61redshift\"> </a></td><td>Amazon Redshift</td><td>SQL content using Amazon Redshift dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=snowflake<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61snowflake\"> </a></td><td>Snowflake</td><td>SQL content using Snowflake dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=spark-sql<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61spark-sql\"> </a></td><td>Spark SQL</td><td>SQL content using Apache Spark SQL dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=sql-2<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61sql-2\"> </a></td><td>SQL-2</td><td>SQL content using SQL-2 dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=sql-server<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61sql-server\"> </a></td><td>SQL Server</td><td>SQL content using Microsoft SQL Server dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=sqlite<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61sqlite\"> </a></td><td>SQLite</td><td>SQL content using SQLite dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=teradata<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61teradata\"> </a></td><td>Teradata</td><td>SQL content using Teradata dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=trino<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61trino\"> </a></td><td>Trino</td><td>SQL content using Trino dialect</td></tr><tr><td style=\"white-space:nowrap\">application/sql;dialect=vertica<a name=\"SQLContentTypeCodes-application.47sql.59dialect.61vertica\"> </a></td><td>Vertica</td><td>SQL content using Vertica dialect</td></tr></table></div>"
+                },
+                "url": "https://sql-on-fhir.org/ig/CodeSystem/SQLContentTypeCodes",
+                "version": "2.1.0-pre",
+                "name": "SQLContentTypeCodes",
+                "title": "SQL Content Type Codes",
+                "status": "draft",
+                "date": "2026-05-21T08:53:46+00:00",
+                "publisher": "SQL on FHIR Working Group",
+                "contact": [
+                    {
+                        "name": "SQL on FHIR Working Group",
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "https://sql-on-fhir.org"
+                            }
+                        ]
+                    }
+                ],
+                "description": "Permitted contentType values for SQLQuery attachments, including dialect-specific variants.",
+                "jurisdiction": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://unstats.un.org/unsd/methods/m49/m49.htm",
+                                "code": "001",
+                                "display": "World"
+                            }
+                        ]
+                    }
+                ],
+                "content": "complete",
+                "count": 23,
+                "concept": [
+                    {
+                        "code": "application/sql",
+                        "display": "SQL",
+                        "definition": "Standard SQL content (no dialect specified)"
+                    },
+                    {
+                        "code": "application/sql;dialect=ansi-sql",
+                        "display": "ANSI SQL",
+                        "definition": "SQL content using ANSI SQL dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=bigquery",
+                        "display": "BigQuery",
+                        "definition": "SQL content using Google BigQuery dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=clickhouse",
+                        "display": "ClickHouse",
+                        "definition": "SQL content using ClickHouse dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=db2",
+                        "display": "IBM DB2",
+                        "definition": "SQL content using IBM DB2 dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=duckdb",
+                        "display": "DuckDB",
+                        "definition": "SQL content using DuckDB dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=h2",
+                        "display": "H2",
+                        "definition": "SQL content using H2 dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=hive",
+                        "display": "Hive",
+                        "definition": "SQL content using Apache Hive dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=hsqldb",
+                        "display": "HSQLDB",
+                        "definition": "SQL content using HyperSQL dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=mariadb",
+                        "display": "MariaDB",
+                        "definition": "SQL content using MariaDB dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=mysql",
+                        "display": "MySQL",
+                        "definition": "SQL content using MySQL dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=oracle",
+                        "display": "Oracle SQL",
+                        "definition": "SQL content using Oracle dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=postgresql",
+                        "display": "PostgreSQL",
+                        "definition": "SQL content using PostgreSQL dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=presto",
+                        "display": "Presto",
+                        "definition": "SQL content using Presto dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=redshift",
+                        "display": "Amazon Redshift",
+                        "definition": "SQL content using Amazon Redshift dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=snowflake",
+                        "display": "Snowflake",
+                        "definition": "SQL content using Snowflake dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=spark-sql",
+                        "display": "Spark SQL",
+                        "definition": "SQL content using Apache Spark SQL dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=sql-2",
+                        "display": "SQL-2",
+                        "definition": "SQL content using SQL-2 dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=sql-server",
+                        "display": "SQL Server",
+                        "definition": "SQL content using Microsoft SQL Server dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=sqlite",
+                        "display": "SQLite",
+                        "definition": "SQL content using SQLite dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=teradata",
+                        "display": "Teradata",
+                        "definition": "SQL content using Teradata dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=trino",
+                        "display": "Trino",
+                        "definition": "SQL content using Trino dialect"
+                    },
+                    {
+                        "code": "application/sql;dialect=vertica",
+                        "display": "Vertica",
+                        "definition": "SQL content using Vertica dialect"
+                    }
+                ]
+            },
+            "request": {
+                "method": "POST",
+                "url": "CodeSystem"
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "CodeSystem",
+                "id": "LibraryTypesCodes",
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: CodeSystem LibraryTypesCodes</b></p><a name=\"LibraryTypesCodes\"> </a><a name=\"hcLibraryTypesCodes\"> </a><p>This  code system <code>https://sql-on-fhir.org/ig/CodeSystem/LibraryTypesCodes</code> defines the following code:</p><table class=\"codes\"><tr><td style=\"white-space:nowrap\"><b>Code</b></td><td><b>Display</b></td><td><b>Definition</b></td></tr><tr><td style=\"white-space:nowrap\">sql-query<a name=\"LibraryTypesCodes-sql-query\"> </a></td><td>SQL Query Definition</td><td>The resource is a definition for a SQL Query</td></tr></table></div>"
+                },
+                "url": "https://sql-on-fhir.org/ig/CodeSystem/LibraryTypesCodes",
+                "version": "2.1.0-pre",
+                "name": "LibraryTypesCodes",
+                "title": "SQL Library Types Code System",
+                "status": "draft",
+                "date": "2026-05-21T08:53:46+00:00",
+                "publisher": "SQL on FHIR Working Group",
+                "contact": [
+                    {
+                        "name": "SQL on FHIR Working Group",
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "https://sql-on-fhir.org"
+                            }
+                        ]
+                    }
+                ],
+                "description": "Library types for SQL on FHIR.",
+                "jurisdiction": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://unstats.un.org/unsd/methods/m49/m49.htm",
+                                "code": "001",
+                                "display": "World"
+                            }
+                        ]
+                    }
+                ],
+                "content": "complete",
+                "count": 1,
+                "concept": [
+                    {
+                        "code": "sql-query",
+                        "display": "SQL Query Definition",
+                        "definition": "The resource is a definition for a SQL Query"
+                    }
+                ]
+            },
+            "request": {
+                "method": "POST",
+                "url": "CodeSystem"
+            }
+        }
+    ]
+}
