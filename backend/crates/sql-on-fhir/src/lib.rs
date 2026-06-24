@@ -150,7 +150,7 @@ async fn process_resource<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     _context: CTX,
-    _client: Client,
+    _client: Arc<Client>,
     view_definition: &ViewDefinition,
     input: Resource,
 ) -> Result<HashMap<String, Vec<Option<PrimitiveValue>>>, OperationOutcomeError> {
@@ -268,10 +268,10 @@ async fn process_resource<
 
 async fn process_view_definition<
     CTX: Send + Sync + Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static + Clone,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: CTX,
-    client: Client,
+    client: Arc<Client>,
     view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Binary, OperationOutcomeError> {
@@ -288,7 +288,7 @@ async fn process_view_definition<
         .and_then(|since| since.value.clone())
         .unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
 
-    let input_ = get_resources_to_process(context.clone(), &client, input).await?;
+    let input_ = get_resources_to_process(context.clone(), client.as_ref(), input).await?;
 
     let mut tasks = Vec::with_capacity(input_.len());
 
@@ -328,13 +328,13 @@ async fn process_view_definition<
 
 pub async fn view_definition_run<
     CTX: Send + Sync + Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: CTX,
-    client: Client,
+    client: Arc<Client>,
     input: &ViewDefinitionRun::Input,
 ) -> Result<ViewDefinitionRun::Output, OperationOutcomeError> {
-    let view_definition = resolve_view_definition(context.clone(), &client, &input).await?;
+    let view_definition = resolve_view_definition(context.clone(), client.as_ref(), &input).await?;
 
     let output = process_view_definition(context, client, &view_definition, &input).await?;
 

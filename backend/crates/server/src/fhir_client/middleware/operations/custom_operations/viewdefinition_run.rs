@@ -36,7 +36,7 @@ pub fn view_definition_run<
                 Box::pin(async move {
                     let output = haste_sql_on_fhir::view_definition_run(
                         context.ctx.clone(),
-                        context.ctx.client.as_ref(),
+                        context.ctx.client.clone(),
                         &input,
                     )
                     .await?;
