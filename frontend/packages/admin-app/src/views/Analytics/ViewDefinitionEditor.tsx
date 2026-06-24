@@ -13,6 +13,7 @@ export default function ViewDefinitionEditor() {
       resources={[
         {
           resourceType: "Patient",
+          name: [{ given: ["John"], family: "Doe" }],
         },
       ]}
     />
