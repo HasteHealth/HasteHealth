@@ -10,8 +10,8 @@ use crate::conversions::primitives::PrimitiveValue;
 pub fn csv(
     results: Vec<BTreeMap<String, Vec<Option<PrimitiveValue>>>>,
 ) -> Result<Vec<u8>, OperationOutcomeError> {
-    let byte_vector = Vec::new();
-    let mut writer = BufWriter::new(byte_vector);
+    let mut byte_vector = Vec::new();
+    let mut writer = BufWriter::new(&mut byte_vector);
     let mut column_names = vec![];
 
     if let Some(header_col) = results.get(0) {
@@ -37,19 +37,21 @@ pub fn csv(
         let mut row: Vec<String> = Vec::new();
 
         for key in column_names.iter() {
-            let value_str = String::new();
+            let mut value_strings = vec![];
             if let Some(values) = result.remove(key) {
                 for value in values {
-                    let value_str = match value {
-                        Some(PrimitiveValue::Boolean(b)) => b.to_string(),
-                        Some(PrimitiveValue::Number(n)) => n.to_string(),
-                        Some(PrimitiveValue::String(s)) => s.clone(),
-                        _ => "".to_string(),
-                    };
+                    match value {
+                        Some(PrimitiveValue::Boolean(b)) => value_strings.push(b.to_string()),
+                        Some(PrimitiveValue::Number(n)) => value_strings.push(n.to_string()),
+                        Some(PrimitiveValue::String(s)) => value_strings.push(s),
+                        _ => {
+                            // Do nothing
+                        }
+                    }
                 }
             }
 
-            row.push(value_str);
+            row.push(value_strings.join(";"));
         }
 
         let row_str = row.join(",");
@@ -68,14 +70,9 @@ pub fn csv(
         })?;
     }
 
-    let output = writer.into_inner().map_err(|e| {
-        OperationOutcomeError::error(
-            IssueType::Processing(None),
-            format!("Failed to write CSV output: {}", e),
-        )
-    })?;
+    drop(writer);
 
-    Ok(output)
+    Ok(byte_vector)
 }
 
 #[cfg(test)]
