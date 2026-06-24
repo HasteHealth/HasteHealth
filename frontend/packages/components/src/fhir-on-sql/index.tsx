@@ -13,6 +13,7 @@ import { Loading } from "../base/loading";
 import { Pagination } from "../base/pagination";
 import { ClientProps } from "../fhir/types";
 import { basicSetup } from "codemirror";
+import { ResponseError } from "@haste-health/client/lib/http";
 
 const DEFAULT_VIEW_DEFINITION: ViewDefinition = {
   resourceType: "ViewDefinition",
@@ -375,14 +376,22 @@ export function ViewDefinitionSqlRunner({
         },
       );
 
+      console.log("ViewDefinitionRun output:", binary);
+
       const csv = decodeBase64ToString(binary.data);
       const parsedResults = parseCsv(csv);
       setResults(parsedResults);
       setCurrentPage(1);
     } catch (e) {
-      const message =
-        e instanceof Error ? e.message : "Failed to run ViewDefinition";
-      setError(message);
+      if (e instanceof ResponseError) {
+        const errorMessage = e.response?.body?.issue?.[0]?.diagnostics;
+        setError(errorMessage ?? "Failed to run ViewDefinition: " + e.message);
+      } else {
+        const message =
+          e instanceof Error ? e.message : "Failed to run ViewDefinition";
+        setError(message);
+      }
+
       setResults({ headers: [], rows: [] });
     } finally {
       setIsRunning(false);
