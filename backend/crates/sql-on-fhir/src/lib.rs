@@ -4,7 +4,7 @@ use haste_fhir_generated_ops::generated::ViewDefinitionRun;
 use haste_fhir_model::r4::{
     self,
     generated::{
-        resources::{AllergyIntoleranceReaction, Binary, Resource, ResourceType, ViewDefinition},
+        resources::{Binary, Resource, ResourceType, ViewDefinition},
         terminology::{IssueType, OutputFormatCodes},
     },
 };
@@ -150,10 +150,10 @@ async fn process_resource<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     _context: CTX,
-    _client: &Client,
+    _client: Client,
     view_definition: &ViewDefinition,
-    input: &Resource,
-) -> Result<(), OperationOutcomeError> {
+    input: Resource,
+) -> Result<HashMap<String, Vec<Option<PrimitiveValue>>>, OperationOutcomeError> {
     let fp_engine = FPEngine::new();
     let variables = Arc::new(build_hashmap_fp_variables(view_definition));
     if let Some(_where_conditionals) = &view_definition.where_ {
@@ -162,6 +162,8 @@ async fn process_resource<
             "where conditionals are not yet supported".to_string(),
         ));
     }
+
+    let mut output_result = HashMap::<String, Vec<Option<PrimitiveValue>>>::new();
 
     for select_statement in view_definition.select.iter() {
         let fp_config = Arc::new(Config {
@@ -179,7 +181,7 @@ async fn process_resource<
         {
             iterable_context = Some(
                 fp_engine
-                    .evaluate_with_config(for_each, vec![input], fp_config.clone())
+                    .evaluate_with_config(for_each, vec![&input], fp_config.clone())
                     .await
                     .map_err(|e| {
                         OperationOutcomeError::error(
@@ -203,7 +205,7 @@ async fn process_resource<
         let context: Vec<&dyn MetaValue> = if let Some(iterable) = iterable_context.as_ref() {
             iterable.iter().collect()
         } else {
-            vec![input]
+            vec![&input]
         };
 
         for column in select_statement.column.as_ref().into_iter().flatten() {
@@ -222,6 +224,13 @@ async fn process_resource<
                 ));
             };
 
+            let Some(name) = column.name.value.as_ref().map(|n| n.as_str()) else {
+                return Err(OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Column name is required".to_string(),
+                ));
+            };
+
             let result = fp_engine
                 .evaluate(path, context.clone())
                 .await
@@ -231,22 +240,38 @@ async fn process_resource<
                         format!("Error evaluating expression: {}", e),
                     )
                 })?;
-            let k = result
+            let column_result = result
                 .iter()
                 .map(|value| conversions::primitives::convert_meta_value(_column_type, value))
                 .collect::<Result<Vec<Option<PrimitiveValue>>, OperationOutcomeError>>()?;
+
+            let is_collection = column
+                .collection
+                .as_ref()
+                .and_then(|c| c.value)
+                .unwrap_or(false);
+
+            if is_collection && column_result.len() > 1 {
+                return Err(OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Column result is a collection but the column is not marked as a collection"
+                        .to_string(),
+                ));
+            }
+
+            output_result.insert(name.to_string(), column_result);
         }
     }
 
-    todo!("Not implemented");
+    Ok(output_result)
 }
 
 async fn process_view_definition<
     CTX: Send + Sync + Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static + Clone,
 >(
     context: CTX,
-    client: &Client,
+    client: Client,
     view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Binary, OperationOutcomeError> {
@@ -263,11 +288,38 @@ async fn process_view_definition<
         .and_then(|since| since.value.clone())
         .unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
 
-    let input_ = get_resources_to_process(context.clone(), client, input).await?;
+    let input_ = get_resources_to_process(context.clone(), &client, input).await?;
 
-    let _result = input_
-        .iter()
-        .map(|resource| process_resource(context.clone(), client, view_definition, resource));
+    let mut tasks = Vec::with_capacity(input_.len());
+
+    for resource in input_ {
+        let context_clone = context.clone();
+        let client_clone = client.clone();
+        let view_definition_clone = view_definition.clone();
+
+        let task = tokio::spawn(async move {
+            process_resource(
+                context_clone,
+                client_clone,
+                &view_definition_clone,
+                resource,
+            )
+            .await
+        });
+
+        tasks.push(task);
+    }
+
+    let mut results = Vec::with_capacity(tasks.len());
+
+    for task in tasks {
+        results.push(task.await.map_err(|e| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                format!("Task join error: {}", e),
+            )
+        })??);
+    }
 
     // Implement the logic to process the view definition and return the result as Binary
     // For now, we will return an empty Binary as a placeholder
@@ -276,13 +328,13 @@ async fn process_view_definition<
 
 pub async fn view_definition_run<
     CTX: Send + Sync + Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + Clone + 'static,
 >(
     context: CTX,
-    client: &Client,
+    client: Client,
     input: &ViewDefinitionRun::Input,
 ) -> Result<ViewDefinitionRun::Output, OperationOutcomeError> {
-    let view_definition = resolve_view_definition(context.clone(), client, &input).await?;
+    let view_definition = resolve_view_definition(context.clone(), &client, &input).await?;
 
     let output = process_view_definition(context, client, &view_definition, &input).await?;
 

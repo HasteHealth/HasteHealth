@@ -2964,6 +2964,7 @@ dependencies = [
  "haste-jwt",
  "haste-reflect",
  "serde",
+ "tokio",
 ]
 
 [[package]]
