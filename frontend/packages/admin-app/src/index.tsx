@@ -26,14 +26,13 @@ import {
   Toaster,
   useHasteHealth,
 } from "@haste-health/components";
-import "@haste-health/components/dist/index.css";
 
+import reportWebVitals from "./reportWebVitals";
 import Search from "./components/Search";
 import SearchModal from "./components/SearchModal";
 import { REACT_APP_CLIENT_ID, REACT_APP_FHIR_BASE_URL } from "./config";
 import { createAdminAppClient, getClient } from "./db/client";
 
-import reportWebVitals from "./reportWebVitals";
 import BundleImport from "./views/Project/BundleImport";
 import Dashboard from "./views/Project/Dashboard";
 import EmptyWorkspace from "./views/Project/EmptyWorkspace";
@@ -45,6 +44,7 @@ import Resources from "./views/Project/Resources";
 import VersionView from "./views/Project/Version";
 import Settings from "./views/Project/Settings";
 import Projects from "./views/System/Projects";
+import ViewDefinitionEditor from "./views/Analytics/ViewDefinitionEditor";
 import { deriveProjectId, deriveTenantId } from "./utilities";
 import * as r4Types from "@haste-health/fhir-types/r4/types";
 import SystemResources from "./views/System";
@@ -52,6 +52,7 @@ import { ProjectInformation } from "@haste-health/generated-ops/r4";
 import { R4 } from "@haste-health/fhir-types/versions";
 import { Logo } from "./components/Logo";
 
+import "@haste-health/components/dist/index.css";
 import "./index.css";
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -267,6 +268,11 @@ const router =
                           id: "settings",
                           path: "settings",
                           element: <Settings />,
+                        },
+                        {
+                          id: "view-definition-editor",
+                          path: "view-definition-editor",
+                          element: <ViewDefinitionEditor />,
                         },
                         {
                           id: "dashboard",
@@ -610,6 +616,20 @@ function ProjectRoot() {
               }}
             >
               Bundles
+            </SideBar.SideBarItem>
+          </SideBar.SideBarItemGroup>
+          <SideBar.SideBarItemGroup label="Analytics">
+            <SideBar.SideBarItem
+              active={
+                matches.find(
+                  (match) => match.id === "view-definition-editor",
+                ) !== undefined
+              }
+              onClick={() => {
+                navigate(generatePath("/view-definition-editor", {}));
+              }}
+            >
+              View Definition Run
             </SideBar.SideBarItem>
           </SideBar.SideBarItemGroup>
           <SideBar.SideBarItemGroup label="Data">

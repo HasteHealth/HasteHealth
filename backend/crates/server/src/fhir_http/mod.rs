@@ -68,9 +68,12 @@ pub enum FHIRRequestParsingError {
     #[error(code = "invalid", diagnostic = "Invalid Operation '{arg0}'")]
     InvalidOperation(#[from] OperationParseError),
     #[error(code = "invalid", diagnostic = "Deserialization error: {arg0}")]
-    DeserializeError(#[from] DeserializeError),
-    #[error(code = "invalid", diagnostic = "Failed to deserialize patch")]
-    PatchDeserializeError(#[from] serde_json::Error),
+    SerdeDeserializeError(#[from] DeserializeError),
+    #[error(
+        code = "invalid",
+        diagnostic = "Failed to deserialize resource: {arg0}"
+    )]
+    SerdeError(#[from] serde_json::Error),
     #[error(
         code = "invalid",
         diagnostic = "Error parsing query parameters: {arg0}"
