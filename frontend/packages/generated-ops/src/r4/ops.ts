@@ -845,6 +845,163 @@ export namespace HasteHealthUsageStatistics {
     ],
   } as fhirTypes.OperationDefinition);
 }
+export namespace ViewDefinitionRun {
+  export type Input = {
+    _format?: fhirTypes.code;
+    header?: fhirTypes.boolean;
+    viewReference?: fhirTypes.Reference;
+    viewResource?: fhirTypes.ViewDefinition;
+    patient?: fhirTypes.Reference;
+    group?: Array<fhirTypes.Reference>;
+    source?: fhirTypes.string;
+    resource?: Array<fhirTypes.Resource>;
+    _limit?: fhirTypes.integer;
+    _since?: fhirTypes.instant;
+  };
+  export type Output = fhirTypes.Binary;
+  export type IOp = IOperation<Input, Output>;
+  export const Op: IOp = new Operation<Input, Output>({
+    resourceType: "OperationDefinition",
+    id: "ViewDefinitionRun",
+    text: {
+      status: "generated",
+      div: '<div xmlns="http://www.w3.org/1999/xhtml"><p class="res-header-id"><b>Generated Narrative: OperationDefinition ViewDefinitionRun</b></p><a name="ViewDefinitionRun"> </a><a name="hcViewDefinitionRun"> </a><p>URL: [base]/$viewdefinition-run</p><p>URL: [base]/CanonicalResource/$viewdefinition-run</p><p>URL: [base]/CanonicalResource/[id]/$viewdefinition-run</p><h3>Parameters</h3><table class="grid"><tr><td><b>Use</b></td><td><b>Name</b></td><td><b>Scope</b></td><td><b>Cardinality</b></td><td><b>Type</b></td><td><b>Binding</b></td><td><b>Documentation</b></td></tr><tr><td>IN</td><td>_format</td><td>system, type, instance</td><td>0..1</td><td><a href="http://hl7.org/fhir/R5/datatypes.html#code">code</a></td><td><a href="ValueSet-OutputFormatCodes.html">Output Format Codes</a> (Extensible)</td><td><div><p>Output format for the result (for example json, ndjson, csv, parquet). Optional; if omitted, the server returns ndjson by default.</p>\n</div></td></tr><tr><td>IN</td><td>header</td><td>system, type, instance</td><td>0..1</td><td><a href="http://hl7.org/fhir/R5/datatypes.html#boolean">boolean</a></td><td/><td><div><p>Include CSV headers (default true). Applies only when csv output is requested.</p>\n</div></td></tr><tr><td>IN</td><td>viewReference</td><td>system, type</td><td>0..1</td><td><a href="http://hl7.org/fhir/R5/references.html#Reference">Reference</a></td><td/><td><div><p>Reference to a ViewDefinition stored on the server.</p>\n</div></td></tr><tr><td>IN</td><td>viewResource</td><td>system, type</td><td>0..1</td><td><a href="http://hl7.org/fhir/R5/canonicalresource.html">CanonicalResource</a> (<a href="StructureDefinition-ViewDefinition.html" title="https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition">View Definition</a>)</td><td/><td><div><p>Inline ViewDefinition resource to execute.</p>\n</div></td></tr><tr><td>IN</td><td>patient</td><td>system, type, instance</td><td>0..1</td><td><a href="http://hl7.org/fhir/R5/references.html#Reference">Reference</a></td><td/><td><div><p>Restrict execution to the specified patient.</p>\n</div></td></tr><tr><td>IN</td><td>group</td><td>system, type, instance</td><td>0..*</td><td><a href="http://hl7.org/fhir/R5/references.html#Reference">Reference</a></td><td/><td><div><p>Restrict execution to members of the given group(s).</p>\n</div></td></tr><tr><td>IN</td><td>source</td><td>system, type, instance</td><td>0..1</td><td><a href="http://hl7.org/fhir/R5/datatypes.html#string">string</a></td><td/><td><div><p>External data source to use (for example a URI or bucket name).</p>\n</div></td></tr><tr><td>IN</td><td>resource</td><td>system, type, instance</td><td>0..*</td><td><a href="http://hl7.org/fhir/R5/resource.html">Resource</a></td><td/><td><div><p>FHIR resources to transform instead of using server data.</p>\n</div></td></tr><tr><td>IN</td><td>_limit</td><td>system, type, instance</td><td>0..1</td><td><a href="http://hl7.org/fhir/R5/datatypes.html#integer">integer</a></td><td/><td><div><p>Maximum number of rows to return.</p>\n</div></td></tr><tr><td>IN</td><td>_since</td><td>system, type, instance</td><td>0..1</td><td><a href="http://hl7.org/fhir/R5/datatypes.html#instant">instant</a></td><td/><td><div><p>Include only resources modified after this instant.</p>\n</div></td></tr><tr><td>OUT</td><td>return</td><td/><td>1..1</td><td><a href="http://hl7.org/fhir/R5/binary.html">Binary</a></td><td/><td><div><p>Transformed data encoded in the requested output format.</p>\n</div></td></tr></table></div>',
+    },
+    url: "http://sql-on-fhir.org/OperationDefinition/$viewdefinition-run",
+    version: "2.1.0-pre",
+    name: "ViewDefinitionRun",
+    title: "ViewDefinition Run",
+    status: "active",
+    kind: "operation",
+    date: "2026-05-21T08:53:46+00:00",
+    publisher: "SQL on FHIR Working Group",
+    contact: [
+      {
+        name: "SQL on FHIR Working Group",
+        telecom: [{ system: "url", value: "https://sql-on-fhir.org" }],
+      },
+    ],
+    description: "Execute a view definition against supplied or server data.",
+    jurisdiction: [
+      {
+        coding: [
+          {
+            system: "http://unstats.un.org/unsd/methods/m49/m49.htm",
+            code: "001",
+            display: "World",
+          },
+        ],
+      },
+    ],
+    code: "viewdefinition-run",
+    resource: ["ViewDefinition"],
+    system: true,
+    type: true,
+    instance: true,
+    parameter: [
+      {
+        name: "_format",
+        use: "in",
+        min: 0,
+        max: "1",
+        documentation:
+          "Output format for the result (for example json, ndjson, csv, parquet). Optional; if omitted, the server returns ndjson by default.",
+        type: "code",
+        binding: {
+          strength: "extensible",
+          valueSet: "https://sql-on-fhir.org/ig/ValueSet/OutputFormatCodes",
+        },
+      },
+      {
+        name: "header",
+        use: "in",
+        min: 0,
+        max: "1",
+        documentation:
+          "Include CSV headers (default true). Applies only when csv output is requested.",
+        type: "boolean",
+      },
+      {
+        name: "viewReference",
+        use: "in",
+        min: 0,
+        max: "1",
+        documentation: "Reference to a ViewDefinition stored on the server.",
+        type: "Reference",
+      },
+      {
+        name: "viewResource",
+        use: "in",
+        min: 0,
+        max: "1",
+        documentation: "Inline ViewDefinition resource to execute.",
+        type: "ViewDefinition",
+        targetProfile: [
+          "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition",
+        ],
+      },
+      {
+        name: "patient",
+        use: "in",
+        min: 0,
+        max: "1",
+        documentation: "Restrict execution to the specified patient.",
+        type: "Reference",
+      },
+      {
+        name: "group",
+        use: "in",
+        min: 0,
+        max: "*",
+        documentation: "Restrict execution to members of the given group(s).",
+        type: "Reference",
+      },
+      {
+        name: "source",
+        use: "in",
+        min: 0,
+        max: "1",
+        documentation:
+          "External data source to use (for example a URI or bucket name).",
+        type: "string",
+      },
+      {
+        name: "resource",
+        use: "in",
+        min: 0,
+        max: "*",
+        documentation:
+          "FHIR resources to transform instead of using server data.",
+        type: "Resource",
+      },
+      {
+        name: "_limit",
+        use: "in",
+        min: 0,
+        max: "1",
+        documentation: "Maximum number of rows to return.",
+        type: "integer",
+      },
+      {
+        name: "_since",
+        use: "in",
+        min: 0,
+        max: "1",
+        documentation: "Include only resources modified after this instant.",
+        type: "instant",
+      },
+      {
+        name: "return",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation:
+          "Transformed data encoded in the requested output format.",
+        type: "Binary",
+      },
+    ],
+  } as fhirTypes.OperationDefinition);
+}
 export namespace ActivityDefinitionApply {
   export type Input = {
     activityDefinition?: fhirTypes.ActivityDefinition;
