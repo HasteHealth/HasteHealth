@@ -4,7 +4,6 @@ import { ViewDefinitionRun } from "@haste-health/generated-ops/r4";
 import {
   code,
   Resource,
-  uri,
   ViewDefinition,
 } from "@haste-health/fhir-types/r4/types";
 
@@ -13,23 +12,44 @@ import { CodeMirror } from "../base/codemirror";
 import { Loading } from "../base/loading";
 import { Pagination } from "../base/pagination";
 import { ClientProps } from "../fhir/types";
+import { basicSetup } from "codemirror";
 
 const DEFAULT_VIEW_DEFINITION: ViewDefinition = {
   resourceType: "ViewDefinition",
-  status: "draft" as code,
-  resource: "Patient" as code,
+  status: "draft",
+  resource: "Patient",
   select: [
     {
       column: [
         {
           name: "id",
           path: "id",
-          type: "id" as uri,
+          type: "id",
+        },
+        {
+          name: "date of birth",
+          path: "$this.birthDate",
+          type: "date",
+        },
+      ],
+    },
+    {
+      forEach: "$this.name",
+      column: [
+        {
+          name: "name",
+          path: "$this.given",
+          type: "string",
+        },
+        {
+          name: "family",
+          path: "$this.family",
+          type: "string",
         },
       ],
     },
   ],
-};
+} as ViewDefinition;
 
 type ParsedResults = {
   headers: string[];
@@ -38,6 +58,7 @@ type ParsedResults = {
 
 export type ViewDefinitionSqlRunnerProps = ClientProps & {
   className?: string;
+  editorExtensions?: any[];
   resources?: Resource[];
   initialViewDefinition?: ViewDefinition;
   defaultPageSize?: number;
@@ -124,12 +145,14 @@ function parseCsv(csv: string): ParsedResults {
 }
 
 function EditorPane({
+  extensions = [basicSetup],
   viewDefinition,
   setViewDefinition,
   onRun,
   onReset,
   isRunning,
 }: {
+  extensions?: any[];
   viewDefinition: string;
   setViewDefinition: (value: string) => void;
   onRun: () => void;
@@ -166,6 +189,7 @@ function EditorPane({
       <div className="flex flex-1 overflow-hidden p-3">
         <div className="h-full w-full overflow-hidden rounded border border-slate-200">
           <CodeMirror
+            extensions={extensions}
             value={viewDefinition}
             onChange={(value) => setViewDefinition(value)}
             theme={{
@@ -313,6 +337,7 @@ function ResultsPane({
 
 export function ViewDefinitionSqlRunner({
   client,
+  editorExtensions = [basicSetup],
   fhirVersion,
   className,
   resources,
@@ -375,6 +400,7 @@ export function ViewDefinitionSqlRunner({
     <div className={className}>
       <div className="flex flex-col gap-4 lg:flex-row">
         <EditorPane
+          extensions={editorExtensions}
           viewDefinition={viewDefinition}
           setViewDefinition={setViewDefinition}
           onRun={runViewDefinition}
