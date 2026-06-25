@@ -20,6 +20,7 @@ haste-jwt = { path = "../jwt", version = "0.*" }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
 base64 = "0.22.1"
 ordermap = "1.2.0"
+csv = "1.4"
 
 [dev-dependencies]
 serde = { workspace = true, features = ["derive"] }
