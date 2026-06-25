@@ -618,7 +618,7 @@ function ProjectRoot() {
               Bundles
             </SideBar.SideBarItem>
           </SideBar.SideBarItemGroup>
-          <SideBar.SideBarItemGroup label="Analytics">
+          {/* <SideBar.SideBarItemGroup label="Analytics">
             <SideBar.SideBarItem
               active={
                 matches.find(
@@ -631,7 +631,7 @@ function ProjectRoot() {
             >
               View Definition Run
             </SideBar.SideBarItem>
-          </SideBar.SideBarItemGroup>
+          </SideBar.SideBarItemGroup> */}
           <SideBar.SideBarItemGroup label="Data">
             <SideBar.SideBarItem
               active={
