@@ -17,7 +17,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::{Config, FPEngine};
 use haste_reflect::MetaValue;
 use ordermap::OrderMap;
-use std::{borrow::Cow, collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc};
 
 use crate::conversions::primitives::PrimitiveValue;
 
@@ -32,9 +32,9 @@ async fn resolve_view_definition<
     context: CTX,
     client: &Client,
     input: &'a ViewDefinitionRun::Input,
-) -> Result<Cow<'a, ViewDefinition>, OperationOutcomeError> {
+) -> Result<ViewDefinition, OperationOutcomeError> {
     if let Some(view_definition) = &input.viewResource {
-        Ok(Cow::Borrowed(view_definition))
+        Ok(view_definition.clone())
     } else if let Some(view_definition_reference) = input.viewReference.as_ref() {
         let view_definition_reference = view_definition_reference
             .reference
@@ -84,7 +84,7 @@ async fn resolve_view_definition<
             })?;
 
         if let Resource::ViewDefinition(view_definition) = result {
-            Ok(Cow::Owned(view_definition))
+            Ok(view_definition)
         } else {
             Err(OperationOutcomeError::error(
                 IssueType::Invalid(None),
@@ -125,7 +125,7 @@ async fn get_resources_to_process<
 >(
     context: CTX,
     client: &Client,
-    view_definition: &ViewDefinition,
+    view_definition: Arc<ViewDefinition>,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Vec<Resource>, OperationOutcomeError> {
     if let Some(input_resources) = input.resource.clone() {
@@ -340,7 +340,7 @@ async fn process_view_definition<
     context: CTX,
     output_format: &OutputFormatCodes,
     client: Arc<Client>,
-    view_definition: &ViewDefinition,
+    view_definition: Arc<ViewDefinition>,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Binary, OperationOutcomeError> {
     let _output_format = get_output_format(input)?;
@@ -351,7 +351,13 @@ async fn process_view_definition<
         .unwrap_or(1000);
 
     let input_ = flatten_results(
-        get_resources_to_process(context.clone(), client.as_ref(), view_definition, input).await?,
+        get_resources_to_process(
+            context.clone(),
+            client.as_ref(),
+            view_definition.clone(),
+            input,
+        )
+        .await?,
     );
 
     let mut tasks = Vec::with_capacity(input_.len());
@@ -365,7 +371,7 @@ async fn process_view_definition<
             process_resource(
                 context_clone,
                 client_clone,
-                &view_definition_clone,
+                view_definition_clone.as_ref(),
                 resource,
             )
             .await
@@ -421,10 +427,17 @@ pub async fn view_definition_run<
         .and_then(|s| OutputFormatCodes::try_from(s.to_string()).ok())
         .unwrap_or(OutputFormatCodes::Csv(None));
 
-    let view_definition = resolve_view_definition(context.clone(), client.as_ref(), &input).await?;
+    let view_definition =
+        Arc::new(resolve_view_definition(context.clone(), client.as_ref(), &input).await?);
 
-    let output =
-        process_view_definition(context, &output_format, client, &view_definition, &input).await?;
+    let output = process_view_definition(
+        context,
+        &output_format,
+        client,
+        view_definition.clone(),
+        &input,
+    )
+    .await?;
 
     Ok(ViewDefinitionRun::Output { return_: output })
 }
