@@ -2,7 +2,7 @@ import { ViewDefinitionSqlRunner } from "@haste-health/components";
 import { getClient } from "../../db/client";
 import { useAtomValue } from "jotai";
 import { R4 } from "@haste-health/fhir-types/versions";
-import { date } from "@haste-health/fhir-types/r4/types";
+import { instant } from "@haste-health/fhir-types/r4/types";
 import { json } from "@codemirror/lang-json";
 import { basicSetup } from "codemirror";
 
@@ -16,13 +16,7 @@ export default function ViewDefinitionEditor() {
       editorExtensions={EDITOR_EXTENSIONS}
       defaultPageSize={10}
       fhirVersion={R4}
-      resources={[
-        {
-          resourceType: "Patient",
-          name: [{ given: ["John", "Bob"], family: "Doe" }],
-          birthDate: "1990-01-01" as date,
-        },
-      ]}
+      since={"1980-01-01" as instant}
     />
   );
 }

@@ -3,6 +3,7 @@ import React, { useMemo, useState } from "react";
 import { ViewDefinitionRun } from "@haste-health/generated-ops/r4";
 import {
   code,
+  instant,
   Resource,
   ViewDefinition,
 } from "@haste-health/fhir-types/r4/types";
@@ -55,15 +56,6 @@ const DEFAULT_VIEW_DEFINITION: ViewDefinition = {
 type ParsedResults = {
   headers: string[];
   rows: string[][];
-};
-
-export type ViewDefinitionSqlRunnerProps = ClientProps & {
-  className?: string;
-  editorExtensions?: any[];
-  resources?: Resource[];
-  initialViewDefinition?: ViewDefinition;
-  defaultPageSize?: number;
-  pageSizeOptions?: number[];
 };
 
 function decodeBase64ToString(value?: string): string {
@@ -336,12 +328,23 @@ function ResultsPane({
   );
 }
 
+export type ViewDefinitionSqlRunnerProps = ClientProps & {
+  className?: string;
+  editorExtensions?: any[];
+  since?: instant;
+  resources?: Resource[];
+  initialViewDefinition?: ViewDefinition;
+  defaultPageSize?: number;
+  pageSizeOptions?: number[];
+};
+
 export function ViewDefinitionSqlRunner({
   client,
   editorExtensions = [basicSetup],
   fhirVersion,
   className,
   resources,
+  since,
   initialViewDefinition,
   defaultPageSize = 20,
   pageSizeOptions = [10, 20, 50, 100],
@@ -353,13 +356,13 @@ export function ViewDefinitionSqlRunner({
     headers: [],
     rows: [],
   });
-  const [isRunning, setIsRunning] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(defaultPageSize);
 
   async function runViewDefinition() {
-    setIsRunning(true);
+    setIsLoading(true);
     setError(undefined);
 
     try {
@@ -373,6 +376,7 @@ export function ViewDefinitionSqlRunner({
           header: true,
           viewResource: parsedViewDefinition,
           resource: resources,
+          _since: since,
         },
       );
 
@@ -394,7 +398,7 @@ export function ViewDefinitionSqlRunner({
 
       setResults({ headers: [], rows: [] });
     } finally {
-      setIsRunning(false);
+      setIsLoading(false);
     }
   }
 
@@ -414,11 +418,11 @@ export function ViewDefinitionSqlRunner({
           setViewDefinition={setViewDefinition}
           onRun={runViewDefinition}
           onReset={resetEditor}
-          isRunning={isRunning}
+          isRunning={isLoading}
         />
         <ResultsPane
           results={results}
-          isRunning={isRunning}
+          isRunning={isLoading}
           error={error}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}

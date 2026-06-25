@@ -17,9 +17,10 @@ use haste_fhir_client::{
     request::{
         DeleteRequest, DeleteResponse, FHIRBatchRequest, FHIRConditionalUpdateRequest,
         FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
-        FHIRDeleteTypeRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest,
-        FHIRTransactionRequest, FHIRUpdateInstanceRequest, FHIRVersionReadRequest, SearchRequest,
-        SearchResponse, UpdateRequest,
+        FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest, FHIRHistorySystemRequest,
+        FHIRHistoryTypeRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest,
+        FHIRTransactionRequest, FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest,
+        HistoryResponse, SearchRequest, SearchResponse, UpdateRequest,
     },
     url::ParsedParameters,
 };
@@ -732,29 +733,77 @@ impl<
 
     async fn history_system(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _parameters: ParsedParameters,
+        ctx: Arc<ServerCTX<Self>>,
+        parameters: ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::History(HistoryRequest::System(FHIRHistorySystemRequest {
+                    parameters,
+                })),
+            )
+            .await?;
+        match res.response {
+            Some(FHIRResponse::History(HistoryResponse::System(history_response))) => {
+                Ok(history_response.bundle)
+            }
+            _ => panic!("Unexpected response type"),
+        }
     }
 
     async fn history_type(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _resource_type: ResourceType,
-        _parameters: ParsedParameters,
+        ctx: Arc<ServerCTX<Self>>,
+        resource_type: ResourceType,
+        parameters: ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::History(HistoryRequest::Type(FHIRHistoryTypeRequest {
+                    resource_type,
+                    parameters,
+                })),
+            )
+            .await?;
+        match res.response {
+            Some(FHIRResponse::History(HistoryResponse::Type(history_response))) => {
+                Ok(history_response.bundle)
+            }
+            _ => panic!("Unexpected response type"),
+        }
     }
 
     async fn history_instance(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _resource_type: ResourceType,
-        _id: String,
-        _parameters: ParsedParameters,
+        ctx: Arc<ServerCTX<Self>>,
+        resource_type: ResourceType,
+        id: String,
+        parameters: ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::History(HistoryRequest::Instance(FHIRHistoryInstanceRequest {
+                    resource_type,
+                    id,
+                    parameters,
+                })),
+            )
+            .await?;
+        match res.response {
+            Some(FHIRResponse::History(HistoryResponse::Instance(history_response))) => {
+                Ok(history_response.bundle)
+            }
+            _ => panic!("Unexpected response type"),
+        }
     }
 
     async fn invoke_instance(

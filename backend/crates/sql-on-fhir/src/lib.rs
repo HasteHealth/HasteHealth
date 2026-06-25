@@ -1,6 +1,9 @@
 use base64::{Engine as _, engine::general_purpose};
-use chrono::Utc;
-use haste_fhir_client::FHIRClient;
+use chrono::{Utc, format::Parsed};
+use haste_fhir_client::{
+    FHIRClient,
+    url::{Parameter, ParsedParameter, ParsedParameters},
+};
 use haste_fhir_generated_ops::generated::ViewDefinitionRun;
 use haste_fhir_model::r4::{
     self,
@@ -120,14 +123,58 @@ async fn get_resources_to_process<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
-    _context: CTX,
-    _client: &Client,
+    context: CTX,
+    client: &Client,
+    view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Vec<Resource>, OperationOutcomeError> {
-    if let Some(input_resource) = input.resource.clone() {
-        Ok(input_resource)
+    if let Some(input_resources) = input.resource.clone() {
+        Ok(input_resources)
     } else {
-        Ok(vec![])
+        let since = input
+            ._since
+            .as_ref()
+            .and_then(|since| since.value.clone())
+            .unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
+
+        let Some(resource_type): Option<String> = view_definition.resource.as_ref().into() else {
+            return Err(OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                "ViewDefinition.resource is required".to_string(),
+            ));
+        };
+
+        let resource_type = ResourceType::try_from(resource_type).map_err(|e| {
+            OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                format!("Invalid resource type: {}", e),
+            )
+        })?;
+
+        let result = client
+            .history_type(
+                context,
+                resource_type,
+                ParsedParameters::new(vec![
+                    ParsedParameter::Result(Parameter {
+                        name: "_since".to_string(),
+                        value: vec![since.to_string()],
+                        modifier: None,
+                        chains: None,
+                    }),
+                    ParsedParameter::Result(Parameter {
+                        name: "_count".to_string(),
+                        value: vec!["1000".to_string()],
+                        modifier: None,
+                        chains: None,
+                    }),
+                ]),
+            )
+            .await?;
+
+        println!("History result: {:#?}", result);
+
+        Ok(vec![Resource::Bundle(result)])
     }
 }
 
@@ -154,7 +201,7 @@ async fn process_resource<
     _context: CTX,
     _client: Arc<Client>,
     view_definition: &ViewDefinition,
-    input: Resource,
+    input: Box<Resource>,
 ) -> Result<OrderMap<String, Vec<Option<PrimitiveValue>>>, OperationOutcomeError> {
     let fp_engine = FPEngine::new();
     let variables = Arc::new(build_hashmap_fp_variables(view_definition));
@@ -268,6 +315,26 @@ async fn process_resource<
     Ok(output_result)
 }
 
+fn flatten_results(resource: Vec<Resource>) -> Vec<Box<Resource>> {
+    let mut resources = Vec::new();
+    for resource in resource {
+        match resource {
+            Resource::Bundle(bundle) => {
+                for entry in bundle.entry.into_iter().flatten() {
+                    if let Some(resource) = entry.resource {
+                        resources.push(resource);
+                    }
+                }
+            }
+            _ => {
+                resources.push(Box::new(resource));
+            }
+        }
+    }
+
+    resources
+}
+
 async fn process_view_definition<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
@@ -283,15 +350,13 @@ async fn process_view_definition<
         ._limit
         .as_ref()
         .and_then(|limit| limit.value.clone())
-        .unwrap_or(100);
+        .unwrap_or(1000);
 
-    let _since = input
-        ._since
-        .as_ref()
-        .and_then(|since| since.value.clone())
-        .unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
+    let input_ = flatten_results(
+        get_resources_to_process(context.clone(), client.as_ref(), view_definition, input).await?,
+    );
 
-    let input_ = get_resources_to_process(context.clone(), client.as_ref(), input).await?;
+    println!("Processing {} resources", input_.len());
 
     let mut tasks = Vec::with_capacity(input_.len());
 
