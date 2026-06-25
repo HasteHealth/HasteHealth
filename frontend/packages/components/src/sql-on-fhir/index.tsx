@@ -357,6 +357,7 @@ export function ViewDefinitionSqlRunner({
     headers: [],
     rows: [],
   });
+  const [csv, setCsv] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [currentPage, setCurrentPage] = useState(1);
@@ -386,6 +387,7 @@ export function ViewDefinitionSqlRunner({
       const csv = decodeBase64ToString(binary.data);
       const parsedResults = parseCsv(csv);
       setResults(parsedResults);
+      setCsv(csv);
       setCurrentPage(1);
       setActiveTab(1);
     } catch (e) {
@@ -440,6 +442,17 @@ export function ViewDefinitionSqlRunner({
           pageSize={pageSize}
           setPageSize={setPageSize}
           pageSizeOptions={pageSizeOptions}
+        />
+      ),
+    },
+    {
+      id: 2,
+      title: "Raw Output",
+      content: (
+        <textarea
+          className="h-full w-full rounded border border-slate-200 bg-white p-3 text-xs text-slate-700"
+          value={csv}
+          readOnly
         />
       ),
     },
