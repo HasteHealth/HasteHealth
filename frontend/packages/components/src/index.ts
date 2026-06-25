@@ -1,5 +1,5 @@
 export * from "./fhir";
-export * from "./fhir-on-sql";
+export * from "./sql-on-fhir";
 export * from "./layout";
 export * from "./base";
 export * from "./hastehealth";
