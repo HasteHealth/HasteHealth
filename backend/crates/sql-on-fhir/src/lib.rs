@@ -1,5 +1,5 @@
 use base64::{Engine as _, engine::general_purpose};
-use chrono::{Utc, format::Parsed};
+use chrono::Utc;
 use haste_fhir_client::{
     FHIRClient,
     url::{Parameter, ParsedParameter, ParsedParameters},

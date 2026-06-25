@@ -11,12 +11,14 @@ const EDITOR_EXTENSIONS = [basicSetup, json()];
 export default function ViewDefinitionEditor() {
   const client = useAtomValue(getClient);
   return (
-    <ViewDefinitionSqlRunner
-      client={client}
-      editorExtensions={EDITOR_EXTENSIONS}
-      defaultPageSize={10}
-      fhirVersion={R4}
-      since={"1980-01-01T00:00:00Z" as instant}
-    />
+    <div className="flex overflow-auto">
+      <ViewDefinitionSqlRunner
+        client={client}
+        editorExtensions={EDITOR_EXTENSIONS}
+        defaultPageSize={10}
+        fhirVersion={R4}
+        since={"1980-01-01T00:00:00Z" as instant}
+      />
+    </div>
   );
 }

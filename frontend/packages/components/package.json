@@ -24,7 +24,6 @@
     "@codemirror/state": ">=6.0.0",
     "@codemirror/theme-one-dark": ">=6.0.0",
     "@codemirror/view": ">=6.0.0",
-    "@codemirror/lang-json": ">=6.0.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
@@ -36,7 +35,6 @@
     "@chromatic-com/storybook": "^1.6.1",
     "@codemirror/state": "^6.5.2",
     "@codemirror/view": "^6.36.4",
-    "@codemirror/lang-json": "^6.3.0",
     "@haste-health/fhir-types": "workspace:^",
     "@haste-health/jwt": "workspace:^",
     "@rollup/plugin-commonjs": "^26.0.3",
