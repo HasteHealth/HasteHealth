@@ -346,7 +346,7 @@ export function ViewDefinitionSqlRunner({
   resources,
   since,
   initialViewDefinition,
-  defaultPageSize = 20,
+  defaultPageSize = 100,
   pageSizeOptions = [10, 20, 50, 100],
 }: ViewDefinitionSqlRunnerProps) {
   const [activeTab, setActiveTab] = useState(0);
