@@ -3,9 +3,9 @@ use haste_fhir_model::r4::{
     generated::{
         terminology::IssueType,
         types::{
-            FHIRBase64Binary, FHIRBoolean, FHIRCanonical, FHIRCode, FHIRDate, FHIRDateTime,
-            FHIRDecimal, FHIRId, FHIRInstant, FHIRInteger, FHIRMarkdown, FHIROid, FHIRPositiveInt,
-            FHIRString, FHIRTime, FHIRUnsignedInt, FHIRUri, FHIRUrl, FHIRUuid,
+            FHIRBase64Binary, FHIRBoolean, FHIRCanonical, FHIRDate, FHIRDateTime, FHIRDecimal,
+            FHIRId, FHIRInstant, FHIRInteger, FHIRMarkdown, FHIROid, FHIRPositiveInt, FHIRString,
+            FHIRTime, FHIRUnsignedInt, FHIRUri, FHIRUrl, FHIRUuid,
         },
     },
 };
