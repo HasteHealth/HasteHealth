@@ -255,14 +255,6 @@ async fn process_resource<
         };
 
         for column in select_statement.column.as_ref().into_iter().flatten() {
-            let _column_type = column
-                .type_
-                .as_ref()
-                .and_then(|t| t.value.as_ref())
-                .map(|t| t.as_str())
-                // Default to string.
-                .unwrap_or("string");
-
             let Some(path) = column.path.value.as_ref().map(|p| p.as_str()) else {
                 return Err(OperationOutcomeError::error(
                     IssueType::Invalid(None),
@@ -286,9 +278,27 @@ async fn process_resource<
                         format!("Error evaluating expression: {}", e),
                     )
                 })?;
+
+            let column_type = column
+                .type_
+                .as_ref()
+                .and_then(|t| t.value.as_ref())
+                .map(|t| t.as_str())
+                // Default to string.
+                .unwrap_or(
+                    // If column type is not set than assume it's the first values fhir_type
+                    // or default to string if there are no values.
+                    result
+                        .iter()
+                        .peekable()
+                        .next()
+                        .map(|v| v.fhir_type())
+                        .unwrap_or("string"),
+                );
+
             let column_result = result
                 .iter()
-                .map(|value| conversions::primitives::convert_meta_value(_column_type, value))
+                .map(|value| conversions::primitives::convert_meta_value(column_type, value))
                 .collect::<Result<Vec<Option<PrimitiveValue>>, OperationOutcomeError>>()?;
 
             let is_collection = column
