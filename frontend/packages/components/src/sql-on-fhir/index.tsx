@@ -12,6 +12,7 @@ import { Button } from "../base/button";
 import { CodeMirror } from "../base/codemirror";
 import { Loading } from "../base/loading";
 import { Pagination } from "../base/pagination";
+import { Tab, Tabs } from "../base/tabs";
 import { ClientProps } from "../fhir/types";
 import { basicSetup } from "codemirror";
 import { ResponseError } from "@haste-health/client/lib/http";
@@ -349,6 +350,7 @@ export function ViewDefinitionSqlRunner({
   defaultPageSize = 20,
   pageSizeOptions = [10, 20, 50, 100],
 }: ViewDefinitionSqlRunnerProps) {
+  const [activeTab, setActiveTab] = useState(0);
   const [viewDefinition, setViewDefinition] = useState(() =>
     JSON.stringify(initialViewDefinition ?? DEFAULT_VIEW_DEFINITION, null, 2),
   );
@@ -386,6 +388,7 @@ export function ViewDefinitionSqlRunner({
       const parsedResults = parseCsv(csv);
       setResults(parsedResults);
       setCurrentPage(1);
+      setActiveTab(1);
     } catch (e) {
       if (e instanceof ResponseError) {
         const errorMessage = e.response?.body?.issue?.[0]?.diagnostics;
@@ -397,6 +400,7 @@ export function ViewDefinitionSqlRunner({
       }
 
       setResults({ headers: [], rows: [] });
+      setActiveTab(1);
     } finally {
       setIsLoading(false);
     }
@@ -409,9 +413,11 @@ export function ViewDefinitionSqlRunner({
     setError(undefined);
   }
 
-  return (
-    <div className={className}>
-      <div className="flex flex-col gap-4 lg:flex-row">
+  const tabs: Tab[] = [
+    {
+      id: 0,
+      title: "ViewDefinition",
+      content: (
         <EditorPane
           extensions={editorExtensions}
           viewDefinition={viewDefinition}
@@ -420,6 +426,12 @@ export function ViewDefinitionSqlRunner({
           onReset={resetEditor}
           isRunning={isLoading}
         />
+      ),
+    },
+    {
+      id: 1,
+      title: "SQL Runner Results",
+      content: (
         <ResultsPane
           results={results}
           isRunning={isLoading}
@@ -430,7 +442,17 @@ export function ViewDefinitionSqlRunner({
           setPageSize={setPageSize}
           pageSizeOptions={pageSizeOptions}
         />
-      </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className={className}>
+      <Tabs
+        tabs={tabs}
+        selectedTab={activeTab}
+        onTab={(tab) => setActiveTab(Number(tab.id))}
+      />
     </div>
   );
 }
