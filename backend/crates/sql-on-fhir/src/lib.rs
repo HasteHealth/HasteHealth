@@ -172,8 +172,6 @@ async fn get_resources_to_process<
             )
             .await?;
 
-        println!("History result: {:#?}", result);
-
         Ok(vec![Resource::Bundle(result)])
     }
 }
@@ -355,8 +353,6 @@ async fn process_view_definition<
     let input_ = flatten_results(
         get_resources_to_process(context.clone(), client.as_ref(), view_definition, input).await?,
     );
-
-    println!("Processing {} resources", input_.len());
 
     let mut tasks = Vec::with_capacity(input_.len());
 
