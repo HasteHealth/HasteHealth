@@ -27,7 +27,7 @@ const DEFAULT_VIEW_DEFINITION: ViewDefinition = {
         {
           name: "id",
           path: "id",
-          type: "id",
+          type: "http://hl7.org/fhirpath/System.String",
         },
         {
           name: "date of birth",
