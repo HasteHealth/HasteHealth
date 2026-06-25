@@ -25,13 +25,12 @@ mod conversions;
 mod output;
 
 async fn resolve_view_definition<
-    'a,
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: CTX,
     client: &Client,
-    input: &'a ViewDefinitionRun::Input,
+    input: &ViewDefinitionRun::Input,
 ) -> Result<ViewDefinition, OperationOutcomeError> {
     if let Some(view_definition) = &input.viewResource {
         Ok(view_definition.clone())
