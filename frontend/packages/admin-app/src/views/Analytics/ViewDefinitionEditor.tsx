@@ -16,7 +16,7 @@ export default function ViewDefinitionEditor() {
       editorExtensions={EDITOR_EXTENSIONS}
       defaultPageSize={10}
       fhirVersion={R4}
-      since={"1980-01-01" as instant}
+      since={"1980-01-01T00:00:00Z" as instant}
     />
   );
 }
