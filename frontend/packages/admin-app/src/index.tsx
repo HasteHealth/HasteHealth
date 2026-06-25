@@ -629,7 +629,7 @@ function ProjectRoot() {
                 navigate(generatePath("/view-definition-editor", {}));
               }}
             >
-              View Definition Run
+              Projection
             </SideBar.SideBarItem>
           </SideBar.SideBarItemGroup> */}
           <SideBar.SideBarItemGroup label="Data">
