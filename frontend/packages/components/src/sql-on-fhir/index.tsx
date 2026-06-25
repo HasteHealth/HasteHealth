@@ -330,7 +330,6 @@ function ResultsPane({
 }
 
 export type ViewDefinitionSqlRunnerProps = ClientProps & {
-  className?: string;
   editorExtensions?: any[];
   since?: instant;
   resources?: Resource[];
@@ -343,7 +342,7 @@ export function ViewDefinitionSqlRunner({
   client,
   editorExtensions = [basicSetup],
   fhirVersion,
-  className,
+
   resources,
   since,
   initialViewDefinition,
@@ -447,12 +446,10 @@ export function ViewDefinitionSqlRunner({
   ];
 
   return (
-    <div className={className}>
-      <Tabs
-        tabs={tabs}
-        selectedTab={activeTab}
-        onTab={(tab) => setActiveTab(Number(tab.id))}
-      />
-    </div>
+    <Tabs
+      tabs={tabs}
+      selectedTab={activeTab}
+      onTab={(tab) => setActiveTab(Number(tab.id))}
+    />
   );
 }

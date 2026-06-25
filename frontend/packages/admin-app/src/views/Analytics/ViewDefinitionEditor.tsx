@@ -11,7 +11,7 @@ const EDITOR_EXTENSIONS = [basicSetup, json()];
 export default function ViewDefinitionEditor() {
   const client = useAtomValue(getClient);
   return (
-    <div className="flex overflow-auto">
+    <div className="h-screen flex flex-1 flex-col">
       <ViewDefinitionSqlRunner
         client={client}
         editorExtensions={EDITOR_EXTENSIONS}
