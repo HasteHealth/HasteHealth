@@ -246,15 +246,16 @@ async fn process_resource<
         });
 
         let mut iterable_context = None;
+        let mut set_null = false;
 
-        if let Some(for_each) = select_statement
+        if let Some(for_each_fp) = select_statement
             .forEach
             .as_ref()
             .and_then(|f| f.value.as_ref())
         {
             iterable_context = Some(
                 fp_engine
-                    .evaluate_with_config(for_each, vec![&input], fp_config.clone())
+                    .evaluate_with_config(for_each_fp, vec![&input], fp_config.clone())
                     .await
                     .map_err(|e| {
                         OperationOutcomeError::error(
@@ -263,11 +264,23 @@ async fn process_resource<
                         )
                     })?,
             );
-        } else if let Some(_for_each_or_null) = select_statement.forEachOrNull.as_ref() {
-            return Err(OperationOutcomeError::error(
-                IssueType::NotSupported(None),
-                "forEachOrNull is not yet supported".to_string(),
-            ));
+        } else if let Some(for_each_or_null_fp) = select_statement
+            .forEachOrNull
+            .as_ref()
+            .and_then(|f| f.value.as_ref())
+        {
+            iterable_context = Some(
+                fp_engine
+                    .evaluate_with_config(for_each_or_null_fp, vec![&input], fp_config.clone())
+                    .await
+                    .map_err(|e| {
+                        OperationOutcomeError::error(
+                            IssueType::Exception(None),
+                            format!("Error evaluating forEachOrNull expression: {}", e),
+                        )
+                    })?,
+            );
+            set_null = true;
         } else if let Some(_repeat) = select_statement.repeat.as_ref() {
             return Err(OperationOutcomeError::error(
                 IssueType::NotSupported(None),
@@ -284,20 +297,19 @@ async fn process_resource<
 
         let mut select_results = Vec::with_capacity(select_context.len());
 
-        // Foreachornull impl.
-        // if select_context.is_empty() {
-        //     let mut output_result = OrderMap::new();
-        //     for column in select_statement.column.as_ref().into_iter().flatten() {
-        //         let Some(name) = column.name.value.as_ref().map(|n| n.as_str()) else {
-        //             return Err(OperationOutcomeError::error(
-        //                 IssueType::Invalid(None),
-        //                 "Column name is required".to_string(),
-        //             ));
-        //         };
-        //         output_result.insert(name.to_string(), vec![None]);
-        //     }
-        //     select_results.push(output_result);
-        // }
+        if set_null && select_context.is_empty() {
+            let mut output_result = OrderMap::new();
+            for column in select_statement.column.as_ref().into_iter().flatten() {
+                let Some(name) = column.name.value.as_ref().map(|n| n.as_str()) else {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::Invalid(None),
+                        "Column name is required".to_string(),
+                    ));
+                };
+                output_result.insert(name.to_string(), vec![None]);
+            }
+            select_results.push(output_result);
+        }
 
         for context in select_context {
             let mut output_result = OrderMap::new();
