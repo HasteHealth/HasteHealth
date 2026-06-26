@@ -192,6 +192,32 @@ fn build_hashmap_fp_variables<'a>(
     hashmap
 }
 
+fn cartesian_product(
+    select_statement_results: Vec<Vec<OrderMap<String, Vec<Option<PrimitiveValue>>>>>,
+) -> Vec<OrderMap<String, Vec<Option<PrimitiveValue>>>> {
+    let mut output_results = Vec::new();
+
+    for combination in select_statement_results
+        .into_iter()
+        .multi_cartesian_product()
+    {
+        let mut combined_result = OrderMap::new();
+
+        for result in combination {
+            for (key, value) in result {
+                combined_result
+                    .entry(key)
+                    .or_insert_with(Vec::new)
+                    .extend(value);
+            }
+        }
+
+        output_results.push(combined_result);
+    }
+
+    output_results
+}
+
 async fn process_resource<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
@@ -210,7 +236,7 @@ async fn process_resource<
         ));
     }
 
-    let mut output_result = OrderMap::<String, Vec<Option<PrimitiveValue>>>::new();
+    let mut select_statement_results = Vec::with_capacity(view_definition.select.len());
 
     for select_statement in view_definition.select.iter() {
         let fp_config = Arc::new(Config {
@@ -256,7 +282,10 @@ async fn process_resource<
             vec![&input]
         };
 
+        let mut select_results = Vec::with_capacity(select_context.len());
+
         for context in select_context {
+            let mut output_result = OrderMap::new();
             for column in select_statement.column.as_ref().into_iter().flatten() {
                 let Some(path) = column.path.value.as_ref().map(|p| p.as_str()) else {
                     return Err(OperationOutcomeError::error(
@@ -320,10 +349,15 @@ async fn process_resource<
 
                 output_result.insert(name.to_string(), column_result);
             }
+            select_results.push(output_result);
         }
+
+        select_statement_results.push(select_results);
     }
 
-    Ok(vec![output_result])
+    let output_results = cartesian_product(select_statement_results);
+
+    Ok(output_results)
 }
 
 fn flatten_results(resource: Vec<Resource>) -> Vec<Box<Resource>> {
