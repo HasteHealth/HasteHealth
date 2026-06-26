@@ -199,7 +199,7 @@ async fn process_resource<
     _client: Arc<Client>,
     view_definition: &ViewDefinition,
     input: Box<Resource>,
-) -> Result<OrderMap<String, Vec<Option<PrimitiveValue>>>, OperationOutcomeError> {
+) -> Result<Vec<OrderMap<String, Vec<Option<PrimitiveValue>>>>, OperationOutcomeError> {
     let fp_engine = FPEngine::new();
     let variables = Arc::new(build_hashmap_fp_variables(view_definition));
     if let Some(_where_conditionals) = &view_definition.where_ {
@@ -319,7 +319,7 @@ async fn process_resource<
         }
     }
 
-    Ok(output_result)
+    Ok(vec![output_result])
 }
 
 fn flatten_results(resource: Vec<Resource>) -> Vec<Box<Resource>> {
@@ -399,6 +399,8 @@ async fn process_view_definition<
             )
         })??);
     }
+
+    let results = results.into_iter().flatten().collect::<Vec<_>>();
 
     match output_format {
         OutputFormatCodes::Csv(_) => {
