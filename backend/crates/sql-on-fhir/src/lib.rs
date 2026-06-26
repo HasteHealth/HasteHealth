@@ -16,6 +16,7 @@ use haste_fhir_model::r4::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::{Config, FPEngine};
 use haste_reflect::MetaValue;
+use itertools::Itertools as _;
 use ordermap::OrderMap;
 use std::{collections::HashMap, sync::Arc};
 
@@ -248,74 +249,77 @@ async fn process_resource<
             ));
         }
 
-        let context: Vec<&dyn MetaValue> = if let Some(iterable) = iterable_context.as_ref() {
+        let select_context: Vec<&dyn MetaValue> = if let Some(iterable) = iterable_context.as_ref()
+        {
             iterable.iter().collect()
         } else {
             vec![&input]
         };
 
-        for column in select_statement.column.as_ref().into_iter().flatten() {
-            let Some(path) = column.path.value.as_ref().map(|p| p.as_str()) else {
-                return Err(OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    "Column path is required".to_string(),
-                ));
-            };
+        for context in select_context {
+            for column in select_statement.column.as_ref().into_iter().flatten() {
+                let Some(path) = column.path.value.as_ref().map(|p| p.as_str()) else {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::Invalid(None),
+                        "Column path is required".to_string(),
+                    ));
+                };
 
-            let Some(name) = column.name.value.as_ref().map(|n| n.as_str()) else {
-                return Err(OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    "Column name is required".to_string(),
-                ));
-            };
+                let Some(name) = column.name.value.as_ref().map(|n| n.as_str()) else {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::Invalid(None),
+                        "Column name is required".to_string(),
+                    ));
+                };
 
-            let result = fp_engine
-                .evaluate(path, context.clone())
-                .await
-                .map_err(|e| {
-                    OperationOutcomeError::error(
-                        IssueType::Exception(None),
-                        format!("Error evaluating expression: {}", e),
-                    )
-                })?;
+                let result = fp_engine
+                    .evaluate(path, vec![context; 1])
+                    .await
+                    .map_err(|e| {
+                        OperationOutcomeError::error(
+                            IssueType::Exception(None),
+                            format!("Error evaluating expression: {}", e),
+                        )
+                    })?;
 
-            let column_type = column
-                .type_
-                .as_ref()
-                .and_then(|t| t.value.as_ref())
-                .map(|t| t.as_str())
-                // Default to string.
-                .unwrap_or(
-                    // If column type is not set than assume it's the first values fhir_type
-                    // or default to string if there are no values.
-                    result
-                        .iter()
-                        .peekable()
-                        .next()
-                        .map(|v| v.fhir_type())
-                        .unwrap_or("string"),
-                );
+                let column_type = column
+                    .type_
+                    .as_ref()
+                    .and_then(|t| t.value.as_ref())
+                    .map(|t| t.as_str())
+                    // Default to string.
+                    .unwrap_or(
+                        // If column type is not set than assume it's the first values fhir_type
+                        // or default to string if there are no values.
+                        result
+                            .iter()
+                            .peekable()
+                            .next()
+                            .map(|v| v.fhir_type())
+                            .unwrap_or("string"),
+                    );
 
-            let column_result = result
-                .iter()
-                .map(|value| conversions::primitives::convert_meta_value(column_type, value))
-                .collect::<Result<Vec<Option<PrimitiveValue>>, OperationOutcomeError>>()?;
+                let column_result = result
+                    .iter()
+                    .map(|value| conversions::primitives::convert_meta_value(column_type, value))
+                    .collect::<Result<Vec<Option<PrimitiveValue>>, OperationOutcomeError>>()?;
 
-            let is_collection = column
-                .collection
-                .as_ref()
-                .and_then(|c| c.value)
-                .unwrap_or(false);
+                let is_collection = column
+                    .collection
+                    .as_ref()
+                    .and_then(|c| c.value)
+                    .unwrap_or(false);
 
-            if is_collection && column_result.len() > 1 {
-                return Err(OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    "Column result is a collection but the column is not marked as a collection"
-                        .to_string(),
-                ));
+                if is_collection && column_result.len() > 1 {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::Invalid(None),
+                        "Column result is a collection but the column is not marked as a collection"
+                            .to_string(),
+                    ));
+                }
+
+                output_result.insert(name.to_string(), column_result);
             }
-
-            output_result.insert(name.to_string(), column_result);
         }
     }
 
