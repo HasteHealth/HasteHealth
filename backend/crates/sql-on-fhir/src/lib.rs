@@ -387,7 +387,10 @@ async fn process_resource<
     Ok(output_results)
 }
 
-fn flatten_results(resource: Vec<Resource>) -> Vec<Box<Resource>> {
+fn flatten_results_filter_results(
+    view_definition: &ViewDefinition,
+    resource: Vec<Resource>,
+) -> Vec<Box<Resource>> {
     let mut resources = Vec::new();
     for resource in resource {
         match resource {
