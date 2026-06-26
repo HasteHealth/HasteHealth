@@ -284,6 +284,21 @@ async fn process_resource<
 
         let mut select_results = Vec::with_capacity(select_context.len());
 
+        // Foreachornull impl.
+        // if select_context.is_empty() {
+        //     let mut output_result = OrderMap::new();
+        //     for column in select_statement.column.as_ref().into_iter().flatten() {
+        //         let Some(name) = column.name.value.as_ref().map(|n| n.as_str()) else {
+        //             return Err(OperationOutcomeError::error(
+        //                 IssueType::Invalid(None),
+        //                 "Column name is required".to_string(),
+        //             ));
+        //         };
+        //         output_result.insert(name.to_string(), vec![None]);
+        //     }
+        //     select_results.push(output_result);
+        // }
+
         for context in select_context {
             let mut output_result = OrderMap::new();
             for column in select_statement.column.as_ref().into_iter().flatten() {
