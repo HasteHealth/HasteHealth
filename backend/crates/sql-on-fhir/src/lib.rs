@@ -231,12 +231,6 @@ async fn process_resource<
 ) -> Result<Vec<OrderMap<String, Vec<Option<PrimitiveValue>>>>, OperationOutcomeError> {
     let fp_engine = FPEngine::new();
     let variables = Arc::new(build_hashmap_fp_variables(view_definition));
-    if let Some(_where_conditionals) = &view_definition.where_ {
-        return Err(OperationOutcomeError::error(
-            IssueType::NotSupported(None),
-            "where conditionals are not yet supported".to_string(),
-        ));
-    }
 
     let mut select_statement_results = Vec::with_capacity(view_definition.select.len());
 
