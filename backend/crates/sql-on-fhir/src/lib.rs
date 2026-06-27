@@ -226,11 +226,11 @@ async fn process_resource<
 >(
     _context: CTX,
     _client: Arc<Client>,
+    variables: Arc<HashMap<String, &dyn MetaValue>>,
     view_definition: &ViewDefinition,
     input: Box<Resource>,
 ) -> Result<Vec<OrderMap<String, Vec<Option<PrimitiveValue>>>>, OperationOutcomeError> {
     let fp_engine = FPEngine::new();
-    let variables = Arc::new(build_hashmap_fp_variables(view_definition));
 
     let mut select_statement_results = Vec::with_capacity(view_definition.select.len());
 
@@ -405,12 +405,21 @@ fn flatten_results(resource: Vec<Resource>) -> Vec<Box<Resource>> {
 
 async fn passes_where_clauses(
     fp_engine: &FPEngine,
+    variables: Arc<HashMap<String, &dyn MetaValue>>,
     where_clauses: &[&str],
     resource: &Resource,
 ) -> Result<bool, OperationOutcomeError> {
     for where_clause in where_clauses {
         let result = fp_engine
-            .evaluate(where_clause, vec![resource])
+            .evaluate_with_config(
+                where_clause,
+                vec![resource],
+                Arc::new(Config {
+                    variable_resolver: Some(haste_fhirpath::ExternalConstantResolver::Variable(
+                        variables.clone(),
+                    )),
+                }),
+            )
             .await
             .map_err(|e| {
                 OperationOutcomeError::error(
@@ -419,7 +428,7 @@ async fn passes_where_clauses(
                 )
             })?;
 
-        let k = result
+        let bool_results = result
             .iter()
             .map(|v| match v.fhir_type() {
                 "boolean" => Ok(v
@@ -440,7 +449,7 @@ async fn passes_where_clauses(
             })
             .collect::<Result<Vec<_>, _>>()?;
 
-        if k.iter().any(|v| **v == false) {
+        if bool_results.iter().any(|v| **v == false) {
             return Ok(false);
         }
     }
@@ -458,6 +467,7 @@ async fn process_view_definition<
     view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Binary, OperationOutcomeError> {
+    let variables = Arc::new(build_hashmap_fp_variables(view_definition));
     let _output_format = get_output_format(input)?;
     let _limit = input
         ._limit
@@ -486,13 +496,21 @@ async fn process_view_definition<
     for resource in input_ {
         if passes_where_clauses(
             &FPEngine::new(),
+            variables.clone(),
             where_fp_clauses.as_slice(),
             resource.as_ref(),
         )
         .await?
         {
             let task = async {
-                process_resource(context.clone(), client.clone(), view_definition, resource).await
+                process_resource(
+                    context.clone(),
+                    client.clone(),
+                    variables.clone(),
+                    view_definition,
+                    resource,
+                )
+                .await
             };
 
             tasks.push_back(task);
