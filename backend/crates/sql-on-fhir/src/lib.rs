@@ -19,7 +19,7 @@ use haste_fhirpath::{Config, FPEngine};
 use haste_reflect::MetaValue;
 use itertools::Itertools as _;
 use ordermap::OrderMap;
-use std::{collections::HashMap, sync::Arc};
+use std::{borrow::Cow, collections::HashMap, sync::Arc};
 
 use crate::conversions::primitives::PrimitiveValue;
 
@@ -27,15 +27,16 @@ mod conversions;
 mod output;
 
 async fn resolve_view_definition<
+    'a,
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: CTX,
     client: &Client,
-    input: &ViewDefinitionRun::Input,
-) -> Result<ViewDefinition, OperationOutcomeError> {
+    input: &'a ViewDefinitionRun::Input,
+) -> Result<Cow<'a, ViewDefinition>, OperationOutcomeError> {
     if let Some(view_definition) = &input.viewResource {
-        Ok(view_definition.clone())
+        Ok(Cow::Borrowed(view_definition))
     } else if let Some(view_definition_reference) = input.viewReference.as_ref() {
         let view_definition_reference = view_definition_reference
             .reference
@@ -85,7 +86,7 @@ async fn resolve_view_definition<
             })?;
 
         if let Resource::ViewDefinition(view_definition) = result {
-            Ok(view_definition)
+            Ok(Cow::Owned(view_definition))
         } else {
             Err(OperationOutcomeError::error(
                 IssueType::Invalid(None),
@@ -126,7 +127,7 @@ async fn get_resources_to_process<
 >(
     context: CTX,
     client: &Client,
-    view_definition: Arc<ViewDefinition>,
+    view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Vec<Resource>, OperationOutcomeError> {
     if let Some(input_resources) = input.resource.clone() {
@@ -415,7 +416,7 @@ async fn process_view_definition<
     context: CTX,
     output_format: &OutputFormatCodes,
     client: Arc<Client>,
-    view_definition: Arc<ViewDefinition>,
+    view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
 ) -> Result<Binary, OperationOutcomeError> {
     let _output_format = get_output_format(input)?;
@@ -426,26 +427,14 @@ async fn process_view_definition<
         .unwrap_or(1000);
 
     let input_ = flatten_results(
-        get_resources_to_process(
-            context.clone(),
-            client.as_ref(),
-            view_definition.clone(),
-            input,
-        )
-        .await?,
+        get_resources_to_process(context.clone(), client.as_ref(), view_definition, input).await?,
     );
 
     let mut tasks = FuturesOrdered::new();
 
     for resource in input_ {
         let task = async {
-            process_resource(
-                context.clone(),
-                client.clone(),
-                view_definition.as_ref(),
-                resource,
-            )
-            .await
+            process_resource(context.clone(), client.clone(), view_definition, resource).await
         };
 
         tasks.push_back(task);
@@ -502,7 +491,7 @@ pub async fn view_definition_run<
         context,
         &output_format,
         client,
-        view_definition.clone(),
+        view_definition.as_ref(),
         &input,
     )
     .await?;
