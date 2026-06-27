@@ -1,5 +1,6 @@
 use base64::{Engine as _, engine::general_purpose};
 use chrono::Utc;
+use futures::{StreamExt as _, stream::FuturesOrdered};
 use haste_fhir_client::{
     FHIRClient,
     url::{Parameter, ParsedParameter, ParsedParameters},
@@ -387,10 +388,7 @@ async fn process_resource<
     Ok(output_results)
 }
 
-fn flatten_results_filter_results(
-    view_definition: &ViewDefinition,
-    resource: Vec<Resource>,
-) -> Vec<Box<Resource>> {
+fn flatten_results(resource: Vec<Resource>) -> Vec<Box<Resource>> {
     let mut resources = Vec::new();
     for resource in resource {
         match resource {
@@ -437,35 +435,26 @@ async fn process_view_definition<
         .await?,
     );
 
-    let mut tasks = Vec::with_capacity(input_.len());
+    let mut tasks = FuturesOrdered::new();
 
     for resource in input_ {
-        let context_clone = context.clone();
-        let client_clone = client.clone();
-        let view_definition_clone = view_definition.clone();
-
-        let task = tokio::spawn(async move {
+        let task = async {
             process_resource(
-                context_clone,
-                client_clone,
-                view_definition_clone.as_ref(),
+                context.clone(),
+                client.clone(),
+                view_definition.as_ref(),
                 resource,
             )
             .await
-        });
+        };
 
-        tasks.push(task);
+        tasks.push_back(task);
     }
 
     let mut results = Vec::with_capacity(tasks.len());
 
-    for task in tasks {
-        results.push(task.await.map_err(|e| {
-            OperationOutcomeError::error(
-                IssueType::Exception(None),
-                format!("Task join error: {}", e),
-            )
-        })??);
+    while let Some(result) = tasks.next().await {
+        results.push(result?);
     }
 
     let results = results.into_iter().flatten().collect::<Vec<_>>();

@@ -2957,6 +2957,7 @@ dependencies = [
  "base64",
  "chrono",
  "csv",
+ "futures",
  "haste-fhir-client",
  "haste-fhir-generated-ops",
  "haste-fhir-model",

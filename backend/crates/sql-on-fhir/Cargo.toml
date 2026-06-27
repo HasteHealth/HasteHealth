@@ -22,6 +22,7 @@ base64 = "0.22.1"
 ordermap = "1.2.0"
 csv = "1.4"
 itertools = "0.15.0"
+futures = "0.3.32"
 
 [dev-dependencies]
 serde = { workspace = true, features = ["derive"] }
