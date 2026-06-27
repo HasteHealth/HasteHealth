@@ -11,7 +11,7 @@ use haste_fhir_model::r4::{
     generated::{
         resources::{Binary, Resource, ResourceType, ViewDefinition},
         terminology::{IssueType, OutputFormatCodes},
-        types::FHIRBase64Binary,
+        types::{FHIRBase64Binary, FHIRBoolean},
     },
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -409,6 +409,51 @@ fn flatten_results(resource: Vec<Resource>) -> Vec<Box<Resource>> {
     resources
 }
 
+async fn passes_where_clauses(
+    fp_engine: &FPEngine,
+    where_clauses: &[&str],
+    resource: &Resource,
+) -> Result<bool, OperationOutcomeError> {
+    for where_clause in where_clauses {
+        let result = fp_engine
+            .evaluate(where_clause, vec![resource])
+            .await
+            .map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Exception(None),
+                    format!("Error evaluating where clause expression: {}", e),
+                )
+            })?;
+
+        let k = result
+            .iter()
+            .map(|v| match v.fhir_type() {
+                "boolean" => Ok(v
+                    .as_any()
+                    .downcast_ref::<FHIRBoolean>()
+                    .and_then(|b| b.value.as_ref())
+                    .unwrap_or(&false)),
+                "http://hl7.org/fhirpath/System.Boolean" => {
+                    Ok(v.as_any().downcast_ref::<bool>().unwrap_or(&false))
+                }
+                _ => Err(OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "Where clause expression must evaluate to a boolean, got: {}",
+                        v.fhir_type()
+                    ),
+                )),
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+
+        if k.iter().any(|v| **v == false) {
+            return Ok(false);
+        }
+    }
+
+    Ok(true)
+}
+
 async fn process_view_definition<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
@@ -432,12 +477,32 @@ async fn process_view_definition<
 
     let mut tasks = FuturesOrdered::new();
 
-    for resource in input_ {
-        let task = async {
-            process_resource(context.clone(), client.clone(), view_definition, resource).await
-        };
+    let where_clauses = view_definition
+        .where_
+        .as_ref()
+        .map(|w| Cow::Borrowed(w))
+        .unwrap_or_else(|| Cow::Owned(vec![]));
 
-        tasks.push_back(task);
+    let where_fp_clauses = where_clauses
+        .iter()
+        .filter_map(|w| w.path.value.as_ref())
+        .map(|s| s.as_str())
+        .collect::<Vec<_>>();
+
+    for resource in input_ {
+        if passes_where_clauses(
+            &FPEngine::new(),
+            where_fp_clauses.as_slice(),
+            resource.as_ref(),
+        )
+        .await?
+        {
+            let task = async {
+                process_resource(context.clone(), client.clone(), view_definition, resource).await
+            };
+
+            tasks.push_back(task);
+        }
     }
 
     let mut results = Vec::with_capacity(tasks.len());
