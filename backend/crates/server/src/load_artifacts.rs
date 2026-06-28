@@ -7,7 +7,7 @@ use haste_config::Config;
 use haste_fhir_client::{
     FHIRClient,
     request::{FHIRSearchTypeRequest, SearchRequest},
-    url::{Parameter, ParsedParameter, ParsedParameters},
+    url::{Parameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType, SearchParameter, StructureDefinition},

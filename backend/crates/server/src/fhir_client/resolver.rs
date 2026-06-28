@@ -2,7 +2,7 @@ use crate::fhir_client::ServerCTX;
 use haste_fhir_client::{
     FHIRClient,
     canonical_resolver::CanonicalResolver,
-    url::{Parameter, ParsedParameter, ParsedParameters},
+    url::{Parameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use haste_fhir_operation_error::OperationOutcomeError;

@@ -20,7 +20,7 @@ use axum::{
 use axum_extra::{TypedHeader, extract::Cached, headers::UserAgent, routing::TypedPath};
 use haste_fhir_client::{
     request::{FHIRSearchTypeRequest, SearchRequest},
-    url::{Parameter, ParsedParameter, ParsedParameters},
+    url::{Parameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
     resources::{ClientApplication, ResourceType},

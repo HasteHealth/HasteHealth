@@ -3,7 +3,7 @@ use chrono::Utc;
 use futures::{StreamExt as _, stream::FuturesOrdered};
 use haste_fhir_client::{
     FHIRClient,
-    url::{Parameter, ParsedParameter, ParsedParameters},
+    url::{Parameter, ParsedParameters},
 };
 use haste_fhir_generated_ops::generated::ViewDefinitionRun;
 use haste_fhir_model::r4::{

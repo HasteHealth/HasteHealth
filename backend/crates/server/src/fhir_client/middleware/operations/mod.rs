@@ -11,7 +11,7 @@ use haste_fhir_client::{
     request::{
         FHIRInvokeSystemResponse, FHIRRequest, FHIRResponse, InvocationRequest, InvokeResponse,
     },
-    url::{Parameter, ParsedParameter, ParsedParameters},
+    url::{Parameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType},
