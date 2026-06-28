@@ -188,18 +188,12 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
                         ctx.clone(),
                         resource_type.clone(),
                         ParsedParameters::new(vec![
-                            ParsedParameter::Resource(Parameter {
-                                name: "_id".to_string(),
-                                value: vec![id.clone()],
-                                modifier: None,
-                                chains: None,
-                            }),
-                            ParsedParameter::Resource(Parameter {
-                                name: "_tag".to_string(),
-                                value: vec![HASH_TAG_SYSTEM.to_string() + "|" + sha_hash.as_str()],
-                                modifier: Some("not".to_string()),
-                                chains: None,
-                            }),
+                            Parameter::from(("_id".to_string(), vec![id.clone()])).into(),
+                            Parameter::from((
+                                "_tag".to_string(),
+                                vec![HASH_TAG_SYSTEM.to_string() + "|" + sha_hash.as_str()],
+                            ))
+                            .into(),
                         ]),
                         resource.clone(),
                     )
@@ -277,30 +271,13 @@ pub async fn get_all_sds<Repo: Repository, Search: SearchEngine>(
     let sd_search = FHIRSearchTypeRequest {
         resource_type: ResourceType::StructureDefinition,
         parameters: ParsedParameters::new(vec![
-            ParsedParameter::Resource(Parameter {
-                name: "kind".to_string(),
-                value: kinds.iter().map(|s| s.to_string()).collect(),
-                modifier: None,
-                chains: None,
-            }),
-            ParsedParameter::Resource(Parameter {
-                name: "abstract".to_string(),
-                value: vec!["false".to_string()],
-                modifier: None,
-                chains: None,
-            }),
-            ParsedParameter::Resource(Parameter {
-                name: "derivation".to_string(),
-                value: vec!["specialization".to_string()],
-                modifier: None,
-                chains: None,
-            }),
-            // ParsedParameter::Result(Parameter {
-            //     name: "_sort".to_string(),
-            //     value: vec!["url".to_string()],
-            //     modifier: None,
-            //     chains: None,
-            // }),
+            Parameter::from((
+                "kind".to_string(),
+                kinds.iter().map(|s| s.to_string()).collect(),
+            ))
+            .into(),
+            Parameter::from(("abstract".to_string(), vec!["false".to_string()])).into(),
+            Parameter::from(("derivation".to_string(), vec!["specialization".to_string()])).into(),
         ]),
     };
     let sd_results = search_engine

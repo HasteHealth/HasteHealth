@@ -73,12 +73,9 @@ impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> Canonica
                     .search_type(
                         self.0.clone(),
                         resource_type,
-            ParsedParameters::new(vec![ParsedParameter::Resource(Parameter {
-                                name: "url".to_string(),
-                                value: vec![url.to_string()],
-                                modifier: None,
-                                chains: None,
-                            })]),
+            ParsedParameters::new(vec![
+                            Parameter::from(("url".to_string(), vec![url.to_string()])).into()
+                        ])
                     )
                     .await?
                     .entry

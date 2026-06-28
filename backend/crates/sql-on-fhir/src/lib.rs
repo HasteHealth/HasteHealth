@@ -158,18 +158,8 @@ async fn get_resources_to_process<
                 context,
                 resource_type,
                 ParsedParameters::new(vec![
-                    ParsedParameter::Result(Parameter {
-                        name: "_since".to_string(),
-                        value: vec![since.to_string()],
-                        modifier: None,
-                        chains: None,
-                    }),
-                    ParsedParameter::Result(Parameter {
-                        name: "_count".to_string(),
-                        value: vec!["1000".to_string()],
-                        modifier: None,
-                        chains: None,
-                    }),
+                    Parameter::from(("_since".to_string(), vec![since.to_string()])).into(),
+                    Parameter::from(("_count".to_string(), vec!["1000".to_string()])).into(),
                 ]),
             )
             .await?;

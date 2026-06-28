@@ -381,12 +381,13 @@ async fn find_users_access_policy_version_ids<Search: SearchEngine>(
             &project,
             &SearchRequest::Type(FHIRSearchTypeRequest {
                 resource_type: ResourceType::AccessPolicyV2,
-                parameters: ParsedParameters::new(vec![ParsedParameter::Resource(Parameter {
-                    name: "link".to_string(),
-                    value: vec![format!("{}/{}", user_type.as_ref(), user_id)],
-                    modifier: None,
-                    chains: None,
-                })]),
+                parameters: ParsedParameters::new(vec![
+                    Parameter::from((
+                        "link".to_string(),
+                        vec![format!("{}/{}", user_type.as_ref(), user_id)],
+                    ))
+                    .into(),
+                ]),
             }),
             None,
         )

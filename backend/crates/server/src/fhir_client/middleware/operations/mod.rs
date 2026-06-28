@@ -196,12 +196,10 @@ impl<
                             .search_type(
                                 context.ctx.clone(),
                                 ResourceType::OperationDefinition,
-                                ParsedParameters::new(vec![ParsedParameter::Resource(Parameter {
-                                    name: "code".to_string(),
-                                    value: vec![code.to_string()],
-                                    modifier: None,
-                                    chains: None,
-                                })]),
+                                ParsedParameters::new(vec![
+                                    Parameter::from(("code".to_string(), vec![code.to_string()]))
+                                        .into(),
+                                ]),
                             )
                             .await?
                         && let Some(entry) = bundle

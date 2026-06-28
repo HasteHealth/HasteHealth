@@ -50,12 +50,10 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
         project,
         &SearchRequest::Type(FHIRSearchTypeRequest {
             resource_type: ResourceType::SearchParameter,
-            parameters: ParsedParameters::new(vec![ParsedParameter::Resource(Parameter {
-                name: "status".to_string(),
-                value: vec!["active".to_string()],
-                chains: None,
-                modifier: None,
-            })]),
+            parameters: ParsedParameters::new(vec![ParsedParameter::from(Parameter::from((
+                "status".to_string(),
+                vec!["active".to_string()],
+            )))]),
         }),
         &Some(SearchOptions {
             count_limit: Some(10_000),

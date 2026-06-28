@@ -3,6 +3,20 @@ use haste_fhir_operation_error::derive::OperationOutcomeError;
 use haste_reflect::{MetaValue, derive::Reflect};
 use std::{collections::HashMap, fmt::Display};
 
+static RESULT_PARAMETERS: &[&str] = &[
+    "_count",
+    "_offset",
+    "_total",
+    "_sort",
+    "_include",
+    "_revinclude",
+    "_summary",
+    "_elements",
+    "_contained",
+    "_containedType",
+    "_since",
+];
+
 #[derive(Derivative, Clone, Reflect)]
 #[fhir_type = "BackboneElement"]
 #[derivative(Debug)]
@@ -14,7 +28,40 @@ pub struct Parameter {
     pub chains: Option<Vec<String>>,
 }
 
-/// Represnet both resource parameters IE Patient.name and
+impl From<(String, Vec<String>)> for Parameter {
+    fn from(tuple: (String, Vec<String>)) -> Self {
+        Parameter {
+            name: tuple.0,
+            value: tuple.1,
+            modifier: None,
+            chains: None,
+        }
+    }
+}
+
+impl From<(String, Vec<String>, String)> for Parameter {
+    fn from(tuple: (String, Vec<String>, String)) -> Self {
+        Parameter {
+            name: tuple.0,
+            value: tuple.1,
+            modifier: Some(tuple.2),
+            chains: None,
+        }
+    }
+}
+
+impl From<(String, Vec<String>, Option<String>, Vec<String>)> for Parameter {
+    fn from(tuple: (String, Vec<String>, Option<String>, Vec<String>)) -> Self {
+        Parameter {
+            name: tuple.0,
+            value: tuple.1,
+            modifier: tuple.2,
+            chains: Some(tuple.3),
+        }
+    }
+}
+
+/// Represent both resource parameters IE Patient.name and
 /// result parameters IE _count
 #[derive(Derivative, Clone)]
 #[derivative(Debug = "transparent")]
@@ -23,6 +70,16 @@ pub enum ParsedParameter {
     Result(Parameter),
     #[derivative(Debug = "transparent")]
     Resource(Parameter),
+}
+
+impl From<Parameter> for ParsedParameter {
+    fn from(param: Parameter) -> Self {
+        if RESULT_PARAMETERS.contains(&param.name.as_str()) {
+            ParsedParameter::Result(param)
+        } else {
+            ParsedParameter::Resource(param)
+        }
+    }
 }
 
 impl ParsedParameter {
@@ -107,20 +164,6 @@ impl Display for ParseError {
 }
 
 impl std::error::Error for ParseError {}
-
-static RESULT_PARAMETERS: &[&str] = &[
-    "_count",
-    "_offset",
-    "_total",
-    "_sort",
-    "_include",
-    "_revinclude",
-    "_summary",
-    "_elements",
-    "_contained",
-    "_containedType",
-    "_since",
-];
 
 #[derive(Derivative, Clone)]
 #[derivative(Debug = "transparent")]
