@@ -235,11 +235,9 @@ async fn process_resource<
     let mut select_statement_results = Vec::with_capacity(view_definition.select.len());
 
     for select_statement in view_definition.select.iter() {
-        let fp_config = Arc::new(Config {
-            variable_resolver: Some(haste_fhirpath::ExternalConstantResolver::Variable(
-                variables.clone(),
-            )),
-        });
+        let fp_config = Arc::new(Config::builder().with_variable_resolver(
+            haste_fhirpath::ExternalConstantResolver::Variable(variables.clone()),
+        ));
 
         let mut iterable_context = None;
         let mut set_null = false;
@@ -434,11 +432,9 @@ async fn passes_where_clauses(
             .evaluate_with_config(
                 where_clause,
                 vec![resource],
-                Arc::new(Config {
-                    variable_resolver: Some(haste_fhirpath::ExternalConstantResolver::Variable(
-                        variables.clone(),
-                    )),
-                }),
+                Arc::new(Config::builder().with_variable_resolver(
+                    haste_fhirpath::ExternalConstantResolver::Variable(variables.clone()),
+                )),
             )
             .await
             .map_err(|e| {

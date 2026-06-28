@@ -17,21 +17,19 @@ pub fn create_config<
     context: Arc<PolicyContext<CTX, Client>>,
     pointer: TypedPointer<AccessPolicyV2, AccessPolicyV2>,
 ) -> haste_fhirpath::Config<'a> {
-    haste_fhirpath::Config {
-        variable_resolver: Some(ExternalConstantResolver::Function(Box::new(
-            move |variable_id: String| {
-                let pointer = pointer.clone();
-                let context = context.clone();
-                Box::pin(async move {
-                    if let Some(result) = pip(context, pointer, &variable_id).await.ok() {
-                        result
-                    } else {
-                        None
-                    }
-                })
-            },
-        ))),
-    }
+    haste_fhirpath::Config::builder().with_variable_resolver(ExternalConstantResolver::Function(
+        Box::new(move |variable_id: String| {
+            let pointer = pointer.clone();
+            let context = context.clone();
+            Box::pin(async move {
+                if let Some(result) = pip(context, pointer, &variable_id).await.ok() {
+                    result
+                } else {
+                    None
+                }
+            })
+        }),
+    ))
 }
 
 pub enum ExpressionResult<'a> {

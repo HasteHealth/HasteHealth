@@ -883,7 +883,34 @@ pub enum ExternalConstantResolver<'a> {
 }
 
 pub struct Config<'a> {
-    pub variable_resolver: Option<ExternalConstantResolver<'a>>,
+    // Used to resolve resource_id in getResourceKey for sql-on-fhir.
+    resource_id: Option<String>,
+    variable_resolver: Option<ExternalConstantResolver<'a>>,
+}
+
+impl Default for Config<'_> {
+    fn default() -> Self {
+        Self {
+            resource_id: None,
+            variable_resolver: None,
+        }
+    }
+}
+
+impl<'a> Config<'a> {
+    pub fn builder() -> Self {
+        Config::default()
+    }
+
+    pub fn with_variable_resolver(mut self, resolver: ExternalConstantResolver<'a>) -> Self {
+        self.variable_resolver = Some(resolver);
+        self
+    }
+
+    pub fn with_resource_id(mut self, resource_id: String) -> Self {
+        self.resource_id = Some(resource_id);
+        self
+    }
 }
 
 async fn resolve_external_constant<'a>(
@@ -1159,13 +1186,13 @@ mod tests {
             id: Some("my-patient".to_string()),
             ..Default::default()
         };
-        let config = Arc::new(Config {
-            variable_resolver: Some(ExternalConstantResolver::Variable(Arc::new(
+        let config = Arc::new(
+            Config::builder().with_variable_resolver(ExternalConstantResolver::Variable(Arc::new(
                 vec![("patient".to_string(), &patient as &dyn MetaValue)]
                     .into_iter()
                     .collect(),
             ))),
-        });
+        );
 
         let result = engine
             .evaluate_with_config("%patient", vec![], config.clone())
@@ -2000,8 +2027,8 @@ mod tests {
     async fn test_external_constant_function() {
         let engine = FPEngine::new();
 
-        let config = Arc::new(Config {
-            variable_resolver: (Some(ExternalConstantResolver::Function(Box::new(|v| {
+        let config = Arc::new(Config::builder().with_variable_resolver(
+            ExternalConstantResolver::Function(Box::new(|v| {
                 Box::pin(async move {
                     match v.as_ref() {
                         "test_variable" => Some(ResolvedValue::Box(Box::new(Patient {
@@ -2018,8 +2045,8 @@ mod tests {
                         _ => None,
                     }
                 })
-            })))),
-        });
+            })),
+        ));
 
         let result = engine
             .evaluate_with_config("%test_variable.name.given", vec![], config)
@@ -2063,9 +2090,7 @@ mod tests {
             }))
         };
 
-        let config = Arc::new(Config {
-            variable_resolver: (Some(resolver)),
-        });
+        let config = Arc::new(Config::builder().with_variable_resolver(resolver));
 
         let result = engine
             .evaluate_with_config("%test_variable.name.given", vec![], config)
