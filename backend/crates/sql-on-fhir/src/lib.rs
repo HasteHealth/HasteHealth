@@ -502,7 +502,7 @@ async fn process_view_definition<
         )
         .await?
         {
-            let task = async {
+            tasks.push_back(async {
                 process_resource(
                     context.clone(),
                     client.clone(),
@@ -511,9 +511,7 @@ async fn process_view_definition<
                     resource,
                 )
                 .await
-            };
-
-            tasks.push_back(task);
+            });
         }
     }
 
