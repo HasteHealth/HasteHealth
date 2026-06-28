@@ -249,7 +249,7 @@ async fn process_resource<
             .as_ref()
             .and_then(|f| f.value.as_ref())
         {
-            iterable_context = Some(
+            iterable_context = Some(vec![
                 fp_engine
                     .evaluate_with_config(for_each_fp, vec![&input], fp_config.clone())
                     .await
@@ -259,13 +259,13 @@ async fn process_resource<
                             format!("Error evaluating forEach expression: {}", e),
                         )
                     })?,
-            );
+            ]);
         } else if let Some(for_each_or_null_fp) = select_statement
             .forEachOrNull
             .as_ref()
             .and_then(|f| f.value.as_ref())
         {
-            iterable_context = Some(
+            iterable_context = Some(vec![
                 fp_engine
                     .evaluate_with_config(for_each_or_null_fp, vec![&input], fp_config.clone())
                     .await
@@ -275,18 +275,38 @@ async fn process_resource<
                             format!("Error evaluating forEachOrNull expression: {}", e),
                         )
                     })?,
-            );
+            ]);
             set_null = true;
-        } else if let Some(_repeat) = select_statement.repeat.as_ref() {
-            return Err(OperationOutcomeError::error(
-                IssueType::NotSupported(None),
-                "repeat is not yet supported".to_string(),
-            ));
+        } else if let Some(_repeat) = select_statement
+            .repeat
+            .as_ref()
+            .map(|r| r.iter().filter_map(|r| r.value.as_ref()))
+        {
+            let mut repeat_fps = vec![];
+            for repeat_fp in _repeat {
+                let repeat = format!("$this.repeat({})", repeat_fp);
+                repeat_fps.push(
+                    fp_engine
+                        .evaluate_with_config(&repeat, vec![&input], fp_config.clone())
+                        .await
+                        .map_err(|e| {
+                            OperationOutcomeError::error(
+                                IssueType::Exception(None),
+                                format!("Error evaluating repeat expression: {}", e),
+                            )
+                        })?,
+                );
+            }
+
+            iterable_context = Some(repeat_fps);
         }
 
         let select_context: Vec<&dyn MetaValue> = if let Some(iterable) = iterable_context.as_ref()
         {
-            iterable.iter().collect()
+            iterable
+                .iter()
+                .flat_map(|item| item.iter())
+                .collect::<Vec<&dyn MetaValue>>()
         } else {
             vec![&input]
         };
