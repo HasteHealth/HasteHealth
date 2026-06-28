@@ -12,7 +12,7 @@ use haste_fhir_model::r4::{
     },
     generated::{
         resources::ResourceType,
-        types::{FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRString, Reference},
+        types::{FHIRBoolean, FHIRDecimal, FHIRId, FHIRInteger, FHIRString, Reference},
     },
 };
 use haste_reflect::MetaValue;
@@ -214,6 +214,7 @@ enum Cardinality {
     Zero,
     One,
     Many,
+    Custom(usize, usize),
 }
 
 fn validate_arguments(
@@ -223,6 +224,13 @@ fn validate_arguments(
     match cardinality {
         Cardinality::Zero => {
             if ast_arguments.len() != 0 {
+                return Err(FHIRPathError::OperationError(
+                    OperationError::InvalidCardinality,
+                ));
+            }
+        }
+        Cardinality::Custom(min, max) => {
+            if ast_arguments.len() < *min || ast_arguments.len() > *max {
                 return Err(FHIRPathError::OperationError(
                     OperationError::InvalidCardinality,
                 ));
@@ -497,6 +505,51 @@ async fn evaluate_function<'a>(
             }
 
             Ok(context.new_context_from(next_ctx))
+        }
+        // Functions for viewDefinitions
+        "getReferenceKey" => {
+            validate_arguments(&function.arguments, &Cardinality::Custom(0, 1))?;
+
+            let type_to_filter_by = if let Some(resource_type) = function.arguments.get(0) {
+                let resource_type = derive_typename(resource_type)?;
+                Some(resource_type)
+            } else {
+                None
+            };
+
+            let ids = context
+                .iter()
+                .filter_map(|d| {
+                    let reference = d.as_any().downcast_ref::<Reference>()?;
+                    let mut pieces = reference
+                        .reference
+                        .as_ref()
+                        .and_then(|r| r.value.as_ref())
+                        .map(|r| r.split("/"))?;
+
+                    let resource_type = pieces.next()?;
+                    let id = pieces.next()?;
+
+                    if let Some(type_to_filter_by) = &type_to_filter_by
+                        && !check_type_name(resource_type, type_to_filter_by)
+                    {
+                        return None;
+                    }
+
+                    Some(FHIRId {
+                        value: Some(id.to_string()),
+                        ..Default::default()
+                    })
+                })
+                .collect::<Vec<_>>();
+
+            let mut next_context = Vec::with_capacity(ids.len());
+
+            for id in ids {
+                next_context.push(context.allocate_literal(id).await);
+            }
+
+            return Ok(context.new_context_from(next_context));
         }
         _ => {
             return Err(FHIRPathError::NotImplemented(format!(
