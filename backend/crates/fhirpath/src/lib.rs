@@ -1033,7 +1033,8 @@ mod tests {
         datetime::DateTime,
         generated::{
             resources::{
-                Bundle, Patient, PatientDeceasedTypeChoice, PatientLink, Resource, SearchParameter,
+                Bundle, Group, GroupMember, Patient, PatientDeceasedTypeChoice, PatientLink,
+                Resource, SearchParameter,
             },
             types::{
                 Extension, ExtensionValueTypeChoice, FHIRDateTime, FHIRString, FHIRUri, HumanName,
@@ -2131,5 +2132,51 @@ mod tests {
             .downcast_ref::<FHIRString>()
             .unwrap();
         assert_eq!(value.value.as_deref(), Some("xyz"));
+    }
+
+    #[tokio::test]
+    async fn get_reference_key() {
+        let engine = FPEngine::new();
+
+        let group = Group {
+            member: Some(vec![GroupMember {
+                entity: Box::new(Reference {
+                    reference: Some(Box::new("Patient/123".to_string().into())),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }]),
+            ..Default::default()
+        };
+
+        let result = engine
+            .evaluate("$this.member.entity.getReferenceKey(Patient)", vec![&group])
+            .await
+            .expect("Failed to evaluate getReferenceKey");
+
+        let ids = result.iter().collect::<Vec<_>>();
+
+        assert_eq!(ids.len(), 1);
+
+        let s = ids[0].as_any().downcast_ref::<FHIRId>().unwrap();
+        assert_eq!(s.value.as_deref(), Some("123"));
+
+        let result = engine
+            .evaluate("$this.member.entity.getReferenceKey(Group)", vec![&group])
+            .await
+            .expect("Failed to evaluate getReferenceKey");
+
+        let ids = result.iter().collect::<Vec<_>>();
+        assert_eq!(ids.len(), 0);
+
+        let result = engine
+            .evaluate("$this.member.entity.getReferenceKey()", vec![&group])
+            .await
+            .expect("Failed to evaluate getReferenceKey");
+
+        let ids = result.iter().collect::<Vec<_>>();
+        assert_eq!(ids.len(), 1);
+        let s = ids[0].as_any().downcast_ref::<FHIRId>().unwrap();
+        assert_eq!(s.value.as_deref(), Some("123"));
     }
 }
