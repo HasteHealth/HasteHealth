@@ -16,7 +16,6 @@ import { Tab, Tabs } from "../base/tabs";
 import { ClientProps } from "../fhir/types";
 import { basicSetup } from "codemirror";
 import { ResponseError } from "@haste-health/client/lib/http";
-import { BadValue } from "../fhir/complex/AddressReadOnly.stories";
 
 const DEFAULT_VIEW_DEFINITION: ViewDefinition = {
   resourceType: "ViewDefinition",
