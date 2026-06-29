@@ -581,11 +581,18 @@ fn generate_resource_type(resource_types: &Vec<ResourceTypeInfo>) -> TokenStream
     });
 
     let from_str_variants = resource_types.iter().map(|resource_type_info| {
-        let resource_type = format_ident!("{}", generate::capitalize(&resource_type_info.rust_type_name));
+        let struct_name = &resource_type_info.rust_type_name;
+        let resource_type = format_ident!("{}", generate::capitalize(struct_name));
         let resource_name = &resource_type_info.resource_type;
-        
-        quote! {
-           #resource_name => Ok(ResourceType::#resource_type)
+
+        if resource_type != resource_name {
+            quote! {
+                #struct_name | #resource_name => Ok(ResourceType::#resource_type)
+            }
+        } else {
+            quote! {
+                #resource_name => Ok(ResourceType::#resource_type)
+            }
         }
     });
 

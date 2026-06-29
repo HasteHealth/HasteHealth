@@ -31103,7 +31103,7 @@ impl TryFrom<String> for ResourceType {
             "ValueSet" => Ok(ResourceType::ValueSet),
             "VerificationResult" => Ok(ResourceType::VerificationResult),
             "VisionPrescription" => Ok(ResourceType::VisionPrescription),
-            "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition" => {
+            "ViewDefinition" | "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition" => {
                 Ok(ResourceType::ViewDefinition)
             }
             _ => Err(ResourceTypeError::Invalid(s.to_string())),
@@ -31271,7 +31271,7 @@ impl TryFrom<&str> for ResourceType {
             "ValueSet" => Ok(ResourceType::ValueSet),
             "VerificationResult" => Ok(ResourceType::VerificationResult),
             "VisionPrescription" => Ok(ResourceType::VisionPrescription),
-            "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition" => {
+            "ViewDefinition" | "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition" => {
                 Ok(ResourceType::ViewDefinition)
             }
             _ => Err(ResourceTypeError::Invalid(s.to_string())),

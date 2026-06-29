@@ -42,7 +42,7 @@
             "display": "HL7V2"
         },
         {
-            "code": "ViewDefinition",
+            "code": "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition",
             "display": "ViewDefinition"
         }
     ]

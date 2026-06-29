@@ -4718,9 +4718,6 @@ pub enum AllTypes {
     #[doc = "VerificationResult"]
     #[code = "VerificationResult"]
     VerificationResult(Option<Element>),
-    #[doc = "ViewDefinition"]
-    #[code = "ViewDefinition"]
-    ViewDefinition(Option<Element>),
     #[doc = "VisionPrescription"]
     #[code = "VisionPrescription"]
     VisionPrescription(Option<Element>),
@@ -4745,6 +4742,9 @@ pub enum AllTypes {
     #[doc = "decimal"]
     #[code = "decimal"]
     Decimal(Option<Element>),
+    #[doc = "ViewDefinition"]
+    #[code = "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition"]
+    Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(Option<Element>),
     #[doc = "id"]
     #[code = "id"]
     Id(Option<Element>),
@@ -4989,7 +4989,6 @@ impl AllTypes {
             AllTypes::User(e) => e.as_ref(),
             AllTypes::ValueSet(e) => e.as_ref(),
             AllTypes::VerificationResult(e) => e.as_ref(),
-            AllTypes::ViewDefinition(e) => e.as_ref(),
             AllTypes::VisionPrescription(e) => e.as_ref(),
             AllTypes::Base64Binary(e) => e.as_ref(),
             AllTypes::Boolean(e) => e.as_ref(),
@@ -4998,6 +4997,7 @@ impl AllTypes {
             AllTypes::Date(e) => e.as_ref(),
             AllTypes::DateTime(e) => e.as_ref(),
             AllTypes::Decimal(e) => e.as_ref(),
+            AllTypes::Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(e) => e.as_ref(),
             AllTypes::Id(e) => e.as_ref(),
             AllTypes::Instant(e) => e.as_ref(),
             AllTypes::Integer(e) => e.as_ref(),
@@ -5217,7 +5217,6 @@ impl AllTypes {
             AllTypes::User(e) => e.get_or_insert_with(Default::default),
             AllTypes::ValueSet(e) => e.get_or_insert_with(Default::default),
             AllTypes::VerificationResult(e) => e.get_or_insert_with(Default::default),
-            AllTypes::ViewDefinition(e) => e.get_or_insert_with(Default::default),
             AllTypes::VisionPrescription(e) => e.get_or_insert_with(Default::default),
             AllTypes::Base64Binary(e) => e.get_or_insert_with(Default::default),
             AllTypes::Boolean(e) => e.get_or_insert_with(Default::default),
@@ -5226,6 +5225,9 @@ impl AllTypes {
             AllTypes::Date(e) => e.get_or_insert_with(Default::default),
             AllTypes::DateTime(e) => e.get_or_insert_with(Default::default),
             AllTypes::Decimal(e) => e.get_or_insert_with(Default::default),
+            AllTypes::Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(e) => {
+                e.get_or_insert_with(Default::default)
+            }
             AllTypes::Id(e) => e.get_or_insert_with(Default::default),
             AllTypes::Instant(e) => e.get_or_insert_with(Default::default),
             AllTypes::Integer(e) => e.get_or_insert_with(Default::default),
@@ -5463,7 +5465,6 @@ impl TryFrom<String> for AllTypes {
             "User" => Ok(AllTypes::User(None)),
             "ValueSet" => Ok(AllTypes::ValueSet(None)),
             "VerificationResult" => Ok(AllTypes::VerificationResult(None)),
-            "ViewDefinition" => Ok(AllTypes::ViewDefinition(None)),
             "VisionPrescription" => Ok(AllTypes::VisionPrescription(None)),
             "base64Binary" => Ok(AllTypes::Base64Binary(None)),
             "boolean" => Ok(AllTypes::Boolean(None)),
@@ -5472,6 +5473,9 @@ impl TryFrom<String> for AllTypes {
             "date" => Ok(AllTypes::Date(None)),
             "dateTime" => Ok(AllTypes::DateTime(None)),
             "decimal" => Ok(AllTypes::Decimal(None)),
+            "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition" => {
+                Ok(AllTypes::Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(None))
+            }
             "id" => Ok(AllTypes::Id(None)),
             "instant" => Ok(AllTypes::Instant(None)),
             "integer" => Ok(AllTypes::Integer(None)),
@@ -5717,7 +5721,6 @@ impl Into<Option<String>> for &AllTypes {
             AllTypes::User(_) => Some("User".to_string()),
             AllTypes::ValueSet(_) => Some("ValueSet".to_string()),
             AllTypes::VerificationResult(_) => Some("VerificationResult".to_string()),
-            AllTypes::ViewDefinition(_) => Some("ViewDefinition".to_string()),
             AllTypes::VisionPrescription(_) => Some("VisionPrescription".to_string()),
             AllTypes::Base64Binary(_) => Some("base64Binary".to_string()),
             AllTypes::Boolean(_) => Some("boolean".to_string()),
@@ -5726,6 +5729,9 @@ impl Into<Option<String>> for &AllTypes {
             AllTypes::Date(_) => Some("date".to_string()),
             AllTypes::DateTime(_) => Some("dateTime".to_string()),
             AllTypes::Decimal(_) => Some("decimal".to_string()),
+            AllTypes::Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(_) => {
+                Some("https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition".to_string())
+            }
             AllTypes::Id(_) => Some("id".to_string()),
             AllTypes::Instant(_) => Some("instant".to_string()),
             AllTypes::Integer(_) => Some("integer".to_string()),
@@ -5959,7 +5965,6 @@ impl MetaValue for AllTypes {
                 AllTypes::User(Some(e)) => e.get_field(field),
                 AllTypes::ValueSet(Some(e)) => e.get_field(field),
                 AllTypes::VerificationResult(Some(e)) => e.get_field(field),
-                AllTypes::ViewDefinition(Some(e)) => e.get_field(field),
                 AllTypes::VisionPrescription(Some(e)) => e.get_field(field),
                 AllTypes::Base64Binary(Some(e)) => e.get_field(field),
                 AllTypes::Boolean(Some(e)) => e.get_field(field),
@@ -5968,6 +5973,9 @@ impl MetaValue for AllTypes {
                 AllTypes::Date(Some(e)) => e.get_field(field),
                 AllTypes::DateTime(Some(e)) => e.get_field(field),
                 AllTypes::Decimal(Some(e)) => e.get_field(field),
+                AllTypes::Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(Some(e)) => {
+                    e.get_field(field)
+                }
                 AllTypes::Id(Some(e)) => e.get_field(field),
                 AllTypes::Instant(Some(e)) => e.get_field(field),
                 AllTypes::Integer(Some(e)) => e.get_field(field),
@@ -6189,7 +6197,6 @@ impl MetaValue for AllTypes {
                 AllTypes::User(Some(e)) => e.get_field_mut(field),
                 AllTypes::ValueSet(Some(e)) => e.get_field_mut(field),
                 AllTypes::VerificationResult(Some(e)) => e.get_field_mut(field),
-                AllTypes::ViewDefinition(Some(e)) => e.get_field_mut(field),
                 AllTypes::VisionPrescription(Some(e)) => e.get_field_mut(field),
                 AllTypes::Base64Binary(Some(e)) => e.get_field_mut(field),
                 AllTypes::Boolean(Some(e)) => e.get_field_mut(field),
@@ -6198,6 +6205,9 @@ impl MetaValue for AllTypes {
                 AllTypes::Date(Some(e)) => e.get_field_mut(field),
                 AllTypes::DateTime(Some(e)) => e.get_field_mut(field),
                 AllTypes::Decimal(Some(e)) => e.get_field_mut(field),
+                AllTypes::Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(Some(e)) => {
+                    e.get_field_mut(field)
+                }
                 AllTypes::Id(Some(e)) => e.get_field_mut(field),
                 AllTypes::Instant(Some(e)) => e.get_field_mut(field),
                 AllTypes::Integer(Some(e)) => e.get_field_mut(field),
@@ -89549,12 +89559,12 @@ pub enum ResourceTypes {
     #[doc = "VerificationResult"]
     #[code = "VerificationResult"]
     VerificationResult(Option<Element>),
-    #[doc = "ViewDefinition"]
-    #[code = "ViewDefinition"]
-    ViewDefinition(Option<Element>),
     #[doc = "VisionPrescription"]
     #[code = "VisionPrescription"]
     VisionPrescription(Option<Element>),
+    #[doc = "ViewDefinition"]
+    #[code = "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition"]
+    Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(Option<Element>),
     #[doc = "If value is missing and just the element is present."]
     Null(Option<Element>),
 }
@@ -89715,8 +89725,10 @@ impl ResourceTypes {
             ResourceTypes::User(e) => e.as_ref(),
             ResourceTypes::ValueSet(e) => e.as_ref(),
             ResourceTypes::VerificationResult(e) => e.as_ref(),
-            ResourceTypes::ViewDefinition(e) => e.as_ref(),
             ResourceTypes::VisionPrescription(e) => e.as_ref(),
+            ResourceTypes::Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(e) => {
+                e.as_ref()
+            }
             ResourceTypes::Null(e) => e.as_ref(),
         }
     }
@@ -89888,8 +89900,10 @@ impl ResourceTypes {
             ResourceTypes::User(e) => e.get_or_insert_with(Default::default),
             ResourceTypes::ValueSet(e) => e.get_or_insert_with(Default::default),
             ResourceTypes::VerificationResult(e) => e.get_or_insert_with(Default::default),
-            ResourceTypes::ViewDefinition(e) => e.get_or_insert_with(Default::default),
             ResourceTypes::VisionPrescription(e) => e.get_or_insert_with(Default::default),
+            ResourceTypes::Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(e) => {
+                e.get_or_insert_with(Default::default)
+            }
             ResourceTypes::Null(e) => e.get_or_insert_with(Default::default),
         }
     }
@@ -90075,8 +90089,10 @@ impl TryFrom<String> for ResourceTypes {
             "User" => Ok(ResourceTypes::User(None)),
             "ValueSet" => Ok(ResourceTypes::ValueSet(None)),
             "VerificationResult" => Ok(ResourceTypes::VerificationResult(None)),
-            "ViewDefinition" => Ok(ResourceTypes::ViewDefinition(None)),
             "VisionPrescription" => Ok(ResourceTypes::VisionPrescription(None)),
+            "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition" => {
+                Ok(ResourceTypes::Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(None))
+            }
             _ => Err(format!("Unknown code '{}'", value)),
         }
     }
@@ -90278,8 +90294,10 @@ impl Into<Option<String>> for &ResourceTypes {
             ResourceTypes::User(_) => Some("User".to_string()),
             ResourceTypes::ValueSet(_) => Some("ValueSet".to_string()),
             ResourceTypes::VerificationResult(_) => Some("VerificationResult".to_string()),
-            ResourceTypes::ViewDefinition(_) => Some("ViewDefinition".to_string()),
             ResourceTypes::VisionPrescription(_) => Some("VisionPrescription".to_string()),
+            ResourceTypes::Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(_) => {
+                Some("https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition".to_string())
+            }
             ResourceTypes::Null(_) => None,
         }
     }
@@ -90455,8 +90473,10 @@ impl MetaValue for ResourceTypes {
                 ResourceTypes::User(Some(e)) => e.get_field(field),
                 ResourceTypes::ValueSet(Some(e)) => e.get_field(field),
                 ResourceTypes::VerificationResult(Some(e)) => e.get_field(field),
-                ResourceTypes::ViewDefinition(Some(e)) => e.get_field(field),
                 ResourceTypes::VisionPrescription(Some(e)) => e.get_field(field),
+                ResourceTypes::Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(
+                    Some(e),
+                ) => e.get_field(field),
                 ResourceTypes::Null(Some(e)) => e.get_field(field),
                 _ => None,
             },
@@ -90620,8 +90640,10 @@ impl MetaValue for ResourceTypes {
                 ResourceTypes::User(Some(e)) => e.get_field_mut(field),
                 ResourceTypes::ValueSet(Some(e)) => e.get_field_mut(field),
                 ResourceTypes::VerificationResult(Some(e)) => e.get_field_mut(field),
-                ResourceTypes::ViewDefinition(Some(e)) => e.get_field_mut(field),
                 ResourceTypes::VisionPrescription(Some(e)) => e.get_field_mut(field),
+                ResourceTypes::Https___SqlOnFhirOrg_Ig_StructureDefinition_ViewDefinition(
+                    Some(e),
+                ) => e.get_field_mut(field),
                 ResourceTypes::Null(Some(e)) => e.get_field_mut(field),
                 _ => None,
             },
