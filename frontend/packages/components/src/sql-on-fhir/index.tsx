@@ -193,7 +193,7 @@ function parseJson(json: string): ParsedResults {
 
   const parsed = JSON.parse(json);
   if (!Array.isArray(parsed)) {
-    throw new Error("Expected JSON output to be an array of rows");
+    throw new TypeError("Expected JSON output to be an array of rows");
   }
 
   return rowsToParsedResults(parsed as RawResultRow[]);
