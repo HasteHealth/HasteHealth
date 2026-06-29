@@ -59,6 +59,14 @@ type ParsedResults = {
   rows: string[][];
 };
 
+type ExportFormat = "csv" | "json" | "ndjson";
+
+const EXPORT_FORMAT_OPTIONS: { value: ExportFormat; label: string }[] = [
+  { value: "csv", label: "CSV" },
+  { value: "json", label: "JSON" },
+  { value: "ndjson", label: "NDJSON" },
+];
+
 function decodeBase64ToString(value?: string): string {
   if (!value) {
     return "";
@@ -138,10 +146,79 @@ function parseCsv(csv: string): ParsedResults {
   };
 }
 
+type RawResultRow = Record<
+  string,
+  Array<string | number | boolean | null> | undefined
+>;
+
+function primitiveToString(
+  value: string | number | boolean | null | undefined,
+): string {
+  if (value === null || value === undefined) {
+    return "";
+  }
+  return String(value);
+}
+
+function rowsToParsedResults(rows: RawResultRow[]): ParsedResults {
+  if (rows.length === 0) {
+    return { headers: [], rows: [] };
+  }
+
+  const headers = Object.keys(rows[0]);
+  return {
+    headers,
+    rows: rows.map((row) =>
+      headers.map((header) =>
+        (row[header] ?? [])
+          .filter((value) => value !== null && value !== undefined)
+          .map(primitiveToString)
+          .join(";"),
+      ),
+    ),
+  };
+}
+
+function parseJson(json: string): ParsedResults {
+  if (!json.trim()) {
+    return { headers: [], rows: [] };
+  }
+
+  const parsed = JSON.parse(json);
+  if (!Array.isArray(parsed)) {
+    throw new Error("Expected JSON output to be an array of rows");
+  }
+
+  return rowsToParsedResults(parsed as RawResultRow[]);
+}
+
+function parseNdjson(ndjson: string): ParsedResults {
+  const rows = ndjson
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => JSON.parse(line) as RawResultRow);
+
+  return rowsToParsedResults(rows);
+}
+
+function parseResults(format: ExportFormat, raw: string): ParsedResults {
+  switch (format) {
+    case "json":
+      return parseJson(raw);
+    case "ndjson":
+      return parseNdjson(raw);
+    case "csv":
+      return parseCsv(raw);
+  }
+}
+
 function EditorPane({
   extensions = [basicSetup],
   viewDefinition,
   setViewDefinition,
+  exportFormat,
+  setExportFormat,
   onRun,
   onReset,
   isRunning,
@@ -149,6 +226,8 @@ function EditorPane({
   extensions?: any[];
   viewDefinition: string;
   setViewDefinition: (value: string) => void;
+  exportFormat: ExportFormat;
+  setExportFormat: (format: ExportFormat) => void;
   onRun: () => void;
   onReset: () => void;
   isRunning: boolean;
@@ -159,7 +238,24 @@ function EditorPane({
         <h3 className="text-sm font-semibold text-slate-800">
           ViewDefinition Editor
         </h3>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-xs text-slate-600">
+            <span>Format</span>
+            <select
+              className="rounded border border-slate-300 bg-white px-2 py-1 text-xs"
+              value={exportFormat}
+              onChange={(event) =>
+                setExportFormat(event.target.value as ExportFormat)
+              }
+              disabled={isRunning}
+            >
+              {EXPORT_FORMAT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
           <Button
             buttonType="secondary"
             buttonSize="small"
@@ -357,7 +453,8 @@ export function ViewDefinitionSqlRunner({
     headers: [],
     rows: [],
   });
-  const [csv, setCsv] = useState<string>();
+  const [rawOutput, setRawOutput] = useState<string>();
+  const [exportFormat, setExportFormat] = useState<ExportFormat>("csv");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [currentPage, setCurrentPage] = useState(1);
@@ -374,7 +471,7 @@ export function ViewDefinitionSqlRunner({
         {},
         fhirVersion,
         {
-          _format: "csv" as code,
+          _format: exportFormat as code,
           header: true,
           viewResource: parsedViewDefinition,
           resource: resources,
@@ -382,12 +479,10 @@ export function ViewDefinitionSqlRunner({
         },
       );
 
-      console.log("ViewDefinitionRun output:", binary);
-
-      const csv = decodeBase64ToString(binary.data);
-      const parsedResults = parseCsv(csv);
+      const rawData = decodeBase64ToString(binary.data);
+      const parsedResults = parseResults(exportFormat, rawData);
       setResults(parsedResults);
-      setCsv(csv);
+      setRawOutput(rawData);
       setCurrentPage(1);
       setActiveTab(1);
     } catch (e) {
@@ -423,6 +518,8 @@ export function ViewDefinitionSqlRunner({
           extensions={editorExtensions}
           viewDefinition={viewDefinition}
           setViewDefinition={setViewDefinition}
+          exportFormat={exportFormat}
+          setExportFormat={setExportFormat}
           onRun={runViewDefinition}
           onReset={resetEditor}
           isRunning={isLoading}
@@ -451,7 +548,7 @@ export function ViewDefinitionSqlRunner({
       content: (
         <textarea
           className="h-full w-full rounded border border-slate-200 bg-white p-3 text-xs text-slate-700"
-          value={csv}
+          value={rawOutput}
           readOnly
         />
       ),
