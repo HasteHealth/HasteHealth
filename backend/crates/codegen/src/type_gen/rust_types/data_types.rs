@@ -535,11 +535,12 @@ fn generate_fhir_types_from_file(
 }
 
 fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
+    let data_ident = format_ident!("data");
     let deserialize_variants = resource_types.iter().map(|resource_name| {
         let resource_type = format_ident!("{}", generate::capitalize(resource_name));
-
+        
         quote! {
-            ResourceType::#resource_type => Ok(Resource::#resource_type(serde_json::from_str::<#resource_type>(data)?)),
+            ResourceType::#resource_type => Ok(Resource::#resource_type(serde_json::from_str::<#resource_type>(#data_ident)?)),
         }
     });
 
@@ -579,7 +580,7 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
         }
 
         impl ResourceType {
-            pub fn deserialize(&self, data: &str) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
+            pub fn deserialize(&self, #data_ident: &str) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
                 match self {
                     #(#deserialize_variants)*
                 }
