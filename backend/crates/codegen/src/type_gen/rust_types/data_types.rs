@@ -422,7 +422,7 @@ fn create_complex_struct(
                 haste_fhir_serialization_json::derive::FHIRSerdeDeserialize
             )]
             #[fhir_type = #fhir_type]
-            #[resource_type_attribute]
+            #resource_type_attribute
             #[fhir_serialize_type = "resource"]
         }
     } else {
@@ -522,7 +522,7 @@ fn generate_fhir_types_from_file(
             })
     {
         if conditionals::is_resource_sd(&sd) {
-            resource_types.push(sd.type_.value.clone().unwrap());
+            resource_types.push(sd.id.as_ref().unwrap().to_string());
             resources.push(generate_from_structure_definition(
                 sd,
                 inlined_terminology,

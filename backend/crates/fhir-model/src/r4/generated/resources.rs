@@ -29485,6 +29485,7 @@ pub struct ViewDefinitionWhere {
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
 #[fhir_type = "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition"]
+#[fhir_resource_type = "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition"]
 #[fhir_serialize_type = "resource"]
 #[doc = "A ViewDefinition represents a tabular projection of a FHIR resource, where the columns and inclusion \ncriteria are defined by FHIRPath expressions. "]
 pub struct ViewDefinition {
