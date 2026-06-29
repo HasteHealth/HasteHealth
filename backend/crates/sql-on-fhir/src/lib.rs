@@ -223,9 +223,13 @@ async fn process_resource<
     let mut select_statement_results = Vec::with_capacity(view_definition.select.len());
 
     for select_statement in view_definition.select.iter() {
-        let fp_config = Arc::new(Config::builder().with_variable_resolver(
-            haste_fhirpath::ExternalConstantResolver::Variable(variables.clone()),
-        ));
+        let fp_config = Arc::new(
+            Config::builder()
+                .with_variable_resolver(haste_fhirpath::ExternalConstantResolver::Variable(
+                    variables.clone(),
+                ))
+                .with_resource_id(input.id().clone().unwrap_or("".to_string())),
+        );
 
         let mut iterable_context = None;
         let mut set_null = false;
