@@ -402,6 +402,16 @@ fn create_complex_struct(
            #[fhir_serialize_type = "primitive"]
         }
     } else if conditionals::is_root(sd, element) && conditionals::is_resource_sd(sd) {
+        let type_ = sd.type_.value.as_ref().unwrap();
+        let  resource_type_attribute = if *type_ != struct_name {
+            quote!{
+                #[fhir_resource_type = #type_]
+            }
+        } else {
+            quote!{}
+        };
+        
+
         quote! {
             #[derive(
                 Clone,
@@ -412,6 +422,7 @@ fn create_complex_struct(
                 haste_fhir_serialization_json::derive::FHIRSerdeDeserialize
             )]
             #[fhir_type = #fhir_type]
+            #[resource_type_attribute]
             #[fhir_serialize_type = "resource"]
         }
     } else {
@@ -511,7 +522,7 @@ fn generate_fhir_types_from_file(
             })
     {
         if conditionals::is_resource_sd(&sd) {
-            resource_types.push(sd.id.as_ref().unwrap().to_string());
+            resource_types.push(sd.type_.value.clone().unwrap());
             resources.push(generate_from_structure_definition(
                 sd,
                 inlined_terminology,

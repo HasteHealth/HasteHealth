@@ -144,6 +144,7 @@ pub fn complex_serialization(
 ) -> TokenStream {
     let name = input.ident;
     let name_string = name.to_string();
+
     match input.data {
         Data::Struct(data) => {
             let field_information = data.fields.iter().map(process_field).collect::<Vec<_>>();

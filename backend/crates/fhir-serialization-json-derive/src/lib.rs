@@ -40,7 +40,10 @@ fn get_attribute_serialization_type(attrs: &[Attribute]) -> Option<String> {
         code,
         // For validation on vector min maxes.
         cardinality,
-        reference
+        reference,
+        
+        // if resourcetype doesn't correlate to struct name
+        fhir_resource_type
     )
 )]
 pub fn serialize(input: TokenStream) -> TokenStream {
@@ -91,7 +94,10 @@ enum DeserializeComplexType {
 
         // For validation on vector min maxes.
         cardinality,
-        reference
+        reference,
+
+        // if resourcetype doesn't correlate to struct name
+        fhir_resource_type
     )
 )]
 
