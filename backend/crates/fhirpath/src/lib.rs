@@ -551,6 +551,23 @@ async fn evaluate_function<'a>(
 
             return Ok(context.new_context_from(next_context));
         }
+        "getResourceKey" => {
+            validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+            let Some(id) = config.and_then(|c| c.resource_id.clone()) else {
+                return Err(FHIRPathError::InternalError(
+                    "getResourceKey function requires resource_id in config".to_string(),
+                ));
+            };
+
+            let resource_key = FHIRId {
+                value: Some(id),
+                ..Default::default()
+            };
+
+            let next_context = vec![context.allocate_literal(resource_key).await];
+            return Ok(context.new_context_from(next_context));
+        }
         _ => {
             return Err(FHIRPathError::NotImplemented(format!(
                 "Function '{}' is not implemented",
