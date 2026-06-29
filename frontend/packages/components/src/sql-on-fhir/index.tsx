@@ -16,6 +16,7 @@ import { Tab, Tabs } from "../base/tabs";
 import { ClientProps } from "../fhir/types";
 import { basicSetup } from "codemirror";
 import { ResponseError } from "@haste-health/client/lib/http";
+import { BadValue } from "../fhir/complex/AddressReadOnly.stories";
 
 const DEFAULT_VIEW_DEFINITION: ViewDefinition = {
   resourceType: "ViewDefinition",
@@ -43,6 +44,7 @@ const DEFAULT_VIEW_DEFINITION: ViewDefinition = {
           name: "name",
           path: "$this.given",
           type: "string",
+          collection: true,
         },
         {
           name: "family",
@@ -148,7 +150,7 @@ function parseCsv(csv: string): ParsedResults {
 
 type RawResultRow = Record<
   string,
-  Array<string | number | boolean | null> | undefined
+  Array<string | number | boolean | null> | number | boolean | null | undefined
 >;
 
 function primitiveToString(
@@ -169,12 +171,17 @@ function rowsToParsedResults(rows: RawResultRow[]): ParsedResults {
   return {
     headers,
     rows: rows.map((row) =>
-      headers.map((header) =>
-        (row[header] ?? [])
+      headers.map((header) => {
+        let value = row[header] ?? [];
+        if (!Array.isArray(value)) {
+          value = [value];
+        }
+
+        return value
           .filter((value) => value !== null && value !== undefined)
           .map(primitiveToString)
-          .join(";"),
-      ),
+          .join(";");
+      }),
     ),
   };
 }

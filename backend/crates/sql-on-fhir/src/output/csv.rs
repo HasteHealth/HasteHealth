@@ -3,7 +3,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use ordermap::OrderMap;
 use std::fmt::Write as FmtWrite;
 
-use crate::conversions::primitives::PrimitiveValue;
+use crate::{OutputResults, conversions::primitives::PrimitiveValue};
 
 fn append_primitive_value(buffer: &mut String, value: &PrimitiveValue) {
     match value {
@@ -20,7 +20,7 @@ fn append_primitive_value(buffer: &mut String, value: &PrimitiveValue) {
 }
 
 pub fn csv(
-    results: Vec<OrderMap<String, Vec<Option<PrimitiveValue>>>>,
+    results: Vec<OrderMap<String, OutputResults>>,
 ) -> Result<Vec<u8>, OperationOutcomeError> {
     let mut byte_vector = Vec::new();
     let mut writer = csv::WriterBuilder::new()
@@ -48,14 +48,23 @@ pub fn csv(
         for key in column_names.iter() {
             cell_buffer.clear();
 
-            if let Some(values) = result.get(key) {
+            if let Some(value) = result.get(key) {
                 let mut first = true;
-                for value in values.iter().flatten() {
-                    if !first {
-                        cell_buffer.push(';');
+                match value {
+                    OutputResults::Scalar(singular_value) => {
+                        if let Some(value) = singular_value {
+                            append_primitive_value(&mut cell_buffer, value);
+                        }
                     }
-                    append_primitive_value(&mut cell_buffer, value);
-                    first = false;
+                    OutputResults::Collection(values) => {
+                        for value in values.iter().flatten() {
+                            if !first {
+                                cell_buffer.push(';');
+                            }
+                            append_primitive_value(&mut cell_buffer, value);
+                            first = false;
+                        }
+                    }
                 }
             }
 
