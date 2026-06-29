@@ -757,6 +757,9 @@ pub fn complex_deserialization(
 
             let mut key_match_arms = Vec::new();
 
+            let resource_type =
+                get_attribute_value(&input.attrs, "fhir_resource_type").unwrap_or(name_str.clone());
+
             if deserialize_complex_type == DeserializeComplexType::Resource {
                 key_match_arms.push(quote! {
                     "resourceType" => {
@@ -764,10 +767,10 @@ pub fn complex_deserialization(
                             return Err(serde::de::Error::duplicate_field("resourceType"));
                         }
                         let resource_type: String = map.next_value()?;
-                        if resource_type != #name_str {
+                        if resource_type != #resource_type {
                             return Err(serde::de::Error::custom(format!(
                                 "Invalid resourceType for {}: {}",
-                                #name_str,
+                                #resource_type,
                                 resource_type
                             )));
                         }

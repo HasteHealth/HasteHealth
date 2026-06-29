@@ -143,7 +143,8 @@ pub fn complex_serialization(
     deserialize_complex_type: DeserializeComplexType,
 ) -> TokenStream {
     let name = input.ident;
-    let name_string = name.to_string();
+    let resource_type =
+        get_attribute_value(&input.attrs, "fhir_resource_type").unwrap_or(name.to_string());
 
     match input.data {
         Data::Struct(data) => {
@@ -153,7 +154,7 @@ pub fn complex_serialization(
             let serialize_resourcetype =
                 if deserialize_complex_type == DeserializeComplexType::Resource {
                     quote! {
-                        #map_serializer.serialize_entry("resourceType", #name_string)?;
+                        #map_serializer.serialize_entry("resourceType", #resource_type)?;
                     }
                 } else {
                     quote! {}
