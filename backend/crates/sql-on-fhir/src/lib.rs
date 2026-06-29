@@ -98,26 +98,6 @@ async fn resolve_view_definition<
     }
 }
 
-fn get_output_format(
-    input: &ViewDefinitionRun::Input,
-) -> Result<OutputFormatCodes, OperationOutcomeError> {
-    let output_format = input
-        ._format
-        .as_ref()
-        .and_then(|output_format| output_format.value.clone())
-        .and_then(|format| {
-            Some(OutputFormatCodes::try_from(format).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    format!("Invalid output format: {}", e),
-                )
-            }))
-        })
-        .unwrap_or(Ok(OutputFormatCodes::Ndjson(None)))?;
-
-    Ok(output_format)
-}
-
 async fn get_resources_to_process<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
@@ -476,7 +456,6 @@ async fn process_view_definition<
     input: &ViewDefinitionRun::Input,
 ) -> Result<Binary, OperationOutcomeError> {
     let variables = Arc::new(build_hashmap_fp_variables(view_definition));
-    let _output_format = get_output_format(input)?;
     let _limit = input
         ._limit
         .as_ref()
@@ -535,6 +514,31 @@ async fn process_view_definition<
         OutputFormatCodes::Csv(_) => {
             let data = output::csv::csv(results)?;
 
+            let base64_string: String = general_purpose::STANDARD.encode(&data);
+
+            Ok(Binary {
+                data: Some(Box::new(FHIRBase64Binary {
+                    value: Some(base64_string),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            })
+        }
+        OutputFormatCodes::Json(_) => {
+            let data = output::json::json(results)?;
+
+            let base64_string: String = general_purpose::STANDARD.encode(&data);
+
+            Ok(Binary {
+                data: Some(Box::new(FHIRBase64Binary {
+                    value: Some(base64_string),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            })
+        }
+        OutputFormatCodes::Ndjson(_) => {
+            let data = output::ndjson::ndjson(results)?;
             let base64_string: String = general_purpose::STANDARD.encode(&data);
 
             Ok(Binary {

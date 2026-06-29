@@ -19,10 +19,10 @@ haste-fhir-generated-ops = { path = "../fhir-generated-ops", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*" }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
 base64 = "0.22.1"
-ordermap = "1.2.0"
+ordermap = { version = "1.2.0", features = ["serde"] }
 csv = "1.4"
 itertools = "0.15.0"
 futures = "0.3.32"
-
-[dev-dependencies]
 serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+

@@ -11,8 +11,10 @@ use haste_fhir_model::r4::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_reflect::MetaValue;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+#[serde(untagged)]
 pub enum PrimitiveValue {
     Boolean(bool),
     Number(f64),
