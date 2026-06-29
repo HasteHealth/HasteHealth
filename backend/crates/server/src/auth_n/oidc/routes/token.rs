@@ -20,7 +20,7 @@ use axum::{
 use axum_extra::{TypedHeader, extract::Cached, headers::UserAgent, routing::TypedPath};
 use haste_fhir_client::{
     request::{FHIRSearchTypeRequest, SearchRequest},
-    url::{Parameter, ParsedParameters},
+    url::ParsedParameters,
 };
 use haste_fhir_model::r4::generated::{
     resources::{ClientApplication, ResourceType},
@@ -382,11 +382,11 @@ async fn find_users_access_policy_version_ids<Search: SearchEngine>(
             &SearchRequest::Type(FHIRSearchTypeRequest {
                 resource_type: ResourceType::AccessPolicyV2,
                 parameters: ParsedParameters::new(vec![
-                    Parameter::from((
+                    (
                         "link".to_string(),
                         vec![format!("{}/{}", user_type.as_ref(), user_id)],
-                    ))
-                    .into(),
+                    )
+                        .into(),
                 ]),
             }),
             None,

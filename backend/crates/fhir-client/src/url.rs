@@ -72,8 +72,9 @@ pub enum ParsedParameter {
     Resource(Parameter),
 }
 
-impl From<Parameter> for ParsedParameter {
-    fn from(param: Parameter) -> Self {
+impl<T: Into<Parameter>> From<T> for ParsedParameter {
+    fn from(param: T) -> Self {
+        let param = param.into();
         if RESULT_PARAMETERS.contains(&param.name.as_str()) {
             ParsedParameter::Result(param)
         } else {

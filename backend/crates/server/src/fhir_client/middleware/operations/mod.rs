@@ -11,7 +11,7 @@ use haste_fhir_client::{
     request::{
         FHIRInvokeSystemResponse, FHIRRequest, FHIRResponse, InvocationRequest, InvokeResponse,
     },
-    url::{Parameter, ParsedParameters},
+    url::ParsedParameters,
 };
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType},
@@ -197,8 +197,7 @@ impl<
                                 context.ctx.clone(),
                                 ResourceType::OperationDefinition,
                                 ParsedParameters::new(vec![
-                                    Parameter::from(("code".to_string(), vec![code.to_string()]))
-                                        .into(),
+                                    ("code".to_string(), vec![code.to_string()]).into(),
                                 ]),
                             )
                             .await?

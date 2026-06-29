@@ -7,7 +7,7 @@ use haste_config::Config;
 use haste_fhir_client::{
     FHIRClient,
     request::{FHIRSearchTypeRequest, SearchRequest},
-    url::{Parameter, ParsedParameters},
+    url::ParsedParameters,
 };
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType, SearchParameter, StructureDefinition},
@@ -188,12 +188,12 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
                         ctx.clone(),
                         resource_type.clone(),
                         ParsedParameters::new(vec![
-                            Parameter::from(("_id".to_string(), vec![id.clone()])).into(),
-                            Parameter::from((
+                            ("_id".to_string(), vec![id.clone()]).into(),
+                            (
                                 "_tag".to_string(),
                                 vec![HASH_TAG_SYSTEM.to_string() + "|" + sha_hash.as_str()],
-                            ))
-                            .into(),
+                            )
+                                .into(),
                         ]),
                         resource.clone(),
                     )
@@ -271,13 +271,13 @@ pub async fn get_all_sds<Repo: Repository, Search: SearchEngine>(
     let sd_search = FHIRSearchTypeRequest {
         resource_type: ResourceType::StructureDefinition,
         parameters: ParsedParameters::new(vec![
-            Parameter::from((
+            (
                 "kind".to_string(),
                 kinds.iter().map(|s| s.to_string()).collect(),
-            ))
-            .into(),
-            Parameter::from(("abstract".to_string(), vec!["false".to_string()])).into(),
-            Parameter::from(("derivation".to_string(), vec!["specialization".to_string()])).into(),
+            )
+                .into(),
+            ("abstract".to_string(), vec!["false".to_string()]).into(),
+            ("derivation".to_string(), vec!["specialization".to_string()]).into(),
         ]),
     };
     let sd_results = search_engine
