@@ -38,7 +38,7 @@
     ],
     "code": "viewdefinition-run",
     "resource": [
-        "ViewDefinition"
+        "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition"
     ],
     "system": true,
     "type": true,
@@ -78,7 +78,7 @@
             "min": 0,
             "max": "1",
             "documentation": "Inline ViewDefinition resource to execute.",
-            "type": "ViewDefinition",
+            "type": "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition",
             "targetProfile": [
                 "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition"
             ]

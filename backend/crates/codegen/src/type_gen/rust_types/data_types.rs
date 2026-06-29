@@ -740,11 +740,21 @@ pub fn generate(
 
     let resource_type_enum_variant_idents = resource_types
         .iter()
-        .map(|resource_type_info| format_ident!("{}", &resource_type_info.rust_type_name))
-        .map(|variant| {
-            let enum_variant = variant.clone();
-            quote! {
-                #enum_variant(#variant)
+        .map(|resource_type_info| {
+            let rust_struct_name = &resource_type_info.rust_type_name;
+            let resource_type_name = &resource_type_info.resource_type;
+
+            let variant = format_ident!("{}", generate::capitalize(rust_struct_name));
+         
+            if rust_struct_name != resource_type_name {
+                quote! {
+                    #[serde(rename = #resource_type_name)]
+                    #variant(#variant)
+                }
+            } else {
+                quote! {
+                    #variant(#variant)
+                }
             }
         });
 

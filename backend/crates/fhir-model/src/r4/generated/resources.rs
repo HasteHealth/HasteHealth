@@ -29736,6 +29736,7 @@ pub enum Resource {
     ValueSet(ValueSet),
     VerificationResult(VerificationResult),
     VisionPrescription(VisionPrescription),
+    #[serde(rename = "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition")]
     ViewDefinition(ViewDefinition),
 }
 impl Resource {
