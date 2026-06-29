@@ -7,7 +7,7 @@ use axum::{
     response::{IntoResponse, Redirect, Response},
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
-use haste_fhir_client::{FHIRClient, url::ParsedParameters};
+use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
@@ -39,7 +39,7 @@ pub async fn project_get<
                 state.rate_limit.clone(),
             )),
             ResourceType::Project,
-            ParsedParameters::new(vec![]),
+            (vec![] as Vec<(String, Vec<String>)>).into(),
         )
         .await?
         .entry

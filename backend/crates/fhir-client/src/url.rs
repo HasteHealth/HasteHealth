@@ -170,6 +170,13 @@ impl std::error::Error for ParseError {}
 #[derivative(Debug = "transparent")]
 pub struct ParsedParameters(Vec<ParsedParameter>);
 
+impl<T: Into<ParsedParameter>> From<Vec<T>> for ParsedParameters {
+    fn from(params: Vec<T>) -> Self {
+        let parsed_params = params.into_iter().map(|p| p.into()).collect();
+        ParsedParameters(parsed_params)
+    }
+}
+
 impl ParsedParameters {
     pub fn new(params: Vec<ParsedParameter>) -> Self {
         Self(params)

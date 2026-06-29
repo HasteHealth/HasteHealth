@@ -1,7 +1,7 @@
 use base64::{Engine as _, engine::general_purpose};
 use chrono::Utc;
 use futures::{StreamExt as _, stream::FuturesOrdered};
-use haste_fhir_client::{FHIRClient, url::ParsedParameters};
+use haste_fhir_client::FHIRClient;
 use haste_fhir_generated_ops::generated::ViewDefinitionRun;
 use haste_fhir_model::r4::{
     self,
@@ -154,10 +154,11 @@ async fn get_resources_to_process<
             .history_type(
                 context,
                 resource_type,
-                ParsedParameters::new(vec![
-                    ("_since".to_string(), vec![since.to_string()]).into(),
-                    ("_count".to_string(), vec!["1000".to_string()]).into(),
-                ]),
+                vec![
+                    ("_since".to_string(), vec![since.to_string()]),
+                    ("_count".to_string(), vec!["1000".to_string()]),
+                ]
+                .into(),
             )
             .await?;
 
