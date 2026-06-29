@@ -2177,6 +2177,24 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn get_resource_key() {
+        let engine = FPEngine::new();
+        let fp_config = Config::builder().with_resource_id("asdf".to_string());
+
+        let result = engine
+            .evaluate_with_config("getResourceKey()", vec![], Arc::new(fp_config))
+            .await
+            .unwrap();
+
+        let k = result.iter().collect::<Vec<_>>();
+
+        assert_eq!(k.len(), 1);
+
+        let s = k[0].as_any().downcast_ref::<FHIRId>().unwrap();
+        assert_eq!(s.value.as_deref(), Some("asdf"));
+    }
+
+    #[tokio::test]
     async fn get_reference_key() {
         let engine = FPEngine::new();
 

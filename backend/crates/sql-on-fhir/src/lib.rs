@@ -335,7 +335,7 @@ async fn process_resource<
                 };
 
                 let result = fp_engine
-                    .evaluate(path, vec![context; 1])
+                    .evaluate_with_config(path, vec![context; 1], fp_config.clone())
                     .await
                     .map_err(|e| {
                         OperationOutcomeError::error(
