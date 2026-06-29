@@ -47,10 +47,11 @@ fn load_resources() -> Vec<Box<Resource>> {
 }
 
 #[derive(Embed)]
-#[folder = "./artifacts/r4"]
-#[include = "haste_health/**/*.json"]
-#[include = "hl7/minified/**/*.json"]
-#[include = "r4-to-r5-subscription-backport/**/*.json"]
+#[folder = "./artifacts"]
+#[include = "r4/haste_health/**/*.json"]
+#[include = "r4/hl7/minified/**/*.json"]
+#[include = "universal/**/*.json"]
+#[include = "r4/r4-to-r5-subscription-backport/**/*.json"]
 struct EmbededResourceAssets;
 
 pub static ARTIFACT_RESOURCES: LazyLock<Vec<Box<Resource>>> = LazyLock::new(|| load_resources());
