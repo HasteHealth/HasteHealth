@@ -138,7 +138,10 @@ pub fn deserialize(input: TokenStream) -> TokenStream {
 
         // For validation on vector min maxes.
         cardinality,
-        reference
+        reference,
+
+        // if resourcetype doesn't correlate to struct name
+        fhir_resource_type
     )
 )]
 pub fn serde_deserialize(input: TokenStream) -> TokenStream {
@@ -175,7 +178,10 @@ pub fn serde_deserialize(input: TokenStream) -> TokenStream {
         code,
         // For validation on vector min maxes.
         cardinality,
-        reference
+        reference,
+
+        // if resourcetype doesn't correlate to struct name
+        fhir_resource_type
     )
 )]
 pub fn serde_serialize(input: TokenStream) -> TokenStream {

@@ -30232,6 +30232,7 @@ pub enum ResourceType {
     ValueSet,
     VerificationResult,
     VisionPrescription,
+    #[serde(rename = "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition")]
     ViewDefinition,
 }
 impl ResourceType {
@@ -30935,7 +30936,9 @@ impl AsRef<str> for ResourceType {
             ResourceType::ValueSet => "ValueSet",
             ResourceType::VerificationResult => "VerificationResult",
             ResourceType::VisionPrescription => "VisionPrescription",
-            ResourceType::ViewDefinition => "ViewDefinition",
+            ResourceType::ViewDefinition => {
+                "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition"
+            }
         }
     }
 }
@@ -31100,7 +31103,9 @@ impl TryFrom<String> for ResourceType {
             "ValueSet" => Ok(ResourceType::ValueSet),
             "VerificationResult" => Ok(ResourceType::VerificationResult),
             "VisionPrescription" => Ok(ResourceType::VisionPrescription),
-            "ViewDefinition" => Ok(ResourceType::ViewDefinition),
+            "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition" => {
+                Ok(ResourceType::ViewDefinition)
+            }
             _ => Err(ResourceTypeError::Invalid(s.to_string())),
         }
     }
@@ -31266,7 +31271,9 @@ impl TryFrom<&str> for ResourceType {
             "ValueSet" => Ok(ResourceType::ValueSet),
             "VerificationResult" => Ok(ResourceType::VerificationResult),
             "VisionPrescription" => Ok(ResourceType::VisionPrescription),
-            "ViewDefinition" => Ok(ResourceType::ViewDefinition),
+            "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition" => {
+                Ok(ResourceType::ViewDefinition)
+            }
             _ => Err(ResourceTypeError::Invalid(s.to_string())),
         }
     }

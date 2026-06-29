@@ -490,8 +490,13 @@ fn generate_from_structure_definition(
 struct GeneratedTypes {
     resources: Vec<TokenStream>,
     types: Vec<TokenStream>,
-    resource_types: Vec<String>,
+    resource_types: Vec<ResourceTypeInfo>,
     rust_type_name_to_fhir_type: HashMap<String, String>,
+}
+
+struct ResourceTypeInfo {
+    resource_type: String,
+    rust_type_name: String,
 }
 
 fn generate_fhir_types_from_file(
@@ -507,7 +512,7 @@ fn generate_fhir_types_from_file(
     let mut resources = vec![];
     let mut types = vec![];
     // let mut generated_code = vec![];
-    let mut resource_types: Vec<String> = vec![];
+    let mut resource_types: Vec<ResourceTypeInfo> = vec![];
     let mut rust_type_name_to_fhir_type: HashMap<String, String> = HashMap::new();
 
     for sd in
@@ -522,7 +527,11 @@ fn generate_fhir_types_from_file(
             })
     {
         if conditionals::is_resource_sd(&sd) {
-            resource_types.push(sd.id.as_ref().unwrap().to_string());
+            resource_types.push(ResourceTypeInfo {
+                resource_type: sd.type_.value.as_ref().unwrap().to_string(),
+                rust_type_name: sd.id.as_ref().unwrap().to_string()
+            });
+
             resources.push(generate_from_structure_definition(
                 sd,
                 inlined_terminology,
@@ -545,25 +554,36 @@ fn generate_fhir_types_from_file(
     })
 }
 
-fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
+fn generate_resource_type(resource_types: &Vec<ResourceTypeInfo>) -> TokenStream {
     let data_ident = format_ident!("data");
-    let deserialize_variants = resource_types.iter().map(|resource_name| {
-        let resource_type = format_ident!("{}", generate::capitalize(resource_name));
+    let get_resource_deserialize_variant = resource_types.iter().map(|resource_type_info| {
+        let struct_name = format_ident!("{}", generate::capitalize(&resource_type_info.rust_type_name));
         
         quote! {
-            ResourceType::#resource_type => Ok(Resource::#resource_type(serde_json::from_str::<#resource_type>(#data_ident)?)),
+            ResourceType::#struct_name => Ok(Resource::#struct_name(serde_json::from_str::<#struct_name>(#data_ident)?)),
         }
     });
 
-    let enum_variants = resource_types.iter().map(|resource_name| {
-        let resource_type = format_ident!("{}", generate::capitalize(resource_name));
-        quote! {
-           #resource_type
+    let enum_variants = resource_types.iter().map(|resource_type_info| {
+        let struct_name = format_ident!("{}", generate::capitalize(&resource_type_info.rust_type_name));
+        let type_name = &resource_type_info.resource_type;
+
+        if resource_type_info.rust_type_name != resource_type_info.resource_type {
+            quote! {
+                #[serde(rename = #type_name)]
+                #struct_name
+            }
+        } else {
+            quote! {
+                #struct_name
+            }
         }
     });
 
-    let from_str_variants = resource_types.iter().map(|resource_name| {
-        let resource_type = format_ident!("{}", generate::capitalize(resource_name));
+    let from_str_variants = resource_types.iter().map(|resource_type_info| {
+        let resource_type = format_ident!("{}", generate::capitalize(&resource_type_info.rust_type_name));
+        let resource_name = &resource_type_info.resource_type;
+        
         quote! {
            #resource_name => Ok(ResourceType::#resource_type)
         }
@@ -572,7 +592,8 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
     let from_string_variants = from_str_variants.clone();
 
     let to_str_variants = resource_types.iter().map(|resource_name| {
-        let resource_type = format_ident!("{}", generate::capitalize(resource_name));
+        let resource_type = format_ident!("{}", generate::capitalize(&resource_name.rust_type_name));
+        let resource_name = &resource_name.resource_type;
         quote! {
             ResourceType::#resource_type => #resource_name,
         }
@@ -593,7 +614,7 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
         impl ResourceType {
             pub fn deserialize(&self, #data_ident: &str) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
                 match self {
-                    #(#deserialize_variants)*
+                    #(#get_resource_deserialize_variant)*
                 }
             }
         }
@@ -683,7 +704,7 @@ pub fn generate(
     };
 
     let mut rust_type_name_to_fhir_type: BTreeMap<String, String> = BTreeMap::new();
-    let mut resource_types: Vec<String> = vec![];
+    let mut resource_types: Vec<ResourceTypeInfo> = vec![];
 
     for dir_path in file_paths {
         let walker = WalkDir::new(dir_path).into_iter();
@@ -712,7 +733,7 @@ pub fn generate(
 
     let resource_type_enum_variant_idents = resource_types
         .iter()
-        .map(|resource_name| format_ident!("{}", resource_name))
+        .map(|resource_type_info| format_ident!("{}", &resource_type_info.rust_type_name))
         .map(|variant| {
             let enum_variant = variant.clone();
             quote! {
@@ -720,15 +741,15 @@ pub fn generate(
             }
         });
 
-    let resource_to_resource_type_match_arms = resource_types.iter().map(|resource_name| {
-        let resource_type_ident = format_ident!("{}", resource_name);
+    let resource_to_resource_type_match_arms = resource_types.iter().map(|resource_type_info| {
+        let resource_type_ident = format_ident!("{}", &resource_type_info.rust_type_name);
         quote! {
             Resource::#resource_type_ident(_) => ResourceType::#resource_type_ident
         }
     });
 
-    let resource_to_id_match_arms = resource_types.iter().map(|resource_name| {
-        let resource_type_ident = format_ident!("{}", resource_name);
+    let resource_to_id_match_arms = resource_types.iter().map(|resource_type_info| {
+        let resource_type_ident = format_ident!("{}", &resource_type_info.rust_type_name);
         quote! {
             Resource::#resource_type_ident(r) => &r.id
         }
