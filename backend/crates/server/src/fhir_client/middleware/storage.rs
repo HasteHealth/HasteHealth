@@ -140,7 +140,6 @@ impl<
         >,
     ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
-            tracing::info!("Test");
             let response = match &mut context.request {
                 FHIRRequest::Create(create_request) => {
                     Ok(Some(FHIRResponse::Create(FHIRCreateResponse {
