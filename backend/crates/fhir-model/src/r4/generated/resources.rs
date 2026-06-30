@@ -29484,8 +29484,7 @@ pub struct ViewDefinitionWhere {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
-#[fhir_type = "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition"]
-#[fhir_resource_type = "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition"]
+#[fhir_type = "ViewDefinition"]
 #[fhir_serialize_type = "resource"]
 #[doc = "A ViewDefinition represents a tabular projection of a FHIR resource, where the columns and inclusion \ncriteria are defined by FHIRPath expressions. "]
 pub struct ViewDefinition {
@@ -29736,7 +29735,6 @@ pub enum Resource {
     ValueSet(ValueSet),
     VerificationResult(VerificationResult),
     VisionPrescription(VisionPrescription),
-    #[serde(rename = "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition")]
     ViewDefinition(ViewDefinition),
 }
 impl Resource {
@@ -30233,7 +30231,6 @@ pub enum ResourceType {
     ValueSet,
     VerificationResult,
     VisionPrescription,
-    #[serde(rename = "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition")]
     ViewDefinition,
 }
 impl ResourceType {
@@ -30937,9 +30934,7 @@ impl AsRef<str> for ResourceType {
             ResourceType::ValueSet => "ValueSet",
             ResourceType::VerificationResult => "VerificationResult",
             ResourceType::VisionPrescription => "VisionPrescription",
-            ResourceType::ViewDefinition => {
-                "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition"
-            }
+            ResourceType::ViewDefinition => "ViewDefinition",
         }
     }
 }
@@ -31104,9 +31099,7 @@ impl TryFrom<String> for ResourceType {
             "ValueSet" => Ok(ResourceType::ValueSet),
             "VerificationResult" => Ok(ResourceType::VerificationResult),
             "VisionPrescription" => Ok(ResourceType::VisionPrescription),
-            "ViewDefinition" | "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition" => {
-                Ok(ResourceType::ViewDefinition)
-            }
+            "ViewDefinition" => Ok(ResourceType::ViewDefinition),
             _ => Err(ResourceTypeError::Invalid(s.to_string())),
         }
     }
@@ -31272,9 +31265,7 @@ impl TryFrom<&str> for ResourceType {
             "ValueSet" => Ok(ResourceType::ValueSet),
             "VerificationResult" => Ok(ResourceType::VerificationResult),
             "VisionPrescription" => Ok(ResourceType::VisionPrescription),
-            "ViewDefinition" | "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition" => {
-                Ok(ResourceType::ViewDefinition)
-            }
+            "ViewDefinition" => Ok(ResourceType::ViewDefinition),
             _ => Err(ResourceTypeError::Invalid(s.to_string())),
         }
     }

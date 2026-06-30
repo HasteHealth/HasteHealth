@@ -40,6 +40,10 @@
         {
             "code": "HL7V2",
             "display": "HL7V2"
+        },
+        {
+            "code": "ViewDefinition",
+            "display": "ViewDefinition"
         }
     ]
 }

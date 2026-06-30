@@ -61,7 +61,7 @@
     ],
     "kind": "resource",
     "abstract": false,
-    "type": "https://sql-on-fhir.org/ig/StructureDefinition/ViewDefinition",
+    "type": "ViewDefinition",
     "baseDefinition": "http://hl7.org/fhir/StructureDefinition/CanonicalResource",
     "derivation": "specialization",
     "snapshot": {
