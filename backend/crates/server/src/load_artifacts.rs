@@ -7,6 +7,7 @@ use haste_config::Config;
 use haste_fhir_client::{
     FHIRClient,
     request::{FHIRSearchTypeRequest, SearchRequest},
+    url::ParsedParameter,
 };
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType, SearchParameter, StructureDefinition},
@@ -165,6 +166,7 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
 ) -> Result<(), OperationOutcomeError> {
     let mut hashes = HashSet::new();
 
+    let mut total_loaded: usize = 0;
     for resource in ARTIFACT_RESOURCES.iter() {
         let sha_hash = generate_sha256_hash(*&resource);
         hashes.insert(sha_hash);
@@ -187,11 +189,12 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
                         ctx.clone(),
                         resource_type.clone(),
                         vec![
-                            ("_id".to_string(), vec![id.clone()]),
-                            (
+                            ParsedParameter::from(("_id".to_string(), vec![id.clone()])),
+                            ParsedParameter::from((
                                 "_tag".to_string(),
                                 vec![HASH_TAG_SYSTEM.to_string() + "|" + sha_hash.as_str()],
-                            ),
+                                "not".to_string(),
+                            )),
                         ]
                         .into(),
                         resource.clone(),
@@ -199,10 +202,12 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
                     .await;
 
                 if let Ok(res) = res {
+                    total_loaded += 1;
                     tracing::info!(
-                        "Updated '{}' with id '{}'",
+                        "Updated '{}' with id '{}' and sha '{}'",
                         resource_type.as_ref(),
-                        res.id().as_deref().unwrap_or("unknown")
+                        res.id().as_deref().unwrap_or("unknown"),
+                        sha_hash.as_str()
                     );
                 } else if let Err(err) = res {
                     let code = err.outcome().issue[0].code.as_ref();
@@ -240,7 +245,7 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
 
     tracing::info!(
         "Loaded a total of '{}' artifacts with unique hashes '{}'",
-        ARTIFACT_RESOURCES.len(),
+        total_loaded,
         hashes.len(),
     );
 
