@@ -1,4 +1,5 @@
 pub mod auth_n;
+pub mod config;
 mod extract;
 pub mod fhir_client;
 mod fhir_http;
