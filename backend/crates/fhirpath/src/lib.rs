@@ -417,7 +417,39 @@ async fn evaluate_function<'a>(
             }
 
             let context = if function.arguments.len() == 1 {
-                evaluate_expression(&function.arguments[0], context, config).await?
+                for value in context.values.iter() {
+                    let result = evaluate_expression(
+                        &function.arguments[0],
+                        context.new_context_from(vec![*value]),
+                        config.clone(),
+                    )
+                    .await?;
+
+                    if result.values.len() > 1 {
+                        return Err(FHIRPathError::InternalError(
+                            "Exists condition did not return a single value".to_string(),
+                        ));
+                        // Empty set effectively means no match and treat as false.
+                    } else if !result.values.is_empty() && downcast_bool(result.values[0])? == true
+                    {
+                        return Ok(context.new_context_from(vec![
+                            context
+                                .allocate_literal(FHIRBoolean {
+                                    value: Some(true),
+                                    ..Default::default()
+                                })
+                                .await,
+                        ]));
+                    }
+                }
+                return Ok(context.new_context_from(vec![
+                    context
+                        .allocate_literal(FHIRBoolean {
+                            value: Some(false),
+                            ..Default::default()
+                        })
+                        .await,
+                ]));
             } else {
                 context
             };
@@ -505,6 +537,15 @@ async fn evaluate_function<'a>(
             }
 
             Ok(context.new_context_from(next_ctx))
+        }
+        "first" => {
+            validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+            if let Some(first_value) = context.values.get(0) {
+                Ok(context.new_context_from(vec![*first_value]))
+            } else {
+                Ok(context.new_context_from(vec![]))
+            }
         }
         // Functions for viewDefinitions
         "getReferenceKey" => {
@@ -2238,5 +2279,39 @@ mod tests {
         assert_eq!(ids.len(), 1);
         let s = ids[0].as_any().downcast_ref::<FHIRId>().unwrap();
         assert_eq!(s.value.as_deref(), Some("123"));
+    }
+
+    #[tokio::test]
+    async fn test_first() {
+        let engine = FPEngine::new();
+
+        let group = Group {
+            member: Some(vec![GroupMember {
+                entity: Box::new(Reference {
+                    reference: Some(Box::new("Patient/1".to_string().into())),
+                    ..Default::default()
+                }),
+                Box::new(Reference {
+                    reference: Some(Box::new("Patient/2".to_string().into())),
+                    ..Default::default()
+                })
+                ..Default::default()
+            }]),
+            ..Default::default()
+        };
+
+        let result = engine
+            .evaluate("$this.member.entity.first()", vec![&group])
+            .await
+            .expect("Failed to evaluate first()");
+
+        let references = result.iter().collect::<Vec<_>>();
+        assert_eq!(references.len(), 1);
+
+        let s = references[0].as_any().downcast_ref::<Reference>().unwrap();
+        assert_eq!(
+            s.reference.as_ref().unwrap().value,
+            Some("Patient/1".to_string())
+        );
     }
 }
