@@ -2282,21 +2282,90 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn exists_with_clause() {
+        let patient = Patient {
+            name: Some(vec![
+                Box::new(HumanName {
+                    given: Some(vec![Box::new(FHIRString {
+                        value: Some("Alice".to_string()),
+                        ..Default::default()
+                    })]),
+                    ..Default::default()
+                }),
+                Box::new(HumanName {
+                    given: Some(vec![Box::new(FHIRString {
+                        value: Some("Matilda".to_string()),
+                        ..Default::default()
+                    })]),
+                    ..Default::default()
+                }),
+            ]),
+            ..Default::default()
+        };
+
+        let engine = FPEngine::new();
+        let result = engine
+            .evaluate("$this.name.exists(given.exists())", vec![&patient])
+            .await
+            .unwrap();
+
+        let result = result.iter().collect::<Vec<_>>();
+
+        assert_eq!(result.len(), 1);
+        let s = result[0].as_any().downcast_ref::<FHIRBoolean>().unwrap();
+        assert_eq!(s.value, Some(true));
+
+        let result = engine
+            .evaluate("$this.name.exists(given.empty())", vec![&patient])
+            .await
+            .unwrap();
+
+        let result = result.iter().collect::<Vec<_>>();
+        assert_eq!(result.len(), 1);
+        let s = result[0].as_any().downcast_ref::<FHIRBoolean>().unwrap();
+        assert_eq!(s.value, Some(false));
+
+        let result = engine
+            .evaluate("$this.name.exists(given = 'Matilda')", vec![&patient])
+            .await
+            .unwrap();
+
+        let result = result.iter().collect::<Vec<_>>();
+        assert_eq!(result.len(), 1);
+        let s = result[0].as_any().downcast_ref::<FHIRBoolean>().unwrap();
+        assert_eq!(s.value, Some(true));
+
+        let result = engine
+            .evaluate("$this.name.exists(given = 'Jane')", vec![&patient])
+            .await
+            .unwrap();
+
+        let result = result.iter().collect::<Vec<_>>();
+        assert_eq!(result.len(), 1);
+        let s = result[0].as_any().downcast_ref::<FHIRBoolean>().unwrap();
+        assert_eq!(s.value, Some(false));
+    }
+    #[tokio::test]
     async fn test_first() {
         let engine = FPEngine::new();
 
         let group = Group {
-            member: Some(vec![GroupMember {
-                entity: Box::new(Reference {
-                    reference: Some(Box::new("Patient/1".to_string().into())),
+            member: Some(vec![
+                GroupMember {
+                    entity: Box::new(Reference {
+                        reference: Some(Box::new("Patient/1".to_string().into())),
+                        ..Default::default()
+                    }),
                     ..Default::default()
-                }),
-                Box::new(Reference {
-                    reference: Some(Box::new("Patient/2".to_string().into())),
+                },
+                GroupMember {
+                    entity: Box::new(Reference {
+                        reference: Some(Box::new("Patient/2".to_string().into())),
+                        ..Default::default()
+                    }),
                     ..Default::default()
-                })
-                ..Default::default()
-            }]),
+                },
+            ]),
             ..Default::default()
         };
 
