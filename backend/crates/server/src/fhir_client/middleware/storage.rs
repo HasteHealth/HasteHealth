@@ -1,5 +1,4 @@
 use crate::{
-    ServerEnvironmentVariables,
     fhir_client::{
         FHIRServerClient, ServerCTX, ServerClientConfig, StorageError,
         batch_transaction_processing::{
@@ -13,7 +12,6 @@ use crate::{
     },
     route_path::api_fhir_root_url,
 };
-use haste_config::Config;
 use haste_fhir_client::{
     FHIRClient,
     middleware::MiddlewareChain,
@@ -47,14 +45,6 @@ impl Middleware {
     pub fn new() -> Self {
         Middleware {}
     }
-}
-
-fn get_delete_limit(config: &dyn Config<ServerEnvironmentVariables>) -> usize {
-    config
-        .get(ServerEnvironmentVariables::FHIRDeleteLimit)
-        .ok()
-        .and_then(|s| s.parse::<usize>().ok())
-        .unwrap_or(20)
 }
 
 pub fn to_bundle_entry(
@@ -223,7 +213,7 @@ impl<
                             }
                         };
 
-                        let delete_limit = get_delete_limit(state.config.as_ref());
+                        let delete_limit = state.config.fhir.delete_limit;
 
                         let search_results = state
                             .search
@@ -338,7 +328,7 @@ impl<
                             .await?;
 
                         let fhir_api_root = api_fhir_root_url(
-                            &state.config.get(ServerEnvironmentVariables::APIURI)?,
+                            &state.config.api_uri,
                             &context.ctx.tenant,
                             &context.ctx.project,
                         )?;
@@ -369,7 +359,7 @@ impl<
                             .await?;
 
                         let fhir_api_root = api_fhir_root_url(
-                            &state.config.get(ServerEnvironmentVariables::APIURI)?,
+                            &state.config.api_uri,
                             &context.ctx.tenant,
                             &context.ctx.project,
                         )?;
@@ -400,7 +390,7 @@ impl<
                             .await?;
 
                         let fhir_api_root = api_fhir_root_url(
-                            &state.config.get(ServerEnvironmentVariables::APIURI)?,
+                            &state.config.api_uri,
                             &context.ctx.tenant,
                             &context.ctx.project,
                         )?;
@@ -614,7 +604,7 @@ impl<
                 FHIRRequest::Search(search_request) => match search_request {
                     SearchRequest::Type(_) => {
                         let fhir_api_root = api_fhir_root_url(
-                            &state.config.get(ServerEnvironmentVariables::APIURI)?,
+                            &state.config.api_uri,
                             &context.ctx.tenant,
                             &context.ctx.project,
                         )?;
@@ -660,7 +650,7 @@ impl<
                     }
                     SearchRequest::System(_) => {
                         let fhir_api_root = api_fhir_root_url(
-                            &state.config.get(ServerEnvironmentVariables::APIURI)?,
+                            &state.config.api_uri,
                             &context.ctx.tenant,
                             &context.ctx.project,
                         )?;

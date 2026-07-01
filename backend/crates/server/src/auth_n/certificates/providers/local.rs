@@ -1,5 +1,4 @@
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
-use haste_config::Config;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use rand::rngs::OsRng;
@@ -14,11 +13,11 @@ use std::{path::Path, sync::Arc};
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{
-    ServerEnvironmentVariables,
     auth_n::certificates::{
         JSONWebKey, JSONWebKeyAlgorithm, JSONWebKeySet, JSONWebKeyType,
         traits::{CertificationProvider, DecodingKey, EncodingKey},
     },
+    config::ServerConfig,
 };
 
 fn derive_kid(cert_path: &Path) -> String {
@@ -31,10 +30,9 @@ fn derive_kid(cert_path: &Path) -> String {
     chunks.get(0).unwrap().to_string()
 }
 
-fn get_sorted_private_cert_paths(config: &dyn Config<ServerEnvironmentVariables>) -> Vec<DirEntry> {
-    let certificate_dir = config
-        .get(ServerEnvironmentVariables::CertificationDir)
-        .unwrap();
+fn get_sorted_private_cert_paths(config: &ServerConfig) -> Vec<DirEntry> {
+    let certificate_dir = &config.certification_dir;
+
     let cert_dir: &Path = Path::new(&certificate_dir);
     let walker = WalkDir::new(cert_dir).into_iter();
     let mut entries = walker
@@ -146,12 +144,8 @@ fn get_encoding_keys(
     Ok(encoding_keys)
 }
 
-fn create_certifications_if_needed(
-    config: &dyn Config<ServerEnvironmentVariables>,
-) -> Result<(), OperationOutcomeError> {
-    let certificate_dir = config
-        .get(ServerEnvironmentVariables::CertificationDir)
-        .unwrap();
+fn create_certifications_if_needed(config: &ServerConfig) -> Result<(), OperationOutcomeError> {
+    let certificate_dir = &config.certification_dir;
     let cert_dir: &Path = Path::new(&certificate_dir);
 
     let private_key_files = get_sorted_private_cert_paths(config);
@@ -194,9 +188,7 @@ pub struct LocalCertifications {
 }
 
 impl LocalCertifications {
-    pub fn new(
-        config: &dyn Config<ServerEnvironmentVariables>,
-    ) -> Result<Self, OperationOutcomeError> {
+    pub fn new(config: &ServerConfig) -> Result<Self, OperationOutcomeError> {
         create_certifications_if_needed(config)?;
 
         let private_certificate_entries = get_sorted_private_cert_paths(config);

@@ -1,5 +1,4 @@
 use crate::{
-    ServerEnvironmentVariables,
     auth_n::{
         middleware::jwt::derive_well_known_openid_configuration_url,
         oidc::routes::discovery::create_oidc_discovery_document,
@@ -44,10 +43,7 @@ pub fn endpoint_metadata_op<
              _request: &InvocationRequest,
              _input: TenantEndpointInformation::Input| {
                 Box::pin(async move {
-                    let api_url_string = context
-                        .state
-                        .config
-                        .get(ServerEnvironmentVariables::APIURI)?;
+                    let api_url_string = &context.state.config.api_uri;
 
                     let discovery_document =
                         create_oidc_discovery_document(&tenant, &project, &api_url_string)

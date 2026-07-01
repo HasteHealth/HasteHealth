@@ -1,7 +1,14 @@
+use std::sync::Arc;
+
 use clap::{Subcommand, ValueEnum};
+use figment::{
+    Figment,
+    providers::{Env, Format as _, Toml},
+};
+use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::claims::SubscriptionTier;
-use haste_server::server;
+use haste_server::{config::ServerConfig, server};
 
 #[derive(Clone, Debug, ValueEnum)]
 pub enum UserSubscriptionChoice {
@@ -31,7 +38,15 @@ pub enum ServerCommands {
 }
 
 pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeError> {
+    let config: ServerConfig = Figment::new()
+        .merge(Toml::file("haste.toml"))
+        .merge(Env::prefixed("HASTE_"))
+        .extract()
+        .map_err(|e| OperationOutcomeError::error(IssueType::Exception(None), e.to_string()))?;
+
     match &command {
-        ServerCommands::Start { port } => server::serve(port.unwrap_or(3000)).await,
+        ServerCommands::Start { port } => {
+            server::serve(Arc::new(config), port.unwrap_or(3000)).await
+        }
     }
 }

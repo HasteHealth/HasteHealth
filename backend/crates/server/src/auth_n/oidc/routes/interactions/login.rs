@@ -7,7 +7,7 @@ use crate::{
     },
     extract::path_tenant::{Project, TenantIdentifier},
     fhir_client::ServerCTX,
-    services::AppState,
+    services::ServerState,
     ui::pages,
 };
 use axum::{
@@ -45,7 +45,7 @@ pub async fn login_get<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: Login,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
     OIDCClientApplication(client_app): OIDCClientApplication,
@@ -77,7 +77,7 @@ async fn resolve_identity_providers<
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    state: &Arc<AppState<Repo, Search, Terminology>>,
+    state: &Arc<ServerState<Repo, Search, Terminology>>,
     tenant: haste_jwt::TenantId,
     project_resource: &haste_fhir_model::r4::generated::resources::Project,
 ) -> Result<
@@ -146,7 +146,7 @@ pub async fn login_post<
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
     uri: OriginalUri,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Form(login_data): Form<LoginForm>,

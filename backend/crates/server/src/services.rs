@@ -1,10 +1,8 @@
-use crate::{
-    ServerEnvironmentVariables,
-    fhir_client::{FHIRServerClient, ServerClientConfig},
-};
-use haste_config::Config;
+use crate::config::{SearchConfig, ServerConfig};
+use crate::fhir_client::{FHIRServerClient, ServerClientConfig};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_fhir_search::elastic_search::SearchConfigError;
 use haste_fhir_search::elastic_search::search_parameter_resolver::ElasticSearchParameterResolver;
 use haste_fhir_search::{
     SearchEngine,
@@ -21,28 +19,21 @@ use tracing::info;
 
 // Singleton for the database connection pool in postgres.
 static POOL: OnceCell<Pool<Postgres>> = OnceCell::const_new();
-pub async fn get_pool(config: &dyn Config<ServerEnvironmentVariables>) -> &'static Pool<Postgres> {
-    POOL.get_or_init(async || {
-        let database_url = config
-            .get(ServerEnvironmentVariables::DataBaseURL)
-            .expect(&format!(
-                "'{}' must be set",
-                String::from(ServerEnvironmentVariables::DataBaseURL)
-            ));
-        info!("Connecting to postgres database");
-        let connection = PgPoolOptions::new()
-            .max_connections(
-                config
-                    .get(ServerEnvironmentVariables::PGMaxConnections)
-                    .map(|s| s.parse::<u32>().unwrap_or(20))
-                    .unwrap_or(20),
-            )
-            .connect(&database_url)
+pub async fn get_pool(config: &ServerConfig) -> &'static Pool<Postgres> {
+    match &config.repo {
+        crate::config::RepoConfig::Postgres(pg_config) => {
+            POOL.get_or_init(async || {
+                info!("Connecting to postgres database");
+                let connection = PgPoolOptions::new()
+                    .max_connections(pg_config.max_connections)
+                    .connect(&pg_config.database_url)
+                    .await
+                    .expect("Failed to create database connection pool");
+                connection
+            })
             .await
-            .expect("Failed to create database connection pool");
-        connection
-    })
-    .await
+        }
+    }
 }
 
 #[derive(OperationOutcomeError, Debug)]
@@ -69,7 +60,7 @@ pub enum CustomOpError {
     InternalServerError,
 }
 
-pub struct AppState<
+pub struct ServerState<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
@@ -79,19 +70,19 @@ pub struct AppState<
     pub repo: Arc<Repo>,
     pub rate_limit: Arc<dyn haste_rate_limit::RateLimit>,
     pub fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
-    pub config: Arc<dyn Config<ServerEnvironmentVariables>>,
+    pub config: Arc<crate::config::ServerConfig>,
 }
 
 impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
-> AppState<Repo, Search, Terminology>
+> ServerState<Repo, Search, Terminology>
 {
     pub async fn transaction(&self) -> Result<Self, OperationOutcomeError> {
         self.repo.transaction(true).await.map(|tx_repo| {
             let tx_repo = Arc::new(tx_repo);
-            AppState {
+            ServerState {
                 terminology: self.terminology.clone(),
                 search: self.search.clone(),
                 repo: tx_repo.clone(),
@@ -124,11 +115,36 @@ impl<
     }
 }
 
+fn create_search_engine<Repo: Repository + Send + Sync + 'static>(
+    config: &crate::config::ServerConfig,
+    parameter_resolver: Arc<Repo>,
+) -> Result<Arc<ElasticSearchEngine<ElasticSearchParameterResolver<Repo>>>, SearchConfigError> {
+    match &config.search {
+        SearchConfig::Elasticsearch(elasticsearch_config) => {
+            let es_client = create_es_client(
+                &elasticsearch_config.url,
+                elasticsearch_config.username.clone(),
+                elasticsearch_config.password.clone(),
+            )?;
+            let k = Arc::new(haste_fhir_search::elastic_search::ElasticSearchEngine::new(
+                Arc::new(ElasticSearchParameterResolver::new(
+                    es_client.clone(),
+                    parameter_resolver,
+                )),
+                Arc::new(FPEngine::new()),
+                es_client,
+            ));
+
+            Ok(k)
+        }
+    }
+}
+
 pub async fn create_services(
-    config: Arc<dyn Config<ServerEnvironmentVariables>>,
+    config: Arc<crate::config::ServerConfig>,
 ) -> Result<
     Arc<
-        AppState<
+        ServerState<
             PGConnection,
             ElasticSearchEngine<ElasticSearchParameterResolver<PGConnection>>,
             FHIRCanonicalTerminology,
@@ -137,42 +153,12 @@ pub async fn create_services(
     OperationOutcomeError,
 > {
     let pool = Arc::new(PGConnection::pool(get_pool(config.as_ref()).await.clone()));
-    let es_client = create_es_client(
-        &config
-            .get(ServerEnvironmentVariables::ElasticSearchURL)
-            .expect(&format!(
-                "'{}' variable not set",
-                String::from(ServerEnvironmentVariables::ElasticSearchURL)
-            )),
-        config
-            .get(ServerEnvironmentVariables::ElasticSearchUsername)
-            .expect(&format!(
-                "'{}' variable not set",
-                String::from(ServerEnvironmentVariables::ElasticSearchUsername)
-            )),
-        config
-            .get(ServerEnvironmentVariables::ElasticSearchPassword)
-            .expect(&format!(
-                "'{}' variable not set",
-                String::from(ServerEnvironmentVariables::ElasticSearchPassword)
-            )),
-    )
-    .expect("Failed to create Elasticsearch client");
-
-    let search_engine = Arc::new(haste_fhir_search::elastic_search::ElasticSearchEngine::new(
-        Arc::new(ElasticSearchParameterResolver::new(
-            es_client.clone(),
-            pool.clone(),
-        )),
-        Arc::new(FPEngine::new()),
-        es_client,
-    ));
 
     let terminology = Arc::new(FHIRCanonicalTerminology::new());
 
-    let can_mutate: String = config
-        .get(ServerEnvironmentVariables::AllowArtifactMutations)
-        .unwrap_or("false".into());
+    let can_mutate = config.allow_artifact_mutations;
+
+    let search_engine = create_search_engine(config.as_ref(), pool.clone())?;
 
     let fhir_client = Arc::new(FHIRServerClient::new(
         ServerClientConfig::new(
@@ -181,10 +167,10 @@ pub async fn create_services(
             terminology.clone(),
             config.clone(),
         )
-        .with_mutate_artifacts(can_mutate == "true"),
+        .with_mutate_artifacts(can_mutate),
     ));
 
-    let shared_state = Arc::new(AppState {
+    let shared_state = Arc::new(ServerState {
         config,
         rate_limit: pool.clone(),
         repo: pool,

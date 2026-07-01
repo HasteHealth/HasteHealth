@@ -3,7 +3,7 @@ use crate::{
         middleware::OIDCParameterInjectLayer,
         routes::{AUTHORIZE_PARAMETERS, LOGOUT_PARAMETERS},
     },
-    services::AppState,
+    services::ServerState,
 };
 use axum::Router;
 use axum_extra::routing::RouterExt;
@@ -21,7 +21,7 @@ pub fn interactions_router<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
->() -> Router<Arc<AppState<Repo, Search, Terminology>>> {
+>() -> Router<Arc<ServerState<Repo, Search, Terminology>>> {
     let password_reset_routes = Router::new()
         .typed_get(password_reset::password_reset_initiate_get)
         .typed_post(password_reset::password_reset_initiate_post)

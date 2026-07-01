@@ -1,5 +1,8 @@
 use clap::{Subcommand, ValueEnum};
-use haste_config::{Config, get_config};
+use figment::{
+    Figment,
+    providers::{Env, Format, Toml},
+};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::{
@@ -17,7 +20,7 @@ use haste_fhir_search::SearchEngine;
 use haste_jwt::{ProjectId, TenantId, claims::SubscriptionTier};
 use haste_repository::admin::Migrate;
 use haste_server::{
-    ServerEnvironmentVariables,
+    config::ServerConfig,
     fhir_client::ServerCTX,
     load_artifacts::{self, reset_artifacts},
     services,
@@ -116,17 +119,13 @@ pub enum UserCommands {
     },
 }
 
-async fn migrate_repo(
-    config: Arc<dyn Config<ServerEnvironmentVariables>>,
-) -> Result<(), OperationOutcomeError> {
+async fn migrate_repo(config: Arc<ServerConfig>) -> Result<(), OperationOutcomeError> {
     let services = services::create_services(config).await?;
     services.repo.migrate().await?;
     Ok(())
 }
 
-async fn migrate_search(
-    config: Arc<dyn Config<ServerEnvironmentVariables>>,
-) -> Result<(), OperationOutcomeError> {
+async fn migrate_search(config: Arc<ServerConfig>) -> Result<(), OperationOutcomeError> {
     let services = services::create_services(config).await?;
     services
         .search
@@ -135,23 +134,23 @@ async fn migrate_search(
     Ok(())
 }
 
-async fn migrate_artifacts(
-    config: Arc<dyn Config<ServerEnvironmentVariables>>,
-) -> Result<(), OperationOutcomeError> {
-    let initial = config
-        .get(ServerEnvironmentVariables::AllowArtifactMutations)
-        .unwrap_or("false".to_string());
-    config.set(
-        ServerEnvironmentVariables::AllowArtifactMutations,
-        "true".to_string(),
-    )?;
-    load_artifacts::load_artifacts(config.clone()).await?;
-    config.set(ServerEnvironmentVariables::AllowArtifactMutations, initial)?;
+async fn migrate_artifacts(config: Arc<ServerConfig>) -> Result<(), OperationOutcomeError> {
+    let mut config = (*config).clone();
+    config.allow_artifact_mutations = true;
+
+    load_artifacts::load_artifacts(Arc::new(config)).await?;
+
     Ok(())
 }
 
 pub async fn admin(command: &AdminCommands) -> Result<(), OperationOutcomeError> {
-    let config = get_config::<ServerEnvironmentVariables>("environment".into());
+    let config: Arc<ServerConfig> = Arc::new(
+        Figment::new()
+            .merge(Toml::file("haste.toml"))
+            .merge(Env::prefixed("HASTE_"))
+            .extract()
+            .map_err(|e| OperationOutcomeError::error(IssueType::Exception(None), e.to_string()))?,
+    );
 
     match &command {
         AdminCommands::Migrate { command } => match command {

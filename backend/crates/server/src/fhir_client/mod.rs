@@ -1,6 +1,6 @@
 use crate::{
-    ServerEnvironmentVariables,
     auth_n::middleware::jwt::User,
+    config::ServerConfig,
     fhir_client::{
         middleware::{
             ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
@@ -10,7 +10,6 @@ use crate::{
     },
 };
 use derivative::Derivative;
-use haste_config::Config;
 use haste_fhir_client::{
     FHIRClient,
     middleware::{Middleware, MiddlewareChain},
@@ -171,7 +170,7 @@ struct ClientState<
     repo: Arc<Repo>,
     search: Arc<Search>,
     terminology: Arc<Terminology>,
-    config: Arc<dyn Config<ServerEnvironmentVariables>>,
+    config: Arc<ServerConfig>,
 }
 
 pub struct Route<State, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> {
@@ -297,7 +296,7 @@ pub struct ServerClientConfig<
     pub search: Arc<Search>,
     pub terminology: Arc<Terminology>,
     pub mutate_artifacts: bool,
-    pub config: Arc<dyn Config<ServerEnvironmentVariables>>,
+    pub config: Arc<ServerConfig>,
 }
 
 impl<
@@ -310,7 +309,7 @@ impl<
         repo: Arc<Repo>,
         search: Arc<Search>,
         terminology: Arc<Terminology>,
-        config: Arc<dyn Config<ServerEnvironmentVariables>>,
+        config: Arc<ServerConfig>,
     ) -> Self {
         ServerClientConfig {
             repo,

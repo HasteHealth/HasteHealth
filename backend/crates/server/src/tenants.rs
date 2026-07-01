@@ -1,5 +1,5 @@
 use crate::{
-    auth_n::oidc::utilities::set_user_password, fhir_client::ServerCTX, services::AppState,
+    auth_n::oidc::utilities::set_user_password, fhir_client::ServerCTX, services::ServerState,
 };
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
@@ -27,7 +27,7 @@ pub async fn create_user<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    services: &AppState<Repo, Search, Terminology>,
+    services: &ServerState<Repo, Search, Terminology>,
     tenant: &TenantId,
     user_resource: User,
     password: Option<&str>,
@@ -80,7 +80,7 @@ pub async fn create_tenant<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    services: &AppState<Repo, Search, Terminology>,
+    services: &ServerState<Repo, Search, Terminology>,
     tenant_id: Option<String>,
     _name: &str,
     subscription_tier: &SubscriptionTier,

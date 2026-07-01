@@ -1,4 +1,4 @@
-use crate::services::AppState;
+use crate::services::ServerState;
 use axum::Router;
 use axum_extra::routing::RouterExt as _;
 use haste_fhir_search::SearchEngine;
@@ -12,7 +12,7 @@ pub fn create_router<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
->() -> Router<Arc<AppState<Repo, Search, Terminology>>> {
+>() -> Router<Arc<ServerState<Repo, Search, Terminology>>> {
     Router::new().nest(
         "/interactions",
         Router::new().typed_get(project_select::project_get),

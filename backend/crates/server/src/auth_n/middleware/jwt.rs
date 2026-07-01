@@ -1,6 +1,6 @@
 use crate::{
-    auth_n::certificates, extract::bearer_token::AuthBearer, route_path::project_path,
-    services::AppState,
+    auth_n::certificates, config::ServerConfig, extract::bearer_token::AuthBearer,
+    route_path::project_path, services::ServerState,
 };
 use axum::{
     extract::{OriginalUri, Request, State},
@@ -37,10 +37,10 @@ static VALIDATION_CONFIG: LazyLock<Validation> = LazyLock::new(|| {
     config
 });
 
-fn validate_jwt(token: &str) -> Result<UserTokenClaims, StatusCode> {
+fn validate_jwt(config: &ServerConfig, token: &str) -> Result<UserTokenClaims, StatusCode> {
     let header = jsonwebtoken::decode_header(token).map_err(|_| StatusCode::UNAUTHORIZED)?;
 
-    let cert_provider = certificates::get_certification_provider();
+    let cert_provider = certificates::get_certification_provider(config);
 
     let decoding_key = cert_provider
         .decoding_key(&header.kid.unwrap_or_else(|| "".to_string()).as_str())
@@ -143,7 +143,7 @@ pub async fn token_verifcation<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     // run the `HeaderMap` extractor
     AuthBearer(token): AuthBearer,
     // you can also add more extractors here but the last
@@ -156,15 +156,12 @@ pub async fn token_verifcation<
     let Some(token) = token else {
         return Err(invalid_jwt_response(
             &uri,
-            &state
-                .config
-                .get(crate::ServerEnvironmentVariables::APIURI)
-                .unwrap_or_default(),
+            &state.config.api_uri,
             StatusCode::UNAUTHORIZED,
         ));
     };
 
-    match validate_jwt(&token) {
+    match validate_jwt(state.config.as_ref(), &token) {
         Ok(claims) => {
             request.extensions_mut().insert(Arc::new(User {
                 token: Some(token),
@@ -175,10 +172,7 @@ pub async fn token_verifcation<
         Err(status_code) => match status_code {
             StatusCode::UNAUTHORIZED => Err(invalid_jwt_response(
                 &uri,
-                &state
-                    .config
-                    .get(crate::ServerEnvironmentVariables::APIURI)
-                    .unwrap_or_default(),
+                &state.config.api_uri,
                 status_code,
             )),
             _ => Err((status_code).into_response()),

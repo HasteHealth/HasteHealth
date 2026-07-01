@@ -1,4 +1,4 @@
-use haste_config::Config;
+use crate::config::ServerConfig;
 use haste_fhir_model::r4::generated::{
     resources::ClientApplication,
     terminology::{ClientapplicationGrantType, ClientapplicationResponseTypes},
@@ -6,41 +6,35 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_jwt::{ProjectId, TenantId};
 
-use crate::ServerEnvironmentVariables;
+pub fn get_admin_app(config: &ServerConfig) -> Option<ClientApplication> {
+    let redirect_uri = &config.admin_app_redirect_uri;
 
-pub fn get_admin_app(config: &dyn Config<ServerEnvironmentVariables>) -> Option<ClientApplication> {
-    let redirect_uri = config.get(ServerEnvironmentVariables::AdminAppRedirectURI);
-
-    if let Ok(redirect_uri) = redirect_uri {
-        Some(ClientApplication {
-            id: Some("admin-app".to_string()),
-            name: Box::new(FHIRString {
-                value: Some("Admin Application".to_string()),
-                ..Default::default()
-            }),
-            responseTypes: Box::new(ClientapplicationResponseTypes::Code(None)),
-            scope: Some(Box::new(FHIRString {
-                value: Some("offline_access openid email profile fhirUser system/*.*".to_string()),
-                ..Default::default()
-            })),
-            grantType: vec![
-                Box::new(ClientapplicationGrantType::Authorization_code(None)),
-                Box::new(ClientapplicationGrantType::Refresh_token(None)),
-            ],
-            redirectUri: Some(vec![Box::new(FHIRString {
-                value: Some(redirect_uri),
-                ..Default::default()
-            })]),
+    Some(ClientApplication {
+        id: Some("admin-app".to_string()),
+        name: Box::new(FHIRString {
+            value: Some("Admin Application".to_string()),
             ..Default::default()
-        })
-    } else {
-        None
-    }
+        }),
+        responseTypes: Box::new(ClientapplicationResponseTypes::Code(None)),
+        scope: Some(Box::new(FHIRString {
+            value: Some("offline_access openid email profile fhirUser system/*.*".to_string()),
+            ..Default::default()
+        })),
+        grantType: vec![
+            Box::new(ClientapplicationGrantType::Authorization_code(None)),
+            Box::new(ClientapplicationGrantType::Refresh_token(None)),
+        ],
+        redirectUri: Some(vec![Box::new(FHIRString {
+            value: Some(redirect_uri.clone()),
+            ..Default::default()
+        })]),
+        ..Default::default()
+    })
 }
 
 // Return the Admin app redirect url for the current tenant.
 pub fn redirect_url(
-    config: &dyn Config<ServerEnvironmentVariables>,
+    config: &ServerConfig,
     tenant_id: &TenantId,
     project_id: &ProjectId,
 ) -> Option<String> {

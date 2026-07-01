@@ -1,9 +1,10 @@
 use crate::fhir_client::{
     ServerCTX,
-    middleware::{ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput},
-    subscription_limits::rate_limits::{
-        RATE_LIMIT_WINDOW_IN_SECONDS, get_total_rate_limit_for_tier, points_for_operation,
+    middleware::{
+        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+        ServerMiddlewareState,
     },
+    subscription_limits::rate_limits::{get_total_rate_limit_for_tier, points_for_operation},
 };
 use haste_fhir_client::{
     FHIRClient,
@@ -12,8 +13,11 @@ use haste_fhir_client::{
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::SearchEngine;
+use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::claims::SubscriptionTier;
 use haste_rate_limit::RateLimitError;
+use haste_repository::Repository;
 use std::sync::Arc;
 
 pub struct Middleware {}
@@ -24,16 +28,26 @@ impl Middleware {
 }
 
 impl<
-    State: Send + Sync + 'static,
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
     Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
-> MiddlewareChain<State, Arc<ServerCTX<Client>>, FHIRRequest, FHIRResponse, OperationOutcomeError>
-    for Middleware
+>
+    MiddlewareChain<
+        ServerMiddlewareState<Repo, Search, Terminology>,
+        Arc<ServerCTX<Client>>,
+        FHIRRequest,
+        FHIRResponse,
+        OperationOutcomeError,
+    > for Middleware
 {
     fn call(
         &self,
-        state: State,
+        state: ServerMiddlewareState<Repo, Search, Terminology>,
         context: ServerMiddlewareContext<Client>,
-        next: Option<Arc<ServerMiddlewareNext<Client, State>>>,
+        next: Option<
+            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
+        >,
     ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
             // let start = Instant::now();
@@ -41,9 +55,11 @@ impl<
                 SubscriptionTier::Free
                 | SubscriptionTier::Professional
                 | SubscriptionTier::Team => {
-                    let max_score_for_tenant =
-                        get_total_rate_limit_for_tier(&context.ctx.user.claims.subscription_tier);
-                    let points = points_for_operation(&context.request);
+                    let max_score_for_tenant = get_total_rate_limit_for_tier(
+                        state.config.as_ref(),
+                        &context.ctx.user.claims.subscription_tier,
+                    );
+                    let points = points_for_operation(state.config.as_ref(), &context.request);
 
                     context
                         .ctx
@@ -52,7 +68,7 @@ impl<
                             context.ctx.tenant.as_ref(),
                             max_score_for_tenant as i32,
                             points as i32,
-                            *RATE_LIMIT_WINDOW_IN_SECONDS as i32,
+                            state.config.rate_limits.rate_limit_window_seconds as i32,
                         )
                         .await
                         .map_err(|e| match e {

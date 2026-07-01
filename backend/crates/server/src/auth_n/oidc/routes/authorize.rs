@@ -10,7 +10,7 @@ use crate::{
         session,
     },
     extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
-    services::AppState,
+    services::ServerState,
     ui::pages,
 };
 use axum::{
@@ -104,7 +104,7 @@ pub async fn authorize<
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
-    State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Extension(oidc_params): Extension<OIDCParameters>,
     Cached(current_session): Cached<Session>,

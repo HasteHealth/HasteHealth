@@ -1,5 +1,5 @@
 use crate::auth_n::oidc::routes::route_string::tenant_route_string;
-use crate::services::AppState;
+use crate::services::ServerState;
 use crate::ui::components::{banner, page_html};
 use axum::response::{IntoResponse, Redirect, Response};
 use axum::{Form, extract::State};
@@ -23,7 +23,7 @@ pub async fn tenant_select_get<
 >(
     _: TenantSelectGet,
     //ClientIp(ip_address): ClientIp,
-    State(_app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(_app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Response, OperationOutcomeError> {
     let signup_url = "/auth/signup";
     let action_url = "/auth/tenant-select";

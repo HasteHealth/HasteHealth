@@ -1,6 +1,7 @@
-use haste_config::{ConfigType, get_config};
 use serde::{Deserialize, Serialize};
-use std::sync::{Arc, LazyLock};
+use std::sync::{Arc, OnceLock};
+
+use crate::config::ServerConfig;
 
 pub mod providers;
 pub mod traits;
@@ -32,15 +33,15 @@ pub struct JSONWebKeySet {
     pub keys: Vec<JSONWebKey>,
 }
 
-static CERTIFICATION_PROVIDER: LazyLock<Arc<dyn traits::CertificationProvider>> =
-    LazyLock::new(|| {
-        let config = get_config(ConfigType::Environment);
-        Arc::new(
-            providers::local::LocalCertifications::new(config.as_ref())
-                .expect("Failed to create LocalCertifications"),
-        ) as Arc<dyn traits::CertificationProvider>
-    });
+static CERTIFICATION_PROVIDER: OnceLock<Arc<dyn traits::CertificationProvider>> = OnceLock::new();
 
-pub fn get_certification_provider() -> Arc<dyn traits::CertificationProvider> {
-    CERTIFICATION_PROVIDER.clone()
+pub fn get_certification_provider(config: &ServerConfig) -> Arc<dyn traits::CertificationProvider> {
+    CERTIFICATION_PROVIDER
+        .get_or_init(|| {
+            Arc::new(
+                providers::local::LocalCertifications::new(config)
+                    .expect("Failed to create LocalCertifications"),
+            ) as Arc<dyn traits::CertificationProvider>
+        })
+        .clone()
 }

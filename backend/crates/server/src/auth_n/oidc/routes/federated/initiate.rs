@@ -1,5 +1,4 @@
 use crate::{
-    ServerEnvironmentVariables,
     auth_n::oidc::{
         code_verification::{generate_code_challenge, generate_code_verifier},
         extract::client_app::OIDCClientApplication,
@@ -9,7 +8,7 @@ use crate::{
     },
     extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
     fhir_client::{FHIRServerClient, ServerCTX},
-    services::AppState,
+    services::ServerState,
 };
 use axum::{
     extract::{OriginalUri, State},
@@ -286,14 +285,14 @@ pub async fn federated_initiate<
     }: FederatedInitiate,
     Cached(mut current_session): Cached<Session>,
     uri: OriginalUri,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
     OIDCClientApplication(_client_app): OIDCClientApplication,
     _uri: OriginalUri,
 ) -> Result<Redirect, OperationOutcomeError> {
-    let api_uri = state.config.get(ServerEnvironmentVariables::APIURI)?;
+    let api_uri = &state.config.api_uri;
     validate_identity_provider_in_project(&identity_provider_id, &project_resource)?;
     let identity_provider = get_idp(
         &tenant,

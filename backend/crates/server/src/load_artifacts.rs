@@ -1,9 +1,8 @@
 use std::{collections::HashSet, sync::Arc};
 
-use crate::{ServerEnvironmentVariables, fhir_client::ServerCTX, services::create_services};
+use crate::{config::ServerConfig, fhir_client::ServerCTX, services::create_services};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use haste_artifacts::ARTIFACT_RESOURCES;
-use haste_config::Config;
 use haste_fhir_client::{
     FHIRClient,
     request::{FHIRSearchTypeRequest, SearchRequest},
@@ -105,9 +104,7 @@ pub fn get_resource_type(resource: &Resource) -> ResourceType {
 }
 
 /// This deletes existing artifacts and then reloads them. In a single transaction.
-pub async fn reset_artifacts(
-    config: Arc<dyn Config<ServerEnvironmentVariables>>,
-) -> Result<(), OperationOutcomeError> {
+pub async fn reset_artifacts(config: Arc<ServerConfig>) -> Result<(), OperationOutcomeError> {
     let services = create_services(config.clone()).await?;
 
     let transaction = services.transaction().await?;
@@ -252,9 +249,7 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
     Ok(())
 }
 
-pub async fn load_artifacts(
-    config: Arc<dyn Config<ServerEnvironmentVariables>>,
-) -> Result<(), OperationOutcomeError> {
+pub async fn load_artifacts(config: Arc<ServerConfig>) -> Result<(), OperationOutcomeError> {
     let services = create_services(config.clone()).await?;
 
     let ctx = Arc::new(ServerCTX::system(

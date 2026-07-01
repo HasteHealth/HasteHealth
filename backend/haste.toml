@@ -1,0 +1,15 @@
+api_uri = "http://localhost:3000"
+certification_dir = "certifications"
+admin_app_redirect_uri = "http://*.localhost:3001"
+max_request_body_size = 20971520                   # 20MB
+
+[repo]
+backend = "postgres"
+database_url = "postgresql://postgres:postgres@localhost:5432/haste_health"
+max_connections = 20
+
+[search]
+backend = "elasticsearch"
+url = "http://localhost:9200"
+username = "elastic"
+password = "elastic"

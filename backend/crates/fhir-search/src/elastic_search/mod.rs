@@ -242,7 +242,7 @@ fn unique_index_id(
     unique_index_id
 }
 
-impl<SearchParameterResolver: SearchParameterResolve + 'static> SearchEngine
+impl<SearchParameterResolver: SearchParameterResolve> SearchEngine
     for ElasticSearchEngine<SearchParameterResolver>
 {
     async fn search(

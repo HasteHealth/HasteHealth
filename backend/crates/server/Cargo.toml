@@ -22,7 +22,6 @@ dotenvy = { workspace = true }
 email_address = "0.2.9"
 haste-access-control = { path = "../access-control", version = "0.*" }
 haste-artifacts = { path = "../artifacts", version = "0.*" }
-haste-config = { path = "../config", version = "0.*" }
 haste-fhir-client = { path = "../fhir-client", version = "0.*", features = [
     "http",
     "axum",

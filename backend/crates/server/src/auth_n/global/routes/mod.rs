@@ -1,4 +1,4 @@
-use crate::services::AppState;
+use crate::services::ServerState;
 use axum::Router;
 use axum_extra::routing::RouterExt;
 use haste_fhir_search::SearchEngine;
@@ -15,8 +15,8 @@ pub fn create_router<
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    _state: Arc<AppState<Repo, Search, Terminology>>,
-) -> Router<Arc<AppState<Repo, Search, Terminology>>> {
+    _state: Arc<ServerState<Repo, Search, Terminology>>,
+) -> Router<Arc<ServerState<Repo, Search, Terminology>>> {
     Router::new()
         .typed_get(tenant_select::tenant_select_get)
         .typed_post(tenant_select::tenant_select_post)

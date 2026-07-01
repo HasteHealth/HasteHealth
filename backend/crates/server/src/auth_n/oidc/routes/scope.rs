@@ -10,7 +10,7 @@ use crate::{
         session,
     },
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
-    services::AppState,
+    services::ServerState,
 };
 use axum::{
     Form,
@@ -70,7 +70,7 @@ pub async fn scope_post<
 >(
     _: ScopePost,
     _uri: OriginalUri,
-    State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,

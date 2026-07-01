@@ -4,7 +4,7 @@ use crate::{
         oidc::{hardcoded_clients::admin_app, utilities::set_user_password},
     },
     extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
-    services::AppState,
+    services::ServerState,
     ui::pages::{self, message::message_html},
 };
 use axum::{
@@ -64,7 +64,7 @@ pub async fn password_reset_initiate_post<
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     project_resource: Project,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     form: axum::extract::Form<PasswordResetFormInitiate>,
 ) -> Result<Markup, OperationOutcomeError> {
     let user_search_results = TenantAuthAdmin::search(
@@ -115,7 +115,7 @@ pub async fn password_reset_verify_get<
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Markup, OperationOutcomeError> {
     if let Some(code) = ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::read(
         &*state.repo,
@@ -172,7 +172,7 @@ pub async fn password_reset_verify_post<
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Form(body): Form<PasswordVerifyPOSTBODY>,
 ) -> Result<Markup, OperationOutcomeError> {
     if body.password != body.password_confirm {

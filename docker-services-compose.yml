@@ -60,7 +60,10 @@ services:
       -c "/haste-health admin migrate all && /haste-health admin tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited"
 
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/haste_health
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=elastic
+      - HASTE_REPO.backend=postgres
+      - HASTE_REPO.database_url=postgresql://postgres:postgres@postgres:5432/haste_health
+      - HASTE_SEARCH.backend=elasticsearch
+      - HASTE_SEARCH.url=http://elasticsearch:9200
+      - HASTE_SEARCH.username=elastic
+      - HASTE_SEARCH.password=elastic
+      - HASTE_API_URI=http://localhost:3000

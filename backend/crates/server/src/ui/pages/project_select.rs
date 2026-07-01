@@ -1,9 +1,8 @@
 use crate::{
-    ServerEnvironmentVariables,
     auth_n::oidc::hardcoded_clients::admin_app,
+    config::ServerConfig,
     ui::components::{banner, page_html},
 };
-use haste_config::Config;
 use haste_fhir_model::r4::generated::{resources::Project, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
@@ -23,7 +22,7 @@ fn get_project_id(project: &Project) -> Result<ProjectId, OperationOutcomeError>
 }
 
 pub fn project_select_html(
-    config: &dyn Config<ServerEnvironmentVariables>,
+    config: &ServerConfig,
     tenant: &TenantId,
     projects: &[Project],
 ) -> Result<Markup, OperationOutcomeError> {

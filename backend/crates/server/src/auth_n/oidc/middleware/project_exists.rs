@@ -13,7 +13,7 @@ use std::sync::Arc;
 
 use crate::{
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
-    services::AppState,
+    services::ServerState,
 };
 
 pub async fn project_exists<
@@ -21,7 +21,7 @@ pub async fn project_exists<
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     request: Request,

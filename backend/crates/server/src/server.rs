@@ -1,5 +1,6 @@
 use crate::{
     auth_n::{self, certificates::get_certification_provider, middleware::jwt::User},
+    config::ServerConfig,
     fhir_client::ServerCTX,
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
     mcp,
@@ -8,7 +9,7 @@ use crate::{
         security_headers::SecurityHeaderLayer,
     },
     openapi,
-    services::{AppState, ConfigError, create_services, get_pool},
+    services::{ConfigError, ServerState, create_services, get_pool},
     static_assets::{create_static_server, root_asset_route},
 };
 use axum::{
@@ -22,9 +23,7 @@ use axum::{
     routing::{any, get, post},
 };
 use axum_client_ip::ClientIpSource;
-use haste_config::get_config;
 use haste_fhir_client::FHIRClient;
-use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -32,8 +31,8 @@ use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{Repository, types::SupportedFHIRVersions};
 use sentry::integrations::tower::NewSentryLayer;
 use serde::Deserialize;
+use std::net::SocketAddr;
 use std::{collections::HashMap, sync::Arc};
-use std::{net::SocketAddr, str::FromStr};
 use tower::{Layer, ServiceBuilder};
 use tower_http::normalize_path::NormalizePath;
 use tower_http::{
@@ -75,7 +74,7 @@ async fn fhir_handler<
     method: Method,
     uri: Uri,
     path: FHIRHandlerPath,
-    state: Arc<AppState<Repo, Search, Terminology>>,
+    state: Arc<ServerState<Repo, Search, Terminology>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
     let fhir_location = path.fhir_location.unwrap_or_default();
@@ -122,7 +121,7 @@ async fn fhir_root_handler<
     Extension(user): Extension<Arc<User>>,
     OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRRootHandlerPath>,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
     fhir_handler(
@@ -150,40 +149,28 @@ async fn fhir_type_handler<
     Extension(user): Extension<Arc<User>>,
     OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRHandlerPath>,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
     fhir_handler(user, method, uri, path, state, body).await
 }
 
-pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
-    let config = get_config("environment".into());
+pub async fn server(
+    config: Arc<ServerConfig>,
+) -> Result<NormalizePath<Router>, OperationOutcomeError> {
+    let ip_source = match &config.monitoring.ip_source {
+        crate::config::IpSource::ConnectInfo => ClientIpSource::ConnectInfo,
+        crate::config::IpSource::CfConnectingIp => ClientIpSource::CfConnectingIp,
+        crate::config::IpSource::XRealIp => ClientIpSource::XRealIp,
+    };
 
-    // Setup Ip Source for determining client ip for login etc..
-    let ip_source = config
-        .get(crate::ServerEnvironmentVariables::IpSource)
-        .and_then(|ip_source| {
-            ClientIpSource::from_str(&ip_source).map_err(|_e| {
-                OperationOutcomeError::fatal(
-                    IssueType::Exception(None),
-                    format!("Invalid IP_SOURCE value: {}", ip_source),
-                )
-            })
-        })
-        .unwrap_or_else(|_e| ClientIpSource::ConnectInfo);
-
-    // Varify instantiates.
-    get_certification_provider();
+    get_certification_provider(config.as_ref());
 
     let pool = get_pool(config.as_ref()).await;
     let session_store = PostgresStore::new(pool.clone());
     session_store.migrate().await.map_err(ConfigError::from)?;
 
-    let max_body_size = config
-        .get(crate::ServerEnvironmentVariables::MaxRequestBodySize)
-        .ok()
-        .and_then(|s| s.parse::<usize>().ok())
-        .unwrap_or(4 * 1024 * 1024);
+    let max_body_size = config.max_request_body_size;
     let shared_state = create_services(config).await?;
 
     let fhir_router = Router::new()
@@ -279,8 +266,8 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     Ok(NormalizePathLayer::trim_trailing_slash().layer(app))
 }
 
-pub async fn serve(port: u16) -> Result<(), OperationOutcomeError> {
-    let server = server().await?;
+pub async fn serve(config: Arc<ServerConfig>, port: u16) -> Result<(), OperationOutcomeError> {
+    let server = server(config).await?;
 
     let addr = format!("0.0.0.0:{}", port);
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();

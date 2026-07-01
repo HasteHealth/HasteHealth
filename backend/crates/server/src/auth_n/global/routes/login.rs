@@ -1,7 +1,6 @@
 use crate::{
-    ServerEnvironmentVariables,
     auth_n::email::send_email,
-    services::AppState,
+    services::ServerState,
     ui::{
         components::{banner, page_html},
         pages::message::message_html,
@@ -71,7 +70,7 @@ pub async fn global_login_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: EmailSelect,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Form(login_data): Form<GlobalLoginForm>,
 ) -> Result<Response, OperationOutcomeError> {
     let found_users = SystemAdmin::<User, UserSearchClauses>::search(
@@ -84,7 +83,7 @@ pub async fn global_login_post<
     )
     .await?;
 
-    let api_url = state.config.get(ServerEnvironmentVariables::APIURI)?;
+    let api_url = &state.config.api_uri;
 
     let tenant_select_email = crate::ui::email::base::base(
         &Uri::try_from(api_url.as_str()).map_err(|_| {
@@ -118,7 +117,7 @@ pub async fn global_login_post<
 
     if !found_users.is_empty() {
         send_email(
-            state.config.as_ref(),
+            &state.config.email,
             &login_data.email,
             "Haste Health Login",
             &tenant_select_email.into_string(),

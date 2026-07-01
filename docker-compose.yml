@@ -61,11 +61,13 @@ services:
       -c "/haste-health admin migrate all && /haste-health admin tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited"
 
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/haste_health
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=elastic
-      - API_URI=http://localhost:3000
+      - HASTE_REPO.backend=postgres
+      - HASTE_REPO.database_url=postgresql://postgres:postgres@postgres:5432/haste_health
+      - HASTE_SEARCH.backend=elasticsearch
+      - HASTE_SEARCH.url=http://elasticsearch:9200
+      - HASTE_SEARCH.username=elastic
+      - HASTE_SEARCH.password=elastic
+      - HASTE_API_URI=http://localhost:3000
 
   hastehealth-server:
     image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
@@ -83,13 +85,16 @@ services:
       - server
       - start
     environment:
-      - CERTIFICATION_DIR=certifications
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/haste_health
-      - API_URI=http://localhost:3000
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=elastic
-      - ADMIN_APP_REDIRECT_URI=http://*.localhost:3001
+      - HASTE_CERTIFICATION_DIR=certifications
+      - HASTE_ADMIN_APP_REDIRECT_URI=http://*.localhost:3001
+      - HASTE_API_URI=http://localhost:3000
+      - HASTE_REPO.backend=postgres
+      - HASTE_REPO.database_url=postgresql://postgres:postgres@postgres:5432/haste_health
+      - HASTE_SEARCH.backend=elasticsearch
+      - HASTE_SEARCH.url=http://elasticsearch:9200
+      - HASTE_SEARCH.username=elastic
+      - HASTE_SEARCH.password=elastic
+      
     
   hastehealth-worker:
     image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
@@ -104,10 +109,13 @@ services:
       elasticsearch: 
         condition: service_healthy
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/haste_health
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=elastic
+      - HASTE_REPO.backend=postgres
+      - HASTE_REPO.database_url=postgresql://postgres:postgres@postgres:5432/haste_health
+      - HASTE_SEARCH.backend=elasticsearch
+      - HASTE_SEARCH.url=http://elasticsearch:9200
+      - HASTE_SEARCH.username=elastic
+      - HASTE_SEARCH.password=elastic
+      - HASTE_API_URI=http://localhost:3000
 
   hastehealth-admin-app:
     image: ghcr.io/hastehealth/hastehealth/admin-app:latest

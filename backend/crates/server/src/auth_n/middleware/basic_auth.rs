@@ -10,7 +10,7 @@ use crate::{
         basic_credentials::BasicCredentialsHeader,
         path_tenant::{ProjectIdentifier, TenantIdentifier},
     },
-    services::AppState,
+    services::ServerState,
 };
 use axum::{
     extract::{Request, State},
@@ -57,7 +57,7 @@ pub async fn basic_auth_middleware<
 >(
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     // run the `HeaderMap` extractor
     BasicCredentialsHeader(credentials): BasicCredentialsHeader,
     // you can also add more extractors here but the last

@@ -9,8 +9,9 @@ use crate::{
             schemas,
         },
     },
+    config::ServerConfig,
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
-    services::AppState,
+    services::ServerState,
 };
 use axum::{
     Json,
@@ -84,13 +85,14 @@ struct TokenResponseArguments {
 }
 
 async fn create_token_response<Repo: Repository>(
+    config: &ServerConfig,
     user_agent: &Option<TypedHeader<UserAgent>>,
     repo: &Repo,
     client_app: &ClientApplication,
     grant_type_used: &schemas::token_body::OAuth2TokenBodyGrantType,
     args: TokenResponseArguments,
 ) -> Result<TokenResponse, OIDCError> {
-    let cert_provider = get_certification_provider();
+    let cert_provider = get_certification_provider(config);
     let encoding_key = cert_provider.encoding_key().map_err(|_e| {
         OIDCError::new(
             OIDCErrorCode::ServerError,
@@ -413,7 +415,7 @@ pub async fn client_credentials_to_token_response<
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    state: &AppState<Repo, Search, Terminology>,
+    state: &ServerState<Repo, Search, Terminology>,
     tenant: &TenantId,
     project: &ProjectId,
     user_agent: &Option<TypedHeader<UserAgent>>,
@@ -463,6 +465,7 @@ pub async fn client_credentials_to_token_response<
     )?;
 
     let response = create_token_response(
+        state.config.as_ref(),
         user_agent,
         &*state.repo,
         &client_app,
@@ -500,7 +503,7 @@ pub async fn token<
     user_agent: Option<TypedHeader<UserAgent>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     OAuthTokenBody(token_body): OAuthTokenBody,
 ) -> Result<Response, OIDCError> {
     match &token_body.grant_type {
@@ -609,6 +612,7 @@ pub async fn token<
                     })?;
 
             let response = create_token_response(
+                state.config.as_ref(),
                 &user_agent,
                 &*state.repo,
                 &client_app,
@@ -756,6 +760,7 @@ pub async fn token<
                     })?;
 
             let response = create_token_response(
+                state.config.as_ref(),
                 &user_agent,
                 &*state.repo,
                 &client_app,

@@ -1,6 +1,6 @@
 use crate::{
     load_artifacts::{get_all_sds, get_all_sps},
-    services::AppState,
+    services::ServerState,
 };
 use axum::{extract::State, http::HeaderMap, response::IntoResponse, response::Response};
 use haste_fhir_model::r4::generated::terminology::IssueType;
@@ -20,7 +20,7 @@ pub async fn openapi_document_handler<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Response, OperationOutcomeError> {
     let mut headers = HeaderMap::new();
     headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
@@ -45,9 +45,7 @@ pub async fn openapi_document_handler<
         )
         .await?;
 
-        let api_url = state
-            .config
-            .get(crate::ServerEnvironmentVariables::APIURI)?;
+        let api_url = &state.config.api_uri;
 
         let api_version = env!("CARGO_PKG_VERSION");
 

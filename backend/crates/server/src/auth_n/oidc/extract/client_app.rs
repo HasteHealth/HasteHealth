@@ -8,7 +8,7 @@ use crate::{
     },
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     fhir_client::ServerCTX,
-    services::AppState,
+    services::ServerState,
 };
 use axum::{
     Extension, RequestPartsExt,
@@ -30,7 +30,7 @@ pub async fn find_client_app<
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    state: &AppState<Repo, Search, Terminology>,
+    state: &ServerState<Repo, Search, Terminology>,
     tenant: TenantId,
     project: ProjectId,
     client_id: String,
@@ -79,7 +79,7 @@ pub async fn find_client_app<
 #[allow(unused)]
 pub struct OIDCClientApplication(pub ClientApplication);
 
-impl<Repo, Search, Terminology> FromRequestParts<Arc<AppState<Repo, Search, Terminology>>>
+impl<Repo, Search, Terminology> FromRequestParts<Arc<ServerState<Repo, Search, Terminology>>>
     for OIDCClientApplication
 where
     Repo: Repository + Send + Sync,
@@ -90,7 +90,7 @@ where
 
     async fn from_request_parts(
         parts: &mut Parts,
-        state: &Arc<AppState<Repo, Search, Terminology>>,
+        state: &Arc<ServerState<Repo, Search, Terminology>>,
     ) -> Result<Self, Self::Rejection> {
         let Extension(oidc_params) = parts
             .extract::<Extension<OIDCParameters>>()

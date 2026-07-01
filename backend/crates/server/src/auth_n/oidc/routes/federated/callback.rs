@@ -26,14 +26,13 @@ use tower_sessions::Session;
 use url::Url;
 
 use crate::{
-    ServerEnvironmentVariables,
     auth_n::{
         oidc::routes::federated::initiate::{get_idp, get_idp_session_info},
         session,
     },
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     fhir_client::ServerCTX,
-    services::AppState,
+    services::ServerState,
 };
 
 #[derive(TypedPath, Deserialize)]
@@ -165,7 +164,7 @@ async fn create_user_if_not_exists<
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    app_state: &Arc<AppState<Repo, Search, Terminology>>,
+    app_state: &Arc<ServerState<Repo, Search, Terminology>>,
     tenant: &TenantId,
     target_project: &ProjectId,
     idp: &IdentityProvider,
@@ -332,7 +331,7 @@ pub async fn federated_callback<
         identity_provider_id,
     }: FederatedInitiate,
     Query(CallbackQueryParams { code, state }): Query<CallbackQueryParams>,
-    State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(session): Cached<Session>,
@@ -383,7 +382,7 @@ pub async fn federated_callback<
         grant_type: GrantType::AuthorizationCode,
         code: code,
         redirect_uri: create_federated_callback_url(
-            &app_state.config.get(ServerEnvironmentVariables::APIURI)?,
+            &app_state.config.api_uri,
             &tenant,
             &identity_provider_id,
         )?,

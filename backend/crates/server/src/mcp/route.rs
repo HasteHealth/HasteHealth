@@ -8,7 +8,7 @@ use crate::{
         request::MCPRequest,
         schemas::schema_2025_11_25::{RequestId, ServerResult},
     },
-    services::AppState,
+    services::ServerState,
 };
 use axum::{
     Extension, Json,
@@ -39,7 +39,7 @@ pub async fn mcp_handler<
 >(
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Extension(user): Extension<Arc<User>>,
     Json(mcp_request): Json<MCPRequest>,
 ) -> Result<Response, MCPError<serde_json::Value>> {

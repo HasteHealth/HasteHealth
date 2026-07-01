@@ -1,6 +1,6 @@
 use crate::{
     auth_n::oidc::hardcoded_clients::admin_app, extract::path_tenant::TenantIdentifier,
-    fhir_client::ServerCTX, services::AppState, ui::pages,
+    fhir_client::ServerCTX, services::ServerState, ui::pages,
 };
 use axum::{
     extract::State,
@@ -26,7 +26,7 @@ pub async fn project_get<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: ProjectSelect,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
 ) -> Result<Response, OperationOutcomeError> {
     let tenant_projects = state

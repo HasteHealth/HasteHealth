@@ -1,6 +1,6 @@
 use crate::{
     auth_n::email,
-    services::AppState,
+    services::ServerState,
     tenants::create_tenant,
     ui::{
         components::{banner, page_html},
@@ -37,7 +37,7 @@ pub async fn global_signup_get<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: GlobalSignupGet,
-    State(_app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(_app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Response, OperationOutcomeError> {
     Ok(page_html(html! {
         (banner("Sign up", None))
@@ -85,7 +85,7 @@ async fn create_or_retrieve_user_tenant<
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    app_state: &AppState<Repo, Search, Terminology>,
+    app_state: &ServerState<Repo, Search, Terminology>,
     signup_form: &GlobalSignupForm,
 ) -> Result<User, OperationOutcomeError> {
     let mut result = SystemAdmin::search(
@@ -143,7 +143,7 @@ pub async fn global_signup_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: GlobalSignupPost,
-    State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Form(form): Form<GlobalSignupForm>,
 ) -> Result<Response, OperationOutcomeError> {
     let user = create_or_retrieve_user_tenant(app_state.as_ref(), &form).await?;

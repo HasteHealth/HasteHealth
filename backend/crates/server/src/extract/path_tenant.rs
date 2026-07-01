@@ -1,4 +1,4 @@
-use crate::services::AppState;
+use crate::services::ServerState;
 use axum::{
     extract::{FromRequestParts, Path},
     http::request::Parts,
@@ -16,7 +16,7 @@ use std::sync::Arc;
 #[derive(Clone)]
 pub struct Project(pub haste_fhir_model::r4::generated::resources::Project);
 
-impl<Repo, Search, Terminology> FromRequestParts<Arc<AppState<Repo, Search, Terminology>>>
+impl<Repo, Search, Terminology> FromRequestParts<Arc<ServerState<Repo, Search, Terminology>>>
     for Project
 where
     Repo: Repository + Send + Sync,
@@ -27,7 +27,7 @@ where
 
     async fn from_request_parts(
         parts: &mut Parts,
-        state: &Arc<AppState<Repo, Search, Terminology>>,
+        state: &Arc<ServerState<Repo, Search, Terminology>>,
     ) -> Result<Self, Self::Rejection> {
         let TenantIdentifier { tenant } = TenantIdentifier::from_request_parts(parts, state)
             .await

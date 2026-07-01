@@ -5,7 +5,7 @@ use crate::{
     },
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     route_path::{api_v1_oidc_auth_path, api_v1_oidc_path, project_path},
-    services::AppState,
+    services::ServerState,
 };
 use axum::{
     extract::{FromRequestParts, Json, Path, State},
@@ -195,12 +195,9 @@ pub async fn oauth_protected_resource<
     Cached(ResourcePath { resource }): Cached<ResourcePath>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Json<OAuthProtectedResourceDocument>, OIDCError> {
-    let api_url_string = state
-        .config
-        .get(crate::ServerEnvironmentVariables::APIURI)
-        .unwrap_or_default();
+    let api_url_string = &state.config.api_uri;
 
     if api_url_string.is_empty() {
         return Err(OIDCError::new(
@@ -340,12 +337,9 @@ pub async fn openid_configuration<
 >(
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Json<WellKnownDiscoveryDocument>, OIDCError> {
-    let api_url_string = state
-        .config
-        .get(crate::ServerEnvironmentVariables::APIURI)
-        .unwrap_or_default();
+    let api_url_string = &state.config.api_uri;
 
     Ok(Json(create_oidc_discovery_document(
         &tenant,

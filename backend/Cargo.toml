@@ -114,6 +114,7 @@ tracing-opentelemetry = "0.33.0"
 tracing-subscriber = {version = "0.3.23" , features = ["env-filter", "json"] }
 tracing-tree = "0.4.1"
 walkdir = { workspace = true }
+figment = { workspace = true, features = ["toml", "env"] }
 
 [profile.profiling]
 inherits = "release"

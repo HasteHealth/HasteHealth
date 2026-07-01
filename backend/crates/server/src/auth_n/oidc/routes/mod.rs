@@ -2,7 +2,7 @@ use crate::{
     auth_n::oidc::middleware::{
         AuthSessionValidationLayer, OIDCParameterInjectLayer, ParameterConfig, project_exists,
     },
-    services::AppState,
+    services::ServerState,
 };
 use axum::{Router, middleware};
 use axum_extra::routing::RouterExt;
@@ -48,8 +48,8 @@ pub fn create_router<
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    state: Arc<AppState<Repo, Search, Terminology>>,
-) -> Router<Arc<AppState<Repo, Search, Terminology>>> {
+    state: Arc<ServerState<Repo, Search, Terminology>>,
+) -> Router<Arc<ServerState<Repo, Search, Terminology>>> {
     Router::new()
         .merge(Router::new().typed_get(jwks::jwks_get))
         .merge(federated::federated_router())

@@ -1,9 +1,6 @@
-use std::{str::FromStr, time::Duration};
-
-use crate::{ServerEnvironmentVariables, route_path::api_v1_oidc_path, services::AppState};
+use crate::{config::EmailConfig, route_path::api_v1_oidc_path, services::ServerState};
 use axum::http::Uri;
 use email_address::EmailAddress;
-use haste_config::Config;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
@@ -19,6 +16,7 @@ use haste_repository::{
 };
 use maud::{Markup, html};
 use sendgrid::v3::{Content, Email, Personalization, Sender};
+use std::{str::FromStr, time::Duration};
 use url::Url;
 
 fn report(mut err: &dyn std::error::Error) -> String {
@@ -31,32 +29,44 @@ fn report(mut err: &dyn std::error::Error) -> String {
 }
 
 pub async fn send_email(
-    config: &dyn Config<ServerEnvironmentVariables>,
+    config: &Option<EmailConfig>,
     to: &EmailAddress,
     subject: &str,
     body: &str,
 ) -> Result<(), OperationOutcomeError> {
-    let from_address = config.get(ServerEnvironmentVariables::EmailFromAddress)?;
-    let api_key = config.get(ServerEnvironmentVariables::SendGridAPIKey)?;
-    let sender = Sender::new(&api_key, None);
-
-    let m = sendgrid::v3::Message::new(Email::new(&from_address))
-        .set_subject(subject)
-        .add_content(Content::new().set_content_type("text/html").set_value(body))
-        .add_personalization(Personalization::new(Email::new(to.as_str())));
-
-    let resp = sender.send(&m).await.map_err(|e| {
-        tracing::error!("Failed to send email '{}'", e);
-        tracing::error!("{}", report(&e));
+    let email_config = config.as_ref().ok_or_else(|| {
         OperationOutcomeError::fatal(
             IssueType::Exception(None),
-            "Failed to send email".to_string(),
+            "Email configuration is not set".to_string(),
         )
     })?;
 
-    tracing::info!("Email sent status: '{}'", resp.status());
+    match email_config {
+        EmailConfig::SendGrid {
+            from_address,
+            api_key,
+        } => {
+            let sender = Sender::new(&api_key, None);
 
-    Ok(())
+            let m = sendgrid::v3::Message::new(Email::new(&from_address))
+                .set_subject(subject)
+                .add_content(Content::new().set_content_type("text/html").set_value(body))
+                .add_personalization(Personalization::new(Email::new(to.as_str())));
+
+            let resp = sender.send(&m).await.map_err(|e| {
+                tracing::error!("Failed to send email '{}'", e);
+                tracing::error!("{}", report(&e));
+                OperationOutcomeError::fatal(
+                    IssueType::Exception(None),
+                    "Failed to send email".to_string(),
+                )
+            })?;
+
+            tracing::info!("Email sent status: '{}'", resp.status());
+
+            Ok(())
+        }
+    }
 }
 
 pub struct Message {
@@ -78,7 +88,7 @@ pub async fn send_password_reset_email<
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    state: &AppState<Repo, Search, Terminology>,
+    state: &ServerState<Repo, Search, Terminology>,
     tenant: &TenantId,
     project: &ProjectId,
     user: &User,
@@ -102,7 +112,7 @@ pub async fn send_password_reset_email<
     )
     .await?;
 
-    let api_url_string = state.config.get(ServerEnvironmentVariables::APIURI)?;
+    let api_url_string = &state.config.api_uri;
 
     let mut api_url = Url::parse(&api_url_string).map_err(|_| {
         OperationOutcomeError::fatal(IssueType::Exception(None), "API Url is invalid".to_string())
@@ -149,7 +159,7 @@ pub async fn send_password_reset_email<
     })?;
 
     send_email(
-        &*state.config,
+        &state.config.email,
         &EmailAddress::from_str(email_str).map_err(|_| {
             OperationOutcomeError::fatal(
                 IssueType::Invalid(None),
