@@ -1,9 +1,13 @@
+use std::sync::Arc;
+
 use clap::Subcommand;
-// use haste_config::get_config;
+use figment::{
+    Figment,
+    providers::{Env, Format as _, Toml},
+};
+use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_worker::{search_indexing, traits::Worker as _};
-
-// use haste_wal_worker::{WALWorkerEnvironmentVariables, wal_worker};
 
 #[derive(Subcommand, Debug)]
 pub enum WorkerCommands {
@@ -14,7 +18,17 @@ pub enum WorkerCommands {
 pub async fn worker(command: &Option<WorkerCommands>) -> Result<(), OperationOutcomeError> {
     match command {
         None | Some(WorkerCommands::Worker) => {
-            let indexing_worker = search_indexing::IndexingWorker::new().await?;
+            let config: Arc<search_indexing::WorkerConfig> = Arc::new(
+                Figment::new()
+                    .merge(Toml::file("haste.toml"))
+                    .merge(Env::prefixed("HASTE_"))
+                    .extract()
+                    .map_err(|e| {
+                        OperationOutcomeError::error(IssueType::Exception(None), e.to_string())
+                    })?,
+            );
+
+            let indexing_worker = search_indexing::IndexingWorker::new(config).await?;
 
             let handler = indexing_worker.run().await?;
 

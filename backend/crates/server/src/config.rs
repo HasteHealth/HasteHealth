@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 #[derive(Clone, Deserialize, Serialize)]
-#[serde(default, deny_unknown_fields)]
+#[serde(default)]
 pub struct ServerConfig {
     pub allow_artifact_mutations: bool,
     /// Used for JWT signing/verification.
@@ -22,13 +22,13 @@ pub struct ServerConfig {
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-#[serde(default, deny_unknown_fields)]
+#[serde(default)]
 pub struct MonitoringConfig {
     pub ip_source: IpSource,
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-#[serde(default, deny_unknown_fields)]
+#[serde(default)]
 pub struct FHIRConfig {
     /// Max delete limit for type-delete and system-delete operations.
     pub delete_limit: usize,
@@ -42,7 +42,6 @@ pub enum RepoConfig {
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
 pub struct PostgresConfig {
     pub database_url: String,
     pub max_connections: u32,
@@ -56,7 +55,6 @@ pub enum SearchConfig {
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
 pub struct ElasticsearchConfig {
     pub url: String,
     pub username: String,
@@ -73,7 +71,7 @@ pub enum EmailConfig {
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-#[serde(default, deny_unknown_fields)]
+#[serde(default)]
 pub struct RateLimitsConfig {
     pub rate_limit_subscription_tiers: Option<[usize; 4]>,
     pub rate_limit_window_seconds: u64,

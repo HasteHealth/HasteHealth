@@ -2,7 +2,6 @@ use crate::{
     indexing_lock::{IndexLockProvider, postgres::TenantLockIndex},
     traits::Worker,
 };
-use haste_config::get_config;
 use haste_fhir_model::r4::generated::resources::ResourceTypeError;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_fhir_search::{
@@ -18,6 +17,7 @@ use haste_repository::{
     fhir::FHIRRepository, pg::PGConnection, sequence::ResourceSequential,
     types::SupportedFHIRVersions,
 };
+use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, query_as, types::time::OffsetDateTime};
 use std::sync::Arc;
 use tokio::{sync::Mutex, task::JoinHandle};
@@ -252,49 +252,120 @@ pub struct IndexingWorker {
     search_engine: Arc<ElasticSearchEngine<ElasticSearchParameterResolver<PGConnection>>>,
 }
 
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(default)]
+pub struct WorkerConfig {
+    pub repo: RepoConfig,
+    pub search: SearchConfig,
+}
+
+// Repo backend where the FHIR server stores its data/resources.
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(tag = "backend", rename_all = "snake_case")]
+pub enum RepoConfig {
+    Postgres(PostgresConfig),
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+pub struct PostgresConfig {
+    pub database_url: String,
+    pub max_connections: u32,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+pub struct ElasticsearchConfig {
+    pub url: String,
+    pub username: String,
+    pub password: String,
+}
+
+// Search backend where the FHIR server stores its search indices.
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(tag = "backend", rename_all = "snake_case")]
+pub enum SearchConfig {
+    Elasticsearch(ElasticsearchConfig),
+}
+
+impl Default for WorkerConfig {
+    fn default() -> Self {
+        Self {
+            repo: RepoConfig::default(),
+            search: SearchConfig::default(),
+        }
+    }
+}
+
+impl Default for RepoConfig {
+    fn default() -> Self {
+        RepoConfig::Postgres(PostgresConfig::default())
+    }
+}
+impl Default for PostgresConfig {
+    fn default() -> Self {
+        Self {
+            database_url: "postgresql://postgres:postgres@localhost:5432/haste_health".into(),
+            max_connections: 10,
+        }
+    }
+}
+impl Default for SearchConfig {
+    fn default() -> Self {
+        SearchConfig::Elasticsearch(ElasticsearchConfig::default())
+    }
+}
+impl Default for ElasticsearchConfig {
+    fn default() -> Self {
+        Self {
+            url: "http://localhost:9200".into(),
+            username: "elastic".into(),
+            password: "elastic".into(),
+        }
+    }
+}
+
+async fn create_repo(config: &RepoConfig) -> Result<Arc<PGConnection>, OperationOutcomeError> {
+    match config {
+        RepoConfig::Postgres(pg_config) => {
+            let pool = sqlx::PgPool::connect(&pg_config.database_url)
+                .await
+                .map_err(IndexingWorkerError::from)?;
+            Ok(Arc::new(PGConnection::pool(pool)))
+        }
+    }
+}
+
+async fn create_search_engine(
+    config: &SearchConfig,
+    repo: Arc<PGConnection>,
+) -> Result<
+    Arc<ElasticSearchEngine<ElasticSearchParameterResolver<PGConnection>>>,
+    OperationOutcomeError,
+> {
+    match config {
+        SearchConfig::Elasticsearch(elasticsearch_config) => {
+            let es_client = create_es_client(
+                &elasticsearch_config.url,
+                elasticsearch_config.username.clone(),
+                elasticsearch_config.password.clone(),
+            )?;
+            let search_engine = Arc::new(ElasticSearchEngine::new(
+                Arc::new(ElasticSearchParameterResolver::new(
+                    es_client.clone(),
+                    repo.clone(),
+                )),
+                Arc::new(haste_fhirpath::FPEngine::new()),
+                es_client,
+            ));
+
+            Ok(search_engine)
+        }
+    }
+}
+
 impl IndexingWorker {
-    pub async fn new() -> Result<Self, OperationOutcomeError> {
-        let config = get_config::<IndexingWorkerEnvironmentVariables>("environment".into());
-        let fp_engine = Arc::new(haste_fhirpath::FPEngine::new());
-
-        let pg_pool = sqlx::PgPool::connect(
-            &config
-                .get(IndexingWorkerEnvironmentVariables::DatabaseURL)
-                .unwrap(),
-        )
-        .await
-        .expect("Failed to connect to the database");
-        let repo = Arc::new(haste_repository::pg::PGConnection::pool(pg_pool.clone()));
-        let es_client = create_es_client(
-            &config
-                .get(IndexingWorkerEnvironmentVariables::ElasticSearchURL)
-                .expect(&format!(
-                    "'{}' variable not set",
-                    String::from(IndexingWorkerEnvironmentVariables::ElasticSearchURL)
-                )),
-            config
-                .get(IndexingWorkerEnvironmentVariables::ElasticSearchUsername)
-                .expect(&format!(
-                    "'{}' variable not set",
-                    String::from(IndexingWorkerEnvironmentVariables::ElasticSearchUsername)
-                )),
-            config
-                .get(IndexingWorkerEnvironmentVariables::ElasticSearchPassword)
-                .expect(&format!(
-                    "'{}' variable not set",
-                    String::from(IndexingWorkerEnvironmentVariables::ElasticSearchPassword)
-                )),
-        )
-        .expect("Failed to create Elasticsearch client");
-
-        let search_engine = Arc::new(ElasticSearchEngine::new(
-            Arc::new(ElasticSearchParameterResolver::new(
-                es_client.clone(),
-                repo.clone(),
-            )),
-            fp_engine.clone(),
-            es_client,
-        ));
+    pub async fn new(config: Arc<WorkerConfig>) -> Result<Self, OperationOutcomeError> {
+        let repo = create_repo(&config.repo).await?;
+        let search_engine = create_search_engine(&config.search, repo.clone()).await?;
 
         let mut attempts = 0;
         while !search_engine.is_connected().await.is_ok() && attempts < 5 {
