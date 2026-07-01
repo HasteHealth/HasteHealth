@@ -405,6 +405,39 @@ async fn evaluate_function<'a>(
 
             res
         }
+        // https://build.fhir.org/ig/HL7/FHIRPath/en/#joinseparator-string--string
+        "join" => {
+            validate_arguments(&function.arguments, &Cardinality::Custom(0, 1))?;
+
+            let separator = if let Some(separator_expression) = function.arguments.get(0) {
+                let separator_context =
+                    evaluate_expression(separator_expression, context.clone(), config).await?;
+                if separator_context.values.len() != 1 {
+                    return Err(FHIRPathError::OperationError(
+                        OperationError::InvalidCardinality,
+                    ));
+                }
+                downcast_string(separator_context.values[0])?
+            } else {
+                "".to_string()
+            };
+
+            let joined = context
+                .values
+                .iter()
+                .map(|v| downcast_string(*v))
+                .collect::<Result<Vec<_>, _>>()?
+                .join(&separator);
+
+            Ok(context.new_context_from(vec![
+                context
+                    .allocate_literal(FHIRString {
+                        value: Some(joined),
+                        ..Default::default()
+                    })
+                    .await,
+            ]))
+        }
         "exists" => {
             validate_arguments(&function.arguments, &Cardinality::Many)?;
 
@@ -2382,5 +2415,44 @@ mod tests {
             s.reference.as_ref().unwrap().value,
             Some("Patient/1".to_string())
         );
+    }
+
+    #[tokio::test]
+    async fn test_join() {
+        let engine = FPEngine::new();
+
+        let mut patient = test_patient();
+        patient.name.as_mut().unwrap()[0]
+            .given
+            .as_mut()
+            .unwrap()
+            .push(Box::new(FHIRString {
+                value: Some("David".to_string()),
+                ..Default::default()
+            }));
+
+        let result = engine
+            .evaluate("$this.name.given.join(',')", vec![&patient])
+            .await
+            .expect("Failed to evaluate join()");
+
+        let joined_ = result.iter().collect::<Vec<_>>();
+        assert_eq!(joined_.len(), 1);
+        let s = joined_[0].as_any().downcast_ref::<FHIRString>().unwrap();
+        assert_eq!(s.value, Some("Bob,David".to_string()));
+
+        let result = engine
+            .evaluate("$this.name.given.join()", vec![&patient])
+            .await
+            .expect("Failed to evaluate join()");
+
+        let joined_ = result.iter().collect::<Vec<_>>();
+        assert_eq!(joined_.len(), 1);
+        let s = joined_[0].as_any().downcast_ref::<FHIRString>().unwrap();
+        assert_eq!(s.value, Some("BobDavid".to_string()));
+
+        let result = engine.evaluate("$this.name.join()", vec![&patient]).await;
+
+        assert_eq!(result.is_err(), true);
     }
 }
