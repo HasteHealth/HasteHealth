@@ -9,14 +9,12 @@ export type FHIRPeriodReadOnlyProps = {
 export const FHIRPeriodReadOnly = ({
   value,
 }: Readonly<FHIRPeriodReadOnlyProps>) => {
+  if (!value?.start && !value?.end) return null;
   return (
-    <div className="flex flex-1 space-x-1">
-      {value?.start && (
-        <div>
-          {value.start ?? "any time"} <span>{"->"}</span>{" "}
-        </div>
-      )}
-      {value?.end && <div>{value.end ?? "any time"}</div>}
-    </div>
+    <span className="inline-flex items-center gap-1 whitespace-nowrap font-mono text-[11px] text-slate-600">
+      <span>{value.start ?? "—"}</span>
+      <span className="text-slate-300">{"→"}</span>
+      <span>{value.end ?? "present"}</span>
+    </span>
   );
 };

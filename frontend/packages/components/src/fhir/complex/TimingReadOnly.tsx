@@ -2,6 +2,7 @@ import React from "react";
 
 import { Timing } from "@haste-health/fhir-types/r4/types";
 
+import { FHIRCodeableConceptReadOnly } from "./CodeableConceptReadOnly";
 import { FHIRPeriodReadOnly } from "./PeriodReadOnly";
 import { FHIRQuantityReadOnly } from "./QuantityReadOnly";
 import { FHIRRangeReadOnly } from "./RangeReadOnly";
@@ -22,5 +23,8 @@ export const FHIRTimingReadOnly = ({
   if (value.repeat?.boundsPeriod) {
     return <FHIRPeriodReadOnly value={value.repeat?.boundsPeriod} />;
   }
-  return undefined;
+  if (value.code) {
+    return <FHIRCodeableConceptReadOnly value={value.code} />;
+  }
+  return <span className="text-slate-300">—</span>;
 };

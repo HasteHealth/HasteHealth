@@ -6,26 +6,23 @@ export type FHIRCodingReadOnlyProps = {
   value: Coding;
 };
 
-function FHIRCodingDetailDisplay({ value }: Readonly<FHIRCodingReadOnlyProps>) {
-  return (
-    <div>
-      <span>
-        [{value.system ? `${value.system}:` : ""} {value.code}]
-      </span>
-    </div>
-  );
-}
-
 export const FHIRCodingReadOnly = ({
   value,
 }: Readonly<FHIRCodingReadOnlyProps>) => {
+  if (!value) return null;
   return (
-    <>
-      {value.display ? (
-        value.display
-      ) : (
-        <FHIRCodingDetailDisplay value={value} />
+    <span
+      className="inline-flex items-center gap-1.5 whitespace-nowrap"
+      title={[value.system, value.code].filter(Boolean).join(" | ")}
+    >
+      {value.code && (
+        <span className="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-[11px] leading-none text-indigo-700">
+          {value.code}
+        </span>
       )}
-    </>
+      {value.display && (
+        <span className="text-slate-700">{value.display}</span>
+      )}
+    </span>
   );
 };

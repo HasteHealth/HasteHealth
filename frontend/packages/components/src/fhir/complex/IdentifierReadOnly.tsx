@@ -10,10 +10,18 @@ export const FHIRIdentifierReadOnly = ({
   value,
 }: Readonly<FHIRIdentifierReadOnlyProps>) => {
   return (
-    <div className="flex flex-1 space-x-1">
-      {value?.system && <div>{value?.system}</div>}
-      {value?.value && <div>{value?.value}</div>}
-      {value?.type && <div>{value?.type?.text}</div>}
-    </div>
+    <span
+      className="inline-flex items-center gap-1.5 whitespace-nowrap"
+      title={value?.system}
+    >
+      {value?.type?.text && (
+        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-500">
+          {value.type.text}
+        </span>
+      )}
+      {value?.value && (
+        <span className="font-mono text-slate-700">{value.value}</span>
+      )}
+    </span>
   );
 };
