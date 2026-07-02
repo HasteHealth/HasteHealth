@@ -18,7 +18,7 @@ fn hash_password(password: &str) -> Result<String, StoreError> {
     let salt = SaltString::generate(&mut OsRng);
     let hash = Argon2::default()
         .hash_password(password.as_bytes(), &salt)
-        .map_err(StoreError::PasswordHashError)?
+        .map_err(|e| StoreError::PasswordHashError(e))?
         .to_string();
 
     Ok(hash)
