@@ -1,8 +1,10 @@
 name: Docker Image Audit
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ["Release Docker"] # Must exactly match the name of the first workflow
+    types:
+      - completed
   schedule:
     # (SOC2 continuous monitoring).
     - cron: "0 12 * * *"
@@ -17,14 +19,6 @@ jobs:
       - name: Pull Docker Image from GHCR
         run: |
           docker pull ghcr.io/hastehealth/hastehealth/hastehealth:latest
-      - name: Build server image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/haste-health.dockerfile
-          push: false
-          load: true
-          tags: haste-health/server:audit
       - name: Scan server image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -39,14 +33,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
-      - name: Build admin-app image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/admin-app/dockerfile
-          push: false
-          load: true
-          tags: haste-health/admin-app:audit
       - name: Pull Docker Image from GHCR
         run: |
           docker pull ghcr.io/hastehealth/hastehealth/hastehealth:latest
