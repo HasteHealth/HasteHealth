@@ -2,4 +2,8 @@
 # https://docs.rs/cargo-audit/latest/cargo_audit/config/index.html
 [advisories]
 informational_warnings = ["unmaintained"]
-ignore = []
+ignore = [
+    # Ignoring for RSA as not possible to use in timing attack
+    # And no fix available.
+    "RUSTSEC-2023-0071",
+]
