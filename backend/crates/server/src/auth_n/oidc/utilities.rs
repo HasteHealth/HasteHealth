@@ -31,7 +31,6 @@ pub async fn set_user_password<Repo: Repository>(
     user_id: &str,
     password: &str,
 ) -> Result<(), OperationOutcomeError> {
-    // In a real implementation, you would hash the password here
     let password_strength = zxcvbn::zxcvbn(password, &[user_email]);
 
     if u8::from(password_strength.score()) < 3 {
