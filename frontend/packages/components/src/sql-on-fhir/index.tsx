@@ -444,7 +444,6 @@ export function ViewDefinitionSqlRunner({
   client,
   editorExtensions = [basicSetup],
   fhirVersion,
-
   resources,
   since,
   initialViewDefinition,
