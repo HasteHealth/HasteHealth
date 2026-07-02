@@ -28,7 +28,7 @@ jobs:
       - uses: docker/setup-buildx-action@v3
       - name: Pull Docker Image from GHCR
         run: |
-          docker pull ghcr.io/${{ github.repository_owner }}/haste-health:latest
+          docker pull ghcr.io/hastehealth/hastehealth/hastehealth:latest
       - name: Build server image
         uses: docker/build-push-action@v6
         with:
@@ -40,7 +40,7 @@ jobs:
       - name: Scan server image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ghcr.io/${{ github.repository_owner }}/haste-health:latest
+          image-ref: ghcr.io/hastehealth/hastehealth/hastehealth:latest
           severity: "CRITICAL,HIGH"
           ignore-unfixed: true
           exit-code: "1"
@@ -61,11 +61,11 @@ jobs:
           tags: haste-health/admin-app:audit
       - name: Pull Docker Image from GHCR
         run: |
-          docker pull ghcr.io/${{ github.repository_owner }}/admin-app:latest
+          docker pull ghcr.io/hastehealth/hastehealth/hastehealth:latest
       - name: Scan admin-app image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ghcr.io/${{ github.repository_owner }}/admin-app:latest
+          image-ref: ghcr.io/hastehealth/hastehealth/hastehealth:latest
           severity: "CRITICAL,HIGH"
           ignore-unfixed: true
           exit-code: "1"
