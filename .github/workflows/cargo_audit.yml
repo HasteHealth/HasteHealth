@@ -1,0 +1,32 @@
+name: Cargo Audit
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "backend/Cargo.lock"
+      - "backend/**/Cargo.toml"
+      - "backend/audit.toml"
+      - ".github/workflows/cargo_audit.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "backend/Cargo.lock"
+      - "backend/**/Cargo.toml"
+      - "backend/audit.toml"
+      - ".github/workflows/cargo_audit.yml"
+  schedule:
+    # Catches newly published RustSec advisories against dependencies that
+    # haven't changed since the last push (SOC2 continuous monitoring).
+    - cron: "0 12 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/install-action@cargo-audit
+      - name: cargo audit
+        working-directory: ./backend
+        run: cargo audit
