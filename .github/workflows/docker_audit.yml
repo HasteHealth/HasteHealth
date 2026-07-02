@@ -1,20 +1,8 @@
 name: Docker Image Audit
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - "docker/**"
-      - "backend/**"
-      - "frontend/**"
-      - ".github/workflows/docker_audit.yml"
-  pull_request:
-    branches: ["main"]
-    paths:
-      - "docker/**"
-      - "backend/**"
-      - "frontend/**"
-      - ".github/workflows/docker_audit.yml"
+  release:
+    types: [published]
   schedule:
     # (SOC2 continuous monitoring).
     - cron: "0 12 * * *"
