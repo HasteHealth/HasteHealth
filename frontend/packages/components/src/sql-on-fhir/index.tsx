@@ -17,44 +17,6 @@ import { ClientProps } from "../fhir/types";
 import { basicSetup } from "codemirror";
 import { ResponseError } from "@haste-health/client/lib/http";
 
-const DEFAULT_VIEW_DEFINITION: ViewDefinition = {
-  resourceType: "ViewDefinition",
-  status: "draft",
-  resource: "Patient",
-  select: [
-    {
-      column: [
-        {
-          name: "id",
-          path: "id",
-          type: "http://hl7.org/fhirpath/System.String",
-        },
-        {
-          name: "date of birth",
-          path: "$this.birthDate",
-          type: "date",
-        },
-      ],
-    },
-    {
-      forEach: "$this.name",
-      column: [
-        {
-          name: "name",
-          path: "$this.given",
-          type: "string",
-          collection: true,
-        },
-        {
-          name: "family",
-          path: "$this.family",
-          type: "string",
-        },
-      ],
-    },
-  ],
-} as ViewDefinition;
-
 type ParsedResults = {
   headers: string[];
   rows: string[][];
@@ -230,8 +192,8 @@ function EditorPane({
   isRunning,
 }: {
   extensions?: any[];
-  viewDefinition: string;
-  setViewDefinition: (value: string) => void;
+  viewDefinition: ViewDefinition;
+  setViewDefinition: (value: ViewDefinition) => void;
   exportFormat: ExportFormat;
   setExportFormat: (format: ExportFormat) => void;
   onRun: () => void;
@@ -286,8 +248,16 @@ function EditorPane({
         <div className="h-full w-full overflow-hidden rounded border border-slate-200">
           <CodeMirror
             extensions={extensions}
-            value={viewDefinition}
-            onChange={(value) => setViewDefinition(value)}
+            value={JSON.stringify(viewDefinition, null, 2)}
+            onChange={(v) => {
+              try {
+                const resource = JSON.parse(v);
+                setViewDefinition(resource);
+              } catch (e) {
+                console.error(e);
+                return;
+              }
+            }}
             theme={{
               "&": {
                 height: "100%",
@@ -435,7 +405,8 @@ export type ViewDefinitionSqlRunnerProps = ClientProps & {
   editorExtensions?: any[];
   since?: instant;
   resources?: Resource[];
-  initialViewDefinition?: ViewDefinition;
+  viewDefinition: ViewDefinition;
+  setViewDefinition: (value: ViewDefinition) => void;
   defaultPageSize?: number;
   pageSizeOptions?: number[];
 };
@@ -446,14 +417,12 @@ export function ViewDefinitionSqlRunner({
   fhirVersion,
   resources,
   since,
-  initialViewDefinition,
+  viewDefinition,
+  setViewDefinition,
   defaultPageSize = 100,
   pageSizeOptions = [10, 20, 50, 100],
 }: ViewDefinitionSqlRunnerProps) {
   const [activeTab, setActiveTab] = useState(0);
-  const [viewDefinition, setViewDefinition] = useState(() =>
-    JSON.stringify(initialViewDefinition ?? DEFAULT_VIEW_DEFINITION, null, 2),
-  );
   const [results, setResults] = useState<ParsedResults>({
     headers: [],
     rows: [],
@@ -470,7 +439,6 @@ export function ViewDefinitionSqlRunner({
     setError(undefined);
 
     try {
-      const parsedViewDefinition = JSON.parse(viewDefinition) as ViewDefinition;
       const binary = await client.invoke_system(
         ViewDefinitionRun.Op,
         {},
@@ -478,7 +446,7 @@ export function ViewDefinitionSqlRunner({
         {
           _format: exportFormat as code,
           header: true,
-          viewResource: parsedViewDefinition,
+          viewResource: viewDefinition,
           resource: resources,
           _since: since,
         },
@@ -508,9 +476,7 @@ export function ViewDefinitionSqlRunner({
   }
 
   function resetEditor() {
-    setViewDefinition(
-      JSON.stringify(initialViewDefinition ?? DEFAULT_VIEW_DEFINITION, null, 2),
-    );
+    setViewDefinition(viewDefinition);
     setError(undefined);
   }
 
