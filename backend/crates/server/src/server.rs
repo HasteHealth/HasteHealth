@@ -34,7 +34,7 @@ use serde::Deserialize;
 use std::net::SocketAddr;
 use std::{collections::HashMap, sync::Arc};
 use tower::{Layer, ServiceBuilder};
-use tower_http::normalize_path::NormalizePath;
+use tower_http::{catch_panic::CatchPanicLayer, normalize_path::NormalizePath};
 use tower_http::{
     compression::CompressionLayer,
     cors::{Any, CorsLayer},
@@ -234,6 +234,7 @@ pub async fn server(
         .nest("/w/{tenant}", tenant_router)
         .layer(
             ServiceBuilder::new()
+                .layer(CatchPanicLayer::new())
                 .layer(ip_source.into_extension())
                 .layer(NewSentryLayer::<Request<Body>>::new_from_top())
                 .layer(TraceLayer::new_for_http())
