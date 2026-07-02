@@ -29,4 +29,4 @@ jobs:
       - uses: taiki-e/install-action@cargo-audit
       - name: cargo audit
         working-directory: ./backend
-        run: cargo audit
+        run: cargo audit --file ./audit.toml
