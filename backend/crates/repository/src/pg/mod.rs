@@ -35,6 +35,8 @@ pub enum StoreError {
     NotTransaction,
     #[error(code = "invalid", diagnostic = "Failed to commit the transaction.")]
     FailedCommitTransaction,
+    #[error(code = "exception", diagnostic = "Failed to hash password.")]
+    PasswordHashError(#[from] argon2::password_hash::Error),
 }
 
 /// Connection types supported by the repository traits.

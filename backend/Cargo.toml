@@ -59,6 +59,7 @@ homepage = "https://haste.health"
 edition = "2024"
 
 [workspace.dependencies]
+argon2 = "0.5.3"
 axum = "0.8.9"
 chrono = "0.4.44"
 derivative = "2.2.0"

@@ -10,6 +10,7 @@ homepage = { workspace = true }
 rate-limit = []
 
 [dependencies]
+argon2 = { workspace = true }
 chrono = { workspace = true }
 haste-fhir-client = { path = "../fhir-client", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*", features = [

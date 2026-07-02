@@ -6,9 +6,23 @@ use crate::{
         UserSearchClauses,
     },
 };
+use argon2::{
+    Argon2, PasswordHasher, PasswordVerifier,
+    password_hash::{PasswordHash, SaltString, rand_core::OsRng},
+};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::TenantId;
 use sqlx::{Acquire, Postgres, QueryBuilder};
+
+fn hash_password(password: &str) -> Result<String, StoreError> {
+    let salt = SaltString::generate(&mut OsRng);
+    let hash = Argon2::default()
+        .hash_password(password.as_bytes(), &salt)
+        .map_err(StoreError::PasswordHashError)?
+        .to_string();
+
+    Ok(hash)
+}
 
 fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
@@ -19,22 +33,43 @@ fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         match method {
             LoginMethod::EmailPassword { email, password } => {
-                let user = sqlx::query_as!(
-                    User,
+                let row = sqlx::query!(
                     r#"
-                  SELECT id, tenant as "tenant: TenantId", email, role as "role: UserRole", method as "method: AuthMethod", provider_id FROM users WHERE tenant = $1 AND method = $2 AND email = $3 AND password = crypt($4, password)
+                  SELECT id, tenant as "tenant: TenantId", email, role as "role: UserRole", method as "method: AuthMethod", provider_id, password FROM users WHERE tenant = $1 AND method = $2 AND email = $3
                 "#,
                     tenant.as_ref(),
                     AuthMethod::EmailPassword as AuthMethod,
-                    email,
-                    password
+                    email
                 ).fetch_optional(&mut *conn).await.map_err(StoreError::from)?;
 
-                if let Some(user) = user {
-                    Ok(LoginResult::Success { user })
-                } else {
-                    Ok(LoginResult::Failure)
+                let Some(row) = row else {
+                    return Ok(LoginResult::Failure);
+                };
+
+                let verified = row
+                    .password
+                    .as_deref()
+                    .and_then(|hash| PasswordHash::new(hash).ok())
+                    .is_some_and(|parsed_hash| {
+                        Argon2::default()
+                            .verify_password(password.as_bytes(), &parsed_hash)
+                            .is_ok()
+                    });
+
+                if !verified {
+                    return Ok(LoginResult::Failure);
                 }
+
+                Ok(LoginResult::Success {
+                    user: User {
+                        id: row.id,
+                        tenant: row.tenant,
+                        email: row.email,
+                        role: row.role,
+                        method: row.method,
+                        provider_id: row.provider_id,
+                    },
+                })
             }
             LoginMethod::OIDC {
                 email: _,
@@ -97,10 +132,8 @@ fn create_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
         }
 
         if let Some(password) = new_user.password {
-            seperator
-                .push("crypt(")
-                .push_bind_unseparated(password)
-                .push_unseparated(", gen_salt('bf'))");
+            let hashed_password = hash_password(&password)?;
+            seperator.push_bind(hashed_password);
         } else {
             seperator.push_bind(None::<String>);
         }
@@ -178,10 +211,10 @@ fn update_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
         }
 
         if let Some(password) = model.password {
+            let hashed_password = hash_password(&password)?;
             update_clauses
-                .push(" password = crypt(")
-                .push_bind_unseparated(password)
-                .push_unseparated(", gen_salt('bf'))");
+                .push(" password = ")
+                .push_bind_unseparated(hashed_password);
         }
 
         update_clauses
