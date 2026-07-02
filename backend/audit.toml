@@ -1,4 +1,5 @@
 # cargo-audit configuration.
 # https://docs.rs/cargo-audit/latest/cargo_audit/config/index.html
 [advisories]
+informational_warnings = ["unmaintained"]
 ignore = []
