@@ -49,8 +49,8 @@ haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
 haste-repository = { path = "../repository", version = "0.*", features = [
     "rate-limit",
 ] }
-haste-sql-on-fhir = { path = "../sql-on-fhir", version = "0.*" }
 haste-sd-to-json-schema = { path = "../sd-to-json-schema", version = "0.*" }
+haste-sql-on-fhir = { path = "../sql-on-fhir", version = "0.*" }
 json-patch = "4.2.0"
 jsonwebtoken = { workspace = true }
 maud = { version = "0.27.0", features = ["axum"] }

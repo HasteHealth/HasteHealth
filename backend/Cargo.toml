@@ -17,7 +17,8 @@ members = [
     "crates/artifacts",
     "crates/codegen",
     "crates/config",
-    "crates/fhir-client", "crates/fhir-converter",
+    "crates/fhir-client",
+    "crates/fhir-converter",
     "crates/fhir-generated-ops",
     "crates/fhir-model",
     "crates/fhir-operation-error",
@@ -42,7 +43,8 @@ members = [
     "crates/reflect-derive",
     "crates/repository",
     "crates/sd-to-json-schema",
-    "crates/server", "crates/sql-on-fhir",
+    "crates/server",
+    "crates/sql-on-fhir",
     "crates/testscript-runner",
     "crates/wal_worker",
     "crates/worker",
@@ -61,6 +63,7 @@ axum = "0.8.9"
 chrono = "0.4.44"
 derivative = "2.2.0"
 dotenvy = "0.15.7"
+figment = "0.10.19"
 jsonwebtoken = "10.4.0"
 moka = "0.12.15"
 quote = "1.0.45"
@@ -74,27 +77,27 @@ sqlx-postgres = "0.8.6"
 tokio = { version = "1.52.3" }
 tracing = "0.1.44"
 walkdir = "2.5.0"
-figment = "0.10.19"
 
 [dependencies]
 clap = { version = "4.6.1", features = ["derive"] }
 dialoguer = "0.12.0"
+figment = { workspace = true, features = ["toml", "env"] }
 haste-codegen = { path = "./crates/codegen" }
 haste-config = { path = "./crates/config" }
 haste-fhir-client = { path = "./crates/fhir-client", features = ["http"] }
+haste-fhir-converter = { path = "./crates/fhir-converter" }
 haste-fhir-model = { path = "./crates/fhir-model" }
 haste-fhir-operation-error = { path = "./crates/fhir-operation-error" }
 haste-fhir-search = { path = "./crates/fhir-search" }
 haste-fhir-serialization-json = { path = "./crates/fhir-serialization-json" }
 haste-fhirpath = { path = "./crates/fhirpath" }
+haste-hl7v2 = { path = "./crates/hl7v2" }
 haste-jwt = { path = "./crates/jwt" }
 haste-repository = { path = "./crates/repository" }
 haste-server = { path = "./crates/server" }
 haste-testscript-runner = { path = "./crates/testscript-runner" }
 haste-worker = { path = "./crates/worker" }
 haste_wal_worker = { path = "./crates/wal_worker" }
-haste-hl7v2 = { path = "./crates/hl7v2" }
-haste-fhir-converter = { path = "./crates/fhir-converter" }
 json-patch = "4.2.0"
 jsonwebtoken = { workspace = true, features = ["rust_crypto"] }
 opentelemetry = "0.32.0"
@@ -111,10 +114,9 @@ tokio = { workspace = true, features = ["full"] }
 toml = "0.9.12"
 tracing = { workspace = true }
 tracing-opentelemetry = "0.33.0"
-tracing-subscriber = {version = "0.3.23" , features = ["env-filter", "json"] }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
 tracing-tree = "0.4.1"
 walkdir = { workspace = true }
-figment = { workspace = true, features = ["toml", "env"] }
 
 [profile.profiling]
 inherits = "release"

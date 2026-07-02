@@ -20,6 +20,7 @@ haste-fhir-search = { path = "../fhir-search", version = "0.*" }
 haste-fhirpath = { path = "../fhirpath", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*" }
 haste-repository = { path = "../repository", version = "0.*" }
+serde = { workspace = true, features = ["derive"] }
 sqlx = { workspace = true, features = [
     "runtime-tokio",
     "tls-native-tls",
@@ -28,4 +29,3 @@ sqlx = { workspace = true, features = [
 ] }
 tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
