@@ -2,3 +2,7 @@ packages:
   - "artifacts/r4/*"
   - "artifacts/r4b/*"
   - "packages/*"
+updateConfig:
+  ignoreDependencies:
+  - 'codemirror'
+  - '@codemirror/*'
