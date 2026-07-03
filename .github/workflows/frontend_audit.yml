@@ -10,6 +10,9 @@ on:
     branches: [main]
     paths:
       - "frontend/**"
+  schedule:
+    # (SOC2 continuous monitoring).
+    - cron: "0 12 * * *"
 
 jobs:
   pnpm:
