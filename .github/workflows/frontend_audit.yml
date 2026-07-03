@@ -33,5 +33,5 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Audit dependencies
-        run: pnpm audit
+        run: pnpm audit --audit-level=high
         working-directory: ./frontend
