@@ -21,17 +21,30 @@ const config: StorybookConfig = {
     {
       name: getAbsolutePath("@storybook/addon-styling-webpack"),
       options: {
-        // Check out https://github.com/storybookjs/addon-styling/blob/main/docs/api.md
-        // For more details on this addon's options.
-        postCss: {
-          implementation: getAbsolutePath("postcss"),
-        },
+        // Check out https://github.com/storybookjs/addon-styling-webpack#readme
+        // for more details on this addon's options.
+        rules: [
+          {
+            test: /\.css$/,
+            use: [
+              "style-loader",
+              {
+                loader: "css-loader",
+                options: { importLoaders: 1 },
+              },
+              {
+                // Picks up postcss.config.js in the project root (tailwindcss, autoprefixer).
+                loader: "postcss-loader",
+                options: { implementation: getAbsolutePath("postcss") },
+              },
+            ],
+          },
+        ],
       },
     },
     getAbsolutePath("@storybook/addon-webpack5-compiler-babel"),
     getAbsolutePath("@chromatic-com/storybook"),
     getAbsolutePath("@storybook/addon-docs"),
-    getAbsolutePath("@storybook/addon-styling-webpack"),
   ],
 
   framework: {
