@@ -17,11 +17,9 @@ const config: StorybookConfig = {
   staticDirs: ["../public"],
   addons: [
     getAbsolutePath("@storybook/addon-links"),
-    getAbsolutePath("@storybook/addon-essentials"),
     getAbsolutePath("@storybook/addon-onboarding"),
-    getAbsolutePath("@storybook/addon-interactions"),
     {
-      name: "@storybook/addon-styling",
+      name: getAbsolutePath("@storybook/addon-styling-webpack"),
       options: {
         // Check out https://github.com/storybookjs/addon-styling/blob/main/docs/api.md
         // For more details on this addon's options.
@@ -30,11 +28,10 @@ const config: StorybookConfig = {
         },
       },
     },
-    getAbsolutePath("@storybook/addon-mdx-gfm"),
     getAbsolutePath("@storybook/addon-webpack5-compiler-babel"),
-    getAbsolutePath("@storybook/addon-mdx-gfm"),
     getAbsolutePath("@chromatic-com/storybook"),
-    getAbsolutePath("@storybook/addon-mdx-gfm"),
+    getAbsolutePath("@storybook/addon-docs"),
+    getAbsolutePath("@storybook/addon-styling-webpack"),
   ],
 
   framework: {
