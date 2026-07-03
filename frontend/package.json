@@ -1,10 +1,6 @@
 {
   "name": "@haste-health/frontend",
   "packageManager": "pnpm@11.9.0",
-  "workspaces": [
-    "packages/*",
-    "artifacts/**/*"
-  ],
   "scripts": {
     "generate-documentation": "pnpm typedoc",
     "ci:publish": "pnpm publish -r",
