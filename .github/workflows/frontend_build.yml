@@ -1,0 +1,41 @@
+name: Build frontend packages
+
+# When frontend files are changed
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/**"
+
+jobs:
+  pnpm:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+
+      - name: Setup node.js
+        uses: actions/setup-node@v4
+        with:
+          cache-dependency-path: "./frontend/pnpm-lock.yaml"
+          node-version: 23
+          cache: "pnpm"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: ./frontend
+
+      - name: Build dependencies
+        run: pnpm ci:build
+        working-directory: ./frontend
