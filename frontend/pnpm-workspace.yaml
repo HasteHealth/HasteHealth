@@ -2,7 +2,13 @@ packages:
   - "artifacts/r4/*"
   - "artifacts/r4b/*"
   - "packages/*"
+allowBuilds:
+  core-js: true
+  core-js-pure: true
+  esbuild: true
+  sharp: true
+  workerd: true
 updateConfig:
   ignoreDependencies:
-  - 'codemirror'
-  - '@codemirror/*'
+    - 'codemirror'
+    - '@codemirror/*'
