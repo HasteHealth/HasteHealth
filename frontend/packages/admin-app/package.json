@@ -34,16 +34,13 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.6.0",
-    "react-scripts": "^5.0.1",
     "react-window": "^1.8.11",
-    "typescript": "5.9.2",
     "web-vitals": "^3.5.2"
   },
   "scripts": {
-    "start:headless": "BROWSER=none pnpm run start",
-    "start": "HOST=0.0.0.0 PORT=3001 react-scripts start",
-    "build": "GENERATE_SOURCEMAP=false DISABLE_ESLINT_PLUGIN=true react-scripts build",
-    "eject": "react-scripts eject",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "wrangler": "pnpm run build && wrangler deploy",
     "remove": "wrangler delete"
   },
@@ -69,10 +66,14 @@
     "@haste-health/fhir-types": "workspace:^",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.15.17",
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@types/react-window": "^1.8.8",
+    "@vitejs/plugin-react": "^6.0.3",
+    "autoprefixer": "^10.4.20",
     "tailwindcss": "^3.4.17",
+    "typescript": "5.9.2",
+    "vite": "^8.1.3",
     "wrangler": "^4.90.0"
   }
 }

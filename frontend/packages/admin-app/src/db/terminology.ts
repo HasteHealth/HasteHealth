@@ -20,9 +20,9 @@ export const getValueSetExpansion = atomFamily(
         "ValueSet",
         {
           url: url as uri,
-        }
+        },
       );
       return expansion;
     }),
-  deepEqual
+  deepEqual,
 );
