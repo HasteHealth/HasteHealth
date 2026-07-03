@@ -15,3 +15,7 @@ performance:
 feature-update:
   label: Feature Update
   description: Feature update posts
+
+rust:
+  label: Rust
+  description: Rust related posts
