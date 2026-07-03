@@ -13,3 +13,12 @@ updateConfig:
   ignoreDependencies:
     - 'codemirror'
     - '@codemirror/*'
+auditConfig:
+  ignoreGhsas:
+    # FPlang code mirror
+    - 'GHSA-3ppc-4f35-3m26'
+    - 'GHSA-7r86-cg39-jmmj'
+    - 'GHSA-23c5-xmqv-rm74'
+    - 'GHSA-5c6j-r48x-rmvq'
+    # Fhirpath
+    - 'GHSA-r5fr-rjxr-66jc'
