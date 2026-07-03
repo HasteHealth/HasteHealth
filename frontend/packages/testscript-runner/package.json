@@ -16,7 +16,7 @@
   "description": "Haste Health TestScript Runner library for TypeScript. Provides functionality to run FHIR TestScripts.",
   "devDependencies": {
     "@haste-health/fhir-types": "workspace:^",
-    "typescript": "5.9.2"
+    "typescript": "6.0.3"
   },
   "scripts": {
     "build": "tsc",

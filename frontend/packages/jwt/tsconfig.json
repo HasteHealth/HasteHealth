@@ -3,6 +3,7 @@
   "exclude": ["./**/*.test.ts", "lib/*", "jest.config.js"],
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "lib"
+    "outDir": "lib",
+    "types": ["node"]
   }
 }
