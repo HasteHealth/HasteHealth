@@ -30,7 +30,7 @@ import {
 import reportWebVitals from "./reportWebVitals";
 import Search from "./components/Search";
 import SearchModal from "./components/SearchModal";
-import { REACT_APP_CLIENT_ID, REACT_APP_FHIR_BASE_URL } from "./config";
+import { VITE_CLIENT_ID, VITE_FHIR_BASE_URL } from "./config";
 import { createAdminAppClient, getClient } from "./db/client";
 
 import BundleImport from "./views/Project/BundleImport";
@@ -117,10 +117,10 @@ function HasteHealthWrapper() {
       refresh
       authorize_method="GET"
       scope="offline_access openid email profile fhirUser system/*.*"
-      domain={REACT_APP_FHIR_BASE_URL || ""}
+      domain={VITE_FHIR_BASE_URL || ""}
       tenant={deriveTenantId()}
       project={deriveProjectId()}
-      clientId={REACT_APP_CLIENT_ID}
+      clientId={VITE_CLIENT_ID}
       redirectUrl={window.location.origin}
       onRedirectCallback={(initialPath: string) => {
         navigate(initialPath);

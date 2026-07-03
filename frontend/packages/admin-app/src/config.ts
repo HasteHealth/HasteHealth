@@ -1,12 +1,12 @@
 declare global {
   interface Window {
-    REACT_APP_FHIR_BASE_URL: string | undefined;
-    REACT_APP_CLIENT_ID: string | undefined;
+    VITE_FHIR_BASE_URL: string | undefined;
+    VITE_CLIENT_ID: string | undefined;
   }
 }
 
-export const REACT_APP_FHIR_BASE_URL =
-  window.REACT_APP_FHIR_BASE_URL ?? process.env.REACT_APP_FHIR_BASE_URL;
+export const VITE_FHIR_BASE_URL =
+  window.VITE_FHIR_BASE_URL ?? import.meta.env.VITE_FHIR_BASE_URL;
 
-export const REACT_APP_CLIENT_ID =
-  window.REACT_APP_CLIENT_ID ?? process.env.REACT_APP_CLIENT_ID ?? "admin-app";
+export const VITE_CLIENT_ID =
+  window.VITE_CLIENT_ID ?? import.meta.env.VITE_CLIENT_ID ?? "admin-app";

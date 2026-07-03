@@ -2,7 +2,7 @@ server {
   location / {
     root   /usr/share/nginx/html;
     try_files $uri /index.html;
-    sub_filter '</head>' '<script>window.REACT_APP_FHIR_BASE_URL = \'${REACT_APP_FHIR_BASE_URL}\'; </script></head>';
+    sub_filter '</head>' '<script>window.VITE_FHIR_BASE_URL = \'${VITE_FHIR_BASE_URL}\'; </script></head>';
     sub_filter_once on;
   }
 }
