@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/frontend",
-  "packageManager": "pnpm@10.24.0",
+  "packageManager": "pnpm@11.9.0",
   "workspaces": [
     "packages/*",
     "artifacts/**/*"
