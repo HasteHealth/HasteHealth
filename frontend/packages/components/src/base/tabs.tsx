@@ -28,7 +28,7 @@ export const Tabs = ({ tabs, rightSide, selectedTab, onTab }: TabsProps) => {
           }
         }}
       >
-        <TabList className="sticky top-0 z-10 bg-white flex space-x-4 border-b items-center">
+        <TabList className="sticky top-0 z-5 bg-white flex space-x-4 border-b items-center">
           <div className="flex space-x-4 flex-grow">
             {tabs.map((tab) => (
               <Tab

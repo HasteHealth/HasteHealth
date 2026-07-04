@@ -1,9 +1,13 @@
-import { ViewDefinitionSqlRunner } from "@haste-health/components";
+import {
+  Button,
+  DropDownMenu,
+  ViewDefinitionSqlRunner,
+} from "@haste-health/components";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { getClient } from "../../db/client";
 import { useAtomValue } from "jotai";
-import { useState } from "react";
 import { basicSetup } from "codemirror";
-
+import { useEffect } from "react";
 import { R4 } from "@haste-health/fhir-types/versions";
 import { ViewDefinition, instant } from "@haste-health/fhir-types/r4/types";
 import { json } from "@codemirror/lang-json";
@@ -55,13 +59,31 @@ interface ViewDefinitionEditorProps extends AdditionalContent {
 }
 
 export default function ViewDefinitionEditor(props: ViewDefinitionEditorProps) {
+  useEffect(() => {
+    if (!props.resource) {
+      props.onChange(DEFAULT_VIEW_DEFINITION);
+    }
+  }, [props.resource]);
   const client = useAtomValue(getClient);
+
+  if (!props.resource) {
+    return <div />;
+  }
 
   return (
     <div className="flex flex-1 flex-col">
+      <div className="mb-3 flex justify-end">
+        <DropDownMenu links={props.actions}>
+          <Button buttonType="secondary" buttonSize="small" onClick={() => {}}>
+            <span className="flex items-center">
+              <span>Actions</span> <ChevronDownIcon className="ml-1 w-3 h-3" />
+            </span>
+          </Button>
+        </DropDownMenu>
+      </div>
       <ViewDefinitionSqlRunner
         client={client}
-        viewDefinition={props.resource ?? DEFAULT_VIEW_DEFINITION}
+        viewDefinition={props.resource}
         setViewDefinition={props.onChange}
         editorExtensions={EDITOR_EXTENSIONS}
         defaultPageSize={10}
