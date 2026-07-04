@@ -58,7 +58,9 @@ interface ViewDefinitionEditorProps extends AdditionalContent {
   onChange: NonNullable<AdditionalContent["onChange"]>;
 }
 
-export default function ViewDefinitionEditor(props: ViewDefinitionEditorProps) {
+export default function ViewDefinitionEditor(
+  props: Readonly<ViewDefinitionEditorProps>,
+) {
   useEffect(() => {
     if (!props.resource) {
       props.onChange(DEFAULT_VIEW_DEFINITION);
