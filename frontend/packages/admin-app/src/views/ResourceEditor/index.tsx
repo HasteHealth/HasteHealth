@@ -14,6 +14,7 @@ import {
   ResourceType,
   StructureDefinition,
   Subscription,
+  ViewDefinition,
   id,
 } from "@haste-health/fhir-types/r4/types";
 import { R4 } from "@haste-health/fhir-types/versions";
@@ -26,6 +27,7 @@ import IdentityProviderView from "./IdentityProvider";
 import OperationDefinitionView from "./OperationDefinition";
 import SubscriptionView from "./Subscription";
 import QuestionnaireView from "./Questionnaire";
+import ViewDefinitionEditor from "./ViewDefinition";
 
 function ResourceEditorTabs({
   onStructureDefinitionChange,
@@ -223,6 +225,17 @@ function ResourceEditorTabs({
           resourceType={resourceType as ResourceType}
           actions={actions}
           resource={resource as Questionnaire}
+          structureDefinition={structureDefinition}
+          onChange={setResource}
+        />
+      );
+    case "ViewDefinition":
+      return (
+        <ViewDefinitionEditor
+          id={id as id}
+          resourceType={resourceType as ResourceType}
+          actions={actions}
+          resource={resource as ViewDefinition}
           structureDefinition={structureDefinition}
           onChange={setResource}
         />

@@ -7,6 +7,7 @@ import { basicSetup } from "codemirror";
 import { R4 } from "@haste-health/fhir-types/versions";
 import { ViewDefinition, instant } from "@haste-health/fhir-types/r4/types";
 import { json } from "@codemirror/lang-json";
+import { AdditionalContent } from "../../components/ResourceEditor";
 
 const DEFAULT_VIEW_DEFINITION: ViewDefinition = {
   resourceType: "ViewDefinition",
@@ -48,17 +49,20 @@ const DEFAULT_VIEW_DEFINITION: ViewDefinition = {
 
 const EDITOR_EXTENSIONS = [basicSetup, json()];
 
-export default function ViewDefinitionEditor() {
+interface ViewDefinitionEditorProps extends AdditionalContent {
+  resource: ViewDefinition | undefined;
+  onChange: NonNullable<AdditionalContent["onChange"]>;
+}
+
+export default function ViewDefinitionEditor(props: ViewDefinitionEditorProps) {
   const client = useAtomValue(getClient);
-  const [viewDefinition, setViewDefinition] = useState<ViewDefinition>(
-    DEFAULT_VIEW_DEFINITION,
-  );
+
   return (
     <div className="flex flex-1 flex-col">
       <ViewDefinitionSqlRunner
         client={client}
-        viewDefinition={viewDefinition}
-        setViewDefinition={setViewDefinition}
+        viewDefinition={props.resource ?? DEFAULT_VIEW_DEFINITION}
+        setViewDefinition={props.onChange}
         editorExtensions={EDITOR_EXTENSIONS}
         defaultPageSize={10}
         fhirVersion={R4}

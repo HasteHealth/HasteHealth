@@ -44,7 +44,7 @@ import Resources from "./views/Project/Resources";
 import VersionView from "./views/Project/Version";
 import Settings from "./views/Project/Settings";
 import Projects from "./views/System/Projects";
-import ViewDefinitionEditor from "./views/Analytics/ViewDefinitionEditor";
+// import ViewDefinitionEditor from "./views/Analytics/ViewDefinitionEditor";
 import { deriveProjectId, deriveTenantId } from "./utilities";
 import * as r4Types from "@haste-health/fhir-types/r4/types";
 import SystemResources from "./views/System";
@@ -268,11 +268,6 @@ const router =
                           id: "settings",
                           path: "settings",
                           element: <Settings />,
-                        },
-                        {
-                          id: "view-definition-editor",
-                          path: "view-definition-editor",
-                          element: <ViewDefinitionEditor />,
                         },
                         {
                           id: "dashboard",
