@@ -28,7 +28,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
-use haste_repository::{Repository, types::SupportedFHIRVersions};
+use haste_repository::{Repository, types::SupportedFHIRVersions, utilities::generate_id};
 use sentry::integrations::tower::NewSentryLayer;
 use serde::Deserialize;
 use std::net::SocketAddr;
@@ -95,14 +95,17 @@ async fn fhir_handler<
 
         let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, http_req)?;
 
-        let ctx = Arc::new(ServerCTX::new(
+        let ctx = ServerCTX::new(
             path.tenant,
             path.project,
             path.fhir_version,
             user.clone(),
             state.fhir_client.clone(),
             state.rate_limit.clone(),
-        ));
+        )
+        .with_tracing_id(Some(format!("rest-{}", generate_id(Some(8)))));
+
+        let ctx = Arc::new(ctx);
 
         let response = state.fhir_client.request(ctx, fhir_request).await?;
 

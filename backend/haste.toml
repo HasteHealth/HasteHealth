@@ -13,3 +13,6 @@ backend = "elasticsearch"
 url = "http://localhost:9200"
 username = "elastic"
 password = "elastic"
+
+[monitoring]
+audit_enabled = true

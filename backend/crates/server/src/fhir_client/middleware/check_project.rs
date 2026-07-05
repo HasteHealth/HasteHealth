@@ -85,14 +85,17 @@ impl<
             if let Some(next) = next {
                 match &context.request {
                     FHIRRequest::Read(_) | FHIRRequest::VersionRead(_) | FHIRRequest::Search(_) => {
-                        context.ctx = Arc::new(ServerCTX::new(
-                            context.ctx.tenant.clone(),
-                            project_id,
-                            context.ctx.fhir_version.clone(),
-                            context.ctx.user.clone(),
-                            context.ctx.client.clone(),
-                            context.ctx.rate_limit.clone(),
-                        ));
+                        context.ctx = Arc::new(
+                            ServerCTX::new(
+                                context.ctx.tenant.clone(),
+                                project_id,
+                                context.ctx.fhir_version.clone(),
+                                context.ctx.user.clone(),
+                                context.ctx.client.clone(),
+                                context.ctx.rate_limit.clone(),
+                            )
+                            .with_tracing_id(context.ctx.tracing_id.clone()),
+                        );
                         next(state, context).await
                     }
                     _ => next(state, context).await,

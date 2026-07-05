@@ -82,6 +82,7 @@ pub struct ServerCTX<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> {
     pub client: Arc<Client>,
     #[derivative(Debug = "ignore")]
     pub rate_limit: Arc<dyn haste_rate_limit::RateLimit>,
+    pub tracing_id: Option<String>,
 }
 
 impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
@@ -96,6 +97,7 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             user: self.user.clone(),
             client: new_client,
             rate_limit: self.rate_limit.clone(),
+            tracing_id: self.tracing_id.clone(),
         }
     }
 
@@ -114,6 +116,7 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             user,
             client,
             rate_limit,
+            tracing_id: None,
         }
     }
 
@@ -158,7 +161,13 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             }),
             client,
             rate_limit,
+            tracing_id: None,
         }
+    }
+
+    pub fn with_tracing_id(mut self, tracing_id: Option<String>) -> Self {
+        self.tracing_id = tracing_id;
+        self
     }
 }
 
@@ -418,6 +427,31 @@ impl<
             },
         ]));
 
+        let mut root_middleware: Vec<
+            Box<
+                dyn MiddlewareChain<
+                        Arc<ClientState<Repo, Search, Terminology>>,
+                        Arc<ServerCTX<FHIRServerClient<Repo, Search, Terminology>>>,
+                        FHIRRequest,
+                        FHIRResponse,
+                        OperationOutcomeError,
+                    >,
+            >,
+        > = vec![
+            Box::new(middleware::tenant_tier_limits::Middleware::new()),
+            Box::new(middleware::rate_limit::Middleware::new()),
+            Box::new(middleware::auth_z::scope_check::SMARTScopeAccessMiddleware::new()),
+            Box::new(middleware::auth_z::access_control::AccessControlMiddleware::new()),
+            Box::new(middleware::validation::Middleware::new()),
+            Box::new(route_middleware),
+            Box::new(middleware::capabilities::Middleware::new()),
+        ];
+
+        if config.config.monitoring.audit_enabled {
+            tracing::info!("Audit logging is enabled. All requests will be logged.");
+            root_middleware.insert(0, Box::new(middleware::auditing::Middleware::new()));
+        }
+
         FHIRServerClient {
             state: Arc::new(ClientState {
                 repo: config.repo,
@@ -425,15 +459,7 @@ impl<
                 terminology: config.terminology,
                 config: config.config,
             }),
-            middleware: Middleware::new(vec![
-                Box::new(middleware::tenant_tier_limits::Middleware::new()),
-                Box::new(middleware::rate_limit::Middleware::new()),
-                Box::new(middleware::auth_z::scope_check::SMARTScopeAccessMiddleware::new()),
-                Box::new(middleware::auth_z::access_control::AccessControlMiddleware::new()),
-                Box::new(middleware::validation::Middleware::new()),
-                Box::new(route_middleware),
-                Box::new(middleware::capabilities::Middleware::new()),
-            ]),
+            middleware: Middleware::new(root_middleware),
         }
     }
 }

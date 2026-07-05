@@ -6,6 +6,7 @@ use haste_fhir_client::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
+pub mod auditing;
 pub mod auth_z;
 pub mod capabilities;
 pub mod check_project;

@@ -24,6 +24,7 @@ pub struct ServerConfig {
 #[derive(Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct MonitoringConfig {
+    pub audit_enabled: bool,
     pub ip_source: IpSource,
 }
 
@@ -151,6 +152,7 @@ impl Default for RateLimitsConfig {
 impl Default for MonitoringConfig {
     fn default() -> Self {
         Self {
+            audit_enabled: false,
             ip_source: IpSource::default(),
         }
     }
