@@ -179,6 +179,7 @@ struct ClientState<
     repo: Arc<Repo>,
     search: Arc<Search>,
     terminology: Arc<Terminology>,
+    audit_repo: Option<Arc<Repo>>,
     config: Arc<ServerConfig>,
 }
 
@@ -427,39 +428,29 @@ impl<
             },
         ]));
 
-        let mut root_middleware: Vec<
-            Box<
-                dyn MiddlewareChain<
-                        Arc<ClientState<Repo, Search, Terminology>>,
-                        Arc<ServerCTX<FHIRServerClient<Repo, Search, Terminology>>>,
-                        FHIRRequest,
-                        FHIRResponse,
-                        OperationOutcomeError,
-                    >,
-            >,
-        > = vec![
-            Box::new(middleware::tenant_tier_limits::Middleware::new()),
-            Box::new(middleware::rate_limit::Middleware::new()),
-            Box::new(middleware::auth_z::scope_check::SMARTScopeAccessMiddleware::new()),
-            Box::new(middleware::auth_z::access_control::AccessControlMiddleware::new()),
-            Box::new(middleware::validation::Middleware::new()),
-            Box::new(route_middleware),
-            Box::new(middleware::capabilities::Middleware::new()),
-        ];
-
-        if config.config.monitoring.audit_enabled {
-            tracing::info!("Audit logging is enabled. All requests will be logged.");
-            root_middleware.insert(0, Box::new(middleware::auditing::Middleware::new()));
-        }
-
         FHIRServerClient {
             state: Arc::new(ClientState {
-                repo: config.repo,
+                repo: config.repo.clone(),
+                audit_repo: if config.config.monitoring.audit_enabled {
+                    tracing::info!("Audit logging is enabled. All requests will be logged.");
+                    Some(config.repo)
+                } else {
+                    None
+                },
                 search: config.search,
                 terminology: config.terminology,
                 config: config.config,
             }),
-            middleware: Middleware::new(root_middleware),
+            middleware: Middleware::new(vec![
+                Box::new(middleware::auditing::Middleware::new()),
+                Box::new(middleware::tenant_tier_limits::Middleware::new()),
+                Box::new(middleware::rate_limit::Middleware::new()),
+                Box::new(middleware::auth_z::scope_check::SMARTScopeAccessMiddleware::new()),
+                Box::new(middleware::auth_z::access_control::AccessControlMiddleware::new()),
+                Box::new(middleware::validation::Middleware::new()),
+                Box::new(route_middleware),
+                Box::new(middleware::capabilities::Middleware::new()),
+            ]),
         }
     }
 }

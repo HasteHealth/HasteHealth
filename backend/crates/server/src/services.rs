@@ -97,6 +97,7 @@ impl<
             }
         })
     }
+
     pub async fn commit(self) -> Result<(), OperationOutcomeError> {
         let repo = self.repo.clone();
         drop(self);
