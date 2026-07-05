@@ -157,8 +157,6 @@ pub async fn create_services(
 
     let terminology = Arc::new(FHIRCanonicalTerminology::new());
 
-    let can_mutate = config.allow_artifact_mutations;
-
     let search_engine = create_search_engine(config.as_ref(), pool.clone())?;
 
     let fhir_client = Arc::new(FHIRServerClient::new(
@@ -168,7 +166,7 @@ pub async fn create_services(
             terminology.clone(),
             config.clone(),
         )
-        .with_mutate_artifacts(can_mutate)
+        .with_mutate_artifacts(config.allow_artifact_mutations)
         .with_audit_repo(if config.monitoring.audit_enabled {
             Some(pool.clone())
         } else {

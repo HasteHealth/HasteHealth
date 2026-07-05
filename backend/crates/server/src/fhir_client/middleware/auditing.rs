@@ -480,17 +480,16 @@ impl<
         >,
     ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
-            if state.audit_repo.is_none() {
+            let Some(audit_repo) = state.audit_repo.clone() else {
                 return match next {
                     Some(next) => next(state, context).await,
                     None => Ok(context),
                 };
-            }
+            };
 
-            let mut audit_event =
+            let audit_event =
                 Option::<AuditEvent>::from(Audit(context.ctx.clone(), &context.request));
 
-            let audit_repo = state.repo.clone();
             let tenant = context.ctx.tenant.clone();
             let project = context.ctx.project.clone();
             let user = context.ctx.user.claims.clone();
@@ -501,10 +500,10 @@ impl<
                 None => Ok(context),
             };
 
-            if let Some(event) = audit_event.as_mut() {
-                add_response_outcome_to_audit_event(event, &result);
+            if let Some(mut event) = audit_event {
+                add_response_outcome_to_audit_event(&mut event, &result);
 
-                let mut resource = Resource::AuditEvent(event.clone());
+                let mut resource = Resource::AuditEvent(event);
                 tokio::spawn(async move {
                     if let Err(error) = FHIRRepository::create(
                         audit_repo.as_ref(),
