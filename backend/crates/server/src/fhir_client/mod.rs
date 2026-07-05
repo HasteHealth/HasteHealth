@@ -303,6 +303,7 @@ pub struct ServerClientConfig<
     Terminology: FHIRTerminology + Send + Sync + 'static,
 > {
     pub repo: Arc<Repo>,
+    pub audit_repo: Option<Arc<Repo>>,
     pub search: Arc<Search>,
     pub terminology: Arc<Terminology>,
     pub mutate_artifacts: bool,
@@ -323,6 +324,7 @@ impl<
     ) -> Self {
         ServerClientConfig {
             repo,
+            audit_repo: None,
             search,
             terminology,
             mutate_artifacts: false,
@@ -332,6 +334,11 @@ impl<
 
     pub fn with_mutate_artifacts(mut self, mutate_artifacts: bool) -> Self {
         self.mutate_artifacts = mutate_artifacts;
+        self
+    }
+
+    pub fn with_audit_repo(mut self, audit_repo: Option<Arc<Repo>>) -> Self {
+        self.audit_repo = audit_repo;
         self
     }
 }
@@ -430,13 +437,8 @@ impl<
 
         FHIRServerClient {
             state: Arc::new(ClientState {
-                repo: config.repo.clone(),
-                audit_repo: if config.config.monitoring.audit_enabled {
-                    tracing::info!("Audit logging is enabled. All requests will be logged.");
-                    Some(config.repo)
-                } else {
-                    None
-                },
+                repo: config.repo,
+                audit_repo: config.audit_repo,
                 search: config.search,
                 terminology: config.terminology,
                 config: config.config,

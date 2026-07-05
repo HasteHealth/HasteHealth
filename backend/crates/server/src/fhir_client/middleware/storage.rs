@@ -712,12 +712,15 @@ impl<
                     let transaction_repo = Arc::new(state.repo.transaction(true).await?);
 
                     let bundle_response: Result<Bundle, OperationOutcomeError> = {
-                        let transaction_client = FHIRServerClient::new(ServerClientConfig::new(
-                            transaction_repo.clone(),
-                            state.search.clone(),
-                            state.terminology.clone(),
-                            state.config.clone(),
-                        ));
+                        let transaction_client = FHIRServerClient::new(
+                            ServerClientConfig::new(
+                                transaction_repo.clone(),
+                                state.search.clone(),
+                                state.terminology.clone(),
+                                state.config.clone(),
+                            )
+                            .with_audit_repo(state.audit_repo.clone()),
+                        );
 
                         let transaction_context = Arc::new(
                             context

@@ -168,7 +168,12 @@ pub async fn create_services(
             terminology.clone(),
             config.clone(),
         )
-        .with_mutate_artifacts(can_mutate),
+        .with_mutate_artifacts(can_mutate)
+        .with_audit_repo(if config.monitoring.audit_enabled {
+            Some(pool.clone())
+        } else {
+            None
+        }),
     ));
 
     let shared_state = Arc::new(ServerState {
