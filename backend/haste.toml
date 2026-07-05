@@ -15,4 +15,4 @@ username = "elastic"
 password = "elastic"
 
 [monitoring]
-audit_enabled = false
+audit_enabled = true
