@@ -39,7 +39,6 @@ impl From<MFACredentialType> for &str {
 }
 
 pub struct UserMFACredentialCreate {
-    pub tenant: TenantId,
     pub user_id: UserId,
     pub credential_type: MFACredentialType,
     pub secret_ciphertext: Vec<u8>,
@@ -49,4 +48,13 @@ pub struct UserMFACredentialCreate {
     pub totp_digits: Option<u32>,
     pub totp_period: Option<u32>,
     pub totp_skew: Option<u32>,
+}
+
+// Update model right now is just about activation and deactivation of the MFA credential.
+// If we need to update other fields in the future, we can add them here.
+pub struct UserMFACredentialUpdate {
+    pub user_id: UserId,
+
+    pub activated_at: Option<chrono::NaiveDateTime>,
+    pub is_active: Option<bool>,
 }

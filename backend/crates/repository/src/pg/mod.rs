@@ -11,6 +11,7 @@ use crate::Repository;
 mod authorization_code;
 mod fhir;
 mod membership;
+mod mfa;
 mod migrate;
 mod project;
 mod rate_limit;
