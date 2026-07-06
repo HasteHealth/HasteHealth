@@ -1,6 +1,7 @@
 use crate::types::scope::UserId;
 use haste_jwt::TenantId;
 use serde::{Deserialize, Serialize};
+use sqlx::types::time::OffsetDateTime;
 
 #[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
 pub struct UserMFACredential {
@@ -12,12 +13,13 @@ pub struct UserMFACredential {
     pub secret_nonce: Vec<u8>,
     pub key_id: String,
     pub totp_algorithm: String,
-    pub totp_digits: u32,
-    pub totp_period: u32,
-    pub totp_skew: u32,
-    pub created_at: chrono::NaiveDateTime,
-    pub activated_at: Option<chrono::NaiveDateTime>,
+    pub totp_digits: i16,
+    pub totp_period: i16,
+    pub totp_skew: i16,
     pub is_active: bool,
+
+    pub created_at: OffsetDateTime,
+    // pub activated_at: Option<OffsetDateTime>,
 }
 
 pub struct UserMFASearchClaims {
@@ -45,9 +47,9 @@ pub struct UserMFACredentialCreate {
     pub secret_nonce: Vec<u8>,
     pub key_id: String,
     pub totp_algorithm: Option<String>,
-    pub totp_digits: Option<u32>,
-    pub totp_period: Option<u32>,
-    pub totp_skew: Option<u32>,
+    pub totp_digits: Option<i16>,
+    pub totp_period: Option<i16>,
+    pub totp_skew: Option<i16>,
 }
 
 // Update model right now is just about activation and deactivation of the MFA credential.
@@ -55,6 +57,6 @@ pub struct UserMFACredentialCreate {
 pub struct UserMFACredentialUpdate {
     pub user_id: UserId,
 
-    pub activated_at: Option<chrono::NaiveDateTime>,
+    pub activated_at: Option<OffsetDateTime>,
     pub is_active: Option<bool>,
 }

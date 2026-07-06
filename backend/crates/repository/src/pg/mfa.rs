@@ -16,21 +16,38 @@ fn create_user_mfa_credential<'a, 'c, Connection: Acquire<'c, Database = Postgre
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
 
+        let type_: &str = new_mfa_credentials.credential_type.into();
+        let totp_algorithm = new_mfa_credentials.totp_algorithm.unwrap_or("SHA1".to_string());
+
         let user_mfa_credential = sqlx::query_as!(
             UserMFACredential,
             r#"INSERT INTO user_mfa_credential (tenant, user_id, credential_type, secret_ciphertext, secret_nonce, key_id, totp_algorithm, totp_digits, totp_period, totp_skew) 
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
-            RETURNING id::text, tenant as "tenant: TenantId", user_id, credential_type, secret_ciphertext, secret_nonce, key_id, totp_algorithm, totp_digits, totp_period, totp_skew, created_at, is_active, activated_at"#,
+            RETURNING 
+                id as "id: String",
+                tenant as "tenant: TenantId",
+                user_id as "user_id: String",
+                credential_type as "credential_type: String",
+                secret_ciphertext as "secret_ciphertext: Vec<u8>",
+                secret_nonce as "secret_nonce: Vec<u8>",
+                key_id as "key_id: String",
+                totp_algorithm as "totp_algorithm: String",
+                totp_digits as "totp_digits: i16",
+                totp_period as "totp_period: i16",
+                totp_skew as "totp_skew: i16",
+                created_at,
+                is_active as "is_active: bool"
+            "#,
             tenant.as_ref(),
             new_mfa_credentials.user_id.as_ref(),
-            new_mfa_credentials.credential_type as i32,
+            type_,
             new_mfa_credentials.secret_ciphertext,
             new_mfa_credentials.secret_nonce,
             new_mfa_credentials.key_id,
-            new_mfa_credentials.totp_algorithm as i32,
-            new_mfa_credentials.totp_digits,
-            new_mfa_credentials.totp_period,
-            new_mfa_credentials.totp_skew,
+            totp_algorithm,
+            new_mfa_credentials.totp_digits.unwrap_or(6),
+            new_mfa_credentials.totp_period.unwrap_or(30),
+            new_mfa_credentials.totp_skew.unwrap_or(1),
         )
         .fetch_one(&mut *conn)
         .await
