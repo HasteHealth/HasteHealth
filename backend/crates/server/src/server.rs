@@ -198,16 +198,15 @@ pub async fn server(
                 )),
         );
 
-    let project_router = Router::new()
-        .merge(protected_resources_router)
-        .nest(
-            "/oidc",
-            auth_n::oidc::routes::create_router(shared_state.clone()),
-        )
-        .nest(
-            "/mfa",
-            auth_n::mfa::routes::create_router(shared_state.clone()),
-        );
+    let project_router = Router::new().merge(protected_resources_router).nest(
+        "/oidc",
+        auth_n::oidc::routes::create_router(shared_state.clone()),
+    );
+
+    // .nest(
+    //     "/mfa",
+    //     auth_n::mfa::routes::create_router(shared_state.clone()),
+    // );
 
     let tenant_router = Router::new()
         .nest("/auth", auth_n::tenant::routes::create_router())
