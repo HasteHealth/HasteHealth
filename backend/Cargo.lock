@@ -7782,6 +7782,7 @@ dependencies = [
  "constant_time_eq",
  "hmac",
  "qrcodegen-image",
+ "rand 0.9.4",
  "sha1",
  "sha2",
  "url",
