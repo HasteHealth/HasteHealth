@@ -1,6 +1,6 @@
 mod error;
 
-pub mod encryptor;
+pub mod encryption;
 pub mod providers;
 pub mod traits;
 
