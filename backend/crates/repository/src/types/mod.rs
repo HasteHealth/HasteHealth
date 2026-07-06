@@ -4,6 +4,7 @@ use std::fmt::{Debug, Display};
 
 pub mod authorization_code;
 pub mod membership;
+pub mod mfa;
 pub mod project;
 pub mod scope;
 pub mod subscription;
