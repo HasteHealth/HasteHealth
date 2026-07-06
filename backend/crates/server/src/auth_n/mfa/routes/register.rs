@@ -12,7 +12,14 @@ pub struct MFARegisterGET;
 // which is used for TOTP (Time-based One-Time Password) authentication.
 // To activate the MR user most enter code which flips the db table to active.
 pub async fn register_get(_: MFARegisterGET) -> Result<Response, OperationOutcomeError> {
-    let secret = totp_rs::Secret::default().to_bytes().unwrap();
+    let secret = totp_rs::Secret::default().to_bytes().map_err(|e| {
+        tracing::error!(error = ?e);
+
+        OperationOutcomeError::error(
+            IssueType::Exception(None),
+            "Could not generate secret for MFA".to_string(),
+        )
+    })?;
     let totp = totp_rs::TOTP::new(
         totp_rs::Algorithm::SHA1,
         6,
@@ -22,7 +29,14 @@ pub async fn register_get(_: MFARegisterGET) -> Result<Response, OperationOutcom
         Some("Haste Health".to_string()),
         "haste-health@github.com".to_string(),
     )
-    .unwrap();
+    .map_err(|e| {
+        tracing::error!(error = ?e);
+
+        OperationOutcomeError::error(
+            IssueType::Exception(None),
+            "Could not generate TOTP for MFA".to_string(),
+        )
+    })?;
 
     let qr_code = totp.get_qr_base64().map_err(|e| {
         tracing::error!(error = ?e);
