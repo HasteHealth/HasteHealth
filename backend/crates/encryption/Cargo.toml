@@ -1,8 +1,9 @@
 [package]
 name = "haste-encryption"
+description = "Secret storage/retrieval and symmetric encryption utilities for Haste Health."
+publish = false
 version = { workspace = true }
 edition = { workspace = true }
-description = "Secret storage/retrieval and symmetric encryption utilities for Haste Health."
 license = { workspace = true }
 homepage = { workspace = true }
 
