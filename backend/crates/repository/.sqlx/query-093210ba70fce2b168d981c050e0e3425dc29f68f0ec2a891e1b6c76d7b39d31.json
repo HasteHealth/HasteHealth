@@ -1,0 +1,95 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT \n                id as \"id: String\",\n                tenant as \"tenant: TenantId\",\n                user_id,\n                credential_type,\n                secret_ciphertext,\n                secret_nonce,\n                key_id,\n                totp_algorithm,\n                totp_digits,\n                totp_period,\n                totp_skew,\n                created_at,\n                is_active\n            FROM user_mfa_credential where tenant = $1 AND id = $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id: String",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant: TenantId",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "credential_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "secret_ciphertext",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 5,
+        "name": "secret_nonce",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 6,
+        "name": "key_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "totp_algorithm",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "totp_digits",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 9,
+        "name": "totp_period",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 10,
+        "name": "totp_skew",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "is_active",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "093210ba70fce2b168d981c050e0e3425dc29f68f0ec2a891e1b6c76d7b39d31"
+}

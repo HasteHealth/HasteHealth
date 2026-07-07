@@ -1,0 +1,103 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO user_mfa_credential (tenant, user_id, credential_type, secret_ciphertext, secret_nonce, key_id, totp_algorithm, totp_digits, totp_period, totp_skew) \n            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) \n            RETURNING \n                id as \"id: String\",\n                tenant as \"tenant: TenantId\",\n                user_id,\n                credential_type,\n                secret_ciphertext,\n                secret_nonce,\n                key_id,\n                totp_algorithm,\n                totp_digits,\n                totp_period,\n                totp_skew,\n                created_at,\n                is_active\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id: String",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant: TenantId",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "credential_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "secret_ciphertext",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 5,
+        "name": "secret_nonce",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 6,
+        "name": "key_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "totp_algorithm",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "totp_digits",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 9,
+        "name": "totp_period",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 10,
+        "name": "totp_skew",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "is_active",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Bytea",
+        "Bytea",
+        "Text",
+        "Text",
+        "Int2",
+        "Int2",
+        "Int2"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "d08546086f0a13ef3cb2d189cbf8635de74ffe87c31582320e4531d6dee4c4b8"
+}

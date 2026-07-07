@@ -1,9 +1,8 @@
 use crate::types::scope::UserId;
 use haste_jwt::TenantId;
-use serde::{Deserialize, Serialize};
 use sqlx::types::time::OffsetDateTime;
 
-#[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
+#[derive(sqlx::FromRow, Debug)]
 pub struct UserMFACredential {
     pub id: String,
     pub tenant: TenantId,
