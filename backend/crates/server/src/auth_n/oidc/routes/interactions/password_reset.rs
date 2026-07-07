@@ -18,7 +18,7 @@ use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::{
     Repository,
-    admin::{ProjectAuthAdmin, TenantAuthAdmin},
+    admin::{ProjectModelAdmin, TenantModelAdmin},
     types::{
         authorization_code::CreateAuthorizationCode,
         user::{AuthMethod, CreateUser, UserSearchClauses},
@@ -67,7 +67,7 @@ pub async fn password_reset_initiate_post<
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     form: axum::extract::Form<PasswordResetFormInitiate>,
 ) -> Result<Markup, OperationOutcomeError> {
-    let user_search_results = TenantAuthAdmin::search(
+    let user_search_results = TenantModelAdmin::search(
         &*state.repo,
         &tenant,
         &UserSearchClauses {
@@ -117,7 +117,7 @@ pub async fn password_reset_verify_get<
     Cached(Project(project_resource)): Cached<Project>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Markup, OperationOutcomeError> {
-    if let Some(code) = ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::read(
+    if let Some(code) = ProjectModelAdmin::<CreateAuthorizationCode, _, _, _, _>::read(
         &*state.repo,
         &tenant,
         &project,
@@ -182,7 +182,7 @@ pub async fn password_reset_verify_post<
         ));
     }
 
-    if let Some(code) = ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::read(
+    if let Some(code) = ProjectModelAdmin::<CreateAuthorizationCode, _, _, _, _>::read(
         &*state.repo,
         &tenant,
         &project,
@@ -190,7 +190,7 @@ pub async fn password_reset_verify_post<
     )
     .await?
     {
-        ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
+        ProjectModelAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
             &*state.repo,
             &tenant,
             &project,
@@ -205,7 +205,7 @@ pub async fn password_reset_verify_post<
         }
 
         let Some(user) =
-            TenantAuthAdmin::<CreateUser, _, _, _, _>::read(&*state.repo, &tenant, &code.user_id)
+            TenantModelAdmin::<CreateUser, _, _, _, _>::read(&*state.repo, &tenant, &code.user_id)
                 .await?
         else {
             return Err(OperationOutcomeError::error(

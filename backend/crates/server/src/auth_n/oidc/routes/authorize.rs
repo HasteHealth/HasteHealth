@@ -25,7 +25,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{
     Repository,
-    admin::ProjectAuthAdmin,
+    admin::ProjectModelAdmin,
     types::{
         authorization_code::{
             AuthorizationCodeKind, CreateAuthorizationCode, PKCECodeChallengeMethod,
@@ -67,7 +67,7 @@ pub async fn find_membership<Repo: Repository>(
         UserRole::Owner | UserRole::Admin => Ok(None),
         UserRole::Member => {
             // Check that user is a member of the tenant.
-            let membership = ProjectAuthAdmin::search(
+            let membership = ProjectModelAdmin::search(
                 repo,
                 &tenant,
                 &project,
@@ -230,7 +230,7 @@ pub async fn authorize<
         )
     })?;
 
-    let existing_scopes = ProjectAuthAdmin::<CreateScope, _, _, _, _>::read(
+    let existing_scopes = ProjectModelAdmin::<CreateScope, _, _, _, _>::read(
         &*app_state.repo,
         &tenant,
         &project,
@@ -282,7 +282,7 @@ pub async fn authorize<
         .into_response());
     }
 
-    let authorization_code = ProjectAuthAdmin::create(
+    let authorization_code = ProjectModelAdmin::create(
         &*app_state.repo,
         &tenant,
         &project,

@@ -20,7 +20,7 @@ use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::{
     Repository,
-    admin::TenantAuthAdmin,
+    admin::TenantModelAdmin,
     types::user::{AuthMethod, CreateUser, UpdateUser},
 };
 use std::sync::Arc;
@@ -81,7 +81,7 @@ impl<
                             if let Resource::User(user) = &create_response.resource
                                 && let Some(id) = user.id.as_ref()
                             {
-                                TenantAuthAdmin::create(
+                                TenantModelAdmin::create(
                                     state.repo.as_ref(),
                                     &res.ctx.tenant,
                                     CreateUser {
@@ -107,7 +107,7 @@ impl<
                             if let Resource::User(user) = &delete_response.resource
                                 && let Some(id) = user.id.as_ref()
                             {
-                                TenantAuthAdmin::<CreateUser, _, _, _, _>::delete(
+                                TenantModelAdmin::<CreateUser, _, _, _, _>::delete(
                                     state.repo.as_ref(),
                                     &res.ctx.tenant,
                                     id,
@@ -126,7 +126,7 @@ impl<
                             if let Resource::User(user) = &update_response.resource
                                 && let Some(id) = user.id.as_ref()
                             {
-                                TenantAuthAdmin::<CreateUser, _, _, _, _>::update(
+                                TenantModelAdmin::<CreateUser, _, _, _, _>::update(
                                     state.repo.as_ref(),
                                     &res.ctx.tenant,
                                     UpdateUser {

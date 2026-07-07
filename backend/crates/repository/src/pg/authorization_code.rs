@@ -1,5 +1,5 @@
 use crate::{
-    admin::{ProjectAuthAdmin, TenantAuthAdmin},
+    admin::{ProjectModelAdmin, TenantModelAdmin},
     pg::{PGConnection, StoreError},
     types::authorization_code::{
         AuthorizationCode, AuthorizationCodeKind, AuthorizationCodeSearchClaims, CodeErrors,
@@ -252,7 +252,7 @@ fn search_codes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
 }
 
 impl<Key: AsRef<str> + Send + Sync>
-    TenantAuthAdmin<
+    TenantModelAdmin<
         CreateAuthorizationCode,
         AuthorizationCode,
         AuthorizationCodeSearchClaims,
@@ -345,7 +345,7 @@ impl<Key: AsRef<str> + Send + Sync>
 }
 
 impl<Key: AsRef<str> + Send + Sync>
-    ProjectAuthAdmin<
+    ProjectModelAdmin<
         CreateAuthorizationCode,
         AuthorizationCode,
         AuthorizationCodeSearchClaims,

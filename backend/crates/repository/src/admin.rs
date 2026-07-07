@@ -22,7 +22,7 @@ pub trait SystemAdmin<S, SearchClauses> {
     ) -> impl Future<Output = Result<Vec<S>, OperationOutcomeError>> + Send;
 }
 
-pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel, Key> {
+pub trait TenantModelAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel, Key> {
     fn create(
         &self,
         tenant: &TenantId,
@@ -50,7 +50,7 @@ pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel, K
     ) -> impl Future<Output = Result<Vec<ReadModel>, OperationOutcomeError>> + Send;
 }
 
-pub trait ProjectAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel, Key> {
+pub trait ProjectModelAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel, Key> {
     fn create(
         &self,
         tenant: &TenantId,

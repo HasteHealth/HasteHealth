@@ -13,7 +13,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId, claims::SubscriptionTier};
 use haste_repository::{
     Repository,
-    admin::TenantAuthAdmin,
+    admin::TenantModelAdmin,
     types::{
         tenant::{CreateTenant, Tenant},
         user::CreateUser,
@@ -89,7 +89,7 @@ pub async fn create_tenant<
 ) -> Result<CreateTenantOutput, OperationOutcomeError> {
     let services = services.transaction().await?;
 
-    let new_tenant = TenantAuthAdmin::create(
+    let new_tenant = TenantModelAdmin::create(
         &*services.repo,
         &TenantId::System,
         CreateTenant {
@@ -132,7 +132,7 @@ pub async fn create_tenant<
         ));
     };
 
-    let Some(user) = TenantAuthAdmin::<CreateUser, _, _, _, _>::read(
+    let Some(user) = TenantModelAdmin::<CreateUser, _, _, _, _>::read(
         services.repo.as_ref(),
         &new_tenant.id,
         &user_id,

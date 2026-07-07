@@ -1,5 +1,5 @@
 use crate::{
-    admin::ProjectAuthAdmin,
+    admin::ProjectModelAdmin,
     pg::{PGConnection, StoreError},
     types::scope::{CreateScope, Scope, ScopeKey, ScopeSearchClaims, UpdateScope},
 };
@@ -174,7 +174,7 @@ fn search_scopes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
     }
 }
 
-impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeKey>
+impl ProjectModelAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeKey>
     for PGConnection
 {
     async fn create(

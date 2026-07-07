@@ -8,7 +8,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{
     Repository,
-    admin::ProjectAuthAdmin,
+    admin::ProjectModelAdmin,
     types::{
         authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
         user::User,
@@ -94,7 +94,7 @@ pub async fn send_password_reset_email<
     user: &User,
     message: Message,
 ) -> Result<(), OperationOutcomeError> {
-    let password_reset_code = ProjectAuthAdmin::create(
+    let password_reset_code = ProjectModelAdmin::create(
         &*state.repo,
         tenant,
         project,

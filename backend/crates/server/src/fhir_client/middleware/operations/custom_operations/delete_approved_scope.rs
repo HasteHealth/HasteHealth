@@ -16,7 +16,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{
     Repository,
-    admin::ProjectAuthAdmin,
+    admin::ProjectModelAdmin,
     types::scope::{ClientId, ScopeKey, UserId},
 };
 use std::sync::Arc;
@@ -50,7 +50,7 @@ pub fn delete_approved_scope_op<
                         )
                     })?;
 
-                    ProjectAuthAdmin::delete(
+                    ProjectModelAdmin::delete(
                         context.state.repo.as_ref(),
                         &tenant,
                         &project,

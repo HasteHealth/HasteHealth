@@ -1,5 +1,5 @@
 use crate::{
-    admin::{Login, Migrate, ProjectAuthAdmin, SystemAdmin, TenantAuthAdmin},
+    admin::{Login, Migrate, ProjectModelAdmin, SystemAdmin, TenantModelAdmin},
     fhir::FHIRRepository,
     sequence::ResourceSequential,
     types::{
@@ -7,6 +7,10 @@ use crate::{
             AuthorizationCode, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
         },
         membership::{CreateMembership, Membership, MembershipSearchClaims},
+        mfa::{
+            UserMFACredential, UserMFACredentialCreate, UserMFACredentialUpdate,
+            UserMFASearchClaims,
+        },
         project::{CreateProject, Project, ProjectSearchClaims},
         scope::{CreateScope, Scope, ScopeKey, ScopeSearchClaims, UpdateScope},
         tenant::{CreateTenant, Tenant, TenantSearchClaims},
@@ -25,23 +29,29 @@ pub mod utilities;
 pub trait Repository:
     FHIRRepository
     + SystemAdmin<User, UserSearchClauses>
-    + TenantAuthAdmin<
+    + TenantModelAdmin<
         CreateAuthorizationCode,
         AuthorizationCode,
         AuthorizationCodeSearchClaims,
         AuthorizationCode,
         String,
-    > + TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims, Tenant, String>
-    + TenantAuthAdmin<CreateUser, User, UserSearchClauses, UpdateUser, String>
-    + TenantAuthAdmin<CreateProject, Project, ProjectSearchClaims, Project, String>
-    + ProjectAuthAdmin<
+    > + TenantModelAdmin<CreateTenant, Tenant, TenantSearchClaims, Tenant, String>
+    + TenantModelAdmin<CreateUser, User, UserSearchClauses, UpdateUser, String>
+    + TenantModelAdmin<CreateProject, Project, ProjectSearchClaims, Project, String>
+    + TenantModelAdmin<
+        UserMFACredentialCreate,
+        UserMFACredential,
+        UserMFASearchClaims,
+        UserMFACredentialUpdate,
+        String,
+    > + ProjectModelAdmin<
         CreateAuthorizationCode,
         AuthorizationCode,
         AuthorizationCodeSearchClaims,
         AuthorizationCode,
         String,
-    > + ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, Membership, String>
-    + ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeKey>
+    > + ProjectModelAdmin<CreateMembership, Membership, MembershipSearchClaims, Membership, String>
+    + ProjectModelAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeKey>
     + Login
     + ResourceSequential
     + Migrate

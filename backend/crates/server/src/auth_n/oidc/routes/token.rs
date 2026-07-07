@@ -33,7 +33,7 @@ use haste_jwt::{
 };
 use haste_repository::{
     Repository,
-    admin::{ProjectAuthAdmin, TenantAuthAdmin},
+    admin::{ProjectModelAdmin, TenantModelAdmin},
     types::{
         SupportedFHIRVersions,
         authorization_code::{
@@ -101,7 +101,7 @@ async fn create_token_response<Repo: Repository>(
         )
     })?;
 
-    let tenant = TenantAuthAdmin::<CreateTenant, _, _, _, _>::read(
+    let tenant = TenantModelAdmin::<CreateTenant, _, _, _, _>::read(
         repo,
         &TenantId::System,
         &args.tenant.as_ref().to_string(),
@@ -186,7 +186,7 @@ async fn create_token_response<Repo: Repository>(
         && *grant_type_used != schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials
     {
         let existing_refresh_tokens_for_agent =
-            ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::search(
+            ProjectModelAdmin::<CreateAuthorizationCode, _, _, _, _>::search(
                 repo,
                 &args.tenant,
                 &args.project,
@@ -209,7 +209,7 @@ async fn create_token_response<Repo: Repository>(
             })?;
 
         for existing_token in existing_refresh_tokens_for_agent {
-            ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
+            ProjectModelAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
                 repo,
                 &args.tenant,
                 &args.project,
@@ -225,7 +225,7 @@ async fn create_token_response<Repo: Repository>(
             })?;
         }
 
-        let refresh_token = ProjectAuthAdmin::create(
+        let refresh_token = ProjectModelAdmin::create(
             repo,
             &args.tenant,
             &args.project,
@@ -265,7 +265,7 @@ async fn get_approved_scopes<Repo: Repository>(
     user_id: UserId,
     client_id: ClientId,
 ) -> Result<Scopes, OIDCError> {
-    let approved_scopes = ProjectAuthAdmin::<CreateScope, _, _, _, _>::search(
+    let approved_scopes = ProjectModelAdmin::<CreateScope, _, _, _, _>::search(
         repo,
         &tenant,
         &project,
@@ -585,7 +585,7 @@ pub async fn token<
             )
             .await?;
 
-            ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
+            ProjectModelAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
                 &*state.repo,
                 &tenant,
                 &project,
@@ -601,7 +601,7 @@ pub async fn token<
             })?;
 
             let user =
-                TenantAuthAdmin::<_, User, _, _, _>::read(&*state.repo, &tenant, &code.user_id)
+                TenantModelAdmin::<_, User, _, _, _>::read(&*state.repo, &tenant, &code.user_id)
                     .await
                     .map_err(|_e| {
                         OIDCError::new(
@@ -733,7 +733,7 @@ pub async fn token<
             .await?;
 
             // Remove the code once valid.
-            ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
+            ProjectModelAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
                 &*state.repo,
                 &tenant,
                 &project,
@@ -749,7 +749,7 @@ pub async fn token<
             })?;
 
             let user =
-                TenantAuthAdmin::<_, User, _, _, _>::read(&*state.repo, &tenant, &code.user_id)
+                TenantModelAdmin::<_, User, _, _, _>::read(&*state.repo, &tenant, &code.user_id)
                     .await
                     .map_err(|_e| {
                         OIDCError::new(

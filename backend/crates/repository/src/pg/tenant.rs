@@ -1,5 +1,5 @@
 use crate::{
-    admin::TenantAuthAdmin,
+    admin::TenantModelAdmin,
     pg::{PGConnection, StoreError},
     types::tenant::{CreateTenant, Tenant, TenantSearchClaims},
     utilities::{generate_id, validate_id},
@@ -123,7 +123,7 @@ fn search_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
 }
 
 impl<Key: AsRef<str> + Send + Sync>
-    TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims, Tenant, Key> for PGConnection
+    TenantModelAdmin<CreateTenant, Tenant, TenantSearchClaims, Tenant, Key> for PGConnection
 {
     async fn create(
         &self,

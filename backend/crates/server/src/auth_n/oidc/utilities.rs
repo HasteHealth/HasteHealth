@@ -3,7 +3,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::TenantId;
 use haste_repository::{
     Repository,
-    admin::TenantAuthAdmin,
+    admin::TenantModelAdmin,
     types::user::{CreateUser, UpdateUser},
 };
 use regex::Regex;
@@ -45,7 +45,7 @@ pub async fn set_user_password<Repo: Repository>(
         ));
     }
 
-    TenantAuthAdmin::<CreateUser, _, _, _, String>::update(
+    TenantModelAdmin::<CreateUser, _, _, _, String>::update(
         repo,
         &tenant,
         UpdateUser {

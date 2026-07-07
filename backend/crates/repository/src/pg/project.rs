@@ -1,5 +1,5 @@
 use crate::{
-    admin::TenantAuthAdmin,
+    admin::TenantModelAdmin,
     pg::{PGConnection, StoreError},
     types::{
         SupportedFHIRVersions,
@@ -160,7 +160,7 @@ fn update_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
 }
 
 impl<Key: AsRef<str> + Send + Sync>
-    TenantAuthAdmin<CreateProject, Project, ProjectSearchClaims, Project, Key> for PGConnection
+    TenantModelAdmin<CreateProject, Project, ProjectSearchClaims, Project, Key> for PGConnection
 {
     async fn create(
         &self,

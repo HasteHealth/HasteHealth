@@ -17,7 +17,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{
     Repository,
-    admin::ProjectAuthAdmin,
+    admin::ProjectModelAdmin,
     types::scope::{ScopeSearchClaims, UserId},
 };
 use sqlx::types::time::OffsetDateTime;
@@ -58,7 +58,7 @@ pub fn approved_scopes_op<
              _request: &InvocationRequest,
              _input: HasteHealthListScopes::Input| {
                 Box::pin(async move {
-                    let active_scopes = ProjectAuthAdmin::search(
+                    let active_scopes = ProjectModelAdmin::search(
                         context.state.repo.as_ref(),
                         &tenant,
                         &project,

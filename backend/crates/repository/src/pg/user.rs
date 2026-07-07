@@ -1,5 +1,5 @@
 use crate::{
-    admin::{Login, TenantAuthAdmin},
+    admin::{Login, TenantModelAdmin},
     pg::{PGConnection, StoreError},
     types::user::{
         AuthMethod, CreateUser, LoginMethod, LoginResult, UpdateUser, User, UserRole,
@@ -299,7 +299,7 @@ fn search_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
 }
 
 impl<Key: AsRef<str> + Send + Sync>
-    TenantAuthAdmin<CreateUser, User, UserSearchClauses, UpdateUser, Key> for PGConnection
+    TenantModelAdmin<CreateUser, User, UserSearchClauses, UpdateUser, Key> for PGConnection
 {
     async fn create(
         &self,

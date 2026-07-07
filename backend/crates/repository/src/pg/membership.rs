@@ -1,5 +1,5 @@
 use crate::{
-    admin::ProjectAuthAdmin,
+    admin::ProjectModelAdmin,
     pg::{PGConnection, StoreError},
     types::membership::{CreateMembership, Membership, MembershipRole, MembershipSearchClaims},
 };
@@ -187,7 +187,7 @@ fn search_memberships<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Sen
 }
 
 impl<Key: AsRef<str> + Send + Sync>
-    ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, Membership, Key>
+    ProjectModelAdmin<CreateMembership, Membership, MembershipSearchClaims, Membership, Key>
     for PGConnection
 {
     async fn create(

@@ -1,5 +1,5 @@
 use crate::{
-    admin::TenantAuthAdmin,
+    admin::TenantModelAdmin,
     pg::{PGConnection, StoreError},
     types::mfa::{
         UserMFACredential, UserMFACredentialCreate, UserMFACredentialUpdate, UserMFASearchClaims,
@@ -259,7 +259,7 @@ fn update_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
 }
 
 impl<Key: AsRef<str> + Send + Sync>
-    TenantAuthAdmin<
+    TenantModelAdmin<
         UserMFACredentialCreate,
         UserMFACredential,
         UserMFASearchClaims,

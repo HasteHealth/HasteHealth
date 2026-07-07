@@ -17,7 +17,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
-use haste_repository::{Repository, admin::TenantAuthAdmin, types::user::CreateUser};
+use haste_repository::{Repository, admin::TenantModelAdmin, types::user::CreateUser};
 use jsonwebtoken::DecodingKey;
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
@@ -471,7 +471,7 @@ pub async fn federated_callback<
     )
     .await?;
 
-    let Some(user_model) = TenantAuthAdmin::<CreateUser, _, _, _, _>::read(
+    let Some(user_model) = TenantModelAdmin::<CreateUser, _, _, _, _>::read(
         app_state.repo.as_ref(),
         &tenant,
         &user.id.unwrap(),

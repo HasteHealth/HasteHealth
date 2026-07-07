@@ -23,7 +23,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::scopes::Scopes;
 use haste_repository::{
     Repository,
-    admin::ProjectAuthAdmin,
+    admin::ProjectModelAdmin,
     types::scope::{ClientId, CreateScope, UserId},
 };
 use serde::Deserialize;
@@ -100,7 +100,7 @@ pub async fn scope_post<
             ),
         )?;
 
-        ProjectAuthAdmin::create(
+        ProjectModelAdmin::create(
             &*app_state.repo,
             &tenant,
             &project,

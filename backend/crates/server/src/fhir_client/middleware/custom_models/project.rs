@@ -24,7 +24,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{AuthorKind, ProjectId};
 use haste_repository::{
     Repository,
-    admin::TenantAuthAdmin,
+    admin::TenantModelAdmin,
     types::{
         SupportedFHIRVersions,
         project::{CreateProject, Project as ProjectModel},
@@ -86,7 +86,7 @@ impl<
                                 let name = project.name.clone();
                                 let id = project.id.clone().unwrap_or(generate_id(Some(8)));
 
-                                let project_model = TenantAuthAdmin::create(
+                                let project_model = TenantModelAdmin::create(
                                     state.repo.as_ref(),
                                     &context.ctx.tenant,
                                     CreateProject {
@@ -149,7 +149,7 @@ impl<
                                 let id = update_request.id.clone();
 
                                 let Some(cur_model) =
-                                    TenantAuthAdmin::<CreateProject, _, _, _, _>::read(
+                                    TenantModelAdmin::<CreateProject, _, _, _, _>::read(
                                         state.repo.as_ref(),
                                         &context.ctx.tenant,
                                         &update_request.id,
@@ -177,7 +177,7 @@ impl<
                                     ));
                                 }
 
-                                let _project_model = TenantAuthAdmin::update(
+                                let _project_model = TenantModelAdmin::update(
                                     state.repo.as_ref(),
                                     &context.ctx.tenant,
                                     ProjectModel {
@@ -209,7 +209,7 @@ impl<
                         }
 
                         FHIRRequest::Delete(DeleteRequest::Instance(delete_request)) => {
-                            TenantAuthAdmin::<CreateProject, _, _, _, _>::delete(
+                            TenantModelAdmin::<CreateProject, _, _, _, _>::delete(
                                 state.repo.as_ref(),
                                 &context.ctx.tenant,
                                 &delete_request.id,

@@ -4,7 +4,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{
     Repository,
-    admin::ProjectAuthAdmin,
+    admin::ProjectModelAdmin,
     types::authorization_code::{
         AuthorizationCode, AuthorizationCodeKind, AuthorizationCodeSearchClaims,
         PKCECodeChallengeMethod,
@@ -75,7 +75,7 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
     redirect_uri: Option<&str>,
     code_verifier: Option<&str>,
 ) -> Result<AuthorizationCode, OperationOutcomeError> {
-    let mut code: Vec<AuthorizationCode> = ProjectAuthAdmin::search(
+    let mut code: Vec<AuthorizationCode> = ProjectModelAdmin::search(
         repo,
         &tenant,
         &project,

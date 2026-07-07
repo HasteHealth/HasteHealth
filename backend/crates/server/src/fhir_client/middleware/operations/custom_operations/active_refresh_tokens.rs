@@ -15,7 +15,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{
     Repository,
-    admin::ProjectAuthAdmin,
+    admin::ProjectModelAdmin,
     types::authorization_code::{AuthorizationCodeKind, AuthorizationCodeSearchClaims},
 };
 use sqlx::types::time::OffsetDateTime;
@@ -57,7 +57,7 @@ pub fn active_refresh_tokens_op<
              _request: &InvocationRequest,
              _input: HasteHealthListRefreshTokens::Input| {
                 Box::pin(async move {
-                    let active_refresh_tokens = ProjectAuthAdmin::search(
+                    let active_refresh_tokens = ProjectModelAdmin::search(
                         context.state.repo.as_ref(),
                         &tenant,
                         &project,

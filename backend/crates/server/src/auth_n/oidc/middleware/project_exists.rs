@@ -8,7 +8,7 @@ use axum_extra::extract::Cached;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::{Repository, admin::TenantAuthAdmin, types::project::CreateProject};
+use haste_repository::{Repository, admin::TenantModelAdmin, types::project::CreateProject};
 use std::sync::Arc;
 
 use crate::{
@@ -28,7 +28,7 @@ pub async fn project_exists<
     next: Next,
 ) -> Result<Response, OperationOutcomeError> {
     // If not found automatically will error.
-    TenantAuthAdmin::<CreateProject, _, _, _, _>::read(
+    TenantModelAdmin::<CreateProject, _, _, _, _>::read(
         &*state.repo,
         &tenant,
         &project.as_ref().to_string(),

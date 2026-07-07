@@ -20,7 +20,7 @@ use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::{
     Repository,
-    admin::ProjectAuthAdmin,
+    admin::ProjectModelAdmin,
     types::membership::{self as m, CreateMembership},
 };
 use std::sync::Arc;
@@ -82,7 +82,7 @@ impl<
                                 && let Some(user_id) = get_user_id(membership)
                                 && let Some(membership_id) = membership.id.as_ref()
                             {
-                                ProjectAuthAdmin::create(
+                                ProjectModelAdmin::create(
                                     state.repo.as_ref(),
                                     &res.ctx.tenant,
                                     &res.ctx.project,
@@ -107,7 +107,7 @@ impl<
                             if let Resource::Membership(membership) = &delete_response.resource
                                 && let Some(user_id) = get_user_id(membership)
                             {
-                                ProjectAuthAdmin::<CreateMembership, _, _, _, _>::delete(
+                                ProjectModelAdmin::<CreateMembership, _, _, _, _>::delete(
                                     state.repo.as_ref(),
                                     &res.ctx.tenant,
                                     &res.ctx.project,
@@ -129,7 +129,7 @@ impl<
                                 && let Some(user_id) = get_user_id(membership)
                                 && let Some(membership_id) = membership.id.as_ref()
                             {
-                                ProjectAuthAdmin::update(
+                                ProjectModelAdmin::update(
                                     state.repo.as_ref(),
                                     &res.ctx.tenant,
                                     &res.ctx.project,

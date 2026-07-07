@@ -16,7 +16,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{
     Repository,
-    admin::ProjectAuthAdmin,
+    admin::ProjectModelAdmin,
     types::authorization_code::{
         AuthorizationCode, AuthorizationCodeKind, AuthorizationCodeSearchClaims,
     },
@@ -59,7 +59,7 @@ pub fn delete_refresh_token_op<
                         )
                     })?;
 
-                    let refresh_token = ProjectAuthAdmin::search(
+                    let refresh_token = ProjectModelAdmin::search(
                         context.state.repo.as_ref(),
                         &tenant,
                         &project,
@@ -81,7 +81,7 @@ pub fn delete_refresh_token_op<
                         )
                     })?;
 
-                    ProjectAuthAdmin::<_, AuthorizationCode, _, _, _>::delete(
+                    ProjectModelAdmin::<_, AuthorizationCode, _, _, _>::delete(
                         context.state.repo.as_ref(),
                         &tenant,
                         &project,
