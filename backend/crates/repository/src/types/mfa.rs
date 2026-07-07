@@ -58,5 +58,5 @@ pub struct UserMFACredentialUpdate {
     pub user_id: UserId,
 
     pub activated_at: Option<OffsetDateTime>,
-    pub is_active: Option<bool>,
+    pub is_active: bool,
 }

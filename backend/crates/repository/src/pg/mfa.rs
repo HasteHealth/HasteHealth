@@ -1,11 +1,13 @@
 use crate::{
-    admin::TenantAuthAdmin, pg::{PGConnection, StoreError}, types::{
-        SupportedFHIRVersions, mfa::{UserMFACredential, UserMFACredentialCreate, UserMFACredentialUpdate, UserMFASearchClaims}, project::{CreateProject, Project, ProjectSearchClaims},
+    admin::TenantAuthAdmin,
+    pg::{PGConnection, StoreError},
+    types::mfa::{
+        UserMFACredential, UserMFACredentialCreate, UserMFACredentialUpdate, UserMFASearchClaims,
     },
 };
-use haste_fhir_model::r4::generated::{terminology::IssueType};
+use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_jwt::{ProjectId, TenantId};
+use haste_jwt::TenantId;
 use sqlx::{Acquire, Postgres, QueryBuilder};
 
 fn create_user_mfa_credential<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
@@ -17,7 +19,9 @@ fn create_user_mfa_credential<'a, 'c, Connection: Acquire<'c, Database = Postgre
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
 
         let type_: &str = new_mfa_credentials.credential_type.into();
-        let totp_algorithm = new_mfa_credentials.totp_algorithm.unwrap_or("SHA1".to_string());
+        let totp_algorithm = new_mfa_credentials
+            .totp_algorithm
+            .unwrap_or("SHA1".to_string());
 
         let user_mfa_credential = sqlx::query_as!(
             UserMFACredential,
@@ -57,55 +61,86 @@ fn create_user_mfa_credential<'a, 'c, Connection: Acquire<'c, Database = Postgre
     }
 }
 
-fn read_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+fn read_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
     id: &'a str,
-) -> impl Future<Output = Result<Option<Project>, OperationOutcomeError>> + Send + 'a {
+) -> impl Future<Output = Result<Option<UserMFACredential>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let project = sqlx::query_as!(
-            Project,
-            r#"SELECT id as "id: ProjectId", tenant as "tenant: TenantId", system_created, fhir_version as "fhir_version: SupportedFHIRVersions" 
-            FROM projects where tenant = $1 AND id = $2"#,
-            tenant.as_ref(),    
-            id
+        let user_mfa = sqlx::query_as!(
+            UserMFACredential,
+            r#"SELECT 
+                id as "id: String",
+                tenant as "tenant: TenantId",
+                user_id,
+                credential_type,
+                secret_ciphertext,
+                secret_nonce,
+                key_id,
+                totp_algorithm,
+                totp_digits,
+                totp_period,
+                totp_skew,
+                created_at,
+                is_active
+            FROM user_mfa_credential where tenant = $1 AND id = $2"#,
+            tenant.as_ref(),
+            id as &str
         )
         .fetch_optional(&mut *conn)
         .await
         .map_err(StoreError::SQLXError)?;
 
-        Ok(project)
+        Ok(user_mfa)
     }
 }
 
-fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+fn delete_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
     id: &'a str,
 ) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let _deleted_project = sqlx::query_as!(
-            Project,
-            r#"DELETE FROM projects WHERE tenant = $1 AND id = $2 and system_created = false RETURNING id as "id: ProjectId", tenant as "tenant: TenantId", system_created, fhir_version as "fhir_version: SupportedFHIRVersions""#,
+        let _delted_user_mfa = sqlx::query_as!(
+            UserMFACredential,
+            r#"DELETE FROM user_mfa_credential 
+            WHERE tenant = $1 AND id = $2
+            RETURNING 
+                id as "id: String",
+                tenant as "tenant: TenantId",
+                user_id,
+                credential_type,
+                secret_ciphertext,
+                secret_nonce,
+                key_id,
+                totp_algorithm,
+                totp_digits,
+                totp_period,
+                totp_skew,
+                created_at,
+                is_active"#,
             tenant.as_ref(),
-            id
+            id as &str
         )
         .fetch_optional(&mut *conn)
         .await
         .map_err(|_e| {
             OperationOutcomeError::error(
                 IssueType::NotFound(None),
-                format!("Project '{}' not found or is system created and cannot be deleted.", id),
+                format!(
+                    "User MFA credential '{}' not found or is system created and cannot be deleted.",
+                    id
+                ),
             )
         })?;
 
-        if !_deleted_project.is_some() {
+        if !_delted_user_mfa.is_some() {
             return Err(OperationOutcomeError::error(
                 IssueType::NotFound(None),
                 format!(
-                    "Project '{}' not found or is system created and cannot be deleted.",
+                    "User MFA credential '{}' not found or is system created and cannot be deleted.",
                     id
                 ),
             ));
@@ -115,15 +150,29 @@ fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
     }
 }
 
-fn search_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+fn search_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
-    clauses: &'a ProjectSearchClaims,
-) -> impl Future<Output = Result<Vec<Project>, OperationOutcomeError>> + Send + 'a {
+    clauses: &'a UserMFASearchClaims,
+) -> impl Future<Output = Result<Vec<UserMFACredential>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let mut query_builder: QueryBuilder<Postgres> =
-            QueryBuilder::new(r#"SELECT tenant, id, fhir_version FROM projects WHERE "#);
+        let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
+            r#"SELECT 
+                id as "id: String",
+                tenant as "tenant: TenantId",
+                user_id,
+                credential_type,
+                secret_ciphertext,
+                secret_nonce,
+                key_id,
+                totp_algorithm,
+                totp_digits,
+                totp_period,
+                totp_skew,
+                created_at,
+                is_active FROM user_mfa_credential WHERE "#,
+        );
 
         let mut and_clauses = query_builder.separated(" AND ");
 
@@ -131,69 +180,107 @@ fn search_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
             .push(" tenant = ")
             .push_bind_unseparated(tenant.as_ref());
 
-        if let Some(id) = clauses.id.as_ref() {
-            and_clauses
-                .push(" id = ")
-                .push_bind_unseparated(id.as_ref());
-        }
+        and_clauses
+            .push(" user_id = ")
+            .push_bind_unseparated(clauses.user_id.as_ref());
 
-        if let Some(fhir_version) = clauses.fhir_version.as_ref() {
+        if let Some(is_active) = clauses.is_active {
             and_clauses
-                .push(" fhir_version = ")
-                .push_bind_unseparated(fhir_version);
-        }
-
-        if let Some(system_created) = clauses.system_created.as_ref() {
-            and_clauses
-                .push(" system_created = ")
-                .push_bind_unseparated(system_created);
+                .push(" is_active = ")
+                .push_bind_unseparated(is_active);
         }
 
         let query = query_builder.build_query_as();
 
-        let projects: Vec<Project> = query
+        let user_mfas: Vec<UserMFACredential> = query
             .fetch_all(&mut *conn)
             .await
             .map_err(StoreError::from)?;
 
-        Ok(projects)
+        Ok(user_mfas)
     }
 }
 
 /// Not allowing updates on internal row just reading to confirm it's existance.
-fn update_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+fn update_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
-    model: Project,
-) -> impl Future<Output = Result<Project, OperationOutcomeError>> + Send + 'a {
+    model: UserMFACredentialUpdate,
+) -> impl Future<Output = Result<UserMFACredential, OperationOutcomeError>> + Send + 'a {
     async move {
-        read_project(connection, tenant, model.id.as_ref())
-            .await?
-            .ok_or_else(|| {
-                OperationOutcomeError::error(
-                    IssueType::NotFound(None),
-                    format!("Project '{}' not found.", model.id.as_ref()),
-                )
-            })
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+        let mut query_builder = QueryBuilder::new(
+            r#"
+                UPDATE user_mfa_credential SET 
+            "#,
+        );
+
+        let mut set_statements = query_builder.separated(", ");
+
+        set_statements
+            .push(" is_active = ")
+            .push_bind_unseparated(model.is_active);
+
+        query_builder.push(" WHERE ");
+
+        let mut where_statements = query_builder.separated(" AND ");
+        where_statements
+            .push(" tenant = ")
+            .push_bind_unseparated(tenant.as_ref())
+            .push(" user_id = ")
+            .push_bind_unseparated(model.user_id.as_ref());
+
+        query_builder.push(
+            r#" RETURNING 
+                id as "id: String",
+                tenant as "tenant: TenantId",
+                user_id,
+                credential_type,
+                secret_ciphertext,
+                secret_nonce,
+                key_id,
+                totp_algorithm,
+                totp_digits,
+                totp_period,
+                totp_skew,
+                created_at,
+                is_active"#,
+        );
+
+        let query = query_builder.build_query_as();
+
+        let user_mfa_credentials = query
+            .fetch_one(&mut *conn)
+            .await
+            .map_err(StoreError::SQLXError)?;
+
+        Ok(user_mfa_credentials)
     }
 }
 
 impl<Key: AsRef<str> + Send + Sync>
-    TenantAuthAdmin<UserMFACredentialCreate, UserMFACredential, UserMFASearchClaims, UserMFACredentialUpdate, Key> for PGConnection
+    TenantAuthAdmin<
+        UserMFACredentialCreate,
+        UserMFACredential,
+        UserMFASearchClaims,
+        UserMFACredentialUpdate,
+        Key,
+    > for PGConnection
 {
     async fn create(
         &self,
         tenant: &TenantId,
-        new_project: UserMFACredentialCreate,
+        new_user_mfa_credential: UserMFACredentialCreate,
     ) -> Result<UserMFACredential, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
-                let res = create_user_mfa_credential(pool, tenant, new_project).await?;
+                let res = create_user_mfa_credential(pool, tenant, new_user_mfa_credential).await?;
                 Ok(res)
             }
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = create_user_mfa_credential(&mut *tx, tenant, new_project).await?;
+                let res =
+                    create_user_mfa_credential(&mut *tx, tenant, new_user_mfa_credential).await?;
                 Ok(res)
             }
         }
@@ -206,12 +293,12 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<Option<UserMFACredential>, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
-                let res = read_project(pool, tenant, id.as_ref()).await?;
+                let res = read_user_mfa(pool, tenant, id.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = read_project(&mut *tx, tenant, id.as_ref()).await?;
+                let res = read_user_mfa(&mut *tx, tenant, id.as_ref()).await?;
                 Ok(res)
             }
         }
@@ -224,12 +311,12 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<UserMFACredential, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
-                let res = update_project(pool, tenant, model).await?;
+                let res = update_user_mfa(pool, tenant, model).await?;
                 Ok(res)
             }
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = update_project(&mut *tx, tenant, model).await?;
+                let res = update_user_mfa(&mut *tx, tenant, model).await?;
                 Ok(res)
             }
         }
@@ -242,12 +329,12 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<(), haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
-                let res = delete_project(pool, tenant, id.as_ref()).await?;
+                let res = delete_user_mfa(pool, tenant, id.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = delete_project(&mut *tx, tenant, id.as_ref()).await?;
+                let res = delete_user_mfa(&mut *tx, tenant, id.as_ref()).await?;
                 Ok(res)
             }
         }
@@ -260,12 +347,12 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<Vec<UserMFACredential>, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
-                let res = search_project(pool, tenant, claims).await?;
+                let res = search_user_mfa(pool, tenant, claims).await?;
                 Ok(res)
             }
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = search_project(&mut *tx, tenant, claims).await?;
+                let res = search_user_mfa(&mut *tx, tenant, claims).await?;
                 Ok(res)
             }
         }
