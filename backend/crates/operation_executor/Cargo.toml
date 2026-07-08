@@ -9,7 +9,7 @@ edition.workspace = true
 
 [dependencies]
 deno_ast = { version = "0.53.2", features = ["transpiling"] }
-deno_core = "0.400.0"
+deno_core = "0.407.0"
 deno_error = "0.7.1"
 haste-fhir-client = { path = "../fhir-client", version = "0.*", features = [
     "http"
@@ -21,4 +21,4 @@ haste-reflect = { path = "../reflect", version = "0.*" }
 tokio = { workspace = true, features = ["full"] }
 
 [build-dependencies]
-deno_core = "0.400.0"
+deno_core = "0.407.0"
