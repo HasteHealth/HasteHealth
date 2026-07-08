@@ -9,7 +9,7 @@ edition.workspace = true
 
 [dependencies]
 elasticsearch = "9.0.0-alpha.1"
-etl = { git = "https://github.com/supabase/etl" }
+etl = { git = "https://github.com/supabase/etl", rev = "da679f2d03ea7db47f3cedec4b34cca6e5da9e74" }
 haste-artifacts = { path = "../artifacts", version = "0.*" }
 haste-config = { path = "../config", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
