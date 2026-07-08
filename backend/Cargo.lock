@@ -2052,7 +2052,7 @@ dependencies = [
 [[package]]
 name = "etl"
 version = "0.1.0"
-source = "git+https://github.com/supabase/etl#4f1141e39a92b5c6567e01ee4f588646588488ba"
+source = "git+https://github.com/supabase/etl?rev=4f1141e39a92b5c6567e01ee4f588646588488ba#4f1141e39a92b5c6567e01ee4f588646588488ba"
 dependencies = [
  "aws-lc-rs",
  "byteorder",
@@ -2081,7 +2081,7 @@ dependencies = [
 [[package]]
 name = "etl-config"
 version = "0.1.0"
-source = "git+https://github.com/supabase/etl#4f1141e39a92b5c6567e01ee4f588646588488ba"
+source = "git+https://github.com/supabase/etl?rev=4f1141e39a92b5c6567e01ee4f588646588488ba#4f1141e39a92b5c6567e01ee4f588646588488ba"
 dependencies = [
  "config",
  "secrecy",
@@ -2094,7 +2094,7 @@ dependencies = [
 [[package]]
 name = "etl-postgres"
 version = "0.1.0"
-source = "git+https://github.com/supabase/etl#4f1141e39a92b5c6567e01ee4f588646588488ba"
+source = "git+https://github.com/supabase/etl?rev=4f1141e39a92b5c6567e01ee4f588646588488ba#4f1141e39a92b5c6567e01ee4f588646588488ba"
 dependencies = [
  "bytes",
  "chrono",
