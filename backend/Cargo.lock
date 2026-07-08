@@ -1548,12 +1548,13 @@ dependencies = [
 
 [[package]]
 name = "deno_core"
-version = "0.400.0"
+version = "0.407.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ed1303a8cb70e9e4044f01df0d0410542f6b7c76e85c93e93a26bcd14e1e428"
+checksum = "8b70c7f700cadd75d58a5177eba7f3085277d7dff436b3911b3a4bb4bee3b4cb"
 dependencies = [
  "anyhow",
  "az",
+ "base64",
  "bincode",
  "bit-set",
  "bit-vec",
@@ -1561,7 +1562,6 @@ dependencies = [
  "bytes",
  "capacity_builder",
  "cooked-waker",
- "deno_core_icudata",
  "deno_error",
  "deno_ops",
  "deno_path_util",
@@ -1570,6 +1570,7 @@ dependencies = [
  "indexmap 2.14.0",
  "inventory",
  "libc",
+ "num-bigint",
  "parking_lot",
  "percent-encoding",
  "pin-project",
@@ -1587,12 +1588,6 @@ dependencies = [
  "wasm_dep_analyzer",
  "windows-sys 0.59.0",
 ]
-
-[[package]]
-name = "deno_core_icudata"
-version = "0.77.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9efff8990a82c1ae664292507e1a5c6749ddd2312898cdf9cd7cb1fd4bc64c6"
 
 [[package]]
 name = "deno_error"
@@ -1632,9 +1627,9 @@ dependencies = [
 
 [[package]]
 name = "deno_ops"
-version = "0.276.0"
+version = "0.283.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b76896d2bbdde3a38689fdd3bcfd0d83fa748dd6d3575e4f471071ad954d067"
+checksum = "52f8f376774b72e0159beca6087a03ab633182559eadf7dfe6515994f51f4d3d"
 dependencies = [
  "indexmap 2.14.0",
  "proc-macro2",
@@ -6540,9 +6535,9 @@ dependencies = [
 
 [[package]]
 name = "serde_v8"
-version = "0.309.0"
+version = "0.316.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0384d8fb13b9d7e215e281c7e26423e9efe772e475cf26eddf57fb58ff27203"
+checksum = "0f85ce22bc90f626c24e4d86b082d0757a2d20e2be87b774f7211a7c099846a9"
 dependencies = [
  "deno_error",
  "num-bigint",
@@ -7511,9 +7506,9 @@ dependencies = [
 
 [[package]]
 name = "sys_traits"
-version = "0.1.27"
+version = "0.1.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a79feaa49de4a6c8191bdbd5fb3eada50671e9367d874d1c12e3d36db131414"
+checksum = "88826d6169418c98e8bc52a43f79d50907dfa3e87ba5161930d42c6f980b35ee"
 dependencies = [
  "sys_traits_macros",
 ]
@@ -8452,9 +8447,9 @@ dependencies = [
 
 [[package]]
 name = "v8"
-version = "147.4.0"
+version = "149.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2df8fffd507fb18ed000673a83d937f58e60fb07f3306b2274284125b15137cd"
+checksum = "ebfd8d6919bfb4b627ca778a67f85ca45e5fb442d352947ba093798bdf9b07e0"
 dependencies = [
  "bindgen",
  "bitflags",
