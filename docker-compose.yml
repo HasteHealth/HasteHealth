@@ -80,7 +80,7 @@ services:
         condition: service_completed_successfully
       postgres:
         condition: service_healthy
-      elasticsearch: 
+      elasticsearch:
         condition: service_healthy
     command:
       - server
@@ -96,8 +96,7 @@ services:
       - HASTE_SEARCH.url=http://elasticsearch:9200
       - HASTE_SEARCH.username=elastic
       - HASTE_SEARCH.password=elastic
-      
-    
+
   hastehealth-worker:
     image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
     platform: linux/amd64
@@ -108,7 +107,7 @@ services:
         condition: service_completed_successfully
       postgres:
         condition: service_healthy
-      elasticsearch: 
+      elasticsearch:
         condition: service_healthy
     environment:
       - RUST_LOG=error
