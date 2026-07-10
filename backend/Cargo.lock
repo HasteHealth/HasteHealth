@@ -2941,7 +2941,6 @@ dependencies = [
  "haste-server",
  "haste-testscript-runner",
  "haste-worker",
- "haste_wal_worker",
  "json-patch",
  "jsonwebtoken",
  "opentelemetry",
