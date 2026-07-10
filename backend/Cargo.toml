@@ -60,30 +60,59 @@ homepage = "https://haste.health"
 edition = "2024"
 
 [workspace.dependencies]
-argon2 = "0.5.3"
-axum = "0.8.9"
-chrono = "0.4.44"
-derivative = "2.2.0"
-dotenvy = "0.15.7"
-figment = "0.10.19"
-jsonwebtoken = "10.4.0"
-moka = "0.12.15"
-quote = "1.0.45"
-regex = "1.12.3"
-reqwest = "0.13"
-sentry = "0.46.2"
-serde = "1.0.228"
-serde_json = "1.0.149"
-sqlx = "0.8"
-sqlx-postgres = "0.8.6"
-tokio = { version = "1.52.3" }
-tracing = "0.1.44"
-walkdir = "2.5.0"
+argon2 = { version = "0.5.3", default-features = false, features = ["alloc", "password-hash"] }
+axum = { version = "0.8.9", default-features = false }
+base64 = { version = "0.22.1", default-features = false }
+chrono = { version = "0.4.44", default-features = false, features = ["clock"] }
+clap = { version = "4.6.1", default-features = false }
+criterion = { version = "0.8", default-features = false }
+derivative = { version = "2.2.0", default-features = false }
+dotenvy = { version = "0.15.7", default-features = false }
+elasticsearch = { version = "9.0.0-alpha.1", default-features = false, features = ["native-tls"] }
+figment = { version = "0.10.19", default-features = false }
+json-patch = { version = "4.2.0", default-features = false }
+jsonwebtoken = {version = "10.4.0", default-features = false, features = ["use_pem"] }
+moka = { version = "0.12.15", default-features = false }
+quote = { version = "1.0.46", default-features = false }
+proc-macro2 = { version = "1.0.106", default-features = false }
+regex = { version = "1.12.3", default-features = false }
+reqwest = { version = "0.13", default-features = false }
+rust-embed = { version = "8.12.0", default-features = false }
+sentry = { version = "0.46.2", default-features = false }
+serde = { version = "1.0.228", default-features = false, features = ["alloc"] }
+serde_json = { version = "1.0.149", default-features = false, features = ["alloc"] }
+sqlx = { version = "0.8", default-features = false, features = ["derive", "macros", "migrate"] }
+sqlx-postgres = { version = "0.8.6", default-features = false }
+syn = { version = "2.0.117", default-features = false }
+thiserror = { version = "2.0.18", default-features = false }
+tokio = { version = "1.52.3", default-features = false }
+tracing = { version = "0.1.44", default-features = false }
+walkdir = { version = "2.5.0", default-features = false }
 
 [dependencies]
-clap = { version = "4.6.1", features = ["derive"] }
-dialoguer = "0.12.0"
+clap = { workspace = true, features = ["derive"] }
+dialoguer = {version = "0.12.0", default-features = false, features = ["password"] }
 figment = { workspace = true, features = ["toml", "env"] }
+json-patch = { workspace = true }
+jsonwebtoken = { workspace = true, features = ["rust_crypto"] }
+opentelemetry = {version = "0.32.0", default-features = false }
+opentelemetry-appender-tracing = { version = "0.32.0", default-features = false }
+opentelemetry-otlp = { version = "0.32.0", default-features = false,  features = ["http-proto", "logs"] }
+opentelemetry-stdout = { version = "0.32.0", default-features = false }
+opentelemetry_sdk = { version ="0.32.1", default-features = false, features = ["logs"] }
+quote = { workspace = true }
+reqwest = { workspace = true }
+sentry = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
+toml = { version = "0.9.12", default-features = false, features = ["display", "parse", "serde"] }
+tracing = { workspace = true }
+tracing-opentelemetry = {version = "0.33.0", default-features = false }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["env-filter", "json"] }
+tracing-tree = { version = "0.4.1", default-features = false }
+walkdir = { workspace = true }
+
 haste-codegen = { path = "./crates/codegen" }
 haste-config = { path = "./crates/config" }
 haste-fhir-client = { path = "./crates/fhir-client", features = ["http"] }
@@ -99,25 +128,7 @@ haste-repository = { path = "./crates/repository" }
 haste-server = { path = "./crates/server" }
 haste-testscript-runner = { path = "./crates/testscript-runner" }
 haste-worker = { path = "./crates/worker" }
-json-patch = "4.2.0"
-jsonwebtoken = { workspace = true, features = ["rust_crypto"] }
-opentelemetry = "0.32.0"
-opentelemetry-appender-tracing = "0.32.0"
-opentelemetry-otlp = { version = "0.32.0", features = ["http-proto"] }
-opentelemetry-stdout = "0.32.0"
-opentelemetry_sdk = "0.32.1"
-quote = { workspace = true }
-reqwest = { workspace = true }
-sentry = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-tokio = { workspace = true, features = ["full"] }
-toml = "0.9.12"
-tracing = { workspace = true }
-tracing-opentelemetry = "0.33.0"
-tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
-tracing-tree = "0.4.1"
-walkdir = { workspace = true }
+haste_wal_worker = { path = "./crates/wal_worker" }
 
 [profile.profiling]
 inherits = "release"

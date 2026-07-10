@@ -10,19 +10,20 @@ homepage = { workspace = true }
 sqlx = ["dep:sqlx"]
 
 [dependencies]
-chrono = { workspace = true }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*", features = [
     "derive",
 ] }
 haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
+
+chrono = { workspace = true }
 regex = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 sqlx = { workspace = true, optional = true, features = ["postgres"] }
-thiserror = "2.0.18"
+thiserror = { workspace = true }
 
 [dev-dependencies]
-criterion = "0.8"
+criterion = { workspace = true }
 
 [[bench]]
 name = "serialization_bench"

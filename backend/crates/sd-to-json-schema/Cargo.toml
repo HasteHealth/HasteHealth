@@ -13,8 +13,9 @@ haste-codegen = { path = "../codegen", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
+
 serde = { workspace = true }
 serde_json = { workspace = true }
 
 [dev-dependencies]
-jsonschema = "0.40.2"
+jsonschema = { version = "0.40.2", default-features = false }

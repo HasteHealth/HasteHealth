@@ -8,7 +8,6 @@ license = { workspace = true }
 homepage = { workspace = true }
 
 [dependencies]
-chrono = { workspace = true }
 haste-fhir-client = { path = "../fhir-client", version = "0.*" }
 haste-fhir-generated-ops = { path = "../fhir-generated-ops", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
@@ -17,3 +16,4 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
 ] }
 haste-jwt = { path = "../jwt", version = "0.*" }
 
+chrono = { workspace = true }

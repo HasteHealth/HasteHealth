@@ -11,9 +11,10 @@ derive = ["dep:haste-fhir-operation-error-derive"]
 axum = ["dep:axum", "dep:haste-fhir-serialization-json"]
 
 [dependencies]
-anyhow = "1.0.102"
-axum = { workspace = true, optional = true }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error-derive = { path = "../fhir-operation-error-derive", version = "0.*", optional = true }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*", optional = true }
+
+anyhow = { version = "1.0.102", default-features = false, features = ["std"] }
+axum = { workspace = true, optional = true }
 serde_json = { workspace = true }

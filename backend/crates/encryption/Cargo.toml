@@ -12,10 +12,11 @@ aws = []
 gcp = []
 
 [dependencies]
-aes-gcm = "0.11.0"
-base64 = "0.22.1"
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*", features = [
     "derive",
 ] }
+
+aes-gcm = { version = "0.11.0", default-features = false, features = ["aes", "alloc", "getrandom"] }
+base64 = { workspace = true, features = ["alloc"] }
 tracing = { workspace = true }

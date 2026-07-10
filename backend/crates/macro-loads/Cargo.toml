@@ -11,5 +11,5 @@ proc-macro = true
 
 [dependencies]
 quote = { workspace = true }
-syn = "2.0.117"
+syn = { workspace = true, features = ["parsing", "proc-macro"] }
 walkdir = { workspace = true }

@@ -8,16 +8,17 @@ homepage.workspace = true
 edition.workspace = true
 
 [dependencies]
-clap = "4.6.1"
 haste-fhir-model = { path = "../fhir-model" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-fhirpath = { path = "../fhirpath" }
 haste-hl7v2 = { path = "../hl7v2" }
 haste-reflect = { path = "../reflect" }
-liquid = "0.26.11"
-liquid-core = { version = "0.26.11", features = ["derive"] }
-minijinja = "2.20.0"
+
+clap = { workspace = true, features = ["color", "help", "std"] }
+liquid = { version = "0.26.11", default-features = false }
+liquid-core = { version = "0.26.11", default-features = false, features = ["derive"] }
+minijinja = { version = "2.20.0", default-features = false, features = ["serde"] }
 serde = { workspace = true }
-serde_json = { workspace = true } 
+serde_json = { workspace = true }
 tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }
 walkdir = { workspace = true }

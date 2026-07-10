@@ -8,8 +8,6 @@ homepage.workspace = true
 edition.workspace = true
 
 [dependencies]
-elasticsearch = "9.0.0-alpha.1"
-etl = { git = "https://github.com/supabase/etl", rev = "4f1141e39a92b5c6567e01ee4f588646588488ba" }
 haste-artifacts = { path = "../artifacts", version = "0.*" }
 haste-config = { path = "../config", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
@@ -21,6 +19,9 @@ haste-fhir-serialization-json = { path = "../fhir-serialization-json", version =
 haste-fhirpath = { path = "../fhirpath", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*" }
 haste-repository = { path = "../repository", version = "0.*" }
+
+elasticsearch = { workspace = true }
+etl = { git = "https://github.com/supabase/etl", rev = "4f1141e39a92b5c6567e01ee4f588646588488ba" }
 serde_json = { workspace = true }
 sqlx = { workspace = true, features = ["runtime-tokio"] }
 sqlx-postgres = { workspace = true }

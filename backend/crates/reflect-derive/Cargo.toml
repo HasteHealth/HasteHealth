@@ -11,4 +11,4 @@ proc-macro = true
 
 [dependencies]
 quote = { workspace = true }
-syn = "2.0.117"
+syn = { workspace = true, default-features = false, features = ["derive", "parsing", "proc-macro"] }
