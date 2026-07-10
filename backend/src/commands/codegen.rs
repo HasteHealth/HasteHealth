@@ -6,14 +6,14 @@ use quote::quote;
 use std::{io::Write, path::Path, process::Stdio};
 
 #[derive(Clone, ValueEnum)]
-pub enum GenerateLevel {
+pub(crate) enum GenerateLevel {
     Primitive,
     Complex,
     Resource,
 }
 
 #[derive(Subcommand)]
-pub enum CodeGen {
+pub(crate) enum CodeGen {
     Types {
         #[arg(short, long)]
         input: Vec<String>,
@@ -62,7 +62,7 @@ fn format_code(rust_code: String) -> String {
     formatted_code.to_string()
 }
 
-pub async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeError> {
+pub(crate) async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeError> {
     match command {
         CodeGen::Operations { input, output } => {
             let generated_operation_definitions =

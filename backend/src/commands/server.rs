@@ -11,7 +11,7 @@ use haste_jwt::claims::SubscriptionTier;
 use haste_server::{config::ServerConfig, server};
 
 #[derive(Clone, Debug, ValueEnum)]
-pub enum UserSubscriptionChoice {
+pub(crate) enum UserSubscriptionChoice {
     Free,
     Professional,
     Team,
@@ -30,14 +30,14 @@ impl From<UserSubscriptionChoice> for SubscriptionTier {
 }
 
 #[derive(Subcommand, Debug)]
-pub enum ServerCommands {
+pub(crate) enum ServerCommands {
     Start {
         #[arg(short, long)]
         port: Option<u16>,
     },
 }
 
-pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeError> {
+pub(crate) async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeError> {
     let config: ServerConfig = Figment::new()
         .merge(Toml::file("haste.toml"))
         .merge(Env::prefixed("HASTE_"))

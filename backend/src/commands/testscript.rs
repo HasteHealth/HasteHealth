@@ -12,7 +12,7 @@ use tokio::{sync::Mutex, task::JoinSet};
 use tracing::info;
 
 #[derive(Subcommand)]
-pub enum TestScriptCommands {
+pub(crate) enum TestScriptCommands {
     Run {
         #[arg(short, long)]
         input: Vec<String>,
@@ -67,7 +67,7 @@ fn load_testscript_files(path: &Path) -> Vec<TestScript> {
     testscripts
 }
 
-pub async fn testscript_commands(
+pub(crate) async fn testscript_commands(
     state: Arc<Mutex<CLIState>>,
     command: &TestScriptCommands,
 ) -> Result<(), OperationOutcomeError> {

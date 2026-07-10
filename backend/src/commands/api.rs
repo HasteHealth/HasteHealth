@@ -16,7 +16,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 #[derive(Subcommand, Debug)]
-pub enum ApiCommands {
+pub(crate) enum ApiCommands {
     Create {
         #[arg(short, long)]
         data: Option<String>,
@@ -183,7 +183,7 @@ async fn derive_resource_data_arg_file_arg_or_stdin<Type: serde::de::Deserialize
     }
 }
 
-pub async fn api_commands(
+pub(crate) async fn api_commands(
     state: Arc<Mutex<CLIState>>,
     command: &ApiCommands,
 ) -> Result<(), OperationOutcomeError> {

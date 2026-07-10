@@ -10,12 +10,12 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_worker::{search_indexing, traits::Worker as _};
 
 #[derive(Subcommand, Debug)]
-pub enum WorkerCommands {
+pub(crate) enum WorkerCommands {
     Worker,
     WalWorker,
 }
 
-pub async fn worker(command: &Option<WorkerCommands>) -> Result<(), OperationOutcomeError> {
+pub(crate) async fn worker(command: &Option<WorkerCommands>) -> Result<(), OperationOutcomeError> {
     match command {
         None | Some(WorkerCommands::Worker) => {
             let config: Arc<search_indexing::WorkerEnvironment> = Arc::new(

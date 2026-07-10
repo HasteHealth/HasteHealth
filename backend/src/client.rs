@@ -151,7 +151,7 @@ async fn config_to_fhir_http_state(
     Ok(http_state)
 }
 
-pub async fn fhir_client(
+pub(crate) async fn fhir_client(
     state: Arc<Mutex<CLIState>>,
 ) -> Result<Arc<FHIRHttpClient<()>>, OperationOutcomeError> {
     let http_state = config_to_fhir_http_state(state).await?;

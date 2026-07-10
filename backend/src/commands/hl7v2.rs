@@ -13,7 +13,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 #[derive(Subcommand)]
-pub enum HL7v2Commands {
+pub(crate) enum HL7v2Commands {
     Receiver {
         #[arg(short, long)]
         address: String,
@@ -32,7 +32,7 @@ pub enum HL7v2Commands {
     },
 }
 
-pub async fn hl7v2(
+pub(crate) async fn hl7v2(
     state: Arc<Mutex<CLIState>>,
     command: &HL7v2Commands,
 ) -> Result<(), OperationOutcomeError> {

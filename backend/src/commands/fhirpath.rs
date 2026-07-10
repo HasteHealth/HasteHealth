@@ -22,7 +22,7 @@ fn parse_fhir_data() -> Result<Resource, OperationOutcomeError> {
     Ok(resource)
 }
 
-pub async fn fhirpath(fhirpath: &str) -> Result<(), OperationOutcomeError> {
+pub(crate) async fn fhirpath(fhirpath: &str) -> Result<(), OperationOutcomeError> {
     let data = parse_fhir_data()?;
     let engine = haste_fhirpath::FPEngine::new();
 

@@ -88,14 +88,14 @@ static CONFIG_LOCATION: LazyLock<PathBuf> = LazyLock::new(|| {
     config_dir.join("config.toml")
 });
 
-pub struct CLIState {
+struct CLIState {
     config: CLIConfiguration,
     access_token: Option<String>,
     well_known_document: Option<WellKnownDiscoveryDocument>,
 }
 
 impl CLIState {
-    pub fn new(config: CLIConfiguration) -> Self {
+    fn new(config: CLIConfiguration) -> Self {
         CLIState {
             config,
             access_token: None,

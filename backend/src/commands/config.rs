@@ -9,13 +9,13 @@ use std::{path::PathBuf, sync::Arc};
 use tokio::sync::Mutex;
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct CLIConfiguration {
+pub(crate) struct CLIConfiguration {
     pub active_profile: Option<String>,
     pub profiles: Vec<Profile>,
 }
 
 impl CLIConfiguration {
-    pub fn current_profile(&self) -> Option<&Profile> {
+    pub(crate) fn current_profile(&self) -> Option<&Profile> {
         if let Some(active_profile_id) = self.active_profile.as_ref() {
             self.profiles.iter().find(|p| &p.name == active_profile_id)
         } else {
@@ -34,15 +34,15 @@ impl Default for CLIConfiguration {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Profile {
-    pub name: String,
-    pub r4_url: String,
-    pub oidc_discovery_uri: String,
-    pub auth: ProfileAuth,
+pub(crate) struct Profile {
+    pub(crate) name: String,
+    pub(crate) r4_url: String,
+    pub(crate) oidc_discovery_uri: String,
+    pub(crate) auth: ProfileAuth,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum ProfileAuth {
+pub(crate) enum ProfileAuth {
     ClientCredentails {
         client_id: String,
         client_secret: String,
@@ -51,7 +51,7 @@ pub enum ProfileAuth {
 }
 
 #[derive(Subcommand, Debug)]
-pub enum ConfigCommands {
+pub(crate) enum ConfigCommands {
     ShowProfile,
     CreateProfile {
         #[arg(short, long)]
@@ -101,7 +101,7 @@ fn read_existing_config(location: &PathBuf) -> Result<CLIConfiguration, Operatio
     Ok(config)
 }
 
-pub fn load_config(location: &PathBuf) -> CLIConfiguration {
+pub(crate) fn load_config(location: &PathBuf) -> CLIConfiguration {
     let config: Result<CLIConfiguration, OperationOutcomeError> = read_existing_config(location);
 
     if let Ok(config) = config {
@@ -125,7 +125,7 @@ pub fn load_config(location: &PathBuf) -> CLIConfiguration {
     }
 }
 
-pub async fn config(
+pub(crate) async fn config(
     state: &Arc<Mutex<CLIState>>,
     command: &ConfigCommands,
 ) -> Result<(), OperationOutcomeError> {

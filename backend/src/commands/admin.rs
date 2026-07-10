@@ -29,7 +29,7 @@ use haste_server::{
 use std::sync::Arc;
 
 #[derive(Clone, Debug, ValueEnum)]
-pub enum UserSubscriptionChoice {
+pub(crate) enum UserSubscriptionChoice {
     Free,
     Professional,
     Team,
@@ -48,7 +48,7 @@ impl From<UserSubscriptionChoice> for SubscriptionTier {
 }
 
 #[derive(Subcommand, Debug)]
-pub enum ClientCommands {
+pub(crate) enum ClientCommands {
     Create {
         #[arg(short, long)]
         id: String,
@@ -62,7 +62,7 @@ pub enum ClientCommands {
 }
 
 #[derive(Subcommand, Debug)]
-pub enum AdminCommands {
+pub(crate) enum AdminCommands {
     Tenant {
         #[command(subcommand)]
         command: TenantCommands,
@@ -85,7 +85,7 @@ pub enum AdminCommands {
 }
 
 #[derive(Subcommand, Debug)]
-pub enum MigrationCommands {
+pub(crate) enum MigrationCommands {
     Artifacts {},
     ResetArtifacts {},
     Repo {},
@@ -94,7 +94,7 @@ pub enum MigrationCommands {
 }
 
 #[derive(Subcommand, Debug)]
-pub enum TenantCommands {
+pub(crate) enum TenantCommands {
     Create {
         #[arg(short, long)]
         id: String,
@@ -108,7 +108,7 @@ pub enum TenantCommands {
 }
 
 #[derive(Subcommand, Debug)]
-pub enum UserCommands {
+pub(crate) enum UserCommands {
     Create {
         #[arg(short, long)]
         email: String,
@@ -143,7 +143,7 @@ async fn migrate_artifacts(config: Arc<ServerConfig>) -> Result<(), OperationOut
     Ok(())
 }
 
-pub async fn admin(command: &AdminCommands) -> Result<(), OperationOutcomeError> {
+pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcomeError> {
     let config: Arc<ServerConfig> = Arc::new(
         Figment::new()
             .merge(Toml::file("haste.toml"))
