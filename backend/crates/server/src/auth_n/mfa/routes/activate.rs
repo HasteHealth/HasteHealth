@@ -38,7 +38,7 @@ pub async fn activate_get<
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
-    let Some(user) = session::user::get_user(&current_session)
+    let Some(_user) = session::user::get_user(&current_session)
         .await
         .map_err(|_e| {
             OperationOutcomeError::fatal(
@@ -53,7 +53,7 @@ pub async fn activate_get<
         ));
     };
 
-    let Some(user_mfa_credential) =
+    let Some(_user_mfa_credential) =
         TenantModelAdmin::<UserMFACredentialCreate, UserMFACredential, _, _, _>::read(
             state.repo.as_ref(),
             &tenant,

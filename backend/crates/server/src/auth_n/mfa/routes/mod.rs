@@ -19,5 +19,5 @@ pub fn create_router<
     Router::new()
         .typed_post(create::create_post)
         .typed_get(activate::activate_get)
-        .typed_post(activate::register_post)
+        .typed_post(activate::activate_post)
 }
