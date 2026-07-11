@@ -22,7 +22,7 @@ use tower_sessions::Session;
 
 use crate::{auth_n::session, extract::path_tenant::TenantIdentifier, services::ServerState};
 
-pub fn redirect_to_registration(
+pub fn redirect_to_mfa_activation(
     uri: &OriginalUri,
     user_mfa_credential: &UserMFACredential,
     replace_path: &str,
@@ -127,7 +127,7 @@ pub async fn create_post<
     .await?;
 
     let authorization_redirect =
-        Redirect::to(&(redirect_to_registration(&uri, &user_mfa_credential, "/create")));
+        Redirect::to(&(redirect_to_mfa_activation(&uri, &user_mfa_credential, "/create")));
 
     Ok(authorization_redirect.into_response())
 }
