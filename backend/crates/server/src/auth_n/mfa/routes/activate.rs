@@ -110,9 +110,9 @@ pub async fn activate_get<
 }
 
 #[derive(TypedPath)]
-#[typed_path("/register")]
-pub struct MFARegisterPOST;
+#[typed_path("/activate")]
+pub struct MFAActivatePOST;
 
-pub async fn register_post(_: MFARegisterPOST) -> Result<Response, OperationOutcomeError> {
-    Ok((axum::http::StatusCode::OK, "MFA registration successful").into_response())
+pub async fn activate_post(_: MFAActivatePOST) -> Result<Response, OperationOutcomeError> {
+    Ok((axum::http::StatusCode::OK, "MFA activation successful").into_response())
 }
