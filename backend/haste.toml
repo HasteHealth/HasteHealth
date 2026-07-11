@@ -23,6 +23,7 @@ audit_enabled = false
 max_credentials_per_user = 1
 
 [security.encryption]
+type = "environment"
 prefix = "HASTE_SECRET_"
 aes_key = "AES_KEY"
 certification_key = "CERTIFICATE_KEY"
