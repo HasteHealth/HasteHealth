@@ -197,7 +197,7 @@ impl Default for SecurityConfig {
 impl Default for MFAConfig {
     fn default() -> Self {
         Self {
-            max_credentials_per_user: 3,
+            max_credentials_per_user: 1,
         }
     }
 }

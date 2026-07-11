@@ -18,6 +18,6 @@ pub fn create_router<
 ) -> Router<Arc<ServerState<Repo, Search, Terminology>>> {
     Router::new()
         .typed_post(create::create_post)
-        .typed_get(register::register_get)
+        .typed_get(register::activate_get)
         .typed_post(register::register_post)
 }

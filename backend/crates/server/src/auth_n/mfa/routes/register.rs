@@ -20,20 +20,20 @@ use tower_sessions::Session;
 use crate::{auth_n::session, extract::path_tenant::TenantIdentifier, services::ServerState};
 
 #[derive(TypedPath, Deserialize)]
-#[typed_path("/register/{id}")]
-pub struct MFARegisterGET {
+#[typed_path("/activate/{id}")]
+pub struct MFAActivateGET {
     pub id: String,
 }
 
 // Sends a QR code image for a MFA registration request. The QR code is generated based on the user's email and a secret key,
 // which is used for TOTP (Time-based One-Time Password) authentication.
 // To activate the MR user most enter code which flips the db table to active.
-pub async fn register_get<
+pub async fn activate_get<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    MFARegisterGET { id }: MFARegisterGET,
+    MFAActivateGET { id }: MFAActivateGET,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,

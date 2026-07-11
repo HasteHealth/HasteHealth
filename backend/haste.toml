@@ -20,7 +20,7 @@ audit_enabled = false
 [security]
 
 [security.mfa]
-max_credentials_per_user = 3
+max_credentials_per_user = 1
 
 [security.encryption]
 prefix = "HASTE_SECRET_"
