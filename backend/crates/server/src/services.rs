@@ -1,4 +1,4 @@
-use crate::config::{SearchConfig, ServerConfig};
+use crate::config::{SearchConfig, SecretProviderConfig, ServerConfig};
 use crate::fhir_client::{FHIRServerClient, ServerClientConfig};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -70,6 +70,7 @@ pub struct ServerState<
     pub repo: Arc<Repo>,
     pub rate_limit: Arc<dyn haste_rate_limit::RateLimit>,
     pub fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
+    pub secret_provider: Arc<dyn haste_encryption::SecretsProvider + Send + Sync>,
     pub config: Arc<crate::config::ServerConfig>,
 }
 
@@ -87,6 +88,7 @@ impl<
                 search: self.search.clone(),
                 repo: tx_repo.clone(),
                 rate_limit: self.rate_limit.clone(),
+                secret_provider: self.secret_provider.clone(),
                 fhir_client: Arc::new(FHIRServerClient::new(ServerClientConfig::new(
                     tx_repo,
                     self.search.clone(),
@@ -175,12 +177,25 @@ pub async fn create_services(
     ));
 
     let shared_state = Arc::new(ServerState {
-        config,
+        config: config.clone(),
         rate_limit: pool.clone(),
         repo: pool,
         terminology: terminology,
         search: search_engine,
         fhir_client,
+        secret_provider: match &config.security.encryption {
+            SecretProviderConfig::Environment { prefix } => haste_encryption::get_secrets_provider(
+                haste_encryption::SecretsProviderKind::Environment {
+                    prefix: prefix.clone(),
+                },
+            ),
+            _ => {
+                return Err(OperationOutcomeError::fatal(
+                    IssueType::Exception(None),
+                    "Only environment encryption is supported for now.".to_string(),
+                ));
+            }
+        },
     });
 
     Ok(shared_state)

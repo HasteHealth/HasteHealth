@@ -31,8 +31,13 @@ pub trait SecretsProvider: Sync + Send {
     ) -> Pin<Box<dyn Future<Output = Result<Secret, OperationOutcomeError>> + Send + 'a>>;
 }
 
+pub struct EncryptionResult {
+    pub nonce: Vec<u8>,
+    pub ciphertext: Vec<u8>,
+}
+
 /// Symmetric encryption/decryption of arbitrary byte payloads.
 pub trait Encryptor: Sync + Send {
-    fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, OperationOutcomeError>;
-    fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, OperationOutcomeError>;
+    fn encrypt(&self, plaintext: &[u8]) -> Result<EncryptionResult, OperationOutcomeError>;
+    fn decrypt(&self, ciphertext: &EncryptionResult) -> Result<Vec<u8>, OperationOutcomeError>;
 }

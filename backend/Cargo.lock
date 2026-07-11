@@ -3096,6 +3096,7 @@ dependencies = [
  "email_address",
  "haste-access-control",
  "haste-artifacts",
+ "haste-encryption",
  "haste-fhir-client",
  "haste-fhir-generated-ops",
  "haste-fhir-model",

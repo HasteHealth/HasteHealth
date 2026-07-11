@@ -1,17 +1,72 @@
-use axum::response::{IntoResponse as _, Response};
-use axum_extra::routing::TypedPath;
+use axum::{
+    extract::State,
+    response::{IntoResponse as _, Response},
+};
+use axum_extra::{extract::Cached, routing::TypedPath};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::SearchEngine;
+use haste_fhir_terminology::FHIRTerminology;
+use haste_repository::{
+    Repository,
+    admin::TenantModelAdmin,
+    types::mfa::{UserMFACredential, UserMFACredentialCreate},
+};
 use maud::html;
+use serde::Deserialize;
+use std::sync::Arc;
+use tower_sessions::Session;
 
-#[derive(TypedPath)]
-#[typed_path("/register")]
-pub struct MFARegisterGET;
+use crate::{auth_n::session, extract::path_tenant::TenantIdentifier, services::ServerState};
+
+#[derive(TypedPath, Deserialize)]
+#[typed_path("/register/{id}")]
+pub struct MFARegisterGET {
+    pub id: String,
+}
 
 // Sends a QR code image for a MFA registration request. The QR code is generated based on the user's email and a secret key,
 // which is used for TOTP (Time-based One-Time Password) authentication.
 // To activate the MR user most enter code which flips the db table to active.
-pub async fn register_get(_: MFARegisterGET) -> Result<Response, OperationOutcomeError> {
+pub async fn register_get<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
+    MFARegisterGET { id }: MFARegisterGET,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
+    Cached(current_session): Cached<Session>,
+) -> Result<Response, OperationOutcomeError> {
+    let Some(user) = session::user::get_user(&current_session)
+        .await
+        .map_err(|_e| {
+            OperationOutcomeError::fatal(
+                IssueType::Exception(None),
+                "Session returned an error when retrieving current user.".to_string(),
+            )
+        })?
+    else {
+        return Err(OperationOutcomeError::error(
+            IssueType::Security(None),
+            "User is not logged in.".to_string(),
+        ));
+    };
+
+    let Some(user_mfa_credential) =
+        TenantModelAdmin::<UserMFACredentialCreate, UserMFACredential, _, _, _>::read(
+            state.repo.as_ref(),
+            &tenant,
+            &id,
+        )
+        .await?
+    else {
+        return Err(OperationOutcomeError::error(
+            IssueType::NotFound(None),
+            "MFA registration credential not found".to_string(),
+        ));
+    };
+
     let secret = totp_rs::Secret::default().to_bytes().map_err(|e| {
         tracing::error!(error = ?e);
 
@@ -20,6 +75,7 @@ pub async fn register_get(_: MFARegisterGET) -> Result<Response, OperationOutcom
             "Could not generate secret for MFA".to_string(),
         )
     })?;
+
     let totp = totp_rs::TOTP::new(
         totp_rs::Algorithm::SHA1,
         6,

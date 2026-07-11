@@ -6,6 +6,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
 use std::sync::Arc;
 
+mod create;
 mod register;
 
 pub fn create_router<
@@ -16,6 +17,7 @@ pub fn create_router<
     _state: Arc<ServerState<Repo, Search, Terminology>>,
 ) -> Router<Arc<ServerState<Repo, Search, Terminology>>> {
     Router::new()
+        .typed_post(create::create_post)
         .typed_get(register::register_get)
         .typed_post(register::register_post)
 }

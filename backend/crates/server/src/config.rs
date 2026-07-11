@@ -19,6 +19,22 @@ pub struct ServerConfig {
     pub rate_limits: RateLimitsConfig,
     pub max_request_body_size: usize,
     pub monitoring: MonitoringConfig,
+    pub security: SecurityConfig,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(default)]
+pub struct SecurityConfig {
+    pub mfa: MFAConfig,
+    pub encryption: SecretProviderConfig,
+    pub aes_key: Option<String>,
+    pub certification_key: Option<String>,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(default)]
+pub struct MFAConfig {
+    pub max_credentials_per_user: usize,
 }
 
 #[derive(Clone, Deserialize, Serialize)]
@@ -26,6 +42,14 @@ pub struct ServerConfig {
 pub struct MonitoringConfig {
     pub audit_enabled: bool,
     pub ip_source: IpSource,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SecretProviderConfig {
+    Environment { prefix: Option<String> },
+    GCP { project_id: String },
+    AWS { region: String },
 }
 
 #[derive(Clone, Deserialize, Serialize)]
@@ -105,9 +129,10 @@ impl Default for ServerConfig {
             repo: RepoConfig::default(),
             search: SearchConfig::default(),
             email: None,
-            monitoring: MonitoringConfig::default(),
             max_request_body_size: 4 * 1024 * 1024,
             rate_limits: RateLimitsConfig::default(),
+            monitoring: MonitoringConfig::default(),
+            security: SecurityConfig::default(),
         }
     }
 }
@@ -154,6 +179,33 @@ impl Default for MonitoringConfig {
         Self {
             audit_enabled: false,
             ip_source: IpSource::default(),
+        }
+    }
+}
+
+impl Default for SecurityConfig {
+    fn default() -> Self {
+        Self {
+            mfa: MFAConfig::default(),
+            encryption: SecretProviderConfig::default(),
+            aes_key: None,
+            certification_key: None,
+        }
+    }
+}
+
+impl Default for MFAConfig {
+    fn default() -> Self {
+        Self {
+            max_credentials_per_user: 3,
+        }
+    }
+}
+
+impl Default for SecretProviderConfig {
+    fn default() -> Self {
+        Self::Environment {
+            prefix: Some("HASTE_SECRET_".to_string()),
         }
     }
 }
