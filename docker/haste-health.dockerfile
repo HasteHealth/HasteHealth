@@ -1,4 +1,4 @@
-FROM rust:1.96.0-bookworm AS stage
+FROM rust:1.97.0-bookworm AS stage
 
 RUN apt update && apt install -y openssl pkg-config libssl-dev && apt clean
 
