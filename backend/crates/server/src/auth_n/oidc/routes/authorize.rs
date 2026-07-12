@@ -9,7 +9,10 @@ use crate::{
         },
         session,
     },
-    extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
+    extract::{
+        csrf_token::CSRFToken,
+        path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
+    },
     services::ServerState,
     ui::pages,
 };
@@ -107,6 +110,7 @@ pub async fn authorize<
     State(app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Extension(oidc_params): Extension<OIDCParameters>,
+    CSRFToken(csrf_token): CSRFToken,
     Cached(current_session): Cached<Session>,
 ) -> Result<Response, OIDCError> {
     let state = oidc_params.parameters.get("state").ok_or_else(|| {
@@ -265,6 +269,7 @@ pub async fn authorize<
             &project_resource,
             &client_app,
             &ScopeForm {
+                csrf_token: csrf_token,
                 client_id: client_app
                     .id
                     .as_ref()

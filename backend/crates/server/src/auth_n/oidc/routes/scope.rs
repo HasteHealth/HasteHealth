@@ -1,6 +1,4 @@
 use crate::{
-    // auth_n::oidc::extract::client_app::OIDCClientApplication,
-    // extract::path_tenant::{Project, Tenant},
     auth_n::{
         oidc::{
             error::{OIDCError, OIDCErrorCode},
@@ -9,7 +7,10 @@ use crate::{
         },
         session,
     },
-    extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
+    extract::{
+        csrf_token::CSRFToken,
+        path_tenant::{ProjectIdentifier, TenantIdentifier},
+    },
     services::ServerState,
 };
 use axum::{
@@ -36,6 +37,7 @@ pub struct ScopePost;
 
 #[derive(Deserialize, Debug)]
 pub struct ScopeForm {
+    pub csrf_token: String,
     pub client_id: String,
     pub response_type: String,
     pub state: String,
@@ -70,6 +72,7 @@ pub async fn scope_post<
 >(
     _: ScopePost,
     _uri: OriginalUri,
+    CSRFToken(csrf_token): CSRFToken,
     State(app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
     OIDCClientApplication(client_app): OIDCClientApplication,
@@ -77,6 +80,14 @@ pub async fn scope_post<
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Form(scope_data): Form<ScopeForm>,
 ) -> Result<Response, OIDCError> {
+    if csrf_token != scope_data.csrf_token {
+        return Err(OIDCError::new(
+            OIDCErrorCode::InvalidRequest,
+            Some("Invalid CSRF Token.".to_string()),
+            Some(scope_data.redirect_uri.clone()),
+        ));
+    }
+
     let user = session::user::get_user(&current_session)
         .await
         .map_err(|_| {

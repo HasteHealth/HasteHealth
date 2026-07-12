@@ -5,6 +5,7 @@ use crate::{
         },
         session,
     },
+    extract::csrf_token::CSRFToken,
     extract::path_tenant::{Project, TenantIdentifier},
     fhir_client::ServerCTX,
     services::ServerState,
@@ -19,7 +20,7 @@ use axum_extra::{extract::Cached, routing::TypedPath};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, BundleEntryRequest},
-    terminology::HttpVerb,
+    terminology::{HttpVerb, IssueType},
     types::FHIRUri,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -49,12 +50,14 @@ pub async fn login_get<
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
     OIDCClientApplication(client_app): OIDCClientApplication,
+    CSRFToken(csrf_token): CSRFToken,
     uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
     let idps = resolve_identity_providers(&state, tenant.clone(), &project_resource).await?;
     let response = pages::login::login_form_html(
         &tenant,
         &project_resource,
+        &csrf_token,
         idps.as_ref(),
         &client_app,
         &uri.to_string(),
@@ -66,6 +69,7 @@ pub async fn login_get<
 
 #[derive(Deserialize)]
 pub struct LoginForm {
+    pub csrf_token: String,
     pub email: String,
     pub password: String,
 }
@@ -149,8 +153,16 @@ pub async fn login_post<
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
     OIDCClientApplication(client_app): OIDCClientApplication,
+    CSRFToken(csrf_token): CSRFToken,
     Form(login_data): Form<LoginForm>,
 ) -> Result<Response, OperationOutcomeError> {
+    if login_data.csrf_token != csrf_token {
+        return Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Invalid CSRF Token".to_string(),
+        ));
+    }
+
     let login_result = state
         .repo
         .login(
@@ -176,6 +188,7 @@ pub async fn login_post<
             Ok(pages::login::login_form_html(
                 &tenant,
                 &project_resource,
+                &csrf_token,
                 idps.as_ref(),
                 &client_app,
                 &uri.to_string(),

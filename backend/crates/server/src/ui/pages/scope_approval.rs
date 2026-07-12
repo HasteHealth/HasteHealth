@@ -62,6 +62,7 @@ pub fn scope_approval_html(
                     }
                     div class="justify-center items-center flex space-x-4" {
                         form action=(scope_route_str) method="POST" {
+                            input readonly="" class="hidden" type="text" name="csrf_token" value=(authorization_info.csrf_token) {}
                             input readonly="" class="hidden" type="text" name="client_id" value=(authorization_info.client_id) {}
                             input readonly="" class="hidden" type="text" name="response_type" value=(authorization_info.response_type) {}
                             input readonly="" class="hidden" type="text" name="state" value=(authorization_info.state)  {}
@@ -76,6 +77,7 @@ pub fn scope_approval_html(
                         }
 
                         form action=(scope_route_str) method="POST" {
+                            input readonly="" class="hidden" type="text" name="csrf_token" value=(authorization_info.csrf_token) {}
                             input readonly="" class="hidden" type="text" name="client_id" value=(authorization_info.client_id) {}
                             input readonly="" class="hidden" type="text" name="response_type" value=(authorization_info.response_type) {}
                             input readonly="" class="hidden" type="text" name="state" value=(authorization_info.state)  {}

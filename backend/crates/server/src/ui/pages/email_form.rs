@@ -9,6 +9,7 @@ pub struct EmailInformation {
 pub fn email_form_html(
     tenant: &TenantId,
     project: Option<&haste_fhir_model::r4::generated::resources::Project>,
+    csrf_token: &str,
     email_information: &EmailInformation,
 ) -> Markup {
     let project_name = project
@@ -20,6 +21,7 @@ pub fn email_form_html(
         (banner(tenant.as_ref(), project_name))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow  md:mt-0  xl:p-0 " {
             form class="space-y-4 md:space-y-6" action=(email_information.continue_url) method="POST" {
+                input type="hidden" name="csrf_token" value=(csrf_token) {}
                 div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                     div {
                         label for="email" class="block mb-2 text-sm font-medium text-slate-600 dark:text-white" {

@@ -3,7 +3,10 @@ use crate::{
         email::{Message, send_password_reset_email},
         oidc::{hardcoded_clients::admin_app, utilities::set_user_password},
     },
-    extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
+    extract::{
+        csrf_token::CSRFToken,
+        path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
+    },
     services::ServerState,
     ui::pages::{self, message::message_html},
 };
@@ -36,11 +39,13 @@ pub async fn password_reset_initiate_get(
     _: PasswordResetInitiate,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(Project(project)): Cached<Project>,
+    CSRFToken(csrf_token): CSRFToken,
     uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
     let response = pages::email_form::email_form_html(
         &tenant,
         Some(&project),
+        &csrf_token,
         &pages::email_form::EmailInformation {
             continue_url: uri.path().to_string(),
         },
@@ -52,6 +57,7 @@ pub async fn password_reset_initiate_get(
 #[allow(unused)]
 #[derive(Deserialize)]
 pub struct PasswordResetFormInitiate {
+    pub csrf_token: String,
     pub email: String,
 }
 
@@ -65,8 +71,16 @@ pub async fn password_reset_initiate_post<
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     project_resource: Project,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
+    CSRFToken(csrf_token): CSRFToken,
     form: axum::extract::Form<PasswordResetFormInitiate>,
 ) -> Result<Markup, OperationOutcomeError> {
+    if form.csrf_token != csrf_token {
+        return Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Invalid CSRF Token".to_string(),
+        ));
+    }
+
     let user_search_results = TenantModelAdmin::search(
         &*state.repo,
         &tenant,
@@ -115,6 +129,7 @@ pub async fn password_reset_verify_get<
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
+    CSRFToken(csrf_token): CSRFToken,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Markup, OperationOutcomeError> {
     if let Some(code) = ProjectModelAdmin::<CreateAuthorizationCode, _, _, _, _>::read(
@@ -140,6 +155,7 @@ pub async fn password_reset_verify_get<
                     "Set your password"}
                 form class="space-y-4 md:space-y-6" action=(uri.path().to_string()) method="POST"{
                     input type="hidden" id="code" name="code" value=(query.code) {}
+                    input type="hidden" name="csrf_token" value=(csrf_token) {}
                     label for="password" class="block mb-2 text-sm font-medium text-gray-900"{"Enter your Password"}
                     input type="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5" required="" name="password" {}
                     label for="password_confirm" class="block mb-2 text-sm font-medium text-gray-900"  {"Confirm your Password"}
@@ -158,6 +174,7 @@ pub async fn password_reset_verify_get<
 
 #[derive(Deserialize)]
 pub struct PasswordVerifyPOSTBODY {
+    csrf_token: String,
     code: String,
     password: String,
     password_confirm: String,
@@ -173,8 +190,16 @@ pub async fn password_reset_verify_post<
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
+    CSRFToken(csrf_token): CSRFToken,
     Form(body): Form<PasswordVerifyPOSTBODY>,
 ) -> Result<Markup, OperationOutcomeError> {
+    if body.csrf_token != csrf_token {
+        return Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Invalid CSRF Token".to_string(),
+        ));
+    }
+
     if body.password != body.password_confirm {
         return Err(OperationOutcomeError::error(
             IssueType::Invalid(None),

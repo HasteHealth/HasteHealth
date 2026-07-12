@@ -10,6 +10,7 @@ use std::borrow::Cow;
 pub fn login_form_html(
     tenant: &TenantId,
     project: &haste_fhir_model::r4::generated::resources::Project,
+    csrf_token: &str,
     identity_providers: Option<&Vec<IdentityProvider>>,
     client_app: &ClientApplication,
     login_route: &str,
@@ -56,6 +57,7 @@ pub fn login_form_html(
                 }
                 h1 class="text-xl font-bold leading-tight tracking-tight text-slate-900 md:text-2xl " { "Sign in to " span class="underline text-slate-500 " {(client_name)} }
                 form class="space-y-4 md:space-y-6" action=(login_route) method="POST" {
+                    input type="hidden" name="csrf_token" value=(csrf_token) {}
                     div {
                         label for="email" class="block mb-2 text-sm font-medium text-slate-600 " { "Your email" }
                         input type="email" id="email" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5 " placeholder="name@company.com" required name="email" value="" {}
