@@ -1,5 +1,6 @@
 use crate::{
     auth_n::email::send_email,
+    extract::csrf_token::CSRFToken,
     services::ServerState,
     ui::{
         components::{banner, page_html},
@@ -32,7 +33,10 @@ use std::sync::Arc;
 #[typed_path("/login")]
 pub struct EmailSelect;
 
-pub async fn global_login_get(_: EmailSelect) -> Result<Response, OperationOutcomeError> {
+pub async fn global_login_get(
+    _: EmailSelect,
+    CSRFToken(csrf_token): CSRFToken,
+) -> Result<Response, OperationOutcomeError> {
     let global_login_post_uri = "/auth/login";
     let signup_url = "/auth/signup";
 
@@ -46,6 +50,7 @@ pub async fn global_login_get(_: EmailSelect) -> Result<Response, OperationOutco
                                 "Enter your email"
                             }
                             input type="email" id="email" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="name@company.com" required="" name="email" {}
+                            input type="hidden" name="csrf_token" value=(csrf_token) {}
                         }
                         button type="submit" class="cursor-pointer w-full text-white bg-brand-600 hover:bg-brand-500 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" {
                             "Continue"
@@ -61,6 +66,7 @@ pub async fn global_login_get(_: EmailSelect) -> Result<Response, OperationOutco
 
 #[derive(Deserialize)]
 pub struct GlobalLoginForm {
+    pub csrf_token: String,
     pub email: EmailAddress,
 }
 
@@ -70,9 +76,17 @@ pub async fn global_login_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: EmailSelect,
+    CSRFToken(csrf_token): CSRFToken,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Form(login_data): Form<GlobalLoginForm>,
 ) -> Result<Response, OperationOutcomeError> {
+    if login_data.csrf_token != csrf_token {
+        return Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Invalid CSRF Token".to_string(),
+        ));
+    }
+
     let found_users = SystemAdmin::<User, UserSearchClauses>::search(
         state.repo.as_ref(),
         &UserSearchClauses {
