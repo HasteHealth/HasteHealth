@@ -1,5 +1,6 @@
 use crate::{
     auth_n::email,
+    extract::csrf_token::CSRFToken,
     services::ServerState,
     tenants::create_tenant,
     ui::{
@@ -12,7 +13,7 @@ use axum::{extract::State, response::Response};
 use axum_extra::routing::TypedPath;
 use email_address::EmailAddress;
 use haste_fhir_model::r4::generated::{
-    terminology,
+    terminology::{self, IssueType},
     types::{FHIRString, HumanName},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -37,12 +38,14 @@ pub async fn global_signup_get<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: GlobalSignupGet,
+    CSRFToken(csrf_token): CSRFToken,
     State(_app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Response, OperationOutcomeError> {
     Ok(page_html(html! {
         (banner("Sign up", None))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow  md:mt-0  xl:p-0 " {
             form class="space-y-4 p-6 sm:p-8" action=("/auth/signup") method="POST" {
+                input type="hidden" name="csrf_token" value=(csrf_token) {}
                 div class="grid grid-cols-4 gap-1 space-y-1" {                
                     div class="col-span-4" {
                         label for="email" class="block text-sm font-medium text-slate-600 dark:text-white" {
@@ -73,6 +76,7 @@ pub async fn global_signup_get<
 
 #[derive(serde::Deserialize)]
 pub struct GlobalSignupForm {
+    pub csrf_token: String,
     pub email: EmailAddress,
     #[serde(rename = "first-name")]
     pub first_name: String,
@@ -143,9 +147,17 @@ pub async fn global_signup_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: GlobalSignupPost,
+    CSRFToken(csrf_token): CSRFToken,
     State(app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Form(form): Form<GlobalSignupForm>,
 ) -> Result<Response, OperationOutcomeError> {
+    if form.csrf_token != csrf_token {
+        return Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Invalid CSRF Token".to_string(),
+        ));
+    }
+
     let user = create_or_retrieve_user_tenant(app_state.as_ref(), &form).await?;
 
     email::send_password_reset_email(

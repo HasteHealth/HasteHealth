@@ -1,4 +1,5 @@
 use crate::auth_n::oidc::routes::route_string::tenant_route_string;
+use crate::extract::csrf_token::CSRFToken;
 use crate::services::ServerState;
 use crate::ui::components::{banner, page_html};
 use axum::response::{IntoResponse, Redirect, Response};
@@ -22,6 +23,7 @@ pub async fn tenant_select_get<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: TenantSelectGet,
+    CSRFToken(csrf_token): CSRFToken,
     //ClientIp(ip_address): ClientIp,
     State(_app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Response, OperationOutcomeError> {
@@ -33,6 +35,7 @@ pub async fn tenant_select_get<
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                 form class="space-y-2" action=(action_url) method="POST" {
+                    input type="hidden" name="csrf_token" value=(csrf_token) {}
                     div class="grid grid-cols-4 gap-1" {
                         div class="col-span-4" {
                             label for="tenant" class="block text-sm font-medium text-slate-600" { "Tenant" }
@@ -54,6 +57,7 @@ pub async fn tenant_select_get<
 
 #[derive(serde::Deserialize)]
 pub struct TenantSelectForm {
+    pub csrf_token: String,
     pub tenant: String,
 }
 
@@ -63,8 +67,16 @@ pub struct TenantSelectPost {}
 
 pub async fn tenant_select_post(
     _: TenantSelectPost,
+    CSRFToken(csrf_token): CSRFToken,
     Form(form): Form<TenantSelectForm>,
 ) -> Result<Response, OperationOutcomeError> {
+    if form.csrf_token != csrf_token {
+        return Err(OperationOutcomeError::error(
+            haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+            "Invalid CSRF Token".to_string(),
+        ));
+    }
+
     let tenant_id = TenantId::new(form.tenant);
     let project_select_route =
         tenant_route_string(&tenant_id).join("./auth/interactions/project-select");
