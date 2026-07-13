@@ -50,7 +50,7 @@ pub async fn create_post<
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
-    let Some(user) = session::user::get_user(&current_session)
+    let Some(user) = session::user::get_authorization_state(&current_session)
         .await
         .map_err(|_e| {
             OperationOutcomeError::fatal(

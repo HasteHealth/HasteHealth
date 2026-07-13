@@ -153,7 +153,7 @@ pub async fn authorize<
         )
     })?;
 
-    let Some(user) = session::user::get_user(&current_session)
+    let Some(user) = session::user::get_authorization_state(&current_session)
         .await
         .map_err(|_e| {
             OIDCError::new(
@@ -179,7 +179,7 @@ pub async fn authorize<
             "User '{}' is not a member of project '{}'",
             user.id, project
         );
-        session::user::clear_user(&current_session)
+        session::user::clear_authorization_state(&current_session)
             .await
             .map_err(|_e| {
                 OIDCError::new(

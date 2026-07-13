@@ -88,7 +88,7 @@ pub async fn scope_post<
         ));
     }
 
-    let user = session::user::get_user(&current_session)
+    let user = session::user::get_authorization_state(&current_session)
         .await
         .map_err(|_| {
             OIDCError::new(
