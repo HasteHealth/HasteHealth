@@ -153,7 +153,7 @@ pub async fn authorize<
         )
     })?;
 
-    let Some(user) = session::user::get_authorization_state(&current_session)
+    let completed_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
         .map_err(|_e| {
             OIDCError::new(
@@ -161,23 +161,29 @@ pub async fn authorize<
                 Some("Failed to retrieve user from session.".to_string()),
                 Some(redirect_uri.to_string()),
             )
-        })?
-    else {
-        return Err(OIDCError::new(
-            OIDCErrorCode::AccessDenied,
-            Some("User is not authenticated.".to_string()),
-            Some(redirect_uri.to_string()),
-        ));
-    };
+        })
+        .map_err(|_| {
+            OIDCError::new(
+                OIDCErrorCode::AccessDenied,
+                Some("User is not authenticated.".to_string()),
+                Some(redirect_uri.to_string()),
+            )
+        })?;
 
     // Verify the user has access to the given project.
 
-    let membership = find_membership(&*app_state.repo, &tenant, &project, &user).await?;
+    let membership = find_membership(
+        &*app_state.repo,
+        &tenant,
+        &project,
+        &completed_auth_state.user,
+    )
+    .await?;
 
-    if membership.is_none() && &user.role == &UserRole::Member {
+    if membership.is_none() && &completed_auth_state.user.role == &UserRole::Member {
         warn!(
             "User '{}' is not a member of project '{}'",
-            user.id, project
+            completed_auth_state.user.id, project
         );
         session::user::clear_authorization_state(&current_session)
             .await
@@ -240,7 +246,7 @@ pub async fn authorize<
         &project,
         &ScopeKey::new(
             ClientId::new(client_id.to_string()),
-            UserId::new(user.id.clone()),
+            UserId::new(completed_auth_state.user.id.clone()),
         ),
     )
     .await
@@ -295,7 +301,7 @@ pub async fn authorize<
             membership: membership.as_ref().map(|m| m.resource_id.clone()),
             expires_in: Duration::from_secs(60 * 5), // 5 minutes
             kind: AuthorizationCodeKind::OAuth2CodeGrant,
-            user_id: user.id,
+            user_id: completed_auth_state.user.id,
             client_id: Some(client_id.to_string()),
             pkce_code_challenge: Some(code_challenge.to_string()),
             pkce_code_challenge_method: Some(code_challenge_method),

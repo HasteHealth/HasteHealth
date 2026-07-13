@@ -28,7 +28,10 @@ use url::Url;
 use crate::{
     auth_n::{
         oidc::routes::federated::initiate::{get_idp, get_idp_session_info},
-        session,
+        session::{
+            self,
+            user::{AuthorizationStateCompleted, SessionAuthorizationState},
+        },
     },
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     fhir_client::ServerCTX,
@@ -484,7 +487,11 @@ pub async fn federated_callback<
         ));
     };
 
-    session::user::set_authorization_state(&session, &user_model).await?;
+    session::user::set_authorization_state(
+        &session,
+        &SessionAuthorizationState::Complete(AuthorizationStateCompleted { user: user_model }),
+    )
+    .await?;
 
     // Will redirect authorize_path
     Ok(Redirect::to(&idp_session_info.redirect_to))

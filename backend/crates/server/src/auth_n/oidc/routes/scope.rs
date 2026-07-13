@@ -88,7 +88,7 @@ pub async fn scope_post<
         ));
     }
 
-    let user = session::user::get_authorization_state(&current_session)
+    let completed_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
         .map_err(|_| {
             OIDCError::new(
@@ -96,8 +96,7 @@ pub async fn scope_post<
                 Some("Failed to retrieve user from session.".to_string()),
                 Some(scope_data.redirect_uri.clone()),
             )
-        })?
-        .unwrap();
+        })?;
 
     if let Some("on") = scope_data.accept.as_ref().map(String::as_str) {
         verify_requested_scope_is_subset(
@@ -117,7 +116,7 @@ pub async fn scope_post<
             &project,
             CreateScope {
                 client: ClientId::new(scope_data.client_id.clone()),
-                user_: UserId::new(user.id),
+                user_: UserId::new(completed_auth_state.user.id),
                 scope: scope_data.scope.clone(),
             },
         )

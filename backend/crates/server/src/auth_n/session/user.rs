@@ -7,12 +7,31 @@ use tower_sessions::Session;
 static AUTHORIZATION_STATE_KEY: &str = "user_authorization_state";
 
 #[derive(Deserialize, Serialize)]
+pub struct AuthorizationStateCompleted {
+    pub user: User,
+}
+
+#[derive(Deserialize, Serialize)]
 pub enum SessionAuthorizationState {
-    Complete { user: User },
+    Complete(AuthorizationStateCompleted),
     MFARequired { user: User },
     // [TODO] Enforce automatic MFA enrollment for users who have not yet set it up.
     // This will likely be a per tenant setting.
     // MFAEnrollmentRequired { user: User },
+}
+
+pub async fn get_completed_authorization_state(
+    session: &Session,
+) -> Result<AuthorizationStateCompleted, OperationOutcomeError> {
+    let authorization_state = get_authorization_state(session).await?;
+
+    match authorization_state {
+        Some(SessionAuthorizationState::Complete(completed_state)) => Ok(completed_state),
+        _ => Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Authorization state is not complete.".to_string(),
+        )),
+    }
 }
 
 pub async fn get_authorization_state(
