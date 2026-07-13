@@ -50,27 +50,21 @@ pub async fn create_post<
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
-    let Some(user) = session::user::get_authorization_state(&current_session)
+    let completed_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
         .map_err(|_e| {
-            OperationOutcomeError::fatal(
-                IssueType::Exception(None),
-                "Session returned an error when retrieving current user.".to_string(),
+            OperationOutcomeError::error(
+                IssueType::Security(None),
+                "User is not logged in.".to_string(),
             )
-        })?
-    else {
-        return Err(OperationOutcomeError::error(
-            IssueType::Security(None),
-            "User is not logged in.".to_string(),
-        ));
-    };
+        })?;
 
     let existing_mfa_credentials = TenantModelAdmin::<UserMFACredentialCreate, _, _, _, _>::search(
         state.repo.as_ref(),
         &tenant,
         &UserMFASearchClaims {
             tenant: tenant.clone(),
-            user_id: UserId::new(user.id.clone()),
+            user_id: UserId::new(completed_auth_state.user.id.clone()),
             is_active: None,
         },
     )
@@ -113,7 +107,7 @@ pub async fn create_post<
         state.repo.as_ref(),
         &tenant,
         UserMFACredentialCreate {
-            user_id: UserId::new(user.id.clone()),
+            user_id: UserId::new(completed_auth_state.user.id.clone()),
             credential_type: haste_repository::types::mfa::MFACredentialType::TOTP,
             secret_ciphertext: aes_encrypted_secret.ciphertext,
             secret_nonce: aes_encrypted_secret.nonce,

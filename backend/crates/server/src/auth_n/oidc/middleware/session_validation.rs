@@ -87,8 +87,9 @@ where
 
             let to_route = oidc_route_string(&tenant, &project, &to);
 
-            if let Ok(Some(user)) = session::user::get_authorization_state(&current_session).await
-                && user.tenant == tenant
+            if let Ok(authorization_completed_state) =
+                session::user::get_completed_authorization_state(&current_session).await
+                && authorization_completed_state.user.tenant == tenant
             {
                 let response = inner.call(request).await?;
                 Ok(response)

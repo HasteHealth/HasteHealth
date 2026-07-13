@@ -3,10 +3,15 @@ use crate::{
         oidc::{
             extract::client_app::OIDCClientApplication, routes::authorize::redirect_authorize_uri,
         },
-        session,
+        session::{
+            self,
+            user::{AuthorizationStateCompleted, SessionAuthorizationState},
+        },
     },
-    extract::csrf_token::CSRFToken,
-    extract::path_tenant::{Project, TenantIdentifier},
+    extract::{
+        csrf_token::CSRFToken,
+        path_tenant::{Project, TenantIdentifier},
+    },
     fhir_client::ServerCTX,
     services::ServerState,
     ui::pages,
@@ -176,7 +181,11 @@ pub async fn login_post<
 
     match login_result {
         LoginResult::Success { user } => {
-            session::user::set_authorization_state(&current_session, &user).await?;
+            session::user::set_authorization_state(
+                &current_session,
+                &SessionAuthorizationState::Complete(AuthorizationStateCompleted { user }),
+            )
+            .await?;
             let authorization_redirect =
                 Redirect::to(&(redirect_authorize_uri(&uri, "/interactions/login")));
 
