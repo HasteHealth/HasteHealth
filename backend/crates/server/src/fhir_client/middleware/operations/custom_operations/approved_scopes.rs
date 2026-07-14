@@ -26,7 +26,7 @@ use tower_sessions::cookie::time::format_description;
 fn format_datetime(datetime: &OffsetDateTime) -> Option<String> {
     let res = datetime
         .format(
-            &format_description::parse(
+            &format_description::parse_borrowed::<2>(
                 "[year]-[month]-[day]T[hour]:[minute]:[second][offset_hour \
          sign:mandatory]:[offset_minute]",
             )
