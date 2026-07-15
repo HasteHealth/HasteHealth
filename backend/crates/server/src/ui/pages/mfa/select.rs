@@ -12,7 +12,7 @@ fn credential_type_label(credential_type: &str) -> &str {
 }
 
 fn credential_added_label(credential: &UserMFACredential) -> Option<String> {
-    let format = format_description::parse("[year]-[month]-[day]").ok()?;
+    let format = format_description::parse_borrowed::<2>("[year]-[month]-[day]").ok()?;
     let formatted = credential.created_at.format(&format).ok()?;
 
     Some(format!("Added {formatted}"))
