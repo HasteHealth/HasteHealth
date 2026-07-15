@@ -4,7 +4,7 @@ version = "0.3.0"
 edition = "2024"
 description = "Haste Health binary."
 publish = false
-license = "GPL-3.0"
+license = "Apache-2.0"
 
 # [profile.release]
 # strip = true    # Automatically strip symbols from the binary.
@@ -55,7 +55,7 @@ members = [
 [workspace.package]
 version = "0.18.0"
 authors = ["Haste Health"]
-license = "BSD-3-Clause"
+license = "Apache-2.0"
 homepage = "https://haste.health"
 edition = "2024"
 

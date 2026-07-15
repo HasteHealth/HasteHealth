@@ -18,7 +18,7 @@
   "types": "lib/r4/types.d.ts",
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "exports": {
     "./versions": "./lib/versions.js",
     "./lib/generated/r4/types": "./lib/generated/r4/types.js",

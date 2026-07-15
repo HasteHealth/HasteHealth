@@ -20,7 +20,7 @@
   ],
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@haste-health/fhir-types": "workspace:^",
     "@types/node": "^22.20.0",

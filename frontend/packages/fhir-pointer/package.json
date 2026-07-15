@@ -17,7 +17,7 @@
   },
   "keywords": [],
   "author": "HasteHealth",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "exports": {
     ".": "./lib/index.js"
   },

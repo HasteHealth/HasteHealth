@@ -2,7 +2,7 @@
 name = "haste-server"
 publish = false
 description = "Haste Health server application."
-license = "GPL-3.0"
+license = "Apache-2.0"
 version = { workspace = true }
 edition = { workspace = true }
 homepage = { workspace = true }
