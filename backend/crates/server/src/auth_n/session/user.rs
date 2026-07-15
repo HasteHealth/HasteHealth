@@ -92,6 +92,24 @@ pub async fn set_initial_authorization_state<Repo: Repository>(
         })
 }
 
+pub async fn set_completed_authorization_state(
+    session: &Session,
+    user: User,
+) -> Result<(), OperationOutcomeError> {
+    session
+        .insert(
+            AUTHORIZATION_STATE_KEY,
+            SessionAuthorizationState::Complete(AuthorizationStateCompleted { user }),
+        )
+        .await
+        .map_err(|_e| {
+            OperationOutcomeError::fatal(
+                IssueType::Exception(None),
+                "Failed to set user in session.".to_string(),
+            )
+        })
+}
+
 pub async fn clear_authorization_state(session: &Session) -> Result<(), OperationOutcomeError> {
     session
         .remove::<SessionAuthorizationState>(AUTHORIZATION_STATE_KEY)

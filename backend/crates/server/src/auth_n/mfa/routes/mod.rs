@@ -10,6 +10,7 @@ mod activate;
 mod admin;
 mod create;
 mod delete;
+pub mod totp_verification;
 
 pub fn create_router<
     Repo: Repository + Send + Sync,
@@ -24,4 +25,6 @@ pub fn create_router<
         .typed_post(delete::mfa_delete_post)
         .typed_get(activate::activate_get)
         .typed_post(activate::activate_post)
+        .typed_get(totp_verification::totp_verification_get)
+        .typed_post(totp_verification::totp_verification_post)
 }

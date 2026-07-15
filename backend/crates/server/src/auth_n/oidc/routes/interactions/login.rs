@@ -1,9 +1,10 @@
 use crate::{
     auth_n::{
+        mfa::routes::totp_verification::totp_verification_route,
         oidc::{
             extract::client_app::OIDCClientApplication, routes::authorize::redirect_authorize_uri,
         },
-        session,
+        session::{self, user::SessionAuthorizationState},
     },
     extract::{
         csrf_token::CSRFToken,
@@ -178,14 +179,22 @@ pub async fn login_post<
 
     match login_result {
         LoginResult::Success { user } => {
+            let authorization_redirect = redirect_authorize_uri(&uri, "/interactions/login");
             session::user::set_initial_authorization_state(
                 state.repo.as_ref(),
                 &current_session,
                 user,
             )
             .await?;
-            let authorization_redirect =
-                Redirect::to(&(redirect_authorize_uri(&uri, "/interactions/login")));
+
+            let redirect_target =
+                match session::user::get_authorization_state(&current_session).await? {
+                    Some(SessionAuthorizationState::MFARequired { .. }) => {
+                        totp_verification_route(&tenant, &authorization_redirect)
+                    }
+                    _ => authorization_redirect,
+                };
+            let authorization_redirect = Redirect::to(&redirect_target);
 
             Ok(authorization_redirect.into_response())
         }

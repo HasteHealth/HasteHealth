@@ -27,8 +27,9 @@ use url::Url;
 
 use crate::{
     auth_n::{
+        mfa::routes::totp_verification::totp_verification_route,
         oidc::routes::federated::initiate::{get_idp, get_idp_session_info},
-        session,
+        session::{self, user::SessionAuthorizationState},
     },
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     fhir_client::ServerCTX,
@@ -487,8 +488,14 @@ pub async fn federated_callback<
     session::user::set_initial_authorization_state(app_state.repo.as_ref(), &session, user_model)
         .await?;
 
-    // Will redirect authorize_path
-    Ok(Redirect::to(&idp_session_info.redirect_to))
+    let redirect_target = match session::user::get_authorization_state(&session).await? {
+        Some(SessionAuthorizationState::MFARequired { .. }) => {
+            totp_verification_route(&tenant, &idp_session_info.redirect_to)
+        }
+        _ => idp_session_info.redirect_to,
+    };
+
+    Ok(Redirect::to(&redirect_target))
 }
 
 pub fn create_federated_callback_url(
