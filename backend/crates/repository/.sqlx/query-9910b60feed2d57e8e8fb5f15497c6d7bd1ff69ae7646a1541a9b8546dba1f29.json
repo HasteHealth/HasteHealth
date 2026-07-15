@@ -1,12 +1,12 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO user_mfa_credential (tenant, user_id, credential_type, secret_ciphertext, secret_nonce, key_id, totp_algorithm, totp_digits, totp_period, totp_skew) \n            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) \n            RETURNING \n                id as \"id: String\",\n                tenant as \"tenant: TenantId\",\n                user_id,\n                credential_type,\n                secret_ciphertext,\n                secret_nonce,\n                key_id,\n                totp_algorithm,\n                totp_digits,\n                totp_period,\n                totp_skew,\n                created_at,\n                is_active\n            ",
+  "query": "INSERT INTO user_mfa_credential (tenant, user_id, credential_type, secret_ciphertext, secret_nonce, key_id, totp_algorithm, totp_digits, totp_period, totp_skew) \n            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) \n            RETURNING \n                id::TEXT,\n                tenant as \"tenant: TenantId\",\n                user_id,\n                credential_type,\n                secret_ciphertext,\n                secret_nonce,\n                key_id,\n                totp_algorithm,\n                totp_digits,\n                totp_period,\n                totp_skew,\n                created_at,\n                is_active\n            ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id: String",
-        "type_info": "Uuid"
+        "name": "id",
+        "type_info": "Text"
       },
       {
         "ordinal": 1,
@@ -84,7 +84,7 @@
       ]
     },
     "nullable": [
-      false,
+      null,
       false,
       false,
       false,
@@ -99,5 +99,5 @@
       false
     ]
   },
-  "hash": "d08546086f0a13ef3cb2d189cbf8635de74ffe87c31582320e4531d6dee4c4b8"
+  "hash": "9910b60feed2d57e8e8fb5f15497c6d7bd1ff69ae7646a1541a9b8546dba1f29"
 }

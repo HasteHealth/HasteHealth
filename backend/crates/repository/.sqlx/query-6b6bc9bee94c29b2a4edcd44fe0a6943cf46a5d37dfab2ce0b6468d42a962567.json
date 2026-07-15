@@ -1,12 +1,12 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT \n                id as \"id: String\",\n                tenant as \"tenant: TenantId\",\n                user_id,\n                credential_type,\n                secret_ciphertext,\n                secret_nonce,\n                key_id,\n                totp_algorithm,\n                totp_digits,\n                totp_period,\n                totp_skew,\n                created_at,\n                is_active\n            FROM user_mfa_credential where tenant = $1 AND id = $2",
+  "query": "DELETE FROM user_mfa_credential \n            WHERE tenant = $1 AND id::text = $2 AND user_id = $3\n            RETURNING \n                id::TEXT,\n                tenant as \"tenant: TenantId\",\n                user_id,\n                credential_type,\n                secret_ciphertext,\n                secret_nonce,\n                key_id,\n                totp_algorithm,\n                totp_digits,\n                totp_period,\n                totp_skew,\n                created_at,\n                is_active",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id: String",
-        "type_info": "Uuid"
+        "name": "id",
+        "type_info": "Text"
       },
       {
         "ordinal": 1,
@@ -72,11 +72,12 @@
     "parameters": {
       "Left": [
         "Text",
-        "Uuid"
+        "Text",
+        "Text"
       ]
     },
     "nullable": [
-      false,
+      null,
       false,
       false,
       false,
@@ -91,5 +92,5 @@
       false
     ]
   },
-  "hash": "093210ba70fce2b168d981c050e0e3425dc29f68f0ec2a891e1b6c76d7b39d31"
+  "hash": "6b6bc9bee94c29b2a4edcd44fe0a6943cf46a5d37dfab2ce0b6468d42a962567"
 }
