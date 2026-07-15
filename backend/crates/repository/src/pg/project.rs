@@ -49,7 +49,7 @@ fn read_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
         let project = sqlx::query_as!(
             Project,
             r#"SELECT id as "id: ProjectId", tenant as "tenant: TenantId", system_created, fhir_version as "fhir_version: SupportedFHIRVersions" FROM projects where tenant = $1 AND id = $2"#,
-            tenant.as_ref(),    
+            tenant.as_ref(),
             id
         )
         .fetch_optional(&mut *conn)

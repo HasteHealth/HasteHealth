@@ -182,7 +182,7 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
     let invariant_operation_outcome_issues = issues.iter().map(|simple_issue: &SimpleIssue| {
         let severity_string: String = simple_issue.severity.clone().into();
         let severity = quote!{ Box::new(haste_fhir_model::r4::generated::terminology::IssueSeverity::try_from(#severity_string.to_string()).unwrap()) };
-        
+
         let diagnostic = if let Some(diagnostic) = simple_issue.diagnostic.as_ref() {
             quote! {
                 Some(Box::new(haste_fhir_model::r4::generated::types::FHIRString{
@@ -316,10 +316,10 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
 
                 quote! {
                     #ident #arg_instantiation => {
-                        
+
                         let mut operation_outcome = haste_fhir_model::r4::generated::resources::OperationOutcome::default();
                         operation_outcome.issue = #op_issues;
-                        
+
                         haste_fhir_operation_error::OperationOutcomeError::new(#from_error, operation_outcome)
                     }
                 }

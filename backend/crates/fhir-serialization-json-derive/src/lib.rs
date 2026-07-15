@@ -41,7 +41,6 @@ fn get_attribute_serialization_type(attrs: &[Attribute]) -> Option<String> {
         // For validation on vector min maxes.
         cardinality,
         reference,
-        
         // if resourcetype doesn't correlate to struct name
         fhir_resource_type
     )

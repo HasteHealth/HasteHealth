@@ -403,14 +403,13 @@ fn create_complex_struct(
         }
     } else if conditionals::is_root(sd, element) && conditionals::is_resource_sd(sd) {
         let type_ = sd.type_.value.as_ref().unwrap();
-        let  resource_type_attribute = if *type_ != struct_name {
-            quote!{
+        let resource_type_attribute = if *type_ != struct_name {
+            quote! {
                 #[fhir_resource_type = #type_]
             }
         } else {
-            quote!{}
+            quote! {}
         };
-        
 
         quote! {
             #[derive(
@@ -529,7 +528,7 @@ fn generate_fhir_types_from_file(
         if conditionals::is_resource_sd(&sd) {
             resource_types.push(ResourceTypeInfo {
                 resource_type: sd.type_.value.as_ref().unwrap().to_string(),
-                rust_type_name: sd.id.as_ref().unwrap().to_string()
+                rust_type_name: sd.id.as_ref().unwrap().to_string(),
             });
 
             resources.push(generate_from_structure_definition(
@@ -558,14 +557,17 @@ fn generate_resource_type(resource_types: &Vec<ResourceTypeInfo>) -> TokenStream
     let data_ident = format_ident!("data");
     let get_resource_deserialize_variant = resource_types.iter().map(|resource_type_info| {
         let struct_name = format_ident!("{}", generate::capitalize(&resource_type_info.rust_type_name));
-        
+
         quote! {
             ResourceType::#struct_name => Ok(Resource::#struct_name(serde_json::from_str::<#struct_name>(#data_ident)?)),
         }
     });
 
     let enum_variants = resource_types.iter().map(|resource_type_info| {
-        let struct_name = format_ident!("{}", generate::capitalize(&resource_type_info.rust_type_name));
+        let struct_name = format_ident!(
+            "{}",
+            generate::capitalize(&resource_type_info.rust_type_name)
+        );
         let type_name = &resource_type_info.resource_type;
 
         if resource_type_info.rust_type_name != resource_type_info.resource_type {
@@ -599,7 +601,8 @@ fn generate_resource_type(resource_types: &Vec<ResourceTypeInfo>) -> TokenStream
     let from_string_variants = from_str_variants.clone();
 
     let to_str_variants = resource_types.iter().map(|resource_name| {
-        let resource_type = format_ident!("{}", generate::capitalize(&resource_name.rust_type_name));
+        let resource_type =
+            format_ident!("{}", generate::capitalize(&resource_name.rust_type_name));
         let resource_name = &resource_name.resource_type;
         quote! {
             ResourceType::#resource_type => #resource_name,
@@ -738,25 +741,23 @@ pub fn generate(
         }
     }
 
-    let resource_type_enum_variant_idents = resource_types
-        .iter()
-        .map(|resource_type_info| {
-            let rust_struct_name = &resource_type_info.rust_type_name;
-            let resource_type_name = &resource_type_info.resource_type;
+    let resource_type_enum_variant_idents = resource_types.iter().map(|resource_type_info| {
+        let rust_struct_name = &resource_type_info.rust_type_name;
+        let resource_type_name = &resource_type_info.resource_type;
 
-            let variant = format_ident!("{}", generate::capitalize(rust_struct_name));
-         
-            if rust_struct_name != resource_type_name {
-                quote! {
-                    #[serde(rename = #resource_type_name)]
-                    #variant(#variant)
-                }
-            } else {
-                quote! {
-                    #variant(#variant)
-                }
+        let variant = format_ident!("{}", generate::capitalize(rust_struct_name));
+
+        if rust_struct_name != resource_type_name {
+            quote! {
+                #[serde(rename = #resource_type_name)]
+                #variant(#variant)
             }
-        });
+        } else {
+            quote! {
+                #variant(#variant)
+            }
+        }
+    });
 
     let resource_to_resource_type_match_arms = resource_types.iter().map(|resource_type_info| {
         let resource_type_ident = format_ident!("{}", &resource_type_info.rust_type_name);

@@ -233,7 +233,7 @@ pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
                 let name = variant.ident.to_owned();
                 let field_name = format!("{}{}", typechoice_name, name);
                 let field: &Field = variant.fields.iter().next().unwrap();
-                
+
                 let full_value_type = &field.ty;
                 let variant_type = get_field_type(field);
                 let value_variable_name = format_ident!("value");
@@ -567,7 +567,6 @@ pub fn enum_variant_deserialization(input: DeriveInput) -> TokenStream {
                 let field_name = name.to_string();
                 let field: &Field = variant.fields.iter().next().unwrap();
                 let variant_type = get_field_type(field);
-    
 
                 quote! {
                     #field_name => {

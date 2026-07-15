@@ -114,17 +114,17 @@ fn build_return_value(fields: &Fields) -> proc_macro2::TokenStream {
         let field_name = field.to_string();
 
         if optional {
-            quote!{ 
+            quote!{
                 #field: #field
             }
         } else {
             quote!{
-                #field: #field.ok_or_else(|| 
+                #field: #field.ok_or_else(||
                     OperationOutcomeError::error(
                         haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Field '{}' is required.", stringify!(#field_name))))?
              }
         }
-        
+
     });
 
     quote! {
@@ -153,8 +153,8 @@ pub fn haste_to_parameters(input: TokenStream) -> TokenStream {
                 let tmp_name = format_ident!("tmp");
 
                 let mut as_param = if is_nested_parameter(&field.attrs) {
-                    quote!{ 
-                        #parameters_name.push(ParametersParameter { 
+                    quote!{
+                        #parameters_name.push(ParametersParameter {
                             name: Box::new(FHIRString { value: Some(#expected_parameter_name.to_string()), ..Default::default() }),
                             part: Some(#tmp_name.into()),
                             ..Default::default()
@@ -268,7 +268,7 @@ pub fn haste_from_parameters(input: TokenStream) -> TokenStream {
                 let expected_parameter_name = get_parameter_name(field);
 
                 let get_value_from_param = if is_nested_parameter(&field.attrs) {
-                    quote!{ 
+                    quote!{
                         #value_type::try_from(#current_parameter.part.unwrap_or_default()).map(|v| Some(v))
                     }
                 }else if value_type.ident == format_ident!("Resource") {

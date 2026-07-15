@@ -3,7 +3,7 @@
 use self::super::resources::Resource;
 use self::super::terminology;
 use haste_fhir_serialization_json;
-use haste_reflect::{derive::Reflect, MetaValue};
+use haste_reflect::{MetaValue, derive::Reflect};
 #[derive(
     Clone,
     Reflect,
