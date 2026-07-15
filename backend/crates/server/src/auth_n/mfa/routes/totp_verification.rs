@@ -41,6 +41,7 @@ pub fn totp_verification_route(tenant: &TenantId, redirect_to: &str) -> String {
     let route = tenant_route_string(tenant)
         .join("mfa")
         .join("totp-verification");
+
     let query = form_urlencoded::Serializer::new(String::new())
         .append_pair("redirect_to", redirect_to)
         .finish();
