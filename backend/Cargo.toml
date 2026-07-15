@@ -128,7 +128,6 @@ haste-repository = { path = "./crates/repository" }
 haste-server = { path = "./crates/server" }
 haste-testscript-runner = { path = "./crates/testscript-runner" }
 haste-worker = { path = "./crates/worker" }
-haste_wal_worker = { path = "./crates/wal_worker" }
 
 [profile.profiling]
 inherits = "release"
