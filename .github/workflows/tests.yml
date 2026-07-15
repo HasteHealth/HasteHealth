@@ -10,16 +10,35 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  rustfmt:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Run rustfmt
+        run: cargo fmt --all -- --check --verbose
+        working-directory: ./backend
+
   build:
     runs-on: ubuntu-latest
+
+    needs: rustfmt
+
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: stable
+      - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+
       - name: Build
         run: cargo build --locked --verbose --workspace
         working-directory: ./backend
+
       - name: Unit tests
         run: cargo test --verbose --workspace
         working-directory: ./backend
