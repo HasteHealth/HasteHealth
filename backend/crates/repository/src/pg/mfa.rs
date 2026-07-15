@@ -2,7 +2,8 @@ use crate::{
     admin::TenantModelAdmin,
     pg::{PGConnection, StoreError},
     types::mfa::{
-        UserMFACredential, UserMFACredentialCreate, UserMFACredentialUpdate, UserMFASearchClaims,
+        MFAKey, UserMFACredential, UserMFACredentialCreate, UserMFACredentialUpdate,
+        UserMFASearchClaims,
     },
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
@@ -28,7 +29,7 @@ fn create_user_mfa_credential<'a, 'c, Connection: Acquire<'c, Database = Postgre
             r#"INSERT INTO user_mfa_credential (tenant, user_id, credential_type, secret_ciphertext, secret_nonce, key_id, totp_algorithm, totp_digits, totp_period, totp_skew) 
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
             RETURNING 
-                id as "id: String",
+                id::TEXT,
                 tenant as "tenant: TenantId",
                 user_id,
                 credential_type,
@@ -64,14 +65,14 @@ fn create_user_mfa_credential<'a, 'c, Connection: Acquire<'c, Database = Postgre
 fn read_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
-    id: &'a str,
+    key: &'a MFAKey,
 ) -> impl Future<Output = Result<Option<UserMFACredential>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let user_mfa = sqlx::query_as!(
             UserMFACredential,
             r#"SELECT 
-                id as "id: String",
+                id::TEXT,
                 tenant as "tenant: TenantId",
                 user_id,
                 credential_type,
@@ -84,9 +85,10 @@ fn read_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
                 totp_skew,
                 created_at,
                 is_active
-            FROM user_mfa_credential where tenant = $1 AND id = $2"#,
+            FROM user_mfa_credential where tenant = $1 AND id::text = $2 AND user_id = $3"#,
             tenant.as_ref(),
-            id as &str
+            key.mfa_id().0,
+            key.user_id().as_ref()
         )
         .fetch_optional(&mut *conn)
         .await
@@ -99,16 +101,16 @@ fn read_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
 fn delete_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
-    id: &'a str,
+    key: &'a MFAKey,
 ) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let _delted_user_mfa = sqlx::query_as!(
             UserMFACredential,
             r#"DELETE FROM user_mfa_credential 
-            WHERE tenant = $1 AND id = $2
+            WHERE tenant = $1 AND id::text = $2 AND user_id = $3
             RETURNING 
-                id as "id: String",
+                id::TEXT,
                 tenant as "tenant: TenantId",
                 user_id,
                 credential_type,
@@ -122,7 +124,8 @@ fn delete_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
                 created_at,
                 is_active"#,
             tenant.as_ref(),
-            id as &str
+            key.mfa_id().0,
+            key.user_id().as_ref()
         )
         .fetch_optional(&mut *conn)
         .await
@@ -131,7 +134,7 @@ fn delete_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
                 IssueType::NotFound(None),
                 format!(
                     "User MFA credential '{}' not found or is system created and cannot be deleted.",
-                    id
+                    key.mfa_id().0
                 ),
             )
         })?;
@@ -141,7 +144,7 @@ fn delete_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
                 IssueType::NotFound(None),
                 format!(
                     "User MFA credential '{}' not found or is system created and cannot be deleted.",
-                    id
+                    key.mfa_id().0
                 ),
             ));
         }
@@ -159,8 +162,8 @@ fn search_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
             r#"SELECT 
-                id as "id: String",
-                tenant as "tenant: TenantId",
+                id::TEXT,
+                tenant,
                 user_id,
                 credential_type,
                 secret_ciphertext,
@@ -227,13 +230,15 @@ fn update_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
         where_statements
             .push(" tenant = ")
             .push_bind_unseparated(tenant.as_ref())
+            .push(" id::text = ")
+            .push_bind_unseparated(model.id)
             .push(" user_id = ")
             .push_bind_unseparated(model.user_id.as_ref());
 
         query_builder.push(
             r#" RETURNING 
-                id as "id: String",
-                tenant as "tenant: TenantId",
+                id::TEXT,
+                tenant,
                 user_id,
                 credential_type,
                 secret_ciphertext,
@@ -258,13 +263,13 @@ fn update_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
     }
 }
 
-impl<Key: AsRef<str> + Send + Sync>
+impl
     TenantModelAdmin<
         UserMFACredentialCreate,
         UserMFACredential,
         UserMFASearchClaims,
         UserMFACredentialUpdate,
-        Key,
+        MFAKey,
     > for PGConnection
 {
     async fn create(
@@ -289,16 +294,16 @@ impl<Key: AsRef<str> + Send + Sync>
     async fn read(
         &self,
         tenant: &TenantId,
-        id: &Key,
+        id: &MFAKey,
     ) -> Result<Option<UserMFACredential>, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
-                let res = read_user_mfa(pool, tenant, id.as_ref()).await?;
+                let res = read_user_mfa(pool, tenant, id).await?;
                 Ok(res)
             }
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = read_user_mfa(&mut *tx, tenant, id.as_ref()).await?;
+                let res = read_user_mfa(&mut *tx, tenant, id).await?;
                 Ok(res)
             }
         }
@@ -325,16 +330,16 @@ impl<Key: AsRef<str> + Send + Sync>
     async fn delete(
         &self,
         tenant: &TenantId,
-        id: &Key,
+        id: &MFAKey,
     ) -> Result<(), haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
-                let res = delete_user_mfa(pool, tenant, id.as_ref()).await?;
+                let res = delete_user_mfa(pool, tenant, id).await?;
                 Ok(res)
             }
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = delete_user_mfa(&mut *tx, tenant, id.as_ref()).await?;
+                let res = delete_user_mfa(&mut *tx, tenant, id).await?;
                 Ok(res)
             }
         }

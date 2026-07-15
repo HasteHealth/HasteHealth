@@ -2725,6 +2725,7 @@ name = "haste-encryption"
 version = "0.18.0"
 dependencies = [
  "aes-gcm",
+ "base64",
  "haste-fhir-model",
  "haste-fhir-operation-error",
  "tracing",

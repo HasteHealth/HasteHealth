@@ -1,7 +1,8 @@
+use derivative::Derivative;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct ServerConfig {
     pub allow_artifact_mutations: bool,
@@ -22,7 +23,7 @@ pub struct ServerConfig {
     pub security: SecurityConfig,
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct SecurityConfig {
     pub mfa: MFAConfig,
@@ -31,20 +32,20 @@ pub struct SecurityConfig {
     pub certification_key: Option<String>,
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct MFAConfig {
     pub max_credentials_per_user: usize,
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct MonitoringConfig {
     pub audit_enabled: bool,
     pub ip_source: IpSource,
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum SecretProviderConfig {
     Environment { prefix: Option<String> },
@@ -52,7 +53,7 @@ pub enum SecretProviderConfig {
     AWS { region: String },
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct FHIRConfig {
     /// Max delete limit for type-delete and system-delete operations.
@@ -60,42 +61,50 @@ pub struct FHIRConfig {
 }
 
 // Repo backend where the FHIR server stores its data/resources.
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(tag = "backend", rename_all = "snake_case")]
 pub enum RepoConfig {
     Postgres(PostgresConfig),
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Derivative, Clone, Deserialize, Serialize)]
+#[derivative(Debug)]
 pub struct PostgresConfig {
+    #[derivative(Debug = "ignore")]
     pub database_url: String,
     pub max_connections: u32,
 }
 
 // Search backend where the FHIR server stores its search indices.
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(tag = "backend", rename_all = "snake_case")]
 pub enum SearchConfig {
     Elasticsearch(ElasticsearchConfig),
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Derivative, Clone, Deserialize, Serialize)]
+#[derivative(Debug)]
 pub struct ElasticsearchConfig {
     pub url: String,
+    #[derivative(Debug = "ignore")]
     pub username: String,
+    #[derivative(Debug = "ignore")]
     pub password: String,
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Derivative, Clone, Deserialize, Serialize)]
+#[derivative(Debug)]
 #[serde(tag = "backend", rename_all = "snake_case")]
 pub enum EmailConfig {
     SendGrid {
+        #[derivative(Debug = "ignore")]
         api_key: String,
+        #[derivative(Debug = "ignore")]
         from_address: String,
     },
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct RateLimitsConfig {
     pub rate_limit_subscription_tiers: Option<[usize; 4]>,
@@ -103,7 +112,7 @@ pub struct RateLimitsConfig {
     pub rate_limit_operation_points: u32,
 }
 
-#[derive(Clone, Deserialize, Serialize, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum IpSource {
     #[default]

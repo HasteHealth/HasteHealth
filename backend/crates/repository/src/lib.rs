@@ -8,7 +8,7 @@ use crate::{
         },
         membership::{CreateMembership, Membership, MembershipSearchClaims},
         mfa::{
-            UserMFACredential, UserMFACredentialCreate, UserMFACredentialUpdate,
+            MFAKey, UserMFACredential, UserMFACredentialCreate, UserMFACredentialUpdate,
             UserMFASearchClaims,
         },
         project::{CreateProject, Project, ProjectSearchClaims},
@@ -43,7 +43,7 @@ pub trait Repository:
         UserMFACredential,
         UserMFASearchClaims,
         UserMFACredentialUpdate,
-        String,
+        MFAKey,
     > + ProjectModelAdmin<
         CreateAuthorizationCode,
         AuthorizationCode,

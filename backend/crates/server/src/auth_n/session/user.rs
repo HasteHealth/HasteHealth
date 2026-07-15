@@ -1,6 +1,14 @@
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_repository::types::user::User;
+use haste_repository::{
+    Repository,
+    admin::TenantModelAdmin,
+    types::{
+        mfa::{UserMFACredentialCreate, UserMFASearchClaims},
+        scope::UserId,
+        user::User,
+    },
+};
 use serde::{Deserialize, Serialize};
 use tower_sessions::Session;
 
@@ -50,12 +58,31 @@ pub async fn get_authorization_state(
     Ok(authorization_state)
 }
 
-pub async fn set_authorization_state(
+pub async fn set_initial_authorization_state<Repo: Repository>(
+    repo: &Repo,
     session: &Session,
-    authorization_state: &SessionAuthorizationState,
+    user: User,
 ) -> Result<(), OperationOutcomeError> {
+    let active_mfa_credentials = TenantModelAdmin::<UserMFACredentialCreate, _, _, _, _>::search(
+        repo,
+        &user.tenant,
+        &UserMFASearchClaims {
+            tenant: user.tenant.clone(),
+            user_id: UserId::new(user.id.clone()),
+            is_active: Some(true),
+        },
+    )
+    .await?;
+
+    let initial_state = if active_mfa_credentials.is_empty() {
+        // No active MFA credentials so can state that state is completed.
+        SessionAuthorizationState::Complete(AuthorizationStateCompleted { user })
+    } else {
+        SessionAuthorizationState::MFARequired { user }
+    };
+
     session
-        .insert(AUTHORIZATION_STATE_KEY, authorization_state)
+        .insert(AUTHORIZATION_STATE_KEY, initial_state)
         .await
         .map_err(|_e| {
             OperationOutcomeError::fatal(

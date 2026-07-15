@@ -1,10 +1,10 @@
-use haste_fhir_operation_error::OperationOutcomeError;
-use std::{future::Future, pin::Pin};
-
 use crate::{
     error::EncryptionError,
     traits::{Secret, SecretsProvider},
 };
+use base64::{Engine as _, engine::general_purpose::STANDARD};
+use haste_fhir_operation_error::OperationOutcomeError;
+use std::{future::Future, pin::Pin};
 
 /// Reads secrets directly from process environment variables. `name` is
 /// used verbatim as the environment variable name, optionally prefixed.
@@ -37,7 +37,11 @@ impl SecretsProvider for EnvironmentSecretsProvider {
                 EncryptionError::SecretRetrievalFailed(name.to_string(), e.to_string())
             })?;
 
-            Ok(Secret::new(value.into_bytes()))
+            let value = STANDARD.decode(value).map_err(|e| {
+                EncryptionError::SecretRetrievalFailed(name.to_string(), e.to_string())
+            })?;
+
+            Ok(Secret::new(value))
         })
     }
 }

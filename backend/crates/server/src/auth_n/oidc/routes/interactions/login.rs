@@ -3,10 +3,7 @@ use crate::{
         oidc::{
             extract::client_app::OIDCClientApplication, routes::authorize::redirect_authorize_uri,
         },
-        session::{
-            self,
-            user::{AuthorizationStateCompleted, SessionAuthorizationState},
-        },
+        session,
     },
     extract::{
         csrf_token::CSRFToken,
@@ -181,9 +178,10 @@ pub async fn login_post<
 
     match login_result {
         LoginResult::Success { user } => {
-            session::user::set_authorization_state(
+            session::user::set_initial_authorization_state(
+                state.repo.as_ref(),
                 &current_session,
-                &SessionAuthorizationState::Complete(AuthorizationStateCompleted { user }),
+                user,
             )
             .await?;
             let authorization_redirect =

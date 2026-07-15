@@ -206,10 +206,10 @@ pub async fn server(
     let tenant_router = Router::new()
         .nest("/auth", auth_n::tenant::routes::create_router())
         .nest("/{project}/api/v1", project_router)
-        // .nest(
-        //     "/mfa",
-        //     auth_n::mfa::routes::create_router(shared_state.clone()),
-        // )
+        .nest(
+            "/mfa",
+            auth_n::mfa::routes::create_router(shared_state.clone()),
+        )
         .layer(
             // Relies on tenant for html so moving operation outcome error handling to here.
             ServiceBuilder::new()

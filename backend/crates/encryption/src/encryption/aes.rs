@@ -1,13 +1,12 @@
+use crate::{
+    error::EncryptionError,
+    traits::{EncryptionResult, Encryptor},
+};
 use aes_gcm::{
     Aes256Gcm, Key,
     aead::{Aead, Generate, KeyInit, Nonce},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-
-use crate::{
-    error::EncryptionError,
-    traits::{EncryptionResult, Encryptor},
-};
 
 const KEY_LEN: usize = 32;
 

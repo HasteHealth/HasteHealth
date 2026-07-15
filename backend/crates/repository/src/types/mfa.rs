@@ -2,9 +2,9 @@ use crate::types::scope::UserId;
 use haste_jwt::TenantId;
 use sqlx::types::time::OffsetDateTime;
 
-#[derive(sqlx::FromRow, Debug)]
+#[derive(sqlx::FromRow, Clone)]
 pub struct UserMFACredential {
-    pub id: String,
+    pub id: Option<String>,
     pub tenant: TenantId,
     pub user_id: String,
     pub credential_type: String,
@@ -27,6 +27,7 @@ pub struct UserMFASearchClaims {
     pub is_active: Option<bool>,
 }
 
+#[derive(Clone)]
 pub enum MFACredentialType {
     TOTP,
 }
@@ -39,6 +40,7 @@ impl From<MFACredentialType> for &str {
     }
 }
 
+#[derive(Clone)]
 pub struct UserMFACredentialCreate {
     pub user_id: UserId,
     pub credential_type: MFACredentialType,
@@ -54,8 +56,24 @@ pub struct UserMFACredentialCreate {
 // Update model right now is just about activation and deactivation of the MFA credential.
 // If we need to update other fields in the future, we can add them here.
 pub struct UserMFACredentialUpdate {
+    pub id: String,
     pub user_id: UserId,
-
     pub activated_at: Option<OffsetDateTime>,
     pub is_active: bool,
+}
+
+pub struct MFAId(pub String);
+
+pub struct MFAKey(UserId, MFAId);
+impl MFAKey {
+    pub fn new(user_id: UserId, mfa_id: String) -> Self {
+        MFAKey(user_id, MFAId(mfa_id))
+    }
+    pub fn user_id(&self) -> &UserId {
+        &self.0
+    }
+
+    pub fn mfa_id(&self) -> &MFAId {
+        &self.1
+    }
 }
