@@ -42,7 +42,9 @@ haste-sd-to-json-schema = { path = "../sd-to-json-schema", version = "0.*" }
 haste-sql-on-fhir = { path = "../sql-on-fhir", version = "0.*" }
 
 axum = { workspace = true, features = ["form", "json", "macros", "query"] }
-axum-client-ip = { version = "1.3.1", default-features = false, features = ["connect-info"] }
+axum-client-ip = { version = "1.3.1", default-features = false, features = [
+    "connect-info",
+] }
 axum-extra = { version = "0.12.6", default-features = false, features = [
     "typed-routing",
     "typed-header",
@@ -52,7 +54,9 @@ base64 = { workspace = true }
 chrono = { workspace = true }
 derivative = { workspace = true }
 dotenvy = { workspace = true }
-email_address = { version = "0.2.9", default-features = false, features = ["serde_support"] }
+email_address = { version = "0.2.9", default-features = false, features = [
+    "serde_support",
+] }
 json-patch = { workspace = true }
 jsonwebtoken = { workspace = true }
 maud = { version = "0.27.0", default-features = false, features = ["axum"] }
@@ -65,9 +69,17 @@ reqwest = { workspace = true, features = ["form"] }
 rsa = { version = "0.9.10", default-features = false, features = ["pem"] }
 rust-embed = { workspace = true, features = ["axum-ex"] }
 sendgrid = { version = "0.26.0", default-features = false }
-sentry = { workspace = true, features = ["tower-axum-matched-path"] }
+sentry = { workspace = true, features = [
+    "tower-axum-matched-path",
+    "transport",
+    "panic",
+    "backtrace",
+] }
 serde = { workspace = true }
-serde_html_form = { version = "0.4.0", default-features = false, features = ["de", "std"] }
+serde_html_form = { version = "0.4.0", default-features = false, features = [
+    "de",
+    "std",
+] }
 serde_json = { workspace = true }
 sha1 = { version = "0.10.6", default-features = false }
 sha2 = { version = "0.10.9", default-features = false }
@@ -79,7 +91,10 @@ sqlx = { workspace = true, features = [
 ] }
 sqlx-postgres = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
-totp-rs = { version = "5.7.2", default-features = false, features = ["qr", "gen_secret"] }
+totp-rs = { version = "5.7.2", default-features = false, features = [
+    "qr",
+    "gen_secret",
+] }
 tower = { version = "0.5.3", default-features = false }
 tower-http = { version = "0.6.11", default-features = false, features = [
     "fs",
@@ -90,8 +105,12 @@ tower-http = { version = "0.6.11", default-features = false, features = [
     "set-header",
     "catch-panic",
 ] }
-tower-sessions = { version = "0.14.0", default-features = false, features = ["axum-core"] }
-tower-sessions-sqlx-store = { version = "0.15.0", default-features = false, features = ["postgres"] }
+tower-sessions = { version = "0.14.0", default-features = false, features = [
+    "axum-core",
+] }
+tower-sessions-sqlx-store = { version = "0.15.0", default-features = false, features = [
+    "postgres",
+] }
 tracing = { workspace = true }
 typify = { version = "0.5.0", default-features = false, features = ["macro"] }
 url = { version = "2.5.8", default-features = false }
