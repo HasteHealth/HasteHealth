@@ -93,9 +93,15 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
         "{}",
         format_string(&value_set.id.clone().expect("ValueSet must have an id"))
     );
+    let terminology_url = value_set
+        .url
+        .as_ref()
+        .and_then(|v| v.value.as_ref())
+        .clone()
+        .expect("ValueSet must have a url");
 
     if let Some(expansion) = value_set.expansion {
-        let codes = expansion
+        let codes_map = expansion
             .clone()
             .contains
             .unwrap_or_default()
@@ -107,193 +113,38 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
             })
             .unwrap_or_default();
 
+        let mut codes = codes_map.values().collect::<Vec<_>>();
+
+        codes.sort_by(|a, b| a.code.cmp(&b.code));
+
+        let code_vec = codes.iter().map(|c| &c.code).collect::<Vec<_>>();
+
+        let const_variants = codes.iter().enumerate().map(|(i, c)| {
+            let variant_name = format_ident!("{}", &format_string(&c.code).to_uppercase());
+            let display = c.description.as_ref().map(|d| d.as_str()).unwrap_or("");
+            quote! {
+                #[doc = #display]
+                pub const #variant_name: BoundCode<Self> = BoundCode::from_index(#i);
+            }
+        });
+
         if codes.len() > 0 && codes.len() < 400 {
-            let enum_variants = codes.iter().map(|(_code, code)| {
-                let code_string = &code.code;
-                let code_ident = format_ident!("{}", format_string(code_string));
-                let doc_attribute = code.description.as_ref().map_or(quote! {}, |d| {
-                    quote! {
-                        #[doc = #d]
-                    }
-                });
-
-                let code_attribute = quote! {
-                    #[code = #code_string]
-                };
-
-                quote! {
-                    #doc_attribute
-                    #code_attribute
-                    #code_ident(Option<Element>)
-                }
-            });
-            let try_from_value_variants = codes.iter().map(|(_code, code)| {
-                let code_string = &code.code;
-                let code_ident = format_ident!("{}", format_string(code_string));
-                quote! {
-                    #code_string => Ok(#terminology_enum_name::#code_ident(None))
-                }
-            });
-            let into_string_variants = codes.iter().map(|(_code, code)| {
-                let code_string = &code.code;
-                let code_ident = format_ident!("{}", format_string(code_string));
-                quote! {
-                    #terminology_enum_name::#code_ident(_) => Some(#code_string.to_string())
-                }
-            });
-
-            let get_field_variants = codes.iter().map(|(_code, code)| {
-                let code_string = &code.code;
-                let code_ident = format_ident!("{}", format_string(code_string));
-
-                quote! {
-                    #terminology_enum_name::#code_ident(Some(e)) => e.get_field(field)
-                }
-            });
-
-            let get_field_mut_variant = codes.iter().map(|(_code, code)| {
-                let code_string = &code.code;
-                let code_ident = format_ident!("{}", format_string(code_string));
-
-                quote! {
-                    #terminology_enum_name::#code_ident(Some(e)) => e.get_field_mut(field)
-                }
-            });
-
-            let get_element_mut_variants = codes.iter().map(|(_code, code)| {
-                let code_ident = format_ident!("{}", format_string(&code.code));
-
-                quote! {
-                    #terminology_enum_name::#code_ident(e) => e.get_or_insert_with(Default::default)
-                }
-            });
-
-            let get_element_variants = codes.iter().map(|(_code, code)| {
-                let code_ident = format_ident!("{}", format_string(&code.code));
-
-                quote! {
-                    #terminology_enum_name::#code_ident(e) => e.as_ref()
-                }
-            });
-
             return Some(quote! {
-                #[derive(Debug, Clone, FHIRSerdeDeserialize, FHIRSerdeSerialize)]
-                #[fhir_serialize_type = "valueset"]
-                pub enum #terminology_enum_name {
-                    #(#enum_variants),*,
-                    #[doc = "If value is missing and just the element is present."]
-                    Null(Option<Element>),
+                #[doc = #terminology_url]
+                pub struct #terminology_enum_name;
+
+                impl ValueSetDef for #terminology_enum_name {
+                    const URL: &'static str = #terminology_url;
+                    const CODES: &'static [&'static str] = &[#(#code_vec),*];
                 }
 
                 impl #terminology_enum_name {
-                    pub fn element(&self) -> Option<&Element> {
-                        match self {
-                            #(#get_element_variants),*,
-                            #terminology_enum_name::Null(e) => e.as_ref(),
-                        }
-                    }
-                    pub fn element_mut(&mut self) -> &mut Element {
-                        match self {
-                            #(#get_element_mut_variants),*,
-                            #terminology_enum_name::Null(e) => e.get_or_insert_with(Default::default),
-                        }
-                    }
-                    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<super::types::Extension>>> {
-                        let element_mut = self.element_mut();
-                        &mut element_mut.extension
-                    }
-
-                    pub fn id_mut(&mut self) -> &mut Option<String> {
-                        let element_mut = self.element_mut();
-                        &mut element_mut.id
-                    }
+                    #(#const_variants)*
+                    #[doc = "Element present without a value."]
+                    pub const NULL: BoundCode<Self> = BoundCode::null();
                 }
 
-                impl Default for #terminology_enum_name {
-                    fn default() -> Self {
-                        #terminology_enum_name::Null(None)
-                    }
-                }
 
-                impl TryFrom<String> for #terminology_enum_name {
-                    type Error = String;
-                    fn try_from(value: String) -> Result<Self, String> {
-                        match value.as_str() {
-                            #(#try_from_value_variants),*,
-                            _ => Err(format!("Unknown code '{}'", value)),
-                        }
-                    }
-                }
-
-                impl Into<Option<String>> for &#terminology_enum_name {
-                     fn into(self) -> Option<String> {
-                        match self {
-                            #(#into_string_variants),*,
-                            #terminology_enum_name::Null(_) => None,
-                        }
-                    }
-                }
-
-                impl MetaValue for #terminology_enum_name {
-                    fn fields(&self) -> Vec<&'static str> {
-                        vec!["value", "id", "extension"]
-                    }
-
-                    fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
-                        match field {
-                            "value" => {
-                                let code_value: Option<String> = self.into();
-                                if let Some(code_value) = code_value {
-                                    let v = Box::new(code_value);
-                                    let code_ref: &'a String = Box::leak(v);
-                                    Some(code_ref)
-                                } else {
-                                    None
-                                }
-                            },
-                            _ => match self {
-                                #(#get_field_variants),*,
-                                #terminology_enum_name::Null(Some(e)) => e.get_field(field),
-                                _ => None,
-                            }
-                        }
-                    }
-
-                    fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
-                        match field {
-                            "value" => None,
-                            _ => match self {
-                                #(#get_field_mut_variant),*,
-                                #terminology_enum_name::Null(Some(e)) => e.get_field_mut(field),
-                                _ => None,
-                            }
-                        }
-                    }
-
-                    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
-                        None
-                    }
-
-                    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
-                        None
-                    }
-
-                    fn flatten(&self) -> Vec<&dyn MetaValue> {
-                        vec![self]
-                    }
-
-                    fn as_any(&self) -> &dyn Any {
-                        self
-                    }
-
-                    fn fhir_type(&self) -> &'static str {
-                        "code"
-                    }
-
-                    fn is_many(&self) -> bool {
-                        false
-                    }
-                }
             });
         }
     }
@@ -429,6 +280,163 @@ pub struct GeneratedTerminologies {
     pub inlined_terminologies: HashMap<String, String>,
 }
 
+// Sets up the main datastructures to be used by generated inline terminologies
+fn prebuilt_code() -> TokenStream {
+    quote! {
+        use crate::r4::generated::types::Element;
+        use haste_reflect::MetaValue;
+        use serde::{Deserialize, Deserializer, Serialize, Serializer};
+        use std::{any::Any, fmt, marker::PhantomData};
+
+        pub trait ValueSetDef: 'static + Send + Sync {
+            const URL: &'static str;
+            const CODES: &'static [&'static str]; // sorted; codegen enforces
+        }
+
+        pub struct BoundCode<VS: ValueSetDef> {
+            code: Option<u16>, // index into VS::CODES; None = today's `Null` variant
+            element: Option<Element>,
+            _vs: PhantomData<VS>,
+        }
+
+        impl<VS: ValueSetDef> BoundCode<VS> {
+            pub const fn from_index(i: u16) -> Self {
+                Self {
+                    code: Some(i),
+                    element: None,
+                    _vs: PhantomData,
+                }
+            }
+            pub const fn null() -> Self {
+                Self {
+                    code: None,
+                    element: None,
+                    _vs: PhantomData,
+                }
+            }
+
+            pub fn new(s: &str) -> Option<Self> {
+                VS::CODES
+                    .binary_search(&s)
+                    .ok()
+                    .map(|i| Self::from_index(i as u16))
+            }
+            pub fn as_str(&self) -> Option<&'static str> {
+                self.code.map(|i| VS::CODES[i as usize])
+            }
+            pub fn element(&self) -> Option<&Element> {
+                self.element.as_ref()
+            }
+            pub fn element_mut(&mut self) -> &mut Element {
+                self.element.get_or_insert_with(Default::default)
+            }
+        }
+
+        impl<VS: ValueSetDef> Clone for BoundCode<VS> {
+            fn clone(&self) -> Self {
+                Self {
+                    code: self.code,
+                    element: self.element.clone(),
+                    _vs: PhantomData,
+                }
+            }
+        }
+
+        impl<VS: ValueSetDef> fmt::Debug for BoundCode<VS> {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                // e.g. `AdministrativeGender("male")`
+                write!(f, "{}({:?})", std::any::type_name::<VS>(), self.as_str())
+            }
+        }
+
+        // Code-index equality only, per the earlier discussion: `g == AdministrativeGender::MALE`
+        // must not go false because the value carries an extension.
+        impl<VS: ValueSetDef> PartialEq for BoundCode<VS> {
+            fn eq(&self, other: &Self) -> bool {
+                self.code == other.code
+            }
+        }
+        impl<VS: ValueSetDef> Eq for BoundCode<VS> {}
+
+        impl<VS: ValueSetDef> MetaValue for BoundCode<VS> {
+            fn fields(&self) -> Vec<&'static str> {
+                vec!["value", "id", "extension"]
+            }
+
+            fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
+                match field {
+                    "value" => self
+                        .code
+                        .as_ref()
+                        .map(|i| &VS::CODES[*i as usize] as &dyn MetaValue),
+                    _ => self.element.as_ref().and_then(|e| e.get_field(field)),
+                }
+            }
+
+            fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+                match field {
+                    "value" => None,
+                    _ => self.element.as_mut().and_then(|e| e.get_field_mut(field)),
+                }
+            }
+
+            fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+                None
+            }
+
+            fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+                None
+            }
+
+            fn flatten(&self) -> Vec<&dyn MetaValue> {
+                vec![self]
+            }
+
+            fn as_any(&self) -> &dyn Any {
+                self
+            }
+
+            fn fhir_type(&self) -> &'static str {
+                "code"
+            }
+
+            fn is_many(&self) -> bool {
+                false
+            }
+        }
+
+        // Non-generic over VS — monomorphizes per Deserializer, i.e. ~once.
+        fn parse_code<E: serde::de::Error>(
+            codes: &'static [&'static str],
+            url: &'static str,
+            s: &str,
+        ) -> Result<u16, E> {
+            codes
+                .binary_search(&s)
+                .map(|i| i as u16)
+                .map_err(|_| E::custom(format_args!("'{s}' is not a valid code in ValueSet {url}")))
+        }
+
+        impl<'de, VS: ValueSetDef> Deserialize<'de> for BoundCode<VS> {
+            fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+                // Element/_field handling stays at the parent-struct level,
+                // exactly as your current derive does it.
+                let s = <&str>::deserialize(d)?; // or Cow, matching current behavior
+                parse_code::<D::Error>(VS::CODES, VS::URL, s).map(Self::from_index)
+            }
+        }
+
+        impl<VS: ValueSetDef> Serialize for BoundCode<VS> {
+            fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+                match self.as_str() {
+                    Some(c) => s.serialize_str(c),
+                    None => s.serialize_none(), // Null case; match current `_field`-only semantics
+                }
+            }
+        }
+    }
+}
+
 pub async fn generate(
     file_paths: &Vec<String>,
 ) -> Result<GeneratedTerminologies, OperationOutcomeError> {
@@ -492,15 +500,16 @@ pub async fn generate(
         }
     }
 
+    let prebuilt_code = prebuilt_code();
+
     Ok(GeneratedTerminologies {
         inlined_terminologies,
         tokens: quote! {
+            #![allow(dead_code)]
             #![allow(non_camel_case_types)]
             /// DO NOT EDIT THIS FILE. It is auto-generated by the FHIR Rust code generator.
-            use self::super::types::Element;
-            use std::any::Any;
-            use haste_reflect::MetaValue;
-            use haste_fhir_serialization_json::derive::{FHIRSerdeDeserialize, FHIRSerdeSerialize};
+            #prebuilt_code
+
             #(#codes)*
         },
     })

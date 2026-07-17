@@ -199,7 +199,7 @@ pub mod conversion {
                     {
                         let inline_type = format_ident!("{}", inlined);
                         quote! {
-                            Box<terminology::#inline_type>
+                            BoundCode<terminology::#inline_type>
                         }
                     } else {
                         let k = format_ident!("{}", primitive.clone());

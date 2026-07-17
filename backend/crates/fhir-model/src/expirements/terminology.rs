@@ -176,6 +176,10 @@ mod test {
         pub const NULL: BoundCode<Self> = BoundCode::null();
     }
 
+    struct Z {
+        k: Vec<BoundCode<AdministrativeGender>>,
+    }
+
     #[test]
     fn expiremental_valueset_structs() {
         let gender = AdministrativeGender::MALE;
