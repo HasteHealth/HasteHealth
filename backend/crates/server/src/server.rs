@@ -199,7 +199,6 @@ pub async fn server(
     let session_store = PostgresStore::new(pool.clone());
     session_store.migrate().await.map_err(ConfigError::from)?;
 
-    let max_body_size = config.max_request_body_size;
     let shared_state = create_services(config.clone()).await?;
 
     let fhir_router = Router::new()
@@ -279,7 +278,7 @@ pub async fn server(
                 .layer(NewSentryLayer::<Request<Body>>::new_from_top())
                 .layer(TraceLayer::new_for_http())
                 // 4mb by default.
-                .layer(DefaultBodyLimit::max(max_body_size))
+                .layer(DefaultBodyLimit::max(config.max_request_body_size))
                 .layer(CompressionLayer::new())
                 .layer(SecurityHeaderLayer::new())
                 .layer(SetResponseHeaderLayer::overriding(
