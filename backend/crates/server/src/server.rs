@@ -23,7 +23,10 @@ use axum::{
     routing::{any, get, post},
 };
 use axum_client_ip::ClientIpSource;
-use haste_fhir_client::FHIRClient;
+use haste_fhir_client::{
+    FHIRClient,
+    request::{FHIRCapabilitiesResponse, FHIRResponse},
+};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -158,6 +161,29 @@ async fn fhir_type_handler<
     fhir_handler(user, method, uri, path, state, body).await
 }
 
+async fn public_metadata_handler<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+>(
+    Path(path): Path<FHIRRootHandlerPath>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
+) -> Result<Response, OperationOutcomeError> {
+    let ctx = Arc::new(ServerCTX::system(
+        path.tenant,
+        path.project,
+        state.fhir_client.clone(),
+        state.rate_limit.clone(),
+    ));
+
+    state
+        .fhir_client
+        .capabilities(ctx)
+        .await
+        .map(|capabilities| FHIRResponse::Capabilities(FHIRCapabilitiesResponse { capabilities }))
+        .map(|fhir_response| fhir_response.into_response())
+}
+
 pub async fn server(
     config: Arc<ServerConfig>,
 ) -> Result<NormalizePath<Router>, OperationOutcomeError> {
@@ -174,7 +200,7 @@ pub async fn server(
     session_store.migrate().await.map_err(ConfigError::from)?;
 
     let max_body_size = config.max_request_body_size;
-    let shared_state = create_services(config).await?;
+    let shared_state = create_services(config.clone()).await?;
 
     let fhir_router = Router::new()
         .route("/{fhir_version}", any(fhir_root_handler))
@@ -198,10 +224,17 @@ pub async fn server(
                 )),
         );
 
-    let project_router = Router::new().merge(protected_resources_router).nest(
+    let mut project_router = Router::new().merge(protected_resources_router).nest(
         "/oidc",
         auth_n::oidc::routes::create_router(shared_state.clone()),
     );
+
+    if config.security.publicize_fhir_metadata {
+        project_router = project_router.route(
+            "/fhir/{fhir_version}/metadata",
+            get(public_metadata_handler),
+        );
+    }
 
     let tenant_router = Router::new()
         .nest("/auth", auth_n::tenant::routes::create_router())

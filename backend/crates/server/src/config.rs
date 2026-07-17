@@ -26,6 +26,7 @@ pub struct ServerConfig {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct SecurityConfig {
+    pub publicize_fhir_metadata: bool,
     pub mfa: MFAConfig,
     pub encryption: SecretProviderConfig,
     pub aes_key: Option<String>,
@@ -195,6 +196,7 @@ impl Default for MonitoringConfig {
 impl Default for SecurityConfig {
     fn default() -> Self {
         Self {
+            publicize_fhir_metadata: true,
             mfa: MFAConfig::default(),
             encryption: SecretProviderConfig::default(),
             aes_key: None,
