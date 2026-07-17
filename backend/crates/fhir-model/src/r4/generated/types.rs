@@ -741,11 +741,11 @@ pub struct Address {
     #[rename_field = "use"]
     #[primitive]
     #[doc = "The purpose of this address."]
-    pub use_: Option<Box<terminology::AddressUse>>,
+    pub use_: Option<terminology::BoundCode<terminology::AddressUse>>,
     #[rename_field = "type"]
     #[primitive]
     #[doc = "Distinguishes between physical addresses (those you can visit) and mailing addresses (e.g. PO Boxes and care-of addresses). Most addresses are both."]
-    pub type_: Option<Box<terminology::AddressType>>,
+    pub type_: Option<terminology::BoundCode<terminology::AddressType>>,
     #[primitive]
     #[doc = "Specifies the entire address as it should be displayed e.g. on a postal label. This may be provided instead of or as well as the specific parts."]
     pub text: Option<Box<FHIRString>>,
@@ -791,7 +791,7 @@ pub struct Age {
     pub value: Option<Box<FHIRDecimal>>,
     #[primitive]
     #[doc = "How the value should be understood and represented - whether the actual value is greater or less than the stated value due to measurement issues; e.g. if the comparator is \"<\" , then the real value is < stated value."]
-    pub comparator: Option<Box<terminology::QuantityComparator>>,
+    pub comparator: Option<terminology::BoundCode<terminology::QuantityComparator>>,
     #[primitive]
     #[doc = "A human-readable form of the unit."]
     pub unit: Option<Box<FHIRString>>,
@@ -983,14 +983,14 @@ pub struct ContactPoint {
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "Telecommunications form for contact point - what communications system is required to make use of the contact."]
-    pub system: Option<Box<terminology::ContactPointSystem>>,
+    pub system: Option<terminology::BoundCode<terminology::ContactPointSystem>>,
     #[primitive]
     #[doc = "The actual contact point details, in a form that is meaningful to the designated communication system (i.e. phone number or email address)."]
     pub value: Option<Box<FHIRString>>,
     #[rename_field = "use"]
     #[primitive]
     #[doc = "Identifies the purpose for the contact point."]
-    pub use_: Option<Box<terminology::ContactPointUse>>,
+    pub use_: Option<terminology::BoundCode<terminology::ContactPointUse>>,
     #[primitive]
     #[doc = "Specifies a preferred order in which to use a set of contacts. ContactPoints with lower rank values are more preferred than those with higher rank values."]
     pub rank: Option<Box<FHIRPositiveInt>>,
@@ -1016,7 +1016,7 @@ pub struct Contributor {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of contributor."]
-    pub type_: Box<terminology::ContributorType>,
+    pub type_: terminology::BoundCode<terminology::ContributorType>,
     #[primitive]
     #[doc = "The name of the individual or organization responsible for the contribution."]
     pub name: Box<FHIRString>,
@@ -1044,7 +1044,7 @@ pub struct Count {
     pub value: Option<Box<FHIRDecimal>>,
     #[primitive]
     #[doc = "How the value should be understood and represented - whether the actual value is greater or less than the stated value due to measurement issues; e.g. if the comparator is \"<\" , then the real value is < stated value."]
-    pub comparator: Option<Box<terminology::QuantityComparator>>,
+    pub comparator: Option<terminology::BoundCode<terminology::QuantityComparator>>,
     #[primitive]
     #[doc = "A human-readable form of the unit."]
     pub unit: Option<Box<FHIRString>>,
@@ -1169,7 +1169,7 @@ pub struct DataRequirementSort {
     pub path: Box<FHIRString>,
     #[primitive]
     #[doc = "The direction of the sort, ascending or descending."]
-    pub direction: Box<terminology::SortDirection>,
+    pub direction: terminology::BoundCode<terminology::SortDirection>,
 }
 #[derive(
     Clone,
@@ -1190,7 +1190,7 @@ pub struct DataRequirement {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of the required data, specified as the type name of a resource. For profiles, this value is set to the type of the base resource of the profile."]
-    pub type_: Box<terminology::AllTypes>,
+    pub type_: terminology::BoundCode<terminology::AllTypes>,
     #[primitive]
     #[doc = "The profile of the required data, specified as the uri of the profile definition."]
     pub profile: Option<Vec<Box<FHIRCanonical>>>,
@@ -1231,7 +1231,7 @@ pub struct Distance {
     pub value: Option<Box<FHIRDecimal>>,
     #[primitive]
     #[doc = "How the value should be understood and represented - whether the actual value is greater or less than the stated value due to measurement issues; e.g. if the comparator is \"<\" , then the real value is < stated value."]
-    pub comparator: Option<Box<terminology::QuantityComparator>>,
+    pub comparator: Option<terminology::BoundCode<terminology::QuantityComparator>>,
     #[primitive]
     #[doc = "A human-readable form of the unit."]
     pub unit: Option<Box<FHIRString>>,
@@ -1394,7 +1394,7 @@ pub struct Duration {
     pub value: Option<Box<FHIRDecimal>>,
     #[primitive]
     #[doc = "How the value should be understood and represented - whether the actual value is greater or less than the stated value due to measurement issues; e.g. if the comparator is \"<\" , then the real value is < stated value."]
-    pub comparator: Option<Box<terminology::QuantityComparator>>,
+    pub comparator: Option<terminology::BoundCode<terminology::QuantityComparator>>,
     #[primitive]
     #[doc = "A human-readable form of the unit."]
     pub unit: Option<Box<FHIRString>>,
@@ -1424,7 +1424,7 @@ pub struct ElementDefinitionSlicingDiscriminator {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "How the element value is interpreted when discrimination is evaluated."]
-    pub type_: Box<terminology::DiscriminatorType>,
+    pub type_: terminology::BoundCode<terminology::DiscriminatorType>,
     #[primitive]
     #[doc = "A FHIRPath expression, using [the simple subset of FHIRPath](fhirpath.html#simple), that is used to identify the element on which discrimination is based."]
     pub path: Box<FHIRString>,
@@ -1455,7 +1455,7 @@ pub struct ElementDefinitionSlicing {
     pub ordered: Option<Box<FHIRBoolean>>,
     #[primitive]
     #[doc = "Whether additional slices are allowed or not. When the slices are ordered, profile authors can also say that additional slices are only allowed at the end."]
-    pub rules: Box<terminology::ResourceSlicingRules>,
+    pub rules: terminology::BoundCode<terminology::ResourceSlicingRules>,
 }
 #[derive(
     Clone,
@@ -1510,10 +1510,10 @@ pub struct ElementDefinitionType {
     pub targetProfile: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "If the type is a reference to another resource, how the resource is or can be aggregated - is it a contained resource, or a reference, and if the context is a bundle, is it included in the bundle."]
-    pub aggregation: Option<Vec<Box<terminology::ResourceAggregationMode>>>,
+    pub aggregation: Option<Vec<terminology::BoundCode<terminology::ResourceAggregationMode>>>,
     #[primitive]
     #[doc = "Whether this reference needs to be version specific or version independent, or whether either can be used."]
-    pub versioning: Option<Box<terminology::ReferenceVersionRules>>,
+    pub versioning: Option<terminology::BoundCode<terminology::ReferenceVersionRules>>,
 }
 #[derive(
     Clone,
@@ -1968,7 +1968,7 @@ pub struct ElementDefinitionConstraint {
     pub requirements: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "Identifies the impact constraint violation has on the conformance of the instance."]
-    pub severity: Box<terminology::ConstraintSeverity>,
+    pub severity: terminology::BoundCode<terminology::ConstraintSeverity>,
     #[primitive]
     #[doc = "Text that can be used to describe the constraint in messages identifying that the constraint has been violated."]
     pub human: Box<FHIRString>,
@@ -2000,7 +2000,7 @@ pub struct ElementDefinitionBinding {
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "Indicates the degree of conformance expectations associated with this binding - that is, the degree to which the provided value set must be adhered to in the instances."]
-    pub strength: Box<terminology::BindingStrength>,
+    pub strength: terminology::BoundCode<terminology::BindingStrength>,
     #[primitive]
     #[doc = "Describes the intended use of this particular set of codes."]
     pub description: Option<Box<FHIRString>>,
@@ -2060,7 +2060,7 @@ pub struct ElementDefinition {
     pub path: Box<FHIRString>,
     #[primitive]
     #[doc = "Codes that define how this element is represented in instances, when the deviation varies from the normal case."]
-    pub representation: Option<Vec<Box<terminology::PropertyRepresentation>>>,
+    pub representation: Option<Vec<terminology::BoundCode<terminology::PropertyRepresentation>>>,
     #[primitive]
     #[doc = "The name of this element definition slice, when slicing is working. The name must be a token with no dots or spaces. This is a unique name referring to a specific set of constraints applied to this element, used to provide a name to different slices of the same element."]
     pub sliceName: Option<Box<FHIRString>>,
@@ -2309,7 +2309,7 @@ pub struct HumanName {
     #[rename_field = "use"]
     #[primitive]
     #[doc = "Identifies the purpose for this name."]
-    pub use_: Option<Box<terminology::NameUse>>,
+    pub use_: Option<terminology::BoundCode<terminology::NameUse>>,
     #[primitive]
     #[doc = "Specifies the entire name as it should be displayed e.g. on an application UI. This may be provided instead of or as well as the specific parts."]
     pub text: Option<Box<FHIRString>>,
@@ -2347,7 +2347,7 @@ pub struct Identifier {
     #[rename_field = "use"]
     #[primitive]
     #[doc = "The purpose of this identifier."]
-    pub use_: Option<Box<terminology::IdentifierUse>>,
+    pub use_: Option<terminology::BoundCode<terminology::IdentifierUse>>,
     #[rename_field = "type"]
     #[doc = "A coded type for the identifier that can be used to determine which identifier to use for a specific purpose."]
     pub type_: Option<Box<CodeableConcept>>,
@@ -2467,7 +2467,7 @@ pub struct Narrative {
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The status of the narrative - whether it's entirely generated (from just the defined data or the extensions too), or whether a human authored it and it may contain additional data."]
-    pub status: Box<terminology::NarrativeStatus>,
+    pub status: terminology::BoundCode<terminology::NarrativeStatus>,
     #[primitive]
     #[doc = "The actual narrative content, a stripped down version of XHTML."]
     pub div: Box<FHIRXhtml>,
@@ -2494,7 +2494,7 @@ pub struct ParameterDefinition {
     #[rename_field = "use"]
     #[primitive]
     #[doc = "Whether the parameter is input or output for the module."]
-    pub use_: Box<terminology::OperationParameterUse>,
+    pub use_: terminology::BoundCode<terminology::OperationParameterUse>,
     #[primitive]
     #[doc = "The minimum number of times this parameter SHALL appear in the request or response."]
     pub min: Option<Box<FHIRInteger>>,
@@ -2507,7 +2507,7 @@ pub struct ParameterDefinition {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of the parameter."]
-    pub type_: Box<terminology::AllTypes>,
+    pub type_: terminology::BoundCode<terminology::AllTypes>,
     #[primitive]
     #[doc = "If specified, this indicates a profile that the input data must conform to, or that the output data will conform to."]
     pub profile: Option<Box<FHIRCanonical>>,
@@ -2675,7 +2675,7 @@ pub struct Quantity {
     pub value: Option<Box<FHIRDecimal>>,
     #[primitive]
     #[doc = "How the value should be understood and represented - whether the actual value is greater or less than the stated value due to measurement issues; e.g. if the comparator is \"<\" , then the real value is < stated value."]
-    pub comparator: Option<Box<terminology::QuantityComparator>>,
+    pub comparator: Option<terminology::BoundCode<terminology::QuantityComparator>>,
     #[primitive]
     #[doc = "A human-readable form of the unit."]
     pub unit: Option<Box<FHIRString>>,
@@ -2777,7 +2777,7 @@ pub struct RelatedArtifact {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of relationship to the related artifact."]
-    pub type_: Box<terminology::RelatedArtifactType>,
+    pub type_: terminology::BoundCode<terminology::RelatedArtifactType>,
     #[primitive]
     #[doc = "A short label that can be used to reference the citation from elsewhere in the containing artifact, such as a footnote index."]
     pub label: Option<Box<FHIRString>>,
@@ -2994,7 +2994,7 @@ pub struct TimingRepeat {
     pub durationMax: Option<Box<FHIRDecimal>>,
     #[primitive]
     #[doc = "The units of time for the duration, in UCUM units."]
-    pub durationUnit: Option<Box<terminology::UnitsOfTime>>,
+    pub durationUnit: Option<terminology::BoundCode<terminology::UnitsOfTime>>,
     #[primitive]
     #[doc = "The number of times to repeat the action within the specified period. If frequencyMax is present, this element indicates the lower bound of the allowed range of the frequency."]
     pub frequency: Option<Box<FHIRPositiveInt>>,
@@ -3009,16 +3009,16 @@ pub struct TimingRepeat {
     pub periodMax: Option<Box<FHIRDecimal>>,
     #[primitive]
     #[doc = "The units of time for the period in UCUM units."]
-    pub periodUnit: Option<Box<terminology::UnitsOfTime>>,
+    pub periodUnit: Option<terminology::BoundCode<terminology::UnitsOfTime>>,
     #[primitive]
     #[doc = "If one or more days of week is provided, then the action happens only on the specified day(s)."]
-    pub dayOfWeek: Option<Vec<Box<terminology::DaysOfWeek>>>,
+    pub dayOfWeek: Option<Vec<terminology::BoundCode<terminology::DaysOfWeek>>>,
     #[primitive]
     #[doc = "Specified time of day for action to take place."]
     pub timeOfDay: Option<Vec<Box<FHIRTime>>>,
     #[primitive]
     #[doc = "An approximate time period during the day, potentially linked to an event of daily living that indicates when the action should occur."]
-    pub when: Option<Vec<Box<terminology::EventTiming>>>,
+    pub when: Option<Vec<terminology::BoundCode<terminology::EventTiming>>>,
     #[primitive]
     #[doc = "The number of minutes from the event. If the event code does not indicate whether the minutes is before or after the event, then the offset is assumed to be after the event."]
     pub offset: Option<Box<FHIRUnsignedInt>>,
@@ -3091,7 +3091,7 @@ pub struct TriggerDefinition {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of triggering event."]
-    pub type_: Box<terminology::TriggerType>,
+    pub type_: terminology::BoundCode<terminology::TriggerType>,
     #[primitive]
     #[doc = "A formal name for the event. This may be an absolute URI that identifies the event formally (e.g. from a trigger registry), or a simple relative URI that identifies the event in a local context."]
     pub name: Option<Box<FHIRString>>,
@@ -3190,7 +3190,7 @@ pub struct MetadataResource {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this metadata resource. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this metadata resource is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,

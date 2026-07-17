@@ -82,6 +82,46 @@ pub fn get_inner_type_if_vector_or_optional_or_box(type_: &Type) -> Type {
     type_.clone()
 }
 
+/// Renders a `Type` as a path expression usable before `::method(...)`, inserting the
+/// turbofish (`::<...>`) on any segment carrying generic arguments. `syn`/`quote` render
+/// generics the type-position way (`Foo<Bar>`) by default, which is invalid in expression
+/// position (e.g. `Vec<T>::method()` doesn't parse; it must be `Vec::<T>::method()`).
+pub fn type_as_turbofish_tokens(type_: &Type) -> proc_macro2::TokenStream {
+    use quote::quote;
+
+    if let Type::Path(type_path) = type_ {
+        let mut tokens = proc_macro2::TokenStream::new();
+
+        if let Some(qself) = &type_path.qself {
+            let ty = &qself.ty;
+            tokens.extend(quote! { <#ty> :: });
+        }
+
+        for (i, segment) in type_path.path.segments.iter().enumerate() {
+            if i > 0 {
+                tokens.extend(quote! { :: });
+            }
+
+            let ident = &segment.ident;
+            match &segment.arguments {
+                syn::PathArguments::AngleBracketed(args) => {
+                    tokens.extend(quote! { #ident::#args });
+                }
+                syn::PathArguments::Parenthesized(args) => {
+                    tokens.extend(quote! { #ident #args });
+                }
+                syn::PathArguments::None => {
+                    tokens.extend(quote! { #ident });
+                }
+            }
+        }
+
+        tokens
+    } else {
+        quote::quote! { #type_ }
+    }
+}
+
 pub fn is_type_string(type_: &Type) -> bool {
     let inner_type = get_inner_type_if_vector_or_optional_or_box(type_);
 

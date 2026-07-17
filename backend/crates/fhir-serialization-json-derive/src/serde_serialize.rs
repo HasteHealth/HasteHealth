@@ -6,7 +6,7 @@ use crate::{
     DeserializeComplexType,
     utilities::{
         TypeInformation, get_attribute_value, is_attribute_present, is_optional_field,
-        is_type_string, process_field,
+        is_type_string, process_field, type_as_turbofish_tokens,
     },
 };
 
@@ -164,12 +164,13 @@ pub fn complex_serialization(
                 let field_ident = &field.ident;
                 let field_name = &field.field_name;
                 let field_type = &field.field_type;
+                let field_type_turbofish = type_as_turbofish_tokens(field_type);
 
                 let serialize_field = match field.type_info {
                     TypeInformation::Primitive => {
                         if field.is_vector {
                             quote!{
-                                #field_type::serialize_as_vector(#field_name, #field_ident.as_slice(), &mut #map_serializer)?;
+                                #field_type_turbofish::serialize_as_vector(#field_name, #field_ident.as_slice(), &mut #map_serializer)?;
                             }
                         } else {
                             quote!{
@@ -218,9 +219,9 @@ pub fn complex_serialization(
                 }
             };
 
-            // if name.to_string() == "ExampleScenario" {
-            //     println!("{}", serialize.to_string());
-            // }
+            if name.to_string() == "ClientApplication" {
+                println!("{}", serialize.to_string());
+            }
 
             serialize.into()
         }

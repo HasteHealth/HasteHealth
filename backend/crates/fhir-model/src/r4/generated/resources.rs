@@ -38,7 +38,8 @@ pub struct IdentityProviderOidcClient {
 pub struct IdentityProviderOidcPkce {
     #[primitive]
     #[doc = "PKCE code challenge method."]
-    pub code_challenge_method: Option<Box<terminology::IdentityProviderPkceChallengeMethod>>,
+    pub code_challenge_method:
+        Option<terminology::BoundCode<terminology::IdentityProviderPkceChallengeMethod>>,
     #[primitive]
     #[doc = "PKCE enabled."]
     pub enabled: Option<Box<FHIRBoolean>>,
@@ -96,10 +97,10 @@ pub struct IdentityProvider {
     pub name: Box<FHIRString>,
     #[primitive]
     #[doc = "The status of the identity provider."]
-    pub status: Box<terminology::IdentityProviderStatus>,
+    pub status: terminology::BoundCode<terminology::IdentityProviderStatus>,
     #[primitive]
     #[doc = "Method for connecting to external identity provider."]
-    pub accessType: Box<terminology::IdentityProviderAccessType>,
+    pub accessType: terminology::BoundCode<terminology::IdentityProviderAccessType>,
     #[doc = "OIDC connection configuration for the identity provider."]
     pub oidc: Option<IdentityProviderOidc>,
 }
@@ -147,7 +148,7 @@ pub struct Project {
     pub name: Box<FHIRString>,
     #[primitive]
     #[doc = ""]
-    pub fhirVersion: Box<terminology::SupportedFhirVersion>,
+    pub fhirVersion: terminology::BoundCode<terminology::SupportedFhirVersion>,
     #[cardinality(max = 3usize)]
     # [reference (targets = ["IdentityProvider"])]
     #[doc = ""]
@@ -168,7 +169,7 @@ pub struct AccessPolicyV2AttributeOperation {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The operation to retrieve the attribute."]
-    pub type_: Box<terminology::AccessPolicyAttributeOperationTypes>,
+    pub type_: terminology::BoundCode<terminology::AccessPolicyAttributeOperationTypes>,
     #[doc = "The operation to retrieve the attribute."]
     pub path: Option<Box<Expression>>,
     #[doc = "The operation to retrieve the attribute."]
@@ -242,10 +243,10 @@ pub struct AccessPolicyV2Rule {
     pub description: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "Rule combination behavior for children elements."]
-    pub combineBehavior: Option<Box<terminology::AccessPolicyv2CombineBehavior>>,
+    pub combineBehavior: Option<terminology::BoundCode<terminology::AccessPolicyv2CombineBehavior>>,
     #[primitive]
     #[doc = ""]
-    pub effect: Option<Box<terminology::AccessPolicyRuleEffect>>,
+    pub effect: Option<terminology::BoundCode<terminology::AccessPolicyRuleEffect>>,
     #[doc = ""]
     pub target: Option<AccessPolicyV2RuleTarget>,
     #[doc = ""]
@@ -293,7 +294,7 @@ pub struct AccessPolicyV2 {
     pub description: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The type of evaluation that is performed to determine if access is granted or denied."]
-    pub engine: Box<terminology::AccessPolicyv2Engine>,
+    pub engine: terminology::BoundCode<terminology::AccessPolicyv2Engine>,
     #[cardinality(max = 15usize)]
     #[doc = "Attributes to use for the policy evaluation."]
     pub attribute: Option<Vec<AccessPolicyV2Attribute>>,
@@ -420,10 +421,10 @@ pub struct ClientApplication {
     #[primitive]
     #[cardinality(min = 1usize)]
     #[doc = "The grant type for this client application."]
-    pub grantType: Vec<Box<terminology::ClientapplicationGrantType>>,
+    pub grantType: Vec<terminology::BoundCode<terminology::ClientapplicationGrantType>>,
     #[primitive]
     #[doc = ""]
-    pub responseTypes: Box<terminology::ClientapplicationResponseTypes>,
+    pub responseTypes: terminology::BoundCode<terminology::ClientapplicationResponseTypes>,
     #[primitive]
     #[doc = "For client credentials (or other confidential authentication methods), the client secret."]
     pub secret: Option<Box<FHIRString>>,
@@ -475,7 +476,7 @@ pub struct User {
     pub name: Option<Box<HumanName>>,
     #[primitive]
     #[doc = ""]
-    pub role: Box<terminology::UserRole>,
+    pub role: terminology::BoundCode<terminology::UserRole>,
     # [reference (targets = ["IdentityProvider"])]
     #[doc = ""]
     pub federated: Option<Box<Reference>>,
@@ -567,7 +568,7 @@ pub struct Account {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "Indicates whether the account is presently used/usable or not."]
-    pub status: Box<terminology::AccountStatus>,
+    pub status: terminology::BoundCode<terminology::AccountStatus>,
     #[rename_field = "type"]
     #[doc = "Categorizes the account for reporting and searching purposes."]
     pub type_: Option<Box<CodeableConcept>>,
@@ -656,7 +657,7 @@ pub struct ActivityDefinitionParticipant {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of participant in the action."]
-    pub type_: Box<terminology::ActionParticipantType>,
+    pub type_: terminology::BoundCode<terminology::ActionParticipantType>,
     #[doc = "The role the participant should play in performing the described action."]
     pub role: Option<Box<CodeableConcept>>,
 }
@@ -753,7 +754,7 @@ pub struct ActivityDefinition {
     pub subtitle: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this activity definition. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this activity definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -809,7 +810,7 @@ pub struct ActivityDefinition {
     pub library: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "A description of the kind of resource the activity definition is representing. For example, a MedicationRequest, a ServiceRequest, or a CommunicationRequest. Typically, but not always, this is a Request resource."]
-    pub kind: Option<Box<terminology::RequestResourceTypes>>,
+    pub kind: Option<terminology::BoundCode<terminology::RequestResourceTypes>>,
     #[primitive]
     #[doc = "A profile to which the target of the activity definition is expected to conform."]
     pub profile: Option<Box<FHIRCanonical>>,
@@ -817,10 +818,10 @@ pub struct ActivityDefinition {
     pub code: Option<Box<CodeableConcept>>,
     #[primitive]
     #[doc = "Indicates the level of authority/intentionality associated with the activity and where the request should fit into the workflow chain."]
-    pub intent: Option<Box<terminology::RequestIntent>>,
+    pub intent: Option<terminology::BoundCode<terminology::RequestIntent>>,
     #[primitive]
     #[doc = "Indicates how quickly the activity  should be addressed with respect to other requests."]
-    pub priority: Option<Box<terminology::RequestPriority>>,
+    pub priority: Option<terminology::BoundCode<terminology::RequestPriority>>,
     #[primitive]
     #[doc = "Set this to true if the definition is to indicate that a particular activity should NOT be performed. If true, this element should be interpreted to reinforce a negative coding. For example NPO as a code with a doNotPerform of true would still indicate to NOT perform the action."]
     pub doNotPerform: Option<Box<FHIRBoolean>>,
@@ -944,7 +945,7 @@ pub struct AdverseEvent {
     pub identifier_: Option<Box<Identifier>>,
     #[primitive]
     #[doc = "Whether the event actually happened, or just had the potential to. Note that this is independent of whether anyone was affected or harmed or how severely."]
-    pub actuality: Box<terminology::AdverseEventActuality>,
+    pub actuality: terminology::BoundCode<terminology::AdverseEventActuality>,
     #[doc = "The overall type of event, intended for search and filtering purposes."]
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "This element defines the specific type of event that occurred or that was prevented from occurring."]
@@ -1048,7 +1049,7 @@ pub struct AllergyIntoleranceReaction {
     pub onset: Option<Box<FHIRDateTime>>,
     #[primitive]
     #[doc = "Clinical assessment of the severity of the reaction event as a whole, potentially considering multiple different manifestations."]
-    pub severity: Option<Box<terminology::ReactionEventSeverity>>,
+    pub severity: Option<terminology::BoundCode<terminology::ReactionEventSeverity>>,
     #[doc = "Identification of the route by which the subject was exposed to the substance."]
     pub exposureRoute: Option<Box<CodeableConcept>>,
     #[doc = "Additional text about the adverse reaction event not captured in other fields."]
@@ -1094,13 +1095,13 @@ pub struct AllergyIntolerance {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "Identification of the underlying physiological mechanism for the reaction risk."]
-    pub type_: Option<Box<terminology::AllergyIntoleranceType>>,
+    pub type_: Option<terminology::BoundCode<terminology::AllergyIntoleranceType>>,
     #[primitive]
     #[doc = "Category of the identified substance."]
-    pub category: Option<Vec<Box<terminology::AllergyIntoleranceCategory>>>,
+    pub category: Option<Vec<terminology::BoundCode<terminology::AllergyIntoleranceCategory>>>,
     #[primitive]
     #[doc = "Estimate of the potential clinical harm, or seriousness, of the reaction to the identified substance."]
-    pub criticality: Option<Box<terminology::AllergyIntoleranceCriticality>>,
+    pub criticality: Option<terminology::BoundCode<terminology::AllergyIntoleranceCriticality>>,
     #[doc = "Code for an allergy or intolerance statement (either a positive or a negated/excluded statement).  This may be a code for a substance or pharmaceutical product that is considered to be responsible for the adverse reaction risk (e.g., \"Latex\"), an allergy or intolerance condition (e.g., \"Latex allergy\"), or a negated/excluded code for a specific substance or class (e.g., \"No latex allergy\") or a general or categorical negated statement (e.g.,  \"No known allergy\", \"No known drug allergies\").  Note: the substance for a specific reaction may be different from the substance identified as the cause of the risk, but it must be consistent with it. For instance, it may be a more specific substance (e.g. a brand medication) or a composite product that includes the identified substance. It must be clinically safe to only process the 'code' and ignore the 'reaction.substance'.  If a receiving system is unable to confirm that AllergyIntolerance.reaction.substance falls within the semantic scope of AllergyIntolerance.code, then the receiving system should ignore AllergyIntolerance.reaction.substance."]
     pub code: Option<Box<CodeableConcept>>,
     # [reference (targets = ["Patient"])]
@@ -1155,10 +1156,10 @@ pub struct AppointmentParticipant {
     pub actor: Option<Box<Reference>>,
     #[primitive]
     #[doc = "Whether this participant is required to be present at the meeting. This covers a use-case where two doctors need to meet to discuss the results for a specific patient, and the patient is not required to be present."]
-    pub required: Option<Box<terminology::Participantrequired>>,
+    pub required: Option<terminology::BoundCode<terminology::Participantrequired>>,
     #[primitive]
     #[doc = "Participation status of the actor."]
-    pub status: Box<terminology::Participationstatus>,
+    pub status: terminology::BoundCode<terminology::Participationstatus>,
     #[doc = "Participation period of the actor."]
     pub period: Option<Box<Period>>,
 }
@@ -1197,7 +1198,7 @@ pub struct Appointment {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The overall status of the Appointment. Each of the participants has their own participation status which indicates their involvement in the process, however this status indicates the shared status."]
-    pub status: Box<terminology::Appointmentstatus>,
+    pub status: terminology::BoundCode<terminology::Appointmentstatus>,
     #[doc = "The coded reason for the appointment being cancelled. This is often used in reporting/billing/futher processing to determine if further actions are required, or specific fees apply."]
     pub cancelationReason: Option<Box<CodeableConcept>>,
     #[doc = "A broad categorization of the service that is to be performed during this appointment."]
@@ -1301,7 +1302,7 @@ pub struct AppointmentResponse {
     pub actor: Option<Box<Reference>>,
     #[primitive]
     #[doc = "Participation status of the participant. When the status is declined or tentative if the start/end times are different to the appointment, then these times should be interpreted as a requested time change. When the status is accepted, the times can either be the time of the appointment (as a confirmation of the time) or can be empty."]
-    pub participantStatus: Box<terminology::Participationstatus>,
+    pub participantStatus: terminology::BoundCode<terminology::Participationstatus>,
     #[primitive]
     #[doc = "Additional comments about the appointment."]
     pub comment: Option<Box<FHIRString>>,
@@ -1330,7 +1331,7 @@ pub struct AuditEventAgentNetwork {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "An identifier for the type of network access point that originated the audit event."]
-    pub type_: Option<Box<terminology::NetworkType>>,
+    pub type_: Option<terminology::BoundCode<terminology::NetworkType>>,
 }
 #[derive(
     Clone,
@@ -1533,7 +1534,7 @@ pub struct AuditEvent {
     pub subtype: Option<Vec<Box<Coding>>>,
     #[primitive]
     #[doc = "Indicator for type of action performed during the event that generated the audit."]
-    pub action: Option<Box<terminology::AuditEventAction>>,
+    pub action: Option<terminology::BoundCode<terminology::AuditEventAction>>,
     #[doc = "The period during which the activity occurred."]
     pub period: Option<Box<Period>>,
     #[primitive]
@@ -1541,7 +1542,7 @@ pub struct AuditEvent {
     pub recorded: Box<FHIRInstant>,
     #[primitive]
     #[doc = "Indicates whether the event succeeded or failed."]
-    pub outcome: Option<Box<terminology::AuditEventOutcome>>,
+    pub outcome: Option<terminology::BoundCode<terminology::AuditEventOutcome>>,
     #[primitive]
     #[doc = "A free text description of the outcome of the event."]
     pub outcomeDesc: Option<Box<FHIRString>>,
@@ -1800,7 +1801,7 @@ pub struct BiologicallyDerivedProductStorage {
     pub temperature: Option<Box<FHIRDecimal>>,
     #[primitive]
     #[doc = "Temperature scale used."]
-    pub scale: Option<Box<terminology::ProductStorageScale>>,
+    pub scale: Option<terminology::BoundCode<terminology::ProductStorageScale>>,
     #[doc = "Storage timeperiod."]
     pub duration: Option<Box<Period>>,
 }
@@ -1839,12 +1840,12 @@ pub struct BiologicallyDerivedProduct {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "Broad category of this product."]
-    pub productCategory: Option<Box<terminology::ProductCategory>>,
+    pub productCategory: Option<terminology::BoundCode<terminology::ProductCategory>>,
     #[doc = "A code that identifies the kind of this biologically derived product (SNOMED Ctcode)."]
     pub productCode: Option<Box<CodeableConcept>>,
     #[primitive]
     #[doc = "Whether the product is currently available."]
-    pub status: Option<Box<terminology::ProductStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::ProductStatus>>,
     # [reference (targets = ["ServiceRequest"])]
     #[doc = "Procedure request to obtain this biologically derived product."]
     pub request: Option<Vec<Box<Reference>>>,
@@ -1959,7 +1960,7 @@ pub struct BundleEntrySearch {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "Why this entry is in the result set - whether it's included as a match or because of an _include requirement, or to convey information or warning information about the search process."]
-    pub mode: Option<Box<terminology::SearchEntryMode>>,
+    pub mode: Option<terminology::BoundCode<terminology::SearchEntryMode>>,
     #[primitive]
     #[doc = "When searching, the server's search ranking score for the entry."]
     pub score: Option<Box<FHIRDecimal>>,
@@ -1984,7 +1985,7 @@ pub struct BundleEntryRequest {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "In a transaction or batch, this is the HTTP action to be executed for this entry. In a history bundle, this indicates the HTTP action that occurred."]
-    pub method: Box<terminology::HttpVerb>,
+    pub method: terminology::BoundCode<terminology::HttpVerb>,
     #[primitive]
     #[doc = "The URL for this entry, relative to the root (the address to which the request is posted)."]
     pub url: Box<FHIRUri>,
@@ -2094,7 +2095,7 @@ pub struct Bundle {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "Indicates the purpose of this bundle - how it is intended to be used."]
-    pub type_: Box<terminology::BundleType>,
+    pub type_: terminology::BoundCode<terminology::BundleType>,
     #[primitive]
     #[doc = "The date/time that the bundle was assembled - i.e. when the resources were placed in the bundle."]
     pub timestamp: Option<Box<FHIRInstant>>,
@@ -2211,7 +2212,7 @@ pub struct CapabilityStatementRestResourceInteraction {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "Coded identifier of the operation, supported by the system resource."]
-    pub code: Box<terminology::TypeRestfulInteraction>,
+    pub code: terminology::BoundCode<terminology::TypeRestfulInteraction>,
     #[primitive]
     #[doc = "Guidance specific to the implementation of this operation, such as 'delete is a logical delete' or 'updates are only allowed with version id' or 'creates permitted from pre-authorized certificates only'."]
     pub documentation: Option<Box<FHIRMarkdown>>,
@@ -2243,7 +2244,7 @@ pub struct CapabilityStatementRestResourceSearchParam {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of value a search parameter refers to, and how the content is interpreted."]
-    pub type_: Box<terminology::SearchParamType>,
+    pub type_: terminology::BoundCode<terminology::SearchParamType>,
     #[primitive]
     #[doc = "This allows documentation of any distinct behaviors about how the search parameter is used.  For example, text matching algorithms."]
     pub documentation: Option<Box<FHIRMarkdown>>,
@@ -2297,7 +2298,7 @@ pub struct CapabilityStatementRestResource {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "A type of resource exposed via the restful interface."]
-    pub type_: Box<terminology::ResourceTypes>,
+    pub type_: terminology::BoundCode<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "A specification of the profile that describes the solution's overall support for the resource, including any constraints on cardinality, bindings, lengths or other limitations. See further discussion in [Using Profiles](profiling.html#profile-uses)."]
     pub profile: Option<Box<FHIRCanonical>>,
@@ -2311,7 +2312,7 @@ pub struct CapabilityStatementRestResource {
     pub interaction: Option<Vec<CapabilityStatementRestResourceInteraction>>,
     #[primitive]
     #[doc = "This field is set to no-version to specify that the system does not support (server) or use (client) versioning for this resource type. If this has some other value, the server must at least correctly track and populate the versionId meta-property on resources. If the value is 'versioned-update', then the server supports all the versioning features, including using e-tags for version integrity in the API."]
-    pub versioning: Option<Box<terminology::VersioningPolicy>>,
+    pub versioning: Option<terminology::BoundCode<terminology::VersioningPolicy>>,
     #[primitive]
     #[doc = "A flag for whether the server is able to return past versions as part of the vRead operation."]
     pub readHistory: Option<Box<FHIRBoolean>>,
@@ -2323,16 +2324,16 @@ pub struct CapabilityStatementRestResource {
     pub conditionalCreate: Option<Box<FHIRBoolean>>,
     #[primitive]
     #[doc = "A code that indicates how the server supports conditional read."]
-    pub conditionalRead: Option<Box<terminology::ConditionalReadStatus>>,
+    pub conditionalRead: Option<terminology::BoundCode<terminology::ConditionalReadStatus>>,
     #[primitive]
     #[doc = "A flag that indicates that the server supports conditional update."]
     pub conditionalUpdate: Option<Box<FHIRBoolean>>,
     #[primitive]
     #[doc = "A code that indicates how the server supports conditional delete."]
-    pub conditionalDelete: Option<Box<terminology::ConditionalDeleteStatus>>,
+    pub conditionalDelete: Option<terminology::BoundCode<terminology::ConditionalDeleteStatus>>,
     #[primitive]
     #[doc = "A set of flags that defines how references are supported."]
-    pub referencePolicy: Option<Vec<Box<terminology::ReferenceHandlingPolicy>>>,
+    pub referencePolicy: Option<Vec<terminology::BoundCode<terminology::ReferenceHandlingPolicy>>>,
     #[primitive]
     #[doc = "A list of _include values supported by the server."]
     pub searchInclude: Option<Vec<Box<FHIRString>>>,
@@ -2364,7 +2365,7 @@ pub struct CapabilityStatementRestInteraction {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "A coded identifier of the operation, supported by the system."]
-    pub code: Box<terminology::SystemRestfulInteraction>,
+    pub code: terminology::BoundCode<terminology::SystemRestfulInteraction>,
     #[primitive]
     #[doc = "Guidance specific to the implementation of this operation, such as limitations on the kind of transactions allowed, or information about system wide search is implemented."]
     pub documentation: Option<Box<FHIRMarkdown>>,
@@ -2389,7 +2390,7 @@ pub struct CapabilityStatementRest {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "Identifies whether this portion of the statement is describing the ability to initiate or receive restful operations."]
-    pub mode: Box<terminology::RestfulCapabilityMode>,
+    pub mode: terminology::BoundCode<terminology::RestfulCapabilityMode>,
     #[primitive]
     #[doc = "Information about the system's restful capabilities that apply across all applications, such as security."]
     pub documentation: Option<Box<FHIRMarkdown>>,
@@ -2451,7 +2452,7 @@ pub struct CapabilityStatementMessagingSupportedMessage {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The mode of this event declaration - whether application is sender or receiver."]
-    pub mode: Box<terminology::EventCapabilityMode>,
+    pub mode: terminology::BoundCode<terminology::EventCapabilityMode>,
     #[primitive]
     #[doc = "Points to a message definition that identifies the messaging event, message structure, allowed responses, etc."]
     pub definition: Box<FHIRCanonical>,
@@ -2505,7 +2506,7 @@ pub struct CapabilityStatementDocument {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "Mode of this document declaration - whether an application is a producer or consumer."]
-    pub mode: Box<terminology::DocumentMode>,
+    pub mode: terminology::BoundCode<terminology::DocumentMode>,
     #[primitive]
     #[doc = "A description of how the application supports or uses the specified document profile.  For example, when documents are created, what action is taken with consumed documents, etc."]
     pub documentation: Option<Box<FHIRMarkdown>>,
@@ -2557,7 +2558,7 @@ pub struct CapabilityStatement {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this capability statement. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this capability statement is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -2584,7 +2585,7 @@ pub struct CapabilityStatement {
     pub copyright: Option<Box<FHIRMarkdown>>,
     #[primitive]
     #[doc = "The way that this statement is intended to be used, to describe an actual running instance of software, a particular product (kind, not instance of software) or a class of implementation (e.g. a desired purchase)."]
-    pub kind: Box<terminology::CapabilityStatementKind>,
+    pub kind: terminology::BoundCode<terminology::CapabilityStatementKind>,
     #[primitive]
     #[doc = "Reference to a canonical URL of another CapabilityStatement that this software implements. This capability statement is a published API description that corresponds to a business service. The server may actually implement a subset of the capability statement it claims to implement, so the capability statement must specify the full capability details."]
     pub instantiates: Option<Vec<Box<FHIRCanonical>>>,
@@ -2597,7 +2598,7 @@ pub struct CapabilityStatement {
     pub implementation: Option<CapabilityStatementImplementation>,
     #[primitive]
     #[doc = "The version of the FHIR specification that this CapabilityStatement describes (which SHALL be the same as the FHIR version of the CapabilityStatement itself). There is no default value."]
-    pub fhirVersion: Box<terminology::FHIRVersion>,
+    pub fhirVersion: terminology::BoundCode<terminology::FHIRVersion>,
     #[primitive]
     #[cardinality(min = 1usize)]
     #[doc = "A list of the formats supported by this implementation using their content types."]
@@ -2674,7 +2675,7 @@ pub struct CarePlanActivityDetail {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "A description of the kind of resource the in-line definition of a care plan activity is representing.  The CarePlan.activity.detail is an in-line definition when a resource is not referenced using CarePlan.activity.reference.  For example, a MedicationRequest, a ServiceRequest, or a CommunicationRequest."]
-    pub kind: Option<Box<terminology::CarePlanActivityKind>>,
+    pub kind: Option<terminology::BoundCode<terminology::CarePlanActivityKind>>,
     #[primitive]
     #[doc = "The URL pointing to a FHIR-defined protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this CarePlan activity."]
     pub instantiatesCanonical: Option<Vec<Box<FHIRCanonical>>>,
@@ -2693,7 +2694,7 @@ pub struct CarePlanActivityDetail {
     pub goal: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "Identifies what progress is being made for the specific activity."]
-    pub status: Box<terminology::CarePlanActivityStatus>,
+    pub status: terminology::BoundCode<terminology::CarePlanActivityStatus>,
     #[doc = "Provides reason why the activity isn't yet started, is on hold, was cancelled, etc."]
     pub statusReason: Option<Box<CodeableConcept>>,
     #[primitive]
@@ -2800,10 +2801,10 @@ pub struct CarePlan {
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "Indicates whether the plan is currently being acted upon, represents future intentions or is now a historical record."]
-    pub status: Box<terminology::RequestStatus>,
+    pub status: terminology::BoundCode<terminology::RequestStatus>,
     #[primitive]
     #[doc = "Indicates the level of authority/intentionality associated with the care plan and where the care plan fits into the workflow chain."]
-    pub intent: Box<terminology::CarePlanIntent>,
+    pub intent: terminology::BoundCode<terminology::CarePlanIntent>,
     #[doc = "Identifies what \"kind\" of plan this is to support differentiation between multiple co-existing plans; e.g. \"Home health\", \"psychiatric\", \"asthma\", \"disease management\", \"wellness plan\", etc."]
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[primitive]
@@ -2910,7 +2911,7 @@ pub struct CareTeam {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "Indicates the current state of the care team."]
-    pub status: Option<Box<terminology::CareTeamStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::CareTeamStatus>>,
     #[doc = "Identifies what kind of team.  This is to support differentiation between multiple co-existing teams, such as care plan team, episode of care team, longitudinal care team."]
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[primitive]
@@ -2959,7 +2960,7 @@ pub struct CatalogEntryRelatedEntry {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The type of relation to the related item: child, parent, packageContent, containerPackage, usedIn, uses, requires, etc."]
-    pub relationtype: Box<terminology::RelationType>,
+    pub relationtype: terminology::BoundCode<terminology::RelationType>,
     # [reference (targets = ["CatalogEntry"])]
     #[doc = "The reference to the related item."]
     pub item: Box<Reference>,
@@ -3012,7 +3013,7 @@ pub struct CatalogEntry {
     pub classification: Option<Vec<Box<CodeableConcept>>>,
     #[primitive]
     #[doc = "Used to support catalog exchange even for unsupported products, e.g. getting list of medications even if not prescribable."]
-    pub status: Option<Box<terminology::PublicationStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::PublicationStatus>>,
     #[doc = "The time period in which this catalog entry is expected to be active."]
     pub validityPeriod: Option<Box<Period>>,
     #[primitive]
@@ -3132,7 +3133,7 @@ pub struct ChargeItem {
     pub definitionCanonical: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The current state of the ChargeItem."]
-    pub status: Box<terminology::ChargeitemStatus>,
+    pub status: terminology::BoundCode<terminology::ChargeitemStatus>,
     # [reference (targets = ["ChargeItem"])]
     #[doc = "ChargeItems can be grouped to larger ChargeItems covering the whole set."]
     pub partOf: Option<Vec<Box<Reference>>>,
@@ -3242,7 +3243,7 @@ pub struct ChargeItemDefinitionPropertyGroupPriceComponent {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "This code identifies the type of the component."]
-    pub type_: Box<terminology::InvoicePriceComponentType>,
+    pub type_: terminology::BoundCode<terminology::InvoicePriceComponentType>,
     #[doc = "A code that identifies the component. Codes may be used to differentiate between kinds of taxes, surcharges, discounts etc."]
     pub code: Option<Box<CodeableConcept>>,
     #[primitive]
@@ -3327,7 +3328,7 @@ pub struct ChargeItemDefinition {
     pub replaces: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The current state of the ChargeItemDefinition."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this charge item definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -3953,7 +3954,7 @@ pub struct Claim {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status of the resource instance."]
-    pub status: Box<terminology::FmStatus>,
+    pub status: terminology::BoundCode<terminology::FmStatus>,
     #[rename_field = "type"]
     #[doc = "The category of claim, e.g. oral, pharmacy, vision, institutional, professional."]
     pub type_: Box<CodeableConcept>,
@@ -3962,7 +3963,7 @@ pub struct Claim {
     #[rename_field = "use"]
     #[primitive]
     #[doc = "A code to indicate whether the nature of the request is: to request adjudication of products and services previously rendered; or requesting authorization and adjudication for provision in the future; or requesting the non-binding adjudication of the listed products and services which could be provided in the future."]
-    pub use_: Box<terminology::ClaimUse>,
+    pub use_: terminology::BoundCode<terminology::ClaimUse>,
     # [reference (targets = ["Patient"])]
     #[doc = "The party to whom the professional services and/or products have been supplied or are being considered and for whom actual or forecast reimbursement is sought."]
     pub patient: Box<Reference>,
@@ -4395,7 +4396,7 @@ pub struct ClaimResponseProcessNote {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The business purpose of the note text."]
-    pub type_: Option<Box<terminology::NoteType>>,
+    pub type_: Option<terminology::BoundCode<terminology::NoteType>>,
     #[primitive]
     #[doc = "The explanation or description associated with the processing."]
     pub text: Box<FHIRString>,
@@ -4501,7 +4502,7 @@ pub struct ClaimResponse {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status of the resource instance."]
-    pub status: Box<terminology::FmStatus>,
+    pub status: terminology::BoundCode<terminology::FmStatus>,
     #[rename_field = "type"]
     #[doc = "A finer grained suite of claim type codes which may convey additional information such as Inpatient vs Outpatient and/or a specialty service."]
     pub type_: Box<CodeableConcept>,
@@ -4510,7 +4511,7 @@ pub struct ClaimResponse {
     #[rename_field = "use"]
     #[primitive]
     #[doc = "A code to indicate whether the nature of the request is: to request adjudication of products and services previously rendered; or requesting authorization and adjudication for provision in the future; or requesting the non-binding adjudication of the listed products and services which could be provided in the future."]
-    pub use_: Box<terminology::ClaimUse>,
+    pub use_: terminology::BoundCode<terminology::ClaimUse>,
     # [reference (targets = ["Patient"])]
     #[doc = "The party to whom the professional services and/or products have been supplied or are being considered and for whom actual for facast reimbursement is sought."]
     pub patient: Box<Reference>,
@@ -4528,7 +4529,7 @@ pub struct ClaimResponse {
     pub request: Option<Box<Reference>>,
     #[primitive]
     #[doc = "The outcome of the claim, predetermination, or preauthorization processing."]
-    pub outcome: Box<terminology::RemittanceOutcome>,
+    pub outcome: terminology::BoundCode<terminology::RemittanceOutcome>,
     #[primitive]
     #[doc = "A human readable description of the status of the adjudication."]
     pub disposition: Option<Box<FHIRString>>,
@@ -4670,7 +4671,7 @@ pub struct ClinicalImpression {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "Identifies the workflow status of the assessment."]
-    pub status: Box<terminology::ClinicalimpressionStatus>,
+    pub status: terminology::BoundCode<terminology::ClinicalimpressionStatus>,
     #[doc = "Captures the reason for the current state of the ClinicalImpression."]
     pub statusReason: Option<Box<CodeableConcept>>,
     #[doc = "Categorizes the type of clinical assessment performed."]
@@ -4747,7 +4748,7 @@ pub struct CodeSystemFilter {
     #[primitive]
     #[cardinality(min = 1usize)]
     #[doc = "A list of operators that can be used with the filter."]
-    pub operator: Vec<Box<terminology::FilterOperator>>,
+    pub operator: Vec<terminology::BoundCode<terminology::FilterOperator>>,
     #[primitive]
     #[doc = "A description of what the value for the filter should be."]
     pub value: Box<FHIRString>,
@@ -4782,7 +4783,7 @@ pub struct CodeSystemProperty {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of the property value. Properties of type \"code\" contain a code defined by the code system (e.g. a reference to another defined concept)."]
-    pub type_: Box<terminology::ConceptPropertyType>,
+    pub type_: terminology::BoundCode<terminology::ConceptPropertyType>,
 }
 #[derive(
     Clone,
@@ -4947,7 +4948,7 @@ pub struct CodeSystem {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The date (and optionally time) when the code system resource was created or revised."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this code system is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -4980,7 +4981,7 @@ pub struct CodeSystem {
     pub valueSet: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "The meaning of the hierarchy of concepts as represented in this resource."]
-    pub hierarchyMeaning: Option<Box<terminology::CodesystemHierarchyMeaning>>,
+    pub hierarchyMeaning: Option<terminology::BoundCode<terminology::CodesystemHierarchyMeaning>>,
     #[primitive]
     #[doc = "The code system defines a compositional (post-coordination) grammar."]
     pub compositional: Option<Box<FHIRBoolean>>,
@@ -4989,7 +4990,7 @@ pub struct CodeSystem {
     pub versionNeeded: Option<Box<FHIRBoolean>>,
     #[primitive]
     #[doc = "The extent of the content of the code system (the concepts and codes it defines) are represented in this resource instance."]
-    pub content: Box<terminology::CodesystemContentMode>,
+    pub content: terminology::BoundCode<terminology::CodesystemContentMode>,
     #[primitive]
     #[doc = "The canonical URL of the code system that this code system supplement is adding designations and properties to."]
     pub supplements: Option<Box<FHIRCanonical>>,
@@ -5096,14 +5097,14 @@ pub struct Communication {
     pub inResponseTo: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "The status of the transmission."]
-    pub status: Box<terminology::EventStatus>,
+    pub status: terminology::BoundCode<terminology::EventStatus>,
     #[doc = "Captures the reason for the current state of the Communication."]
     pub statusReason: Option<Box<CodeableConcept>>,
     #[doc = "The type of message conveyed such as alert, notification, reminder, instruction, etc."]
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[primitive]
     #[doc = "Characterizes how quickly the planned or in progress communication must be addressed. Includes concepts such as stat, urgent, routine."]
-    pub priority: Option<Box<terminology::RequestPriority>>,
+    pub priority: Option<terminology::BoundCode<terminology::RequestPriority>>,
     #[doc = "A channel that was used for this communication (e.g. email, fax)."]
     pub medium: Option<Vec<Box<CodeableConcept>>>,
     # [reference (targets = ["Patient" , "Group"])]
@@ -5244,14 +5245,14 @@ pub struct CommunicationRequest {
     pub groupIdentifier: Option<Box<Identifier>>,
     #[primitive]
     #[doc = "The status of the proposal or order."]
-    pub status: Box<terminology::RequestStatus>,
+    pub status: terminology::BoundCode<terminology::RequestStatus>,
     #[doc = "Captures the reason for the current state of the CommunicationRequest."]
     pub statusReason: Option<Box<CodeableConcept>>,
     #[doc = "The type of message to be sent such as alert, notification, reminder, instruction, etc."]
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[primitive]
     #[doc = "Characterizes how quickly the proposed act must be initiated. Includes concepts such as stat, urgent, routine."]
-    pub priority: Option<Box<terminology::RequestPriority>>,
+    pub priority: Option<terminology::BoundCode<terminology::RequestPriority>>,
     #[primitive]
     #[doc = "If true indicates that the CommunicationRequest is asking for the specified action to *not* occur."]
     pub doNotPerform: Option<Box<FHIRBoolean>>,
@@ -5311,7 +5312,7 @@ pub struct CompartmentDefinitionResource {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The name of a resource supported by the server."]
-    pub code: Box<terminology::ResourceTypes>,
+    pub code: terminology::BoundCode<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "The name of a search parameter that represents the link to the compartment. More than one may be listed because a resource may be linked to a compartment in more than one way,."]
     pub param: Option<Vec<Box<FHIRString>>>,
@@ -5360,7 +5361,7 @@ pub struct CompartmentDefinition {
     pub name: Box<FHIRString>,
     #[primitive]
     #[doc = "The status of this compartment definition. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this compartment definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -5382,7 +5383,7 @@ pub struct CompartmentDefinition {
     pub purpose: Option<Box<FHIRMarkdown>>,
     #[primitive]
     #[doc = "Which compartment this definition describes."]
-    pub code: Box<terminology::CompartmentType>,
+    pub code: terminology::BoundCode<terminology::CompartmentType>,
     #[primitive]
     #[doc = "Whether the search syntax is supported,."]
     pub search: Box<FHIRBoolean>,
@@ -5409,7 +5410,7 @@ pub struct CompositionAttester {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The type of attestation the authenticator offers."]
-    pub mode: Box<terminology::CompositionAttestationMode>,
+    pub mode: terminology::BoundCode<terminology::CompositionAttestationMode>,
     #[primitive]
     #[doc = "When the composition was attested by the party."]
     pub time: Option<Box<FHIRDateTime>>,
@@ -5456,7 +5457,7 @@ pub struct CompositionRelatesTo {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The type of relationship that this composition has with anther composition or document."]
-    pub code: Box<terminology::DocumentRelationshipType>,
+    pub code: terminology::BoundCode<terminology::DocumentRelationshipType>,
     # [type_choice_variants (complex = ["targetIdentifier" , "targetReference"] , primitive = [])]
     #[doc = "The target composition/document of this relationship."]
     pub target: CompositionRelatesToTargetTypeChoice,
@@ -5520,7 +5521,7 @@ pub struct CompositionSection {
     pub text: Option<Box<Narrative>>,
     #[primitive]
     #[doc = "How the entry list was prepared - whether it is a working list that is suitable for being maintained on an ongoing basis, or if it represents a snapshot of a list of items from another source, or whether it is a prepared list where items may be marked as added, modified or deleted."]
-    pub mode: Option<Box<terminology::ListMode>>,
+    pub mode: Option<terminology::BoundCode<terminology::ListMode>>,
     #[doc = "Specifies the order applied to the items in the section entries."]
     pub orderedBy: Option<Box<CodeableConcept>>,
     # [reference (targets = ["Resource"])]
@@ -5566,7 +5567,7 @@ pub struct Composition {
     pub identifier_: Option<Box<Identifier>>,
     #[primitive]
     #[doc = "The workflow/clinical status of this composition. The status is a marker for the clinical standing of the document."]
-    pub status: Box<terminology::CompositionStatus>,
+    pub status: terminology::BoundCode<terminology::CompositionStatus>,
     #[rename_field = "type"]
     #[doc = "Specifies the particular kind of composition (e.g. History and Physical, Discharge Summary, Progress Note). This usually equates to the purpose of making the composition."]
     pub type_: Box<CodeableConcept>,
@@ -5590,7 +5591,8 @@ pub struct Composition {
     pub title: Box<FHIRString>,
     #[primitive]
     #[doc = "The code specifying the level of confidentiality of the Composition."]
-    pub confidentiality: Option<Box<terminology::V3ConfidentialityClassification>>,
+    pub confidentiality:
+        Option<terminology::BoundCode<terminology::V3ConfidentialityClassification>>,
     #[doc = "A participant who has attested to the accuracy of the composition/document."]
     pub attester: Option<Vec<CompositionAttester>>,
     # [reference (targets = ["Organization"])]
@@ -5700,7 +5702,7 @@ pub struct ConceptMapGroupElementTarget {
     pub display: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The equivalence between the source and target concepts (counting for the dependencies and products). The equivalence is read from target to source (e.g. the target is 'wider' than the source)."]
-    pub equivalence: Box<terminology::ConceptMapEquivalence>,
+    pub equivalence: terminology::BoundCode<terminology::ConceptMapEquivalence>,
     #[primitive]
     #[doc = "A description of status/issues in mapping that conveys additional information not represented in  the structured data."]
     pub comment: Option<Box<FHIRString>>,
@@ -5756,7 +5758,7 @@ pub struct ConceptMapGroupUnmapped {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "Defines which action to take if there is no match for the source concept in the target system designated for the group. One of 3 actions are possible: use the unmapped code (this is useful when doing a mapping between versions, and only a few codes have changed), use a fixed code (a default code), or alternatively, a reference to a different concept map can be provided (by canonical URL)."]
-    pub mode: Box<terminology::ConceptmapUnmappedMode>,
+    pub mode: terminology::BoundCode<terminology::ConceptmapUnmappedMode>,
     #[primitive]
     #[doc = "The fixed code to use when the mode = 'fixed'  - all unmapped codes are mapped to a single fixed code."]
     pub code: Option<Box<FHIRCode>>,
@@ -5850,7 +5852,7 @@ pub struct ConceptMap {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this concept map. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this concept map is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -6170,7 +6172,7 @@ pub struct ConsentProvisionData {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "How the resource reference is interpreted when testing consent restrictions."]
-    pub meaning: Box<terminology::ConsentDataMeaning>,
+    pub meaning: terminology::BoundCode<terminology::ConsentDataMeaning>,
     # [reference (targets = ["Resource"])]
     #[doc = "A reference to a specific resource that defines which resources are covered by this consent."]
     pub reference: Box<Reference>,
@@ -6196,7 +6198,7 @@ pub struct ConsentProvision {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "Action  to take - permit or deny - when the rule conditions are met.  Not permitted in root rule, required in all nested rules."]
-    pub type_: Option<Box<terminology::ConsentProvisionType>>,
+    pub type_: Option<terminology::BoundCode<terminology::ConsentProvisionType>>,
     #[doc = "The timeframe in this rule is valid."]
     pub period: Option<Box<Period>>,
     #[doc = "Who or what is controlled by this rule. Use group to identify a set of actors by some property they share (e.g. 'admitting officers')."]
@@ -6253,7 +6255,7 @@ pub struct Consent {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "Indicates the current state of this consent."]
-    pub status: Box<terminology::ConsentStateCodes>,
+    pub status: terminology::BoundCode<terminology::ConsentStateCodes>,
     #[doc = "A selector of the type of consent being presented: ADR, Privacy, Treatment, Research.  This list is now extensible."]
     pub scope: Box<CodeableConcept>,
     #[cardinality(min = 1usize)]
@@ -6333,7 +6335,7 @@ pub struct ContractContentDefinition {
     pub publicationDate: Option<Box<FHIRDateTime>>,
     #[primitive]
     #[doc = "amended | appended | cancelled | disputed | entered-in-error | executable | executed | negotiable | offered | policy | rejected | renewed | revoked | resolved | terminated."]
-    pub publicationStatus: Box<terminology::ContractPublicationstatus>,
+    pub publicationStatus: terminology::BoundCode<terminology::ContractPublicationstatus>,
     #[primitive]
     #[doc = "A copyright statement relating to Contract precursor content. Copyright statements are generally legal restrictions on the use and publishing of the Contract precursor content."]
     pub copyright: Option<Box<FHIRMarkdown>>,
@@ -7052,7 +7054,7 @@ pub struct Contract {
     pub version: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of the resource instance."]
-    pub status: Option<Box<terminology::ContractStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::ContractStatus>>,
     #[doc = "Legal states of the formation of a legal instrument, which is a formally executed written document that can be formally attributed to its author, records and formally expresses a legally enforceable act, process, or contractual duty, obligation, or right, and therefore evidences that act, process, or agreement."]
     pub legalState: Option<Box<CodeableConcept>>,
     # [reference (targets = ["Contract"])]
@@ -7261,7 +7263,7 @@ pub struct Coverage {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status of the resource instance."]
-    pub status: Box<terminology::FmStatus>,
+    pub status: terminology::BoundCode<terminology::FmStatus>,
     #[rename_field = "type"]
     #[doc = "The type of coverage: social program, medical plan, accident coverage (workers compensation, auto), group health or payment by an individual or organization."]
     pub type_: Option<Box<CodeableConcept>>,
@@ -7501,13 +7503,13 @@ pub struct CoverageEligibilityRequest {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status of the resource instance."]
-    pub status: Box<terminology::FmStatus>,
+    pub status: terminology::BoundCode<terminology::FmStatus>,
     #[doc = "When the requestor expects the processor to complete processing."]
     pub priority: Option<Box<CodeableConcept>>,
     #[primitive]
     #[cardinality(min = 1usize)]
     #[doc = "Code to specify whether requesting: prior authorization requirements for some service categories or billing codes; benefits for coverages specified or discovered; discovery and return of coverages for the patient; and/or validation that the specified coverage is in-force at the date/period specified or 'now' if not specified."]
-    pub purpose: Vec<Box<terminology::EligibilityrequestPurpose>>,
+    pub purpose: Vec<terminology::BoundCode<terminology::EligibilityrequestPurpose>>,
     # [reference (targets = ["Patient"])]
     #[doc = "The party who is the beneficiary of the supplied coverage and for whom eligibility is sought."]
     pub patient: Box<Reference>,
@@ -7767,11 +7769,11 @@ pub struct CoverageEligibilityResponse {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status of the resource instance."]
-    pub status: Box<terminology::FmStatus>,
+    pub status: terminology::BoundCode<terminology::FmStatus>,
     #[primitive]
     #[cardinality(min = 1usize)]
     #[doc = "Code to specify whether requesting: prior authorization requirements for some service categories or billing codes; benefits for coverages specified or discovered; discovery and return of coverages for the patient; and/or validation that the specified coverage is in-force at the date/period specified or 'now' if not specified."]
-    pub purpose: Vec<Box<terminology::EligibilityresponsePurpose>>,
+    pub purpose: Vec<terminology::BoundCode<terminology::EligibilityresponsePurpose>>,
     # [reference (targets = ["Patient"])]
     #[doc = "The party who is the beneficiary of the supplied coverage and for whom eligibility is sought."]
     pub patient: Box<Reference>,
@@ -7789,7 +7791,7 @@ pub struct CoverageEligibilityResponse {
     pub request: Box<Reference>,
     #[primitive]
     #[doc = "The outcome of the request processing."]
-    pub outcome: Box<terminology::RemittanceOutcome>,
+    pub outcome: terminology::BoundCode<terminology::RemittanceOutcome>,
     #[primitive]
     #[doc = "A human readable description of the status of the adjudication."]
     pub disposition: Option<Box<FHIRString>>,
@@ -7911,12 +7913,12 @@ pub struct DetectedIssue {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "Indicates the status of the detected issue."]
-    pub status: Box<terminology::ObservationStatus>,
+    pub status: terminology::BoundCode<terminology::ObservationStatus>,
     #[doc = "Identifies the general type of issue identified."]
     pub code: Option<Box<CodeableConcept>>,
     #[primitive]
     #[doc = "Indicates the degree of importance associated with the identified issue based on the potential impact on the patient."]
-    pub severity: Option<Box<terminology::DetectedissueSeverity>>,
+    pub severity: Option<terminology::BoundCode<terminology::DetectedissueSeverity>>,
     # [reference (targets = ["Patient"])]
     #[doc = "Indicates the patient whose record the detected issue is associated with."]
     pub patient: Option<Box<Reference>>,
@@ -7975,7 +7977,7 @@ pub struct DeviceUdiCarrier {
     pub carrierHRF: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "A coded entry to indicate how the data was entered."]
-    pub entryType: Option<Box<terminology::UdiEntryType>>,
+    pub entryType: Option<terminology::BoundCode<terminology::UdiEntryType>>,
 }
 #[derive(
     Clone,
@@ -8001,7 +8003,7 @@ pub struct DeviceDeviceName {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of deviceName.\nUDILabelName | UserFriendlyName | PatientReportedName | ManufactureDeviceName | ModelName."]
-    pub type_: Box<terminology::DeviceNametype>,
+    pub type_: terminology::BoundCode<terminology::DeviceNametype>,
 }
 #[derive(
     Clone,
@@ -8120,7 +8122,7 @@ pub struct Device {
     pub udiCarrier: Option<Vec<DeviceUdiCarrier>>,
     #[primitive]
     #[doc = "Status of the Device availability."]
-    pub status: Option<Box<terminology::DeviceStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::DeviceStatus>>,
     #[doc = "Reason for the dtatus of the Device availability."]
     pub statusReason: Option<Vec<Box<CodeableConcept>>>,
     #[primitive]
@@ -8252,7 +8254,7 @@ pub struct DeviceDefinitionDeviceName {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of deviceName.\nUDILabelName | UserFriendlyName | PatientReportedName | ManufactureDeviceName | ModelName."]
-    pub type_: Box<terminology::DeviceNametype>,
+    pub type_: terminology::BoundCode<terminology::DeviceNametype>,
 }
 #[derive(
     Clone,
@@ -8461,10 +8463,10 @@ pub struct DeviceMetricCalibration {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "Describes the type of the calibration method."]
-    pub type_: Option<Box<terminology::MetricCalibrationType>>,
+    pub type_: Option<terminology::BoundCode<terminology::MetricCalibrationType>>,
     #[primitive]
     #[doc = "Describes the state of the calibration."]
-    pub state: Option<Box<terminology::MetricCalibrationState>>,
+    pub state: Option<terminology::BoundCode<terminology::MetricCalibrationState>>,
     #[primitive]
     #[doc = "Describes the time last calibration has been performed."]
     pub time: Option<Box<FHIRInstant>>,
@@ -8515,13 +8517,13 @@ pub struct DeviceMetric {
     pub parent: Option<Box<Reference>>,
     #[primitive]
     #[doc = "Indicates current operational state of the device. For example: On, Off, Standby, etc."]
-    pub operationalStatus: Option<Box<terminology::MetricOperationalStatus>>,
+    pub operationalStatus: Option<terminology::BoundCode<terminology::MetricOperationalStatus>>,
     #[primitive]
     #[doc = "Describes the color representation for the metric. This is often used to aid clinicians to track and identify parameter types by color. In practice, consider a Patient Monitor that has ECG/HR and Pleth for example; the parameters are displayed in different characteristic colors, such as HR-blue, BP-green, and PR and SpO2- magenta."]
-    pub color: Option<Box<terminology::MetricColor>>,
+    pub color: Option<terminology::BoundCode<terminology::MetricColor>>,
     #[primitive]
     #[doc = "Indicates the category of the observation generation process. A DeviceMetric can be for example a setting, measurement, or calculation."]
-    pub category: Box<terminology::MetricCategory>,
+    pub category: terminology::BoundCode<terminology::MetricCategory>,
     #[doc = "Describes the measurement repetition time. This is not necessarily the same as the update period. The measurement repetition time can range from milliseconds up to hours. An example for a measurement repetition time in the range of milliseconds is the sampling rate of an ECG. An example for a measurement repetition time in the range of hours is a NIBP that is triggered automatically every hour. The update period may be different than the measurement repetition time, if the device does not update the published observed value with the same frequency as it was measured."]
     pub measurementPeriod: Option<Box<Timing>>,
     #[doc = "Describes the calibrations that have been performed or that are required to be performed."]
@@ -8660,13 +8662,13 @@ pub struct DeviceRequest {
     pub groupIdentifier: Option<Box<Identifier>>,
     #[primitive]
     #[doc = "The status of the request."]
-    pub status: Option<Box<terminology::RequestStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::RequestStatus>>,
     #[primitive]
     #[doc = "Whether the request is a proposal, plan, an original order or a reflex order."]
-    pub intent: Box<terminology::RequestIntent>,
+    pub intent: terminology::BoundCode<terminology::RequestIntent>,
     #[primitive]
     #[doc = "Indicates how quickly the {{title}} should be addressed with respect to other requests."]
-    pub priority: Option<Box<terminology::RequestPriority>>,
+    pub priority: Option<terminology::BoundCode<terminology::RequestPriority>>,
     # [type_choice_variants (complex = ["codeReference" , "codeCodeableConcept"] , primitive = [])]
     #[doc = "The details of the device to be used."]
     pub code: DeviceRequestCodeTypeChoice,
@@ -8767,7 +8769,7 @@ pub struct DeviceUseStatement {
     pub basedOn: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "A code representing the patient or other source's judgment about the state of the device used that this statement is about.  Generally this will be active or completed."]
-    pub status: Box<terminology::DeviceStatementStatus>,
+    pub status: terminology::BoundCode<terminology::DeviceStatementStatus>,
     # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The patient who used the device."]
     pub subject: Box<Reference>,
@@ -8878,7 +8880,7 @@ pub struct DiagnosticReport {
     pub basedOn: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "The status of the diagnostic report."]
-    pub status: Box<terminology::DiagnosticReportStatus>,
+    pub status: terminology::BoundCode<terminology::DiagnosticReportStatus>,
     #[doc = "A code that classifies the clinical discipline, department or diagnostic service that created the report (e.g. cardiology, biochemistry, hematology, MRI). This is used for searching, sorting and display purposes."]
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "A code or name that describes this diagnostic report."]
@@ -8983,7 +8985,7 @@ pub struct DocumentManifest {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status of this document manifest."]
-    pub status: Box<terminology::DocumentReferenceStatus>,
+    pub status: terminology::BoundCode<terminology::DocumentReferenceStatus>,
     #[rename_field = "type"]
     #[doc = "The code specifying the type of clinical activity that resulted in placing the associated content into the DocumentManifest."]
     pub type_: Option<Box<CodeableConcept>>,
@@ -9032,7 +9034,7 @@ pub struct DocumentReferenceRelatesTo {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The type of relationship that this document has with anther document."]
-    pub code: Box<terminology::DocumentRelationshipType>,
+    pub code: terminology::BoundCode<terminology::DocumentRelationshipType>,
     # [reference (targets = ["DocumentReference"])]
     #[doc = "The target document of this relationship."]
     pub target: Box<Reference>,
@@ -9133,10 +9135,10 @@ pub struct DocumentReference {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status of this document reference."]
-    pub status: Box<terminology::DocumentReferenceStatus>,
+    pub status: terminology::BoundCode<terminology::DocumentReferenceStatus>,
     #[primitive]
     #[doc = "The status of the underlying document."]
-    pub docStatus: Option<Box<terminology::CompositionStatus>>,
+    pub docStatus: Option<terminology::BoundCode<terminology::CompositionStatus>>,
     #[rename_field = "type"]
     #[doc = "Specifies the particular kind of document referenced  (e.g. History and Physical, Discharge Summary, Progress Note). This usually equates to the purpose of making the document referenced."]
     pub type_: Option<Box<CodeableConcept>>,
@@ -9221,7 +9223,7 @@ pub struct EffectEvidenceSynthesisResultsByExposure {
     pub description: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "Whether these results are for the exposure state or alternative exposure state."]
-    pub exposureState: Option<Box<terminology::ExposureState>>,
+    pub exposureState: Option<terminology::BoundCode<terminology::ExposureState>>,
     #[doc = "Used to define variant exposure states such as low-risk state."]
     pub variantState: Option<Box<CodeableConcept>>,
     # [reference (targets = ["RiskEvidenceSynthesis"])]
@@ -9391,7 +9393,7 @@ pub struct EffectEvidenceSynthesis {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this effect evidence synthesis. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "The date  (and optionally time) when the effect evidence synthesis was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the effect evidence synthesis changes."]
     pub date: Option<Box<FHIRDateTime>>,
@@ -9477,7 +9479,7 @@ pub struct EncounterStatusHistory {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "planned | arrived | triaged | in-progress | onleave | finished | cancelled +."]
-    pub status: Box<terminology::EncounterStatus>,
+    pub status: terminology::BoundCode<terminology::EncounterStatus>,
     #[doc = "The time that the episode was in the specified status."]
     pub period: Box<Period>,
 }
@@ -9621,7 +9623,7 @@ pub struct EncounterLocation {
     pub location: Box<Reference>,
     #[primitive]
     #[doc = "The status of the participants' presence at the specified location during the period specified. If the participant is no longer at the location, then the period will have an end date/time."]
-    pub status: Option<Box<terminology::EncounterLocationStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::EncounterLocationStatus>>,
     #[doc = "This will be used to specify the required levels (bed/ward/room/etc.) desired to be recorded to simplify either messaging or query."]
     pub physicalType: Option<Box<CodeableConcept>>,
     #[doc = "Time period during which the patient was present at the location."]
@@ -9662,7 +9664,7 @@ pub struct Encounter {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "planned | arrived | triaged | in-progress | onleave | finished | cancelled +."]
-    pub status: Box<terminology::EncounterStatus>,
+    pub status: terminology::BoundCode<terminology::EncounterStatus>,
     #[doc = "The status history permits the encounter resource to contain the status history without needing to read through the historical versions of the resource, or even have the server store them."]
     pub statusHistory: Option<Vec<EncounterStatusHistory>>,
     #[doc = "Concepts representing classification of patient encounter such as ambulatory (outpatient), inpatient, emergency, home health or others due to local variations."]
@@ -9750,7 +9752,7 @@ pub struct Endpoint {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "active | suspended | error | off | test."]
-    pub status: Box<terminology::EndpointStatus>,
+    pub status: terminology::BoundCode<terminology::EndpointStatus>,
     #[doc = "A coded value that represents the technical details of the usage of this endpoint, such as what WSDLs should be used in what way. (e.g. XDS.b/DICOM/cds-hook)."]
     pub connectionType: Box<Coding>,
     #[primitive]
@@ -9811,7 +9813,7 @@ pub struct EnrollmentRequest {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status of the resource instance."]
-    pub status: Option<Box<terminology::FmStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::FmStatus>>,
     #[primitive]
     #[doc = "The date when this resource was created."]
     pub created: Option<Box<FHIRDateTime>>,
@@ -9863,13 +9865,13 @@ pub struct EnrollmentResponse {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status of the resource instance."]
-    pub status: Option<Box<terminology::FmStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::FmStatus>>,
     # [reference (targets = ["EnrollmentRequest"])]
     #[doc = "Original request resource reference."]
     pub request: Option<Box<Reference>>,
     #[primitive]
     #[doc = "Processing status: error, complete."]
-    pub outcome: Option<Box<terminology::RemittanceOutcome>>,
+    pub outcome: Option<terminology::BoundCode<terminology::RemittanceOutcome>>,
     #[primitive]
     #[doc = "A description of the status of the adjudication."]
     pub disposition: Option<Box<FHIRString>>,
@@ -9903,7 +9905,7 @@ pub struct EpisodeOfCareStatusHistory {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "planned | waitlist | active | onhold | finished | cancelled."]
-    pub status: Box<terminology::EpisodeOfCareStatus>,
+    pub status: terminology::BoundCode<terminology::EpisodeOfCareStatus>,
     #[doc = "The period during this EpisodeOfCare that the specific status applied."]
     pub period: Box<Period>,
 }
@@ -9969,7 +9971,7 @@ pub struct EpisodeOfCare {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "planned | waitlist | active | onhold | finished | cancelled."]
-    pub status: Box<terminology::EpisodeOfCareStatus>,
+    pub status: terminology::BoundCode<terminology::EpisodeOfCareStatus>,
     #[doc = "The history of statuses that the EpisodeOfCare has been through (without requiring processing the history of the resource)."]
     pub statusHistory: Option<Vec<EpisodeOfCareStatusHistory>>,
     #[rename_field = "type"]
@@ -10067,7 +10069,7 @@ pub struct EventDefinition {
     pub subtitle: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this event definition. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this event definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -10175,7 +10177,7 @@ pub struct Evidence {
     pub subtitle: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this evidence. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "The date  (and optionally time) when the evidence was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the evidence changes."]
     pub date: Option<Box<FHIRDateTime>>,
@@ -10309,7 +10311,7 @@ pub struct EvidenceVariableCharacteristic {
     pub timeFromStart: Option<Box<Duration>>,
     #[primitive]
     #[doc = "Indicates how elements are aggregated within the study effective period."]
-    pub groupMeasure: Option<Box<terminology::GroupMeasure>>,
+    pub groupMeasure: Option<terminology::BoundCode<terminology::GroupMeasure>>,
 }
 #[derive(
     Clone,
@@ -10364,7 +10366,7 @@ pub struct EvidenceVariable {
     pub subtitle: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this evidence variable. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "The date  (and optionally time) when the evidence variable was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the evidence variable changes."]
     pub date: Option<Box<FHIRDateTime>>,
@@ -10408,7 +10410,7 @@ pub struct EvidenceVariable {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of evidence element, a population, an exposure, or an outcome."]
-    pub type_: Option<Box<terminology::VariableType>>,
+    pub type_: Option<terminology::BoundCode<terminology::VariableType>>,
     #[cardinality(min = 1usize)]
     #[doc = "A characteristic that defines the members of the evidence element. Multiple characteristics are applied with \"and\" semantics."]
     pub characteristic: Vec<EvidenceVariableCharacteristic>,
@@ -10437,7 +10439,7 @@ pub struct ExampleScenarioActor {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of actor - person or system."]
-    pub type_: Box<terminology::ExamplescenarioActorType>,
+    pub type_: terminology::BoundCode<terminology::ExamplescenarioActorType>,
     #[primitive]
     #[doc = "The name of the actor as shown in the page."]
     pub name: Option<Box<FHIRString>>,
@@ -10518,7 +10520,7 @@ pub struct ExampleScenarioInstance {
     pub resourceId: Box<FHIRString>,
     #[primitive]
     #[doc = "The type of the resource."]
-    pub resourceType: Box<terminology::ResourceTypes>,
+    pub resourceType: terminology::BoundCode<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "A short name for the resource instance."]
     pub name: Option<Box<FHIRString>>,
@@ -10710,7 +10712,7 @@ pub struct ExampleScenario {
     pub name: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this example scenario. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this example scenario is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -11587,7 +11589,7 @@ pub struct ExplanationOfBenefitProcessNote {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The business purpose of the note text."]
-    pub type_: Option<Box<terminology::NoteType>>,
+    pub type_: Option<terminology::BoundCode<terminology::NoteType>>,
     #[primitive]
     #[doc = "The explanation or description associated with the processing."]
     pub text: Option<Box<FHIRString>>,
@@ -11739,7 +11741,7 @@ pub struct ExplanationOfBenefit {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status of the resource instance."]
-    pub status: Box<terminology::ExplanationofbenefitStatus>,
+    pub status: terminology::BoundCode<terminology::ExplanationofbenefitStatus>,
     #[rename_field = "type"]
     #[doc = "The category of claim, e.g. oral, pharmacy, vision, institutional, professional."]
     pub type_: Box<CodeableConcept>,
@@ -11748,7 +11750,7 @@ pub struct ExplanationOfBenefit {
     #[rename_field = "use"]
     #[primitive]
     #[doc = "A code to indicate whether the nature of the request is: to request adjudication of products and services previously rendered; or requesting authorization and adjudication for provision in the future; or requesting the non-binding adjudication of the listed products and services which could be provided in the future."]
-    pub use_: Box<terminology::ClaimUse>,
+    pub use_: terminology::BoundCode<terminology::ClaimUse>,
     # [reference (targets = ["Patient"])]
     #[doc = "The party to whom the professional services and/or products have been supplied or are being considered and for whom actual for forecast reimbursement is sought."]
     pub patient: Box<Reference>,
@@ -11796,7 +11798,7 @@ pub struct ExplanationOfBenefit {
     pub claimResponse: Option<Box<Reference>>,
     #[primitive]
     #[doc = "The outcome of the claim, predetermination, or preauthorization processing."]
-    pub outcome: Box<terminology::RemittanceOutcome>,
+    pub outcome: terminology::BoundCode<terminology::RemittanceOutcome>,
     #[primitive]
     #[doc = "A human readable description of the status of the adjudication."]
     pub disposition: Option<Box<FHIRString>>,
@@ -12000,7 +12002,7 @@ pub struct FamilyMemberHistory {
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
     #[primitive]
     #[doc = "A code specifying the status of the record of the family history of a specific family member."]
-    pub status: Box<terminology::HistoryStatus>,
+    pub status: terminology::BoundCode<terminology::HistoryStatus>,
     #[doc = "Describes why the family member's history is not available."]
     pub dataAbsentReason: Option<Box<CodeableConcept>>,
     # [reference (targets = ["Patient"])]
@@ -12073,7 +12075,7 @@ pub struct Flag {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "Supports basic workflow."]
-    pub status: Box<terminology::FlagStatus>,
+    pub status: terminology::BoundCode<terminology::FlagStatus>,
     #[doc = "Allows a flag to be divided into different categories like clinical, administrative etc. Intended to be used as a means of filtering which flags are displayed to particular user or in a given context."]
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "The coded value or textual component of the flag to display to the user."]
@@ -12216,7 +12218,7 @@ pub struct Goal {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The state of the goal throughout its lifecycle."]
-    pub lifecycleStatus: Box<terminology::GoalStatus>,
+    pub lifecycleStatus: terminology::BoundCode<terminology::GoalStatus>,
     #[doc = "Describes the progression, or lack thereof, towards the goal against the target."]
     pub achievementStatus: Option<Box<CodeableConcept>>,
     #[doc = "Indicates a category the goal falls within."]
@@ -12274,13 +12276,13 @@ pub struct GraphDefinitionLinkTargetCompartment {
     #[rename_field = "use"]
     #[primitive]
     #[doc = "Defines how the compartment rule is used - whether it it is used to test whether resources are subject to the rule, or whether it is a rule that must be followed."]
-    pub use_: Box<terminology::GraphCompartmentUse>,
+    pub use_: terminology::BoundCode<terminology::GraphCompartmentUse>,
     #[primitive]
     #[doc = "Identifies the compartment."]
-    pub code: Box<terminology::CompartmentType>,
+    pub code: terminology::BoundCode<terminology::CompartmentType>,
     #[primitive]
     #[doc = "identical | matching | different | no-rule | custom."]
-    pub rule: Box<terminology::GraphCompartmentRule>,
+    pub rule: terminology::BoundCode<terminology::GraphCompartmentRule>,
     #[primitive]
     #[doc = "Custom rule, as a FHIRPath expression."]
     pub expression: Option<Box<FHIRString>>,
@@ -12309,7 +12311,7 @@ pub struct GraphDefinitionLinkTarget {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "Type of resource this link refers to."]
-    pub type_: Box<terminology::ResourceTypes>,
+    pub type_: terminology::BoundCode<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "A set of parameters to look up."]
     pub params: Option<Box<FHIRString>>,
@@ -12398,7 +12400,7 @@ pub struct GraphDefinition {
     pub name: Box<FHIRString>,
     #[primitive]
     #[doc = "The status of this graph definition. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this graph definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -12422,7 +12424,7 @@ pub struct GraphDefinition {
     pub purpose: Option<Box<FHIRMarkdown>>,
     #[primitive]
     #[doc = "The type of FHIR resource at which instances of this graph start."]
-    pub start: Box<terminology::ResourceTypes>,
+    pub start: terminology::BoundCode<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "The profile that describes the use of the base resource."]
     pub profile: Option<Box<FHIRCanonical>>,
@@ -12546,7 +12548,7 @@ pub struct Group {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "Identifies the broad classification of the kind of resources the group includes."]
-    pub type_: Box<terminology::GroupType>,
+    pub type_: terminology::BoundCode<terminology::GroupType>,
     #[primitive]
     #[doc = "If true, indicates that the resource refers to a specific group of real individuals.  If false, the group defines a set of intended individuals."]
     pub actual: Box<FHIRBoolean>,
@@ -12627,7 +12629,7 @@ pub struct GuidanceResponse {
     pub module: GuidanceResponseModuleTypeChoice,
     #[primitive]
     #[doc = "The status of the response. If the evaluation is completed successfully, the status will indicate success. However, in order to complete the evaluation, the engine may require more information. In this case, the status will be data-required, and the response will contain a description of the additional required information. If the evaluation completed successfully, but the engine determines that a potentially more accurate response could be provided if more data was available, the status will be data-requested, and the response will contain a description of the additional requested information."]
-    pub status: Box<terminology::GuidanceResponseStatus>,
+    pub status: terminology::BoundCode<terminology::GuidanceResponseStatus>,
     # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The patient for which the request was processed."]
     pub subject: Option<Box<Reference>>,
@@ -12703,7 +12705,7 @@ pub struct HealthcareServiceAvailableTime {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "Indicates which days of the week are available between the start and end Times."]
-    pub daysOfWeek: Option<Vec<Box<terminology::DaysOfWeek>>>,
+    pub daysOfWeek: Option<Vec<terminology::BoundCode<terminology::DaysOfWeek>>>,
     #[primitive]
     #[doc = "Is this always available? (hence times are irrelevant) e.g. 24 hour service."]
     pub allDay: Option<Box<FHIRBoolean>>,
@@ -12968,7 +12970,7 @@ pub struct ImagingStudy {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The current state of the ImagingStudy."]
-    pub status: Box<terminology::ImagingstudyStatus>,
+    pub status: terminology::BoundCode<terminology::ImagingstudyStatus>,
     #[doc = "A list of all the series.modality values that are actual acquisition modalities, i.e. those in the DICOM Context Group 29 (value set OID 1.2.840.10008.6.1.19)."]
     pub modality: Option<Vec<Box<Coding>>>,
     # [reference (targets = ["Patient" , "Device" , "Group"])]
@@ -13230,7 +13232,7 @@ pub struct Immunization {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "Indicates the current status of the immunization event."]
-    pub status: Box<terminology::ImmunizationStatus>,
+    pub status: terminology::BoundCode<terminology::ImmunizationStatus>,
     #[doc = "Indicates the reason the immunization event was not performed."]
     pub statusReason: Option<Box<CodeableConcept>>,
     #[doc = "Vaccine that was administered or was to be administered."]
@@ -13370,7 +13372,7 @@ pub struct ImmunizationEvaluation {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "Indicates the current status of the evaluation of the vaccination administration event."]
-    pub status: Box<terminology::ImmunizationEvaluationStatus>,
+    pub status: terminology::BoundCode<terminology::ImmunizationEvaluationStatus>,
     # [reference (targets = ["Patient"])]
     #[doc = "The individual for whom the evaluation is being done."]
     pub patient: Box<Reference>,
@@ -13614,7 +13616,7 @@ pub struct ImplementationGuideGlobal {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of resource that all instances must conform to."]
-    pub type_: Box<terminology::ResourceTypes>,
+    pub type_: terminology::BoundCode<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "A reference to the profile that all instances must conform to."]
     pub profile: Box<FHIRCanonical>,
@@ -13689,7 +13691,7 @@ pub struct ImplementationGuideDefinitionResource {
     pub reference: Box<Reference>,
     #[primitive]
     #[doc = "Indicates the FHIR Version(s) this artifact is intended to apply to. If no versions are specified, the resource is assumed to apply to all the versions stated in ImplementationGuide.fhirVersion."]
-    pub fhirVersion: Option<Vec<Box<terminology::FHIRVersion>>>,
+    pub fhirVersion: Option<Vec<terminology::BoundCode<terminology::FHIRVersion>>>,
     #[primitive]
     #[doc = "A human assigned name for the resource. All resources SHOULD have a name, but the name may be extracted from the resource (e.g. ValueSet.name)."]
     pub name: Option<Box<FHIRString>>,
@@ -13749,7 +13751,7 @@ pub struct ImplementationGuideDefinitionPage {
     pub title: Box<FHIRString>,
     #[primitive]
     #[doc = "A code that indicates how the page is generated."]
-    pub generation: Box<terminology::GuidePageGeneration>,
+    pub generation: terminology::BoundCode<terminology::GuidePageGeneration>,
     #[doc = "Nested Pages/Sections under this page."]
     pub page: Option<Vec<ImplementationGuideDefinitionPage>>,
 }
@@ -13773,7 +13775,7 @@ pub struct ImplementationGuideDefinitionParameter {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "apply | path-resource | path-pages | path-tx-cache | expansion-parameter | rule-broken-links | generate-xml | generate-json | generate-turtle | html-template."]
-    pub code: Box<terminology::GuideParameterCode>,
+    pub code: terminology::BoundCode<terminology::GuideParameterCode>,
     #[primitive]
     #[doc = "Value for named type."]
     pub value: Box<FHIRString>,
@@ -13989,7 +13991,7 @@ pub struct ImplementationGuide {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this implementation guide. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this implementation guide is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -14016,11 +14018,11 @@ pub struct ImplementationGuide {
     pub packageId: Box<FHIRId>,
     #[primitive]
     #[doc = "The license that applies to this Implementation Guide, using an SPDX license code, or 'not-open-source'."]
-    pub license: Option<Box<terminology::SpdxLicense>>,
+    pub license: Option<terminology::BoundCode<terminology::SpdxLicense>>,
     #[primitive]
     #[cardinality(min = 1usize)]
     #[doc = "The version(s) of the FHIR specification that this ImplementationGuide targets - e.g. describes how to use. The value of this element is the formal version of the specification, without the revision number, e.g. [publication].[major].[minor], which is 4.0.1. for this version."]
-    pub fhirVersion: Vec<Box<terminology::FHIRVersion>>,
+    pub fhirVersion: Vec<terminology::BoundCode<terminology::FHIRVersion>>,
     #[doc = "Another implementation guide that this implementation depends on. Typically, an implementation guide uses value sets, profiles etc.defined in other implementation guides."]
     pub dependsOn: Option<Vec<ImplementationGuideDependsOn>>,
     #[doc = "A set of profiles that all resources covered by this implementation guide must conform to."]
@@ -14310,7 +14312,7 @@ pub struct InsurancePlan {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The current state of the health insurance product."]
-    pub status: Option<Box<terminology::PublicationStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::PublicationStatus>>,
     #[rename_field = "type"]
     #[doc = "The kind of health insurance product."]
     pub type_: Option<Vec<Box<CodeableConcept>>>,
@@ -14408,7 +14410,7 @@ pub struct InvoiceLineItemPriceComponent {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "This code identifies the type of the component."]
-    pub type_: Box<terminology::InvoicePriceComponentType>,
+    pub type_: terminology::BoundCode<terminology::InvoicePriceComponentType>,
     #[doc = "A code that identifies the component. Codes may be used to differentiate between kinds of taxes, surcharges, discounts etc."]
     pub code: Option<Box<CodeableConcept>>,
     #[primitive]
@@ -14479,7 +14481,7 @@ pub struct Invoice {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The current state of the Invoice."]
-    pub status: Box<terminology::InvoiceStatus>,
+    pub status: terminology::BoundCode<terminology::InvoiceStatus>,
     #[primitive]
     #[doc = "In case of Invoice cancellation a reason must be given (entered in error, superseded by corrected invoice etc.)."]
     pub cancelledReason: Option<Box<FHIRString>>,
@@ -14586,7 +14588,7 @@ pub struct Library {
     pub subtitle: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this library. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this library is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -14668,7 +14670,7 @@ pub struct LinkageItem {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "Distinguishes which item is \"source of truth\" (if any) and which items are no longer considered to be current representations."]
-    pub type_: Box<terminology::LinkageType>,
+    pub type_: terminology::BoundCode<terminology::LinkageType>,
     # [reference (targets = ["Resource"])]
     #[doc = "The resource instance being linked as part of the group."]
     pub resource: Box<Reference>,
@@ -14778,10 +14780,10 @@ pub struct List {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "Indicates the current state of this list."]
-    pub status: Box<terminology::ListStatus>,
+    pub status: terminology::BoundCode<terminology::ListStatus>,
     #[primitive]
     #[doc = "How this list was prepared - whether it is a working list that is suitable for being maintained on an ongoing basis, or if it represents a snapshot of a list of items from another source, or whether it is a prepared list where items may be marked as added, modified or deleted."]
-    pub mode: Box<terminology::ListMode>,
+    pub mode: terminology::BoundCode<terminology::ListMode>,
     #[primitive]
     #[doc = "A label for the list assigned by the author."]
     pub title: Option<Box<FHIRString>>,
@@ -14856,7 +14858,7 @@ pub struct LocationHoursOfOperation {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "Indicates which days of the week are available between the start and end Times."]
-    pub daysOfWeek: Option<Vec<Box<terminology::DaysOfWeek>>>,
+    pub daysOfWeek: Option<Vec<terminology::BoundCode<terminology::DaysOfWeek>>>,
     #[primitive]
     #[doc = "The Location is open all day."]
     pub allDay: Option<Box<FHIRBoolean>>,
@@ -14902,7 +14904,7 @@ pub struct Location {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status property covers the general availability of the resource, not the current value which may be covered by the operationStatus, or by a schedule/slots if they are configured for the location."]
-    pub status: Option<Box<terminology::LocationStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::LocationStatus>>,
     #[doc = "The operational status covers operation values most relevant to beds (but can also apply to rooms/units/chairs/etc. such as an isolation unit/dialysis chair). This typically covers concepts such as contamination, housekeeping, and other activities like maintenance."]
     pub operationalStatus: Option<Box<Coding>>,
     #[primitive]
@@ -14916,7 +14918,7 @@ pub struct Location {
     pub description: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "Indicates whether a resource instance represents a specific location or a class of locations."]
-    pub mode: Option<Box<terminology::LocationMode>>,
+    pub mode: Option<terminology::BoundCode<terminology::LocationMode>>,
     #[rename_field = "type"]
     #[doc = "Indicates the type of function performed at the location."]
     pub type_: Option<Vec<Box<CodeableConcept>>>,
@@ -15148,7 +15150,7 @@ pub struct Measure {
     pub subtitle: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this measure. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this measure is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -15426,11 +15428,11 @@ pub struct MeasureReport {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The MeasureReport status. No data will be available until the MeasureReport status is complete."]
-    pub status: Box<terminology::MeasureReportStatus>,
+    pub status: terminology::BoundCode<terminology::MeasureReportStatus>,
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of measure report. This may be an individual report, which provides the score for the measure for an individual member of the population; a subject-listing, which returns the list of members that meet the various criteria in the measure; a summary report, which returns a population count for each of the criteria in the measure; or a data-collection, which enables the MeasureReport to be used to exchange the data-of-interest for a quality measure."]
-    pub type_: Box<terminology::MeasureReportType>,
+    pub type_: terminology::BoundCode<terminology::MeasureReportType>,
     #[primitive]
     #[doc = "A reference to the Measure that was calculated to produce this report."]
     pub measure: Box<FHIRCanonical>,
@@ -15513,7 +15515,7 @@ pub struct Media {
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "The current state of the {{title}}."]
-    pub status: Box<terminology::EventStatus>,
+    pub status: terminology::BoundCode<terminology::EventStatus>,
     #[rename_field = "type"]
     #[doc = "A code that classifies whether the media is an image, video or audio recording or some other media category."]
     pub type_: Option<Box<CodeableConcept>>,
@@ -15671,7 +15673,7 @@ pub struct Medication {
     pub code: Option<Box<CodeableConcept>>,
     #[primitive]
     #[doc = "A code to indicate if the medication is in active use."]
-    pub status: Option<Box<terminology::MedicationStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::MedicationStatus>>,
     # [reference (targets = ["Organization"])]
     #[doc = "Describes the details of the manufacturer of the medication product.  This is not intended to represent the distributor of a medication product."]
     pub manufacturer: Option<Box<Reference>>,
@@ -15838,7 +15840,7 @@ pub struct MedicationAdministration {
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "Will generally be set to show that the administration has been completed.  For some long running administrations such as infusions, it is possible for an administration to be started but not completed or it may be paused while some other process is under way."]
-    pub status: Box<terminology::MedicationAdminStatus>,
+    pub status: terminology::BoundCode<terminology::MedicationAdminStatus>,
     #[doc = "A code indicating why the administration was not performed."]
     pub statusReason: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "Indicates where the medication is expected to be consumed or administered."]
@@ -16009,7 +16011,7 @@ pub struct MedicationDispense {
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "A code specifying the state of the set of dispense events."]
-    pub status: Box<terminology::MedicationdispenseStatus>,
+    pub status: terminology::BoundCode<terminology::MedicationdispenseStatus>,
     # [type_choice_variants (complex = ["statusReasonCodeableConcept" , "statusReasonReference"] , primitive = [])]
     #[doc = "Indicates the reason why a dispense was not performed."]
     pub statusReason: Option<MedicationDispenseStatusReasonTypeChoice>,
@@ -16588,7 +16590,7 @@ pub struct MedicationKnowledge {
     pub code: Option<Box<CodeableConcept>>,
     #[primitive]
     #[doc = "A code to indicate if the medication is in active use.  The status refers to the validity about the information of the medication and not to its medicinal properties."]
-    pub status: Option<Box<terminology::MedicationknowledgeStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::MedicationknowledgeStatus>>,
     # [reference (targets = ["Organization"])]
     #[doc = "Describes the details of the manufacturer of the medication product.  This is not intended to represent the distributor of a medication product."]
     pub manufacturer: Option<Box<Reference>>,
@@ -16810,17 +16812,17 @@ pub struct MedicationRequest {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "A code specifying the current state of the order.  Generally, this will be active or completed state."]
-    pub status: Box<terminology::MedicationrequestStatus>,
+    pub status: terminology::BoundCode<terminology::MedicationrequestStatus>,
     #[doc = "Captures the reason for the current state of the MedicationRequest."]
     pub statusReason: Option<Box<CodeableConcept>>,
     #[primitive]
     #[doc = "Whether the request is a proposal, plan, or an original order."]
-    pub intent: Box<terminology::MedicationrequestIntent>,
+    pub intent: terminology::BoundCode<terminology::MedicationrequestIntent>,
     #[doc = "Indicates the type of medication request (for example, where the medication is expected to be consumed or administered (i.e. inpatient or outpatient))."]
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[primitive]
     #[doc = "Indicates how quickly the Medication Request should be addressed with respect to other requests."]
-    pub priority: Option<Box<terminology::RequestPriority>>,
+    pub priority: Option<terminology::BoundCode<terminology::RequestPriority>>,
     #[primitive]
     #[doc = "If true indicates that the provider is asking for the medication request not to occur."]
     pub doNotPerform: Option<Box<FHIRBoolean>>,
@@ -16971,7 +16973,7 @@ pub struct MedicationStatement {
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "A code representing the patient or other source's judgment about the state of the medication used that this statement is about.  Generally, this will be active or completed."]
-    pub status: Box<terminology::MedicationStatementStatus>,
+    pub status: terminology::BoundCode<terminology::MedicationStatementStatus>,
     #[doc = "Captures the reason for the current state of the MedicationStatement."]
     pub statusReason: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "Indicates where the medication is expected to be consumed or administered."]
@@ -18258,7 +18260,7 @@ pub struct MessageDefinitionFocus {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The kind of resource that must be the focus for this message."]
-    pub code: Box<terminology::ResourceTypes>,
+    pub code: terminology::BoundCode<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "A profile that reflects constraints for the focal resource (and potentially for related resources)."]
     pub profile: Option<Box<FHIRCanonical>>,
@@ -18344,7 +18346,7 @@ pub struct MessageDefinition {
     pub replaces: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The status of this message definition. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this message definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -18380,12 +18382,12 @@ pub struct MessageDefinition {
     pub event: MessageDefinitionEventTypeChoice,
     #[primitive]
     #[doc = "The impact of the content of the message."]
-    pub category: Option<Box<terminology::MessageSignificanceCategory>>,
+    pub category: Option<terminology::BoundCode<terminology::MessageSignificanceCategory>>,
     #[doc = "Identifies the resource (or resources) that are being addressed by the event.  For example, the Encounter for an admit message or two Account records for a merge."]
     pub focus: Option<Vec<MessageDefinitionFocus>>,
     #[primitive]
     #[doc = "Declare at a message definition level whether a response is required or only upon error or success, or never."]
-    pub responseRequired: Option<Box<terminology::MessageheaderResponseRequest>>,
+    pub responseRequired: Option<terminology::BoundCode<terminology::MessageheaderResponseRequest>>,
     #[doc = "Indicates what types of messages may be sent as an application-level response to this message."]
     pub allowedResponse: Option<Vec<MessageDefinitionAllowedResponse>>,
     #[primitive]
@@ -18499,7 +18501,7 @@ pub struct MessageHeaderResponse {
     pub identifier_: Box<FHIRId>,
     #[primitive]
     #[doc = "Code that identifies the type of response to the message - whether it was successful or not, and whether it should be resent or not."]
-    pub code: Box<terminology::ResponseCode>,
+    pub code: terminology::BoundCode<terminology::ResponseCode>,
     # [reference (targets = ["OperationOutcome"])]
     #[doc = "Full details of any issues found in the message."]
     pub details: Option<Box<Reference>>,
@@ -18589,7 +18591,7 @@ pub struct MolecularSequenceReferenceSeq {
     pub genomeBuild: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "A relative reference to a DNA strand based on gene orientation. The strand that contains the open reading frame of the gene is the \"sense\" strand, and the opposite complementary strand is the \"antisense\" strand."]
-    pub orientation: Option<Box<terminology::OrientationType>>,
+    pub orientation: Option<terminology::BoundCode<terminology::OrientationType>>,
     #[doc = "Reference identifier of reference sequence submitted to NCBI. It must match the type in the MolecularSequence.type field. For example, the prefix, “NG_” identifies reference sequence for genes, “NM_” for messenger RNA transcripts, and “NP_” for amino acid sequences."]
     pub referenceSeqId: Option<Box<CodeableConcept>>,
     # [reference (targets = ["MolecularSequence"])]
@@ -18600,7 +18602,7 @@ pub struct MolecularSequenceReferenceSeq {
     pub referenceSeqString: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "An absolute reference to a strand. The Watson strand is the strand whose 5'-end is on the short arm of the chromosome, and the Crick strand as the one whose 5'-end is on the long arm."]
-    pub strand: Option<Box<terminology::StrandType>>,
+    pub strand: Option<terminology::BoundCode<terminology::StrandType>>,
     #[primitive]
     #[doc = "Start position of the window on the reference sequence. If the coordinate system is either 0-based or 1-based, then start position is inclusive."]
     pub windowStart: Option<Box<FHIRInteger>>,
@@ -18706,7 +18708,7 @@ pub struct MolecularSequenceQuality {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "INDEL / SNP / Undefined variant."]
-    pub type_: Box<terminology::QualityType>,
+    pub type_: terminology::BoundCode<terminology::QualityType>,
     #[doc = "Gold standard sequence used for comparing against."]
     pub standardSequence: Option<Box<CodeableConcept>>,
     #[primitive]
@@ -18767,7 +18769,7 @@ pub struct MolecularSequenceRepository {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "Click and see / RESTful API / Need login to see / RESTful API with authentication / Other ways to see resource."]
-    pub type_: Box<terminology::RepositoryType>,
+    pub type_: terminology::BoundCode<terminology::RepositoryType>,
     #[primitive]
     #[doc = "URI of an external repository which contains further details about the genetics data."]
     pub url: Option<Box<FHIRUri>>,
@@ -18901,7 +18903,7 @@ pub struct MolecularSequence {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "Amino Acid Sequence/ DNA Sequence / RNA Sequence."]
-    pub type_: Option<Box<terminology::SequenceType>>,
+    pub type_: Option<terminology::BoundCode<terminology::SequenceType>>,
     #[primitive]
     #[doc = "Whether the sequence is numbered starting at 0 (0-based numbering or coordinates, inclusive start, exclusive end) or starting at 1 (1-based numbering, inclusive start and inclusive end)."]
     pub coordinateSystem: Box<FHIRInteger>,
@@ -18960,7 +18962,7 @@ pub struct NamingSystemUniqueId {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "Identifies the unique identifier scheme used for this particular identifier."]
-    pub type_: Box<terminology::NamingsystemIdentifierType>,
+    pub type_: terminology::BoundCode<terminology::NamingsystemIdentifierType>,
     #[primitive]
     #[doc = "The string that should be sent over the wire to identify the code system or identifier system."]
     pub value: Box<FHIRString>,
@@ -19008,10 +19010,10 @@ pub struct NamingSystem {
     pub name: Box<FHIRString>,
     #[primitive]
     #[doc = "The status of this naming system. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "Indicates the purpose for the naming system - what kinds of things does it make unique?"]
-    pub kind: Box<terminology::NamingsystemType>,
+    pub kind: terminology::BoundCode<terminology::NamingsystemType>,
     #[primitive]
     #[doc = "The date  (and optionally time) when the naming system was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the naming system changes."]
     pub date: Box<FHIRDateTime>,
@@ -19281,10 +19283,10 @@ pub struct NutritionOrder {
     pub instantiates: Option<Vec<Box<FHIRUri>>>,
     #[primitive]
     #[doc = "The workflow status of the nutrition order/request."]
-    pub status: Box<terminology::RequestStatus>,
+    pub status: terminology::BoundCode<terminology::RequestStatus>,
     #[primitive]
     #[doc = "Indicates the level of authority/intentionality associated with the NutrionOrder and where the request fits into the workflow chain."]
-    pub intent: Box<terminology::RequestIntent>,
+    pub intent: terminology::BoundCode<terminology::RequestIntent>,
     # [reference (targets = ["Patient"])]
     #[doc = "The person (patient) who needs the nutrition order for an oral diet, nutritional supplement and/or enteral or formula feeding."]
     pub patient: Box<Reference>,
@@ -19503,7 +19505,7 @@ pub struct Observation {
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "The status of the result value."]
-    pub status: Box<terminology::ObservationStatus>,
+    pub status: terminology::BoundCode<terminology::ObservationStatus>,
     #[doc = "A code that classifies the general type of observation being made."]
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "Describes what was observed. Sometimes this is called the observation \"name\"."]
@@ -19605,7 +19607,7 @@ pub struct ObservationDefinitionQualifiedInterval {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The category of interval of values for continuous or ordinal observations conforming to this ObservationDefinition."]
-    pub category: Option<Box<terminology::ObservationRangeCategory>>,
+    pub category: Option<terminology::BoundCode<terminology::ObservationRangeCategory>>,
     #[doc = "The low and high values determining the interval. There may be only one of the two."]
     pub range: Option<Box<Range>>,
     #[doc = "Codes to indicate the health context the range applies to. For example, the normal or therapeutic range."]
@@ -19614,7 +19616,7 @@ pub struct ObservationDefinitionQualifiedInterval {
     pub appliesTo: Option<Vec<Box<CodeableConcept>>>,
     #[primitive]
     #[doc = "Sex of the population the range applies to."]
-    pub gender: Option<Box<terminology::AdministrativeGender>>,
+    pub gender: Option<terminology::BoundCode<terminology::AdministrativeGender>>,
     #[doc = "The age at which this reference range is applicable. This is a neonatal age (e.g. number of weeks at term) if the meaning says so."]
     pub age: Option<Box<Range>>,
     #[doc = "The gestational age to which this reference range is applicable, in the context of pregnancy."]
@@ -19662,7 +19664,7 @@ pub struct ObservationDefinition {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The data types allowed for the value element of the instance observations conforming to this ObservationDefinition."]
-    pub permittedDataType: Option<Vec<Box<terminology::PermittedDataType>>>,
+    pub permittedDataType: Option<Vec<terminology::BoundCode<terminology::PermittedDataType>>>,
     #[primitive]
     #[doc = "Multiple results allowed for observations conforming to this ObservationDefinition."]
     pub multipleResultsAllowed: Option<Box<FHIRBoolean>>,
@@ -19708,7 +19710,7 @@ pub struct OperationDefinitionParameterBinding {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "Indicates the degree of conformance expectations associated with this binding - that is, the degree to which the provided value set must be adhered to in the instances."]
-    pub strength: Box<terminology::BindingStrength>,
+    pub strength: terminology::BoundCode<terminology::BindingStrength>,
     #[primitive]
     #[doc = "Points to the value set or external definition (e.g. implicit value set) that identifies the set of codes to be used."]
     pub valueSet: Box<FHIRCanonical>,
@@ -19762,7 +19764,7 @@ pub struct OperationDefinitionParameter {
     #[rename_field = "use"]
     #[primitive]
     #[doc = "Whether this is an input or an output parameter."]
-    pub use_: Box<terminology::OperationParameterUse>,
+    pub use_: terminology::BoundCode<terminology::OperationParameterUse>,
     #[primitive]
     #[doc = "The minimum number of times this parameter SHALL appear in the request or response."]
     pub min: Box<FHIRInteger>,
@@ -19775,13 +19777,13 @@ pub struct OperationDefinitionParameter {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type for this parameter."]
-    pub type_: Option<Box<terminology::AllTypes>>,
+    pub type_: Option<terminology::BoundCode<terminology::AllTypes>>,
     #[primitive]
     #[doc = "Used when the type is \"Reference\" or \"canonical\", and identifies a profile structure or implementation Guide that applies to the target of the reference this parameter refers to. If any profiles are specified, then the content must conform to at least one of them. The URL can be a local reference - to a contained StructureDefinition, or a reference to another StructureDefinition or Implementation Guide by a canonical URL. When an implementation guide is specified, the target resource SHALL conform to at least one profile defined in the implementation guide."]
     pub targetProfile: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "How the parameter is understood as a search parameter. This is only used if the parameter type is 'string'."]
-    pub searchType: Option<Box<terminology::SearchParamType>>,
+    pub searchType: Option<terminology::BoundCode<terminology::SearchParamType>>,
     #[doc = "Binds to a value set if this parameter is coded (code, Coding, CodeableConcept)."]
     pub binding: Option<OperationDefinitionParameterBinding>,
     #[doc = "Identifies other resource parameters within the operation invocation that are expected to resolve to this resource."]
@@ -19858,10 +19860,10 @@ pub struct OperationDefinition {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this operation definition. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "Whether this is an operation or a named query."]
-    pub kind: Box<terminology::OperationKind>,
+    pub kind: terminology::BoundCode<terminology::OperationKind>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this operation definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -19897,7 +19899,7 @@ pub struct OperationDefinition {
     pub base: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "The types on which this operation can be executed."]
-    pub resource: Option<Vec<Box<terminology::ResourceTypes>>>,
+    pub resource: Option<Vec<terminology::BoundCode<terminology::ResourceTypes>>>,
     #[primitive]
     #[doc = "Indicates whether this operation or named query can be invoked at the system level (e.g. without needing to choose a resource type for the context)."]
     pub system: Box<FHIRBoolean>,
@@ -19939,10 +19941,10 @@ pub struct OperationOutcomeIssue {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "Indicates whether the issue indicates a variation from successful processing."]
-    pub severity: Box<terminology::IssueSeverity>,
+    pub severity: terminology::BoundCode<terminology::IssueSeverity>,
     #[primitive]
     #[doc = "Describes the type of the issue. The system that creates an OperationOutcome SHALL choose the most applicable code from the IssueType value set, and may additional provide its own code for the error in the details element."]
-    pub code: Box<terminology::IssueType>,
+    pub code: terminology::BoundCode<terminology::IssueType>,
     #[doc = "Additional details about the error. This may be a text description of the error or a system code that identifies the error."]
     pub details: Option<Box<CodeableConcept>>,
     #[primitive]
@@ -20344,7 +20346,7 @@ pub struct PatientContact {
     pub address: Option<Box<Address>>,
     #[primitive]
     #[doc = "Administrative Gender - the gender that the contact person is considered to have for administration and record keeping purposes."]
-    pub gender: Option<Box<terminology::AdministrativeGender>>,
+    pub gender: Option<terminology::BoundCode<terminology::AdministrativeGender>>,
     # [reference (targets = ["Organization"])]
     #[doc = "Organization on behalf of which the contact is acting or for which the contact is working."]
     pub organization: Option<Box<Reference>>,
@@ -20399,7 +20401,7 @@ pub struct PatientLink {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of link between this patient resource and another patient resource."]
-    pub type_: Box<terminology::LinkType>,
+    pub type_: terminology::BoundCode<terminology::LinkType>,
 }
 #[derive(
     Clone,
@@ -20443,7 +20445,7 @@ pub struct Patient {
     pub telecom: Option<Vec<Box<ContactPoint>>>,
     #[primitive]
     #[doc = "Administrative Gender - the gender that the patient is considered to have for administration and record keeping purposes."]
-    pub gender: Option<Box<terminology::AdministrativeGender>>,
+    pub gender: Option<terminology::BoundCode<terminology::AdministrativeGender>>,
     #[primitive]
     #[doc = "The date of birth for the individual."]
     pub birthDate: Option<Box<FHIRDate>>,
@@ -20507,7 +20509,7 @@ pub struct PaymentNotice {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status of the resource instance."]
-    pub status: Box<terminology::FmStatus>,
+    pub status: terminology::BoundCode<terminology::FmStatus>,
     # [reference (targets = ["Resource"])]
     #[doc = "Reference of resource for which payment is being made."]
     pub request: Option<Box<Reference>>,
@@ -20605,7 +20607,7 @@ pub struct PaymentReconciliationProcessNote {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The business purpose of the note text."]
-    pub type_: Option<Box<terminology::NoteType>>,
+    pub type_: Option<terminology::BoundCode<terminology::NoteType>>,
     #[primitive]
     #[doc = "The explanation or description associated with the processing."]
     pub text: Option<Box<FHIRString>>,
@@ -20645,7 +20647,7 @@ pub struct PaymentReconciliation {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status of the resource instance."]
-    pub status: Box<terminology::FmStatus>,
+    pub status: terminology::BoundCode<terminology::FmStatus>,
     #[doc = "The period of time for which payments have been gathered into this bulk payment for settlement."]
     pub period: Option<Box<Period>>,
     #[primitive]
@@ -20662,7 +20664,7 @@ pub struct PaymentReconciliation {
     pub requestor: Option<Box<Reference>>,
     #[primitive]
     #[doc = "The outcome of a request for a reconciliation."]
-    pub outcome: Option<Box<terminology::RemittanceOutcome>>,
+    pub outcome: Option<terminology::BoundCode<terminology::RemittanceOutcome>>,
     #[primitive]
     #[doc = "A human readable description of the status of the request for the reconciliation."]
     pub disposition: Option<Box<FHIRString>>,
@@ -20703,7 +20705,7 @@ pub struct PersonLink {
     pub target: Box<Reference>,
     #[primitive]
     #[doc = "Level of assurance that this link is associated with the target resource."]
-    pub assurance: Option<Box<terminology::IdentityAssuranceLevel>>,
+    pub assurance: Option<terminology::BoundCode<terminology::IdentityAssuranceLevel>>,
 }
 #[derive(
     Clone,
@@ -20744,7 +20746,7 @@ pub struct Person {
     pub telecom: Option<Vec<Box<ContactPoint>>>,
     #[primitive]
     #[doc = "Administrative Gender."]
-    pub gender: Option<Box<terminology::AdministrativeGender>>,
+    pub gender: Option<terminology::BoundCode<terminology::AdministrativeGender>>,
     #[primitive]
     #[doc = "The birth date for the person."]
     pub birthDate: Option<Box<FHIRDate>>,
@@ -20897,7 +20899,7 @@ pub struct PlanDefinitionActionCondition {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The kind of condition."]
-    pub kind: Box<terminology::ActionConditionKind>,
+    pub kind: terminology::BoundCode<terminology::ActionConditionKind>,
     #[doc = "An expression that returns true or false, indicating whether the condition is satisfied."]
     pub expression: Option<Box<Expression>>,
 }
@@ -20942,7 +20944,7 @@ pub struct PlanDefinitionActionRelatedAction {
     pub actionId: Box<FHIRId>,
     #[primitive]
     #[doc = "The relationship of this action to the related action."]
-    pub relationship: Box<terminology::ActionRelationshipType>,
+    pub relationship: terminology::BoundCode<terminology::ActionRelationshipType>,
     # [type_choice_variants (complex = ["offsetDuration" , "offsetRange"] , primitive = [])]
     #[doc = "A duration or range of durations to apply to the relationship. For example, 30-60 minutes before."]
     pub offset: Option<PlanDefinitionActionRelatedActionOffsetTypeChoice>,
@@ -20991,7 +20993,7 @@ pub struct PlanDefinitionActionParticipant {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of participant in the action."]
-    pub type_: Box<terminology::ActionParticipantType>,
+    pub type_: terminology::BoundCode<terminology::ActionParticipantType>,
     #[doc = "The role the participant should play in performing the described action."]
     pub role: Option<Box<CodeableConcept>>,
 }
@@ -21071,7 +21073,7 @@ pub struct PlanDefinitionAction {
     pub textEquivalent: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "Indicates how quickly the action should be addressed with respect to other actions."]
-    pub priority: Option<Box<terminology::RequestPriority>>,
+    pub priority: Option<terminology::BoundCode<terminology::RequestPriority>>,
     #[doc = "A code that provides meaning for the action or action group. For example, a section may have a LOINC code for the section of a documentation template."]
     pub code: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "A description of why this action is necessary or appropriate."]
@@ -21104,19 +21106,19 @@ pub struct PlanDefinitionAction {
     pub type_: Option<Box<CodeableConcept>>,
     #[primitive]
     #[doc = "Defines the grouping behavior for the action and its children."]
-    pub groupingBehavior: Option<Box<terminology::ActionGroupingBehavior>>,
+    pub groupingBehavior: Option<terminology::BoundCode<terminology::ActionGroupingBehavior>>,
     #[primitive]
     #[doc = "Defines the selection behavior for the action and its children."]
-    pub selectionBehavior: Option<Box<terminology::ActionSelectionBehavior>>,
+    pub selectionBehavior: Option<terminology::BoundCode<terminology::ActionSelectionBehavior>>,
     #[primitive]
     #[doc = "Defines the required behavior for the action."]
-    pub requiredBehavior: Option<Box<terminology::ActionRequiredBehavior>>,
+    pub requiredBehavior: Option<terminology::BoundCode<terminology::ActionRequiredBehavior>>,
     #[primitive]
     #[doc = "Defines whether the action should usually be preselected."]
-    pub precheckBehavior: Option<Box<terminology::ActionPrecheckBehavior>>,
+    pub precheckBehavior: Option<terminology::BoundCode<terminology::ActionPrecheckBehavior>>,
     #[primitive]
     #[doc = "Defines whether the action can be selected multiple times."]
-    pub cardinalityBehavior: Option<Box<terminology::ActionCardinalityBehavior>>,
+    pub cardinalityBehavior: Option<terminology::BoundCode<terminology::ActionCardinalityBehavior>>,
     # [type_choice_variants (complex = [] , primitive = ["definitionCanonical" , "definitionUri"])]
     #[doc = "A reference to an ActivityDefinition that describes the action to be taken in detail, or a PlanDefinition that describes a series of actions to be taken."]
     pub definition: Option<PlanDefinitionActionDefinitionTypeChoice>,
@@ -21181,7 +21183,7 @@ pub struct PlanDefinition {
     pub type_: Option<Box<CodeableConcept>>,
     #[primitive]
     #[doc = "The status of this plan definition. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this plan definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -21313,7 +21315,7 @@ pub struct Practitioner {
     pub address: Option<Vec<Box<Address>>>,
     #[primitive]
     #[doc = "Administrative Gender - the gender that the person is considered to have for administration and record keeping purposes."]
-    pub gender: Option<Box<terminology::AdministrativeGender>>,
+    pub gender: Option<terminology::BoundCode<terminology::AdministrativeGender>>,
     #[primitive]
     #[doc = "The date of birth for the practitioner."]
     pub birthDate: Option<Box<FHIRDate>>,
@@ -21344,7 +21346,7 @@ pub struct PractitionerRoleAvailableTime {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "Indicates which days of the week are available between the start and end Times."]
-    pub daysOfWeek: Option<Vec<Box<terminology::DaysOfWeek>>>,
+    pub daysOfWeek: Option<Vec<terminology::BoundCode<terminology::DaysOfWeek>>>,
     #[primitive]
     #[doc = "Is this always available? (hence times are irrelevant) e.g. 24 hour service."]
     pub allDay: Option<Box<FHIRBoolean>>,
@@ -21567,7 +21569,7 @@ pub struct Procedure {
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "A code specifying the state of the procedure. Generally, this will be the in-progress or completed state."]
-    pub status: Box<terminology::EventStatus>,
+    pub status: terminology::BoundCode<terminology::EventStatus>,
     #[doc = "Captures the reason for the current state of the procedure."]
     pub statusReason: Option<Box<CodeableConcept>>,
     #[doc = "A code that classifies the procedure for searching, sorting and display purposes (e.g. \"Surgical Procedure\")."]
@@ -21692,7 +21694,7 @@ pub struct ProvenanceEntity {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "How the entity was used during the activity."]
-    pub role: Box<terminology::ProvenanceEntityRole>,
+    pub role: terminology::BoundCode<terminology::ProvenanceEntityRole>,
     # [reference (targets = ["Resource"])]
     #[doc = "Identity of the  Entity used. May be a logical or physical uri and maybe absolute or relative."]
     pub what: Box<Reference>,
@@ -21814,7 +21816,7 @@ pub struct QuestionnaireItemEnableWhen {
     pub question: Box<FHIRString>,
     #[primitive]
     #[doc = "Specifies the criteria by which the question is enabled."]
-    pub operator: Box<terminology::QuestionnaireEnableOperator>,
+    pub operator: terminology::BoundCode<terminology::QuestionnaireEnableOperator>,
     # [type_choice_variants (complex = ["answerCoding" , "answerQuantity" , "answerReference"] , primitive = ["answerBoolean" , "answerDecimal" , "answerInteger" , "answerDate" , "answerDateTime" , "answerTime" , "answerString"])]
     #[doc = "A value that the referenced question is tested using the specified operator in order for the item to be enabled."]
     pub answer: QuestionnaireItemEnableWhenAnswerTypeChoice,
@@ -21965,12 +21967,12 @@ pub struct QuestionnaireItem {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of questionnaire item this is - whether text for display, a grouping of other items or a particular type of data to be captured (string, integer, coded choice, etc.)."]
-    pub type_: Box<terminology::ItemType>,
+    pub type_: terminology::BoundCode<terminology::ItemType>,
     #[doc = "A constraint indicating that this item should only be enabled (displayed/allow answers to be captured) when the specified condition is true."]
     pub enableWhen: Option<Vec<QuestionnaireItemEnableWhen>>,
     #[primitive]
     #[doc = "Controls how multiple enableWhen values are interpreted -  whether all or any must be true."]
-    pub enableBehavior: Option<Box<terminology::QuestionnaireEnableBehavior>>,
+    pub enableBehavior: Option<terminology::BoundCode<terminology::QuestionnaireEnableBehavior>>,
     #[primitive]
     #[doc = "An indication, if true, that the item must be present in a \"completed\" QuestionnaireResponse.  If false, the item may be skipped when answering the questionnaire."]
     pub required: Option<Box<FHIRBoolean>>,
@@ -22043,13 +22045,13 @@ pub struct Questionnaire {
     pub derivedFrom: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The status of this questionnaire. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this questionnaire is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
     #[primitive]
     #[doc = "The types of subjects that can be the subject of responses created for the questionnaire."]
-    pub subjectType: Option<Vec<Box<terminology::ResourceTypes>>>,
+    pub subjectType: Option<Vec<terminology::BoundCode<terminology::ResourceTypes>>>,
     #[primitive]
     #[doc = "The date  (and optionally time) when the questionnaire was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the questionnaire changes."]
     pub date: Option<Box<FHIRDateTime>>,
@@ -22221,7 +22223,7 @@ pub struct QuestionnaireResponse {
     pub questionnaire: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "The position of the questionnaire response within its overall lifecycle."]
-    pub status: Box<terminology::QuestionnaireAnswersStatus>,
+    pub status: terminology::BoundCode<terminology::QuestionnaireAnswersStatus>,
     # [reference (targets = ["Resource"])]
     #[doc = "The subject of the questionnaire response.  This could be a patient, organization, practitioner, device, etc.  This is who/what the answers apply to, but is not necessarily the source of information."]
     pub subject: Option<Box<Reference>>,
@@ -22311,7 +22313,7 @@ pub struct RelatedPerson {
     pub telecom: Option<Vec<Box<ContactPoint>>>,
     #[primitive]
     #[doc = "Administrative Gender - the gender that the person is considered to have for administration and record keeping purposes."]
-    pub gender: Option<Box<terminology::AdministrativeGender>>,
+    pub gender: Option<terminology::BoundCode<terminology::AdministrativeGender>>,
     #[primitive]
     #[doc = "The date on which the related person was born."]
     pub birthDate: Option<Box<FHIRDate>>,
@@ -22344,7 +22346,7 @@ pub struct RequestGroupActionCondition {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The kind of condition."]
-    pub kind: Box<terminology::ActionConditionKind>,
+    pub kind: terminology::BoundCode<terminology::ActionConditionKind>,
     #[doc = "An expression that returns true or false, indicating whether or not the condition is satisfied."]
     pub expression: Option<Box<Expression>>,
 }
@@ -22389,7 +22391,7 @@ pub struct RequestGroupActionRelatedAction {
     pub actionId: Box<FHIRId>,
     #[primitive]
     #[doc = "The relationship of this action to the related action."]
-    pub relationship: Box<terminology::ActionRelationshipType>,
+    pub relationship: terminology::BoundCode<terminology::ActionRelationshipType>,
     # [type_choice_variants (complex = ["offsetDuration" , "offsetRange"] , primitive = [])]
     #[doc = "A duration or range of durations to apply to the relationship. For example, 30-60 minutes before."]
     pub offset: Option<RequestGroupActionRelatedActionOffsetTypeChoice>,
@@ -22449,7 +22451,7 @@ pub struct RequestGroupAction {
     pub textEquivalent: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "Indicates how quickly the action should be addressed with respect to other actions."]
-    pub priority: Option<Box<terminology::RequestPriority>>,
+    pub priority: Option<terminology::BoundCode<terminology::RequestPriority>>,
     #[doc = "A code that provides meaning for the action or action group. For example, a section may have a LOINC code for a section of a documentation template."]
     pub code: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "Didactic or other informational resources associated with the action that can be provided to the CDS recipient. Information resources can include inline text commentary and links to web resources."]
@@ -22469,19 +22471,19 @@ pub struct RequestGroupAction {
     pub type_: Option<Box<CodeableConcept>>,
     #[primitive]
     #[doc = "Defines the grouping behavior for the action and its children."]
-    pub groupingBehavior: Option<Box<terminology::ActionGroupingBehavior>>,
+    pub groupingBehavior: Option<terminology::BoundCode<terminology::ActionGroupingBehavior>>,
     #[primitive]
     #[doc = "Defines the selection behavior for the action and its children."]
-    pub selectionBehavior: Option<Box<terminology::ActionSelectionBehavior>>,
+    pub selectionBehavior: Option<terminology::BoundCode<terminology::ActionSelectionBehavior>>,
     #[primitive]
     #[doc = "Defines expectations around whether an action is required."]
-    pub requiredBehavior: Option<Box<terminology::ActionRequiredBehavior>>,
+    pub requiredBehavior: Option<terminology::BoundCode<terminology::ActionRequiredBehavior>>,
     #[primitive]
     #[doc = "Defines whether the action should usually be preselected."]
-    pub precheckBehavior: Option<Box<terminology::ActionPrecheckBehavior>>,
+    pub precheckBehavior: Option<terminology::BoundCode<terminology::ActionPrecheckBehavior>>,
     #[primitive]
     #[doc = "Defines whether the action can be selected multiple times."]
-    pub cardinalityBehavior: Option<Box<terminology::ActionCardinalityBehavior>>,
+    pub cardinalityBehavior: Option<terminology::BoundCode<terminology::ActionCardinalityBehavior>>,
     # [reference (targets = ["Resource"])]
     #[doc = "The resource that is the target of the action (e.g. CommunicationRequest)."]
     pub resource: Option<Box<Reference>>,
@@ -22537,13 +22539,13 @@ pub struct RequestGroup {
     pub groupIdentifier: Option<Box<Identifier>>,
     #[primitive]
     #[doc = "The current state of the request. For request groups, the status reflects the status of all the requests in the group."]
-    pub status: Box<terminology::RequestStatus>,
+    pub status: terminology::BoundCode<terminology::RequestStatus>,
     #[primitive]
     #[doc = "Indicates the level of authority/intentionality associated with the request and where the request fits into the workflow chain."]
-    pub intent: Box<terminology::RequestIntent>,
+    pub intent: terminology::BoundCode<terminology::RequestIntent>,
     #[primitive]
     #[doc = "Indicates how quickly the request should be addressed with respect to other requests."]
-    pub priority: Option<Box<terminology::RequestPriority>>,
+    pub priority: Option<terminology::BoundCode<terminology::RequestPriority>>,
     #[doc = "A code that identifies what the overall request group is."]
     pub code: Option<Box<CodeableConcept>>,
     # [reference (targets = ["Patient" , "Group"])]
@@ -22640,7 +22642,7 @@ pub struct ResearchDefinition {
     pub subtitle: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this research definition. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this research definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -22836,7 +22838,7 @@ pub struct ResearchElementDefinitionCharacteristic {
     pub studyEffectiveTimeFromStart: Option<Box<Duration>>,
     #[primitive]
     #[doc = "Indicates how elements are aggregated within the study effective period."]
-    pub studyEffectiveGroupMeasure: Option<Box<terminology::GroupMeasure>>,
+    pub studyEffectiveGroupMeasure: Option<terminology::BoundCode<terminology::GroupMeasure>>,
     #[primitive]
     #[doc = "A narrative description of the time period the study covers."]
     pub participantEffectiveDescription: Option<Box<FHIRString>>,
@@ -22848,7 +22850,7 @@ pub struct ResearchElementDefinitionCharacteristic {
     pub participantEffectiveTimeFromStart: Option<Box<Duration>>,
     #[primitive]
     #[doc = "Indicates how elements are aggregated within the study effective period."]
-    pub participantEffectiveGroupMeasure: Option<Box<terminology::GroupMeasure>>,
+    pub participantEffectiveGroupMeasure: Option<terminology::BoundCode<terminology::GroupMeasure>>,
 }
 #[derive(
     Clone,
@@ -22903,7 +22905,7 @@ pub struct ResearchElementDefinition {
     pub subtitle: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this research element definition. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this research element definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -22963,10 +22965,10 @@ pub struct ResearchElementDefinition {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of research element, a population, an exposure, or an outcome."]
-    pub type_: Box<terminology::ResearchElementType>,
+    pub type_: terminology::BoundCode<terminology::ResearchElementType>,
     #[primitive]
     #[doc = "The type of the outcome (e.g. Dichotomous, Continuous, or Descriptive)."]
-    pub variableType: Option<Box<terminology::VariableType>>,
+    pub variableType: Option<terminology::BoundCode<terminology::VariableType>>,
     #[cardinality(min = 1usize)]
     #[doc = "A characteristic that defines the members of the research element. Multiple characteristics are applied with \"and\" semantics."]
     pub characteristic: Vec<ResearchElementDefinitionCharacteristic>,
@@ -23068,7 +23070,7 @@ pub struct ResearchStudy {
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "The current state of the study."]
-    pub status: Box<terminology::ResearchStudyStatus>,
+    pub status: terminology::BoundCode<terminology::ResearchStudyStatus>,
     #[doc = "The type of study based upon the intent of the study's activities. A classification of the intent of the study."]
     pub primaryPurposeType: Option<Box<CodeableConcept>>,
     #[doc = "The stage in the progression of a therapy from initial experimental use in humans in clinical trials to post-market evaluation."]
@@ -23148,7 +23150,7 @@ pub struct ResearchSubject {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The current state of the subject."]
-    pub status: Box<terminology::ResearchSubjectStatus>,
+    pub status: terminology::BoundCode<terminology::ResearchSubjectStatus>,
     #[doc = "The dates the subject began and ended their participation in the study."]
     pub period: Option<Box<Period>>,
     # [reference (targets = ["ResearchStudy"])]
@@ -23299,7 +23301,7 @@ pub struct RiskAssessment {
     pub parent: Option<Box<Reference>>,
     #[primitive]
     #[doc = "The status of the RiskAssessment, using the same statuses as an Observation."]
-    pub status: Box<terminology::ObservationStatus>,
+    pub status: terminology::BoundCode<terminology::ObservationStatus>,
     #[doc = "The algorithm, process or mechanism used to evaluate the risk."]
     pub method: Option<Box<CodeableConcept>>,
     #[doc = "The type of the risk assessment performed."]
@@ -23530,7 +23532,7 @@ pub struct RiskEvidenceSynthesis {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this risk evidence synthesis. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "The date  (and optionally time) when the risk evidence synthesis was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the risk evidence synthesis changes."]
     pub date: Option<Box<FHIRDateTime>>,
@@ -23712,7 +23714,7 @@ pub struct SearchParameter {
     pub derivedFrom: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "The status of this search parameter. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this search parameter is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -23740,11 +23742,11 @@ pub struct SearchParameter {
     #[primitive]
     #[cardinality(min = 1usize)]
     #[doc = "The base resource type(s) that this search parameter can be used against."]
-    pub base: Vec<Box<terminology::ResourceTypes>>,
+    pub base: Vec<terminology::BoundCode<terminology::ResourceTypes>>,
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of value that a search parameter may contain, and how the content is interpreted."]
-    pub type_: Box<terminology::SearchParamType>,
+    pub type_: terminology::BoundCode<terminology::SearchParamType>,
     #[primitive]
     #[doc = "A FHIRPath expression that returns a set of elements for the search parameter."]
     pub expression: Option<Box<FHIRString>>,
@@ -23753,10 +23755,10 @@ pub struct SearchParameter {
     pub xpath: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "How the search parameter relates to the set of elements returned by evaluating the xpath query."]
-    pub xpathUsage: Option<Box<terminology::SearchXpathUsage>>,
+    pub xpathUsage: Option<terminology::BoundCode<terminology::SearchXpathUsage>>,
     #[primitive]
     #[doc = "Types of resource (if a resource is referenced)."]
-    pub target: Option<Vec<Box<terminology::ResourceTypes>>>,
+    pub target: Option<Vec<terminology::BoundCode<terminology::ResourceTypes>>>,
     #[primitive]
     #[doc = "Whether multiple values are allowed for each time the parameter exists. Values are separated by commas, and the parameter matches if any of the values match."]
     pub multipleOr: Option<Box<FHIRBoolean>>,
@@ -23765,10 +23767,10 @@ pub struct SearchParameter {
     pub multipleAnd: Option<Box<FHIRBoolean>>,
     #[primitive]
     #[doc = "Comparators supported for the search parameter."]
-    pub comparator: Option<Vec<Box<terminology::SearchComparator>>>,
+    pub comparator: Option<Vec<terminology::BoundCode<terminology::SearchComparator>>>,
     #[primitive]
     #[doc = "A modifier supported for the search parameter."]
-    pub modifier: Option<Vec<Box<terminology::SearchModifierCode>>>,
+    pub modifier: Option<Vec<terminology::BoundCode<terminology::SearchModifierCode>>>,
     #[primitive]
     #[doc = "Contains the names of any search parameters which may be chained to the containing search parameter. Chained parameters may be added to search parameters of type reference and specify that resources will only be returned if they contain a reference to a resource which matches the chained parameter value. Values for this field should be drawn from SearchParameter.code for a parameter on the target resource type."]
     pub chain: Option<Vec<Box<FHIRString>>>,
@@ -23882,15 +23884,15 @@ pub struct ServiceRequest {
     pub requisition: Option<Box<Identifier>>,
     #[primitive]
     #[doc = "The status of the order."]
-    pub status: Box<terminology::RequestStatus>,
+    pub status: terminology::BoundCode<terminology::RequestStatus>,
     #[primitive]
     #[doc = "Whether the request is a proposal, plan, an original order or a reflex order."]
-    pub intent: Box<terminology::RequestIntent>,
+    pub intent: terminology::BoundCode<terminology::RequestIntent>,
     #[doc = "A code that classifies the service for searching, sorting and display purposes (e.g. \"Surgical Procedure\")."]
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[primitive]
     #[doc = "Indicates how quickly the ServiceRequest should be addressed with respect to other requests."]
-    pub priority: Option<Box<terminology::RequestPriority>>,
+    pub priority: Option<terminology::BoundCode<terminology::RequestPriority>>,
     #[primitive]
     #[doc = "Set this to true if the record is saying that the service/procedure should NOT be performed."]
     pub doNotPerform: Option<Box<FHIRBoolean>>,
@@ -24000,7 +24002,7 @@ pub struct Slot {
     pub schedule: Box<Reference>,
     #[primitive]
     #[doc = "busy | free | busy-unavailable | busy-tentative | entered-in-error."]
-    pub status: Box<terminology::Slotstatus>,
+    pub status: terminology::BoundCode<terminology::Slotstatus>,
     #[primitive]
     #[doc = "Date/Time that the slot is to begin."]
     pub start: Box<FHIRInstant>,
@@ -24227,7 +24229,7 @@ pub struct Specimen {
     pub accessionIdentifier: Option<Box<Identifier>>,
     #[primitive]
     #[doc = "The availability of the specimen."]
-    pub status: Option<Box<terminology::SpecimenStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::SpecimenStatus>>,
     #[rename_field = "type"]
     #[doc = "The kind of material that forms the specimen."]
     pub type_: Option<Box<CodeableConcept>>,
@@ -24411,7 +24413,7 @@ pub struct SpecimenDefinitionTypeTested {
     pub type_: Option<Box<CodeableConcept>>,
     #[primitive]
     #[doc = "The preference for this type of conditioned specimen."]
-    pub preference: Box<terminology::SpecimenContainedPreference>,
+    pub preference: terminology::BoundCode<terminology::SpecimenContainedPreference>,
     #[doc = "The specimen's container."]
     pub container: Option<SpecimenDefinitionTypeTestedContainer>,
     #[primitive]
@@ -24521,7 +24523,7 @@ pub struct StructureDefinitionContext {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "Defines how to interpret the expression that defines what the context of the extension is."]
-    pub type_: Box<terminology::ExtensionContextType>,
+    pub type_: terminology::BoundCode<terminology::ExtensionContextType>,
     #[primitive]
     #[doc = "An expression that defines where an extension can be used in resources."]
     pub expression: Box<FHIRString>,
@@ -24617,7 +24619,7 @@ pub struct StructureDefinition {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this structure definition. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this structure definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -24646,12 +24648,12 @@ pub struct StructureDefinition {
     pub keyword: Option<Vec<Box<Coding>>>,
     #[primitive]
     #[doc = "The version of the FHIR specification on which this StructureDefinition is based - this is the formal version of the specification, without the revision number, e.g. [publication].[major].[minor], which is 4.0.1. for this version."]
-    pub fhirVersion: Option<Box<terminology::FHIRVersion>>,
+    pub fhirVersion: Option<terminology::BoundCode<terminology::FHIRVersion>>,
     #[doc = "An external specification that the content is mapped to."]
     pub mapping: Option<Vec<StructureDefinitionMapping>>,
     #[primitive]
     #[doc = "Defines the kind of structure that this definition is describing."]
-    pub kind: Box<terminology::StructureDefinitionKind>,
+    pub kind: terminology::BoundCode<terminology::StructureDefinitionKind>,
     #[rename_field = "abstract"]
     #[primitive]
     #[doc = "Whether structure this definition describes is abstract or not  - that is, whether the structure is not intended to be instantiated. For Resources and Data types, abstract types will never be exchanged  between systems."]
@@ -24670,7 +24672,7 @@ pub struct StructureDefinition {
     pub baseDefinition: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "How the type relates to the baseDefinition."]
-    pub derivation: Option<Box<terminology::TypeDerivationRule>>,
+    pub derivation: Option<terminology::BoundCode<terminology::TypeDerivationRule>>,
     #[doc = "A snapshot view is expressed in a standalone form that can be used and interpreted without considering the base StructureDefinition."]
     pub snapshot: Option<StructureDefinitionSnapshot>,
     #[doc = "A differential view is expressed relative to the base StructureDefinition - a statement of differences that it applies."]
@@ -24699,7 +24701,7 @@ pub struct StructureMapStructure {
     pub url: Box<FHIRCanonical>,
     #[primitive]
     #[doc = "How the referenced structure is used in this mapping."]
-    pub mode: Box<terminology::MapModelMode>,
+    pub mode: terminology::BoundCode<terminology::MapModelMode>,
     #[primitive]
     #[doc = "The name used for this type in the map."]
     pub alias: Option<Box<FHIRString>>,
@@ -24734,7 +24736,7 @@ pub struct StructureMapGroupInput {
     pub type_: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "Mode for this instance of data."]
-    pub mode: Box<terminology::MapInputMode>,
+    pub mode: terminology::BoundCode<terminology::MapInputMode>,
     #[primitive]
     #[doc = "Documentation for this instance of data."]
     pub documentation: Option<Box<FHIRString>>,
@@ -24865,7 +24867,7 @@ pub struct StructureMapGroupRuleSource {
     pub element: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "How to handle the list mode for this element."]
-    pub listMode: Option<Box<terminology::MapSourceListMode>>,
+    pub listMode: Option<terminology::BoundCode<terminology::MapSourceListMode>>,
     #[primitive]
     #[doc = "Named context for field, if a field is specified."]
     pub variable: Option<Box<FHIRId>>,
@@ -24950,7 +24952,7 @@ pub struct StructureMapGroupRuleTarget {
     pub context: Option<Box<FHIRId>>,
     #[primitive]
     #[doc = "How to interpret the context."]
-    pub contextType: Option<Box<terminology::MapContextType>>,
+    pub contextType: Option<terminology::BoundCode<terminology::MapContextType>>,
     #[primitive]
     #[doc = "Field to create in the context."]
     pub element: Option<Box<FHIRString>>,
@@ -24959,13 +24961,13 @@ pub struct StructureMapGroupRuleTarget {
     pub variable: Option<Box<FHIRId>>,
     #[primitive]
     #[doc = "If field is a list, how to manage the list."]
-    pub listMode: Option<Vec<Box<terminology::MapTargetListMode>>>,
+    pub listMode: Option<Vec<terminology::BoundCode<terminology::MapTargetListMode>>>,
     #[primitive]
     #[doc = "Internal rule reference for shared list items."]
     pub listRuleId: Option<Box<FHIRId>>,
     #[primitive]
     #[doc = "How the data is copied / created."]
-    pub transform: Option<Box<terminology::MapTransform>>,
+    pub transform: Option<terminology::BoundCode<terminology::MapTransform>>,
     #[doc = "Parameters to the transform."]
     pub parameter: Option<Vec<StructureMapGroupRuleTargetParameter>>,
 }
@@ -25055,7 +25057,7 @@ pub struct StructureMapGroup {
     pub extends: Option<Box<FHIRId>>,
     #[primitive]
     #[doc = "If this is the default rule set to apply for the source type or this combination of types."]
-    pub typeMode: Box<terminology::MapGroupTypeMode>,
+    pub typeMode: terminology::BoundCode<terminology::MapGroupTypeMode>,
     #[primitive]
     #[doc = "Additional supporting documentation that explains the purpose of the group and the types of mappings within it."]
     pub documentation: Option<Box<FHIRString>>,
@@ -25113,7 +25115,7 @@ pub struct StructureMap {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this structure map. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this structure map is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -25168,7 +25170,7 @@ pub struct SubscriptionChannel {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of channel to send notifications on."]
-    pub type_: Box<terminology::SubscriptionChannelType>,
+    pub type_: terminology::BoundCode<terminology::SubscriptionChannelType>,
     #[primitive]
     #[doc = "The url that describes the actual end-point to send messages to."]
     pub endpoint: Option<Box<FHIRUrl>>,
@@ -25211,7 +25213,7 @@ pub struct Subscription {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The status of the subscription, which marks the server state for managing the subscription."]
-    pub status: Box<terminology::SubscriptionStatus>,
+    pub status: terminology::BoundCode<terminology::SubscriptionStatus>,
     #[doc = "Contact details for a human to contact about the subscription. The primary use of this for system administrator troubleshooting."]
     pub contact: Option<Vec<Box<ContactPoint>>>,
     #[primitive]
@@ -25334,7 +25336,7 @@ pub struct Substance {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "A code to indicate if the substance is actively used."]
-    pub status: Option<Box<terminology::SubstanceStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::SubstanceStatus>>,
     #[doc = "A code that classifies the general type of substance.  This is used  for searching, sorting and display purposes."]
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "A code (or set of codes) that identify this substance."]
@@ -26796,7 +26798,7 @@ pub struct SupplyDelivery {
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "A code specifying the state of the dispense event."]
-    pub status: Option<Box<terminology::SupplydeliveryStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::SupplydeliveryStatus>>,
     # [reference (targets = ["Patient"])]
     #[doc = "A link to a resource representing the person whom the delivered item is for."]
     pub patient: Option<Box<Reference>>,
@@ -26937,12 +26939,12 @@ pub struct SupplyRequest {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "Status of the supply request."]
-    pub status: Option<Box<terminology::SupplyrequestStatus>>,
+    pub status: Option<terminology::BoundCode<terminology::SupplyrequestStatus>>,
     #[doc = "Category of supply, e.g.  central, non-stock, etc. This is used to support work flows associated with the supply process."]
     pub category: Option<Box<CodeableConcept>>,
     #[primitive]
     #[doc = "Indicates how quickly this SupplyRequest should be addressed with respect to other requests."]
-    pub priority: Option<Box<terminology::RequestPriority>>,
+    pub priority: Option<terminology::BoundCode<terminology::RequestPriority>>,
     # [type_choice_variants (complex = ["itemCodeableConcept" , "itemReference"] , primitive = [])]
     #[doc = "The item that is requested to be supplied. This is either a link to a resource representing the details of the item or a code that identifies the item from a known list."]
     pub item: SupplyRequestItemTypeChoice,
@@ -27270,17 +27272,17 @@ pub struct Task {
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "The current status of the task."]
-    pub status: Box<terminology::TaskStatus>,
+    pub status: terminology::BoundCode<terminology::TaskStatus>,
     #[doc = "An explanation as to why this task is held, failed, was refused, etc."]
     pub statusReason: Option<Box<CodeableConcept>>,
     #[doc = "Contains business-specific nuances of the business state."]
     pub businessStatus: Option<Box<CodeableConcept>>,
     #[primitive]
     #[doc = "Indicates the \"level\" of actionability associated with the Task, i.e. i+R[9]Cs this a proposed task, a planned task, an actionable task, etc."]
-    pub intent: Box<terminology::TaskIntent>,
+    pub intent: terminology::BoundCode<terminology::TaskIntent>,
     #[primitive]
     #[doc = "Indicates how quickly the Task should be addressed with respect to other requests."]
-    pub priority: Option<Box<terminology::RequestPriority>>,
+    pub priority: Option<terminology::BoundCode<terminology::RequestPriority>>,
     #[doc = "A name or code (or both) briefly describing what the task involves."]
     pub code: Option<Box<CodeableConcept>>,
     #[primitive]
@@ -27642,7 +27644,7 @@ pub struct TerminologyCapabilities {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this terminology capabilities. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this terminology capabilities is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -27669,7 +27671,7 @@ pub struct TerminologyCapabilities {
     pub copyright: Option<Box<FHIRMarkdown>>,
     #[primitive]
     #[doc = "The way that this statement is intended to be used, to describe an actual running instance of software, a particular product (kind, not instance of software) or a class of implementation (e.g. a desired purchase)."]
-    pub kind: Box<terminology::CapabilityStatementKind>,
+    pub kind: terminology::BoundCode<terminology::CapabilityStatementKind>,
     #[doc = "Software that is covered by this terminology capability statement.  It is used when the statement describes the capabilities of a particular software version, independent of an installation."]
     pub software: Option<TerminologyCapabilitiesSoftware>,
     #[doc = "Identifies a specific implementation instance that is described by the terminology capability statement - i.e. a particular installation, rather than the capabilities of a software program."]
@@ -27683,7 +27685,7 @@ pub struct TerminologyCapabilities {
     pub expansion: Option<TerminologyCapabilitiesExpansion>,
     #[primitive]
     #[doc = "The degree to which the server supports the code search parameter on ValueSet, if it is supported."]
-    pub codeSearch: Option<Box<terminology::CodeSearchSupport>>,
+    pub codeSearch: Option<terminology::BoundCode<terminology::CodeSearchSupport>>,
     #[doc = "Information about the [ValueSet/$validate-code](valueset-operation-validate-code.html) operation."]
     pub validateCode: Option<TerminologyCapabilitiesValidateCode>,
     #[doc = "Information about the [ConceptMap/$translate](conceptmap-operation-translate.html) operation."]
@@ -27712,7 +27714,7 @@ pub struct TestReportParticipant {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of participant."]
-    pub type_: Box<terminology::ReportParticipantType>,
+    pub type_: terminology::BoundCode<terminology::ReportParticipantType>,
     #[primitive]
     #[doc = "The uri of the participant. An absolute URL is preferred."]
     pub uri: Box<FHIRUri>,
@@ -27740,7 +27742,7 @@ pub struct TestReportSetupActionOperation {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The result of this operation."]
-    pub result: Box<terminology::ReportActionResultCodes>,
+    pub result: terminology::BoundCode<terminology::ReportActionResultCodes>,
     #[primitive]
     #[doc = "An explanatory message associated with the result."]
     pub message: Option<Box<FHIRMarkdown>>,
@@ -27768,7 +27770,7 @@ pub struct TestReportSetupActionAssert {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The result of this assertion."]
-    pub result: Box<terminology::ReportActionResultCodes>,
+    pub result: terminology::BoundCode<terminology::ReportActionResultCodes>,
     #[primitive]
     #[doc = "An explanatory message associated with the result."]
     pub message: Option<Box<FHIRMarkdown>>,
@@ -27953,13 +27955,13 @@ pub struct TestReport {
     pub name: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The current state of this test report."]
-    pub status: Box<terminology::ReportStatusCodes>,
+    pub status: terminology::BoundCode<terminology::ReportStatusCodes>,
     # [reference (targets = ["TestScript"])]
     #[doc = "Ideally this is an absolute URL that is used to identify the version-specific TestScript that was executed, matching the `TestScript.url`."]
     pub testScript: Box<Reference>,
     #[primitive]
     #[doc = "The overall result from the execution of the TestScript."]
-    pub result: Box<terminology::ReportResultCodes>,
+    pub result: terminology::BoundCode<terminology::ReportResultCodes>,
     #[primitive]
     #[doc = "The final score (percentage of tests passed) resulting from the execution of the TestScript."]
     pub score: Option<Box<FHIRDecimal>>,
@@ -28234,7 +28236,7 @@ pub struct TestScriptSetupActionOperation {
     pub type_: Option<Box<Coding>>,
     #[primitive]
     #[doc = "The type of the resource.  See http://build.fhir.org/resourcelist.html."]
-    pub resource: Option<Box<terminology::DefinedTypes>>,
+    pub resource: Option<terminology::BoundCode<terminology::DefinedTypes>>,
     #[primitive]
     #[doc = "The label would be used for tracking/logging purposes by test engines."]
     pub label: Option<Box<FHIRString>>,
@@ -28255,7 +28257,7 @@ pub struct TestScriptSetupActionOperation {
     pub encodeRequestUrl: Box<FHIRBoolean>,
     #[primitive]
     #[doc = "The HTTP method the test engine MUST use for this operation regardless of any other operation details."]
-    pub method: Option<Box<terminology::HttpOperations>>,
+    pub method: Option<terminology::BoundCode<terminology::HttpOperations>>,
     #[primitive]
     #[doc = "The server where the request message originates from.  Must be one of the server numbers listed in TestScript.origin section."]
     pub origin: Option<Box<FHIRInteger>>,
@@ -28306,7 +28308,7 @@ pub struct TestScriptSetupActionAssert {
     pub description: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The direction to use for the assertion."]
-    pub direction: Option<Box<terminology::AssertDirectionCodes>>,
+    pub direction: Option<terminology::BoundCode<terminology::AssertDirectionCodes>>,
     #[primitive]
     #[doc = "Id of the source fixture used as the contents to be evaluated by either the \"source/expression\" or \"sourceId/path\" definition."]
     pub compareToSourceId: Option<Box<FHIRString>>,
@@ -28333,22 +28335,22 @@ pub struct TestScriptSetupActionAssert {
     pub navigationLinks: Option<Box<FHIRBoolean>>,
     #[primitive]
     #[doc = "The operator type defines the conditional behavior of the assert. If not defined, the default is equals."]
-    pub operator: Option<Box<terminology::AssertOperatorCodes>>,
+    pub operator: Option<terminology::BoundCode<terminology::AssertOperatorCodes>>,
     #[primitive]
     #[doc = "The XPath or JSONPath expression to be evaluated against the fixture representing the response received from server."]
     pub path: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The request method or HTTP operation code to compare against that used by the client system under test."]
-    pub requestMethod: Option<Box<terminology::HttpOperations>>,
+    pub requestMethod: Option<terminology::BoundCode<terminology::HttpOperations>>,
     #[primitive]
     #[doc = "The value to use in a comparison against the request URL path string."]
     pub requestURL: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The type of the resource.  See http://build.fhir.org/resourcelist.html."]
-    pub resource: Option<Box<terminology::DefinedTypes>>,
+    pub resource: Option<terminology::BoundCode<terminology::DefinedTypes>>,
     #[primitive]
     #[doc = "okay | created | noContent | notModified | bad | forbidden | notFound | methodNotAllowed | conflict | gone | preconditionFailed | unprocessable."]
-    pub response: Option<Box<terminology::AssertResponseCodeTypes>>,
+    pub response: Option<terminology::BoundCode<terminology::AssertResponseCodeTypes>>,
     #[primitive]
     #[doc = "The value of the HTTP response code to be tested."]
     pub responseCode: Option<Box<FHIRString>>,
@@ -28551,7 +28553,7 @@ pub struct TestScript {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this test script. Enables tracking the life-cycle of the content."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this test script is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -28674,7 +28676,7 @@ pub struct ValueSetComposeIncludeFilter {
     pub property: Box<FHIRCode>,
     #[primitive]
     #[doc = "The kind of operation to perform as a part of the filter criteria."]
-    pub op: Box<terminology::FilterOperator>,
+    pub op: terminology::BoundCode<terminology::FilterOperator>,
     #[primitive]
     #[doc = "The match value may be either a code defined by the system, or a string value, which is a regex match on the literal string of the property value  (if the filter represents a property defined in CodeSystem) or of the system filter value (if the filter represents a filter defined in CodeSystem) when the operation is 'regex', or one of the values (true and false), when the operation is 'exists'."]
     pub value: Box<FHIRString>,
@@ -28921,7 +28923,7 @@ pub struct ValueSet {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The status of this value set. Enables tracking the life-cycle of the content. The status of the value set applies to the value set definition (ValueSet.compose) and the associated ValueSet metadata. Expansions do not have a state."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this value set is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -29097,7 +29099,7 @@ pub struct VerificationResult {
     pub need: Option<Box<CodeableConcept>>,
     #[primitive]
     #[doc = "The validation status of the target (attested; validated; in process; requires revalidation; validation failed; revalidation failed)."]
-    pub status: Box<terminology::VerificationresultStatus>,
+    pub status: terminology::BoundCode<terminology::VerificationresultStatus>,
     #[primitive]
     #[doc = "When the validation status was updated."]
     pub statusDate: Option<Box<FHIRDateTime>>,
@@ -29145,7 +29147,7 @@ pub struct VisionPrescriptionLensSpecificationPrism {
     pub amount: Box<FHIRDecimal>,
     #[primitive]
     #[doc = "The relative base, or reference lens edge, for the prism."]
-    pub base: Box<terminology::VisionBaseCodes>,
+    pub base: terminology::BoundCode<terminology::VisionBaseCodes>,
 }
 #[derive(
     Clone,
@@ -29169,7 +29171,7 @@ pub struct VisionPrescriptionLensSpecification {
     pub product: Box<CodeableConcept>,
     #[primitive]
     #[doc = "The eye for which the lens specification applies."]
-    pub eye: Box<terminology::VisionEyeCodes>,
+    pub eye: terminology::BoundCode<terminology::VisionEyeCodes>,
     #[primitive]
     #[doc = "Lens power measured in dioptres (0.25 units)."]
     pub sphere: Option<Box<FHIRDecimal>>,
@@ -29239,7 +29241,7 @@ pub struct VisionPrescription {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The status of the resource instance."]
-    pub status: Box<terminology::FmStatus>,
+    pub status: terminology::BoundCode<terminology::FmStatus>,
     #[primitive]
     #[doc = "The date this resource was created."]
     pub created: Box<FHIRDateTime>,
@@ -29526,7 +29528,7 @@ pub struct ViewDefinition {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The current state of this {{title}}."]
-    pub status: Box<terminology::PublicationStatus>,
+    pub status: terminology::BoundCode<terminology::PublicationStatus>,
     #[primitive]
     #[doc = "A Boolean value to indicate that this {{title}} is authored for testing purposes (or education/evaluation/marketing) and is not intended for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
@@ -29556,13 +29558,13 @@ pub struct ViewDefinition {
     pub copyrightLabel: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The FHIR resource that the view is based upon, e.g. 'Patient' or 'Observation'."]
-    pub resource: Box<terminology::ResourceTypes>,
+    pub resource: terminology::BoundCode<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "Indicates that this definition was intended to create a view over a set of resources conforming to the specified FHIR profiles. Each of these profiles SHALL be based upon the resource type specified in `resource`."]
     pub profile: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The FHIR version(s) for the FHIR resource. The value of this element is the\nformal version of the specification, without the revision number, e.g.\n[publication].[major].[minor]."]
-    pub fhirVersion: Option<Vec<Box<terminology::FHIRVersion>>>,
+    pub fhirVersion: Option<Vec<terminology::BoundCode<terminology::FHIRVersion>>>,
     #[doc = "A constant is a value that is injected into a FHIRPath expression through the use of a FHIRPath\nexternal constant with the same name."]
     pub constant: Option<Vec<ViewDefinitionConstant>>,
     #[cardinality(min = 1usize)]

@@ -198,6 +198,11 @@ mod test {
         let deserialized: Result<BoundCode<AdministrativeGender>, _> =
             serde_json::from_str(&serialized);
 
+        let k: Option<Vec<BoundCode<AdministrativeGender>>> = Some(vec![
+            AdministrativeGender::MALE,
+            AdministrativeGender::FEMALE,
+        ]);
+
         assert!(deserialized.is_err());
     }
 }
