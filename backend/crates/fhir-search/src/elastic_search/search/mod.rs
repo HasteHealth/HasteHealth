@@ -273,7 +273,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
     let mut max_count = if let Some(count_limit) = options.as_ref().and_then(|o| o.count_limit) {
         if count_limit > ABSOLUTE_MAX {
             return Err(OperationOutcomeError::fatal(
-                IssueType::TooCostly(None),
+                IssueType::TOOCOSTLY,
                 "Count limit passed exceeds maxiumum allowed by ES".to_string(),
             ));
         }

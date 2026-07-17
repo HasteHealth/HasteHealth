@@ -49,7 +49,7 @@ async fn should_evaluate_rule<
 
     if values.len() != 1 {
         return Err(OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
             format!(
                 "Target expression at '{}' did not evaluate to a single value.",
                 pointer.path()
@@ -63,7 +63,7 @@ async fn should_evaluate_rule<
         .and_then(|b| b.value)
     else {
         return Err(OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
             format!(
                 "Target expression did not evaluate to a boolean value it resolved to '{}'",
                 values[0].fhir_type()
@@ -79,14 +79,14 @@ fn coalesce_boolean(
 ) -> Result<bool, OperationOutcomeError> {
     if values.len() != 1 {
         return Err(OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
             "Condition expression did not evaluate to a single value.".to_string(),
         ));
     }
 
     let Some(value) = values.get(0) else {
         return Err(OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
             "Condition expression did not evaluate to a value.".to_string(),
         ));
     };
@@ -98,7 +98,7 @@ fn coalesce_boolean(
             .and_then(|b| b.value)
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                    haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                     "Condition expression evaluated to a FHIRBoolean with no value.".to_string(),
                 )
             }),
@@ -108,13 +108,13 @@ fn coalesce_boolean(
             .copied()
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                    haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                     "Condition expression evaluated to a System.Boolean with no value.".to_string(),
                 )
             }),
         _ => {
             return Err(OperationOutcomeError::fatal(
-                haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                 "Condition expression did not evaluate to a boolean value.".to_string(),
             ));
         }
@@ -134,7 +134,7 @@ async fn evaluate_condition<
         .ok_or(PDPError::PointerError(rule_pointer.path().to_string()))?;
     let condition = rule.condition.as_ref().ok_or_else(|| {
         OperationOutcomeError::fatal(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             "Condition is not specified for the rule.".to_string(),
         )
     })?;
@@ -198,7 +198,7 @@ async fn evaluate_access_policy_rule<
             let mut result = PermissionLevel::Deny;
             if rule.condition.is_some() {
                 return Err(OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "Condition is not supported when combineBehavior is 'any'.".to_string(),
                 ));
             }
@@ -247,7 +247,7 @@ async fn evaluate_access_policy_rule<
             let mut result = PermissionLevel::Allow;
             if rule.condition.is_some() {
                 return Err(OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "Condition is not supported when combineBehavior is 'any'.".to_string(),
                 ));
             }
@@ -299,7 +299,7 @@ async fn evaluate_access_policy_rule<
         Some(&AccessPolicyv2CombineBehavior::Null(_)) | None => {
             if rule.rule.is_some() {
                 return Err(OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "Nested rules are not supported when combineBehavior is 'null' or unspecified."
                         .to_string(),
                 ));

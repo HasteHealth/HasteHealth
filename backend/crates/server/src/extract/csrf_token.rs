@@ -26,7 +26,7 @@ where
             .await
             .map_err(|_err| {
                 OperationOutcomeError::error(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     format!("Failed to extract session"),
                 )
             })?;
@@ -36,7 +36,7 @@ where
             .await
             .map_err(|_e| {
                 OperationOutcomeError::error(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "Failed to retrieve CSRF Token from session".to_string(),
                 )
             })?
@@ -49,7 +49,7 @@ where
                 .await
                 .map_err(|_e| {
                     OperationOutcomeError::error(
-                        IssueType::Invalid(None),
+                        IssueType::INVALID,
                         "Failed to insert CSRF Token into session".to_string(),
                     )
                 })?;

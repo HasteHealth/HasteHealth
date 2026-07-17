@@ -40,7 +40,7 @@ pub async fn set_user_password<Repo: Repository>(
             .unwrap_or_default();
 
         return Err(OperationOutcomeError::fatal(
-            IssueType::Security(None),
+            IssueType::SECURITY,
             feedback,
         ));
     }

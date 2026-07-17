@@ -60,7 +60,7 @@ pub async fn admin_get<
         .await
         .map_err(|_e| {
             OperationOutcomeError::error(
-                IssueType::Security(None),
+                IssueType::SECURITY,
                 "User is not logged in.".to_string(),
             )
         })?;

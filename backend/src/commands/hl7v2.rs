@@ -50,7 +50,7 @@ pub(crate) async fn hl7v2(
             let environment = haste_fhir_converter::create_environment(Some(template_dir));
 
             let template = environment.get_template(&main).map_err(|e| {
-                OperationOutcomeError::error(IssueType::Exception(None), e.to_string())
+                OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string())
             })?;
 
             for stream in listener.incoming() {

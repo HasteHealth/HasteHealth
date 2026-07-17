@@ -45,7 +45,7 @@ pub async fn pip<
         _ => {
             let access_policy = root.value().ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                    haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                     "Pointer root does not contain an AccessPolicyV2 resource.".to_string(),
                 )
             })?;
@@ -56,7 +56,7 @@ pub async fn pip<
 
             let Some(attribute_operation) = &attribute.operation else {
                 return Err(OperationOutcomeError::fatal(
-                    haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                    haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                     format!(
                         "Attribute operation is not specified for attribute '{}'.",
                         variable_id
@@ -68,7 +68,7 @@ pub async fn pip<
                 AccessPolicyAttributeOperationTypes::Read(_) => {
                     let path_expression = attribute_operation.path.as_ref().ok_or_else(|| {
                         OperationOutcomeError::fatal(
-                            haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                             format!(
                                 "Attribute operation path is not specified for attribute '{}'.",
                                 variable_id
@@ -83,7 +83,7 @@ pub async fn pip<
 
                     let [resource_type, id] = reference_chunks.as_slice() else {
                         return Err(OperationOutcomeError::fatal(
-                            haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                             format!(
                                 "Attribute operation path '{}' is not a valid resource path for attribute '{}'.",
                                 path, variable_id
@@ -93,7 +93,7 @@ pub async fn pip<
 
                     let resource_type = ResourceType::try_from(*resource_type).map_err(|_| {
                         OperationOutcomeError::fatal(
-                            haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                             format!(
                                 "Resource type '{}' is not valid for attribute '{}'.",
                                 resource_type, variable_id
@@ -146,7 +146,7 @@ pub async fn pip<
                 AccessPolicyAttributeOperationTypes::SearchType(_) => {
                     let path_expression = attribute_operation.path.as_ref().ok_or_else(|| {
                         OperationOutcomeError::fatal(
-                            haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                             format!(
                                 "Attribute operation path is not specified for attribute '{}'.",
                                 variable_id
@@ -207,7 +207,7 @@ pub async fn pip<
                     )))
                 }
                 AccessPolicyAttributeOperationTypes::Null(_) => Err(OperationOutcomeError::fatal(
-                    haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                    haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                     format!(
                         "Attribute operation type is not specified for attribute '{}'.",
                         variable_id

@@ -47,14 +47,14 @@ pub fn delete_refresh_token_op<
                 Box::pin(async move {
                     let client_id = input.client_id.value.ok_or_else(|| {
                         OperationOutcomeError::error(
-                            IssueType::Exception(None),
+                            IssueType::EXCEPTION,
                             "Must provide client_id".to_string(),
                         )
                     })?;
 
                     let user_agent = input.user_agent.and_then(|ua| ua.value).ok_or_else(|| {
                         OperationOutcomeError::error(
-                            IssueType::Exception(None),
+                            IssueType::EXCEPTION,
                             "Must provide user_agent".to_string(),
                         )
                     })?;
@@ -76,7 +76,7 @@ pub fn delete_refresh_token_op<
 
                     let refresh_token = refresh_token.get(0).ok_or_else(|| {
                         OperationOutcomeError::fatal(
-                            IssueType::NotFound(None),
+                            IssueType::NOTFOUND,
                             "Refresh token not found".to_string(),
                         )
                     })?;
@@ -93,7 +93,7 @@ pub fn delete_refresh_token_op<
                         return_: OperationOutcome {
                             issue: vec![OperationOutcomeIssue {
                                 severity: Box::new(IssueSeverity::Information(None)),
-                                code: Box::new(IssueType::Informational(None)),
+                                code: Box::new(IssueType::INFORMATIONAL),
                                 diagnostics: Some(Box::new(FHIRString {
                                     value: Some(format!(
                                         "Deleted refresh token for client '{}'",

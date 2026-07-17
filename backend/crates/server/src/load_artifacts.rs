@@ -219,7 +219,7 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
                             tracing::error!("{:#?}", err);
                             panic!("INVALID");
                         }
-                        IssueType::Conflict(None) => {
+                        IssueType::CONFLICT => {
                             // Ignore.
                         }
                         _ => {

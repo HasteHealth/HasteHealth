@@ -97,7 +97,7 @@ impl<
                                 Ok(res)
                             } else {
                                 Err(OperationOutcomeError::fatal(
-                                    IssueType::Invalid(None),
+                                    IssueType::INVALID,
                                     "Membership resource must have a valid user reference."
                                         .to_string(),
                                 ))
@@ -118,7 +118,7 @@ impl<
                                 Ok(res)
                             } else {
                                 Err(OperationOutcomeError::fatal(
-                                    IssueType::Invalid(None),
+                                    IssueType::INVALID,
                                     "Membership resource must have a valid user reference."
                                         .to_string(),
                                 ))
@@ -146,7 +146,7 @@ impl<
                                 Ok(res)
                             } else {
                                 Err(OperationOutcomeError::fatal(
-                                    IssueType::Invalid(None),
+                                    IssueType::INVALID,
                                     "Membership resource must have a valid user reference."
                                         .to_string(),
                                 ))
@@ -157,7 +157,7 @@ impl<
                 }
             } else {
                 Err(OperationOutcomeError::fatal(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     "No next middleware found".to_string(),
                 ))
             }

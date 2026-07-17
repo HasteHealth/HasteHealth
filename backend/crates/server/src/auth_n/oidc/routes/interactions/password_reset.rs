@@ -76,7 +76,7 @@ pub async fn password_reset_initiate_post<
 ) -> Result<Markup, OperationOutcomeError> {
     if form.csrf_token != csrf_token {
         return Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             "Invalid CSRF Token".to_string(),
         ));
     }
@@ -103,7 +103,7 @@ pub async fn password_reset_initiate_post<
         ))
     } else {
         Err(OperationOutcomeError::error(
-            IssueType::NotFound(None),
+            IssueType::NOTFOUND,
             "No user found with provided email address.".to_string(),
         ))?
     }
@@ -142,7 +142,7 @@ pub async fn password_reset_verify_get<
     {
         if code.is_expired.unwrap_or(true) {
             return Err(OperationOutcomeError::fatal(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "Password reset code has expired.".to_string(),
             ));
         }
@@ -166,7 +166,7 @@ pub async fn password_reset_verify_get<
         ))
     } else {
         Err(OperationOutcomeError::error(
-            IssueType::NotFound(None),
+            IssueType::NOTFOUND,
             "Invalid Password reset code.".to_string(),
         ))?
     }
@@ -195,14 +195,14 @@ pub async fn password_reset_verify_post<
 ) -> Result<Markup, OperationOutcomeError> {
     if body.csrf_token != csrf_token {
         return Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             "Invalid CSRF Token".to_string(),
         ));
     }
 
     if body.password != body.password_confirm {
         return Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             "Passwords do not match.".to_string(),
         ));
     }
@@ -224,7 +224,7 @@ pub async fn password_reset_verify_post<
         .await?;
         if code.is_expired.unwrap_or(true) {
             return Err(OperationOutcomeError::fatal(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "Password reset code has expired.".to_string(),
             ));
         }
@@ -234,14 +234,14 @@ pub async fn password_reset_verify_post<
                 .await?
         else {
             return Err(OperationOutcomeError::error(
-                IssueType::NotFound(None),
+                IssueType::NOTFOUND,
                 "User not found.".to_string(),
             ));
         };
 
         let email = user.email.as_ref().ok_or_else(|| {
             OperationOutcomeError::fatal(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "User does not have an email associated.".to_string(),
             )
         })?;
@@ -265,7 +265,7 @@ pub async fn password_reset_verify_post<
         ))
     } else {
         Err(OperationOutcomeError::error(
-            IssueType::NotFound(None),
+            IssueType::NOTFOUND,
             "Invalid Password reset code.".to_string(),
         ))?
     }

@@ -22,13 +22,13 @@ impl BasicCredentialsHeader {
         let decoded_content: String =
             String::from_utf8(BASE64_STANDARD.decode(contents).map_err(|_| {
                 OperationOutcomeError::error(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "Failed to decode Basic Authorization Header".to_string(),
                 )
             })?)
             .map_err(|_| {
                 OperationOutcomeError::error(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "Invalid UTF-8 in Basic Authorization Header".to_string(),
                 )
             })?;
@@ -37,7 +37,7 @@ impl BasicCredentialsHeader {
 
         if parts.len() != 2 {
             return Err(OperationOutcomeError::error(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "Invalid Basic Authorization Header".to_string(),
             ));
         }
@@ -63,7 +63,7 @@ where
 
         let authorization = header.to_str().map_err(|_| {
             OperationOutcomeError::error(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "Invalid Authorization Header".to_string(),
             )
         })?;

@@ -110,7 +110,7 @@ fn request_to_json(input: &InvocationRequest) -> Result<serde_json::Value, Opera
     let parameter_json: serde_json::Value =
         serde_json::to_value(get_parameters(input)).map_err(|_| {
             OperationOutcomeError::error(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "Failed to convert operation input parameters to JSON value".to_string(),
             )
         })?;
@@ -152,7 +152,7 @@ impl OperationExecutor for DenoPool {
         let (code, media_type) =
             extract_code_from_operation_definition(operation).ok_or_else(|| {
                 OperationOutcomeError::error(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     format!(
                         "OperationDefinition missing custom code extension metadata '{}'",
                         CUSTOM_CODE_EXTENSION_URL
@@ -173,20 +173,20 @@ impl OperationExecutor for DenoPool {
             .await
             .map_err(|error| {
                 OperationOutcomeError::error(
-                    IssueType::Processing(None),
+                    IssueType::PROCESSING,
                     format!("Failed to execute operation custom code: {error}"),
                 )
             })?
             .ok_or_else(|| {
                 OperationOutcomeError::error(
-                    IssueType::Processing(None),
+                    IssueType::PROCESSING,
                     "Operation custom code returned no output".to_string(),
                 )
             })?;
 
         let output = serde_json::from_value::<Parameters>(output).map_err(|error| {
             OperationOutcomeError::error(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 format!("Operation custom code returned invalid Parameters payload: {error}"),
             )
         })?;

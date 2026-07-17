@@ -161,7 +161,7 @@ pub async fn login_post<
 ) -> Result<Response, OperationOutcomeError> {
     if login_data.csrf_token != csrf_token {
         return Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             "Invalid CSRF Token".to_string(),
         ));
     }

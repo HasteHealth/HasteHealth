@@ -36,7 +36,7 @@ impl TryFrom<String> for SubscriptionTier {
             "team" => Ok(SubscriptionTier::Team),
             "unlimited" => Ok(SubscriptionTier::Unlimited),
             _ => Err(OperationOutcomeError::error(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 format!("Invalid subscription tier: '{}'", value),
             )),
         }

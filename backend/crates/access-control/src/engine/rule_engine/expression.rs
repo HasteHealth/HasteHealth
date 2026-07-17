@@ -78,7 +78,7 @@ pub async fn evaluate_expression<
                 .await
                 .map_err(|e: FHIRPathError| {
                     OperationOutcomeError::fatal(
-                        IssueType::NotSupported(None),
+                        IssueType::NOTSUPPORTED,
                         format!("FHIRPath evaluation error: '{}'", e),
                     )
                 })?;
@@ -96,7 +96,7 @@ pub async fn evaluate_expression<
             Ok(ExpressionResult::XFHIRQuery(vec![result]))
         }
         _ => Err(OperationOutcomeError::fatal(
-            IssueType::NotSupported(None),
+            IssueType::NOTSUPPORTED,
             "Expression language not supported.".to_string(),
         )),
     }
@@ -116,7 +116,7 @@ pub async fn evaluate_to_string<
 
     if result.len() != 1 {
         return Err(OperationOutcomeError::fatal(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             "Expression did not evaluate to a single value.".to_string(),
         ));
     }

@@ -23,7 +23,7 @@ pub fn validate_id(id: &str) -> Result<(), OperationOutcomeError> {
     let re = regex::Regex::new(&format!("^[{}]*$", characters_allowed)).unwrap();
     if !re.is_match(id) {
         Err(OperationOutcomeError::fatal(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             format!("ID contains invalid characters: {}", id),
         ))
     } else {

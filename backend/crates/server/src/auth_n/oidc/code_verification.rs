@@ -50,7 +50,7 @@ pub fn verify_code_verifier(
 
             if Some(computed_challenge) != *pkce_code_challenge {
                 return Err(OperationOutcomeError::error(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "PKCE code verifier does not match the code challenge.".to_string(),
                 ));
             }
@@ -59,7 +59,7 @@ pub fn verify_code_verifier(
         }
 
         _ => Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             "PKCE code challenge method not supported.".to_string(),
         )),
     }
@@ -93,21 +93,21 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
     if let Some(code) = code.pop() {
         if code.project.as_ref() != Some(project) {
             return Err(OperationOutcomeError::fatal(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "Code does not belong to the specified project.".to_string(),
             ));
         }
 
         if code.tenant != *tenant {
             return Err(OperationOutcomeError::fatal(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "Code does not belong to the specified tenant.".to_string(),
             ));
         }
 
         if code.is_expired.unwrap_or(true) {
             return Err(OperationOutcomeError::fatal(
-                IssueType::Security(None),
+                IssueType::SECURITY,
                 "Code has expired.".to_string(),
             ));
         }
@@ -121,21 +121,21 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
             .is_err()
         {
             return Err(OperationOutcomeError::fatal(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "Failed to verify PKCE code verifier.".to_string(),
             ));
         }
 
         if code.client_id.as_ref().map(|c| c.as_str()) != client.id.as_ref().map(|c| c.as_str()) {
             return Err(OperationOutcomeError::fatal(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "Invalid authorization code.".to_string(),
             ));
         }
 
         if code.redirect_uri.as_ref().map(String::as_str) != redirect_uri {
             return Err(OperationOutcomeError::fatal(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "Redirect URI does not match the one used to create the authorization code."
                     .to_string(),
             ));
@@ -144,7 +144,7 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
         Ok(code)
     } else {
         return Err(OperationOutcomeError::fatal(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             "Authorization code not found.".to_string(),
         ));
     }

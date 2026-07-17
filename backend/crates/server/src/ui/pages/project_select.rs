@@ -15,7 +15,7 @@ fn get_project_id(project: &Project) -> Result<ProjectId, OperationOutcomeError>
         .map(|id| ProjectId::new(id))
         .ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::Exception(None),
+                IssueType::EXCEPTION,
                 "Project ID not found".to_string(),
             )
         })

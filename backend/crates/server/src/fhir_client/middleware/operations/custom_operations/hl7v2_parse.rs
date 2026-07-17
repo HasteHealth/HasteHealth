@@ -43,7 +43,7 @@ pub fn hl7v2_parse_op<
                         Ok(Hl7v2Parse::Output { hl7v2: message.0 })
                     } else {
                         Err(OperationOutcomeError::error(
-                            IssueType::Invalid(None),
+                            IssueType::INVALID,
                             "Missing hl7v2 message".to_string(),
                         ))
                     }

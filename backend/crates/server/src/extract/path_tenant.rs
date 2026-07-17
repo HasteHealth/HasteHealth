@@ -54,7 +54,7 @@ where
             Ok(Self(project))
         } else {
             Err(OperationOutcomeError::fatal(
-                haste_fhir_model::r4::generated::terminology::IssueType::NotFound(None),
+                haste_fhir_model::r4::generated::terminology::IssueType::NOTFOUND,
                 format!(
                     "Project resource '{}' not found for tenant '{}'",
                     project.as_ref(),

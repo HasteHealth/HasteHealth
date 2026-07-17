@@ -24,7 +24,7 @@ fn downcast_meta_value<'a, T: 'static>(
 ) -> Result<&'a T, OperationOutcomeError> {
     value.as_any().downcast_ref::<T>().ok_or_else(|| {
         OperationOutcomeError::fatal(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             format!("Expected a value of type {}", std::any::type_name::<T>()),
         )
     })
@@ -46,7 +46,7 @@ pub fn primitive_conversion(
             Ok(Some(Primitive::String(downcast_string(value).map_err(
                 |e| {
                     OperationOutcomeError::fatal(
-                        IssueType::Invalid(None),
+                        IssueType::INVALID,
                         format!("Failed to downcast value to string: {}", e),
                     )
                 },
@@ -55,7 +55,7 @@ pub fn primitive_conversion(
             Ok(Some(Primitive::Number(downcast_number(value).map_err(
                 |e| {
                     OperationOutcomeError::fatal(
-                        IssueType::Invalid(None),
+                        IssueType::INVALID,
                         format!("Failed to downcast value to number: {}", e),
                     )
                 },
@@ -64,7 +64,7 @@ pub fn primitive_conversion(
             Ok(Some(Primitive::Boolean(downcast_bool(value).map_err(
                 |e| {
                     OperationOutcomeError::fatal(
-                        IssueType::Invalid(None),
+                        IssueType::INVALID,
                         format!("Failed to downcast value to boolean: {}", e),
                     )
                 },
@@ -73,14 +73,14 @@ pub fn primitive_conversion(
             Ok(Some(Primitive::String(downcast_string(value).map_err(
                 |e| {
                     OperationOutcomeError::fatal(
-                        IssueType::Invalid(None),
+                        IssueType::INVALID,
                         format!("Failed to downcast value to string: {}", e),
                     )
                 },
             )?)))
         } else {
             Err(OperationOutcomeError::fatal(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 format!("Unsupported primitive type: {}", type_name),
             ))
         }
@@ -156,7 +156,7 @@ pub fn check_bare_primitive_pattern(
         }
 
         _ => Err(OperationOutcomeError::fatal(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             format!("Unsupported pattern type: {}", pattern.fhir_type()),
         )),
     }

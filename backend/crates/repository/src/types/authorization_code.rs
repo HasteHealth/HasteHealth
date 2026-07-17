@@ -31,7 +31,7 @@ impl<'a> TryFrom<&'a str> for PKCECodeChallengeMethod {
             "S256" => Ok(PKCECodeChallengeMethod::S256),
             "plain" => Ok(PKCECodeChallengeMethod::Plain),
             _ => Err(OperationOutcomeError::error(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "Invalid PKCE code challenge method.".to_string(),
             )),
         }

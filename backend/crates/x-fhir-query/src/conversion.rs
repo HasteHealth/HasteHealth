@@ -19,7 +19,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "http://hl7.org/fhirpath/System.String value is missing.".to_string(),
                 )
             }),
@@ -28,7 +28,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "base64Binary value is missing.".to_string(),
                 )
             }),
@@ -38,7 +38,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
                 .map(|s| s.to_string())
                 .ok_or_else(|| {
                     OperationOutcomeError::fatal(
-                        IssueType::Invalid(None),
+                        IssueType::INVALID,
                         "decimal value is missing.".to_string(),
                     )
                 })
@@ -49,7 +49,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|b| b.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "boolean value is missing.".to_string(),
                 )
             }),
@@ -59,7 +59,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "url value is missing.".to_string(),
                 )
             }),
@@ -69,7 +69,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "code value is missing.".to_string(),
                 )
             }),
@@ -79,7 +79,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "string value is missing.".to_string(),
                 )
             }),
@@ -89,7 +89,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|i| i.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "integer value is missing.".to_string(),
                 )
             }),
@@ -99,7 +99,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "uri value is missing.".to_string(),
                 )
             }),
@@ -109,7 +109,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "canonical value is missing.".to_string(),
                 )
             }),
@@ -119,7 +119,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "markdown value is missing.".to_string(),
                 )
             }),
@@ -129,7 +129,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "id value is missing.".to_string(),
                 )
             }),
@@ -139,7 +139,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "oid value is missing.".to_string(),
                 )
             }),
@@ -149,7 +149,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "uuid value is missing.".to_string(),
                 )
             }),
@@ -159,7 +159,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|i| i.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "unsignedInt value is missing.".to_string(),
                 )
             }),
@@ -168,7 +168,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|i| i.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "positiveInt value is missing.".to_string(),
                 )
             }),
@@ -178,7 +178,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "instant value is missing.".to_string(),
                 )
             }),
@@ -187,7 +187,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "date value is missing.".to_string(),
                 )
             }),
@@ -196,7 +196,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "time value is missing.".to_string(),
                 )
             }),
@@ -205,13 +205,13 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .map(|s| s.to_string())
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
+                    IssueType::INVALID,
                     "dateTime value is missing.".to_string(),
                 )
             }),
 
         typename => Err(OperationOutcomeError::fatal(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             format!(
                 "Unsupported MetaValue type for stringification: '{}'",
                 typename

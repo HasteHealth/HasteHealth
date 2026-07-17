@@ -4,14 +4,11 @@ use haste_fhir_operation_error::OperationOutcomeError;
 fn parse_fhir_data() -> Result<Resource, OperationOutcomeError> {
     let mut buffer = String::new();
     std::io::stdin().read_line(&mut buffer).map_err(|_| {
-        OperationOutcomeError::fatal(
-            IssueType::Exception(None),
-            "Failed to read from stdin.".into(),
-        )
+        OperationOutcomeError::fatal(IssueType::EXCEPTION, "Failed to read from stdin.".into())
     })?;
     let resource = serde_json::from_str::<Resource>(&buffer).map_err(|e| {
         OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             format!(
                 "Failed to parse FHIR data must be a FHIR R4 Resource: {}",
                 e
@@ -28,7 +25,7 @@ pub(crate) async fn fhirpath(fhirpath: &str) -> Result<(), OperationOutcomeError
 
     let result = engine.evaluate(fhirpath, vec![&data]).await.map_err(|e| {
         OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             format!("Failed to evaluate FHIRPath: {}", e),
         )
     })?;

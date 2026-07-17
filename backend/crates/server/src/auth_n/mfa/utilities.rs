@@ -19,7 +19,7 @@ fn parse_totp_algorithm(algorithm: &str) -> Result<totp_rs::Algorithm, Operation
             );
 
             Err(OperationOutcomeError::error(
-                IssueType::Exception(None),
+                IssueType::EXCEPTION,
                 "Could not generate TOTP for MFA".to_string(),
             ))
         }
@@ -29,7 +29,7 @@ fn parse_totp_algorithm(algorithm: &str) -> Result<totp_rs::Algorithm, Operation
 pub fn get_aes_key(config: &ServerConfig) -> Result<&str, OperationOutcomeError> {
     let Some(aes_key_id) = config.security.aes_key.as_ref() else {
         return Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "AES key is not configured for MFA encryption".to_string(),
         ));
     };
@@ -81,7 +81,7 @@ pub async fn user_mfa_to_totp(
         tracing::error!(error = ?e);
 
         OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "Could not generate TOTP for MFA".to_string(),
         )
     })?;

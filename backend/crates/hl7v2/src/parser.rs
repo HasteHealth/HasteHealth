@@ -35,21 +35,21 @@ impl TryFrom<&str> for ParsedHL7V2Message {
 
         if header != "MSH" {
             return Err(OperationOutcomeError::error(
-                IssueType::Exception(None),
+                IssueType::EXCEPTION,
                 "Message does not start with MSH segment".to_string(),
             ));
         }
 
         let field_seperator = value.chars().nth(3).ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::Exception(None),
+                IssueType::EXCEPTION,
                 "Missing field separator".to_string(),
             )
         })?;
 
         let encoding_characters = value[4..].split(field_seperator).next().ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::Exception(None),
+                IssueType::EXCEPTION,
                 "Missing encoding characters".to_string(),
             )
         })?;
@@ -58,7 +58,7 @@ impl TryFrom<&str> for ParsedHL7V2Message {
             let mut segment = segment.split(field_seperator);
             let segment_id = segment.next().ok_or_else(|| {
                 OperationOutcomeError::error(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     "Missing segment ID".to_string(),
                 )
             })?;

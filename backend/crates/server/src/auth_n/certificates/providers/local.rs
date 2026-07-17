@@ -170,12 +170,12 @@ fn create_certifications_if_needed(config: &ServerConfig) -> Result<(), Operatio
             cert_dir.join(private_key_file_name1),
             priv_key1.to_pkcs1_pem(LineEnding::default()).unwrap(),
         )
-        .map_err(|e| OperationOutcomeError::fatal(IssueType::Exception(None), e.to_string()))?;
+        .map_err(|e| OperationOutcomeError::fatal(IssueType::EXCEPTION, e.to_string()))?;
         std::fs::write(
             cert_dir.join(private_key_file_name2),
             priv_key2.to_pkcs1_pem(LineEnding::default()).unwrap(),
         )
-        .map_err(|e| OperationOutcomeError::fatal(IssueType::Exception(None), e.to_string()))?;
+        .map_err(|e| OperationOutcomeError::fatal(IssueType::EXCEPTION, e.to_string()))?;
     }
 
     Ok(())
@@ -208,7 +208,7 @@ impl CertificationProvider for LocalCertifications {
             .find(|d| d.kid == kid)
             .ok_or_else(|| {
                 OperationOutcomeError::error(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     format!("No decoding key found for kid: '{}'", kid),
                 )
             })
@@ -217,7 +217,7 @@ impl CertificationProvider for LocalCertifications {
     fn encoding_key<'a>(&'a self) -> Result<&'a EncodingKey, OperationOutcomeError> {
         self.encoding_keys.first().ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::Exception(None),
+                IssueType::EXCEPTION,
                 "No encoding key available".to_string(),
             )
         })

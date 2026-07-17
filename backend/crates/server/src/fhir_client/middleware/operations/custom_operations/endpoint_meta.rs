@@ -53,7 +53,7 @@ pub fn endpoint_metadata_op<
                                     e
                                 );
                                 OperationOutcomeError::error(
-                                    IssueType::Exception(None),
+                                    IssueType::EXCEPTION,
                                     "failed to create OIDC discovery document".to_string(),
                                 )
                             })?;
@@ -61,7 +61,7 @@ pub fn endpoint_metadata_op<
                     let api_url = Url::parse(&api_url_string).map_err(|e| {
                         tracing::error!("Failed to parse API URL: {:?}", e);
                         OperationOutcomeError::error(
-                            IssueType::Invalid(None),
+                            IssueType::INVALID,
                             "Invalid API URL configured".to_string(),
                         )
                     })?;
@@ -70,7 +70,7 @@ pub fn endpoint_metadata_op<
                         api_fhir_root_url(&api_url_string, &tenant, &project).map_err(|e| {
                             tracing::error!("Failed to derive FHIR Base URL: {:?}", e);
                             OperationOutcomeError::error(
-                                IssueType::Invalid(None),
+                                IssueType::INVALID,
                                 "Invalid API URL configured".to_string(),
                             )
                         })?;
@@ -78,7 +78,7 @@ pub fn endpoint_metadata_op<
                     let fhir_meta_url = fhir_url.join("metadata").map_err(|e| {
                         tracing::error!("Failed to derive FHIR Metadata URL: {:?}", e);
                         OperationOutcomeError::error(
-                            IssueType::Invalid(None),
+                            IssueType::INVALID,
                             "Invalid API URL configured".to_string(),
                         )
                     })?;
@@ -88,7 +88,7 @@ pub fn endpoint_metadata_op<
                         .map_err(|e| {
                             tracing::error!("Failed to derive MCP Endpoint URL: {:?}", e);
                             OperationOutcomeError::error(
-                                IssueType::Invalid(None),
+                                IssueType::INVALID,
                                 "Invalid API URL configured".to_string(),
                             )
                         })?;

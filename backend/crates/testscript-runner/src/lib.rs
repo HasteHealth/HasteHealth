@@ -1286,7 +1286,7 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
                     }
                 }) else {
                     return Err(OperationOutcomeError::error(
-                        IssueType::NotFound(None),
+                        IssueType::NOTFOUND,
                         format!("Contained resource with id '{}' not found.", local_id),
                     ));
                 };
@@ -1296,7 +1296,7 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
                 let parts = reference_string.split("/").collect::<Vec<&str>>();
                 if parts.len() != 2 {
                     return Err(OperationOutcomeError::error(
-                        IssueType::Invalid(None),
+                        IssueType::INVALID,
                         format!("Invalid fixture reference: {}", reference_string),
                     ));
                 }
@@ -1309,7 +1309,7 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
                         ctx.clone(),
                         ResourceType::try_from(resource_type).map_err(|_| {
                             OperationOutcomeError::error(
-                                IssueType::Invalid(None),
+                                IssueType::INVALID,
                                 format!(
                                     "Invalid resource type in fixture reference: '{}'",
                                     resource_type
@@ -1321,7 +1321,7 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
                     .await?
                 else {
                     return Err(OperationOutcomeError::error(
-                        IssueType::NotFound(None),
+                        IssueType::NOTFOUND,
                         format!("Resource '{}' with id '{}' not found.", resource_type, id),
                     ));
                 };

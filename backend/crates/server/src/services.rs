@@ -107,7 +107,7 @@ impl<
         Arc::try_unwrap(repo)
             .map_err(|_e| {
                 OperationOutcomeError::fatal(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     "Failed to unwrap transaction client".to_string(),
                 )
             })?
@@ -191,7 +191,7 @@ pub async fn create_services(
             ),
             _ => {
                 return Err(OperationOutcomeError::fatal(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     "Only environment encryption is supported for now.".to_string(),
                 ));
             }

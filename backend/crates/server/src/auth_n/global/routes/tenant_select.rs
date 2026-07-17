@@ -72,7 +72,7 @@ pub async fn tenant_select_post(
 ) -> Result<Response, OperationOutcomeError> {
     if form.csrf_token != csrf_token {
         return Err(OperationOutcomeError::error(
-            haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
             "Invalid CSRF Token".to_string(),
         ));
     }
@@ -89,7 +89,7 @@ pub async fn tenant_select_post(
             tenant_id.as_ref(),
         );
         Err(OperationOutcomeError::error(
-            haste_fhir_model::r4::generated::terminology::IssueType::Exception(None),
+            haste_fhir_model::r4::generated::terminology::IssueType::EXCEPTION,
             "Failed to determine admin app URL for tenant".to_string(),
         ))
     }

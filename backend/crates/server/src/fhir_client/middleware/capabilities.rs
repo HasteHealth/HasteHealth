@@ -70,7 +70,7 @@ fn create_capability_rest_statement(
     Ok(CapabilityStatementRestResource {
         type_: Box::new(ResourceTypes::try_from(sd_type).map_err(|e| {
             OperationOutcomeError::error(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 format!(
                     "Failed to parse resource type in capabilities generation: '{}'",
                     e

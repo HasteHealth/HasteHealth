@@ -80,7 +80,7 @@ pub(crate) enum ConfigCommands {
 fn read_existing_config(location: &PathBuf) -> Result<CLIConfiguration, OperationOutcomeError> {
     let config_str = std::fs::read_to_string(location).map_err(|_| {
         OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             format!(
                 "Failed to read config file at location '{}'",
                 location.to_string_lossy()
@@ -90,7 +90,7 @@ fn read_existing_config(location: &PathBuf) -> Result<CLIConfiguration, Operatio
 
     let config = toml::from_str::<CLIConfiguration>(&config_str).map_err(|_| {
         OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             format!(
                 "Failed to parse config file at location '{}'",
                 location.to_string_lossy()
@@ -112,7 +112,7 @@ pub(crate) fn load_config(location: &PathBuf) -> CLIConfiguration {
         std::fs::write(location, toml::to_string(&config).unwrap())
             .map_err(|_| {
                 OperationOutcomeError::error(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     format!(
                         "Failed to write default config file at location '{}'",
                         location.to_string_lossy()
@@ -206,7 +206,7 @@ pub(crate) async fn config(
                 .any(|profile| profile.name == *name)
             {
                 return Err(OperationOutcomeError::error(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     format!("Profile with name '{}' already exists", name),
                 ));
             }
@@ -227,7 +227,7 @@ pub(crate) async fn config(
             std::fs::write(&*CONFIG_LOCATION, toml::to_string(&state.config).unwrap()).map_err(
                 |_| {
                     OperationOutcomeError::error(
-                        IssueType::Exception(None),
+                        IssueType::EXCEPTION,
                         format!(
                             "Failed to write config file at location '{}'",
                             CONFIG_LOCATION.to_string_lossy()
@@ -274,7 +274,7 @@ pub(crate) async fn config(
             std::fs::write(&*CONFIG_LOCATION, toml::to_string(&state.config).unwrap()).map_err(
                 |_| {
                     OperationOutcomeError::error(
-                        IssueType::Exception(None),
+                        IssueType::EXCEPTION,
                         format!(
                             "Failed to write config file at location '{}'",
                             CONFIG_LOCATION.to_string_lossy()
@@ -296,7 +296,7 @@ pub(crate) async fn config(
 
             if user_profile_names.is_empty() {
                 return Err(OperationOutcomeError::error(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     "No profiles available to set as active.".to_string(),
                 ));
             }
@@ -331,7 +331,7 @@ pub(crate) async fn config(
                 .any(|profile| profile.name == name)
             {
                 return Err(OperationOutcomeError::error(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     format!("Profile with name '{}' does not exist", name),
                 ));
             }
@@ -341,7 +341,7 @@ pub(crate) async fn config(
             std::fs::write(&*CONFIG_LOCATION, toml::to_string(&state.config).unwrap()).map_err(
                 |_| {
                     OperationOutcomeError::error(
-                        IssueType::Exception(None),
+                        IssueType::EXCEPTION,
                         format!(
                             "Failed to write config file at location '{}'",
                             CONFIG_LOCATION.to_string_lossy()

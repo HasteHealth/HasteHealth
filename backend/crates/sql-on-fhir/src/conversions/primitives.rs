@@ -42,7 +42,7 @@ where
 {
     let value = downcast_meta_value::<T>(value).ok_or_else(|| {
         OperationOutcomeError::error(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             format!(
                 "Expected type '{type_name}' but got '{}'",
                 value.fhir_type()
@@ -59,7 +59,7 @@ pub fn convert_meta_value(
 ) -> Result<Option<PrimitiveValue>, OperationOutcomeError> {
     if value.fhir_type() != type_ {
         return Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             format!("Expected type '{type_}' but got '{}'", value.fhir_type()),
         ));
     }
@@ -226,7 +226,7 @@ pub fn convert_meta_value(
             .downcast_ref::<Time>()
             .map(|time| PrimitiveValue::String(time.to_string()))),
         type_name => Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             format!("Unsupported primitive type: '{type_name}'"),
         )),
     }

@@ -54,7 +54,7 @@ pub async fn create_post<
         .await
         .map_err(|_e| {
             OperationOutcomeError::error(
-                IssueType::Security(None),
+                IssueType::SECURITY,
                 "User is not logged in.".to_string(),
             )
         })?;
@@ -73,7 +73,7 @@ pub async fn create_post<
     // Todo make this amount configurable
     if existing_mfa_credentials.len() >= state.config.security.mfa.max_credentials_per_user {
         return Err(OperationOutcomeError::error(
-            IssueType::Security(None),
+            IssueType::SECURITY,
             format!(
                 "User has reached the maximum of {} MFA credentials allowed.",
                 state.config.security.mfa.max_credentials_per_user
@@ -85,7 +85,7 @@ pub async fn create_post<
         tracing::error!(error = ?e);
 
         OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "Could not generate secret for MFA".to_string(),
         )
     })?;

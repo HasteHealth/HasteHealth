@@ -58,7 +58,7 @@ pub async fn mfa_delete_post<
 ) -> Result<Response, OperationOutcomeError> {
     if csrf_token != delete_body.csrf_token {
         return Err(OperationOutcomeError::error(
-            IssueType::Security(None),
+            IssueType::SECURITY,
             "Invalid CSRF token.".to_string(),
         ));
     }
@@ -67,7 +67,7 @@ pub async fn mfa_delete_post<
         .await
         .map_err(|_e| {
             OperationOutcomeError::error(
-                IssueType::Security(None),
+                IssueType::SECURITY,
                 "User is not logged in.".to_string(),
             )
         })?;

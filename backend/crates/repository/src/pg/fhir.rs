@@ -521,7 +521,7 @@ fn process_history_parameters<'a>(
                     if let Some(value) = &result_param.value.get(0) {
                         let date_time = parse_datetime(value.as_str()).map_err(|e| {
                             OperationOutcomeError::fatal(
-                                IssueType::Invalid(None),
+                                IssueType::INVALID,
                                 format!("Invalid _since parameter datetime: {:?}", e),
                             )
                         })?;
@@ -529,7 +529,7 @@ fn process_history_parameters<'a>(
                         clauses.push(" created_at >= ").push_bind_unseparated(
                             chrono::DateTime::try_from(date_time).map_err(|e| {
                                 OperationOutcomeError::fatal(
-                                    IssueType::Invalid(None),
+                                    IssueType::INVALID,
                                     format!("Invalid _since parameter datetime: {:?}", e),
                                 )
                             })?,
@@ -543,7 +543,7 @@ fn process_history_parameters<'a>(
             },
             _ => {
                 return Err(OperationOutcomeError::fatal(
-                    IssueType::NotSupported(None),
+                    IssueType::NOTSUPPORTED,
                     format!(
                         "Parameter '{}' is not supported for history requests.",
                         parameter.name()

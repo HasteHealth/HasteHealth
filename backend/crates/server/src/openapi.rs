@@ -30,7 +30,7 @@ pub async fn openapi_document_handler<
             headers,
             serde_json::to_string(doc).map_err(|_e| {
                 OperationOutcomeError::error(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     "Failed to serialize OpenAPI document".to_string(),
                 )
             })?,
@@ -62,7 +62,7 @@ pub async fn openapi_document_handler<
             headers,
             serde_json::to_string(&openapi_document).map_err(|_e| {
                 OperationOutcomeError::error(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     "Failed to serialize OpenAPI document".to_string(),
                 )
             })?,

@@ -30,14 +30,14 @@ fn derive_user_id(
         let reference_chunks = reference_string.split('/').collect::<Vec<_>>();
         let [resource_type, resource_id] = reference_chunks.as_slice() else {
             return Err(OperationOutcomeError::error(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "Invalid user reference format".to_string(),
             ));
         };
 
         if *resource_type != "User" {
             return Err(OperationOutcomeError::error(
-                IssueType::Invalid(None),
+                IssueType::INVALID,
                 "User reference must refer to a User resource".to_string(),
             ));
         }
@@ -84,7 +84,7 @@ pub fn evaluate_policy_op<
 
                             if invocation_instance.resource_type != ResourceType::AccessPolicyV2 {
                                 return Err(OperationOutcomeError::fatal(
-                                    IssueType::Invalid(None),
+                                    IssueType::INVALID,
                                     "EvaluatePolicy operation must be invoked on an AccessPolicyV2 resource".to_string(),
                                 ));
                             }
@@ -101,7 +101,7 @@ pub fn evaluate_policy_op<
                                 .await?
                             else {
                                 return Err(OperationOutcomeError::fatal(
-                                    IssueType::NotFound(None),
+                                    IssueType::NOTFOUND,
                                     format!(
                                         "AccessPolicyV2 resource with id '{}' not found",
                                         invocation_instance.id
@@ -112,7 +112,7 @@ pub fn evaluate_policy_op<
                             let Some(entry) = input.request.entry.as_ref().and_then(|e| e.get(0))
                             else {
                                 return Err(OperationOutcomeError::fatal(
-                                    IssueType::Invalid(None),
+                                    IssueType::INVALID,
                                     "EvaluatePolicy operation requires a request entry".to_string(),
                                 ));
                             };
@@ -148,7 +148,7 @@ pub fn evaluate_policy_op<
                                     return_: OperationOutcome {
                                         issue: vec![OperationOutcomeIssue {
                                             severity: Box::new(IssueSeverity::Information(None)),
-                                            code: Box::new(IssueType::Informational(None)),
+                                            code: Box::new(IssueType::INFORMATIONAL),
                                             diagnostics: Some(Box::new(FHIRString {
                                                 value: Some(
                                                     "Policy approved user access.".to_string(),
@@ -164,7 +164,7 @@ pub fn evaluate_policy_op<
                                     return_: OperationOutcome {
                                         issue: vec![OperationOutcomeIssue {
                                             severity: Box::new(IssueSeverity::Information(None)),
-                                            code: Box::new(IssueType::Informational(None)),
+                                            code: Box::new(IssueType::INFORMATIONAL),
                                             diagnostics: Some(Box::new(FHIRString {
                                                 value: Some(
                                                     "Policy denied user access.".to_string(),
@@ -179,7 +179,7 @@ pub fn evaluate_policy_op<
                             }
                         }
                         _ => Err(OperationOutcomeError::fatal(
-                            IssueType::Exception(None),
+                            IssueType::EXCEPTION,
                             "EvaluatePolicy operation only supported at Instance level".to_string(),
                         )),
                     }

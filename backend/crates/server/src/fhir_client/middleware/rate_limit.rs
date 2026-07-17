@@ -73,13 +73,13 @@ impl<
                         .await
                         .map_err(|e| match e {
                             RateLimitError::Exceeded => OperationOutcomeError::error(
-                                IssueType::Throttled(None),
+                                IssueType::THROTTLED,
                                 "Rate limit exceeded".to_string(),
                             ),
                             RateLimitError::Error(msg) => {
                                 tracing::error!("Rate limit error: {}", msg);
                                 OperationOutcomeError::fatal(
-                                    IssueType::Exception(None),
+                                    IssueType::EXCEPTION,
                                     "Failed to process rate limit".to_string(),
                                 )
                             }
@@ -96,7 +96,7 @@ impl<
                 next(state, context).await
             } else {
                 Err(OperationOutcomeError::fatal(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     "No next middleware found".to_string(),
                 ))
             }

@@ -83,7 +83,7 @@ pub async fn activate_html<
         tracing::error!(error = ?e);
 
         OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "Could not generate QR code for MFA".to_string(),
         )
     })?;
@@ -97,7 +97,7 @@ pub async fn activate_html<
             .id
             .as_ref()
             .ok_or(OperationOutcomeError::error(
-                IssueType::Exception(None),
+                IssueType::EXCEPTION,
                 "User MFA credential ID is missing.".to_string(),
             ))?,
         &qr_code_image,
@@ -125,7 +125,7 @@ pub async fn activate_get<
         .await
         .map_err(|_e| {
             OperationOutcomeError::error(
-                IssueType::Security(None),
+                IssueType::SECURITY,
                 "User is not logged in.".to_string(),
             )
         })?;
@@ -138,14 +138,14 @@ pub async fn activate_get<
     .await?
     else {
         return Err(OperationOutcomeError::error(
-            IssueType::NotFound(None),
+            IssueType::NOTFOUND,
             "User MFA credential not found.".to_string(),
         ));
     };
 
     if user_mfa_credential.is_active {
         return Err(OperationOutcomeError::error(
-            IssueType::Security(None),
+            IssueType::SECURITY,
             "MFA credential is already active.".to_string(),
         ));
     }
@@ -178,7 +178,7 @@ pub async fn activate_post<
 ) -> Result<Response, OperationOutcomeError> {
     if mfa_activate_data.csrf_token != csrf_token {
         return Err(OperationOutcomeError::error(
-            IssueType::Security(None),
+            IssueType::SECURITY,
             "Invalid CSRF token.".to_string(),
         ));
     }
@@ -187,7 +187,7 @@ pub async fn activate_post<
         .await
         .map_err(|_e| {
             OperationOutcomeError::error(
-                IssueType::Security(None),
+                IssueType::SECURITY,
                 "User is not logged in.".to_string(),
             )
         })?;
@@ -200,7 +200,7 @@ pub async fn activate_post<
     .await?
     else {
         return Err(OperationOutcomeError::error(
-            IssueType::NotFound(None),
+            IssueType::NOTFOUND,
             "User MFA credential not found.".to_string(),
         ));
     };
@@ -216,12 +216,12 @@ pub async fn activate_post<
     let is_otp_valid = totp
         .check_current(&mfa_activate_data.otp_code)
         .map_err(|_e| {
-            OperationOutcomeError::error(IssueType::Security(None), "Invalid OTP code.".to_string())
+            OperationOutcomeError::error(IssueType::SECURITY, "Invalid OTP code.".to_string())
         })?;
 
     if !is_otp_valid {
         return Err(OperationOutcomeError::error(
-            IssueType::Security(None),
+            IssueType::SECURITY,
             "Invalid OTP code.".to_string(),
         ));
     }
@@ -231,7 +231,7 @@ pub async fn activate_post<
         &tenant,
         UserMFACredentialUpdate {
             id: user_mfa_credential.id.ok_or(OperationOutcomeError::error(
-                IssueType::Exception(None),
+                IssueType::EXCEPTION,
                 "User MFA credential ID is missing.".to_string(),
             ))?,
             user_id: UserId::new(get_auth_state.user.id),

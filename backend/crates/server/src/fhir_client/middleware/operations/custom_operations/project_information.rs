@@ -55,7 +55,7 @@ pub fn project_information_op<
                         Ok(ProjectInformation::Output { project })
                     } else {
                         return Err(OperationOutcomeError::fatal(
-                            IssueType::NotFound(None),
+                            IssueType::NOTFOUND,
                             "Project not found".to_string(),
                         ));
                     }

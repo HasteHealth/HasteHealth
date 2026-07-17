@@ -12,7 +12,7 @@ pub fn ndjson(
     for result in results {
         serde_json::to_writer(&mut byte_vector, &result).map_err(|_e| {
             OperationOutcomeError::error(
-                IssueType::Processing(None),
+                IssueType::PROCESSING,
                 "Failed to write NDJSON output".to_string(),
             )
         })?;

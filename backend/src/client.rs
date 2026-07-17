@@ -12,7 +12,7 @@ async fn config_to_fhir_http_state(
     let current_state = state.lock().await;
     let Some(active_profile) = current_state.config.current_profile().cloned() else {
         return Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
+            IssueType::INVALID,
             "No active profile set. Please set an active profile using the config command."
                 .to_string(),
         ));
@@ -39,7 +39,7 @@ async fn config_to_fhir_http_state(
                             let Some(active_profile) = current_state.config.current_profile()
                             else {
                                 return Err(OperationOutcomeError::error(
-                            IssueType::Invalid(None),
+                            IssueType::INVALID,
                             "No active profile set. Please set an active profile using the config command.".to_string(),
                                 ));
                             };
@@ -52,7 +52,7 @@ async fn config_to_fhir_http_state(
                                         reqwest::get(&active_profile.oidc_discovery_uri).await;
                                     let res = res.map_err(|e| {
                                         OperationOutcomeError::error(
-                                            IssueType::Exception(None),
+                                            IssueType::EXCEPTION,
                                             format!(
                                                 "Failed to fetch OIDC discovery document: {}",
                                                 e
@@ -65,7 +65,7 @@ async fn config_to_fhir_http_state(
                                     >(
                                         &res.bytes().await.map_err(|e| {
                                             OperationOutcomeError::error(
-                                                IssueType::Exception(None),
+                                                IssueType::EXCEPTION,
                                                 format!(
                                                     "Failed to read OIDC discovery document: {}",
                                                     e
@@ -75,7 +75,7 @@ async fn config_to_fhir_http_state(
                                     )
                                     .map_err(|e| {
                                         OperationOutcomeError::error(
-                                            IssueType::Exception(None),
+                                            IssueType::EXCEPTION,
                                             format!(
                                                 "Failed to parse OIDC discovery document: {}",
                                                 e
@@ -104,14 +104,14 @@ async fn config_to_fhir_http_state(
                                 .await
                                 .map_err(|e| {
                                     OperationOutcomeError::error(
-                                        IssueType::Exception(None),
+                                        IssueType::EXCEPTION,
                                         format!("Failed to fetch access token: {}", e),
                                     )
                                 })?;
 
                             if !res.status().is_success() {
                                 return Err(OperationOutcomeError::error(
-                                    IssueType::Forbidden(None),
+                                    IssueType::FORBIDDEN,
                                     format!(
                                         "Failed to fetch access token: HTTP '{}'",
                                         res.status(),
@@ -122,7 +122,7 @@ async fn config_to_fhir_http_state(
                             let token_response: serde_json::Value =
                                 res.json().await.map_err(|e| {
                                     OperationOutcomeError::error(
-                                        IssueType::Exception(None),
+                                        IssueType::EXCEPTION,
                                         format!("Failed to parse access token response: {}", e),
                                     )
                                 })?;
@@ -132,7 +132,7 @@ async fn config_to_fhir_http_state(
                                 .and_then(|v| v.as_str())
                                 .ok_or_else(|| {
                                     OperationOutcomeError::error(
-                                        IssueType::Exception(None),
+                                        IssueType::EXCEPTION,
                                         "No access_token field in token response".to_string(),
                                     )
                                 })?

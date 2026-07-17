@@ -26,7 +26,7 @@ pub async fn evaluate_policy<
             Ok(engine::rule_engine::pdp::evaluate(context, policy).await?)
         }
         AccessPolicyv2Engine::Null(_) => Err(OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::Forbidden(None),
+            haste_fhir_model::r4::generated::terminology::IssueType::FORBIDDEN,
             "Access policy denies access.".to_string(),
         )),
     }
@@ -50,7 +50,7 @@ pub fn evaluate_policies<
                     PermissionLevel::Allow => {
                         return Arc::into_inner(context).ok_or_else(|| {
                             OperationOutcomeError::error(
-                                IssueType::Forbidden(None),
+                                IssueType::FORBIDDEN,
                                 "Failed to retrieve policy context.".to_string(),
                             )
                         });
@@ -63,7 +63,7 @@ pub fn evaluate_policies<
         }
 
         Err(OperationOutcomeError::error(
-            IssueType::Forbidden(None),
+            IssueType::FORBIDDEN,
             format!("No policy has granted access to your request."),
         ))
     }

@@ -22,7 +22,7 @@ fn _validate_cardinality(
         return Ok(vec![outcome_issue(
             value_location,
             IssueSeverity::Error(None),
-            IssueType::Required(None),
+            IssueType::REQUIRED,
             format!(
                 "Element: '{}' Minimum number of required values not met expected at least '{}', found '{}'",
                 element.id.as_ref().map(|s| s.as_str()).unwrap_or("unknown"),
@@ -38,7 +38,7 @@ fn _validate_cardinality(
         Some(max) => {
             let Ok(max) = max.parse::<usize>() else {
                 return Err(OperationOutcomeError::error(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     format!("Invalid max cardinality: {}", max),
                 ));
             };
@@ -49,7 +49,7 @@ fn _validate_cardinality(
                 Ok(vec![outcome_issue(
                     value_location,
                     IssueSeverity::Error(None),
-                    IssueType::Required(None),
+                    IssueType::REQUIRED,
                     format!(
                         "Element: '{}' Too many values: expected at most '{}', found '{}'",
                         element.id.as_ref().map(|s| s.as_str()).unwrap_or("unknown"),

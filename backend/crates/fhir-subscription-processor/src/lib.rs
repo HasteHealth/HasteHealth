@@ -63,14 +63,14 @@ impl MemorySubscriptionFilter {
             let criteria_pieces = criteria.split('?').collect::<Vec<_>>();
             let [path, parameters] = criteria_pieces.as_slice() else {
                 return Err(OperationOutcomeError::error(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     "Invalid subscription criteria format".to_string(),
                 ));
             };
 
             let resource_type = ResourceType::try_from(*path).map_err(|_| {
                 OperationOutcomeError::error(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     "Invalid resource type".to_string(),
                 )
             })?;
@@ -91,7 +91,7 @@ impl MemorySubscriptionFilter {
                             .await?
                         else {
                             return Err(OperationOutcomeError::error(
-                                IssueType::Exception(None),
+                                IssueType::EXCEPTION,
                                 format!(
                                     "Invalid search parameter in subscription criteria: {}",
                                     resource_param.name
@@ -101,7 +101,7 @@ impl MemorySubscriptionFilter {
 
                         if resource_param.chains.is_some() {
                             return Err(OperationOutcomeError::error(
-                                IssueType::Exception(None),
+                                IssueType::EXCEPTION,
                                 format!(
                                     "Chained parameters are not supported in subscription criteria: {}",
                                     resource_param.name
@@ -116,7 +116,7 @@ impl MemorySubscriptionFilter {
                             .and_then(|expr| expr.value.as_ref())
                         else {
                             return Err(OperationOutcomeError::error(
-                                IssueType::Exception(None),
+                                IssueType::EXCEPTION,
                                 format!(
                                     "Search parameter does not have an expression: {}",
                                     resource_param.name
@@ -133,7 +133,7 @@ impl MemorySubscriptionFilter {
                     }
                     ParsedParameter::Result(result_param) => {
                         return Err(OperationOutcomeError::error(
-                            IssueType::Exception(None),
+                            IssueType::EXCEPTION,
                             format!(
                                 "Unsupported parameter in subscription criteria: {}",
                                 result_param.name
@@ -152,7 +152,7 @@ impl MemorySubscriptionFilter {
             })
         } else {
             Err(OperationOutcomeError::error(
-                IssueType::Exception(None),
+                IssueType::EXCEPTION,
                 "SubscriptionFilter conversion not implemented".to_string(),
             ))
         }
@@ -187,45 +187,45 @@ async fn fits_subscription_parameter(
             }))
         }
         InsertableIndex::Number(_) => Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "Number search parameters are not supported in subscription criteria".to_string(),
         ))?,
         InsertableIndex::URI(_) => Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "URI search parameters are not supported in subscription criteria".to_string(),
         ))?,
         InsertableIndex::Token(_) => Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "Token search parameters are not supported in subscription criteria".to_string(),
         ))?,
         InsertableIndex::Date(_) => Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "Date search parameters are not supported in subscription criteria".to_string(),
         ))?,
 
         InsertableIndex::Reference(_) => Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "Reference search parameters are not supported in subscription criteria".to_string(),
         ))?,
         InsertableIndex::Quantity(_) => Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "Quantity search parameters are not supported in subscription criteria".to_string(),
         ))?,
         InsertableIndex::DynamicParameters(_) => Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "Dynamic search parameters are not supported in subscription criteria".to_string(),
         ))?,
 
         InsertableIndex::Composite(_) => Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "Composite search parameters are not supported in subscription criteria".to_string(),
         ))?,
         InsertableIndex::Special(_) => Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "Special search parameters are not supported in subscription criteria".to_string(),
         ))?,
         InsertableIndex::Meta(_) => Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "Meta search parameters are not supported in subscription criteria".to_string(),
         ))?,
     }
@@ -258,7 +258,7 @@ impl traits::SubscriptionFilter for MemorySubscriptionFilter {
                 }
                 SubscriptionTrigger::FHIRPathFilter { .. } => {
                     return Err(OperationOutcomeError::error(
-                        IssueType::Exception(None),
+                        IssueType::EXCEPTION,
                         "FHIRPathFilter triggers are not yet supported".to_string(),
                     ))?;
                 }

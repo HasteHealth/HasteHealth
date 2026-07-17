@@ -25,7 +25,7 @@ fn request_type_to_permission(
         | FHIRRequest::Batch(_)
         | FHIRRequest::Transaction(_)
         | FHIRRequest::Invocation(_) => Err(OperationOutcomeError::fatal(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             "Cannot determine permission for this request type".to_string(),
         )),
         FHIRRequest::Create(_) => Ok(SmartResourceScopePermission::Create),
@@ -151,7 +151,7 @@ impl<
                         && matched_scope.user == SmartResourceScopeUser::Patient
                     {
                         return Err(OperationOutcomeError::error(
-                            IssueType::Security(None),
+                            IssueType::SECURITY,
                             "Patient-level SMART scopes are not supported for this request"
                                 .to_string(),
                         ));
@@ -169,7 +169,7 @@ impl<
                         None => {
                             // No matching scope found, deny access
                             Err(OperationOutcomeError::error(
-                                IssueType::Security(None),
+                                IssueType::SECURITY,
                                 "Insufficient SMART scope for this request".to_string(),
                             ))
                         }

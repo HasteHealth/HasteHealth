@@ -49,7 +49,7 @@ impl<
                 next(state, context).await
             } else {
                 Err(OperationOutcomeError::fatal(
-                    IssueType::Security(None),
+                    IssueType::SECURITY,
                     format!(
                         "Must be in project {} to access this resource, not {}",
                         project_id, context.ctx.project,
@@ -102,7 +102,7 @@ impl<
                 }
             } else {
                 Err(OperationOutcomeError::fatal(
-                    IssueType::Exception(None),
+                    IssueType::EXCEPTION,
                     "No next middleware found".to_string(),
                 ))
             }

@@ -637,7 +637,7 @@ fn fhir_request_to_http_request<'a>(
                 "Authorization",
                 HeaderValue::from_str(&format!("Bearer {}", token)).map_err(|_| {
                     OperationOutcomeError::error(
-                        IssueType::Invalid(None),
+                        IssueType::INVALID,
                         "Failed to create Authorization header.".to_string(),
                     )
                 })?,
@@ -660,7 +660,7 @@ async fn check_for_errors(
         }
 
         return Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
+            IssueType::EXCEPTION,
             format!("HTTP returned error '{}'.", status),
         ));
     }
@@ -1456,7 +1456,7 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
                         id,
                         operation: Operation::new(&operation).map_err(|_e| {
                             OperationOutcomeError::error(
-                                IssueType::Exception(None),
+                                IssueType::EXCEPTION,
                                 "invalid operation".to_string(),
                             )
                         })?,
@@ -1490,7 +1490,7 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
                     resource_type,
                     operation: Operation::new(&operation).map_err(|_e| {
                         OperationOutcomeError::error(
-                            IssueType::Exception(None),
+                            IssueType::EXCEPTION,
                             "invalid operation".to_string(),
                         )
                     })?,
@@ -1522,7 +1522,7 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
                     request::FHIRInvokeSystemRequest {
                         operation: Operation::new(&operation).map_err(|_e| {
                             OperationOutcomeError::error(
-                                IssueType::Exception(None),
+                                IssueType::EXCEPTION,
                                 "invalid operation".to_string(),
                             )
                         })?,

@@ -354,7 +354,7 @@ impl<SearchParameterResolver: SearchParameterResolve> SearchEngine
 
             for task in tasks {
                 let res = task.await.map_err(|e| {
-                    OperationOutcomeError::fatal(IssueType::Exception(None), e.to_string())
+                    OperationOutcomeError::fatal(IssueType::EXCEPTION, e.to_string())
                 })??;
                 bulk_ops.push(res);
             }
@@ -375,7 +375,7 @@ impl<SearchParameterResolver: SearchParameterResolve> SearchEngine
 
                 let response_body = res.json::<serde_json::Value>().await.map_err(|_e| {
                     OperationOutcomeError::fatal(
-                        IssueType::Exception(None),
+                        IssueType::EXCEPTION,
                         "Failed to parse response body.".to_string(),
                     )
                 })?;
