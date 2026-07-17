@@ -285,7 +285,7 @@ pub struct GeneratedTerminologies {
 // Sets up the main datastructures to be used by generated inline terminologies
 fn prebuilt_code() -> TokenStream {
     quote! {
-        use crate::r4::generated::types::Element;
+        use crate::r4::generated::types::{Element, Extension};
         use haste_reflect::MetaValue;
         use serde::{Deserialize, Deserializer, Serialize, Serializer};
         use std::{any::Any, fmt, marker::PhantomData};
@@ -331,6 +331,16 @@ fn prebuilt_code() -> TokenStream {
             }
             pub fn element_mut(&mut self) -> &mut Element {
                 self.element.get_or_insert_with(Default::default)
+            }
+            pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+                &mut self.element_mut().extension
+            }
+            pub fn id_mut(&mut self) -> &mut Option<String> {
+                &mut self.element_mut().id
+            }
+
+            pub fn empty(&self) -> bool {
+                self.code.is_none() && self.element.is_none()
             }
 
             pub fn serialize_as_field<M: serde::ser::SerializeMap>(
@@ -475,6 +485,12 @@ fn prebuilt_code() -> TokenStream {
                     Some(c) => s.serialize_str(c),
                     None => s.serialize_none(), // Null case; match current `_field`-only semantics
                 }
+            }
+        }
+
+        impl<VS: ValueSetDef> Default for BoundCode<VS> {
+            fn default() -> Self {
+                Self::null()
             }
         }
     }
