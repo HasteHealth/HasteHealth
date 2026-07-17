@@ -123,9 +123,10 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
             let variant_name = format_ident!("{}", &format_string(&c.code).to_uppercase());
             let display = c.description.as_ref().map(|d| d.as_str()).unwrap_or("");
             let index = i as u16;
+
             quote! {
                 #[doc = #display]
-                pub const #variant_name: BoundCode<Self> = BoundCode::from_index(#i);
+                pub const #variant_name: BoundCode<Self> = BoundCode::from_index(#index);
             }
         });
 
@@ -330,6 +331,47 @@ fn prebuilt_code() -> TokenStream {
             }
             pub fn element_mut(&mut self) -> &mut Element {
                 self.element.get_or_insert_with(Default::default)
+            }
+
+            pub fn serialize_as_field<M: serde::ser::SerializeMap>(
+                &self,
+                field_name: &str,
+                serializer: &mut M,
+            ) -> Result<(), M::Error> {
+                let code = self.as_str();
+                let element = self.element();
+
+                if let Some(value) = code {
+                    serializer.serialize_entry(field_name, &value)?;
+                }
+
+                if let Some(element) = element {
+                    let element_key = format!("_{}", field_name);
+                    serializer.serialize_entry(&element_key, element)?;
+                }
+
+                Ok(())
+            }
+
+            pub fn serialize_as_vector<M: serde::ser::SerializeMap>(
+                field_name: &str,
+                values: &[Self],
+                serializer: &mut M,
+            ) -> Result<(), M::Error> {
+                let value_array: Vec<Option<&'static str>> = values.iter().map(|v| v.as_str()).collect();
+                let element_array: Vec<Option<_>> = values.iter().map(|v| v.element()).collect();
+
+                if value_array.iter().any(|v| v.is_some()) {
+                    serializer.serialize_entry(field_name, &value_array)?;
+                }
+
+                if element_array.iter().any(|e| e.is_some()) {
+                    let element_key = format!("_{}", field_name);
+                    let element_array: Vec<Option<_>> = values.iter().map(|v| v.element()).collect();
+                    serializer.serialize_entry(&element_key, &element_array)?;
+                }
+
+                Ok(())
             }
         }
 
