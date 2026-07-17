@@ -6,14 +6,21 @@ use std::sync::Arc;
 impl OperationOutcomeError {
     pub fn status(&self) -> axum::http::StatusCode {
         match self.outcome.issue.first() {
-            Some(issue) => match issue.code.as_ref() {
-                IssueType::Invalid(_) => axum::http::StatusCode::BAD_REQUEST,
-                IssueType::NotFound(_) => axum::http::StatusCode::NOT_FOUND,
-                IssueType::Forbidden(_) => axum::http::StatusCode::FORBIDDEN,
-                IssueType::Conflict(_) => axum::http::StatusCode::CONFLICT,
-                IssueType::Throttled(_) => axum::http::StatusCode::TOO_MANY_REQUESTS,
-                _ => axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-            },
+            Some(issue) => {
+                if issue.code == IssueType::INVALID {
+                    axum::http::StatusCode::BAD_REQUEST
+                } else if issue.code == IssueType::NOTFOUND {
+                    axum::http::StatusCode::NOT_FOUND
+                } else if issue.code == IssueType::FORBIDDEN {
+                    axum::http::StatusCode::FORBIDDEN
+                } else if issue.code == IssueType::CONFLICT {
+                    axum::http::StatusCode::CONFLICT
+                } else if issue.code == IssueType::THROTTLED {
+                    axum::http::StatusCode::TOO_MANY_REQUESTS
+                } else {
+                    axum::http::StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
             None => axum::http::StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
