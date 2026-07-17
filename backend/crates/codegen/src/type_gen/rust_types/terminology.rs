@@ -122,6 +122,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
         let const_variants = codes.iter().enumerate().map(|(i, c)| {
             let variant_name = format_ident!("{}", &format_string(&c.code).to_uppercase());
             let display = c.description.as_ref().map(|d| d.as_str()).unwrap_or("");
+            let index = i as u16;
             quote! {
                 #[doc = #display]
                 pub const #variant_name: BoundCode<Self> = BoundCode::from_index(#i);
