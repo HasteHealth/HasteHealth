@@ -219,9 +219,9 @@ pub fn complex_serialization(
                 }
             };
 
-            if name.to_string() == "ClientApplication" {
-                println!("{}", serialize.to_string());
-            }
+            // if name.to_string() == "ClientApplication" {
+            //     println!("{}", serialize.to_string());
+            // }
 
             serialize.into()
         }
