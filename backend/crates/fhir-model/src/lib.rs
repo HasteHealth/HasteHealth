@@ -13,17 +13,21 @@ mod tests {
         },
     };
     use haste_reflect::MetaValue;
+    use r4::generated::terminology::ValueSetDef as _;
     use r4::generated::{resources::Patient, types::Address};
     use serde_json;
 
     #[test]
     fn test_enum_with_extension() {
-        let term_ = r4::generated::terminology::AdministrativeGender::Male(Some(
-            r4::generated::types::Element {
-                id: Some("test".to_string()),
-                ..r4::generated::types::Element::default()
-            },
-        ));
+        let mut term_ = r4::generated::terminology::AdministrativeGender::new(
+            r4::generated::terminology::AdministrativeGender::MALE.as_str(),
+        );
+
+        term_.element_mut() = r4::generated::types::Element {
+            id: Some("test".to_string()),
+            ..r4::generated::types::Element::default()
+        };
+
         assert_eq!(term_.fhir_type(), "code");
         let k = term_
             .get_field("value")
@@ -33,21 +37,6 @@ mod tests {
             .unwrap();
         assert_eq!(k, &"male");
     }
-
-    // #[test]
-    // fn test_serializing_string_html() {
-    //     let k = r#""<div xmlns=\"http://www.w3.org/1999/xhtml\">\n      <p>Dr Adam Careful is a Referring Practitioner for Acme Hospital from 1-Jan 2012 to 31-Mar\n        2012</p>\n    </div>""#;
-    //     let parsed_str_serde =
-    //         serde_json::to_string(&serde_json::from_str::<serde_json::Value>(k).unwrap()).unwrap();
-
-    //     assert_eq!(
-    //         parsed_str_serde,
-    //         haste_fhir_serialization_json::to_string(
-    //             &haste_fhir_serialization_json::from_str::<String>(k).unwrap()
-    //         )
-    //         .unwrap()
-    //     );
-    // }
 
     #[test]
     fn enum_resource_type_variant() {

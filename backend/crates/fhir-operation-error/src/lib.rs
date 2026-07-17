@@ -2,7 +2,7 @@ use std::{error::Error, fmt::Display};
 
 use haste_fhir_model::r4::generated::{
     resources::{OperationOutcome, OperationOutcomeIssue},
-    terminology::{IssueSeverity, IssueType},
+    terminology::{BoundCode, IssueSeverity, IssueType},
     types::FHIRString,
 };
 
@@ -19,14 +19,14 @@ pub struct OperationOutcomeError {
 }
 
 fn create_operation_outcome(
-    severity: IssueSeverity,
-    code: IssueType,
+    severity: BoundCode<IssueSeverity>,
+    code: BoundCode<IssueType>,
     diagnostic: String,
 ) -> OperationOutcome {
     OperationOutcome {
         issue: vec![OperationOutcomeIssue {
-            severity: Box::new(severity),
-            code: Box::new(code),
+            severity: severity,
+            code: code,
             diagnostics: Some(Box::new(FHIRString {
                 value: Some(diagnostic),
                 ..Default::default()
@@ -60,28 +60,28 @@ impl OperationOutcomeError {
         self._source.as_ref().map(|s| s.backtrace())
     }
 
-    pub fn fatal(code: IssueType, diagnostic: String) -> Self {
+    pub fn fatal(code: BoundCode<IssueType>, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome(IssueSeverity::Fatal(None), code, diagnostic),
+            create_operation_outcome(IssueSeverity::FATAL, code, diagnostic),
         )
     }
-    pub fn error(code: IssueType, diagnostic: String) -> Self {
+    pub fn error(code: BoundCode<IssueType>, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome(IssueSeverity::Error(None), code, diagnostic),
+            create_operation_outcome(IssueSeverity::ERROR, code, diagnostic),
         )
     }
-    pub fn warning(code: IssueType, diagnostic: String) -> Self {
+    pub fn warning(code: BoundCode<IssueType>, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome(IssueSeverity::Warning(None), code, diagnostic),
+            create_operation_outcome(IssueSeverity::WARNING, code, diagnostic),
         )
     }
-    pub fn information(code: IssueType, diagnostic: String) -> Self {
+    pub fn information(code: BoundCode<IssueType>, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome(IssueSeverity::Information(None), code, diagnostic),
+            create_operation_outcome(IssueSeverity::INFORMATION, code, diagnostic),
         )
     }
 }

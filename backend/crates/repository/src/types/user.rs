@@ -1,4 +1,4 @@
-use haste_fhir_model::r4::generated::terminology::UserRole as FHIRUserRole;
+use haste_fhir_model::r4::generated::terminology::{BoundCode, UserRole as FHIRUserRole};
 use haste_jwt::TenantId;
 use serde::{Deserialize, Serialize};
 
@@ -64,13 +64,14 @@ pub enum UserRole {
     Member,
 }
 
-impl From<FHIRUserRole> for UserRole {
-    fn from(role: FHIRUserRole) -> Self {
-        match role {
-            FHIRUserRole::Owner(_) => UserRole::Owner,
-            FHIRUserRole::Admin(_) => UserRole::Admin,
-            FHIRUserRole::Member(_) => UserRole::Member,
-            FHIRUserRole::Null(_) => UserRole::Member,
+impl From<BoundCode<FHIRUserRole>> for UserRole {
+    fn from(role: BoundCode<FHIRUserRole>) -> Self {
+        if role == FHIRUserRole::OWNER {
+            UserRole::Owner
+        } else if role == FHIRUserRole::ADMIN {
+            UserRole::Admin
+        } else {
+            UserRole::Member
         }
     }
 }
