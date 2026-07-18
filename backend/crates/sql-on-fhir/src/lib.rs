@@ -7,7 +7,7 @@ use haste_fhir_model::r4::{
     self,
     generated::{
         resources::{Binary, Resource, ResourceType, ViewDefinition},
-        terminology::{IssueType, OutputFormatCodes},
+        terminology::{BoundCode, IssueType, OutputFormatCodes},
         types::{FHIRBase64Binary, FHIRBoolean},
     },
 };
@@ -117,7 +117,7 @@ async fn get_resources_to_process<
             .and_then(|since| since.value.clone())
             .unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
 
-        let Some(resource_type): Option<String> = view_definition.resource.as_ref().into() else {
+        let Some(resource_type) = view_definition.resource.as_str() else {
             return Err(OperationOutcomeError::error(
                 IssueType::INVALID,
                 "ViewDefinition.resource is required".to_string(),
@@ -468,7 +468,7 @@ async fn process_view_definition<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: CTX,
-    output_format: &OutputFormatCodes,
+    output_format: &BoundCode<OutputFormatCodes>,
     client: Arc<Client>,
     view_definition: &ViewDefinition,
     input: &ViewDefinitionRun::Input,
@@ -529,7 +529,7 @@ async fn process_view_definition<
     let results = results.into_iter().flatten().collect::<Vec<_>>();
 
     match output_format {
-        OutputFormatCodes::Csv(_) => {
+        binding if binding == &OutputFormatCodes::CSV => {
             let data = output::csv::csv(results)?;
 
             let base64_string: String = general_purpose::STANDARD.encode(&data);
@@ -542,7 +542,7 @@ async fn process_view_definition<
                 ..Default::default()
             })
         }
-        OutputFormatCodes::Json(_) => {
+        binding if binding == &OutputFormatCodes::JSON => {
             let data = output::json::json(results)?;
 
             let base64_string: String = general_purpose::STANDARD.encode(&data);
@@ -555,7 +555,7 @@ async fn process_view_definition<
                 ..Default::default()
             })
         }
-        OutputFormatCodes::Ndjson(_) => {
+        binding if binding == &OutputFormatCodes::NDJSON => {
             let data = output::ndjson::ndjson(results)?;
             let base64_string: String = general_purpose::STANDARD.encode(&data);
 
@@ -586,8 +586,8 @@ pub async fn view_definition_run<
         ._format
         .as_ref()
         .and_then(|v| v.value.as_ref())
-        .and_then(|s| OutputFormatCodes::try_from(s.to_string()).ok())
-        .unwrap_or(OutputFormatCodes::Csv(None));
+        .and_then(|s| BoundCode::<OutputFormatCodes>::new(s))
+        .unwrap_or(OutputFormatCodes::CSV);
 
     let view_definition =
         Arc::new(resolve_view_definition(context.clone(), client.as_ref(), &input).await?);

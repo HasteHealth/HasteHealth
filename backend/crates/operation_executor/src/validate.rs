@@ -3,7 +3,7 @@ use haste_fhir_model::r4::generated::{
         OperationDefinitionParameter, OperationOutcome, OperationOutcomeIssue, Parameters,
         ParametersParameter,
     },
-    terminology::{IssueSeverity, IssueType, OperationParameterUse},
+    terminology::{BoundCode, IssueSeverity, IssueType, OperationParameterUse},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_reflect::MetaValue as _;
@@ -16,13 +16,13 @@ pub enum ParameterDirection {
 }
 
 fn create_issue(
-    severity: IssueSeverity,
-    type_: IssueType,
+    severity: BoundCode<IssueSeverity>,
+    type_: BoundCode<IssueType>,
     diagnostics: String,
 ) -> OperationOutcomeIssue {
     OperationOutcomeIssue {
-        severity: Box::new(severity),
-        code: Box::new(type_),
+        severity: severity,
+        code: type_,
         diagnostics: Some(Box::new(diagnostics.into())),
         ..Default::default()
     }

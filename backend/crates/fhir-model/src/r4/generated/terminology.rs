@@ -174,6 +174,7 @@ impl<VS: ValueSetDef> Default for BoundCode<VS> {
         Self::null()
     }
 }
+
 #[doc = "http://hl7.org/fhir/ValueSet/FHIR-version"]
 pub struct FHIRVersion;
 impl ValueSetDef for FHIRVersion {
