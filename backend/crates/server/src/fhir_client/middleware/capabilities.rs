@@ -22,8 +22,8 @@ use haste_fhir_model::r4::{
             CapabilityStatementRestSecurity, SearchParameter, StructureDefinition,
         },
         terminology::{
-            CapabilityStatementKind, FHIRVersion, IssueType, PublicationStatus, ResourceTypes,
-            RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy,
+            BoundCode, CapabilityStatementKind, FHIRVersion, IssueType, PublicationStatus,
+            ResourceTypes, RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy,
         },
         types::{FHIRBoolean, FHIRCanonical, FHIRCode, FHIRDateTime, FHIRString},
     },
@@ -52,13 +52,13 @@ fn create_capability_rest_statement(
             let types = sp
                 .base
                 .iter()
-                .map(|b| b.as_ref().into())
-                .filter_map(|b: Option<String>| b)
+                .map(|b| b.as_str())
+                .filter_map(|b: Option<&str>| b)
                 .collect::<Vec<_>>();
 
-            if types.contains(&shared_base_types[0])
-                || types.contains(&shared_base_types[1])
-                || types.contains(&sd_type)
+            if types.contains(&shared_base_types[0].as_str())
+                || types.contains(&shared_base_types[1].as_str())
+                || types.contains(&sd_type.as_str())
             {
                 true
             } else {
@@ -68,15 +68,15 @@ fn create_capability_rest_statement(
         .collect::<Vec<&SearchParameter>>();
 
     Ok(CapabilityStatementRestResource {
-        type_: Box::new(ResourceTypes::try_from(sd_type).map_err(|e| {
+        type_: BoundCode::<ResourceTypes>::new(&sd_type).ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::INVALID,
                 format!(
                     "Failed to parse resource type in capabilities generation: '{}'",
-                    e
+                    sd_type
                 ),
             )
-        })?),
+        })?,
         profile: Some(Box::new(FHIRCanonical {
             value: sd.url.value,
             ..Default::default()
@@ -103,23 +103,23 @@ fn create_capability_rest_statement(
         ),
         interaction: Some(
             vec![
-                TypeRestfulInteraction::Read(None),
-                TypeRestfulInteraction::Vread(None),
-                TypeRestfulInteraction::Update(None),
-                TypeRestfulInteraction::Delete(None),
-                TypeRestfulInteraction::SearchType(None),
-                TypeRestfulInteraction::Create(None),
-                TypeRestfulInteraction::HistoryInstance(None),
-                TypeRestfulInteraction::HistoryType(None),
+                TypeRestfulInteraction::READ,
+                TypeRestfulInteraction::VREAD,
+                TypeRestfulInteraction::UPDATE,
+                TypeRestfulInteraction::DELETE,
+                TypeRestfulInteraction::SEARCHTYPE,
+                TypeRestfulInteraction::CREATE,
+                TypeRestfulInteraction::HISTORYINSTANCE,
+                TypeRestfulInteraction::HISTORYTYPE,
             ]
             .into_iter()
             .map(|code| CapabilityStatementRestResourceInteraction {
-                code: Box::new(code),
+                code: code,
                 ..Default::default()
             })
             .collect(),
         ),
-        versioning: Some(Box::new(VersioningPolicy::Versioned(None))),
+        versioning: Some(VersioningPolicy::VERSIONED),
         ..Default::default()
     })
 }
@@ -137,8 +137,8 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
     let sps = sps?;
 
     Ok(CapabilityStatement {
-        status: Box::new(PublicationStatus::Active(None)),
-        kind: Box::new(CapabilityStatementKind::Capability(None)),
+        status: PublicationStatus::ACTIVE,
+        kind: CapabilityStatementKind::CAPABILITY,
         date: Box::new(FHIRDateTime {
             value: Some(DateTime::Year(2025)),
             ..Default::default()
@@ -147,9 +147,9 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
             value: Some("application/fhir+json".to_string()),
             ..Default::default()
         })],
-        fhirVersion: Box::new(FHIRVersion::V401(None)),
+        fhirVersion: FHIRVersion::V401,
         rest: Some(vec![CapabilityStatementRest {
-            mode: Box::new(RestfulCapabilityMode::Server(None)),
+            mode: RestfulCapabilityMode::SERVER,
             security: Some(CapabilityStatementRestSecurity {
                 cors: Some(Box::new(FHIRBoolean {
                     value: Some(true),
