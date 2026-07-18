@@ -186,8 +186,8 @@ pub mod conversion {
                     // inlined could be a url | version for canonical.
                     // Only do inlined if the binding is required and exists as inlined terminology.
 
-                    if let Some(BindingStrength::Required(_)) =
-                        element.binding.as_ref().map(|b| b.strength.as_ref())
+                    if Some(&BindingStrength::REQUIRED)
+                        == element.binding.as_ref().map(|b| &b.strength)
                         && let Some(canonical_string) = element
                             .binding
                             .as_ref()
@@ -429,11 +429,7 @@ pub mod conditionals {
     }
 
     pub fn is_resource_sd(sd: &StructureDefinition) -> bool {
-        if let StructureDefinitionKind::Resource(_) = sd.kind.as_ref() {
-            true
-        } else {
-            false
-        }
+        sd.kind == StructureDefinitionKind::RESOURCE
     }
 
     pub fn is_primitive_type(fhir_type: &str) -> bool {
@@ -457,11 +453,7 @@ pub mod conditionals {
     }
 
     pub fn is_primitive_sd(sd: &StructureDefinition) -> bool {
-        if let StructureDefinitionKind::PrimitiveType(_) = sd.kind.as_ref() {
-            true
-        } else {
-            false
-        }
+        sd.kind == StructureDefinitionKind::PRIMITIVETYPE
     }
 
     pub fn is_typechoice(element: &ElementDefinition) -> bool {
@@ -506,7 +498,7 @@ pub mod load {
 
                     let filtered_sds = sds.filter(move |sd| {
                         if let Some(level) = level {
-                            match sd.kind.as_ref() {
+                            match &sd.kind {
                                 StructureDefinitionKind::Resource(_)
                                 | StructureDefinitionKind::Null(_) => level == "resource",
                                 StructureDefinitionKind::ComplexType(_) => level == "complex-type",

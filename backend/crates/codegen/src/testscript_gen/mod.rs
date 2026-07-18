@@ -8,7 +8,7 @@ use haste_fhir_model::r4::generated::{
         TestScriptSetupActionOperation, TestScriptTeardown, TestScriptTeardownAction,
         TestScriptTest, TestScriptTestAction,
     },
-    terminology::{AssertDirectionCodes, DefinedTypes, PublicationStatus},
+    terminology::{AssertDirectionCodes, BoundCode, DefinedTypes, PublicationStatus},
     types::{Coding, Meta, Reference},
 };
 use haste_reflect::MetaValue;
@@ -78,10 +78,9 @@ fn generate_testcases_for_resource(
     resource: &Resource,
 ) -> Vec<TestScriptTest> {
     let resource_type = resource.resource_type();
-    let defined_type = Some(Box::new(
-        DefinedTypes::try_from(resource_type.as_ref().to_string())
-            .expect("Unsupported resource type"),
-    ));
+    let defined_type = Some(
+        BoundCode::<DefinedTypes>::new(resource_type.as_ref()).expect("Unsupported resource type"),
+    );
 
     vec![TestScriptTest {
         name: Some(Box::new(
@@ -121,7 +120,7 @@ fn generate_testcases_for_resource(
                         )
                         .into(),
                     )),
-                    direction: Some(Box::new(AssertDirectionCodes::Response(None))),
+                    direction: Some(AssertDirectionCodes::RESPONSE),
                     resource: defined_type.clone(),
                     warningOnly: Box::new(false.into()),
                     ..Default::default()
@@ -179,7 +178,7 @@ fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String>
     let tag = create_tag(file_path);
 
     testscript.url = Box::new(tag.to_string().into());
-    testscript.status = Box::new(PublicationStatus::Active(None));
+    testscript.status = PublicationStatus::ACTIVE;
     testscript.id = Some(tag.to_string());
     testscript.name = Box::new(tag.to_string().into());
 

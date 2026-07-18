@@ -85,12 +85,8 @@ fn is_resource_return(parameters: &Vec<&OperationDefinitionParameter>) -> bool {
     if parameters.len() == 1
         && parameters[0].name.value.as_deref() == Some("return")
         && let Some(parameter_type) = parameters[0].type_.as_ref()
-        && (std::mem::discriminant(&**parameter_type)
-            == std::mem::discriminant(&AllTypes::Any(None))
-            || ResourceType::try_from(
-                Into::<Option<String>>::into(&**parameter_type).unwrap_or_default(),
-            )
-            .is_ok())
+        && (parameter_type == &AllTypes::ANY
+            || ResourceType::try_from(parameter_type.as_str().unwrap_or_default()).is_ok())
     {
         true
     } else {
@@ -133,20 +129,12 @@ fn generate_parameter_type(
         };
 
         if let Some(type_) = p.type_.as_ref() {
-            let type_ = if std::mem::discriminant(&**type_)
-                == std::mem::discriminant(&AllTypes::Any(None))
-            {
-                AllTypes::Resource(None)
+            let type_ = if type_ == &AllTypes::ANY {
+                AllTypes::RESOURCE
             } else {
-                *type_.clone()
+                type_.clone()
             };
-            let field = create_field_value(
-                Into::<Option<String>>::into(&type_)
-                    .unwrap_or_default()
-                    .as_str(),
-                is_array,
-                required,
-            );
+            let field = create_field_value(type_.as_str().unwrap_or_default(), is_array, required);
 
             fields.push(quote! {
                 #[doc = #description]
@@ -187,18 +175,10 @@ fn generate_parameter_type(
         let required = parameters.get(0).and_then(|p| p.min.value).unwrap_or(0) > 0;
         let type_ = parameters
             .get(0)
-            .and_then(|p| {
-                p.type_
-                    .as_ref()
-                    .and_then(|v| Into::<Option<String>>::into(&**v))
-            })
+            .and_then(|p| p.type_.as_ref().and_then(|v| v.as_str()))
             .unwrap_or_default();
 
-        let return_type = if type_ == "Any" {
-            "Resource"
-        } else {
-            type_.as_str()
-        };
+        let return_type = if type_ == "Any" { "Resource" } else { type_ };
         let return_type_ident = format_ident!("{}", return_type);
 
         let return_v = if required {
@@ -257,8 +237,8 @@ fn generate_parameter_type(
 fn generate_output(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<TokenStream> {
     let input_parameters = parameters
         .iter()
-        .filter(|p| match p.use_.as_ref() {
-            OperationParameterUse::Out(_) => true,
+        .filter(|p| match &p.use_ {
+            use_ if use_ == &OperationParameterUse::OUT => true,
             _ => false,
         })
         .collect::<Vec<_>>();
@@ -269,8 +249,8 @@ fn generate_output(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<T
 fn generate_input(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<TokenStream> {
     let input_parameters = parameters
         .iter()
-        .filter(|p| match p.use_.as_ref() {
-            OperationParameterUse::In(_) => true,
+        .filter(|p| match &p.use_ {
+            use_ if use_ == &OperationParameterUse::IN => true,
             _ => false,
         })
         .collect::<Vec<_>>();
