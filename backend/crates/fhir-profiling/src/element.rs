@@ -4,7 +4,7 @@ use haste_codegen::{traversal, utilities::extract};
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
     resources::{OperationOutcomeIssue, ResourceType},
-    terminology::{IssueSeverity, IssueType},
+    terminology::{BoundCode, IssueSeverity, IssueType},
     types::{ElementDefinition, FHIRString},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -96,7 +96,7 @@ async fn validate_types_and_profiles_if_present<'a>(
     } else {
         Ok(vec![outcome_issue(
             &Path::new(),
-            IssueSeverity::Error(None),
+            IssueSeverity::ERROR,
             IssueType::VALUE,
             format!(
                 "Type '{}' is not allowed for element '{}'",
@@ -109,13 +109,13 @@ async fn validate_types_and_profiles_if_present<'a>(
 
 pub fn outcome_issue(
     value_location: &Path,
-    severity: IssueSeverity,
-    code: IssueType,
+    severity: BoundCode<IssueSeverity>,
+    code: BoundCode<IssueType>,
     diagnostic: String,
 ) -> OperationOutcomeIssue {
     OperationOutcomeIssue {
-        severity: Box::new(severity),
-        code: Box::new(code),
+        severity: severity,
+        code: code,
         diagnostics: Some(Box::new(FHIRString {
             value: Some(diagnostic),
             ..Default::default()
@@ -209,7 +209,7 @@ pub async fn validate_singular_element<'a>(
     {
         issues.push(outcome_issue(
             value_path,
-            IssueSeverity::Error(None),
+            IssueSeverity::ERROR,
             IssueType::VALUE,
             format!("Value does not match pattern: {:?}", pattern),
         ));
@@ -220,7 +220,7 @@ pub async fn validate_singular_element<'a>(
     {
         issues.push(outcome_issue(
             value_path,
-            IssueSeverity::Error(None),
+            IssueSeverity::ERROR,
             IssueType::VALUE,
             format!("Value does not match fixed value: {:?}", fixed_value),
         ));

@@ -10,7 +10,7 @@ use haste_fhir_client::{
 };
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, CompartmentDefinition, Resource, ResourceType},
-    terminology::{CompartmentType, IssueType},
+    terminology::{BoundCode, CompartmentType, IssueType},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::sync::{Arc, LazyLock};
@@ -26,7 +26,9 @@ static COMPARTMENTS: LazyLock<Vec<&'static CompartmentDefinition>> = LazyLock::n
         .collect::<Vec<_>>()
 });
 
-fn compartment_type_to_resource_type(compartment_type: &CompartmentType) -> Option<ResourceType> {
+fn compartment_type_to_resource_type(
+    compartment_type: &BoundCode<CompartmentType>,
+) -> Option<ResourceType> {
     match compartment_type {
         CompartmentType::Device(_) => Some(ResourceType::Device),
         CompartmentType::Encounter(_) => Some(ResourceType::Encounter),
@@ -65,9 +67,8 @@ pub async fn process_compartment_request<
         FHIRRequest::Search(SearchRequest::Type(type_search_request)) => {
             let Some(compartment_resource) = compartment.resource.as_ref().and_then(|resources| {
                 resources.iter().find(|resource_param| {
-                    let code: Option<String> = resource_param.code.as_ref().into();
-                    code.as_ref().map(|s| s.as_str())
-                        == Some(type_search_request.resource_type.as_ref())
+                    let code = resource_param.code.as_str();
+                    code == Some(type_search_request.resource_type.as_ref())
                 })
             }) else {
                 return Err(OperationOutcomeError::error(

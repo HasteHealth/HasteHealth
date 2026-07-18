@@ -272,9 +272,11 @@ async fn is_conformant_to_slice_descriptor(
 
     let values = values.iter().collect::<Vec<_>>();
 
-    match discriminator.type_.as_ref() {
-        DiscriminatorType::Exists(_) => Ok(values.len() > 0),
-        DiscriminatorType::Pattern(_) => {
+    match &discriminator.type_ {
+        discriminator_type if discriminator_type == &DiscriminatorType::EXISTS => {
+            Ok(values.len() > 0)
+        }
+        discriminator_type if discriminator_type == &DiscriminatorType::PATTERN => {
             let pattern = slice_value_element_definition.pattern.as_ref().ok_or_else(|| OperationOutcomeError::error(
                 IssueType::INVALID,
                 "Slice value element definition must have a pattern for pattern discriminator".to_string(),
@@ -288,11 +290,13 @@ async fn is_conformant_to_slice_descriptor(
 
             return Ok(false);
         }
-        DiscriminatorType::Profile(_) => Err(OperationOutcomeError::error(
-            IssueType::NOTSUPPORTED,
-            "Profile discriminator type is not supported".to_string(),
-        )),
-        DiscriminatorType::Type(_) => {
+        discriminator_type if discriminator_type == &DiscriminatorType::PROFILE => {
+            Err(OperationOutcomeError::error(
+                IssueType::NOTSUPPORTED,
+                "Profile discriminator type is not supported".to_string(),
+            ))
+        }
+        discriminator_type if discriminator_type == &DiscriminatorType::TYPE => {
             let expected_types =
                 slice_value_element_definition
                     .type_
@@ -318,7 +322,7 @@ async fn is_conformant_to_slice_descriptor(
             Ok(result.is_some())
         }
         // Observation us-core has pattern even though it's value based slicing
-        DiscriminatorType::Value(_) => {
+        discriminator_type if discriminator_type == &DiscriminatorType::VALUE => {
             if let Some(fixed_value) = slice_value_element_definition.fixed.as_ref() {
                 for value in values.iter() {
                     if is_equal(*value, fixed_value)? {
@@ -378,9 +382,15 @@ async fn is_conformant_to_slice_descriptor(
 
             return Ok(false);
         }
-        DiscriminatorType::Null(_) => Err(OperationOutcomeError::error(
+        discriminator_type if discriminator_type == &DiscriminatorType::NULL => {
+            Err(OperationOutcomeError::error(
+                IssueType::NOTSUPPORTED,
+                "Null discriminator type is not supported".to_string(),
+            ))
+        }
+        _ => Err(OperationOutcomeError::error(
             IssueType::NOTSUPPORTED,
-            "Null discriminator type is not supported".to_string(),
+            "Unsupported discriminator type".to_string(),
         )),
     }
 }
@@ -534,7 +544,7 @@ fn validate_slice_cardinality(
     if slice_locs.len() < min as usize {
         issues.push(outcome_issue(
             slice_locs.first().unwrap_or(&Path::new()),
-            IssueSeverity::Error(None),
+            IssueSeverity::ERROR,
             IssueType::VALUE,
             format!(
                  "Profile: '{}' Element: '{}' Minimum number of required values not met expected at least '{}', found '{}'",
@@ -551,7 +561,7 @@ fn validate_slice_cardinality(
             if slice_locs.len() > fixed_max as usize {
                 issues.push(outcome_issue(
                     slice_locs.first().unwrap_or(&Path::new()),
-                    IssueSeverity::Error(None),
+                    IssueSeverity::ERROR,
                     IssueType::VALUE,
                     format!(
                         "Cardinality too high: expected at most '{}', found '{}'",

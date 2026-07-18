@@ -183,11 +183,11 @@ async fn create_user_if_not_exists<
                 app_state.rate_limit.clone(),
             )),
             Bundle {
-                type_: Box::new(BundleType::Batch(None)),
+                type_: BundleType::BATCH,
                 entry: Some(vec![
                     BundleEntry {
                         request: Some(BundleEntryRequest {
-                            method: Box::new(HttpVerb::GET(None)),
+                            method: HttpVerb::GET,
                             url: Box::new(FHIRUri {
                                 value: Some(format!("{}/{}", ResourceType::User.as_ref(), user_id)),
                                 ..Default::default()
@@ -199,7 +199,7 @@ async fn create_user_if_not_exists<
                     // Membership search for linked user
                     BundleEntry {
                         request: Some(BundleEntryRequest {
-                            method: Box::new(HttpVerb::GET(None)),
+                            method: HttpVerb::GET,
                             url: Box::new(FHIRUri {
                                 value: Some(format!(
                                     "{}?user={}/{}&_count=1",
@@ -260,7 +260,7 @@ async fn create_user_if_not_exists<
                     user_id.clone(),
                     Resource::User(User {
                         id: Some(user_id.clone()),
-                        role: Box::new(UserRole::Member(None)),
+                        role: UserRole::MEMBER,
                         federated: Some(Box::new(Reference {
                             reference: Some(Box::new(FHIRString {
                                 value: Some(format!(

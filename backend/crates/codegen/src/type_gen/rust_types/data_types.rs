@@ -514,17 +514,19 @@ fn generate_fhir_types_from_file(
     let mut resource_types: Vec<ResourceTypeInfo> = vec![];
     let mut rust_type_name_to_fhir_type: HashMap<String, String> = HashMap::new();
 
-    for sd in
-        structure_definitions
-            .iter()
-            .filter(|sd| match sd.derivation.as_ref().map(|d| d.as_ref()) {
-                Some(TypeDerivationRule::Specialization(_)) | None => match sd.kind.as_ref() {
-                    StructureDefinitionKind::Resource(_) => !extract::is_abstract(sd),
-                    _ => true,
-                },
-                _ => false,
-            })
-    {
+    for sd in structure_definitions.iter().filter(|sd| {
+        if sd.derivation.as_ref() == Some(&TypeDerivationRule::SPECIALIZATION)
+            || sd.derivation.is_none()
+        {
+            if sd.kind == StructureDefinitionKind::RESOURCE {
+                !extract::is_abstract(sd)
+            } else {
+                true
+            }
+        } else {
+            false
+        }
+    }) {
         if conditionals::is_resource_sd(&sd) {
             resource_types.push(ResourceTypeInfo {
                 resource_type: sd.type_.value.as_ref().unwrap().to_string(),

@@ -21,7 +21,7 @@ fn _validate_cardinality(
     if value_cardinality < min {
         return Ok(vec![outcome_issue(
             value_location,
-            IssueSeverity::Error(None),
+            IssueSeverity::ERROR,
             IssueType::REQUIRED,
             format!(
                 "Element: '{}' Minimum number of required values not met expected at least '{}', found '{}'",
@@ -48,7 +48,7 @@ fn _validate_cardinality(
             } else {
                 Ok(vec![outcome_issue(
                     value_location,
-                    IssueSeverity::Error(None),
+                    IssueSeverity::ERROR,
                     IssueType::REQUIRED,
                     format!(
                         "Element: '{}' Too many values: expected at most '{}', found '{}'",

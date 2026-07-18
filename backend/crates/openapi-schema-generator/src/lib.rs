@@ -260,25 +260,16 @@ fn resource_search_parameters_schema(
 
     for sp in search_parameters.iter().filter(|sp| {
         sp.base.iter().any(|b| {
-            let base: Option<String> = b.as_ref().into();
-            let base = base.as_ref().map(|s| s.as_str());
+            let base = b.as_str();
             base == Some(resource_name)
                 || base == Some("Resource")
                 || base == Some("DomainResource")
-        }) && !matches!(sp.type_.as_ref(), &SearchParamType::Composite(_))
+        }) && sp.type_ != SearchParamType::COMPOSITE
     }) {
-        let search_type = match sp.type_.as_ref() {
-            SearchParamType::Quantity(_)
-            | SearchParamType::Special(_)
-            | SearchParamType::Token(_)
-            | SearchParamType::Uri(_)
-            | SearchParamType::Null(_)
-            | SearchParamType::Reference(_)
-            | SearchParamType::Composite(_)
-            | SearchParamType::Date(_)
-            | SearchParamType::String(_) => "string",
-
-            SearchParamType::Number(_) => "number",
+        let search_type = if sp.type_ == SearchParamType::NUMBER {
+            "number"
+        } else {
+            "string"
         };
 
         params.push(json!({
@@ -439,10 +430,9 @@ pub fn open_api_schema_generator(
         paths: HashMap::new(),
     };
 
-    let complex_sds = sds.iter().filter(|sd| match sd.kind.as_ref() {
-        StructureDefinitionKind::ComplexType(_) => true,
-        _ => false,
-    });
+    let complex_sds = sds
+        .iter()
+        .filter(|sd| sd.kind == StructureDefinitionKind::COMPLEXTYPE);
 
     for sd in complex_sds {
         let json_schema = haste_sd_to_json_schema::isolated_schema("#/components/schemas", sd)?;
@@ -461,10 +451,9 @@ pub fn open_api_schema_generator(
             .insert(type_name.clone(), json_schema);
     }
 
-    let resource_sds = sds.iter().filter(|sd| match sd.kind.as_ref() {
-        StructureDefinitionKind::Resource(_) => true,
-        _ => false,
-    });
+    let resource_sds = sds
+        .iter()
+        .filter(|sd| sd.kind == StructureDefinitionKind::RESOURCE);
 
     for sd in resource_sds {
         let json_schema = haste_sd_to_json_schema::isolated_schema("#/components/schemas", sd)?;

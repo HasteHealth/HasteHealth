@@ -18,7 +18,7 @@ use axum_extra::{extract::Cached, routing::TypedPath};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::{IdentityProvider, Project as FHIRProject, Resource, ResourceType},
-    terminology::{IdentityProviderPkceChallengeMethod, IssueType},
+    terminology::{BoundCode, IdentityProviderPkceChallengeMethod, IssueType},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
@@ -187,12 +187,14 @@ async fn set_session_info(
 }
 
 fn oidc_pkce_challenge_method(
-    challenge: &IdentityProviderPkceChallengeMethod,
+    challenge: &BoundCode<IdentityProviderPkceChallengeMethod>,
 ) -> Option<PKCECodeChallengeMethod> {
-    match challenge {
-        IdentityProviderPkceChallengeMethod::S256(None) => Some(PKCECodeChallengeMethod::S256),
-        IdentityProviderPkceChallengeMethod::Plain(None) => Some(PKCECodeChallengeMethod::Plain),
-        _ => None,
+    if challenge == &IdentityProviderPkceChallengeMethod::S256 {
+        Some(PKCECodeChallengeMethod::S256)
+    } else if challenge == &IdentityProviderPkceChallengeMethod::PLAIN {
+        Some(PKCECodeChallengeMethod::Plain)
+    } else {
+        None
     }
 }
 

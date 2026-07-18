@@ -108,7 +108,7 @@ async fn resolve_identity_providers<
                             .filter_map(|idp_ref| idp_ref.value.as_ref())
                             .map(|idp_ref| BundleEntry {
                                 request: Some(BundleEntryRequest {
-                                    method: Box::new(HttpVerb::GET(None)),
+                                    method: HttpVerb::GET,
                                     url: Box::new(FHIRUri {
                                         value: Some(idp_ref.to_string()),
                                         ..Default::default()

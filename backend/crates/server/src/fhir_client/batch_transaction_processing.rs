@@ -145,7 +145,7 @@ pub fn bundle_entry_to_fhir_request(
             .unwrap_or_default();
 
         let (path, query) = url.split_once("?").unwrap_or((url, ""));
-        let request_method_string: Option<String> = request.method.as_ref().into();
+        let request_method_string = request.method.as_str();
         let Ok(method) = Method::from_str(&request_method_string.unwrap_or_default()) else {
             return Err(OperationOutcomeError::error(
                 IssueType::INVALID,
@@ -194,7 +194,7 @@ pub async fn process_batch_bundle<
     }
 
     Ok(Bundle {
-        type_: Box::new(BundleType::BatchResponse(None)),
+        type_: BundleType::BATCHRESPONSE,
         entry: Some(bundle_response_entries),
         ..Default::default()
     })
@@ -393,7 +393,7 @@ pub async fn process_transaction_bundle<
     };
 
     Ok(Bundle {
-        type_: Box::new(BundleType::TransactionResponse(None)),
+        type_: BundleType::TRANSACTIONRESPONSE,
         entry: Some(response_entries),
         ..Default::default()
     })

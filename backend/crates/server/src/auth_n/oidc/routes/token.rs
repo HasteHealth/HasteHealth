@@ -22,7 +22,7 @@ use axum_extra::{TypedHeader, extract::Cached, headers::UserAgent, routing::Type
 use haste_fhir_client::request::{FHIRSearchTypeRequest, SearchRequest};
 use haste_fhir_model::r4::generated::{
     resources::{ClientApplication, ResourceType},
-    terminology::ClientapplicationGrantType,
+    terminology::{BoundCode, ClientapplicationGrantType},
 };
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -175,10 +175,7 @@ async fn create_token_response<Repo: Repository>(
             .grantType
             .iter()
             .find(|gt| {
-                let discriminator = std::mem::discriminant(gt.as_ref());
-                let offline_discriminator =
-                    std::mem::discriminant(&ClientapplicationGrantType::Refresh_token(None));
-                discriminator == offline_discriminator
+                gt == &&ClientapplicationGrantType::REFRESH_TOKEN
             })
             .is_some()
             // Client credentials grant does not get refresh tokens. Serves no purpose and requires knowing user kind to 
@@ -291,16 +288,12 @@ async fn get_approved_scopes<Repo: Repository>(
 
 fn validate_client_grant_type(
     client_app: &ClientApplication,
-    grant_type: &ClientapplicationGrantType,
+    grant_type: &BoundCode<ClientapplicationGrantType>,
 ) -> Result<(), OIDCError> {
     if client_app
         .grantType
         .iter()
-        .find(|gt| {
-            let discriminator = std::mem::discriminant(gt.as_ref());
-            let requested_discriminator = std::mem::discriminant(grant_type);
-            discriminator == requested_discriminator
-        })
+        .find(|gt| gt == &grant_type)
         .is_none()
     {
         return Err(OIDCError::new(
@@ -322,19 +315,16 @@ fn verify_client(
         schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials => {
             validate_client_grant_type(
                 client_app,
-                &ClientapplicationGrantType::Client_credentials(None),
+                &ClientapplicationGrantType::CLIENT_CREDENTIALS,
             )?;
         }
         schemas::token_body::OAuth2TokenBodyGrantType::RefreshToken => {
-            validate_client_grant_type(
-                client_app,
-                &ClientapplicationGrantType::Refresh_token(None),
-            )?;
+            validate_client_grant_type(client_app, &ClientapplicationGrantType::REFRESH_TOKEN)?;
         }
         schemas::token_body::OAuth2TokenBodyGrantType::AuthorizationCode => {
             validate_client_grant_type(
                 client_app,
-                &ClientapplicationGrantType::Authorization_code(None),
+                &ClientapplicationGrantType::AUTHORIZATION_CODE,
             )?;
         }
     }
@@ -437,7 +427,7 @@ pub async fn client_credentials_to_token_response<
 
     // Allow basic auth if client app allows grant.
     if method == ClientCredentialsMethod::BasicAuth {
-        validate_client_grant_type(&client_app, &ClientapplicationGrantType::Basic_auth(None))?;
+        validate_client_grant_type(&client_app, &ClientapplicationGrantType::BASIC_AUTH)?;
     }
 
     let client_app_scopes = client_app

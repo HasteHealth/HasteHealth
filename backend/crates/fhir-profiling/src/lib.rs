@@ -65,8 +65,8 @@ pub async fn validate_profile<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
 ) -> Result<OperationOutcome, OperationOutcomeError> {
     let mut outcome = OperationOutcome::default();
-    match ctx.profile().derivation.as_ref().map(|d| d.as_ref()) {
-        Some(TypeDerivationRule::Constraint(_)) => {
+    match ctx.profile().derivation.as_ref() {
+        derivation if derivation == Some(&TypeDerivationRule::CONSTRAINT) => {
             let element_location = Path::new()
                 .descend("snapshot")
                 .descend("element")

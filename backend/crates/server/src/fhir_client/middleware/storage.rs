@@ -28,7 +28,7 @@ use haste_fhir_client::{
 };
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, BundleEntryRequest, Resource},
-    terminology::{BundleType, HttpVerb, IssueType},
+    terminology::{BoundCode, BundleType, HttpVerb, IssueType},
     types::{FHIRUnsignedInt, FHIRUri},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -58,7 +58,7 @@ pub fn to_bundle_entry(
     let mut entry = BundleEntry::default();
 
     if let Some(request_method) = request_method {
-        let http_verb = HttpVerb::try_from(request_method).unwrap_or(HttpVerb::POST(None));
+        let http_verb = BoundCode::<HttpVerb>::new(&request_method).unwrap_or(HttpVerb::POST);
         entry.request = Some(BundleEntryRequest {
             url: Box::new(FHIRUri {
                 value: match http_verb {
@@ -70,7 +70,7 @@ pub fn to_bundle_entry(
                 },
                 ..Default::default()
             }),
-            method: Box::new(http_verb),
+            method: http_verb,
             ..Default::default()
         });
     }
@@ -90,7 +90,11 @@ pub fn to_bundle_entry(
     entry
 }
 
-pub fn to_bundle(bundle_type: BundleType, total: Option<i64>, entries: Vec<BundleEntry>) -> Bundle {
+pub fn to_bundle(
+    bundle_type: BoundCode<BundleType>,
+    total: Option<i64>,
+    entries: Vec<BundleEntry>,
+) -> Bundle {
     Bundle {
         id: None,
         meta: None,
@@ -100,7 +104,7 @@ pub fn to_bundle(bundle_type: BundleType, total: Option<i64>, entries: Vec<Bundl
                 ..Default::default()
             })
         }),
-        type_: Box::new(bundle_type),
+        type_: bundle_type,
         entry: Some(entries),
         ..Default::default()
     }
@@ -336,7 +340,7 @@ impl<
                         Ok(Some(FHIRResponse::History(HistoryResponse::Instance(
                             FHIRHistoryInstanceResponse {
                                 bundle: to_bundle(
-                                    BundleType::History(None),
+                                    BundleType::HISTORY,
                                     None,
                                     history_resources
                                         .into_iter()
@@ -367,7 +371,7 @@ impl<
                         Ok(Some(FHIRResponse::History(HistoryResponse::Type(
                             FHIRHistoryTypeResponse {
                                 bundle: to_bundle(
-                                    BundleType::History(None),
+                                    BundleType::HISTORY,
                                     None,
                                     history_resources
                                         .into_iter()
@@ -398,7 +402,7 @@ impl<
                         Ok(Some(FHIRResponse::History(HistoryResponse::System(
                             FHIRHistorySystemResponse {
                                 bundle: to_bundle(
-                                    BundleType::History(None),
+                                    BundleType::HISTORY,
                                     None,
                                     history_resources
                                         .into_iter()
@@ -638,7 +642,7 @@ impl<
                         Ok(Some(FHIRResponse::Search(SearchResponse::Type(
                             FHIRSearchTypeResponse {
                                 bundle: to_bundle(
-                                    BundleType::Searchset(None),
+                                    BundleType::SEARCHSET,
                                     search_results.total,
                                     resources
                                         .into_iter()
@@ -683,7 +687,7 @@ impl<
                         Ok(Some(FHIRResponse::Search(SearchResponse::System(
                             FHIRSearchSystemResponse {
                                 bundle: to_bundle(
-                                    BundleType::Searchset(None),
+                                    BundleType::SEARCHSET,
                                     search_results.total,
                                     resources
                                         .into_iter()
