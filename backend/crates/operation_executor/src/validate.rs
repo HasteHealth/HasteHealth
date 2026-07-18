@@ -32,11 +32,11 @@ fn create_issue(
 pub fn validate_parameters(
     parameters: &Parameters,
     operation_params: &[OperationDefinitionParameter],
-    direction: &OperationParameterUse,
+    direction: &BoundCode<OperationParameterUse>,
 ) -> Result<(), OperationOutcomeError> {
     let parameter_definitions: Vec<&OperationDefinitionParameter> = operation_params
         .iter()
-        .filter(|p| std::mem::discriminant(p.use_.as_ref()) == std::mem::discriminant(direction))
+        .filter(|p| &p.use_ == direction)
         .collect();
 
     let parameters_to_validate: &[ParametersParameter] =
@@ -62,7 +62,7 @@ pub fn validate_parameters(
         let min = parameter_definition.min.value.unwrap_or(0);
         if count < min {
             issues.push(create_issue(
-                IssueSeverity::Error(None),
+                IssueSeverity::ERROR,
                 IssueType::INVARIANT,
                 format!(
                     "Parameter '{}' requires at least {} occurrence(s) but only {} were supplied.",
@@ -76,7 +76,7 @@ pub fn validate_parameters(
             if max_str != "*" {
                 if let Ok(max) = max_str.parse::<i64>() {
                     if count > max {
-                        issues.push(create_issue(IssueSeverity::Error(None), IssueType::INVARIANT,
+                        issues.push(create_issue(IssueSeverity::ERROR, IssueType::INVARIANT,
                         format!(
                                 "Parameter '{}' allows a maximum of {} occurrence(s) but {} were supplied.",
                                 name, max, count
@@ -90,7 +90,7 @@ pub fn validate_parameters(
         // 1. If it has a `resource` field, use the resource type.
         // 2. Otherwise, use the type of the `value` field.
         if let Some(parameter_def_type) = &parameter_definition.type_ {
-            let type_name: Option<String> = parameter_def_type.as_ref().into();
+            let type_name = parameter_def_type.as_str();
             for found_parameter in found_parameters.iter() {
                 let type_ = if let Some(resource) = found_parameter.resource.as_ref() {
                     resource.fhir_type()
@@ -100,7 +100,7 @@ pub fn validate_parameters(
 
                 if type_ != type_name.as_deref().unwrap_or_default() {
                     issues.push(create_issue(
-                        IssueSeverity::Error(None),
+                        IssueSeverity::ERROR,
                         IssueType::INVALID,
                         format!(
                             "Parameter '{}' expects type '{}' but found '{}'.",
@@ -135,9 +135,9 @@ pub fn validate_parameters(
             .iter()
             .any(|d| d.name.value.as_deref() == Some(name));
         if !defined {
-            let display_direction: Option<String> = (direction).into();
+            let display_direction = direction.as_str();
             issues.push(create_issue(
-                IssueSeverity::Error(None),
+                IssueSeverity::ERROR,
                 IssueType::INVALID,
                 format!(
                     "Parameter '{}' is not defined for the '{}' direction.",
@@ -175,17 +175,17 @@ mod tests {
 
     fn make_def(
         name: &str,
-        direction: OperationParameterUse,
+        direction: BoundCode<OperationParameterUse>,
         min: i64,
         max: &str,
-        type_: Option<Box<AllTypes>>,
+        type_: Option<BoundCode<AllTypes>>,
     ) -> OperationDefinitionParameter {
         OperationDefinitionParameter {
             name: Box::new(FHIRCode {
                 value: Some(name.to_string()),
                 ..Default::default()
             }),
-            use_: Box::new(direction),
+            use_: direction,
             min: Box::new(FHIRInteger {
                 value: Some(min),
                 ..Default::default()
@@ -211,95 +211,59 @@ mod tests {
 
     #[test]
     fn required_param_missing_fails() {
-        let defs = vec![make_def(
-            "subject",
-            OperationParameterUse::In(None),
-            1,
-            "1",
-            None,
-        )];
+        let defs = vec![make_def("subject", OperationParameterUse::IN, 1, "1", None)];
         let params = Parameters {
             parameter: None,
             ..Default::default()
         };
-        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_err());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::IN).is_err());
     }
 
     #[test]
     fn required_param_present_passes() {
-        let defs = vec![make_def(
-            "subject",
-            OperationParameterUse::In(None),
-            1,
-            "1",
-            None,
-        )];
+        let defs = vec![make_def("subject", OperationParameterUse::IN, 1, "1", None)];
         let params = Parameters {
             parameter: Some(vec![make_param("subject")]),
             ..Default::default()
         };
-        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_ok());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::IN).is_ok());
     }
 
     #[test]
     fn extra_param_is_rejected() {
-        let defs = vec![make_def(
-            "subject",
-            OperationParameterUse::In(None),
-            0,
-            "1",
-            None,
-        )];
+        let defs = vec![make_def("subject", OperationParameterUse::IN, 0, "1", None)];
         let params = Parameters {
             parameter: Some(vec![make_param("unknown")]),
             ..Default::default()
         };
-        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_err());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::IN).is_err());
     }
 
     #[test]
     fn max_exceeded_fails() {
-        let defs = vec![make_def(
-            "subject",
-            OperationParameterUse::In(None),
-            0,
-            "1",
-            None,
-        )];
+        let defs = vec![make_def("subject", OperationParameterUse::IN, 0, "1", None)];
         let params = Parameters {
             parameter: Some(vec![make_param("subject"), make_param("subject")]),
             ..Default::default()
         };
-        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_err());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::IN).is_err());
     }
 
     #[test]
     fn out_direction_ignored_for_in_validation() {
         // An "out" definition should be invisible when validating "in"
-        let defs = vec![make_def(
-            "result",
-            OperationParameterUse::Out(None),
-            1,
-            "1",
-            None,
-        )];
+        let defs = vec![make_def("result", OperationParameterUse::OUT, 1, "1", None)];
         let params = Parameters {
             parameter: None,
             ..Default::default()
         };
         // No "in" definitions exist, so nothing to violate → should pass.
-        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_ok());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::IN).is_ok());
     }
 
     #[test]
     fn unbounded_max_passes() {
-        let defs = vec![make_def(
-            "note",
-            OperationParameterUse::In(None),
-            0,
-            "*",
-            None,
-        )];
+        let defs = vec![make_def("note", OperationParameterUse::IN, 0, "*", None)];
         let params = Parameters {
             parameter: Some(vec![
                 make_param("note"),
@@ -308,17 +272,17 @@ mod tests {
             ]),
             ..Default::default()
         };
-        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_ok());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::IN).is_ok());
     }
 
     #[test]
     fn basic_type_validation() {
         let defs = vec![make_def(
             "note",
-            OperationParameterUse::In(None),
+            OperationParameterUse::IN,
             0,
             "*",
-            Some(Box::new(AllTypes::String(None))),
+            Some(AllTypes::STRING),
         )];
 
         let mut parameter_note = make_param("note");
@@ -334,7 +298,7 @@ mod tests {
             ..Default::default()
         };
 
-        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_ok());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::IN).is_ok());
 
         parameter_note.value = Some(ParametersParameterValueTypeChoice::Integer(Box::new(
             FHIRInteger {
@@ -348,17 +312,17 @@ mod tests {
             ..Default::default()
         };
 
-        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_err());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::IN).is_err());
     }
 
     #[test]
     fn resource_validation() {
         let defs = vec![make_def(
             "note",
-            OperationParameterUse::In(None),
+            OperationParameterUse::IN,
             0,
             "*",
-            Some(Box::new(AllTypes::Patient(None))),
+            Some(AllTypes::PATIENT),
         )];
 
         let mut parameter_note = make_param("note");
@@ -371,7 +335,7 @@ mod tests {
             ..Default::default()
         };
 
-        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_ok());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::IN).is_ok());
 
         parameter_note.resource = Some(Box::new(Resource::Practitioner(Practitioner {
             ..Default::default()
@@ -382,19 +346,19 @@ mod tests {
             ..Default::default()
         };
 
-        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_err());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::IN).is_err());
     }
 
     #[test]
     fn test_nested() {
-        let mut parent = make_def("parent", OperationParameterUse::In(None), 1, "1", None);
+        let mut parent = make_def("parent", OperationParameterUse::IN, 1, "1", None);
 
         parent.part = Some(vec![make_def(
             "child",
-            OperationParameterUse::In(None),
+            OperationParameterUse::IN,
             1,
             "1",
-            Some(Box::new(AllTypes::String(None))),
+            Some(AllTypes::STRING),
         )]);
 
         let defs = vec![parent];
@@ -415,7 +379,7 @@ mod tests {
             ..Default::default()
         };
 
-        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_ok());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::IN).is_ok());
 
         child_param.value = Some(ParametersParameterValueTypeChoice::Integer(Box::new(
             FHIRInteger {
@@ -431,6 +395,6 @@ mod tests {
             ..Default::default()
         };
 
-        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_err());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::IN).is_err());
     }
 }
