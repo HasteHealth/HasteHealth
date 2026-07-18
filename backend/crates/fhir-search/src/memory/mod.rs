@@ -115,11 +115,11 @@ fn build_search_parameter_index_map(
                     ResolvedParameter::new(level.clone(), param.clone()),
                 );
                 for resource_type in &param.base {
-                    let resource_type: Option<String> = (&**resource_type).into();
+                    let resource_type = (*resource_type).as_str();
                     if let Some(resource_type) = resource_type {
                         index
                             .by_resource_type
-                            .entry(resource_type)
+                            .entry(resource_type.to_string())
                             .or_default()
                             .insert(
                                 param.code.value.as_ref().unwrap().to_string(),
@@ -138,7 +138,7 @@ fn build_search_parameter_index_map(
                 ResolvedParameter::new(level.clone(), param.clone()),
             );
             for resource_type in &param.base {
-                let resource_type: Option<String> = (&**resource_type).into();
+                let resource_type = (*resource_type).as_str();
                 if let Some(resource_type) = resource_type.as_ref() {
                     index
                         .by_resource_type

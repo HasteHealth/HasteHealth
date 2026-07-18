@@ -80,8 +80,8 @@ fn sort_build(
         QueryBuildError::UnsupportedParameter(search_param.name.value.clone().unwrap_or_default())
     })?;
 
-    match search_param.type_.as_ref() {
-        SearchParamType::Date(_) => match direction {
+    match &search_param.type_ {
+        param_type if param_type == &SearchParamType::DATE => match direction {
             SortDirection::Asc => {
                 let sort_col = url.clone() + ".start";
                 Ok(json!({
@@ -105,7 +105,7 @@ fn sort_build(
                 }))
             }
         },
-        SearchParamType::String(_) => match direction {
+        param_type if param_type == &SearchParamType::STRING => match direction {
             SortDirection::Asc => Ok(json!({
                 url: {
                     "order": "asc"
@@ -117,7 +117,7 @@ fn sort_build(
                 }
             })),
         },
-        SearchParamType::Token(_) => match direction {
+        param_type if param_type == &SearchParamType::TOKEN => match direction {
             SortDirection::Asc => {
                 let sort_col = url.clone() + ".code";
                 Ok(json!({
@@ -154,10 +154,7 @@ fn simple_missing_modifier(
     search_param: &SearchParameter,
     parsed_parameter: &Parameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
-    if matches!(
-        search_param.type_.as_ref(),
-        SearchParamType::Composite(None)
-    ) {
+    if search_param.type_ == SearchParamType::COMPOSITE {
         return Err(QueryBuildError::UnsupportedModifier("missing".to_string()));
     }
 
@@ -168,8 +165,14 @@ fn simple_missing_modifier(
         .map(|v| v.as_str())
         .unwrap_or_default();
 
-    let field_name = match search_param.type_.as_ref() {
-        SearchParamType::Uri(_) | SearchParamType::String(_) | SearchParamType::Number(_) => url,
+    let field_name = match &search_param.type_ {
+        param_type
+            if param_type == &SearchParamType::URI
+                || param_type == &SearchParamType::STRING
+                || param_type == &SearchParamType::NUMBER =>
+        {
+            url
+        }
         _ => {
             return Err(QueryBuildError::UnsupportedModifier("missing".to_string()));
         }
@@ -212,18 +215,28 @@ fn parameter_to_elasticsearch_clauses(
         ParameterLevel::Project => Some(DYNAMIC_PARAMETER_INDEX_FIELD),
     };
     let search_param = parameter.search_parameter.as_ref();
-    let elastic_clause = match search_param.type_.as_ref() {
-        SearchParamType::Uri(_) => clauses::uri(namespace, parsed_parameter, search_param),
-        SearchParamType::Quantity(_) => {
+    let elastic_clause = match &search_param.type_ {
+        param_type if param_type == &SearchParamType::URI => {
+            clauses::uri(namespace, parsed_parameter, search_param)
+        }
+        param_type if param_type == &SearchParamType::QUANTITY => {
             clauses::quantity(namespace, parsed_parameter, search_param)
         }
-        SearchParamType::Reference(_) => {
+        param_type if param_type == &SearchParamType::REFERENCE => {
             clauses::reference(namespace, parsed_parameter, search_param)
         }
-        SearchParamType::Date(_) => clauses::date(namespace, parsed_parameter, search_param),
-        SearchParamType::Token(_) => clauses::token(namespace, parsed_parameter, search_param),
-        SearchParamType::Number(_) => clauses::number(namespace, parsed_parameter, search_param),
-        SearchParamType::String(_) => clauses::string(namespace, parsed_parameter, search_param),
+        param_type if param_type == &SearchParamType::DATE => {
+            clauses::date(namespace, parsed_parameter, search_param)
+        }
+        param_type if param_type == &SearchParamType::TOKEN => {
+            clauses::token(namespace, parsed_parameter, search_param)
+        }
+        param_type if param_type == &SearchParamType::NUMBER => {
+            clauses::number(namespace, parsed_parameter, search_param)
+        }
+        param_type if param_type == &SearchParamType::STRING => {
+            clauses::string(namespace, parsed_parameter, search_param)
+        }
         _ => Err(QueryBuildError::UnsupportedParameter(
             search_param.name.value.clone().unwrap_or_default(),
         )),

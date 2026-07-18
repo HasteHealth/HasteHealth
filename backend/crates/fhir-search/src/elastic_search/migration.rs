@@ -87,32 +87,37 @@ pub async fn create_elasticsearch_searchparameter_mappings(
     for parameter in parameters.iter() {
         let search_parameter = &parameter.search_parameter;
         if let Some(parameter_url) = search_parameter.url.value.as_ref() {
-            match search_parameter.type_.as_ref() {
-                SearchParamType::Number(_) => {
+            match &search_parameter.type_ {
+                param_type if param_type == &SearchParamType::NUMBER => {
                     property_mapping.insert(parameter_url.to_string(), number_index_mapping());
                 }
-                SearchParamType::String(_) => {
+                param_type if param_type == &SearchParamType::STRING => {
                     property_mapping.insert(parameter_url.to_string(), string_index_mapping());
                 }
-                SearchParamType::Uri(_) => {
+                param_type if param_type == &SearchParamType::URI => {
                     property_mapping.insert(parameter_url.to_string(), uri_index_mapping());
                 }
-                SearchParamType::Token(_) => {
+                param_type if param_type == &SearchParamType::TOKEN => {
                     property_mapping.insert(parameter_url.to_string(), token_index_mapping());
                 }
-                SearchParamType::Date(_) => {
+                param_type if param_type == &SearchParamType::DATE => {
                     property_mapping.insert(parameter_url.to_string(), date_index_mapping());
                 }
-                SearchParamType::Reference(_) => {
+                param_type if param_type == &SearchParamType::REFERENCE => {
                     property_mapping.insert(parameter_url.to_string(), reference_index_mapping());
                 }
-                SearchParamType::Quantity(_) => {
+                param_type if param_type == &SearchParamType::QUANTITY => {
                     property_mapping.insert(parameter_url.to_string(), quantity_index_mapping());
                 }
                 // Not Supported yet
-                SearchParamType::Composite(_)
-                | SearchParamType::Special(_)
-                | SearchParamType::Null(_) => {
+                param_type
+                    if param_type == &SearchParamType::COMPOSITE
+                        || param_type == &SearchParamType::SPECIAL
+                        || param_type == &SearchParamType::NULL =>
+                {
+                    tracing::warn!("Unsupported search parameter type");
+                }
+                _ => {
                     tracing::warn!("Unsupported search parameter type");
                 }
             }

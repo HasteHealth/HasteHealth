@@ -77,14 +77,18 @@ async fn resolve_codesystem<Resolver: CanonicalResolver>(
 async fn get_concepts(
     codesystem: &CodeSystem,
 ) -> Result<Vec<CodeSystemConcept>, OperationOutcomeError> {
-    match codesystem.content.as_ref() {
-        CodesystemContentMode::NotPresent(_) => Err(OperationOutcomeError::error(
-            IssueType::NOTSUPPORTED,
-            "CodeSystem content is 'not-present'".to_string(),
-        )),
-        CodesystemContentMode::Fragment(_)
-        | CodesystemContentMode::Complete(_)
-        | CodesystemContentMode::Supplement(_) => {
+    match &codesystem.content {
+        content_type if content_type == &CodesystemContentMode::NOTPRESENT => {
+            Err(OperationOutcomeError::error(
+                IssueType::NOTSUPPORTED,
+                "CodeSystem content is 'not-present'".to_string(),
+            ))
+        }
+        content_type
+            if content_type == &CodesystemContentMode::FRAGMENT
+                || content_type == &CodesystemContentMode::COMPLETE
+                || content_type == &CodesystemContentMode::SUPPLEMENT =>
+        {
             Ok(codesystem.concept.clone().unwrap_or_default())
         }
         _ => Err(OperationOutcomeError::error(
