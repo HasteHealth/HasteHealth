@@ -499,10 +499,15 @@ pub mod load {
                     let filtered_sds = sds.filter(move |sd| {
                         if let Some(level) = level {
                             match &sd.kind {
-                                StructureDefinitionKind::Resource(_)
-                                | StructureDefinitionKind::Null(_) => level == "resource",
-                                StructureDefinitionKind::ComplexType(_) => level == "complex-type",
-                                StructureDefinitionKind::PrimitiveType(_) => {
+                                kind if kind == &StructureDefinitionKind::RESOURCE
+                                    || kind == &StructureDefinitionKind::NULL =>
+                                {
+                                    level == "resource"
+                                }
+                                kind if kind == &StructureDefinitionKind::COMPLEXTYPE => {
+                                    level == "complex-type"
+                                }
+                                kind if kind == &StructureDefinitionKind::PRIMITIVETYPE => {
                                     level == "primitive-type"
                                 }
                                 _ => false,
@@ -521,11 +526,18 @@ pub mod load {
                 let resources = std::iter::once(sd);
                 let filtered_resources = resources.filter(|sd| {
                     if let Some(level) = level {
-                        match sd.kind.as_ref() {
-                            StructureDefinitionKind::Resource(_)
-                            | StructureDefinitionKind::Null(_) => level == "resource",
-                            StructureDefinitionKind::ComplexType(_) => level == "complex-type",
-                            StructureDefinitionKind::PrimitiveType(_) => level == "primitive-type",
+                        match &sd.kind {
+                            kind if kind == &StructureDefinitionKind::RESOURCE
+                                || kind == &StructureDefinitionKind::NULL =>
+                            {
+                                level == "resource"
+                            }
+                            kind if kind == &StructureDefinitionKind::COMPLEXTYPE => {
+                                level == "complex-type"
+                            }
+                            kind if kind == &StructureDefinitionKind::PRIMITIVETYPE => {
+                                level == "primitive-type"
+                            }
                             _ => false,
                         }
                     } else {
