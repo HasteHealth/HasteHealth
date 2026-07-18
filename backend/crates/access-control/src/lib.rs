@@ -20,14 +20,22 @@ pub async fn evaluate_policy<
     context: Arc<context::PolicyContext<CTX, Client>>,
     policy: Arc<AccessPolicyV2>,
 ) -> Result<PermissionLevel, OperationOutcomeError> {
-    match &*policy.engine {
-        AccessPolicyv2Engine::FullAccess(_) => engine::full_access::evaluate(policy.as_ref()).await,
-        AccessPolicyv2Engine::RuleEngine(_) => {
+    match &policy.engine {
+        policy_engine if policy_engine == &AccessPolicyv2Engine::FULLACCESS => {
+            engine::full_access::evaluate(policy.as_ref()).await
+        }
+        policy_engine if policy_engine == &AccessPolicyv2Engine::RULEENGINE => {
             Ok(engine::rule_engine::pdp::evaluate(context, policy).await?)
         }
-        AccessPolicyv2Engine::Null(_) => Err(OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::FORBIDDEN,
-            "Access policy denies access.".to_string(),
+        policy_engine if policy_engine == &AccessPolicyv2Engine::NULL => {
+            Err(OperationOutcomeError::fatal(
+                haste_fhir_model::r4::generated::terminology::IssueType::FORBIDDEN,
+                "Access policy denies access.".to_string(),
+            ))
+        }
+        _ => Err(OperationOutcomeError::fatal(
+            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+            "Unsupported policy engine.".to_string(),
         )),
     }
 }

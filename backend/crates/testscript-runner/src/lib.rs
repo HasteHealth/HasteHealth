@@ -20,8 +20,8 @@ use haste_fhir_model::r4::generated::{
         TestScriptTest, TestScriptTestAction, TestScriptVariable,
     },
     terminology::{
-        AssertDirectionCodes, AssertOperatorCodes, BundleType, IssueType, ReportActionResultCodes,
-        ReportResultCodes, ReportStatusCodes, TestscriptOperationCodes,
+        AssertDirectionCodes, AssertOperatorCodes, BoundCode, BundleType, IssueType,
+        ReportActionResultCodes, ReportResultCodes, ReportStatusCodes, TestscriptOperationCodes,
     },
     types::{FHIRId, FHIRMarkdown, FHIRString, Reference},
 };
@@ -69,7 +69,7 @@ struct TestState {
     fixtures: HashMap<String, Fixtures>,
     latest_request: Option<FHIRRequest>,
     latest_response: Option<Response>,
-    result: ReportResultCodes,
+    result: BoundCode<ReportResultCodes>,
 }
 
 impl TestState {
@@ -79,7 +79,7 @@ impl TestState {
             fixtures: HashMap::new(),
             latest_request: None,
             latest_response: None,
-            result: ReportResultCodes::Pending(None),
+            result: ReportResultCodes::PENDING,
         }
     }
     fn resolve_fixture<'a>(
@@ -210,12 +210,11 @@ fn derive_resource_type(
     path: &str,
 ) -> Result<ResourceType, TestScriptError> {
     if let Some(operation_resource_type) = operation.resource.as_ref() {
-        let string_type: Option<String> = operation_resource_type.as_ref().into();
+        let string_type = operation_resource_type.as_str();
         ResourceType::try_from(string_type.unwrap_or_default()).map_err(|_| {
             TestScriptError::ExecutionError(format!(
                 "Unsupported resource type '{:?}' for operation at '{}'.",
-                operation_resource_type.as_ref(),
-                path
+                operation_resource_type, path
             ))
         })
     } else if let Some(target) = target {
@@ -350,9 +349,9 @@ async fn testscript_operation_to_fhir_request(
         .type_
         .as_ref()
         .and_then(|t| t.code.as_ref())
-        .and_then(|c| c.value.clone());
+        .and_then(|c| c.value.as_ref().map(|s| s.as_str()));
 
-    if operation_type == (&TestscriptOperationCodes::Read(None)).into() {
+    if operation_type == TestscriptOperationCodes::READ.as_str() {
         let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Read operation requires targetId at '{}'.",
@@ -377,7 +376,7 @@ async fn testscript_operation_to_fhir_request(
                 .cloned()
                 .unwrap_or_default(),
         }))
-    } else if operation_type == (&TestscriptOperationCodes::Vread(None)).into() {
+    } else if operation_type == TestscriptOperationCodes::VREAD.as_str() {
         let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Version Read operation requires targetId at '{}'.",
@@ -423,7 +422,7 @@ async fn testscript_operation_to_fhir_request(
             id: id,
             version_id: version_id.into(),
         }))
-    } else if operation_type == (&TestscriptOperationCodes::Search(None)).into() {
+    } else if operation_type == TestscriptOperationCodes::SEARCH.as_str() {
         let query_string = operation
             .params
             .as_ref()
@@ -462,7 +461,7 @@ async fn testscript_operation_to_fhir_request(
                 ),
             ))
         }
-    } else if operation_type == (&TestscriptOperationCodes::History(None)).into() {
+    } else if operation_type == TestscriptOperationCodes::HISTORY.as_str() {
         let query_string = operation
             .params
             .as_ref()
@@ -519,7 +518,7 @@ async fn testscript_operation_to_fhir_request(
                 },
             )));
         }
-    } else if operation_type == (&TestscriptOperationCodes::Transaction(None)).into() {
+    } else if operation_type == TestscriptOperationCodes::TRANSACTION.as_str() {
         let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Transaction operation requires sourceId at '{}'.",
@@ -540,7 +539,7 @@ async fn testscript_operation_to_fhir_request(
 
         match resource {
             Resource::Bundle(bundle) => {
-                if !matches!(bundle.type_.as_ref(), BundleType::Transaction(_)) {
+                if bundle.type_ != BundleType::TRANSACTION {
                     return Err(TestScriptError::ExecutionError(format!(
                         "Fixture must be a transaction bundle for transaction operations for sourceId '{}'.",
                         source_id
@@ -557,7 +556,7 @@ async fn testscript_operation_to_fhir_request(
                 source_id
             ))),
         }
-    } else if operation_type == (&TestscriptOperationCodes::Create(None)).into() {
+    } else if operation_type == TestscriptOperationCodes::CREATE.as_str() {
         let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Create operation requires sourceId at '{}'.",
@@ -580,7 +579,7 @@ async fn testscript_operation_to_fhir_request(
             resource_type: derive_resource_type(operation, Some(source), pointer.path())?,
             resource: resource,
         }))
-    } else if operation_type == (&TestscriptOperationCodes::Update(None)).into() {
+    } else if operation_type == TestscriptOperationCodes::UPDATE.as_str() {
         let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Update operation requires sourceId at '{}'.",
@@ -634,7 +633,7 @@ async fn testscript_operation_to_fhir_request(
                 resource: resource,
             },
         )))
-    } else if operation_type == (&TestscriptOperationCodes::Delete(None)).into() {
+    } else if operation_type == TestscriptOperationCodes::DELETE.as_str() {
         let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Delete operation requires targetId at '{}'.",
@@ -661,7 +660,7 @@ async fn testscript_operation_to_fhir_request(
                     .unwrap_or_default(),
             },
         )))
-    } else if operation_type == (&TestscriptOperationCodes::DeleteCondMultiple(None)).into() {
+    } else if operation_type == TestscriptOperationCodes::DELETECONDMULTIPLE.as_str() {
         let delete_parameters = ParsedParameters::try_from(
             operation
                 .params
@@ -692,7 +691,7 @@ async fn testscript_operation_to_fhir_request(
                 },
             )))
         }
-    } else if operation_type == Some("invoke".to_string()) {
+    } else if operation_type == Some("invoke") {
         let Some(op_code) = operation.url.as_ref().and_then(|u| u.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Invoke operation requires url at '{}' which is used for the operation code.",
@@ -823,7 +822,7 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
             Ok(TestResult {
                 state: state.clone(),
                 value: TestReportSetupActionOperation {
-                    result: Box::new(ReportActionResultCodes::Pass(None)),
+                    result: ReportActionResultCodes::PASS,
                     ..Default::default()
                 },
             })
@@ -841,7 +840,7 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
             Ok(TestResult {
                 state: state.clone(),
                 value: TestReportSetupActionOperation {
-                    result: Box::new(ReportActionResultCodes::Warning(None)),
+                    result: ReportActionResultCodes::WARNING,
                     message: Some(Box::new(FHIRMarkdown {
                         value: Some(format!("Operation failed: {}", op_error)),
                         ..Default::default()
@@ -852,9 +851,6 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
         }
     }
 }
-
-static DEFAULT_DIRECTION: LazyLock<Box<AssertDirectionCodes>> =
-    LazyLock::new(|| Box::new(AssertDirectionCodes::Response(None)));
 
 async fn get_source<'a>(
     state: &'a TestState,
@@ -867,10 +863,9 @@ async fn get_source<'a>(
         match assertion
             .direction
             .as_ref()
-            .unwrap_or(&DEFAULT_DIRECTION)
-            .as_ref()
+            .unwrap_or(&AssertDirectionCodes::RESPONSE)
         {
-            AssertDirectionCodes::Request(_) => {
+            assertion if assertion == &AssertDirectionCodes::REQUEST => {
                 if let Some(request) = state.latest_request.as_ref() {
                     request_to_meta_value(request)
                         .ok_or_else(|| TestScriptError::InvalidFixture)
@@ -879,7 +874,7 @@ async fn get_source<'a>(
                     Ok(None)
                 }
             }
-            AssertDirectionCodes::Response(_) => {
+            assertion if assertion == &AssertDirectionCodes::RESPONSE => {
                 if let Some(response) = state.latest_response.as_ref() {
                     response_to_meta_value(response)
                         .ok_or_else(|| TestScriptError::InvalidFixture)
@@ -888,7 +883,7 @@ async fn get_source<'a>(
                     Ok(None)
                 }
             }
-            AssertDirectionCodes::Null(_) => Err(TestScriptError::ExecutionError(
+            _ => Err(TestScriptError::ExecutionError(
                 "Assert direction cannot be 'null' when sourceId is not provided.".to_string(),
             )),
         }
@@ -896,15 +891,20 @@ async fn get_source<'a>(
 }
 
 fn evaluate_operator(
-    operator: &Box<AssertOperatorCodes>,
+    operator: &BoundCode<AssertOperatorCodes>,
     a: &Vec<conversion::ConvertedValue>,
     b: &Vec<conversion::ConvertedValue>,
 ) -> bool {
-    match operator.as_ref() {
-        AssertOperatorCodes::Equals(_) | AssertOperatorCodes::Null(_) => a == b,
-        AssertOperatorCodes::NotEquals(_) => !(a == b),
+    match operator {
+        operator
+            if operator == &AssertOperatorCodes::EQUALS
+                || operator == &AssertOperatorCodes::NULL =>
+        {
+            a == b
+        }
+        operator if operator == &AssertOperatorCodes::NOTEQUALS => !(a == b),
 
-        AssertOperatorCodes::Contains(_) => {
+        operator if operator == &AssertOperatorCodes::CONTAINS => {
             if a.len() != 1 || b.len() != 1 {
                 return false;
             }
@@ -916,20 +916,34 @@ fn evaluate_operator(
                 _ => false,
             }
         }
-        AssertOperatorCodes::Empty(_) => todo!("Empty operator not implemented"),
-        AssertOperatorCodes::Eval(_) => todo!("Eval operator not implemented"),
-        AssertOperatorCodes::GreaterThan(_) => todo!("GreaterThan operator not implemented"),
-        AssertOperatorCodes::In(_) => todo!("In operator not implemented"),
-        AssertOperatorCodes::LessThan(_) => todo!("LessThan operator not implemented"),
-        AssertOperatorCodes::NotContains(_) => todo!("NotContains operator not implemented"),
-        AssertOperatorCodes::NotEmpty(_) => todo!("NotEmpty operator not implemented"),
-        AssertOperatorCodes::NotIn(_) => todo!("NotIn operator not implemented"),
+        operator if operator == &AssertOperatorCodes::EMPTY => {
+            todo!("Empty operator not implemented")
+        }
+        operator if operator == &AssertOperatorCodes::EVAL => {
+            todo!("Eval operator not implemented")
+        }
+        operator if operator == &AssertOperatorCodes::GREATERTHAN => {
+            todo!("GreaterThan operator not implemented")
+        }
+        operator if operator == &AssertOperatorCodes::IN => todo!("In operator not implemented"),
+        operator if operator == &AssertOperatorCodes::LESSTHAN => {
+            todo!("LessThan operator not implemented")
+        }
+        operator if operator == &AssertOperatorCodes::NOTCONTAINS => {
+            todo!("NotContains operator not implemented")
+        }
+        operator if operator == &AssertOperatorCodes::NOTEMPTY => {
+            todo!("NotEmpty operator not implemented")
+        }
+        operator if operator == &AssertOperatorCodes::NOTIN => {
+            todo!("NotIn operator not implemented")
+        }
+        _ => {
+            todo!("Operator '{:?}' not implemented", operator)
+        }
     }
     // a == b
 }
-
-static DEFAULT_EQUAL_OPERATOR: LazyLock<Box<AssertOperatorCodes>> =
-    LazyLock::new(|| Box::new(AssertOperatorCodes::Equals(None)));
 
 async fn derive_comparison_to(
     state: &TestState,
@@ -1015,25 +1029,21 @@ async fn run_assertion(
             pointer.path()
         )));
     };
-
-    let operator = assertion
-        .operator
-        .as_ref()
-        .unwrap_or(&*DEFAULT_EQUAL_OPERATOR);
+    let default = AssertOperatorCodes::EQUALS;
+    let operator = assertion.operator.as_ref().unwrap_or(&default);
 
     if assertion.resource.is_some() {
         let resource_string = assertion
             .resource
             .as_ref()
-            .and_then(|r| {
-                let string_type: Option<String> = r.as_ref().into();
-                string_type
-            })
-            .unwrap_or("".to_string());
+            .and_then(|r| r.as_str())
+            .unwrap_or("");
 
         let operation_evaluation_result = evaluate_operator(
             operator,
-            &vec![conversion::ConvertedValue::String(resource_string.clone())],
+            &vec![conversion::ConvertedValue::String(
+                resource_string.to_string(),
+            )],
             &vec![conversion::ConvertedValue::String(
                 source.fhir_type().to_string(),
             )],
@@ -1047,11 +1057,11 @@ async fn run_assertion(
                 source.fhir_type()
             );
 
-            state_guard.result = ReportResultCodes::Fail(None);
+            state_guard.result = ReportResultCodes::FAIL;
             return Ok(TestResult {
                 state: state.clone(),
                 value: TestReportSetupActionAssert {
-                    result: Box::new(ReportActionResultCodes::Fail(None)),
+                    result: ReportActionResultCodes::FAIL,
                     ..Default::default()
                 },
             });
@@ -1072,7 +1082,7 @@ async fn run_assertion(
                 pointer.path()
             );
 
-            state_guard.result = ReportResultCodes::Fail(None);
+            state_guard.result = ReportResultCodes::FAIL;
             return Err(TestScriptError::ExecutionError(format!(
                 "FHIRPath failed to evaluate at '{}' error.",
                 pointer.path()
@@ -1097,11 +1107,11 @@ async fn run_assertion(
                 comparison_to
             );
 
-            state_guard.result = ReportResultCodes::Fail(None);
+            state_guard.result = ReportResultCodes::FAIL;
             return Ok(TestResult {
                 state: state.clone(),
                 value: TestReportSetupActionAssert {
-                    result: Box::new(ReportActionResultCodes::Fail(None)),
+                    result: ReportActionResultCodes::FAIL,
                     ..Default::default()
                 },
             });
@@ -1111,7 +1121,7 @@ async fn run_assertion(
     return Ok(TestResult {
         state: state.clone(),
         value: TestReportSetupActionAssert {
-            result: Box::new(ReportActionResultCodes::Pass(None)),
+            result: ReportActionResultCodes::PASS,
             ..Default::default()
         },
     });
@@ -1565,7 +1575,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     tracing::info!("Running TestScript Runner with FHIR Client");
 
     let mut test_report = TestReport {
-        status: Box::new(ReportStatusCodes::Completed(None)),
+        status: ReportStatusCodes::COMPLETED,
         testScript: Box::new(Reference {
             reference: Some(Box::new(FHIRString {
                 value: Some(format!(
@@ -1663,10 +1673,10 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     // Only set result to fail so if still pending can assume pass.
     // Flip to fail in assertion tests if any fail.
     match &state_guard.result {
-        ReportResultCodes::Pending(_) => {
-            test_report.result = Box::new(ReportResultCodes::Pass(None))
+        state if state == &ReportResultCodes::PENDING => {
+            test_report.result = ReportResultCodes::PASS
         }
-        status => test_report.result = Box::new(status.clone()),
+        status => test_report.result = status.clone(),
     }
 
     Ok(test_report)

@@ -64,8 +64,8 @@ pub async fn pip<
                 ));
             };
 
-            match attribute_operation.type_.as_ref() {
-                AccessPolicyAttributeOperationTypes::Read(_) => {
+            match &attribute_operation.type_ {
+                attribute_type if attribute_type == &AccessPolicyAttributeOperationTypes::READ => {
                     let path_expression = attribute_operation.path.as_ref().ok_or_else(|| {
                         OperationOutcomeError::fatal(
                             haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
@@ -114,13 +114,13 @@ pub async fn pip<
                         Box::new(result) as Box<dyn MetaValue>
                     )))
                 }
-                AccessPolicyAttributeOperationTypes::SearchSystem(_) => {
+                attribute_type
+                    if attribute_type == &AccessPolicyAttributeOperationTypes::SEARCHSYSTEM =>
+                {
                     let parameter_expression =
                         attribute_operation.params.as_ref().ok_or_else(|| {
                             OperationOutcomeError::fatal(
-                                haste_fhir_model::r4::generated::terminology::IssueType::Invalid(
-                                    None,
-                                ),
+                                haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                                 format!(
                                     "Attribute operation path is not specified for attribute '{}'.",
                                     variable_id
@@ -143,7 +143,9 @@ pub async fn pip<
                         Box::new(result) as Box<dyn MetaValue>
                     )))
                 }
-                AccessPolicyAttributeOperationTypes::SearchType(_) => {
+                attribute_type
+                    if attribute_type == &AccessPolicyAttributeOperationTypes::SEARCHTYPE =>
+                {
                     let path_expression = attribute_operation.path.as_ref().ok_or_else(|| {
                         OperationOutcomeError::fatal(
                             haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
@@ -164,9 +166,7 @@ pub async fn pip<
                     let resource_type =
                         ResourceType::try_from(resource_type.as_str()).map_err(|_| {
                             OperationOutcomeError::fatal(
-                                haste_fhir_model::r4::generated::terminology::IssueType::Invalid(
-                                    None,
-                                ),
+                                haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                                 format!(
                                     "Resource type '{}' is not valid for attribute '{}'.",
                                     resource_type, variable_id
@@ -177,11 +177,9 @@ pub async fn pip<
                     let parameter_expression =
                         attribute_operation.params.as_ref().ok_or_else(|| {
                             OperationOutcomeError::fatal(
-                                haste_fhir_model::r4::generated::terminology::IssueType::Invalid(
-                                    None,
-                                ),
+                                haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                                 format!(
-                                    "Attribute operation path is not specified for attribute '{}'.",
+                                    "Attribute operation param is not specified for attribute '{}'.",
                                     variable_id
                                 ),
                             )
@@ -206,11 +204,20 @@ pub async fn pip<
                         Box::new(result) as Box<dyn MetaValue>
                     )))
                 }
-                AccessPolicyAttributeOperationTypes::Null(_) => Err(OperationOutcomeError::fatal(
+                attribute_type if attribute_type == &AccessPolicyAttributeOperationTypes::NULL => {
+                    Err(OperationOutcomeError::fatal(
+                        haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+                        format!(
+                            "Attribute operation type is not specified for attribute '{}'.",
+                            variable_id
+                        ),
+                    ))
+                }
+                _ => Err(OperationOutcomeError::fatal(
                     haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
                     format!(
-                        "Attribute operation type is not specified for attribute '{}'.",
-                        variable_id
+                        "Attribute operation type '{:?}' is not supported for attribute '{}'.",
+                        attribute_operation.type_, variable_id
                     ),
                 )),
             }

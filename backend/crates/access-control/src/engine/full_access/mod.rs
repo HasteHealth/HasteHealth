@@ -8,7 +8,7 @@ use crate::context::PermissionLevel;
 pub async fn evaluate(policy: &AccessPolicyV2) -> Result<PermissionLevel, OperationOutcomeError> {
     // Sanity check to ensure we are only evaluating FullAccess policies here.
     // Note this is done on root lib.rs evaluation of policy.
-    if let AccessPolicyv2Engine::FullAccess(_) = *policy.engine {
+    if AccessPolicyv2Engine::FULLACCESS == policy.engine {
         Ok(PermissionLevel::Allow)
     } else {
         Ok(PermissionLevel::Deny)

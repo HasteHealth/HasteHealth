@@ -13,7 +13,6 @@ mod tests {
         },
     };
     use haste_reflect::MetaValue;
-    use r4::generated::terminology::ValueSetDef as _;
     use r4::generated::{resources::Patient, types::Address};
     use serde_json;
 

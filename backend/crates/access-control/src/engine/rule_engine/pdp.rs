@@ -151,21 +151,24 @@ async fn evaluate_condition<
     let effect = rule
         .effect
         .clone()
-        .unwrap_or(Box::new(AccessPolicyRuleEffect::Permit(None)));
+        .unwrap_or(AccessPolicyRuleEffect::PERMIT);
 
     if should_permit {
-        match effect.as_ref() {
-            AccessPolicyRuleEffect::Null(_) | AccessPolicyRuleEffect::Permit(_) => {
+        match effect {
+            effect
+                if effect == AccessPolicyRuleEffect::NULL
+                    || effect == AccessPolicyRuleEffect::PERMIT =>
+            {
                 Ok((PermissionLevel::Allow, policy_context.clone()))
             }
-            AccessPolicyRuleEffect::Deny(_) => Ok((PermissionLevel::Deny, policy_context.clone())),
+            _effect => Ok((PermissionLevel::Deny, policy_context.clone())),
         }
     } else {
-        match effect.as_ref() {
-            AccessPolicyRuleEffect::Null(_) | AccessPolicyRuleEffect::Permit(_) => {
-                Ok((PermissionLevel::Deny, policy_context.clone()))
+        match effect {
+            effect if effect == AccessPolicyRuleEffect::DENY => {
+                Ok((PermissionLevel::Allow, policy_context.clone()))
             }
-            AccessPolicyRuleEffect::Deny(_) => Ok((PermissionLevel::Allow, policy_context.clone())),
+            _effect => Ok((PermissionLevel::Deny, policy_context.clone())),
         }
     }
 }
@@ -193,8 +196,8 @@ async fn evaluate_access_policy_rule<
         return Ok((PermissionLevel::Undetermined, policy_context));
     }
 
-    match rule.combineBehavior.as_ref().map(|s| s.as_ref()) {
-        Some(AccessPolicyv2CombineBehavior::Any(_)) => {
+    match rule.combineBehavior.as_ref() {
+        combine_behavior if combine_behavior == Some(&AccessPolicyv2CombineBehavior::ANY) => {
             let mut result = PermissionLevel::Deny;
             if rule.condition.is_some() {
                 return Err(OperationOutcomeError::fatal(
@@ -242,7 +245,7 @@ async fn evaluate_access_policy_rule<
 
             Ok((result, policy_context))
         }
-        Some(AccessPolicyv2CombineBehavior::AllOf(_)) => {
+        combine_behavior if combine_behavior == Some(&AccessPolicyv2CombineBehavior::ALLOF) => {
             // Set as allowed because doing min logic below.
             let mut result = PermissionLevel::Allow;
             if rule.condition.is_some() {
@@ -296,7 +299,10 @@ async fn evaluate_access_policy_rule<
 
             Ok((result, policy_context))
         }
-        Some(&AccessPolicyv2CombineBehavior::Null(_)) | None => {
+        combine_behavior
+            if combine_behavior == Some(&AccessPolicyv2CombineBehavior::NULL)
+                || combine_behavior == None =>
+        {
             if rule.rule.is_some() {
                 return Err(OperationOutcomeError::fatal(
                     IssueType::INVALID,
@@ -309,6 +315,10 @@ async fn evaluate_access_policy_rule<
 
             Ok(result)
         }
+        _ => Err(OperationOutcomeError::fatal(
+            IssueType::INVALID,
+            "Unsupported combineBehavior value.".to_string(),
+        )),
     }
 }
 
