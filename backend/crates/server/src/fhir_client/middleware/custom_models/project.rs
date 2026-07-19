@@ -161,14 +161,14 @@ impl<
                                     .await?
                                 else {
                                     return Err(OperationOutcomeError::fatal(
-                                        IssueType::NOTFOUND,
+                                        IssueType::NOT_FOUND,
                                         "Project not found.".to_string(),
                                     ));
                                 };
 
                                 if &cur_model.fhir_version != &fhir_version {
                                     return Err(OperationOutcomeError::fatal(
-                                        IssueType::NOTSUPPORTED,
+                                        IssueType::NOT_SUPPORTED,
                                         "Changing FHIR version of existing project is not supported."
                                             .to_string(),
                                     ));
@@ -176,7 +176,7 @@ impl<
 
                                 if cur_model.system_created {
                                     return Err(OperationOutcomeError::fatal(
-                                        IssueType::NOTSUPPORTED,
+                                        IssueType::NOT_SUPPORTED,
                                         "Cannot update system created projects.".to_string(),
                                     ));
                                 }
@@ -247,7 +247,7 @@ impl<
                         // Dissallow updates on project because could impact integrity of system. For example project has stored
                         // resources in a specific FHIR version, changing that version would cause issues.
                         _ => Err(OperationOutcomeError::fatal(
-                            IssueType::NOTSUPPORTED,
+                            IssueType::NOT_SUPPORTED,
                             "Operation is not supported for Project resource types.".to_string(),
                         )),
                     }

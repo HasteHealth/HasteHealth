@@ -92,7 +92,7 @@ impl<
 
                     if total >= (limit as u64) {
                         return Err(OperationOutcomeError::error(
-                            IssueType::TOOCOSTLY,
+                            IssueType::TOO_COSTLY,
                             format!(
                                 "Request exceeds the limit of '{}' for resource type '{}' for subscription tier {:?}",
                                 limit,

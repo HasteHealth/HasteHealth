@@ -135,7 +135,7 @@ pub async fn activate_get<
     .await?
     else {
         return Err(OperationOutcomeError::error(
-            IssueType::NOTFOUND,
+            IssueType::NOT_FOUND,
             "User MFA credential not found.".to_string(),
         ));
     };
@@ -194,7 +194,7 @@ pub async fn activate_post<
     .await?
     else {
         return Err(OperationOutcomeError::error(
-            IssueType::NOTFOUND,
+            IssueType::NOT_FOUND,
             "User MFA credential not found.".to_string(),
         ));
     };

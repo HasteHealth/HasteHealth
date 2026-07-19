@@ -190,7 +190,7 @@ impl<
                             ))))
                         } else {
                             Err(OperationOutcomeError::error(
-                                IssueType::NOTFOUND,
+                                IssueType::NOT_FOUND,
                                 format!("Resource with id '{}' not found", delete_request.id),
                             ))
                         }
@@ -800,7 +800,7 @@ impl<
                         .await?
                     else {
                         return Err(OperationOutcomeError::error(
-                            IssueType::NOTFOUND,
+                            IssueType::NOT_FOUND,
                             format!("Resource with id '{}' not found", fhir_patch_request.id),
                         ));
                     };
@@ -878,7 +878,7 @@ impl<
                 }
                 FHIRRequest::Capabilities | FHIRRequest::Invocation(_) => {
                     Err(OperationOutcomeError::error(
-                        IssueType::NOTSUPPORTED,
+                        IssueType::NOT_SUPPORTED,
                         "Unsupported FHIR operation".to_string(),
                     ))
                 }

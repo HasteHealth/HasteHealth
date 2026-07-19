@@ -39,7 +39,7 @@ pub fn convert_discriminator_to_path(
         || discriminator_path.contains("extension(")
     {
         return Err(OperationOutcomeError::error(
-            IssueType::NOTSUPPORTED,
+            IssueType::NOT_SUPPORTED,
             format!(
                 "Discriminator path '{}' is not supported",
                 discriminator_path

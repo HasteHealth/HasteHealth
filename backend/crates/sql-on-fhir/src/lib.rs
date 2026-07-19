@@ -75,7 +75,7 @@ async fn resolve_view_definition<
             .await?
             .ok_or_else(|| {
                 OperationOutcomeError::error(
-                    IssueType::NOTFOUND,
+                    IssueType::NOT_FOUND,
                     format!(
                         "ViewDefinition not found with id '{:?}'",
                         view_definition_id
@@ -568,7 +568,7 @@ async fn process_view_definition<
             })
         }
         _ => Err(OperationOutcomeError::error(
-            IssueType::NOTSUPPORTED,
+            IssueType::NOT_SUPPORTED,
             format!("Output format '{:?}' is not supported", output_format),
         )),
     }

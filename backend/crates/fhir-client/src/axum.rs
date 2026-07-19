@@ -99,7 +99,7 @@ impl IntoResponse for FHIRResponse {
                         .into_response()
                 } else {
                     OperationOutcomeError::error(
-                        IssueType::NOTFOUND,
+                        IssueType::NOT_FOUND,
                         "Resource not found.".to_string(),
                     )
                     .into_response()

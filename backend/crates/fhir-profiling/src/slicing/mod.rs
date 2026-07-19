@@ -292,7 +292,7 @@ async fn is_conformant_to_slice_descriptor(
         }
         discriminator_type if discriminator_type == &DiscriminatorType::PROFILE => {
             Err(OperationOutcomeError::error(
-                IssueType::NOTSUPPORTED,
+                IssueType::NOT_SUPPORTED,
                 "Profile discriminator type is not supported".to_string(),
             ))
         }
@@ -384,12 +384,12 @@ async fn is_conformant_to_slice_descriptor(
         }
         discriminator_type if discriminator_type == &DiscriminatorType::NULL => {
             Err(OperationOutcomeError::error(
-                IssueType::NOTSUPPORTED,
+                IssueType::NOT_SUPPORTED,
                 "Null discriminator type is not supported".to_string(),
             ))
         }
         _ => Err(OperationOutcomeError::error(
-            IssueType::NOTSUPPORTED,
+            IssueType::NOT_SUPPORTED,
             "Unsupported discriminator type".to_string(),
         )),
     }

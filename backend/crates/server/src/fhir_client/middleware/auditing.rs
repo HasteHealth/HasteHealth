@@ -354,7 +354,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 HistoryRequest::Instance(instance) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::R),
-                    &AuditEventSubType::HISTORYINSTANCE,
+                    &AuditEventSubType::HISTORY_INSTANCE,
                     "instance history",
                     Some(instance.resource_type.as_ref().to_string()),
                     Some(instance.id.clone()),
@@ -363,7 +363,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 HistoryRequest::Type(type_request) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::R),
-                    &AuditEventSubType::HISTORYTYPE,
+                    &AuditEventSubType::HISTORY_TYPE,
                     "type history",
                     Some(type_request.resource_type.as_ref().to_string()),
                     None,
@@ -372,7 +372,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 HistoryRequest::System(_) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::R),
-                    &AuditEventSubType::HISTORYSYSTEM,
+                    &AuditEventSubType::HISTORY_SYSTEM,
                     "system history",
                     None,
                     None,

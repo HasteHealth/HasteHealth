@@ -299,7 +299,7 @@ impl CanonicalResolver for InlineResolver {
                 Ok(Some(resource.clone()))
             } else {
                 Err(OperationOutcomeError::error(
-                    IssueType::NOTFOUND,
+                    IssueType::NOT_FOUND,
                     format!("Could not resolve canonical url: {}", url),
                 ))
             }

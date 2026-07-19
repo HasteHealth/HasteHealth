@@ -9,7 +9,7 @@ impl OperationOutcomeError {
             Some(issue) => {
                 if issue.code == IssueType::INVALID {
                     axum::http::StatusCode::BAD_REQUEST
-                } else if issue.code == IssueType::NOTFOUND {
+                } else if issue.code == IssueType::NOT_FOUND {
                     axum::http::StatusCode::NOT_FOUND
                 } else if issue.code == IssueType::FORBIDDEN {
                     axum::http::StatusCode::FORBIDDEN

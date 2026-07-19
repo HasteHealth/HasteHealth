@@ -36,7 +36,7 @@ pub async fn project_exists<
     .await
     .map_err(|_| {
         OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::NOTFOUND,
+            haste_fhir_model::r4::generated::terminology::IssueType::NOT_FOUND,
             format!(
                 "Project '{}' not found for tenant '{}'",
                 project.as_ref(),

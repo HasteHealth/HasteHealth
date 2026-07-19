@@ -543,7 +543,7 @@ fn process_history_parameters<'a>(
             },
             _ => {
                 return Err(OperationOutcomeError::fatal(
-                    IssueType::NOTSUPPORTED,
+                    IssueType::NOT_SUPPORTED,
                     format!(
                         "Parameter '{}' is not supported for history requests.",
                         parameter.name()

@@ -453,7 +453,7 @@ pub mod conditionals {
     }
 
     pub fn is_primitive_sd(sd: &StructureDefinition) -> bool {
-        sd.kind == StructureDefinitionKind::PRIMITIVETYPE
+        sd.kind == StructureDefinitionKind::PRIMITIVE_TYPE
     }
 
     pub fn is_typechoice(element: &ElementDefinition) -> bool {
@@ -504,10 +504,10 @@ pub mod load {
                                 {
                                     level == "resource"
                                 }
-                                kind if kind == &StructureDefinitionKind::COMPLEXTYPE => {
+                                kind if kind == &StructureDefinitionKind::COMPLEX_TYPE => {
                                     level == "complex-type"
                                 }
-                                kind if kind == &StructureDefinitionKind::PRIMITIVETYPE => {
+                                kind if kind == &StructureDefinitionKind::PRIMITIVE_TYPE => {
                                     level == "primitive-type"
                                 }
                                 _ => false,
@@ -532,10 +532,10 @@ pub mod load {
                             {
                                 level == "resource"
                             }
-                            kind if kind == &StructureDefinitionKind::COMPLEXTYPE => {
+                            kind if kind == &StructureDefinitionKind::COMPLEX_TYPE => {
                                 level == "complex-type"
                             }
-                            kind if kind == &StructureDefinitionKind::PRIMITIVETYPE => {
+                            kind if kind == &StructureDefinitionKind::PRIMITIVE_TYPE => {
                                 level == "primitive-type"
                             }
                             _ => false,

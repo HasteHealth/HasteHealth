@@ -21,10 +21,10 @@ pub async fn evaluate_policy<
     policy: Arc<AccessPolicyV2>,
 ) -> Result<PermissionLevel, OperationOutcomeError> {
     match &policy.engine {
-        policy_engine if policy_engine == &AccessPolicyv2Engine::FULLACCESS => {
+        policy_engine if policy_engine == &AccessPolicyv2Engine::FULL_ACCESS => {
             engine::full_access::evaluate(policy.as_ref()).await
         }
-        policy_engine if policy_engine == &AccessPolicyv2Engine::RULEENGINE => {
+        policy_engine if policy_engine == &AccessPolicyv2Engine::RULE_ENGINE => {
             Ok(engine::rule_engine::pdp::evaluate(context, policy).await?)
         }
         policy_engine if policy_engine == &AccessPolicyv2Engine::NULL => {

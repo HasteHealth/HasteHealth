@@ -660,7 +660,7 @@ async fn testscript_operation_to_fhir_request(
                     .unwrap_or_default(),
             },
         )))
-    } else if operation_type == TestscriptOperationCodes::DELETECONDMULTIPLE.as_str() {
+    } else if operation_type == TestscriptOperationCodes::DELETE_COND_MULTIPLE.as_str() {
         let delete_parameters = ParsedParameters::try_from(
             operation
                 .params
@@ -902,7 +902,7 @@ fn evaluate_operator(
         {
             a == b
         }
-        operator if operator == &AssertOperatorCodes::NOTEQUALS => !(a == b),
+        operator if operator == &AssertOperatorCodes::NOT_EQUALS => !(a == b),
 
         operator if operator == &AssertOperatorCodes::CONTAINS => {
             if a.len() != 1 || b.len() != 1 {
@@ -922,20 +922,20 @@ fn evaluate_operator(
         operator if operator == &AssertOperatorCodes::EVAL => {
             todo!("Eval operator not implemented")
         }
-        operator if operator == &AssertOperatorCodes::GREATERTHAN => {
+        operator if operator == &AssertOperatorCodes::GREATER_THAN => {
             todo!("GreaterThan operator not implemented")
         }
         operator if operator == &AssertOperatorCodes::IN => todo!("In operator not implemented"),
-        operator if operator == &AssertOperatorCodes::LESSTHAN => {
+        operator if operator == &AssertOperatorCodes::LESS_THAN => {
             todo!("LessThan operator not implemented")
         }
-        operator if operator == &AssertOperatorCodes::NOTCONTAINS => {
+        operator if operator == &AssertOperatorCodes::NOT_CONTAINS => {
             todo!("NotContains operator not implemented")
         }
-        operator if operator == &AssertOperatorCodes::NOTEMPTY => {
+        operator if operator == &AssertOperatorCodes::NOT_EMPTY => {
             todo!("NotEmpty operator not implemented")
         }
-        operator if operator == &AssertOperatorCodes::NOTIN => {
+        operator if operator == &AssertOperatorCodes::NOT_IN => {
             todo!("NotIn operator not implemented")
         }
         _ => {
@@ -1296,7 +1296,7 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
                     }
                 }) else {
                     return Err(OperationOutcomeError::error(
-                        IssueType::NOTFOUND,
+                        IssueType::NOT_FOUND,
                         format!("Contained resource with id '{}' not found.", local_id),
                     ));
                 };
@@ -1331,7 +1331,7 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
                     .await?
                 else {
                     return Err(OperationOutcomeError::error(
-                        IssueType::NOTFOUND,
+                        IssueType::NOT_FOUND,
                         format!("Resource '{}' with id '{}' not found.", resource_type, id),
                     ));
                 };

@@ -34,7 +34,7 @@ impl TryFrom<&str> for OIDCScope {
             "offline_access" => Ok(Self::OfflineAccess),
             "online_access" => Ok(Self::OnlineAccess),
             _ => Err(OperationOutcomeError::error(
-                IssueType::NOTSUPPORTED,
+                IssueType::NOT_SUPPORTED,
                 format!("OIDC Scope '{}' not supported.", value),
             )),
         }
@@ -64,7 +64,7 @@ impl TryFrom<&str> for LaunchType {
             "encounter" => Ok(LaunchType::Encounter),
             "patient" => Ok(LaunchType::Patient),
             _ => Err(OperationOutcomeError::error(
-                IssueType::NOTSUPPORTED,
+                IssueType::NOT_SUPPORTED,
                 format!("Launch type '{}' not supported.", value),
             )),
         }
@@ -101,7 +101,7 @@ impl TryFrom<&str> for SmartResourceScopeUser {
             "system" => Ok(SmartResourceScopeUser::System),
             "patient" => Ok(SmartResourceScopeUser::Patient),
             _ => Err(OperationOutcomeError::error(
-                IssueType::NOTSUPPORTED,
+                IssueType::NOT_SUPPORTED,
                 format!("Smart resource scope level '{}' not supported.", value),
             )),
         }
@@ -123,7 +123,7 @@ impl TryFrom<&str> for SmartResourceScopeLevel {
             resource_type => {
                 let resource_type = ResourceType::try_from(value).map_err(|_e| {
                     OperationOutcomeError::error(
-                        IssueType::NOTSUPPORTED,
+                        IssueType::NOT_SUPPORTED,
                         format!(
                             "Smart resource scope resource type '{}' not supported.",
                             resource_type,
@@ -201,7 +201,7 @@ impl TryFrom<&str> for SmartResourceScopePermissions {
 
                     if found_index <= Some(current_index) || found_index.is_none() {
                         return Err(OperationOutcomeError::error(
-                            IssueType::NOTSUPPORTED,
+                            IssueType::NOT_SUPPORTED,
                             format!(
                                 "Invalid scope access type methods: '{}' not supported or in wrong place must be in 'cruds' order.",
                                 method
@@ -345,7 +345,7 @@ impl TryFrom<&str> for SmartScope {
                 let chunks: Vec<&str> = value.split('/').collect();
                 if chunks.len() != 2 {
                     return Err(OperationOutcomeError::error(
-                        IssueType::NOTSUPPORTED,
+                        IssueType::NOT_SUPPORTED,
                         format!("Invalid launch scope: '{}'.", value),
                     ));
                 }
@@ -361,7 +361,7 @@ impl TryFrom<&str> for SmartScope {
                 let parts: Vec<&str> = value.split('/').collect();
                 if parts.len() != 2 {
                     return Err(OperationOutcomeError::error(
-                        IssueType::NOTSUPPORTED,
+                        IssueType::NOT_SUPPORTED,
                         format!("Invalid smart resource scope: '{}'.", value),
                     ));
                 }
@@ -370,7 +370,7 @@ impl TryFrom<&str> for SmartScope {
                 let permissions_parts: Vec<&str> = parts[1].split('.').collect();
                 if permissions_parts.len() != 2 {
                     return Err(OperationOutcomeError::error(
-                        IssueType::NOTSUPPORTED,
+                        IssueType::NOT_SUPPORTED,
                         format!("Invalid smart resource scope: '{}'.", value),
                     ));
                 }
@@ -385,7 +385,7 @@ impl TryFrom<&str> for SmartScope {
                 }))
             }
             _ => Err(OperationOutcomeError::error(
-                IssueType::NOTSUPPORTED,
+                IssueType::NOT_SUPPORTED,
                 format!("Smart Scope '{}' not supported.", value),
             )),
         }

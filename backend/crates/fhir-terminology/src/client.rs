@@ -78,9 +78,9 @@ async fn get_concepts(
     codesystem: &CodeSystem,
 ) -> Result<Vec<CodeSystemConcept>, OperationOutcomeError> {
     match &codesystem.content {
-        content_type if content_type == &CodesystemContentMode::NOTPRESENT => {
+        content_type if content_type == &CodesystemContentMode::NOT_PRESENT => {
             Err(OperationOutcomeError::error(
-                IssueType::NOTSUPPORTED,
+                IssueType::NOT_SUPPORTED,
                 "CodeSystem content is 'not-present'".to_string(),
             ))
         }
@@ -261,7 +261,7 @@ fn expand_valueset<Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
             })
         } else {
             return Err(OperationOutcomeError::error(
-                IssueType::NOTFOUND,
+                IssueType::NOT_FOUND,
                 "ValueSet could not be resolved".to_string(),
             ));
         }

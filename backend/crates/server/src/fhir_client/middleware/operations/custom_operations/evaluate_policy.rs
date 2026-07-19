@@ -101,7 +101,7 @@ pub fn evaluate_policy_op<
                                 .await?
                             else {
                                 return Err(OperationOutcomeError::fatal(
-                                    IssueType::NOTFOUND,
+                                    IssueType::NOT_FOUND,
                                     format!(
                                         "AccessPolicyV2 resource with id '{}' not found",
                                         invocation_instance.id

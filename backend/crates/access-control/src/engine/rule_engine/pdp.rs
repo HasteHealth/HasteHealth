@@ -245,7 +245,7 @@ async fn evaluate_access_policy_rule<
 
             Ok((result, policy_context))
         }
-        combine_behavior if combine_behavior == Some(&AccessPolicyv2CombineBehavior::ALLOF) => {
+        combine_behavior if combine_behavior == Some(&AccessPolicyv2CombineBehavior::ALL_OF) => {
             // Set as allowed because doing min logic below.
             let mut result = PermissionLevel::Allow;
             if rule.condition.is_some() {

@@ -432,7 +432,7 @@ pub fn open_api_schema_generator(
 
     let complex_sds = sds
         .iter()
-        .filter(|sd| sd.kind == StructureDefinitionKind::COMPLEXTYPE);
+        .filter(|sd| sd.kind == StructureDefinitionKind::COMPLEX_TYPE);
 
     for sd in complex_sds {
         let json_schema = haste_sd_to_json_schema::isolated_schema("#/components/schemas", sd)?;

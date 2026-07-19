@@ -86,7 +86,7 @@ pub async fn get_idp<
         })
         .ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::NOTFOUND,
+                IssueType::NOT_FOUND,
                 "The specified identity provider was not found.".to_string(),
             )
         })?;
@@ -128,7 +128,7 @@ pub async fn get_idp_session_info(
         })?
         .ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::NOTFOUND,
+                IssueType::NOT_FOUND,
                 "No session information found for the specified identity provider.".to_string(),
             )
         })?;
@@ -271,7 +271,7 @@ async fn create_federated_authorization_url(
         Ok(authorization_url)
     } else {
         return Err(OperationOutcomeError::error(
-            IssueType::NOTFOUND,
+            IssueType::NOT_FOUND,
             "The specified identity provider was not found.".to_string(),
         ));
     }

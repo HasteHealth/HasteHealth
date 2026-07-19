@@ -34,7 +34,7 @@ fn compartment_type_to_resource_type(
         c if c == &CompartmentType::ENCOUNTER => Some(ResourceType::Encounter),
         c if c == &CompartmentType::PATIENT => Some(ResourceType::Patient),
         c if c == &CompartmentType::PRACTITIONER => Some(ResourceType::Practitioner),
-        c if c == &CompartmentType::RELATEDPERSON => Some(ResourceType::RelatedPerson),
+        c if c == &CompartmentType::RELATED_PERSON => Some(ResourceType::RelatedPerson),
         _ => None,
     }
 }
@@ -55,7 +55,7 @@ pub async fn process_compartment_request<
         compartment_type.as_ref() == Some(&compartment_request.resource_type)
     }) else {
         return Err(OperationOutcomeError::error(
-            IssueType::NOTFOUND,
+            IssueType::NOT_FOUND,
             format!(
                 "Compartment definition for resource type {:?} not found.",
                 compartment_request.resource_type
@@ -72,7 +72,7 @@ pub async fn process_compartment_request<
                 })
             }) else {
                 return Err(OperationOutcomeError::error(
-                    IssueType::NOTFOUND,
+                    IssueType::NOT_FOUND,
                     format!(
                         "Compartment definition for resource type '{}' does not include resource type '{}'.",
                         compartment_request.resource_type.as_ref(),
@@ -134,7 +134,7 @@ pub async fn process_compartment_request<
         // FHIRRequest::Read(read_request) => Ok(()),
         _ => {
             return Err(OperationOutcomeError::error(
-                IssueType::NOTSUPPORTED,
+                IssueType::NOT_SUPPORTED,
                 "Only type search requests and reads are supported in compartment processing."
                     .to_string(),
             ));

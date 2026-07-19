@@ -131,7 +131,7 @@ fn delete_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
         .await
         .map_err(|_e| {
             OperationOutcomeError::error(
-                IssueType::NOTFOUND,
+                IssueType::NOT_FOUND,
                 format!(
                     "User MFA credential '{}' not found or is system created and cannot be deleted.",
                     key.mfa_id().0
@@ -141,7 +141,7 @@ fn delete_user_mfa<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
 
         if !_delted_user_mfa.is_some() {
             return Err(OperationOutcomeError::error(
-                IssueType::NOTFOUND,
+                IssueType::NOT_FOUND,
                 format!(
                     "User MFA credential '{}' not found or is system created and cannot be deleted.",
                     key.mfa_id().0

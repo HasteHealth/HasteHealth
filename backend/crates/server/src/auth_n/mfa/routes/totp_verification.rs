@@ -84,7 +84,7 @@ async fn get_required_totp_credentials<
 
     if credentials.is_empty() {
         return Err(OperationOutcomeError::error(
-            IssueType::NOTFOUND,
+            IssueType::NOT_FOUND,
             "No active TOTP credential found for this user.".to_string(),
         ));
     }

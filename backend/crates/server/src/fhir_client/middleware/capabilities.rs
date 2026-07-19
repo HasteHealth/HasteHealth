@@ -107,10 +107,10 @@ fn create_capability_rest_statement(
                 TypeRestfulInteraction::VREAD,
                 TypeRestfulInteraction::UPDATE,
                 TypeRestfulInteraction::DELETE,
-                TypeRestfulInteraction::SEARCHTYPE,
+                TypeRestfulInteraction::SEARCH_TYPE,
                 TypeRestfulInteraction::CREATE,
-                TypeRestfulInteraction::HISTORYINSTANCE,
-                TypeRestfulInteraction::HISTORYTYPE,
+                TypeRestfulInteraction::HISTORY_INSTANCE,
+                TypeRestfulInteraction::HISTORY_TYPE,
             ]
             .into_iter()
             .map(|code| CapabilityStatementRestResourceInteraction {

@@ -36,7 +36,7 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
                     response: Some(BundleEntryResponse {
                         outcome: Some(Box::new(Resource::OperationOutcome(
                             OperationOutcomeError::error(
-                                IssueType::NOTFOUND,
+                                IssueType::NOT_FOUND,
                                 "Resource not found".to_string(),
                             )
                             .outcome()
@@ -194,7 +194,7 @@ pub async fn process_batch_bundle<
     }
 
     Ok(Bundle {
-        type_: BundleType::BATCHRESPONSE,
+        type_: BundleType::BATCH_RESPONSE,
         entry: Some(bundle_response_entries),
         ..Default::default()
     })
@@ -393,7 +393,7 @@ pub async fn process_transaction_bundle<
     };
 
     Ok(Bundle {
-        type_: BundleType::TRANSACTIONRESPONSE,
+        type_: BundleType::TRANSACTION_RESPONSE,
         entry: Some(response_entries),
         ..Default::default()
     })

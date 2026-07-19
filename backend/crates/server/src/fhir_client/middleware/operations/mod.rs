@@ -226,7 +226,7 @@ impl<
                     } else {
                         // No operation found, return 404
                         Err(OperationOutcomeError::error(
-                            IssueType::NOTFOUND,
+                            IssueType::NOT_FOUND,
                             "Operation not found".to_string(),
                         ))
                     }

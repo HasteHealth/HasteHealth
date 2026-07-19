@@ -103,7 +103,7 @@ pub async fn password_reset_initiate_post<
         ))
     } else {
         Err(OperationOutcomeError::error(
-            IssueType::NOTFOUND,
+            IssueType::NOT_FOUND,
             "No user found with provided email address.".to_string(),
         ))?
     }
@@ -166,7 +166,7 @@ pub async fn password_reset_verify_get<
         ))
     } else {
         Err(OperationOutcomeError::error(
-            IssueType::NOTFOUND,
+            IssueType::NOT_FOUND,
             "Invalid Password reset code.".to_string(),
         ))?
     }
@@ -234,7 +234,7 @@ pub async fn password_reset_verify_post<
                 .await?
         else {
             return Err(OperationOutcomeError::error(
-                IssueType::NOTFOUND,
+                IssueType::NOT_FOUND,
                 "User not found.".to_string(),
             ));
         };
@@ -265,7 +265,7 @@ pub async fn password_reset_verify_post<
         ))
     } else {
         Err(OperationOutcomeError::error(
-            IssueType::NOTFOUND,
+            IssueType::NOT_FOUND,
             "Invalid Password reset code.".to_string(),
         ))?
     }

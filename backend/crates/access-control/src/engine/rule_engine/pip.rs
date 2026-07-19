@@ -115,7 +115,7 @@ pub async fn pip<
                     )))
                 }
                 attribute_type
-                    if attribute_type == &AccessPolicyAttributeOperationTypes::SEARCHSYSTEM =>
+                    if attribute_type == &AccessPolicyAttributeOperationTypes::SEARCH_SYSTEM =>
                 {
                     let parameter_expression =
                         attribute_operation.params.as_ref().ok_or_else(|| {
@@ -144,7 +144,7 @@ pub async fn pip<
                     )))
                 }
                 attribute_type
-                    if attribute_type == &AccessPolicyAttributeOperationTypes::SEARCHTYPE =>
+                    if attribute_type == &AccessPolicyAttributeOperationTypes::SEARCH_TYPE =>
                 {
                     let path_expression = attribute_operation.path.as_ref().ok_or_else(|| {
                         OperationOutcomeError::fatal(
