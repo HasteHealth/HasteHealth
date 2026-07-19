@@ -1,3 +1,4 @@
+*.ts                         linguist-detectable=false
 frontend/.yarn/**            linguist-vendored
 frontend/.yarn/releases/*    binary
 frontend/.yarn/plugins/**/*  binary
