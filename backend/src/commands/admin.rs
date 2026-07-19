@@ -183,7 +183,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                             .unwrap_or(UserSubscriptionChoice::Free),
                     ),
                     haste_fhir_model::r4::generated::resources::User {
-                        role: Box::new(UserRole::Owner(None)),
+                        role: UserRole::OWNER,
                         email: Some(Box::new(
                             haste_fhir_model::r4::generated::types::FHIRString {
                                 value: Some(owner_email.clone()),
@@ -198,7 +198,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
 
                 if let Err(operation_outcome_error) = result.as_ref()
                     && let Some(issue) = operation_outcome_error.outcome().issue.first()
-                    && matches!(issue.code.as_ref(), IssueType::DUPLICATE)
+                    && issue.code == IssueType::DUPLICATE
                 {
                     println!("Tenant with ID '{}' already exists.", id);
                     return Ok(());
@@ -226,7 +226,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                     &services,
                     &tenant,
                     haste_fhir_model::r4::generated::resources::User {
-                        role: Box::new(UserRole::Admin(None)),
+                        role: UserRole::ADMIN,
                         email: Some(Box::new(
                             haste_fhir_model::r4::generated::types::FHIRString {
                                 value: Some(email.clone()),
@@ -261,7 +261,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                 ));
 
                 let transaction_bundle = Bundle {
-                    type_: Box::new(BundleType::Transaction(None)),
+                    type_: BundleType::TRANSACTION,
                     entry: Some(vec![
                         BundleEntry {
                             fullUrl: Some(Box::new(FHIRUri {
@@ -269,7 +269,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                                 ..Default::default()
                             })),
                             request: Some(BundleEntryRequest {
-                                method: Box::new(HttpVerb::POST(None)),
+                                method: HttpVerb::POST,
                                 url: Box::new(FHIRUri {
                                     value: Some("AccessPolicyV2".to_string()),
                                     ..Default::default()
@@ -281,7 +281,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                                     value: Some("ADMIN".to_string()),
                                     ..Default::default()
                                 }),
-                                engine: Box::new(AccessPolicyv2Engine::FullAccess(None)),
+                                engine: AccessPolicyv2Engine::FULLACCESS,
                                 target: Some(vec![AccessPolicyV2Target {
                                     link: Box::new(Reference {
                                         reference: Some(Box::new(FHIRString {
@@ -301,7 +301,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                                 ..Default::default()
                             })),
                             request: Some(BundleEntryRequest {
-                                method: Box::new(HttpVerb::PUT(None)),
+                                method: HttpVerb::PUT,
                                 url: Box::new(FHIRUri {
                                     value: Some(format!("ClientApplication/{}", id)),
                                     ..Default::default()
@@ -315,25 +315,16 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                                         value: Some(secret.clone()),
                                         ..Default::default()
                                     })),
-
                                     scope: Some(Box::new(FHIRString {
                                         value: Some("openid system/*.*".to_string()),
                                         ..Default::default()
                                     })),
-
                                     name: Box::new(FHIRString {
                                         value: Some("CLI".to_string()),
                                         ..Default::default()
                                     }),
-
-                                    grantType: vec![Box::new(
-                                        ClientapplicationGrantType::Client_credentials(None),
-                                    )],
-
-                                    responseTypes: Box::new(ClientapplicationResponseTypes::Token(
-                                        None,
-                                    )),
-
+                                    grantType: vec![ClientapplicationGrantType::CLIENT_CREDENTIALS],
+                                    responseTypes: ClientapplicationResponseTypes::TOKEN,
                                     ..Default::default()
                                 },
                             ))),

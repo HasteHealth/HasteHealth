@@ -147,8 +147,8 @@ pub fn evaluate_policy_op<
                                 PermissionLevel::Allow => Ok(HasteHealthEvaluatePolicy::Output {
                                     return_: OperationOutcome {
                                         issue: vec![OperationOutcomeIssue {
-                                            severity: Box::new(IssueSeverity::Information(None)),
-                                            code: Box::new(IssueType::INFORMATIONAL),
+                                            severity: IssueSeverity::INFORMATION,
+                                            code: IssueType::INFORMATIONAL,
                                             diagnostics: Some(Box::new(FHIRString {
                                                 value: Some(
                                                     "Policy approved user access.".to_string(),
@@ -163,8 +163,8 @@ pub fn evaluate_policy_op<
                                 _ => Ok(HasteHealthEvaluatePolicy::Output {
                                     return_: OperationOutcome {
                                         issue: vec![OperationOutcomeIssue {
-                                            severity: Box::new(IssueSeverity::Information(None)),
-                                            code: Box::new(IssueType::INFORMATIONAL),
+                                            severity: IssueSeverity::INFORMATION,
+                                            code: IssueType::INFORMATIONAL,
                                             diagnostics: Some(Box::new(FHIRString {
                                                 value: Some(
                                                     "Policy denied user access.".to_string(),

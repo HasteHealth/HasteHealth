@@ -207,19 +207,19 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
                         sha_hash.as_str()
                     );
                 } else if let Err(err) = res {
-                    let code = err.outcome().issue[0].code.as_ref();
+                    let code = &err.outcome().issue[0].code;
                     let diagnostic = err.outcome().issue[0]
                         .diagnostics
                         .as_deref()
                         .and_then(|d| d.value.as_ref().map(|v| v.as_str()))
                         .unwrap_or("unknown");
 
-                    match err.outcome().issue[0].code.as_ref() {
-                        IssueType::Invalid(_) => {
+                    match &err.outcome().issue[0].code {
+                        i if i == &IssueType::INVALID => {
                             tracing::error!("{:#?}", err);
                             panic!("INVALID");
                         }
-                        IssueType::CONFLICT => {
+                        i if i == &IssueType::CONFLICT => {
                             // Ignore.
                         }
                         _ => {

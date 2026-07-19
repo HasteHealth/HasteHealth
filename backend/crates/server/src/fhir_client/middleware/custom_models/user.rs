@@ -87,7 +87,7 @@ impl<
                                     CreateUser {
                                         id: id.clone(),
                                         email: user.email.clone().and_then(|e| e.value),
-                                        role: (*user.role).clone().into(),
+                                        role: user.role.clone().into(),
                                         method: get_user_method(user),
                                         provider_id: get_provider_id(user),
                                         password: None,
@@ -132,7 +132,7 @@ impl<
                                     UpdateUser {
                                         id: id.clone(),
                                         email: user.email.clone().and_then(|e| e.value),
-                                        role: Some((*user.role).clone().into()),
+                                        role: Some(user.role.clone().into()),
                                         method: Some(get_user_method(user)),
                                         provider_id: get_provider_id(user),
                                         password: None,

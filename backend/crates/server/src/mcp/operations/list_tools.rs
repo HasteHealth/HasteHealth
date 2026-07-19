@@ -30,16 +30,19 @@ pub fn search_tool_parameters(
             .as_ref()
             .and_then(|d| d.value.as_ref());
 
-        let json_schema_type = match &*capability_parameter.type_ {
-            SearchParamType::Number(_) => Some("number".to_string()),
-            SearchParamType::Special(_)
-            | SearchParamType::Quantity(_)
-            | SearchParamType::Reference(_)
-            | SearchParamType::Date(_)
-            | SearchParamType::String(_)
-            | SearchParamType::Token(_)
-            | SearchParamType::Uri(_) => Some("string".to_string()),
-            SearchParamType::Composite(_) | SearchParamType::Null(_) => None,
+        let json_schema_type = if capability_parameter.type_ == SearchParamType::NUMBER {
+            Some("number".to_string())
+        } else if capability_parameter.type_ == SearchParamType::SPECIAL
+            || capability_parameter.type_ == SearchParamType::QUANTITY
+            || capability_parameter.type_ == SearchParamType::REFERENCE
+            || capability_parameter.type_ == SearchParamType::DATE
+            || capability_parameter.type_ == SearchParamType::STRING
+            || capability_parameter.type_ == SearchParamType::TOKEN
+            || capability_parameter.type_ == SearchParamType::URI
+        {
+            Some("string".to_string())
+        } else {
+            None
         };
 
         if let Some(json_schema_type) = json_schema_type {
@@ -76,9 +79,9 @@ fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
         "resourceType": {
           "type": "string",
           "enum": resource_capabilities.iter().map(|rc| {
-              let resource_type: Option<String> = rc.type_.as_ref().into();
+              let resource_type = rc.type_.as_str();
               resource_type.unwrap_or_default()
-          }).collect::<Vec<String>>(),
+          }).collect::<Vec<&str>>(),
         },
         "search_parameters": {
           "type": "object",
@@ -125,9 +128,9 @@ fn generate_get_search_parameters_tool(capabilities: &CapabilityStatement) -> To
         "resourceType": {
           "type": "string",
           "enum": resource_capabilities.iter().map(|rc| {
-              let resource_type: Option<String> = rc.type_.as_ref().into();
+              let resource_type= rc.type_.as_str();
               resource_type.unwrap_or_default()
-          }).collect::<Vec<String>>(),
+          }).collect::<Vec<&str>>(),
         },
       },
       "required": ["resourceType"]

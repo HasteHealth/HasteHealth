@@ -115,9 +115,7 @@ pub async fn create_tenant<
                     value: Some(ProjectId::System.to_string()),
                     ..Default::default()
                 }),
-                fhirVersion: Box::new(
-                    haste_fhir_model::r4::generated::terminology::SupportedFhirVersion::R4(None),
-                ),
+                fhirVersion: haste_fhir_model::r4::generated::terminology::SupportedFhirVersion::R4,
                 ..Default::default()
             }),
         )
