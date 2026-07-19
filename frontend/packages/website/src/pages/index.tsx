@@ -271,7 +271,7 @@ export default function Home(): ReactNode {
                 Review Security Model
               </Link>
               <Link
-                to="/docs/api/authorization/access_control"
+                to="/docs/auth/authorization/access_control"
                 className="inline-flex items-center justify-center rounded-lg border border-brand-400 px-6 py-3 text-base font-semibold text-brand-100 hover:bg-brand-900"
               >
                 Explore Access Policies
