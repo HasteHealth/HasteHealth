@@ -49,9 +49,9 @@ pub(crate) async fn hl7v2(
 
             let environment = haste_fhir_converter::create_environment(Some(template_dir));
 
-            let template = environment.get_template(&main).map_err(|e| {
-                OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string())
-            })?;
+            let template = environment
+                .get_template(&main)
+                .map_err(|e| OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string()))?;
 
             for stream in listener.incoming() {
                 let mut stream = match stream {
@@ -104,23 +104,25 @@ pub(crate) async fn hl7v2(
                     tracing::info!("total transformation: {:?}", start.elapsed());
 
                     match resource {
-                        Resource::Bundle(bundle) => match bundle.type_.as_ref() {
-                            BundleType::Batch(_) => match fhir_client.batch((), bundle).await {
-                                Ok(_) => {
-                                    if let Err(e) = stream.write_all(&MllpFormatter::ack()) {
-                                        eprintln!("Failed to send ACK: {}", e);
-                                        break;
+                        Resource::Bundle(bundle) => match &bundle.type_ {
+                            b if b == &BundleType::BATCH => {
+                                match fhir_client.batch((), bundle).await {
+                                    Ok(_) => {
+                                        if let Err(e) = stream.write_all(&MllpFormatter::ack()) {
+                                            eprintln!("Failed to send ACK: {}", e);
+                                            break;
+                                        }
+                                    }
+                                    Err(e) => {
+                                        eprintln!("Failed to send batch {}", e);
+                                        if let Err(e) = stream.write_all(&MllpFormatter::nak()) {
+                                            eprintln!("Failed to send NAK: {}", e);
+                                            break;
+                                        }
                                     }
                                 }
-                                Err(e) => {
-                                    eprintln!("Failed to send batch {}", e);
-                                    if let Err(e) = stream.write_all(&MllpFormatter::nak()) {
-                                        eprintln!("Failed to send NAK: {}", e);
-                                        break;
-                                    }
-                                }
-                            },
-                            BundleType::Transaction(_) => {
+                            }
+                            b if b == &BundleType::TRANSACTION => {
                                 match fhir_client.transaction((), bundle).await {
                                     Ok(_) => {
                                         if let Err(e) = stream.write_all(&MllpFormatter::ack()) {
