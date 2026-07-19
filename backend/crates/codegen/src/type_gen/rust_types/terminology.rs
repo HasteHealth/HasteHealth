@@ -92,7 +92,15 @@ fn identifier_encode_special_characters(identifier: &str) -> String {
         panic!();
     }
 
-    safe_string
+    if safe_string.as_bytes()[0].is_ascii_digit() {
+        format!("V{}", safe_string)
+    } else if safe_string == "Self" {
+        format!("_Self")
+    } else if safe_string == "Null" {
+        format!("_Null")
+    } else {
+        safe_string
+    }
 }
 
 fn format_term_struct_name(identifier: &str) -> String {
@@ -103,7 +111,8 @@ fn format_term_struct_name(identifier: &str) -> String {
 }
 
 fn format_const_code_name(identifier: &str) -> String {
-    let safe_string = identifier_encode_special_characters(identifier);
+    let safe_string = identifier_encode_special_characters(&identifier);
+    let safe_string = camelcase_to_snake_case(&safe_string);
     let safe_string = camelcase_with_split(&safe_string, '-', Some("_"));
 
     safe_string
