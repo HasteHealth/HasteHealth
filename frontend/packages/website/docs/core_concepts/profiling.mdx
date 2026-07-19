@@ -10,7 +10,8 @@ tags:
 
 # Profiling & Validation
 
-Haste Health can validate resources against **FHIR profiles** — `StructureDefinition` resources that constrain a base FHIR type with tighter cardinality, fixed values, patterns, and slicing rules. This is how implementation guides like **US Core** define what a conformant `Patient` or `Observation` must look like, and Haste Health enforces those rules automatically at write time.
+Haste Health can validate resources against **FHIR profiles** — `StructureDefinition` resources that constrain a base FHIR type with tighter cardinality, fixed values, patterns, and slicing rules. 
+This is how implementation guides like **US Core** define what a conformant `Patient` or `Observation` must look like, and Haste Health enforces those rules automatically at write time.
 
 ## How It Works
 
@@ -19,7 +20,7 @@ Validation is triggered by the `meta.profile` field on a resource. Whenever a re
 1. Reads the canonical URLs listed in `meta.profile` (a resource may declare at most **2** profiles).
 2. Resolves each URL to a `StructureDefinition` resource stored in the current project.
 3. Recursively validates the resource's data against that profile's element definitions.
-4. Rejects the write with a `400` and an `OperationOutcome` if any element fails validation.
+4. Rejects the write with a `OperationOutcome` if any element fails validation.
 
 ```json
 {
@@ -60,8 +61,8 @@ Haste Health's profiling engine has been built and tested against the [US Core](
 
 US Core `StructureDefinition`s aren't preloaded into new projects — you load the ones you need, the same way you'd load any other resource:
 
-1. Download the profiles you need from the [US Core StructureDefinitions](https://hl7.org/fhir/us/core/profiles.html) page (or the full package from the [FHIR package registry](https://hl7.org/fhir/us/core/)).
-2. Load them into your project:
+1. Download the profiles you need from the [US Core StructureDefinitions](https://hl7.org/fhir/us/core/downloads.html).e
+2. Load StructureDefinitions into your project:
 
 ```bash
 haste-health api create StructureDefinition --file StructureDefinition-us-core-patient.json
