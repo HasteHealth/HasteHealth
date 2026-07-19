@@ -58,20 +58,19 @@ fn camelcase_to_snake_case(s: &str) -> String {
     snake_case
 }
 
-fn format_string(id: &str) -> String {
-    let safe_string = id
-        .split('-')
-        .map(|id| capitalize(id))
+fn camelcase_with_split(identifier: &str, split: char, join: Option<&str>) -> String {
+    identifier
+        .split(split)
+        .map(|identifier| capitalize(identifier))
         .collect::<Vec<_>>()
-        .join("")
-        .split(':')
-        .map(|id| capitalize(id))
-        .collect::<Vec<_>>()
-        .join("_")
-        .split('/')
-        .map(|id| capitalize(id))
-        .collect::<Vec<_>>()
-        .join("_")
+        .join(join.unwrap_or(""))
+}
+
+fn identifier_encode_special_characters(identifier: &str) -> String {
+    let safe_string = camelcase_with_split(&identifier, ':', Some("_"));
+    let safe_string = camelcase_with_split(&safe_string, '/', Some("_"));
+
+    let safe_string = safe_string
         // Replacements
         .replace(" ", "")
         .replace("<", "Greater")
@@ -89,25 +88,31 @@ fn format_string(id: &str) -> String {
         .join("");
 
     if safe_string.is_empty() {
-        println!("Invalid '{}'", id);
+        println!("Invalid '{}'", identifier);
         panic!();
     }
 
-    if safe_string.as_bytes()[0].is_ascii_digit() {
-        format!("V{}", safe_string)
-    } else if safe_string == "Self" {
-        format!("_Self")
-    } else if safe_string == "Null" {
-        format!("_Null")
-    } else {
-        safe_string
-    }
+    safe_string
 }
 
-fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
+fn format_term_struct_name(identifier: &str) -> String {
+    let safe_string = identifier_encode_special_characters(identifier);
+    let safe_string = camelcase_with_split(&safe_string, '-', None);
+
+    safe_string
+}
+
+fn format_const_code_name(identifier: &str) -> String {
+    let safe_string = identifier_encode_special_characters(identifier);
+    let safe_string = camelcase_with_split(&safe_string, '-', Some("_"));
+
+    safe_string
+}
+
+fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
     let terminology_enum_name = format_ident!(
         "{}",
-        format_string(&value_set.id.clone().expect("ValueSet must have an id"))
+        format_term_struct_name(&value_set.id.clone().expect("ValueSet must have an id"))
     );
     let terminology_url = value_set
         .url
@@ -136,10 +141,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
         let code_vec = codes.iter().map(|c| &c.code).collect::<Vec<_>>();
 
         let const_variants = codes.iter().enumerate().map(|(i, c)| {
-            let variant_name = format_ident!(
-                "{}",
-                &format_string(&camelcase_to_snake_case(&c.code)).to_uppercase()
-            );
+            let variant_name = format_ident!("{}", &format_const_code_name(&c.code).to_uppercase());
             let display = c.description.as_ref().map(|d| d.as_str()).unwrap_or("");
             let index = i as u16;
 
@@ -562,7 +564,7 @@ pub async fn generate(
                     )
                     .await;
                 if let Ok(expanded_valueset) = expanded_valueset
-                    && let Some(code_enum_code) = generate_enum_variants(expanded_valueset.return_)
+                    && let Some(code_enum_code) = generate_const_variants(expanded_valueset.return_)
                 {
                     inlined_terminologies.insert(
                         valueset
@@ -572,7 +574,9 @@ pub async fn generate(
                             .value
                             .clone()
                             .expect("VS must have url"),
-                        format_string(&valueset.id.clone().expect("ValueSet must have an id")),
+                        format_term_struct_name(
+                            &valueset.id.clone().expect("ValueSet must have an id"),
+                        ),
                     );
                     codes.push(code_enum_code);
                 }
