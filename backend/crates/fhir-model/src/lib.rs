@@ -9,6 +9,7 @@ mod tests {
             resources::{
                 ClientApplication, ObservationEffectiveTypeChoice, Practitioner, Resource,
             },
+            terminology::BoundCode,
             types::{FHIRDateTime, Period},
         },
     };
@@ -18,11 +19,17 @@ mod tests {
 
     #[test]
     fn test_enum_with_extension() {
-        let mut term_ = r4::generated::terminology::AdministrativeGender::new(
-            r4::generated::terminology::AdministrativeGender::MALE.as_str(),
-        );
+        let mut term_ = r4::generated::terminology::BoundCode::<
+            r4::generated::terminology::AdministrativeGender,
+        >::new(
+            r4::generated::terminology::AdministrativeGender::MALE
+                .as_str()
+                .unwrap(),
+        )
+        .unwrap();
 
-        term_.element_mut() = r4::generated::types::Element {
+        let e = term_.element_mut();
+        *e = r4::generated::types::Element {
             id: Some("test".to_string()),
             ..r4::generated::types::Element::default()
         };
@@ -154,8 +161,8 @@ mod tests {
         "#;
         let address: Address = serde_json::from_str::<Address>(address_string).unwrap();
 
-        let address_use: Option<String> = address.use_.unwrap().as_ref().into();
-        assert_eq!(address_use.unwrap(), "home".to_string());
+        let address_use = address.use_.unwrap().as_str();
+        assert_eq!(address_use.unwrap(), "home");
         assert_eq!(
             address.line.as_ref().unwrap()[0].value.as_ref().unwrap(),
             &"123 Main St".to_string()
@@ -168,7 +175,7 @@ mod tests {
             address.city.as_ref().unwrap().value.as_ref().unwrap(),
             &"Anytown".to_string()
         );
-        assert_eq!(address.state.unwrap().value.unwrap(), "CA".to_string());
+        assert_eq!(address.state.unwrap().value.as_ref().unwrap(), "CA");
         assert_eq!(
             address.postalCode.unwrap().value.unwrap(),
             "12345".to_string()
@@ -462,9 +469,9 @@ mod tests {
     fn test_serde_terminology() {
         use crate::r4::generated::terminology::AdministrativeGender;
 
-        let admin_gender = serde_json::from_str::<AdministrativeGender>("\"male\"");
+        let admin_gender = serde_json::from_str::<BoundCode<AdministrativeGender>>("\"male\"");
 
-        assert!(matches!(admin_gender, Ok(AdministrativeGender::Male(None))));
+        assert!(admin_gender.unwrap() == AdministrativeGender::MALE);
     }
 
     #[test]

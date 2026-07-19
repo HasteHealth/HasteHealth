@@ -417,10 +417,9 @@ mod test {
                     None
                 }
             })
-            .filter(|sd| match sd.kind.as_ref() {
-                StructureDefinitionKind::ComplexType(None) => true,
-                _ => false,
-            })
+            .filter(|sd| 
+                sd.kind  == StructureDefinitionKind::COMPLEXTYPE
+            )
             .map(|sd| {
                 (
                     sd.type_.value.clone().unwrap(),
