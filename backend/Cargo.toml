@@ -115,6 +115,7 @@ opentelemetry-appender-tracing = { version = "0.32.0", default-features = false 
 opentelemetry-otlp = { version = "0.32.0", default-features = false, features = [
     "http-proto",
     "logs",
+    "reqwest-blocking-client",
 ] }
 opentelemetry-stdout = { version = "0.32.0", default-features = false }
 opentelemetry_sdk = { version = "0.32.1", default-features = false, features = [
