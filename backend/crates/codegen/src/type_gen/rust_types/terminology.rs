@@ -288,7 +288,7 @@ fn prebuilt_code() -> TokenStream {
         use crate::r4::generated::types::{Element, Extension};
         use haste_reflect::MetaValue;
         use serde::{Deserialize, Deserializer, Serialize, Serializer};
-        use std::{any::Any, fmt, marker::PhantomData};
+        use std::{any::Any, fmt, marker::PhantomData, sync::OnceLock};
 
         pub trait ValueSetDef: 'static + Send + Sync {
             const URL: &'static str;
@@ -298,6 +298,7 @@ fn prebuilt_code() -> TokenStream {
         pub struct BoundCode<VS: ValueSetDef> {
             code: Option<u16>, // index into VS::CODES; None = today's `Null` variant
             element: Option<Element>,
+            value_cache: OnceLock<String>, // lazily materializes CODES[i] as an owned String, so MetaValue::get_field("value") matches FHIRCode's Option<String> shape
             _vs: PhantomData<VS>,
         }
 
@@ -306,6 +307,7 @@ fn prebuilt_code() -> TokenStream {
                 Self {
                     code: Some(i),
                     element: None,
+                    value_cache: OnceLock::new(),
                     _vs: PhantomData,
                 }
             }
@@ -313,6 +315,7 @@ fn prebuilt_code() -> TokenStream {
                 Self {
                     code: None,
                     element: None,
+                    value_cache: OnceLock::new(),
                     _vs: PhantomData,
                 }
             }
@@ -390,6 +393,7 @@ fn prebuilt_code() -> TokenStream {
                 Self {
                     code: self.code,
                     element: self.element.clone(),
+                    value_cache: OnceLock::new(),
                     _vs: PhantomData,
                 }
             }
@@ -418,10 +422,9 @@ fn prebuilt_code() -> TokenStream {
 
             fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
                 match field {
-                    "value" => self
-                        .code
-                        .as_ref()
-                        .map(|i| &VS::CODES[*i as usize] as &dyn MetaValue),
+                    "value" => self.code.as_ref().map(|i| {
+                        self.value_cache.get_or_init(|| VS::CODES[*i as usize].to_string()) as &dyn MetaValue
+                    }),
                     _ => self.element.as_ref().and_then(|e| e.get_field(field)),
                 }
             }
