@@ -1,0 +1,200 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "HL7V2",
+  "url": "https://haste-health.com/StructureDefinition/HL7V2",
+  "version": "4.0.1",
+  "name": "HL7V2",
+  "status": "active",
+  "publisher": "haste-health",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "HL7V2",
+  "description": "Parsed Hl7V2 message.",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
+  "derivation": "specialization",
+  "snapshot": {
+    "element": [
+      {
+        "id": "HL7V2",
+        "path": "HL7V2",
+        "min": 0,
+        "definition": "Parsed Hl7V2 message.",
+        "max": "*",
+        "base": {
+          "path": "HL7V2",
+          "min": 0,
+          "max": "*"
+        },
+        "isModifier": false,
+        "isSummary": false
+      },
+      {
+        "id": "HL7V2.id",
+        "path": "HL7V2.id",
+        "short": "Logical id of this artifact",
+        "definition": "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.",
+        "comment": "The only time that a resource does not have an id is when it is being submitted to the server using a create operation.",
+        "min": 0,
+        "max": "1",
+        "base": {
+          "path": "Resource.id",
+          "min": 0,
+          "max": "1"
+        },
+        "type": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type",
+                "valueUrl": "string"
+              }
+            ],
+            "code": "http://hl7.org/fhirpath/System.String"
+          }
+        ],
+        "isModifier": false,
+        "isSummary": true
+      },
+      {
+        "id": "HL7V2.meta",
+        "path": "HL7V2.meta",
+        "short": "Metadata about the resource",
+        "definition": "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource.",
+        "min": 0,
+        "max": "1",
+        "base": {
+          "path": "Resource.meta",
+          "min": 0,
+          "max": "1"
+        },
+        "type": [
+          {
+            "code": "Meta"
+          }
+        ],
+        "constraint": [
+          {
+            "key": "ele-1",
+            "severity": "error",
+            "human": "All FHIR elements must have a @value or children",
+            "expression": "hasValue() or (children().count() > id.count())",
+            "xpath": "@value|f:*|h:div",
+            "source": "http://hl7.org/fhir/StructureDefinition/Element"
+          }
+        ],
+        "isModifier": false,
+        "isSummary": true
+      },
+      {
+        "id": "HL7V2.segments",
+        "path": "HL7V2.segments",
+        "definition": "Non-MSH segments in the HL7v2 message.",
+        "short": "Message segments",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "min": 0,
+        "max": "*"
+      },
+      {
+        "id": "HL7V2.segments.id",
+        "path": "HL7V2.segments.id",
+        "definition": "Three-character segment identifier (e.g. PID, OBX).",
+        "short": "Segment ID",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "id"
+          }
+        ]
+      },
+      {
+        "id": "HL7V2.segments.fields",
+        "path": "HL7V2.segments.fields",
+        "definition": "Fields within the segment.",
+        "short": "Segment fields",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "min": 0,
+        "max": "*"
+      },
+      {
+        "id": "HL7V2.segments.fields.repetitions",
+        "path": "HL7V2.segments.fields.repetitions",
+        "definition": "Repeated field values when the field contains the repetition separator.",
+        "short": "Field repetitions",
+        "min": 0,
+        "max": "*",
+        "contentReference": "#HL7V2.segments.fields.value"
+      },
+      {
+        "id": "HL7V2.segments.fields.value",
+        "path": "HL7V2.segments.fields.value",
+        "definition": "The field value when no repetitions are present.",
+        "short": "Field value",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "HL7V2.segments.fields.value.components",
+        "path": "HL7V2.segments.fields.value.components",
+        "definition": "Components when the field value is divided by the component separator.",
+        "short": "Field components",
+        "min": 0,
+        "max": "*",
+        "contentReference": "#HL7V2.segments.fields.value.value"
+      },
+      {
+        "id": "HL7V2.segments.fields.value.value",
+        "path": "HL7V2.segments.fields.value.value",
+        "definition": "The component when no sub-components are present.",
+        "short": "Simple component",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "HL7V2.segments.fields.value.value.value",
+        "path": "HL7V2.segments.fields.value.value.value",
+        "definition": "The string value of the component.",
+        "short": "Component value",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "HL7V2.segments.fields.value.value.subcomponents",
+        "path": "HL7V2.segments.fields.value.value.subcomponents",
+        "definition": "Subcomponent values when the component is further divided by the subcomponent separator.",
+        "short": "Subcomponents",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      }
+    ]
+  }
+}
