@@ -57,10 +57,7 @@ impl TryFrom<&str> for ParsedHL7V2Message {
         for segment in segment_lines {
             let mut segment = segment.split(field_seperator);
             let segment_id = segment.next().ok_or_else(|| {
-                OperationOutcomeError::error(
-                    IssueType::EXCEPTION,
-                    "Missing segment ID".to_string(),
-                )
+                OperationOutcomeError::error(IssueType::EXCEPTION, "Missing segment ID".to_string())
             })?;
 
             let segment_fields = segment.map(|field| {

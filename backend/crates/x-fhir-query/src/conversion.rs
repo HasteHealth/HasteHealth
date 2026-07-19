@@ -128,10 +128,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .and_then(|id| id.value.as_ref())
             .map(|s| s.to_string())
             .ok_or_else(|| {
-                OperationOutcomeError::fatal(
-                    IssueType::INVALID,
-                    "id value is missing.".to_string(),
-                )
+                OperationOutcomeError::fatal(IssueType::INVALID, "id value is missing.".to_string())
             }),
 
         "oid" => downcast_meta_value::<FHIROid>(value)

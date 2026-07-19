@@ -124,10 +124,7 @@ pub async fn activate_get<
     let get_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
         .map_err(|_e| {
-            OperationOutcomeError::error(
-                IssueType::SECURITY,
-                "User is not logged in.".to_string(),
-            )
+            OperationOutcomeError::error(IssueType::SECURITY, "User is not logged in.".to_string())
         })?;
 
     let Some(user_mfa_credential) = TenantModelAdmin::<UserMFACredentialCreate, _, _, _, _>::read(
@@ -186,10 +183,7 @@ pub async fn activate_post<
     let get_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
         .map_err(|_e| {
-            OperationOutcomeError::error(
-                IssueType::SECURITY,
-                "User is not logged in.".to_string(),
-            )
+            OperationOutcomeError::error(IssueType::SECURITY, "User is not logged in.".to_string())
         })?;
 
     let Some(user_mfa_credential) = TenantModelAdmin::<UserMFACredentialCreate, _, _, _, _>::read(

@@ -133,10 +133,7 @@ pub async fn send_password_reset_email<
 
     let reset_button = crate::ui::email::base::base(
         &Uri::try_from(api_url.as_str()).map_err(|_| {
-            OperationOutcomeError::fatal(
-                IssueType::EXCEPTION,
-                "API Url is invalid".to_string(),
-            )
+            OperationOutcomeError::fatal(IssueType::EXCEPTION, "API Url is invalid".to_string())
         })?,
         html! {
             @if let Some(message) = message.body {

@@ -101,10 +101,7 @@ pub async fn global_login_post<
 
     let tenant_select_email = crate::ui::email::base::base(
         &Uri::try_from(api_url.as_str()).map_err(|_| {
-            OperationOutcomeError::fatal(
-                IssueType::EXCEPTION,
-                "API Url is invalid".to_string(),
-            )
+            OperationOutcomeError::fatal(IssueType::EXCEPTION, "API Url is invalid".to_string())
         })?,
         html! {
             div style="padding-top: 24px;" {

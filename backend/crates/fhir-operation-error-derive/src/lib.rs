@@ -181,7 +181,6 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
     let issues = get_issue_attributes(&v.attrs).unwrap_or(vec![]);
     let invariant_operation_outcome_issues = issues.iter().map(|simple_issue: &SimpleIssue| {
         let severity_string: String = simple_issue.severity.clone().into();
-        
         let severity = quote!{ haste_fhir_model::r4::generated::terminology::BoundCode::<haste_fhir_model::r4::generated::terminology::IssueSeverity>::new(#severity_string).unwrap() };
 
         let diagnostic = if let Some(diagnostic) = simple_issue.diagnostic.as_ref() {
