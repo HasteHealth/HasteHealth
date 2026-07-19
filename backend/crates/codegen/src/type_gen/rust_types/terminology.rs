@@ -42,6 +42,22 @@ fn flatten_concepts(contains: ValueSetExpansionContains) -> BTreeMap<String, Cod
     codes
 }
 
+fn camelcase_to_snake_case(s: &str) -> String {
+    let mut snake_case = String::new();
+    for (i, c) in s.chars().enumerate() {
+        // Verify that the character is uppercase and not the first character, and the next character is not uppercase
+        if i != s.len() - 1
+            && c.is_uppercase()
+            && i > 0
+            && !s.chars().nth(i + 1).unwrap().is_uppercase()
+        {
+            snake_case.push('_');
+        }
+        snake_case.push(c.to_ascii_lowercase());
+    }
+    snake_case
+}
+
 fn format_string(id: &str) -> String {
     let safe_string = id
         .split('-')
@@ -120,7 +136,10 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
         let code_vec = codes.iter().map(|c| &c.code).collect::<Vec<_>>();
 
         let const_variants = codes.iter().enumerate().map(|(i, c)| {
-            let variant_name = format_ident!("{}", &format_string(&c.code).to_uppercase());
+            let variant_name = format_ident!(
+                "{}",
+                &format_string(&camelcase_to_snake_case(&c.code)).to_uppercase()
+            );
             let display = c.description.as_ref().map(|d| d.as_str()).unwrap_or("");
             let index = i as u16;
 
