@@ -2,6 +2,7 @@ import {
   CheckCircleIcon,
   ClipboardDocumentIcon,
   ExclamationTriangleIcon,
+  LockClosedIcon,
   ShieldCheckIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
@@ -24,6 +25,7 @@ import {
 } from "@haste-health/generated-ops/lib/r4/ops";
 import { IDTokenPayload } from "@haste-health/jwt/types";
 
+import { VITE_FHIR_BASE_URL } from "../../config";
 import { getClient } from "../../db/client";
 import { getEndpointMetadata } from "../../db/endpointMeta";
 
@@ -235,6 +237,11 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
     endpointMetadata?.["oidc-authorize-endpoint"],
   );
 
+  const tenant = user?.["https://haste.health/tenant"];
+  const mfaAdminUrl = tenant
+    ? `${VITE_FHIR_BASE_URL}/w/${tenant}/mfa/admin`
+    : undefined;
+
   const endpointCount = useMemo(() => {
     let configured = 0;
 
@@ -301,7 +308,7 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
         />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-3">
+      <section className="grid gap-4 xl:grid-cols-4">
         <SectionCard
           title="User and Project Context"
           description="Values from your current authentication token. Click any value to copy."
@@ -323,6 +330,22 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
             <CopyField label="Audience" value={user?.aud} />
             <CopyField label="Scope" value={user?.scope} />
           </div>
+        </SectionCard>
+
+        <SectionCard
+          title="Multi-Factor Authentication"
+          description="Manage the authenticator apps enrolled for your account."
+        >
+          <a
+            href={mfaAdminUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-disabled={!mfaAdminUrl}
+            className="inline-flex items-center gap-2 rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 aria-disabled:pointer-events-none aria-disabled:opacity-50"
+          >
+            <LockClosedIcon className="h-4 w-4" />
+            Manage MFA
+          </a>
         </SectionCard>
 
         <SectionCard
