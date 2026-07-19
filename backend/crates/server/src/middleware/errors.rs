@@ -53,8 +53,8 @@ pub async fn operation_outcome_error_handle(
                 html! {
                     div class ="text-xl font-semibold text-red-600 mb-4" {
                        (issue.as_ref().map(|i| &i.code)
-                            .and_then(|s| {let code_string: Option<String> =  s.as_ref().into(); code_string})
-                            .unwrap_or_else(|| "UNKNOWN_ERROR".to_string()).to_ascii_uppercase())
+                            .and_then(|s| s.as_str())
+                            .unwrap_or("UNKNOWN_ERROR").to_ascii_uppercase())
                     }
                     div class= "text-sm text-red-500" {
                         (issue.as_ref().and_then(|i| i.diagnostics.as_ref())

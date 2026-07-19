@@ -61,9 +61,9 @@ pub fn to_bundle_entry(
         let http_verb = BoundCode::<HttpVerb>::new(&request_method).unwrap_or(HttpVerb::POST);
         entry.request = Some(BundleEntryRequest {
             url: Box::new(FHIRUri {
-                value: match http_verb {
-                    HttpVerb::POST(_) => Some(resource_type.as_ref().to_string()),
-                    HttpVerb::DELETE(_) | HttpVerb::PUT(_) | HttpVerb::PATCH(_) => {
+                value: match &http_verb {
+                    h if h == &HttpVerb::POST => Some(resource_type.as_ref().to_string()),
+                    h if h == &HttpVerb::DELETE || h == &HttpVerb::PUT || h == &HttpVerb::PATCH => {
                         Some(format!("{}/{}", resource_type.as_ref(), id))
                     }
                     _ => None,

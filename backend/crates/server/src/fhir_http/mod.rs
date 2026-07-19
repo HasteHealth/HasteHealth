@@ -243,14 +243,14 @@ fn parse_request_1_empty(
         Method::POST => {
             let bundle = get_bundle(req)?;
 
-            match bundle.type_.as_ref() {
-                BundleType::Transaction(_) => {
+            match &bundle.type_ {
+                b if b == &BundleType::TRANSACTION => {
                     // Handle transaction request
                     Ok(FHIRRequest::Transaction(FHIRTransactionRequest {
                         resource: bundle,
                     }))
                 }
-                BundleType::Batch(_) => {
+                b if b == &BundleType::BATCH => {
                     // Handle batch request
                     Ok(FHIRRequest::Batch(FHIRBatchRequest { resource: bundle }))
                 }

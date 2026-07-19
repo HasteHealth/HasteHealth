@@ -82,15 +82,23 @@ fn score_bundle(bundle: &Bundle) -> u32 {
 
     let default = vec![];
     for entry in bundle.entry.as_ref().unwrap_or(&default).iter() {
-        let method = entry.request.as_ref().map(|req| req.method.as_ref());
+        let method = entry.request.as_ref().map(|req| &req.method);
 
-        match method.unwrap_or(&HttpVerb::Null(None)) {
-            HttpVerb::PATCH(_) | HttpVerb::PUT(_) | HttpVerb::POST(_) | HttpVerb::DELETE(_) => {
+        match method.unwrap_or(&HttpVerb::NULL) {
+            method
+                if method == &HttpVerb::PATCH
+                    || method == &HttpVerb::PUT
+                    || method == &HttpVerb::POST
+                    || method == &HttpVerb::DELETE =>
+            {
                 total_points += OPERATION_POINTS.write
             }
-            HttpVerb::GET(_) => total_points += OPERATION_POINTS.search,
-            HttpVerb::Null(_) | HttpVerb::HEAD(_) => {
+            method if method == &HttpVerb::GET => total_points += OPERATION_POINTS.search,
+            method if method == &HttpVerb::NULL || method == &HttpVerb::HEAD => {
                 // Do nothing for null/head
+            }
+            _ => {
+                // do nothing.
             }
         }
     }

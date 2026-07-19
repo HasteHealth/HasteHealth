@@ -107,7 +107,7 @@ pub async fn tools_call<
                 .filter_map(|rest| rest.resource)
                 .flatten()
                 .find(|r| {
-                    let rc_type: Option<String> = r.type_.as_ref().into();
+                    let rc_type = r.type_.as_str();
                     rc_type.unwrap_or_default()
                         == request
                             .params
