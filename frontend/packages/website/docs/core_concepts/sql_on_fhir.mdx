@@ -1,0 +1,176 @@
+---
+sidebar_position: 4
+title: SQL on FHIR
+tags:
+    - core concepts
+    - sql on fhir
+    - viewdefinition
+    - analytics
+---
+
+# SQL on FHIR
+
+Haste Health can flatten FHIR resources into tabular rows using [**ViewDefinition**](https://sql-on-fhir.org/ig/), the SQL on FHIR implementation guide's resource for describing a "view" over FHIR data. A ViewDefinition is itself a FHIR resource — you create it like any other resource, then run it to get back CSV, JSON, or NDJSON rows instead of nested FHIR JSON.
+
+```json
+{
+  "resourceType": "ViewDefinition",
+  "status": "draft",
+  "resource": "Patient",
+  "select": [
+    {
+      "column": [
+        { "name": "id", "path": "id", "type": "http://hl7.org/fhirpath/System.String" },
+        { "name": "birth_date", "path": "birthDate", "type": "date" }
+      ]
+    },
+    {
+      "forEach": "name",
+      "column": [
+        { "name": "given", "path": "given", "type": "string", "collection": true },
+        { "name": "family", "path": "family", "type": "string" }
+      ]
+    }
+  ]
+}
+```
+
+## How It Works
+
+Running a ViewDefinition is a two-step flow:
+
+1. **Store the ViewDefinition** (optional, but typical): `POST` it to `/ViewDefinition` like any other resource, or skip this and send it inline.
+2. **Run it** via the `viewdefinition-run` system operation. For each resource that matches, the engine evaluates every `select` block's FHIRPath expressions and assembles a row.
+
+For each `select` block in `ViewDefinition.select`, Haste Health:
+
+- Establishes the row context: either the resource itself, or — if `forEach`/`forEachOrNull`/`repeat` is set — the result of evaluating that FHIRPath expression against the resource.
+- Evaluates each `column.path` FHIRPath expression against that context and converts the result to the column's declared `type`.
+- Combines the results of every top-level `select` block via a **cartesian product** — so a ViewDefinition with a `name`-scoped `select` and a `telecom`-scoped `select` produces one row per (name × telecom) pair.
+
+`forEach` produces one row per matched element (no rows if there are none); `forEachOrNull` produces one row per element, or a single row with `null` columns if there are none; `repeat` recursively walks each listed FHIRPath expression to any depth and unions the results into one row set — useful for self-referential structures like `Questionnaire.item`.
+
+`where` clauses (`ViewDefinition.where[].path`) are evaluated per-resource before projection; a resource is included only if every clause evaluates to `true`. `constant` entries are available in any FHIRPath expression as `%[name]`.
+
+## Column Types
+
+`column.type` must be a FHIR **primitive** type (`string`, `boolean`, `decimal`, `integer`, `date`, `dateTime`, `instant`, `time`, `code`, `id`, `uri`, `url`, `canonical`, `oid`, `uuid`, `base64Binary`, `markdown`, `unsignedInt`, `positiveInt`) or a FHIRPath system type (`http://hl7.org/fhirpath/System.String`, `.Boolean`, `.Integer`, `.Decimal`, `.Date`, `.DateTime`, `.Time`). Composite/complex types (`CodeableConcept`, `Coding`, `HumanName`, `Reference`, etc.) **cannot** be used directly as a column type — project the specific primitive field you need instead (e.g. `name.family` rather than `name`).
+
+The declared type must match the runtime type of the FHIRPath result exactly — there's no implicit widening (an `integer` value against a `decimal`-typed column will error). Mark a column `"collection": true` if its path can return more than one value; a multi-value result on a non-collection column is a hard error.
+
+## Running a View
+
+The run operation is invoked as a **system-level** custom operation, `$viewdefinition-run`, accepting a `Parameters` resource and returning a `Binary` containing the encoded output.
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="cli" label="CLI" default>
+
+```bash
+haste-health api invoke_system r4 viewdefinition-run --file params.json
+```
+
+Where `params.json` contains:
+
+```json
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    { "name": "viewReference", "valueReference": { "reference": "ViewDefinition/123" } },
+    { "name": "_format", "valueCode": "csv" },
+    { "name": "_since", "valueInstant": "1980-01-01T00:00:00Z" }
+  ]
+}
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+import { ViewDefinitionRun } from '@haste-health/generated-ops/r4';
+
+const client: AsynchronousClient<{}> = /* ... */;
+
+const binary = await client.invoke_system(
+  ViewDefinitionRun.Op,
+  {},
+  R4,
+  {
+    viewResource: myViewDefinition,
+    _format: 'ndjson',
+    _since: '1980-01-01T00:00:00Z',
+  },
+);
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+```bash
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/\$viewdefinition-run" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '{
+           "resourceType": "Parameters",
+           "parameter": [
+             { "name": "viewReference", "valueReference": { "reference": "ViewDefinition/123" } },
+             { "name": "_format", "valueCode": "csv" },
+             { "name": "_since", "valueInstant": "1980-01-01T00:00:00Z" }
+           ]
+         }'
+```
+
+</TabItem>
+</Tabs>
+
+The response is a `Binary` resource whose `data` field is the **base64-encoded** output — decode it client-side before parsing as CSV/JSON/NDJSON.
+
+### Parameters
+
+| Parameter | Description |
+| --- | --- |
+| `viewResource` | An inline `ViewDefinition` to run, instead of a stored one. |
+| `viewReference` | A `Reference` to a stored `ViewDefinition` (e.g. `ViewDefinition/123`). |
+| `resource` | Run against these resources directly instead of querying the project. |
+| `_since` | Only include resources modified after this instant. **Always set this explicitly** — see [Limitations](#limitations). |
+| `_format` | Output format: `csv` (default), `json`, or `ndjson`. |
+
+Exactly one of `viewResource` / `viewReference` is required. If `resource` isn't provided, the view runs against a live `_history` query of the project (`ViewDefinition.resource` type, `_since` filtered, capped at 1000 resources per run).
+
+### Output Shapes
+
+- **CSV**: standard comma-separated rows with a header line. Multi-value (`collection: true`) columns are joined with `;`.
+- **JSON**: a single JSON array of row objects, e.g. `[{ "id": "123", "given": ["John"], "family": "Doe" }]`. Scalar columns are the bare value; collection columns are arrays.
+- **NDJSON**: the same row objects, one per line, newline-delimited.
+
+## Admin App UI
+
+Creating or editing a `ViewDefinition` resource in the admin app swaps in a dedicated **ViewDefinition editor** (instead of the generic resource JSON form), with three tabs:
+
+- **ViewDefinition** — a CodeMirror JSON editor for the resource body, plus an output-format selector (CSV/JSON/NDJSON) and **Run**/**Reset** buttons.
+- **SQL Runner Results** — a paginated table (configurable page size) rendering whatever the run produced.
+- **Raw Output** — the decoded response as plain text, useful for copying out CSV/NDJSON directly.
+
+Run executes the ViewDefinition **inline** (via `viewResource`, not `viewReference`) against your live project data, so you can iterate on a draft before saving it. The admin UI always passes `_since: "1980-01-01T00:00:00Z"` under the hood to sidestep the default-window gotcha described below.
+
+## Limitations
+
+The engine covers the core of the SQL on FHIR spec, but several parts aren't implemented yet:
+
+- **Nested `select` and `unionAll` are not evaluated.** `ViewDefinition.select[].select` (sub-selects for one-to-many denormalization within a select block) and `ViewDefinition.select[].unionAll` (combining multiple selection structures into one row set) are valid per the resource's schema but are **silently ignored** by the run engine — no error is raised, and no columns are produced from them. Only top-level `select` entries with `column`/`forEach`/`forEachOrNull`/`repeat` are processed.
+- **`_since` defaults to "now."** If you don't pass `_since` (and don't pass `resource` directly), the server defaults it to the current instant, which means a `_history` query that returns effectively **nothing** — not "all data." Always pass an explicit `_since` (e.g. `1980-01-01T00:00:00Z`) if you want the view to run over your full dataset.
+- **`_limit` is accepted but not enforced.** The parameter exists on the operation and is parsed, but the run engine never applies it to truncate results.
+- **`patient`, `group`, `source`, and `header` are accepted but unused.** These operation parameters are defined but currently have no effect — `patient`/`group`/`source` don't scope or redirect the query, and `header` doesn't toggle the CSV header row (a header row is always written when there's at least one result row).
+- **Only `csv`, `json`, and `ndjson` output formats are implemented.** The `_format` value set also allows `fhir` and `parquet`; requesting either returns a `not-supported` `OperationOutcome`.
+- **CSV columns are derived from the first row.** If different rows would otherwise produce different column sets (e.g. via conditional branches), only the first row's keys are used as headers for the whole file. An empty result set produces no header row at all.
+- **Terminology bindings aren't evaluated.** Column values are converted as raw primitives; no `ValueSet` membership or code validation happens as part of a view run.
+
+## Related Documentation
+
+- **[View ViewDefinition schema →](/docs/reference/fhir/model/resources/ViewDefinition)**
+- **[Invoke Type Operation →](/docs/api/rest_api/fhir/endpoints/invoke-type)**
+- **[Create Resource →](/docs/api/rest_api/fhir/endpoints/create-resource)**
