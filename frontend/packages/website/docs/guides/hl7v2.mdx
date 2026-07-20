@@ -1,0 +1,131 @@
+---
+sidebar_position: 1
+title: HL7v2 Ingestion
+tags:
+    - guides
+    - hl7v2
+    - mllp
+    - fhir converter
+---
+
+# HL7v2 Ingestion
+
+Haste Health can ingest legacy **HL7v2** messages (ADT, ORU, ORM, etc.) over **MLLP** and convert them into FHIR resources using a template you write. This is separate from the main FHIR server process — it's a standalone receiver you run yourself, wired to your own conversion templates.
+
+There are two independent pieces:
+
+- **Parsing** (`haste-hl7v2`): turns raw pipe-delimited HL7v2 text into a structured representation (segments → fields → components → subcomponents).
+- **Conversion** (`haste-fhir-converter`): a [Jinja](https://jinja.palletsprojects.com/)-style template engine that turns that parsed structure into FHIR resources.
+
+## How It Works
+
+The receiver (`haste-health hl7v2 receiver`) runs a blocking TCP listener. For each MLLP-framed message it receives, it:
+
+1. Reads the MLLP frame (`<VT>...<FS><CR>`) and decodes the raw HL7v2 text.
+2. Parses the message into segments/fields/components/subcomponents.
+3. Renders your configured Jinja template with the parsed message bound to a `hl7v2` variable, expecting the template to output FHIR JSON.
+4. If the rendered output is a `Bundle` of type `batch` or `transaction`, submits it via the corresponding FHIR batch/transaction endpoint; otherwise creates the single resource directly.
+5. Sends an MLLP-level **ACK** (`0x06`) on success, or **NAK** (`0x15`) if decoding, template rendering, or the FHIR write fails.
+
+This is a **single-threaded, one-connection-at-a-time** loop — the listener accepts a connection, then processes frames on it synchronously until the connection closes, before accepting the next one.
+
+## Writing a Conversion Template
+
+Templates are `.jinja`/`.j2` files loaded from a directory you point the receiver at; the file's path (relative to that directory, extension stripped) is its template name.
+
+The parsed message is available in the template as `hl7v2`. Access a segment by its 3-letter ID, then index into its fields:
+
+```jinja
+{
+  "resourceType": "Patient",
+  "id": "{{ hl7v2.PID[2] }}",
+  "name": [
+    {
+      "family": "{{ hl7v2.PID[4][0] }}",
+      "given": ["{{ hl7v2.PID[4][1] }}"]
+    }
+  ]
+}
+```
+
+Two things to know about that indexing:
+
+- **Fields are 0-indexed and offset by one from the conventional HL7v2 field number.** `hl7v2.PID[2]` is PID-3 (Patient ID), `hl7v2.PID[4]` is PID-5 (Patient Name), because index `0` is the first field *after* the 3-character segment ID.
+- **Further indices descend into repetitions, components, and subcomponents**, collapsing automatically when there's only one. For a non-repeating PID-5 (XPN), `hl7v2.PID[4][0]` reaches the first component (family name) directly; if PID-5 repeats (multiple names on the message), you'd index the repetition first, then the component.
+- A segment repeats if the message has more than one (e.g. multiple `NK1` segments) — indexing a segment by name always returns a list, so template logic needs a `{% for %}` loop for multi-segment types, not direct indexing.
+
+:::note `hl7v2_segments` filter is not implemented
+A `| hl7v2_segments` Jinja filter is registered, but it's a stub — it ignores its input and always returns the literal string `"hl7v2_segments"`. Don't use it; use direct segment/field indexing as shown above instead.
+:::
+
+There is currently **no FHIRPath filter available in Jinja templates** (the crate has a placeholder for one, but it isn't implemented), so all extraction from the HL7v2 side has to go through direct indexing, not FHIRPath expressions.
+
+## Running the Receiver
+
+The receiver is a subcommand of the **Haste Health server binary** — the same binary.
+
+```bash
+haste-health hl7v2 receiver \
+  --address 0.0.0.0 \
+  --port 2575 \
+  --main patient_adt \
+  --template-dir ./templates
+```
+
+- `--address` / `--port`: where the TCP listener binds.
+- `--template-dir`: directory scanned (recursively) for `.jinja`/`.j2` files at startup.
+- `--main`: the template name (relative path under `--template-dir`, without extension) to render for **every** incoming message — there's no per-message-type template dispatch built in. If you need to branch on message type (`ADT^A01` vs `ORU^R01`), that branching has to happen inside the one template you point `--main` at (e.g. via `{% if hl7v2.MSH[8] == "ADT^A01" %}`).
+
+## Authenticating the Receiver
+
+The receiver writes converted resources to your FHIR API as an authenticated client, using the same profile-based config as the server binary's other CLI commands (stored at `~/.haste_health/config.toml`, separate from the npm CLI's config).
+
+1. Register an OAuth client with system-level scope — see **[Client Registration](/docs/auth/authentication/client_registration)** and **[Scopes & Permissions](/docs/auth/authorization/scopes)**. The receiver requests `openid system/*.*`, so the client needs access to that scope.
+2. Create and activate a profile:
+
+```bash
+haste-health config create-profile \
+  --name hl7v2-receiver \
+  --r4-url https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4 \
+  --discovery-uri https://api.haste.health/.well-known/openid-configuration/w/[tenant]/[project] \
+  --id <client_id> \
+  --secret <client_secret>
+
+haste-health config set-active-profile --name hl7v2-receiver
+```
+
+3. Run `haste-health hl7v2 receiver ...` as above — it reads the active profile and fetches a `client_credentials` token before processing any messages.
+
+## Debugging a Message
+
+To see how a message parses without running it through a template, use the `$hl7v2-parse` system operation — it returns the fully parsed segment/field/component structure as FHIR JSON:
+
+```bash
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/\$hl7v2-parse" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '{
+           "resourceType": "Parameters",
+           "parameter": [
+             { "name": "hl7v2", "valueString": "MSH|^~\\&|...\rPID|1||12345||Doe^John\r" }
+           ]
+         }'
+```
+
+This is useful for working out field indices while writing a template, independent of the receiver or MLLP.
+
+## Network & Security
+
+- **The MLLP socket has no authentication or TLS.** We will support mTLS but for now any host that can reach the configured address/port can submit messages; there's no API key, mTLS, or IP allowlist at the MLLP layer. Network-level controls (VPN, firewall rules, private networking) are your responsibility.
+- **ACKs are minimal.** The receiver replies with a bare MLLP commit-level `ACK`/`NAK` byte (`0x06`/`0x15`), not a full HL7v2 `ACK` message with `MSA-1`/`MSA-2` fields. Sending systems that validate the acknowledgment's HL7v2 content (rather than just the MLLP commit byte) may not recognize this as a valid response.
+
+## Limitations
+
+- **No per-message-type template routing** — one `--main` template handles every message; branching by message type is your template's responsibility.
+- **No TLS or authentication on the MLLP socket itself.**
+- **ACK/NAK are bare MLLP commit bytes**, not full HL7v2 acknowledgment messages.
+
+## Related Documentation
+- **[Client Registration →](/docs/auth/authentication/client_registration)**
+- **[Scopes & Permissions →](/docs/auth/authorization/scopes)**
+- **[Create Resource →](/docs/api/rest_api/fhir/endpoints/create-resource)**
