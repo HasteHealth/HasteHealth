@@ -10,7 +10,7 @@ static ERROR: &str = "error";
 static WARNING: &str = "warning";
 static INFORMATION: &str = "information";
 
-fn get_issue_list(attrs: &[Attribute]) -> Option<Vec<MetaList>> {
+fn get_issue_list(attrs: &[Attribute]) -> Vec<MetaList> {
     let issues: Vec<MetaList> = attrs
         .iter()
         .filter_map(|attr| match &attr.meta {
@@ -26,7 +26,7 @@ fn get_issue_list(attrs: &[Attribute]) -> Option<Vec<MetaList>> {
         })
         .collect();
 
-    Some(issues)
+    issues
 }
 
 const CODES_ALLOWED: &[&str] = &[
@@ -64,11 +64,12 @@ const CODES_ALLOWED: &[&str] = &[
 ];
 
 fn get_expr_string(expr: &Expr) -> Option<String> {
-    if let Expr::Lit(lit) = expr {
-        if let Lit::Str(lit_str) = &lit.lit {
-            return Some(lit_str.value());
-        }
+    if let Expr::Lit(lit) = expr
+        && let Lit::Str(lit_str) = &lit.lit
+    {
+        return Some(lit_str.value());
     }
+
     None
 }
 
@@ -80,14 +81,15 @@ enum Severity {
     Information,
 }
 
-impl Into<String> for Severity {
-    fn into(self) -> String {
-        match self {
-            Severity::Fatal => "fatal".to_string(),
-            Severity::Error => "error".to_string(),
-            Severity::Warning => "warning".to_string(),
-            Severity::Information => "information".to_string(),
+impl From<Severity> for String {
+    fn from(severity: Severity) -> Self {
+        match severity {
+            Severity::Fatal => "fatal",
+            Severity::Error => "error",
+            Severity::Warning => "warning",
+            Severity::Information => "information",
         }
+        .to_string()
     }
 }
 
@@ -115,70 +117,66 @@ fn get_severity(meta_list: &MetaList) -> Severity {
     }
 }
 
-fn get_issue_attributes(attrs: &[Attribute]) -> Option<Vec<SimpleIssue>> {
+fn get_issue_attributes(attrs: &[Attribute]) -> Vec<SimpleIssue> {
     let mut simple_issue = vec![];
-    if let Some(issue_attributes) = get_issue_list(&attrs) {
-        for issues in issue_attributes {
-            let parsed_arguments = issues
-                .parse_args_with(Punctuated::<Expr, Token![,]>::parse_terminated)
-                .unwrap();
+    let issue_attributes = get_issue_list(attrs);
+    for issues in issue_attributes {
+        let parsed_arguments = issues
+            .parse_args_with(Punctuated::<Expr, Token![,]>::parse_terminated)
+            .unwrap();
 
-            if parsed_arguments.len() > 2 {
-                panic!("Expected exactly 2 arguments for issue attributes");
-            }
+        assert!(
+            parsed_arguments.len() <= 2,
+            "Expected exactly 2 arguments for issue attributes"
+        );
 
-            let severity = get_severity(&issues);
-            let mut code: Option<String> = None;
-            let mut diagnostic: Option<String> = None;
+        let severity = get_severity(&issues);
+        let mut code: Option<String> = None;
+        let mut diagnostic: Option<String> = None;
 
-            for expression in parsed_arguments {
-                match expression {
-                    Expr::Assign(expr_assign) => match expr_assign.left.as_ref() {
-                        Expr::Path(path) => {
-                            match path.path.get_ident().unwrap().to_string().as_str() {
-                                "code" => {
-                                    code = get_expr_string(expr_assign.right.as_ref());
-                                    if let Some(code) = code.as_ref() {
-                                        if !CODES_ALLOWED.contains(&code.as_str()) {
-                                            panic!(
-                                                "Invalid code: '{}' Must be one of '{:?}'",
-                                                code, CODES_ALLOWED
-                                            );
-                                        }
-                                    }
-                                }
-                                "diagnostic" => {
-                                    diagnostic = get_expr_string(expr_assign.right.as_ref());
-                                }
-                                _ => panic!(
-                                    "Unknown error attribute: {}",
-                                    path.path.get_ident().unwrap()
-                                ),
+        for expression in parsed_arguments {
+            match expression {
+                Expr::Assign(expr_assign) => match expr_assign.left.as_ref() {
+                    Expr::Path(path) => match path.path.get_ident().unwrap().to_string().as_str() {
+                        "code" => {
+                            code = get_expr_string(expr_assign.right.as_ref());
+                            if let Some(code) = code.as_ref() {
+                                assert!(
+                                    CODES_ALLOWED.contains(&code.as_str()),
+                                    "Invalid code: '{code}' Must be one of '{CODES_ALLOWED:?}'",
+                                );
                             }
                         }
-                        _ => panic!("Expected an assignment expression"),
+                        "diagnostic" => {
+                            diagnostic = get_expr_string(expr_assign.right.as_ref());
+                        }
+                        _ => panic!(
+                            "Unknown error attribute: {}",
+                            path.path.get_ident().unwrap()
+                        ),
                     },
-                    _ => {
-                        panic!("Expected an assignment expression");
-                    }
+                    _ => panic!("Expected an assignment expression"),
+                },
+                _ => {
+                    panic!("Expected an assignment expression");
                 }
             }
-
-            simple_issue.push(SimpleIssue {
-                severity,
-                code: code.unwrap_or_else(|| "error".to_string()),
-                diagnostic: diagnostic,
-            });
         }
+
+        simple_issue.push(SimpleIssue {
+            severity,
+            code: code.unwrap_or_else(|| "error".to_string()),
+            diagnostic,
+        });
     }
 
-    Some(simple_issue)
+    simple_issue
 }
 
 /// Derive the operatiooutcome issues from the
 /// attributes issue, fatal, error, warning, information
 fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
-    let issues = get_issue_attributes(&v.attrs).unwrap_or(vec![]);
+    let issues = get_issue_attributes(&v.attrs);
     let invariant_operation_outcome_issues = issues.iter().map(|simple_issue: &SimpleIssue| {
         let severity_string: String = simple_issue.severity.clone().into();
         let severity = quote!{ haste_fhir_model::r4::generated::terminology::BoundCode::<haste_fhir_model::r4::generated::terminology::IssueSeverity>::new(#severity_string).unwrap() };
@@ -241,10 +239,7 @@ fn get_from_error(v: &Variant) -> Option<FromInformation> {
         .iter()
         .enumerate()
         .filter_map(|(i, field)| {
-            let from_attr = field.attrs.iter().find(|attr| {
-                let p = attr.path().is_ident("from");
-                p
-            });
+            let from_attr = field.attrs.iter().find(|attr| attr.path().is_ident("from"));
 
             if from_attr.is_some() {
                 if from_attr.is_some() {
@@ -262,11 +257,12 @@ fn get_from_error(v: &Variant) -> Option<FromInformation> {
         })
         .collect();
 
-    if from_fields.len() > 1 {
-        panic!("Expected only one field with 'from' attribute");
-    }
+    assert!(
+        from_fields.len() <= 1,
+        "Expected only one field with 'from' attribute"
+    );
 
-    from_fields.get(0).cloned()
+    from_fields.first().cloned()
 }
 
 /// Instantiate the arguments for the variant
@@ -274,7 +270,7 @@ fn get_from_error(v: &Variant) -> Option<FromInformation> {
 /// Format is arg0, arg1, arg2, ...
 fn instantiate_args(v: &Variant) -> proc_macro2::TokenStream {
     let arg_identifiers = (0..v.fields.len())
-        .map(|i| get_arg_identifier(i))
+        .map(get_arg_identifier)
         .collect::<Vec<_>>();
     if arg_identifiers.is_empty() {
         quote! {}
@@ -285,6 +281,12 @@ fn instantiate_args(v: &Variant) -> proc_macro2::TokenStream {
     }
 }
 
+/// Derives the [`OperationOutcomeError`] trait for an enum.
+///
+/// # Panics
+///
+/// This macro will panic at compile time if it is applied to a struct or a union,
+/// as it can only be derived from an enum definition.
 #[proc_macro_derive(
     OperationOutcomeError,
     attributes(fatal, error, warning, information, from)

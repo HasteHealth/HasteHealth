@@ -14,8 +14,8 @@ pub mod axum;
 
 #[derive(Debug)]
 pub struct OperationOutcomeError {
-    _source: Option<anyhow::Error>,
-    outcome: OperationOutcome,
+    source: Option<anyhow::Error>,
+    outcome: Box<OperationOutcome>,
 }
 
 fn create_operation_outcome(
@@ -38,13 +38,15 @@ fn create_operation_outcome(
 }
 
 impl OperationOutcomeError {
+    #[must_use]
     pub fn new(source: Option<anyhow::Error>, outcome: OperationOutcome) -> Self {
         OperationOutcomeError {
-            _source: source,
-            outcome,
+            source,
+            outcome: Box::new(outcome),
         }
     }
 
+    #[must_use]
     pub fn outcome(&self) -> &OperationOutcome {
         &self.outcome
     }
@@ -56,28 +58,33 @@ impl OperationOutcomeError {
         self.outcome.issue.push(issue);
     }
 
+    #[must_use]
     pub fn backtrace(&self) -> Option<&std::backtrace::Backtrace> {
-        self._source.as_ref().map(|s| s.backtrace())
+        self.source.as_ref().map(anyhow::Error::backtrace)
     }
 
+    #[must_use]
     pub fn fatal(code: BoundCode<IssueType>, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
             create_operation_outcome(IssueSeverity::FATAL, code, diagnostic),
         )
     }
+    #[must_use]
     pub fn error(code: BoundCode<IssueType>, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
             create_operation_outcome(IssueSeverity::ERROR, code, diagnostic),
         )
     }
+    #[must_use]
     pub fn warning(code: BoundCode<IssueType>, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
             create_operation_outcome(IssueSeverity::WARNING, code, diagnostic),
         )
     }
+    #[must_use]
     pub fn information(code: BoundCode<IssueType>, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
@@ -86,13 +93,10 @@ impl OperationOutcomeError {
     }
 }
 
-fn get_issue_diagnostics<'a>(
-    issue: &'a haste_fhir_model::r4::generated::resources::OperationOutcomeIssue,
-) -> Option<&'a str> {
-    issue
-        .diagnostics
-        .as_ref()
-        .and_then(|d| d.value.as_ref().map(|v| v.as_str()))
+fn get_issue_diagnostics(
+    issue: &haste_fhir_model::r4::generated::resources::OperationOutcomeIssue,
+) -> Option<&str> {
+    issue.diagnostics.as_ref().and_then(|d| d.value.as_deref())
 }
 
 impl Display for OperationOutcomeError {
@@ -103,8 +107,7 @@ impl Display for OperationOutcomeError {
             self.outcome
                 .issue
                 .iter()
-                .map(get_issue_diagnostics)
-                .filter_map(|d| d)
+                .filter_map(get_issue_diagnostics)
                 .collect::<Vec<_>>()
                 .join(", ")
         )
@@ -113,8 +116,8 @@ impl Display for OperationOutcomeError {
 
 impl Error for OperationOutcomeError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
-        if let Some(source) = self._source.as_ref() {
-            return Some(&**source);
+        if let Some(source) = self.source.as_ref() {
+            Some(&**source)
         } else {
             None
         }
@@ -125,9 +128,8 @@ impl Error for OperationOutcomeError {
             if let Some(diagnostics) = &issue.diagnostics {
                 diagnostics
                     .value
-                    .as_ref()
-                    .map(|v| v.as_str())
-                    .unwrap_or("No diagnostics available")
+                    .as_deref()
+                    .map_or("No diagnostics available", |v| v)
             } else {
                 "No diagnostics available"
             }
