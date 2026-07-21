@@ -13,6 +13,12 @@ pub enum OperationError {
     InvalidType(&'static str, &'static str),
     #[error("Operand has invalid cardinality")]
     InvalidCardinality,
+    #[error("Collection size exceeds the maximum allowed integer limit (i64::MAX)")]
+    SizeOverflow,
+    #[error("Index must be a non-negative integer without decimal parts")]
+    InvalidIndex,
+    #[error("Index is out of bounds for the target pointer width")]
+    IndexOutOfBounds,
 }
 
 #[derive(Debug, Error)]

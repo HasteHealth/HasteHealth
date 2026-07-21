@@ -2,7 +2,10 @@ mod error;
 mod parser;
 use crate::{
     error::{FunctionError, OperationError},
-    parser::{Expression, FunctionInvocation, Identifier, Invocation, Literal, Operation, Term},
+    parser::{
+        Expression, FunctionInvocation, Identifier, Invocation, Literal, Operation,
+        QualifiedIdentifier, Term,
+    },
 };
 use dashmap::DashMap;
 pub use error::FHIRPathError;
@@ -43,7 +46,7 @@ async fn evaluate_literal<'b>(
         Literal::Integer(int) => Ok(context.new_context_from(vec![
             context
                 .allocate_literal(FHIRInteger {
-                    value: Some(int.clone()),
+                    value: Some(*int),
                     ..Default::default()
                 })
                 .await,
@@ -51,7 +54,7 @@ async fn evaluate_literal<'b>(
         Literal::Float(decimal) => Ok(context.new_context_from(vec![
             context
                 .allocate_literal(FHIRDecimal {
-                    value: Some(decimal.clone()),
+                    value: Some(*decimal),
                     ..Default::default()
                 })
                 .await,
@@ -59,7 +62,7 @@ async fn evaluate_literal<'b>(
         Literal::Boolean(bool) => Ok(context.new_context_from(vec![
             context
                 .allocate_literal(FHIRBoolean {
-                    value: Some(bool.clone()),
+                    value: Some(*bool),
                     ..Default::default()
                 })
                 .await,
@@ -83,7 +86,21 @@ async fn evaluate_invocation<'a>(
                     OperationError::InvalidCardinality,
                 ));
             }
-            let index = downcast_number(index.values[0])? as usize;
+
+            let float_index = downcast_number(index.values[0])?;
+
+            // Ensure the index is non-negative and has no fractional part
+            if float_index < 0.0 || float_index.fract() != 0.0 {
+                return Err(FHIRPathError::OperationError(OperationError::InvalidIndex));
+            }
+
+            // Suppress clippy warnings because the float is guaranteed to be a valid,
+            // non-negative integer index by the safety checks immediately above.
+            #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+            let index: usize = (float_index as u64)
+                .try_into()
+                .map_err(|_| FHIRPathError::OperationError(OperationError::IndexOutOfBounds))?;
+
             if let Some(value) = context.values.get(index) {
                 Ok(context.new_context_from(vec![*value]))
             } else {
@@ -96,11 +113,7 @@ async fn evaluate_invocation<'a>(
             context
                 .values
                 .iter()
-                .flat_map(|v| {
-                    v.get_field(id)
-                        .map(|v| v.flatten())
-                        .unwrap_or_else(|| vec![])
-                })
+                .flat_map(|v| v.get_field(id).map_or_else(Vec::new, |v| v.flatten()))
                 .collect(),
         )),
         Invocation::Function(function) => evaluate_function(function, context, config).await,
@@ -138,10 +151,10 @@ async fn evaluate_first_term<'a>(
         Term::Invocation(invocation) => match invocation {
             Invocation::Identifier(identifier) => {
                 let type_filter = filter_by_type(&identifier.0, &context);
-                if !type_filter.values.is_empty() {
-                    Ok(type_filter)
-                } else {
+                if type_filter.values.is_empty() {
                     evaluate_invocation(invocation, context, config).await
+                } else {
+                    Ok(type_filter)
                 }
             }
             _ => evaluate_invocation(invocation, context, config).await,
@@ -151,7 +164,7 @@ async fn evaluate_first_term<'a>(
 }
 
 async fn evaluate_singular<'a>(
-    expression: &Vec<Term>,
+    expression: &[Term],
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
@@ -185,7 +198,7 @@ async fn operation_2<'a>(
     let right = evaluate_expression(right, context, config).await?;
 
     // If one of operands is empty per spec return an empty collection
-    if left.values.len() == 0 || right.values.len() == 0 {
+    if left.values.is_empty() || right.values.is_empty() {
         return Ok(left.new_context_from(vec![]));
     }
 
@@ -218,12 +231,12 @@ enum Cardinality {
 }
 
 fn validate_arguments(
-    ast_arguments: &Vec<Expression>,
+    ast_arguments: &[Expression],
     cardinality: &Cardinality,
 ) -> Result<(), FHIRPathError> {
     match cardinality {
         Cardinality::Zero => {
-            if ast_arguments.len() != 0 {
+            if !ast_arguments.is_empty() {
                 return Err(FHIRPathError::OperationError(
                     OperationError::InvalidCardinality,
                 ));
@@ -254,7 +267,7 @@ fn derive_typename(expression_ast: &Expression) -> Result<String, FHIRPathError>
             Term::Invocation(Invocation::Identifier(type_id)) => Ok(type_id.0.clone()),
             _ => Err(FHIRPathError::FailedTypeNameDerivation),
         },
-        _ => Err(FHIRPathError::FailedTypeNameDerivation),
+        Expression::Operation(_) => Err(FHIRPathError::FailedTypeNameDerivation),
     }
 }
 
@@ -273,15 +286,14 @@ fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
         "Reference" => {
             if type_to_check == "Reference" {
                 return true;
-            } else if let Some(reference) = value.as_any().downcast_ref::<Reference>() {
-                if let Some(resource_type) = reference
+            } else if let Some(reference) = value.as_any().downcast_ref::<Reference>()
+                && let Some(resource_type) = reference
                     .reference
                     .as_ref()
                     .and_then(|r| r.value.as_ref())
-                    .and_then(|r| r.split("/").next())
-                {
-                    return check_type_name(resource_type, type_to_check);
-                }
+                    .and_then(|r| r.split('/').next())
+            {
+                return check_type_name(resource_type, type_to_check);
             }
             false
         }
@@ -295,7 +307,7 @@ fn filter_by_type<'a>(type_name: &str, context: &Context<'a>) -> Context<'a> {
             .values
             .iter()
             .filter(|v| check_type(**v, type_name))
-            .map(|v| *v)
+            .copied()
             .collect(),
     )
 }
@@ -312,343 +324,413 @@ async fn evaluate_function<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match function.name.0.as_str() {
-        // Faking resolve to just return current context.
         "resolve" => Ok(context),
-        "where" => {
-            validate_arguments(&function.arguments, &Cardinality::One)?;
+        "where" => evaluate_where(function, context, config).await,
+        "ofType" | "as" => evaluate_of_type(function, &context),
+        "count" => evaluate_count(function, context).await,
+        "upper" | "lower" => evaluate_case(function, context).await,
+        "empty" => evaluate_empty(function, context).await,
+        "join" => evaluate_join(function, context, config).await,
+        "exists" => evaluate_exists(function, context, config).await,
+        "children" => evaluate_children(function, &context),
+        "repeat" => evaluate_repeat(function, context, config).await,
+        "descendants" => evaluate_descendants(context, config).await,
+        "type" => evaluate_type(function, context).await,
+        "first" => evaluate_first(function, &context),
+        "getReferenceKey" => evaluate_get_reference_key(function, context).await,
+        "getResourceKey" => evaluate_get_resource_key(function, context, config).await,
 
-            let where_condition = &function.arguments[0];
-            let mut new_context = vec![];
-            for value in context.values.iter() {
-                let result = evaluate_expression(
-                    where_condition,
-                    context.new_context_from(vec![*value]),
-                    config.clone(),
-                )
-                .await?;
+        _ => Err(FHIRPathError::NotImplemented(format!(
+            "Function '{}' is not implemented",
+            function.name.0
+        ))),
+    }
+}
 
-                if result.values.len() > 1 {
-                    return Err(FHIRPathError::InternalError(
-                        "Where condition did not return a single value".to_string(),
-                    ));
-                    // Empty set effectively means no match and treat as false.
-                } else if !result.values.is_empty() && downcast_bool(result.values[0])? == true {
-                    new_context.push(*value);
-                }
+async fn evaluate_where<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+
+    let where_condition = &function.arguments[0];
+    let mut new_context = vec![];
+
+    for value in &context.values {
+        let result = evaluate_expression(
+            where_condition,
+            context.new_context_from(vec![*value]),
+            config.clone(),
+        )
+        .await?;
+
+        if result.values.len() > 1 {
+            return Err(FHIRPathError::InternalError(
+                "Where condition did not return a single value".to_string(),
+            ));
+        }
+
+        // Empty result is treated as false.
+        if !result.values.is_empty() && downcast_bool(result.values[0])? {
+            new_context.push(*value);
+        }
+    }
+
+    Ok(context.new_context_from(new_context))
+}
+
+fn evaluate_of_type<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+
+    let type_name = derive_typename(&function.arguments[0])?;
+
+    Ok(filter_by_type(&type_name, context))
+}
+
+async fn evaluate_count<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let count: i64 = context
+        .values
+        .len()
+        .try_into()
+        .map_err(|_| FHIRPathError::OperationError(OperationError::SizeOverflow))?;
+
+    Ok(context.new_context_from(vec![
+        context
+            .allocate_literal(FHIRInteger {
+                value: Some(count),
+                ..Default::default()
+            })
+            .await,
+    ]))
+}
+
+async fn evaluate_case<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let op = function.name.0.as_str();
+
+    if context.values.is_empty() {
+        return Ok(context.new_context_from(vec![]));
+    }
+
+    if context.values.len() > 1 {
+        return Err(FunctionError::InvalidCardinality(op.to_string(), context.values.len()).into());
+    }
+
+    let input = downcast_string(context.values[0])?;
+
+    let transformed = match op {
+        "upper" => input.to_uppercase(),
+        "lower" => input.to_lowercase(),
+        _ => unreachable!(),
+    };
+
+    Ok(context.new_context_from(vec![
+        context
+            .allocate_literal(FHIRString {
+                value: Some(transformed),
+                ..Default::default()
+            })
+            .await,
+    ]))
+}
+
+async fn evaluate_empty<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    Ok(context.new_context_from(vec![
+        context
+            .allocate_literal(FHIRBoolean {
+                value: Some(context.values.is_empty()),
+                ..Default::default()
+            })
+            .await,
+    ]))
+}
+
+async fn evaluate_join<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Custom(0, 1))?;
+
+    let separator = if let Some(separator_expression) = function.arguments.first() {
+        let separator_context =
+            evaluate_expression(separator_expression, context.clone(), config).await?;
+
+        if separator_context.values.len() != 1 {
+            return Err(FHIRPathError::OperationError(
+                OperationError::InvalidCardinality,
+            ));
+        }
+
+        downcast_string(separator_context.values[0])?
+    } else {
+        String::new()
+    };
+
+    let joined = context
+        .values
+        .iter()
+        .map(|v| downcast_string(*v))
+        .collect::<Result<Vec<_>, _>>()?
+        .join(&separator);
+
+    Ok(context.new_context_from(vec![
+        context
+            .allocate_literal(FHIRString {
+                value: Some(joined),
+                ..Default::default()
+            })
+            .await,
+    ]))
+}
+
+async fn evaluate_exists<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Many)?;
+
+    if function.arguments.len() > 1 {
+        return Err(FunctionError::InvalidCardinality(
+            "exists".to_string(),
+            function.arguments.len(),
+        )
+        .into());
+    }
+
+    if let Some(condition) = function.arguments.first() {
+        for value in &context.values {
+            let result = evaluate_expression(
+                condition,
+                context.new_context_from(vec![*value]),
+                config.clone(),
+            )
+            .await?;
+
+            if result.values.len() > 1 {
+                return Err(FHIRPathError::InternalError(
+                    "Exists condition did not return a single value".to_string(),
+                ));
             }
-            Ok(context.new_context_from(new_context))
-        }
-        "ofType" => {
-            validate_arguments(&function.arguments, &Cardinality::One)?;
 
-            let type_name = derive_typename(&function.arguments[0])?;
-            Ok(filter_by_type(&type_name, &context))
-        }
-        "count" => {
-            validate_arguments(&function.arguments, &Cardinality::Zero)?;
-
-            let count = context.values.len() as i64;
-            Ok(context.new_context_from(vec![
-                context
-                    .allocate_literal(FHIRInteger {
-                        value: Some(count),
-                        ..Default::default()
-                    })
-                    .await,
-            ]))
-        }
-        op @ ("upper" | "lower") => {
-            validate_arguments(&function.arguments, &Cardinality::Zero)?;
-
-            if context.values.is_empty() {
-                return Ok(context.new_context_from(vec![]));
-            }
-            if context.values.len() > 1 {
-                return Err(FunctionError::InvalidCardinality(
-                    op.to_string(),
-                    context.values.len(),
-                )
-                .into());
-            }
-
-            let input = downcast_string(context.values[0])?;
-            let transformed = match op {
-                "upper" => input.to_uppercase(),
-                "lower" => input.to_lowercase(),
-                _ => unreachable!(),
-            };
-            Ok(context.new_context_from(vec![
-                context
-                    .allocate_literal(FHIRString {
-                        value: Some(transformed),
-                        ..Default::default()
-                    })
-                    .await,
-            ]))
-        }
-        "as" => {
-            validate_arguments(&function.arguments, &Cardinality::One)?;
-
-            let type_name = derive_typename(&function.arguments[0])?;
-            Ok(filter_by_type(&type_name, &context))
-        }
-        "empty" => {
-            validate_arguments(&function.arguments, &Cardinality::Zero)?;
-            let res = Ok(context.new_context_from(vec![
-                context
-                    .allocate_literal(FHIRBoolean {
-                        value: Some(context.values.is_empty()),
-                        ..Default::default()
-                    })
-                    .await,
-            ]));
-
-            res
-        }
-        // https://build.fhir.org/ig/HL7/FHIRPath/en/#joinseparator-string--string
-        "join" => {
-            validate_arguments(&function.arguments, &Cardinality::Custom(0, 1))?;
-
-            let separator = if let Some(separator_expression) = function.arguments.get(0) {
-                let separator_context =
-                    evaluate_expression(separator_expression, context.clone(), config).await?;
-                if separator_context.values.len() != 1 {
-                    return Err(FHIRPathError::OperationError(
-                        OperationError::InvalidCardinality,
-                    ));
-                }
-                downcast_string(separator_context.values[0])?
-            } else {
-                "".to_string()
-            };
-
-            let joined = context
-                .values
-                .iter()
-                .map(|v| downcast_string(*v))
-                .collect::<Result<Vec<_>, _>>()?
-                .join(&separator);
-
-            Ok(context.new_context_from(vec![
-                context
-                    .allocate_literal(FHIRString {
-                        value: Some(joined),
-                        ..Default::default()
-                    })
-                    .await,
-            ]))
-        }
-        "exists" => {
-            validate_arguments(&function.arguments, &Cardinality::Many)?;
-
-            if function.arguments.len() > 1 {
-                return Err(FunctionError::InvalidCardinality(
-                    "exists".to_string(),
-                    function.arguments.len(),
-                )
-                .into());
-            }
-
-            let context = if function.arguments.len() == 1 {
-                for value in context.values.iter() {
-                    let result = evaluate_expression(
-                        &function.arguments[0],
-                        context.new_context_from(vec![*value]),
-                        config.clone(),
-                    )
-                    .await?;
-
-                    if result.values.len() > 1 {
-                        return Err(FHIRPathError::InternalError(
-                            "Exists condition did not return a single value".to_string(),
-                        ));
-                        // Empty set effectively means no match and treat as false.
-                    } else if !result.values.is_empty() && downcast_bool(result.values[0])? == true
-                    {
-                        return Ok(context.new_context_from(vec![
-                            context
-                                .allocate_literal(FHIRBoolean {
-                                    value: Some(true),
-                                    ..Default::default()
-                                })
-                                .await,
-                        ]));
-                    }
-                }
+            if !result.values.is_empty() && downcast_bool(result.values[0])? {
                 return Ok(context.new_context_from(vec![
                     context
                         .allocate_literal(FHIRBoolean {
-                            value: Some(false),
+                            value: Some(true),
                             ..Default::default()
                         })
                         .await,
                 ]));
-            } else {
-                context
-            };
-
-            let res = Ok(context.new_context_from(vec![
-                context
-                    .allocate_literal(FHIRBoolean {
-                        value: Some(!context.values.is_empty()),
-                        ..Default::default()
-                    })
-                    .await,
-            ]));
-
-            res
-        }
-        "children" => {
-            validate_arguments(&function.arguments, &Cardinality::Zero)?;
-
-            Ok(context.new_context_from(
-                context
-                    .values
-                    .iter()
-                    .flat_map(|value| {
-                        let result = value
-                            .fields()
-                            .iter()
-                            .filter_map(|f| value.get_field(f).map(|v| v.flatten()))
-                            .flatten()
-                            .collect::<Vec<_>>();
-                        result
-                    })
-                    .collect(),
-            ))
-        }
-        "repeat" => {
-            validate_arguments(&function.arguments, &Cardinality::One)?;
-
-            let projection = &function.arguments[0];
-            let mut end_result = vec![];
-            let mut cur = context;
-
-            while cur.values.len() != 0 {
-                cur = evaluate_expression(projection, cur, config.clone()).await?;
-                end_result.extend_from_slice(cur.values.as_slice());
-            }
-
-            Ok(cur.new_context_from(end_result))
-        }
-        "descendants" => {
-            validate_arguments(&function.arguments, &Cardinality::Zero)?;
-
-            // Descendants is shorthand for repeat(children()) see [https://hl7.org/fhirpath/N1/#descendants-collection].
-            let result = evaluate_expression(
-                &Expression::Singular(vec![Term::Invocation(Invocation::Function(
-                    FunctionInvocation {
-                        name: Identifier("repeat".to_string()),
-                        arguments: vec![Expression::Singular(vec![Term::Invocation(
-                            Invocation::Function(FunctionInvocation {
-                                name: Identifier("children".to_string()),
-                                arguments: vec![],
-                            }),
-                        )])],
-                    },
-                ))]),
-                context,
-                config,
-            )
-            .await?;
-
-            Ok(result)
-        }
-        "type" => {
-            validate_arguments(&function.arguments, &Cardinality::Zero)?;
-
-            let mut next_ctx = Vec::with_capacity(context.values.len());
-            for v in context.values.iter() {
-                let type_name = v.fhir_type();
-                next_ctx.push(
-                    context
-                        .allocate_literal(Reflection {
-                            name: type_name.to_string(),
-                        })
-                        .await,
-                );
-            }
-
-            Ok(context.new_context_from(next_ctx))
-        }
-        "first" => {
-            validate_arguments(&function.arguments, &Cardinality::Zero)?;
-
-            if let Some(first_value) = context.values.get(0) {
-                Ok(context.new_context_from(vec![*first_value]))
-            } else {
-                Ok(context.new_context_from(vec![]))
             }
         }
-        // Functions for viewDefinitions
-        "getReferenceKey" => {
-            validate_arguments(&function.arguments, &Cardinality::Custom(0, 1))?;
 
-            let type_to_filter_by = if let Some(resource_type) = function.arguments.get(0) {
-                let resource_type = derive_typename(resource_type)?;
-                Some(resource_type)
-            } else {
-                None
-            };
-
-            let ids = context
-                .iter()
-                .filter_map(|d| {
-                    let reference = d.as_any().downcast_ref::<Reference>()?;
-                    let mut pieces = reference
-                        .reference
-                        .as_ref()
-                        .and_then(|r| r.value.as_ref())
-                        .map(|r| r.split("/"))?;
-
-                    let resource_type = pieces.next()?;
-                    let id = pieces.next()?;
-
-                    if let Some(type_to_filter_by) = &type_to_filter_by
-                        && !check_type_name(resource_type, type_to_filter_by)
-                    {
-                        return None;
-                    }
-
-                    Some(FHIRId {
-                        value: Some(id.to_string()),
-                        ..Default::default()
-                    })
+        return Ok(context.new_context_from(vec![
+            context
+                .allocate_literal(FHIRBoolean {
+                    value: Some(false),
+                    ..Default::default()
                 })
-                .collect::<Vec<_>>();
+                .await,
+        ]));
+    }
 
-            let mut next_context = Vec::with_capacity(ids.len());
+    Ok(context.new_context_from(vec![
+        context
+            .allocate_literal(FHIRBoolean {
+                value: Some(!context.values.is_empty()),
+                ..Default::default()
+            })
+            .await,
+    ]))
+}
 
-            for id in ids {
-                next_context.push(context.allocate_literal(id).await);
+fn evaluate_children<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let children = context
+        .values
+        .iter()
+        .flat_map(|value| {
+            value
+                .fields()
+                .iter()
+                .filter_map(|f| value.get_field(f).map(|v| v.flatten()))
+                .flatten()
+                .collect::<Vec<_>>()
+        })
+        .collect();
+
+    Ok(context.new_context_from(children))
+}
+
+async fn evaluate_repeat<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::One)?;
+
+    let projection = &function.arguments[0];
+    let mut end_result = vec![];
+    let mut cur = context;
+
+    while !cur.values.is_empty() {
+        cur = evaluate_expression(projection, cur, config.clone()).await?;
+        end_result.extend_from_slice(cur.values.as_slice());
+    }
+
+    Ok(cur.new_context_from(end_result))
+}
+
+async fn evaluate_descendants<'a>(
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    let result = evaluate_expression(
+        &Expression::Singular(vec![Term::Invocation(Invocation::Function(
+            FunctionInvocation {
+                name: Identifier("repeat".to_string()),
+                arguments: vec![Expression::Singular(vec![Term::Invocation(
+                    Invocation::Function(FunctionInvocation {
+                        name: Identifier("children".to_string()),
+                        arguments: vec![],
+                    }),
+                )])],
+            },
+        ))]),
+        context,
+        config,
+    )
+    .await?;
+
+    Ok(result)
+}
+
+async fn evaluate_type<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let mut next_ctx = Vec::with_capacity(context.values.len());
+
+    for value in &context.values {
+        let type_name = value.fhir_type();
+
+        next_ctx.push(
+            context
+                .allocate_literal(Reflection {
+                    name: type_name.to_string(),
+                })
+                .await,
+        );
+    }
+
+    Ok(context.new_context_from(next_ctx))
+}
+
+fn evaluate_first<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    match context.values.first() {
+        Some(value) => Ok(context.new_context_from(vec![*value])),
+        None => Ok(context.new_context_from(vec![])),
+    }
+}
+
+async fn evaluate_get_reference_key<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Custom(0, 1))?;
+
+    let type_to_filter_by = if let Some(resource_type) = function.arguments.first() {
+        Some(derive_typename(resource_type)?)
+    } else {
+        None
+    };
+
+    let ids = context
+        .iter()
+        .filter_map(|value| {
+            let reference = value.as_any().downcast_ref::<Reference>()?;
+
+            let mut pieces = reference
+                .reference
+                .as_ref()
+                .and_then(|r| r.value.as_ref())
+                .map(|r| r.split('/'))?;
+
+            let resource_type = pieces.next()?;
+            let id = pieces.next()?;
+
+            if let Some(type_to_filter_by) = &type_to_filter_by
+                && !check_type_name(resource_type, type_to_filter_by)
+            {
+                return None;
             }
 
-            return Ok(context.new_context_from(next_context));
-        }
-        "getResourceKey" => {
-            validate_arguments(&function.arguments, &Cardinality::Zero)?;
-
-            let Some(id) = config.and_then(|c| c.resource_id.clone()) else {
-                return Err(FHIRPathError::InternalError(
-                    "getResourceKey function requires resource_id in config".to_string(),
-                ));
-            };
-
-            let resource_key = FHIRId {
-                value: Some(id),
+            Some(FHIRId {
+                value: Some(id.to_string()),
                 ..Default::default()
-            };
+            })
+        })
+        .collect::<Vec<_>>();
 
-            let next_context = vec![context.allocate_literal(resource_key).await];
-            return Ok(context.new_context_from(next_context));
-        }
-        _ => {
-            return Err(FHIRPathError::NotImplemented(format!(
-                "Function '{}' is not implemented",
-                function.name.0
-            )));
-        }
+    let mut next_context = Vec::with_capacity(ids.len());
+
+    for id in ids {
+        next_context.push(context.allocate_literal(id).await);
     }
+
+    Ok(context.new_context_from(next_context))
+}
+
+async fn evaluate_get_resource_key<'a>(
+    function: &FunctionInvocation,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+    let Some(id) = config.and_then(|c| c.resource_id.clone()) else {
+        return Err(FHIRPathError::InternalError(
+            "getResourceKey function requires resource_id in config".to_string(),
+        ));
+    };
+
+    let resource_key = FHIRId {
+        value: Some(id),
+        ..Default::default()
+    };
+
+    Ok(context.new_context_from(vec![context.allocate_literal(resource_key).await]))
 }
 
 fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<bool, FHIRPathError> {
@@ -657,6 +739,7 @@ fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<bool, FHIR
     {
         let left_value = downcast_number(left.values[0])?;
         let right_value = downcast_number(right.values[0])?;
+        #[allow(clippy::float_cmp)]
         Ok(left_value == right_value)
     } else if STRING_TYPES.contains(left.values[0].fhir_type())
         && STRING_TYPES.contains(right.values[0].fhir_type())
@@ -669,6 +752,9 @@ fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<bool, FHIR
     {
         let left_value = downcast_bool(left.values[0])?;
         let right_value = downcast_bool(right.values[0])?;
+        // Suppress clippy warning because strict equality comparison for float values
+        // is intentional and required by the FHIRPath specification.
+        #[allow(clippy::float_cmp)]
         Ok(left_value == right_value)
     } else {
         // https://hl7.org/fhirpath/N1/#conversion for implicit conversion rules todo.
@@ -687,242 +773,306 @@ async fn evaluate_operation<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match operation {
-        Operation::Add(left, right) => {
-            operation_2(left, right, context, config, |left, right| {
-                Box::pin(async move {
-                    if NUMBER_TYPES.contains(left.values[0].fhir_type())
-                        && NUMBER_TYPES.contains(right.values[0].fhir_type())
-                    {
-                        let left_value = downcast_number(left.values[0])?;
-                        let right_value = downcast_number(right.values[0])?;
-                        Ok(left.new_context_from(vec![
-                            left.allocate_literal(FHIRDecimal {
-                                value: Some(left_value + right_value),
-                                ..Default::default()
-                            })
-                            .await,
-                        ]))
-                    } else if STRING_TYPES.contains(left.values[0].fhir_type())
-                        && STRING_TYPES.contains(right.values[0].fhir_type())
-                    {
-                        let left_string = downcast_string(left.values[0])?;
-                        let right_string = downcast_string(right.values[0])?;
-
-                        Ok(left.new_context_from(vec![
-                            left.allocate_literal(FHIRString {
-                                value: Some(left_string + &right_string),
-                                ..Default::default()
-                            })
-                            .await,
-                        ]))
-                    } else {
-                        Err(FHIRPathError::OperationError(OperationError::TypeMismatch(
-                            left.values[0].fhir_type(),
-                            right.values[0].fhir_type(),
-                        )))
-                    }
-                })
-            })
-            .await
-        }
+        Operation::Add(left, right) => evaluate_add(left, right, context, config).await,
         Operation::Subtraction(left, right) => {
-            operation_2(left, right, context, config, |left, right| {
-                Box::pin(async move {
-                    let left_value = downcast_number(left.values[0])?;
-                    let right_value = downcast_number(right.values[0])?;
-
-                    Ok(left.new_context_from(vec![
-                        left.allocate_literal(FHIRDecimal {
-                            value: Some(left_value - right_value),
-                            ..Default::default()
-                        })
-                        .await,
-                    ]))
-                })
-            })
-            .await
+            evaluate_subtraction(left, right, context, config).await
         }
         Operation::Multiplication(left, right) => {
-            operation_2(left, right, context, config, |left, right| {
-                Box::pin(async move {
-                    let left_value = downcast_number(left.values[0])?;
-                    let right_value = downcast_number(right.values[0])?;
+            evaluate_multiplication(left, right, context, config).await
+        }
+        Operation::Division(left, right) => evaluate_division(left, right, context, config).await,
+        Operation::Equal(left, right) => evaluate_equal(left, right, context, config).await,
+        Operation::NotEqual(left, right) => evaluate_not_equal(left, right, context, config).await,
+        Operation::And(left, right) => evaluate_and(left, right, context, config).await,
+        Operation::Or(left, right) => evaluate_or(left, right, context, config).await,
+        Operation::Union(left, right) => evaluate_union(left, right, context, config).await,
+        Operation::Is(expr, ty) => evaluate_is(expr, ty, context, config).await,
+        Operation::As(expr, ty) => evaluate_as(expr, ty, context, config).await,
+        Operation::XOr(left, right) => evaluate_xor(left, right, context, config).await,
 
-                    Ok(left.new_context_from(vec![
-                        left.allocate_literal(FHIRDecimal {
-                            value: Some(left_value * right_value),
-                            ..Default::default()
-                        })
-                        .await,
-                    ]))
-                })
-            })
-            .await
-        }
-        Operation::Division(left, right) => {
-            operation_2(left, right, context, config, |left, right| {
-                Box::pin(async move {
-                    let left_value = downcast_number(left.values[0])?;
-                    let right_value = downcast_number(right.values[0])?;
-
-                    Ok(left.new_context_from(vec![
-                        left.allocate_literal(FHIRDecimal {
-                            value: Some(left_value / right_value),
-                            ..Default::default()
-                        })
-                        .await,
-                    ]))
-                })
-            })
-            .await
-        }
-        Operation::Equal(left, right) => {
-            operation_2(left, right, context, config, |left, right| {
-                Box::pin(async move {
-                    let are_equal = FHIRBoolean {
-                        value: Some(equal_check(&left, &right)?),
-                        ..Default::default()
-                    };
-                    Ok(left.new_context_from(vec![left.allocate_literal(are_equal).await]))
-                })
-            })
-            .await
-        }
-        Operation::NotEqual(left, right) => {
-            operation_2(left, right, context, config, |left, right| {
-                Box::pin(async move {
-                    let not_equal = FHIRBoolean {
-                        value: Some(!equal_check(&left, &right)?),
-                        ..Default::default()
-                    };
-                    Ok(left.new_context_from(vec![left.allocate_literal(not_equal).await]))
-                })
-            })
-            .await
-        }
-        Operation::And(left, right) => {
-            operation_2(left, right, context, config, |left, right| {
-                Box::pin(async move {
-                    let left_value = downcast_bool(left.values[0])?;
-                    let right_value = downcast_bool(right.values[0])?;
-
-                    Ok(left.new_context_from(vec![
-                        left.allocate_literal(FHIRBoolean {
-                            value: Some(left_value && right_value),
-                            ..Default::default()
-                        })
-                        .await,
-                    ]))
-                })
-            })
-            .await
-        }
-        Operation::Or(left, right) => {
-            operation_2(left, right, context, config, |left, right| {
-                Box::pin(async move {
-                    let left_value = downcast_bool(left.values[0])?;
-                    let right_value = downcast_bool(right.values[0])?;
-
-                    Ok(left.new_context_from(vec![
-                        left.allocate_literal(FHIRBoolean {
-                            value: Some(left_value || right_value),
-                            ..Default::default()
-                        })
-                        .await,
-                    ]))
-                })
-            })
-            .await
-        }
-        Operation::Union(left, right) => {
-            operation_n(left, right, context, config, |left, right| {
-                let mut union = vec![];
-                union.extend(left.values.iter());
-                union.extend(right.values.iter());
-                Ok(left.new_context_from(union))
-            })
-            .await
-        }
-        Operation::Modulo(_, _) => Err(FHIRPathError::NotImplemented("Modulo".to_string())),
-        Operation::Is(expression, type_name) => {
-            let left = evaluate_expression(expression, context, config).await?;
-            if left.values.len() > 1 {
-                Err(FHIRPathError::OperationError(
-                    OperationError::InvalidCardinality,
-                ))
-            } else {
-                if let Some(type_name) = type_name.0.get(0).as_ref().map(|k| &k.0) {
-                    let next_context = filter_by_type(&type_name, &left);
-                    Ok(left.new_context_from(vec![
-                        left.allocate_literal(FHIRBoolean {
-                            value: Some(!next_context.values.is_empty()),
-                            ..Default::default()
-                        })
-                        .await,
-                    ]))
-                } else {
-                    Ok(left.new_context_from(vec![]))
-                }
-            }
-        }
-        Operation::As(expression, type_name) => {
-            let left = evaluate_expression(expression, context, config).await?;
-            if left.values.len() > 1 {
-                Err(FHIRPathError::OperationError(
-                    OperationError::InvalidCardinality,
-                ))
-            } else {
-                if let Some(type_name) = type_name.0.get(0).as_ref().map(|k| &k.0) {
-                    Ok(filter_by_type(&type_name, &left))
-                } else {
-                    Ok(left.new_context_from(vec![]))
-                }
-            }
-        }
-        Operation::Polarity(_, _) => Err(FHIRPathError::NotImplemented("Polarity".to_string())),
-        Operation::DivisionTruncated(_, _) => Err(FHIRPathError::NotImplemented(
-            "DivisionTruncated".to_string(),
-        )),
-        Operation::LessThan(_, _) => Err(FHIRPathError::NotImplemented("LessThan".to_string())),
-        Operation::GreaterThan(_, _) => {
-            Err(FHIRPathError::NotImplemented("GreaterThan".to_string()))
-        }
-        Operation::LessThanEqual(_, _) => {
-            Err(FHIRPathError::NotImplemented("LessThanEqual".to_string()))
-        }
-        Operation::GreaterThanEqual(_, _) => Err(FHIRPathError::NotImplemented(
-            "GreaterThanEqual".to_string(),
-        )),
-        Operation::Equivalent(_, _) => Err(FHIRPathError::NotImplemented("Equivalent".to_string())),
-
-        Operation::NotEquivalent(_, _) => {
-            Err(FHIRPathError::NotImplemented("NotEquivalent".to_string()))
-        }
-        Operation::In(_left, _right) => Err(FHIRPathError::NotImplemented("In".to_string())),
-        Operation::Contains(_left, _right) => {
-            Err(FHIRPathError::NotImplemented("Contains".to_string()))
-        }
-        Operation::XOr(left, right) => {
-            operation_2(left, right, context, config, |left, right| {
-                Box::pin(async move {
-                    let left_value = downcast_bool(left.values[0])?;
-                    let right_value = downcast_bool(right.values[0])?;
-
-                    Ok(left.new_context_from(vec![
-                        left.allocate_literal(FHIRBoolean {
-                            value: Some(left_value ^ right_value),
-                            ..Default::default()
-                        })
-                        .await,
-                    ]))
-                })
-            })
-            .await
-        }
-        Operation::Implies(_left, _right) => {
-            Err(FHIRPathError::NotImplemented("Implies".to_string()))
-        }
+        Operation::Modulo(_, _) => not_implemented("Modulo"),
+        Operation::Polarity(_, _) => not_implemented("Polarity"),
+        Operation::DivisionTruncated(_, _) => not_implemented("DivisionTruncated"),
+        Operation::LessThan(_, _) => not_implemented("LessThan"),
+        Operation::GreaterThan(_, _) => not_implemented("GreaterThan"),
+        Operation::LessThanEqual(_, _) => not_implemented("LessThanEqual"),
+        Operation::GreaterThanEqual(_, _) => not_implemented("GreaterThanEqual"),
+        Operation::Equivalent(_, _) => not_implemented("Equivalent"),
+        Operation::NotEquivalent(_, _) => not_implemented("NotEquivalent"),
+        Operation::In(_, _) => not_implemented("In"),
+        Operation::Contains(_, _) => not_implemented("Contains"),
+        Operation::Implies(_, _) => not_implemented("Implies"),
     }
+}
+
+fn not_implemented(name: &'static str) -> Result<Context<'static>, FHIRPathError> {
+    Err(FHIRPathError::NotImplemented(name.to_string()))
+}
+
+async fn evaluate_add<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    operation_2(left, right, context, config, |left, right| {
+        Box::pin(async move {
+            if NUMBER_TYPES.contains(left.values[0].fhir_type())
+                && NUMBER_TYPES.contains(right.values[0].fhir_type())
+            {
+                let left_value = downcast_number(left.values[0])?;
+                let right_value = downcast_number(right.values[0])?;
+
+                Ok(left.new_context_from(vec![
+                    left.allocate_literal(FHIRDecimal {
+                        value: Some(left_value + right_value),
+                        ..Default::default()
+                    })
+                    .await,
+                ]))
+            } else if STRING_TYPES.contains(left.values[0].fhir_type())
+                && STRING_TYPES.contains(right.values[0].fhir_type())
+            {
+                let left_string = downcast_string(left.values[0])?;
+                let right_string = downcast_string(right.values[0])?;
+
+                Ok(left.new_context_from(vec![
+                    left.allocate_literal(FHIRString {
+                        value: Some(left_string + &right_string),
+                        ..Default::default()
+                    })
+                    .await,
+                ]))
+            } else {
+                Err(FHIRPathError::OperationError(OperationError::TypeMismatch(
+                    left.values[0].fhir_type(),
+                    right.values[0].fhir_type(),
+                )))
+            }
+        })
+    })
+    .await
+}
+
+async fn evaluate_numeric_binary<'a, F>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+    op: F,
+) -> Result<Context<'a>, FHIRPathError>
+where
+    F: FnOnce(f64, f64) -> f64 + Copy + Send + 'static,
+{
+    operation_2(left, right, context, config, move |left, right| {
+        Box::pin(async move {
+            let left_value = downcast_number(left.values[0])?;
+            let right_value = downcast_number(right.values[0])?;
+
+            Ok(left.new_context_from(vec![
+                left.allocate_literal(FHIRDecimal {
+                    value: Some(op(left_value, right_value)),
+                    ..Default::default()
+                })
+                .await,
+            ]))
+        })
+    })
+    .await
+}
+
+async fn evaluate_subtraction<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_numeric_binary(left, right, context, config, |l, r| l - r).await
+}
+
+async fn evaluate_multiplication<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_numeric_binary(left, right, context, config, |l, r| l * r).await
+}
+
+async fn evaluate_division<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_numeric_binary(left, right, context, config, |l, r| l / r).await
+}
+
+async fn evaluate_boolean_binary<'a, F>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+    op: F,
+) -> Result<Context<'a>, FHIRPathError>
+where
+    F: FnOnce(bool, bool) -> bool + Copy + Send + 'static,
+{
+    operation_2(left, right, context, config, move |left, right| {
+        Box::pin(async move {
+            let l = downcast_bool(left.values[0])?;
+            let r = downcast_bool(right.values[0])?;
+
+            Ok(left.new_context_from(vec![
+                left.allocate_literal(FHIRBoolean {
+                    value: Some(op(l, r)),
+                    ..Default::default()
+                })
+                .await,
+            ]))
+        })
+    })
+    .await
+}
+
+async fn evaluate_and<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_boolean_binary(left, right, context, config, |l, r| l && r).await
+}
+
+async fn evaluate_or<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_boolean_binary(left, right, context, config, |l, r| l || r).await
+}
+
+async fn evaluate_xor<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_boolean_binary(left, right, context, config, |l, r| l ^ r).await
+}
+
+async fn evaluate_equality<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+    negate: bool,
+) -> Result<Context<'a>, FHIRPathError> {
+    operation_2(left, right, context, config, move |left, right| {
+        Box::pin(async move {
+            let mut result = equal_check(&left, &right)?;
+
+            if negate {
+                result = !result;
+            }
+
+            Ok(left.new_context_from(vec![
+                left.allocate_literal(FHIRBoolean {
+                    value: Some(result),
+                    ..Default::default()
+                })
+                .await,
+            ]))
+        })
+    })
+    .await
+}
+
+async fn evaluate_equal<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_equality(left, right, context, config, false).await
+}
+
+async fn evaluate_not_equal<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_equality(left, right, context, config, true).await
+}
+
+async fn evaluate_union<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    operation_n(left, right, context, config, |left, right| {
+        let mut union = Vec::with_capacity(left.values.len() + right.values.len());
+        union.extend(left.values.iter());
+        union.extend(right.values.iter());
+
+        Ok(left.new_context_from(union))
+    })
+    .await
+}
+
+async fn evaluate_type_operation<'a>(
+    expression: &Expression,
+    type_name: &QualifiedIdentifier,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+    return_context: bool,
+) -> Result<Context<'a>, FHIRPathError> {
+    let left = evaluate_expression(expression, context, config).await?;
+
+    if left.values.len() > 1 {
+        return Err(FHIRPathError::OperationError(
+            OperationError::InvalidCardinality,
+        ));
+    }
+
+    let Some(type_name) = type_name.0.first().map(|id| &id.0) else {
+        return Ok(left.new_context_from(vec![]));
+    };
+
+    let filtered = filter_by_type(type_name, &left);
+
+    if return_context {
+        Ok(filtered)
+    } else {
+        Ok(left.new_context_from(vec![
+            left.allocate_literal(FHIRBoolean {
+                value: Some(!filtered.values.is_empty()),
+                ..Default::default()
+            })
+            .await,
+        ]))
+    }
+}
+
+async fn evaluate_is<'a>(
+    expression: &Expression,
+    type_name: &QualifiedIdentifier,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_type_operation(expression, type_name, context, config, false).await
+}
+
+async fn evaluate_as<'a>(
+    expression: &Expression,
+    type_name: &QualifiedIdentifier,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_type_operation(expression, type_name, context, config, true).await
 }
 
 fn evaluate_expression<'a>(
@@ -949,7 +1099,8 @@ pub enum ResolvedValue {
 }
 
 impl ResolvedValue {
-    pub fn as_ref(&self) -> &dyn MetaValue {
+    #[must_use]
+    pub fn as_meta_value(&self) -> &dyn MetaValue {
         match self {
             ResolvedValue::Box(b) => &**b,
             ResolvedValue::Arc(a) => &**a,
@@ -962,42 +1113,34 @@ pub struct Context<'a> {
     values: Vec<&'a dyn MetaValue>,
 }
 
+pub type ResolvedValueFuture = Pin<Box<dyn Future<Output = Option<ResolvedValue>> + Send>>;
+pub type ResolveValueCallback = Box<dyn Fn(String) -> ResolvedValueFuture + Send + Sync>;
+
 pub enum ExternalConstantResolver<'a> {
-    Function(
-        Box<
-            dyn Fn(String) -> Pin<Box<dyn Future<Output = Option<ResolvedValue>> + Send>>
-                + Send
-                + Sync,
-        >,
-    ),
+    Function(ResolveValueCallback),
     Variable(Arc<HashMap<String, &'a dyn MetaValue>>),
 }
 
+#[derive(Default)]
 pub struct Config<'a> {
     // Used to resolve resource_id in getResourceKey for sql-on-fhir.
     resource_id: Option<String>,
     variable_resolver: Option<ExternalConstantResolver<'a>>,
 }
 
-impl Default for Config<'_> {
-    fn default() -> Self {
-        Self {
-            resource_id: None,
-            variable_resolver: None,
-        }
-    }
-}
-
 impl<'a> Config<'a> {
+    #[must_use]
     pub fn builder() -> Self {
         Config::default()
     }
 
+    #[must_use]
     pub fn with_variable_resolver(mut self, resolver: ExternalConstantResolver<'a>) -> Self {
         self.variable_resolver = Some(resolver);
         self
     }
 
+    #[must_use]
     pub fn with_resource_id(mut self, resource_id: String) -> Self {
         self.resource_id = Some(resource_id);
         self
@@ -1019,14 +1162,25 @@ async fn resolve_external_constant<'a>(
                 None
             }
         }
-        Some(ExternalConstantResolver::Variable(map)) => map.get(name).map(|s| *s),
+        Some(ExternalConstantResolver::Variable(map)) => map.get(name).copied(),
         None => None,
     };
 
     if let Some(result) = external_constant {
         return Ok(context.new_context_from(vec![result]));
-    } else {
-        return Ok(context.new_context_from(vec![]));
+    }
+    Ok(context.new_context_from(vec![]))
+}
+
+impl<'a> IntoIterator for &'a Context<'_> {
+    type Item = &'a dyn haste_reflect::MetaValue;
+
+    type IntoIter = std::boxed::Box<
+        dyn std::iter::Iterator<Item = &'a (dyn haste_reflect::MetaValue + 'static)> + 'a,
+    >;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
     }
 }
 
@@ -1035,15 +1189,12 @@ impl<'a> Context<'a> {
         values: Vec<&'a dyn MetaValue>,
         allocator: Arc<Mutex<allocators::bumpalo::Allocator>>,
     ) -> Self {
-        Self {
-            allocator,
-            values: values,
-        }
+        Self { allocator, values }
     }
     fn new_context_from(&self, values: Vec<&'a dyn MetaValue>) -> Self {
         Self {
             allocator: self.allocator.clone(),
-            values: values,
+            values,
         }
     }
     async fn allocate(&self, value: ResolvedValue) -> &'a dyn MetaValue {
@@ -1053,8 +1204,9 @@ impl<'a> Context<'a> {
     async fn allocate_literal<T: MetaValue>(&self, value: T) -> &'a dyn MetaValue {
         self.allocator.lock().await.allocate_literal(value)
     }
+    #[must_use]
     pub fn iter(&'a self) -> Box<dyn Iterator<Item = &'a dyn MetaValue> + 'a> {
-        Box::new(self.values.iter().map(|v| *v))
+        Box::new(self.values.iter().copied())
     }
 }
 
@@ -1079,24 +1231,35 @@ fn get_ast(
             expression_ast
         } else {
             AST.insert(path.to_string(), parser::parse(path)?);
-            let expression_ast = AST.get(path).ok_or_else(|| {
+            AST.get(path).ok_or_else(|| {
                 FHIRPathError::InternalError("Failed to find path post insert".to_string())
-            })?;
-            expression_ast
+            })?
         };
 
     Ok(ast)
 }
 
+impl Default for FPEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FPEngine {
+    #[must_use]
     pub fn new() -> Self {
         Self {}
     }
 
-    /// Evaluate a FHIRPath expression against a context.
-    /// The context is a vector of references to MetaValue objects.
-    /// The path is a FHIRPath expression.
-    /// The result is a vector of references to MetaValue objects.
+    /// Evaluate a `FHIRPath` expression against a context.
+    /// The context is a vector of references to `MetaValue` objects.
+    /// The path is a `FHIRPath` expression.
+    /// The result is a vector of references to `MetaValue` objects.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`FHIRPathError`] if the expression parsing fails (bad AST)
+    /// or if the evaluation engine encounters an error during execution.
     pub async fn evaluate<'a, 'b>(
         &self,
         path: &str,
@@ -1117,11 +1280,15 @@ impl FPEngine {
         Ok(result)
     }
 
-    /// Evaluate a FHIRPath expression against a context.
-    /// The context is a vector of references to MetaValue objects.
-    /// The path is a FHIRPath expression.
-    /// The result is a vector of references to MetaValue objects.
+    /// Evaluate a `FHIRPath` expression against a context.
+    /// The context is a vector of references to `MetaValue` objects.
+    /// The path is a `FHIRPath` expression.
+    /// The result is a vector of references to `MetaValue` objects.
     ///
+    /// # Errors
+    ///
+    /// Returns a [`FHIRPathError`] if the expression parsing fails (bad AST)
+    /// or if the evaluation engine encounters an error during execution.
     pub async fn evaluate_with_config<'a, 'b>(
         &self,
         path: &str,

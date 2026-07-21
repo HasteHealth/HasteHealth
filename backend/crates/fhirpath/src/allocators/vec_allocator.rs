@@ -11,7 +11,7 @@ pub struct Allocator<'a> {
     _marker: PhantomData<&'a dyn MetaValue>,
 }
 
-impl<'a> Allocator<'a> {
+impl Allocator<'_> {
     #[allow(dead_code)]
     pub fn new() -> Self {
         Allocator {
@@ -32,8 +32,8 @@ impl<'a> AllocatorTrait<'a> for Allocator<'a> {
 
         // Should be safe to unwrap as value guaranteed to be non-empty from above call.
         let ptr = match &self.context.last().unwrap() {
-            ResolvedValue::Box(b) => &**b as *const _,
-            ResolvedValue::Arc(a) => &**a,
+            ResolvedValue::Box(b) => &raw const **b,
+            ResolvedValue::Arc(a) => &raw const **a,
         };
 
         unsafe { &*ptr }

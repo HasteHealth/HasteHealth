@@ -412,5 +412,5 @@ mod tests {
 }
 
 pub fn parse(input: &str) -> Result<Expression, FHIRPathError> {
-    parser::operations(input).map_err(|e| FHIRPathError::ParseError(e))
+    parser::operations(input).map_err(FHIRPathError::ParseError)
 }
