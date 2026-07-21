@@ -20,11 +20,11 @@
 		"@docusaurus/preset-classic": "3.9.2",
 		"@docusaurus/theme-mermaid": "3.9.2",
 		"@giscus/react": "^3.1.0",
-		"@mdx-js/react": "^3.0.0",
-		"clsx": "^2.0.0",
-		"prism-react-renderer": "^2.3.0",
-		"react": "^19.0.0",
-		"react-dom": "^19.0.0"
+		"@mdx-js/react": "^3.1.1",
+		"clsx": "^2.1.1",
+		"prism-react-renderer": "^2.4.1",
+		"react": "^19.2.7",
+		"react-dom": "^19.2.7"
 	},
 	"devDependencies": {
 		"@docusaurus/module-type-aliases": "3.9.2",
@@ -35,12 +35,12 @@
 		"@haste-health/fhir-types": "workspace:^",
 		"@haste-health/haste-health.fhir.r4.core": "workspace:^",
 		"@haste-health/hl7.fhir.r4.core": "workspace:^",
-		"@tailwindcss/postcss": "^4.1.17",
-		"autoprefixer": "^10.4.22",
-		"postcss": "^8.5.10",
-		"tailwindcss": "^4.1.17",
+		"@tailwindcss/postcss": "^4.3.2",
+		"autoprefixer": "^10.5.2",
+		"postcss": "^8.5.16",
+		"tailwindcss": "^4.3.2",
 		"typescript": "~6.0.3",
-		"wrangler": "^4.90.0"
+		"wrangler": "^4.107.0"
 	},
 	"browserslist": {
 		"production": [

@@ -20,5 +20,12 @@ auditConfig:
     - 'GHSA-7r86-cg39-jmmj'
     - 'GHSA-23c5-xmqv-rm74'
     - 'GHSA-5c6j-r48x-rmvq'
+    # Transitive dep in mocha test package
+    # for js-yaml
+    - 'GHSA-52cp-r559-cp3m'
     # Fhirpath
     - 'GHSA-r5fr-rjxr-66jc'
+
+minimumReleaseAgeExclude:
+  - brace-expansion@1.1.16 || 2.1.2
+  - js-yaml@4.3.0
