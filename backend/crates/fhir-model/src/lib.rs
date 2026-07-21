@@ -15,7 +15,6 @@ mod tests {
     };
     use haste_reflect::MetaValue;
     use r4::generated::{resources::Patient, types::Address};
-    use serde_json;
 
     #[test]
     fn test_enum_with_extension() {
@@ -61,7 +60,6 @@ mod tests {
                     "state": "CA",
                     "postalCode": "12345"
                 }]
-            
             }"#,
         );
 
@@ -219,7 +217,7 @@ mod tests {
 
         let address = serde_json::from_str::<Address>(address_string);
 
-        assert!(matches!(address, Err(_)));
+        assert!(address.is_err());
     }
 
     #[test]
@@ -414,11 +412,10 @@ mod tests {
             "John"
         );
 
-        assert_eq!(
+        assert!(
             patient.name.as_ref().unwrap()[0].given.as_ref().unwrap()[0]
                 .id
-                .is_none(),
-            true,
+                .is_none()
         );
 
         assert_eq!(
@@ -471,7 +468,7 @@ mod tests {
 
         let admin_gender = serde_json::from_str::<BoundCode<AdministrativeGender>>("\"male\"");
 
-        assert!(admin_gender.unwrap() == AdministrativeGender::male());
+        assert_eq!(admin_gender.unwrap(), AdministrativeGender::male());
     }
 
     #[test]
@@ -493,7 +490,7 @@ mod tests {
 
         let date = serde_json::from_str::<FHIRDate>("\"bad\"");
 
-        assert!(matches!(date, Err(_)));
+        assert!(date.is_err());
 
         let fhir_string = serde_json::from_str::<FHIRString>("\"hello\"");
 
@@ -550,16 +547,16 @@ mod tests {
         ));
 
         let invalid_fhir_positive_int = serde_json::from_str::<FHIRPositiveInt>("42.5");
-        assert!(matches!(invalid_fhir_positive_int, Err(_)));
+        assert!(invalid_fhir_positive_int.is_err());
 
         let invalid_positive_int = serde_json::from_str::<FHIRPositiveInt>("-1");
-        assert!(matches!(invalid_positive_int, Err(_)));
+        assert!(invalid_positive_int.is_err());
 
         let fhir_decimal = serde_json::from_str::<FHIRDecimal>("3.14");
         assert!(matches!(
             fhir_decimal,
             Ok(FHIRDecimal {
-                value: Some(3.14),
+                value: Some(std::f64::consts::PI),
                 id: None,
                 extension: None
             })
@@ -569,43 +566,43 @@ mod tests {
     #[test]
     fn test_cardinality() {
         let client_application_string = r#"{
-	    "id": "cli",
+        "id": "cli",
         "resourceType": "ClientApplication",
         "name": "CLI",
         "grantType": ["authorization_code"],
         "responseTypes": "token",
         "secret": "testing",
         "redirectUri": [
-          "http://localhost:8080/1", 
-          "http://localhost:8080/2", 
-          "http://localhost:8080/3", 
-          "http://localhost:8080/4", 
+          "http://localhost:8080/1",
+          "http://localhost:8080/2",
+          "http://localhost:8080/3",
+          "http://localhost:8080/4",
           "http://localhost:8080/5"],
         "scope": "openid system/*.*"
       }"#;
 
-        let client_app = serde_json::from_str::<ClientApplication>(&client_application_string);
+        let client_app = serde_json::from_str::<ClientApplication>(client_application_string);
 
         assert!(client_app.is_ok());
 
         let client_application_string = r#"{
-	    "id": "cli",
+        "id": "cli",
         "resourceType": "ClientApplication",
         "name": "CLI",
         "grantType": ["authorization_code"],
         "responseTypes": "token",
         "secret": "testing",
         "redirectUri": [
-          "http://localhost:8080/1", 
-          "http://localhost:8080/2", 
-          "http://localhost:8080/3", 
-          "http://localhost:8080/4", 
-          "http://localhost:8080/5", 
+          "http://localhost:8080/1",
+          "http://localhost:8080/2",
+          "http://localhost:8080/3",
+          "http://localhost:8080/4",
+          "http://localhost:8080/5",
           "http://localhost:8080/6"],
         "scope": "openid system/*.*"
       }"#;
 
-        let client_app = serde_json::from_str::<ClientApplication>(&client_application_string);
+        let client_app = serde_json::from_str::<ClientApplication>(client_application_string);
 
         assert!(client_app.is_err());
     }
@@ -620,7 +617,7 @@ mod tests {
         let patient =
             serde_json::from_str::<Patient>(patient).expect("failed to deserialize patient");
 
-        assert_eq!(patient.name.is_none(), true);
+        assert!(patient.name.is_none());
     }
 
     #[test]
@@ -632,7 +629,7 @@ mod tests {
         }"#;
         let patient = serde_json::from_str::<Patient>(patient).unwrap();
 
-        assert_eq!(patient.name.is_none(), true);
+        assert!(patient.name.is_none());
 
         let patient = r#"{
             "id": "",
@@ -646,11 +643,11 @@ mod tests {
             name.family
                 .as_ref()
                 .and_then(|s| s.value.as_ref())
-                .map(|s| s.as_str()),
+                .map(std::string::String::as_str),
             Some("test")
         );
-        assert_eq!(name.given.is_none(), true);
-        assert_eq!(name.prefix.is_none(), true);
+        assert!(name.given.is_none());
+        assert!(name.prefix.is_none());
 
         let patient = r#"{
             "id": "",
@@ -660,15 +657,9 @@ mod tests {
         let patient = serde_json::from_str::<Patient>(patient).unwrap();
         let name = patient.name.unwrap()[0].clone();
 
-        assert_eq!(
-            name.prefix.clone().unwrap()[0]
-                .value
-                .as_ref()
-                .map(|s| s.as_str()),
-            Some("mr")
-        );
-        assert_eq!(name.family.is_none(), true);
-        assert_eq!(name.given.is_none(), true);
+        assert_eq!(name.prefix.clone().unwrap()[0].value.as_deref(), Some("mr"));
+        assert!(name.family.is_none());
+        assert!(name.given.is_none());
     }
     #[test]
     fn serialize_typechoicie() {
