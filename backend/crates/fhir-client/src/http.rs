@@ -796,9 +796,9 @@ fn http_response_to_fhir_response<'a>(
                     let resource =
                         serde_json::from_slice::<Resource>(&body).map_err(FHIRHTTPError::from)?;
 
-                    Ok(FHIRResponse::Delete(DeleteResponse::Instance(
+                    Ok(FHIRResponse::Delete(DeleteResponse::Instance(Box::new(
                         request::FHIRDeleteInstanceResponse { resource },
-                    )))
+                    ))))
                 }
                 DeleteRequest::Type(_) => {
                     let status = response.status();
@@ -1454,12 +1454,7 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
                     request::FHIRInvokeInstanceRequest {
                         resource_type,
                         id,
-                        operation: Operation::new(&operation).map_err(|_e| {
-                            OperationOutcomeError::error(
-                                IssueType::EXCEPTION,
-                                "invalid operation".to_string(),
-                            )
-                        })?,
+                        operation: Operation::new(&operation),
                         parameters,
                     },
                 )),
@@ -1488,12 +1483,7 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
                 ctx,
                 FHIRRequest::Invocation(InvocationRequest::Type(request::FHIRInvokeTypeRequest {
                     resource_type,
-                    operation: Operation::new(&operation).map_err(|_e| {
-                        OperationOutcomeError::error(
-                            IssueType::EXCEPTION,
-                            "invalid operation".to_string(),
-                        )
-                    })?,
+                    operation: Operation::new(&operation),
                     parameters,
                 })),
             )
@@ -1520,12 +1510,7 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
                 ctx,
                 FHIRRequest::Invocation(InvocationRequest::System(
                     request::FHIRInvokeSystemRequest {
-                        operation: Operation::new(&operation).map_err(|_e| {
-                            OperationOutcomeError::error(
-                                IssueType::EXCEPTION,
-                                "invalid operation".to_string(),
-                            )
-                        })?,
+                        operation: Operation::new(&operation),
                         parameters,
                     },
                 )),
