@@ -6,6 +6,12 @@ mod escape;
 #[derive(Debug, Clone)]
 pub struct Path(String);
 
+impl Default for Path {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Display for Path {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
@@ -13,24 +19,36 @@ impl Display for Path {
 }
 
 impl Path {
+    #[must_use]
     pub fn new() -> Self {
-        Self("".to_string())
+        Self(String::new())
     }
+    #[must_use]
     pub fn descend(&self, field: &str) -> Self {
         Self(format!("{}/{}", self.0, escape::escape_field(field)))
     }
+    #[must_use]
     pub fn ascend(&self) -> Option<(Self, Key)> {
         if self.0.is_empty() {
-            None
-        } else {
-            let mut parts = self.0.rsplitn(2, '/');
-            let field = parts.next().unwrap();
-            let parent_path = parts.next().unwrap_or("");
+            return None;
+        }
 
-            Some((
-                Path(parent_path.to_string()),
-                Key::from_str(&escape::unescape_field(field)),
-            ))
+        // Find the last '/' separator from the end of the string
+        match self.0.rfind('/') {
+            // Case 1: Separator found (e.g., "a/b/c" -> parent: "a/b", field: "c")
+            Some(idx) => {
+                let parent_path = &self.0[..idx];
+                let field = &self.0[idx + 1..];
+                Some((
+                    Path(parent_path.to_string()),
+                    Key::parse(&escape::unescape_field(field)),
+                ))
+            }
+            // Case 2: No separator found, the string is a single field (e.g., "a" -> parent: "", field: "a")
+            None => Some((
+                Path(String::new()),
+                Key::parse(&escape::unescape_field(&self.0)),
+            )),
         }
     }
 
@@ -38,7 +56,7 @@ impl Path {
         let mut current = value;
         // Skip the first empty part from the leading '/'
         for part in self.0.split('/').skip(1) {
-            let k = Key::from_str(&escape::unescape_field(part));
+            let k = Key::parse(&escape::unescape_field(part));
 
             match k {
                 Key::Field(field) => {
@@ -66,7 +84,8 @@ pub enum Key {
 }
 
 impl Key {
-    pub fn from_str(field: &str) -> Self {
+    #[must_use]
+    pub fn parse(field: &str) -> Self {
         if let Ok(index) = field.parse::<usize>() {
             Key::Index(index)
         } else {
@@ -91,29 +110,32 @@ pub struct TypedPointer<T: MetaValue, U: MetaValue> {
 impl<Root: MetaValue, U: MetaValue> TypedPointer<Root, U> {
     pub fn new(value: Arc<Root>) -> TypedPointer<Root, Root> {
         TypedPointer {
-            value: ChildPointer(&*value.as_ref() as *const Root),
+            value: ChildPointer(&raw const *value.as_ref()),
             root: value,
             path: Path::new(),
         }
     }
 
+    #[must_use]
     pub fn root(&self) -> TypedPointer<Root, Root> {
         TypedPointer {
-            value: ChildPointer(&*self.root.as_ref() as *const Root),
+            value: ChildPointer(&raw const *self.root.as_ref()),
             root: self.root.clone(),
             path: Path::new(),
         }
     }
 
+    #[must_use]
     pub fn path(&self) -> &str {
         self.path.0.as_str()
     }
 
+    #[must_use]
     pub fn value(&self) -> Option<&U> {
-        let p = unsafe { (*self.value.0).as_any().downcast_ref::<U>() };
-        p
+        unsafe { (*self.value.0).as_any().downcast_ref::<U>() }
     }
 
+    #[must_use]
     pub fn descend<Child: MetaValue>(&self, field: &Key) -> Option<TypedPointer<Root, Child>> {
         match field {
             Key::Field(field) => self.value().and_then(|v| {
@@ -121,7 +143,7 @@ impl<Root: MetaValue, U: MetaValue> TypedPointer<Root, U> {
                     .and_then(|v| v.as_any().downcast_ref::<Child>())
                     .map(|child| TypedPointer {
                         root: self.root.clone(),
-                        value: ChildPointer(&*child as *const Child),
+                        value: ChildPointer(&raw const *child),
                         path: self.path.descend(field),
                     })
             }),
@@ -130,13 +152,14 @@ impl<Root: MetaValue, U: MetaValue> TypedPointer<Root, U> {
                     .and_then(|v| v.as_any().downcast_ref::<Child>())
                     .map(|child| TypedPointer {
                         root: self.root.clone(),
-                        value: ChildPointer(&*child as *const Child),
+                        value: ChildPointer(&raw const *child),
                         path: self.path.descend(&index.to_string()),
                     })
             }),
         }
     }
 
+    #[must_use]
     pub fn ascend(&self) -> Option<(Path, Key)> {
         self.path.ascend()
     }
