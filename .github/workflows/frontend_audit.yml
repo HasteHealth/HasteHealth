@@ -30,9 +30,7 @@ jobs:
       - name: Setup node.js
         uses: actions/setup-node@v6
         with:
-          cache-dependency-path: "./frontend/pnpm-lock.yaml"
           node-version: 23
-          cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
 
       - name: Audit dependencies
