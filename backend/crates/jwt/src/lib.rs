@@ -44,6 +44,7 @@ pub enum AuthorId {
 }
 
 impl AuthorId {
+    #[must_use]
     pub fn new(id: String) -> Self {
         // Should never be able to create a system author from user.
         if id == SYSTEM {
@@ -84,7 +85,7 @@ impl Serialize for AuthorId {
 impl Display for AuthorId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            AuthorId::System => write!(f, "{}", SYSTEM),
+            AuthorId::System => write!(f, "{SYSTEM}"),
             AuthorId::User(id) => write!(f, "{}", id.as_ref()),
         }
     }
@@ -124,6 +125,7 @@ pub enum TenantId {
 }
 
 impl TenantId {
+    #[must_use]
     pub fn new(id: String) -> Self {
         // Should never be able to create a system tenant from user.
         if id == SYSTEM {
@@ -170,8 +172,8 @@ impl Serialize for TenantId {
 impl Display for TenantId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TenantId::System => write!(f, "{}", SYSTEM),
-            TenantId::Custom(id) => write!(f, "{}", id),
+            TenantId::System => write!(f, "{SYSTEM}"),
+            TenantId::Custom(id) => write!(f, "{id}"),
         }
     }
 }
@@ -184,6 +186,7 @@ pub enum ProjectId {
     Custom(String),
 }
 impl ProjectId {
+    #[must_use]
     pub fn new(id: String) -> Self {
         // Should never be able to create a system project from user.
         if id == SYSTEM {
@@ -224,21 +227,22 @@ impl Serialize for ProjectId {
 impl Display for ProjectId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ProjectId::System => write!(f, "{}", SYSTEM),
-            ProjectId::Custom(id) => write!(f, "{}", id),
+            ProjectId::System => write!(f, "{SYSTEM}"),
+            ProjectId::Custom(id) => write!(f, "{id}"),
         }
     }
 }
 
 pub struct VersionIdRef<'a>(&'a str);
 impl<'a> VersionIdRef<'a> {
+    #[must_use]
     pub fn new(id: &'a str) -> Self {
         VersionIdRef(id)
     }
 }
 impl<'a> AsRef<str> for VersionIdRef<'a> {
     fn as_ref(&self) -> &'a str {
-        &self.0
+        self.0
     }
 }
 impl<'a> From<&'a VersionId> for VersionIdRef<'a> {
@@ -251,6 +255,7 @@ impl<'a> From<&'a VersionId> for VersionIdRef<'a> {
 #[derivative(Debug = "transparent")]
 pub struct VersionId(String);
 impl VersionId {
+    #[must_use]
     pub fn new(id: String) -> Self {
         VersionId(id)
     }
@@ -270,6 +275,7 @@ impl AsRef<str> for VersionId {
 #[derivative(Debug = "transparent")]
 pub struct ResourceId(String);
 impl ResourceId {
+    #[must_use]
     pub fn new(id: String) -> Self {
         ResourceId(id)
     }

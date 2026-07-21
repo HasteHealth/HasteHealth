@@ -11,7 +11,7 @@ impl MetaValue for TenantId {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
@@ -19,7 +19,7 @@ impl MetaValue for TenantId {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
@@ -49,7 +49,7 @@ impl MetaValue for ProjectId {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
@@ -57,7 +57,7 @@ impl MetaValue for ProjectId {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
@@ -87,7 +87,7 @@ impl MetaValue for ResourceId {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
@@ -95,7 +95,7 @@ impl MetaValue for ResourceId {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
@@ -124,15 +124,15 @@ impl MetaValue for VersionId {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
-    fn get_field_mut<'a>(&'a mut self, _field: &str) -> Option<&'a mut dyn MetaValue> {
+    fn get_field_mut(&mut self, _field: &str) -> Option<&mut dyn MetaValue> {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut<'a>(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 

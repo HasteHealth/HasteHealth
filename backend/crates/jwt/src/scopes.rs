@@ -35,7 +35,7 @@ impl TryFrom<&str> for OIDCScope {
             "online_access" => Ok(Self::OnlineAccess),
             _ => Err(OperationOutcomeError::error(
                 IssueType::NOT_SUPPORTED,
-                format!("OIDC Scope '{}' not supported.", value),
+                format!("OIDC Scope '{value}' not supported."),
             )),
         }
     }
@@ -65,7 +65,7 @@ impl TryFrom<&str> for LaunchType {
             "patient" => Ok(LaunchType::Patient),
             _ => Err(OperationOutcomeError::error(
                 IssueType::NOT_SUPPORTED,
-                format!("Launch type '{}' not supported.", value),
+                format!("Launch type '{value}' not supported."),
             )),
         }
     }
@@ -79,9 +79,10 @@ pub struct LaunchTypeScope {
 impl From<LaunchTypeScope> for String {
     fn from(value: LaunchTypeScope) -> Self {
         match value.launch_type {
-            LaunchType::Encounter => "launch/encounter".to_string(),
-            LaunchType::Patient => "launch/patient".to_string(),
+            LaunchType::Encounter => "launch/encounter",
+            LaunchType::Patient => "launch/patient",
         }
+        .to_string()
     }
 }
 
@@ -102,7 +103,7 @@ impl TryFrom<&str> for SmartResourceScopeUser {
             "patient" => Ok(SmartResourceScopeUser::Patient),
             _ => Err(OperationOutcomeError::error(
                 IssueType::NOT_SUPPORTED,
-                format!("Smart resource scope level '{}' not supported.", value),
+                format!("Smart resource scope level '{value}' not supported."),
             )),
         }
     }
@@ -125,8 +126,7 @@ impl TryFrom<&str> for SmartResourceScopeLevel {
                     OperationOutcomeError::error(
                         IssueType::NOT_SUPPORTED,
                         format!(
-                            "Smart resource scope resource type '{}' not supported.",
-                            resource_type,
+                            "Smart resource scope resource type '{resource_type}' not supported.",
                         ),
                     )
                 })?;
@@ -149,10 +149,12 @@ pub enum SmartResourceScopePermission {
 pub struct SmartResourceScopePermissions(Vec<SmartResourceScopePermission>);
 
 impl SmartResourceScopePermissions {
+    #[must_use]
     pub fn new(permissions: Vec<SmartResourceScopePermission>) -> Self {
         Self(permissions)
     }
 
+    #[must_use]
     pub fn has_permission(&self, permission: &SmartResourceScopePermission) -> bool {
         self.0.contains(permission)
     }
@@ -197,14 +199,20 @@ impl TryFrom<&str> for SmartResourceScopePermissions {
                     let found_index = SMART_RESOURCE_SCOPE_PERMISSION_ORDER
                         .iter()
                         .position(|o| *o == method)
-                        .map(|p| p as i8);
+                        .map(i8::try_from)
+                        .transpose()
+                        .map_err(|e| {
+                            OperationOutcomeError::error(
+                                IssueType::NOT_SUPPORTED,
+                                format!("Permission order index overflow {e}"),
+                            )
+                        })?;
 
                     if found_index <= Some(current_index) || found_index.is_none() {
                         return Err(OperationOutcomeError::error(
                             IssueType::NOT_SUPPORTED,
                             format!(
-                                "Invalid scope access type methods: '{}' not supported or in wrong place must be in 'cruds' order.",
-                                method
+                                "Invalid scope access type methods: '{method}' not supported or in wrong place must be in 'cruds' order.",
                             ),
                         ));
                     }
@@ -312,7 +320,7 @@ impl From<SMARTResourceScope> for String {
             permissions_str.push('s');
         }
 
-        format!("{}/{}.{}", user_str, level_str, permissions_str)
+        format!("{user_str}/{level_str}.{permissions_str}")
     }
 }
 
@@ -346,7 +354,7 @@ impl TryFrom<&str> for SmartScope {
                 if chunks.len() != 2 {
                     return Err(OperationOutcomeError::error(
                         IssueType::NOT_SUPPORTED,
-                        format!("Invalid launch scope: '{}'.", value),
+                        format!("Invalid launch scope: '{value}'."),
                     ));
                 }
 
@@ -362,7 +370,7 @@ impl TryFrom<&str> for SmartScope {
                 if parts.len() != 2 {
                     return Err(OperationOutcomeError::error(
                         IssueType::NOT_SUPPORTED,
-                        format!("Invalid smart resource scope: '{}'.", value),
+                        format!("Invalid smart resource scope: '{value}'."),
                     ));
                 }
 
@@ -371,7 +379,7 @@ impl TryFrom<&str> for SmartScope {
                 if permissions_parts.len() != 2 {
                     return Err(OperationOutcomeError::error(
                         IssueType::NOT_SUPPORTED,
-                        format!("Invalid smart resource scope: '{}'.", value),
+                        format!("Invalid smart resource scope: '{value}'."),
                     ));
                 }
 
@@ -386,7 +394,7 @@ impl TryFrom<&str> for SmartScope {
             }
             _ => Err(OperationOutcomeError::error(
                 IssueType::NOT_SUPPORTED,
-                format!("Smart Scope '{}' not supported.", value),
+                format!("Smart Scope '{value}' not supported."),
             )),
         }
     }
@@ -419,18 +427,13 @@ impl From<Scope> for String {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, Default, PartialEq, Eq, Clone)]
 pub struct Scopes(pub Vec<Scope>);
 
 impl Scopes {
+    #[must_use]
     pub fn contains_scope(&self, scope: &Scope) -> bool {
         self.0.contains(scope)
-    }
-}
-
-impl Default for Scopes {
-    fn default() -> Self {
-        Scopes(vec![])
     }
 }
 
@@ -438,10 +441,8 @@ impl TryFrom<&str> for Scopes {
     type Error = OperationOutcomeError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let scopes: Result<Vec<Scope>, OperationOutcomeError> = value
-            .split_whitespace()
-            .map(|s| Scope::try_from(s))
-            .collect();
+        let scopes: Result<Vec<Scope>, OperationOutcomeError> =
+            value.split_whitespace().map(Scope::try_from).collect();
 
         Ok(Scopes(scopes?))
     }
@@ -450,9 +451,7 @@ impl TryFrom<&str> for Scopes {
 // Used by sqlx binding this is not safe.
 impl From<String> for Scopes {
     fn from(value: String) -> Self {
-        let scopes = Self::try_from(value.as_str()).expect("Invalid scopes string");
-
-        scopes
+        Self::try_from(value.as_str()).expect("Invalid scopes string")
     }
 }
 
@@ -471,7 +470,7 @@ impl From<Scopes> for String {
         value
             .0
             .into_iter()
-            .map(|s| String::from(s))
+            .map(String::from)
             .collect::<Vec<_>>()
             .join(" ")
     }

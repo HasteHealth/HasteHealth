@@ -19,11 +19,12 @@ pub enum SubscriptionTier {
 impl From<SubscriptionTier> for String {
     fn from(tier: SubscriptionTier) -> Self {
         match tier {
-            SubscriptionTier::Free => "free".to_string(),
-            SubscriptionTier::Professional => "professional".to_string(),
-            SubscriptionTier::Team => "team".to_string(),
-            SubscriptionTier::Unlimited => "unlimited".to_string(),
+            SubscriptionTier::Free => "free",
+            SubscriptionTier::Professional => "professional",
+            SubscriptionTier::Team => "team",
+            SubscriptionTier::Unlimited => "unlimited",
         }
+        .to_string()
     }
 }
 
@@ -37,7 +38,7 @@ impl TryFrom<String> for SubscriptionTier {
             "unlimited" => Ok(SubscriptionTier::Unlimited),
             _ => Err(OperationOutcomeError::error(
                 IssueType::INVALID,
-                format!("Invalid subscription tier: '{}'", value),
+                format!("Invalid subscription tier: '{value}'"),
             )),
         }
     }
