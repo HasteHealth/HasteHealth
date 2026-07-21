@@ -64,19 +64,28 @@ pub static STRING_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
 
 pub static PRIMITIVE_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     let mut res = BOOLEAN_TYPES.clone();
-    res.extend(NUMBER_TYPES.iter().map(|s| *s));
-    res.extend(DATE_TIME_TYPES.iter().map(|s| *s));
-    res.extend(STRING_TYPES.iter().map(|s| *s));
+    res.extend(NUMBER_TYPES.iter().copied());
+    res.extend(DATE_TIME_TYPES.iter().copied());
+    res.extend(STRING_TYPES.iter().copied());
 
     res
 });
 
+/// Downcasts a FHIR boolean value to a `bool`.
+///
+/// Supports both the FHIR primitive `boolean` type and the `FHIRPath`
+/// `System.Boolean` type.
+///
+/// # Errors
+///
+/// Returns [`DowncastError`] if `value` is not a supported boolean type or if
+/// the underlying value cannot be downcast to the expected concrete type.
 pub fn downcast_bool(value: &dyn MetaValue) -> Result<bool, DowncastError> {
     match value.fhir_type() {
         "http://hl7.org/fhirpath/System.Boolean" => value
             .as_any()
             .downcast_ref::<bool>()
-            .map(|v| *v)
+            .copied()
             .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string())),
         "boolean" => {
             let fp_bool = value
@@ -89,21 +98,41 @@ pub fn downcast_bool(value: &dyn MetaValue) -> Result<bool, DowncastError> {
     }
 }
 
+/// Downcasts a FHIR string value to a `String`.
+///
+/// Supports FHIR primitive string-based types (`canonical`, `base64Binary`,
+/// `code`, `string`, `oid`, `uri`, `url`, `uuid`, `id`, and `xhtml`) as well
+/// as the `FHIRPath` `System.String` type.
+///
+/// # Errors
+///
+/// Returns [`DowncastError`] if `value` is not a supported string type or if
+/// the underlying value cannot be downcast to the expected concrete type.
 pub fn downcast_string(value: &dyn MetaValue) -> Result<String, DowncastError> {
     match value.fhir_type() {
         "canonical" | "base64Binary" | "code" | "string" | "oid" | "uri" | "url" | "uuid"
-        | "id" | "xhtml" => downcast_string(value.get_field("value").unwrap_or(&"".to_string())),
+        | "id" | "xhtml" => downcast_string(value.get_field("value").unwrap_or(&String::new())),
 
         "http://hl7.org/fhirpath/System.String" => value
             .as_any()
             .downcast_ref::<String>()
-            .map(|v| v.clone())
+            .cloned()
             .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string())),
 
         type_name => Err(DowncastError::FailedDowncast(type_name.to_string())),
     }
 }
 
+/// Downcasts a FHIR numeric value to an `f64`.
+///
+/// Supports FHIR primitive numeric types (`integer`, `decimal`,
+/// `positiveInt`, and `unsignedInt`) as well as the corresponding `FHIRPath`
+/// system types.
+///
+/// # Errors
+///
+/// Returns [`DowncastError`] if `value` is not a supported numeric type or if
+/// the underlying value cannot be downcast to the expected concrete type.
 pub fn downcast_number(value: &dyn MetaValue) -> Result<f64, DowncastError> {
     match value.fhir_type() {
         "integer" => {
@@ -136,6 +165,7 @@ pub fn downcast_number(value: &dyn MetaValue) -> Result<f64, DowncastError> {
 
             downcast_number(fp_unsigned_int.value.as_ref().unwrap_or(&0))
         }
+        #[allow(clippy::cast_precision_loss)]
         "http://hl7.org/fhirpath/System.Integer" => value
             .as_any()
             .downcast_ref::<i64>()
@@ -145,17 +175,27 @@ pub fn downcast_number(value: &dyn MetaValue) -> Result<f64, DowncastError> {
         "http://hl7.org/fhirpath/System.Decimal" => value
             .as_any()
             .downcast_ref::<f64>()
-            .map(|v| *v)
+            .copied()
             .ok_or_else(|| DowncastError::FailedDowncast(value.fhir_type().to_string())),
         type_name => Err(DowncastError::FailedDowncast(type_name.to_string())),
     }
 }
 
+/// Downcasts a FHIR date/time value to its string representation.
+///
+/// Supports FHIR primitive `date`, `dateTime`, `instant`, and `time` values,
+/// as well as the corresponding `FHIRPath` system types.
+///
+/// # Errors
+///
+/// Returns [`DowncastError`] if `value` is not one of the supported date/time
+/// types or if the underlying value cannot be downcast to the expected concrete
+/// type.
 pub fn downcast_datetime(value: &dyn MetaValue) -> Result<String, DowncastError> {
     // For simplicity, we will just downcast to string for date and datetime types, as FHIRPath evaluation only requires string representation of dates.
     match value.fhir_type() {
         "date" | "dateTime" | "instant" | "time" => {
-            downcast_datetime(value.get_field("value").unwrap_or(&"".to_string()))
+            downcast_datetime(value.get_field("value").unwrap_or(&String::new()))
         }
         "http://hl7.org/fhirpath/System.Date" => {
             let fp_date = value
