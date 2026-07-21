@@ -22,10 +22,10 @@ fn get_attribute_rename(attrs: &[Attribute]) -> Option<String> {
 }
 
 fn is_optional(field: &Field) -> bool {
-    if let syn::Type::Path(type_path) = &field.ty {
-        if let Some(segment) = type_path.path.segments.first() {
-            return segment.ident == "Option";
-        }
+    if let syn::Type::Path(type_path) = &field.ty
+        && let Some(segment) = type_path.path.segments.first()
+    {
+        return segment.ident == "Option";
     }
     false
 }
@@ -49,235 +49,203 @@ fn get_attribute_fhir_type(attrs: &[Attribute]) -> Option<String> {
     })
 }
 
+fn expand_struct(input: &DeriveInput, data: &syn::DataStruct) -> TokenStream {
+    let fhir_type = get_attribute_fhir_type(&input.attrs);
+    let all_fields = data
+        .fields
+        .iter()
+        .map(|field| field.ident.as_ref().unwrap().to_string());
+
+    let name = &input.ident;
+
+    let accessors = data.fields.iter().map(|field| {
+        let renamed = get_attribute_rename(&field.attrs);
+        let name = renamed.unwrap_or_else(|| field.ident.as_ref().unwrap().to_string());
+
+        let accessor = field.ident.clone().unwrap();
+
+        if is_optional(field) {
+            quote! {
+                #name => if let Some(v) = self.#accessor.as_ref() {
+                    Some(v)
+                } else {
+                    None
+                }
+            }
+        } else {
+            quote! {
+                #name => Some(&self.#accessor)
+            }
+        }
+    });
+
+    let mutable_accessor = data.fields.iter().map(|field| {
+        let renamed = get_attribute_rename(&field.attrs);
+        let name = renamed.unwrap_or_else(|| field.ident.as_ref().unwrap().to_string());
+
+        let accessor = field.ident.clone().unwrap();
+
+        quote! {
+            #name => Some(&mut self.#accessor)
+        }
+    });
+
+    quote! {
+        impl haste_reflect::MetaValue for #name {
+            fn fields(&self) -> Vec<&'static str> {
+                vec![#(#all_fields),*]
+            }
+
+            fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
+                match field {
+                    #(#accessors),*,
+                    _ => None,
+                }
+            }
+
+            fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+                match field {
+                    #(#mutable_accessor),*,
+                    _ => None,
+                }
+            }
+
+            fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+                None
+            }
+
+            fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+                None
+            }
+
+            fn fhir_type(&self) -> &'static str {
+                #fhir_type
+            }
+
+            fn as_any(&self) -> &dyn std::any::Any {
+                self
+            }
+
+            fn flatten(&self) -> Vec<&dyn MetaValue> {
+                vec![self]
+            }
+
+            fn is_many(&self) -> bool {
+                false
+            }
+        }
+    }
+    .into()
+}
+
+fn expand_enum(input: &DeriveInput, data: &syn::DataEnum) -> TokenStream {
+    let enum_name = &input.ident;
+
+    let variants_fields = data.variants.iter().map(|variant| {
+        let name = variant.ident.clone();
+        quote! { Self::#name(k) => k.fields() }
+    });
+
+    let variants_get_field = data.variants.iter().map(|variant| {
+        let name = variant.ident.clone();
+        quote! { Self::#name(k) => k.get_field(field) }
+    });
+
+    let variants_get_index = data.variants.iter().map(|variant| {
+        let name = variant.ident.clone();
+        quote! { Self::#name(k) => k.get_index(field) }
+    });
+
+    let variants_get_field_mut = data.variants.iter().map(|variant| {
+        let name = variant.ident.clone();
+        quote! { Self::#name(k) => k.get_field_mut(field) }
+    });
+
+    let variants_get_index_mut = data.variants.iter().map(|variant| {
+        let name = variant.ident.clone();
+        quote! { Self::#name(k) => k.get_index_mut(index) }
+    });
+
+    let variants_as_any = data.variants.iter().map(|variant| {
+        let name = variant.ident.clone();
+        quote! { Self::#name(k) => k.as_any() }
+    });
+
+    let variants_flatten = data.variants.iter().map(|variant| {
+        let name = variant.ident.clone();
+        quote! { Self::#name(k) => k.flatten() }
+    });
+
+    let variants_fhir_type = data.variants.iter().map(|variant| {
+        let name = variant.ident.clone();
+        quote! { Self::#name(k) => k.fhir_type() }
+    });
+
+    quote! {
+        impl haste_reflect::MetaValue for #enum_name {
+            fn fields(&self) -> Vec<&'static str> {
+                match self {
+                    #(#variants_fields),*
+                }
+            }
+
+            fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
+                match self {
+                    #(#variants_get_field),*
+                }
+            }
+
+            fn get_index<'a>(&'a self, field: usize) -> Option<&'a dyn MetaValue> {
+                match self {
+                    #(#variants_get_index),*
+                }
+            }
+
+            fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+                match self {
+                    #(#variants_get_field_mut),*
+                }
+            }
+
+            fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
+                match self {
+                    #(#variants_get_index_mut),*
+                }
+            }
+
+            fn fhir_type(&self) -> &'static str {
+                match self {
+                    #(#variants_fhir_type),*
+                }
+            }
+
+            fn as_any(&self) -> &dyn std::any::Any {
+                match self {
+                    #(#variants_as_any),*
+                }
+            }
+
+            fn flatten(&self) -> Vec<&dyn MetaValue> {
+                match self {
+                    #(#variants_flatten),*
+                }
+            }
+
+            fn is_many(&self) -> bool {
+                false
+            }
+        }
+    }
+    .into()
+}
+
 #[proc_macro_derive(Reflect, attributes(rename_field, fhir_type))]
 pub fn haste_reflect(input: TokenStream) -> TokenStream {
-    // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);
 
     match input.data {
-        Data::Struct(data) => {
-            let fhir_type = get_attribute_fhir_type(&input.attrs);
-            let all_fields = data
-                .fields
-                .iter()
-                .map(|field| field.ident.to_owned().unwrap().to_string());
-
-            let name = input.ident;
-
-            let accessors = data.fields.iter().map(|field| {
-                let renamed = get_attribute_rename(&field.attrs);
-                let name = if let Some(renamed_field) = renamed {
-                    renamed_field
-                } else {
-                    field.ident.to_owned().unwrap().to_string()
-                };
-
-                let accessor = field.ident.to_owned().unwrap();
-                if is_optional(field) {
-                    quote! {
-                         #name => if let Some(v) = self.#accessor.as_ref() {
-                             Some(v)
-                         } else {
-                             None
-                         }
-                    }
-                } else {
-                    quote! {
-                        #name => Some(&self.#accessor)
-                    }
-                }
-            });
-
-            let mutable_accessor = data.fields.iter().map(|field| {
-                let renamed = get_attribute_rename(&field.attrs);
-                let name = if let Some(renamed_field) = renamed {
-                    renamed_field
-                } else {
-                    field.ident.to_owned().unwrap().to_string()
-                };
-
-                let accessor = field.ident.to_owned().unwrap();
-                // For mutable accessors, we return nested Option types that are None
-                // So that the caller can choose to initialize them if needed.
-                quote! {
-                    #name => Some(&mut self.#accessor)
-                }
-            });
-
-            let expanded = quote! {
-                impl haste_reflect::MetaValue for #name {
-                    fn fields(&self) -> Vec<&'static str> {
-                        vec![
-                            #(#all_fields),*
-                        ]
-                    }
-
-                    fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
-                        match field {
-                            #(#accessors),*
-                            ,_ => None,
-                        }
-                    }
-
-                    fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
-                         match field {
-                            #(#mutable_accessor),*
-                            ,_ => None,
-                        }
-                    }
-
-                    fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
-                        None
-                    }
-
-                    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
-                        None
-                    }
-
-                    fn fhir_type(&self) -> &'static str {
-                        #fhir_type
-                    }
-
-                    fn as_any(&self) -> &dyn std::any::Any {
-                        self
-                    }
-
-                    fn flatten(&self) -> Vec<&dyn MetaValue> {
-                        vec![self]
-                    }
-
-                    fn is_many(&self) -> bool {
-                        false
-                    }
-
-                }
-            };
-
-            expanded.into()
-        }
-
-        Data::Enum(data) => {
-            let enum_name = input.ident;
-
-            let variants_fields = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
-                quote! {
-                    Self::#name(k) => k.fields()
-                }
-            });
-
-            let variants_get_field = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
-                quote! {
-                    Self::#name(k) => k.get_field(field)
-                }
-            });
-
-            let variants_get_index = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
-                quote! {
-                    Self::#name(k) => k.get_index(field)
-                }
-            });
-
-            let variants_get_field_mut = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
-                quote! {
-                    Self::#name(k) => k.get_field_mut(field)
-                }
-            });
-
-            let variants_get_index_mut = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
-                quote! {
-                    Self::#name(k) => k.get_index_mut(index)
-                }
-            });
-
-            let variants_as_any = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
-                quote! {
-                    Self::#name(k) => k.as_any()
-                }
-            });
-
-            let variants_flatten = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
-                quote! {
-                    Self::#name(k) => k.flatten()
-                }
-            });
-
-            let variants_fhir_type = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
-                quote! {
-                    Self::#name(k) => k.fhir_type()
-                }
-            });
-
-            let expanded = quote! {
-                impl haste_reflect::MetaValue for #enum_name {
-                    fn fields(&self) -> Vec<&'static str> {
-                        match self {
-                            #(#variants_fields),*
-                        }
-                    }
-
-                    fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
-                        match self {
-                            #(#variants_get_field),*
-                        }
-                    }
-
-                    fn get_index<'a>(&'a self, field: usize) -> Option<&'a dyn MetaValue> {
-                        match self {
-                            #(#variants_get_index),*
-                        }
-                    }
-
-                    fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
-                         match self {
-                            #(#variants_get_field_mut),*
-                        }
-                    }
-
-                    fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
-                        match self {
-                            #(#variants_get_index_mut),*
-                        }
-                    }
-
-                    fn fhir_type(&self) -> &'static str {
-                        match self {
-                            #(#variants_fhir_type),*
-                        }
-                    }
-
-                    fn as_any(&self) -> &dyn std::any::Any {
-                        match self {
-                            #(#variants_as_any),*
-                        }
-                    }
-
-                    fn flatten(&self) -> Vec<&dyn MetaValue> {
-                        match self {
-                            #(#variants_flatten),*
-                        }
-                    }
-
-                    fn is_many(&self) -> bool {
-                        false
-                    }
-                }
-            };
-
-            // println!("{}", expanded);
-
-            expanded.into()
-        }
-
-        Data::Union(_data) => {
-            todo!("Union not supported");
-        }
+        Data::Struct(ref data) => expand_struct(&input, data),
+        Data::Enum(ref data) => expand_enum(&input, data),
+        Data::Union(_) => todo!("Union not supported"),
     }
 }

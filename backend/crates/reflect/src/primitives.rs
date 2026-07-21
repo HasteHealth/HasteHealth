@@ -1,16 +1,13 @@
 use crate::traits::MetaValue;
 use std::any::Any;
 
-/**
- * 067  public static final String FP_String = "http://hl7.org/fhirpath/System.String";
- * 068  public static final String FP_Boolean = "http://hl7.org/fhirpath/System.Boolean";
- * 069  public static final String FP_Integer = "http://hl7.org/fhirpath/System.Integer";
- * 070  public static final String FP_Decimal = "http://hl7.org/fhirpath/System.Decimal";
- * 071  public static final String FP_Quantity = "http://hl7.org/fhirpath/System.Quantity";
- * 072  public static final String FP_DateTime = "http://hl7.org/fhirpath/System.DateTime";
- * 073  public static final String FP_Time = "http://hl7.org/fhirpath/System.Time";
- */
-
+/// 067  public static final String `FP_String` = <http://hl7.org/fhirpath/System.String>;
+/// 068  public static final String `FP_Boolean` = <http://hl7.org/fhirpath/System.Boolean>;
+/// 069  public static final String `FP_Integer` = <http://hl7.org/fhirpath/System.Integer>;
+/// 070  public static final String `FP_Decimal` = <http://hl7.org/fhirpath/System.Decimal>;
+/// 071  public static final String `FP_Quantity` = <http://hl7.org/fhirpath/System.Quantity>;
+/// 072  public static final String `FP_DateTime` = <http://hl7.org/fhirpath/System.DateTime>;
+/// 073  public static final String `FP_Time` = <http://hl7.org/fhirpath/System.Time>;
 impl MetaValue for i64 {
     fn fields(&self) -> Vec<&'static str> {
         vec![]
@@ -20,7 +17,7 @@ impl MetaValue for i64 {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
@@ -28,7 +25,7 @@ impl MetaValue for i64 {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
@@ -57,7 +54,7 @@ impl MetaValue for u64 {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
@@ -65,7 +62,7 @@ impl MetaValue for u64 {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
@@ -94,7 +91,7 @@ impl MetaValue for f64 {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
@@ -102,7 +99,7 @@ impl MetaValue for f64 {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
@@ -131,7 +128,7 @@ impl MetaValue for bool {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
@@ -139,7 +136,7 @@ impl MetaValue for bool {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
@@ -168,7 +165,7 @@ impl MetaValue for String {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
@@ -176,7 +173,7 @@ impl MetaValue for String {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
@@ -205,7 +202,7 @@ impl MetaValue for &'static str {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
@@ -213,7 +210,7 @@ impl MetaValue for &'static str {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
@@ -250,7 +247,7 @@ where
         None
     }
 
-    fn get_index<'a>(&'a self, index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, index: usize) -> Option<&dyn MetaValue> {
         if self.get(index).is_some() {
             let k: &dyn MetaValue = &self[index];
             Some(k)
@@ -263,7 +260,7 @@ where
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, index: usize) -> Option<&mut dyn MetaValue> {
         if self.get(index).is_some() {
             let k: &mut dyn MetaValue = &mut self[index];
             Some(k)
@@ -324,10 +321,10 @@ where
     }
 
     fn flatten(&self) -> Vec<&dyn MetaValue> {
-        self.as_ref().map(|v| v.flatten()).unwrap_or_else(|| vec![])
+        self.as_ref().map_or_else(Vec::new, |v| v.flatten())
     }
 
-    fn get_index<'a>(&'a self, index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, index: usize) -> Option<&dyn MetaValue> {
         self.as_ref().and_then(|v| v.get_index(index))
     }
 
@@ -335,12 +332,12 @@ where
         self.as_mut().and_then(|value| value.get_field_mut(field))
     }
 
-    fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, index: usize) -> Option<&mut dyn MetaValue> {
         self.as_mut().and_then(|v| v.get_index_mut(index))
     }
 
     fn is_many(&self) -> bool {
-        self.as_ref().map(|v| v.is_many()).unwrap_or(false)
+        self.as_ref().is_some_and(super::traits::MetaValue::is_many)
     }
 }
 
@@ -368,7 +365,7 @@ where
         self.as_ref().flatten()
     }
 
-    fn get_index<'a>(&'a self, index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, index: usize) -> Option<&dyn MetaValue> {
         self.as_ref().get_index(index)
     }
 
@@ -376,7 +373,7 @@ where
         self.as_mut().get_field_mut(field)
     }
 
-    fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, index: usize) -> Option<&mut dyn MetaValue> {
         self.as_mut().get_index_mut(index)
     }
     fn is_many(&self) -> bool {
