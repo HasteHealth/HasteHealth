@@ -22,6 +22,9 @@ pub type MiddlewareChainOld<State, CTX, Request, Response, Error> = Box<
         + Sync,
 >;
 
+pub type MiddlewareNext<'a, State, CTX, Request, Response, Error> =
+    Arc<Next<State, Context<CTX, Request, Response>, Error>>;
+
 pub trait MiddlewareChain<State, CTX: Debug, Request: Debug, Response: Debug, Error>:
     Send + Sync
 {
@@ -29,14 +32,14 @@ pub trait MiddlewareChain<State, CTX: Debug, Request: Debug, Response: Debug, Er
         &self,
         state: State,
         ctx: Context<CTX, Request, Response>,
-        next: Option<Arc<Next<State, Context<CTX, Request, Response>, Error>>>,
+        next: Option<MiddlewareNext<State, CTX, Request, Response, Error>>,
     ) -> MiddlewareOutput<Context<CTX, Request, Response>, Error>;
 }
 
 pub struct Middleware<State, CTX: Debug, Request: Debug, Response: Debug, Error> {
     _state: std::marker::PhantomData<State>,
     _phantom: std::marker::PhantomData<CTX>,
-    _execute: Arc<Next<State, Context<CTX, Request, Response>, Error>>,
+    execute: Arc<Next<State, Context<CTX, Request, Response>, Error>>,
 }
 
 impl<
@@ -47,15 +50,22 @@ impl<
     Error: 'static + Send + Sync,
 > Middleware<State, CTX, Request, Response, Error>
 {
+    /// Create a new [`Middleware`] execution chain.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if the provided `middleware` vector is empty,
+    /// as an empty chain cannot be unwrapped into an execution target.
+    #[must_use]
     pub fn new(
         mut middleware: Vec<Box<dyn MiddlewareChain<State, CTX, Request, Response, Error>>>,
     ) -> Self {
         middleware.reverse();
-        let next: Option<Arc<Next<State, Context<CTX, Request, Response>, Error>>> = middleware
+        let next: Option<MiddlewareNext<State, CTX, Request, Response, Error>> = middleware
             .into_iter()
             .fold(
             None,
-            |prev_next: Option<Arc<Next<State, Context<CTX, Request, Response>, Error>>>,
+            |prev_next: Option<MiddlewareNext<State, CTX, Request, Response, Error>>,
              middleware: Box<dyn MiddlewareChain<State, CTX, Request, Response, Error>>| {
                 Some(Arc::new(Box::new(move |state, ctx| {
                     middleware.call(state, ctx, prev_next.clone())
@@ -66,17 +76,23 @@ impl<
         Middleware {
             _state: std::marker::PhantomData,
             _phantom: std::marker::PhantomData,
-            _execute: next.unwrap(),
+            execute: next.unwrap(),
         }
     }
 
+    /// Executes the middleware chain for the given request.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if any `MiddlewareChain` in the execution pipeline fails
+    /// while processing the state or request context.
     pub async fn call(
         &self,
         state: State,
         ctx: CTX,
         request: Request,
     ) -> Result<Context<CTX, Request, Response>, Error> {
-        (self._execute)(
+        (self.execute)(
             state,
             Context {
                 ctx,

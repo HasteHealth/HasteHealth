@@ -84,6 +84,7 @@ impl<T: Into<Parameter>> From<T> for ParsedParameter {
 }
 
 impl ParsedParameter {
+    #[must_use]
     pub fn name(&self) -> &str {
         match self {
             ParsedParameter::Result(p) | ParsedParameter::Resource(p) => &p.name,
@@ -110,13 +111,13 @@ impl MetaValue for ParsedParameter {
         }
     }
 
-    fn get_index<'a>(&'a self, index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, index: usize) -> Option<&dyn MetaValue> {
         match self {
             ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.get_index(index),
         }
     }
 
-    fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, index: usize) -> Option<&mut dyn MetaValue> {
         match self {
             ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.get_index_mut(index),
         }
@@ -158,7 +159,7 @@ impl Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ParseError::InvalidParameter(param) => {
-                write!(f, "Invalid query parameter: {}", param)
+                write!(f, "Invalid query parameter: {param}")
             }
         }
     }
@@ -172,22 +173,26 @@ pub struct ParsedParameters(Vec<ParsedParameter>);
 
 impl<T: Into<ParsedParameter>> From<Vec<T>> for ParsedParameters {
     fn from(params: Vec<T>) -> Self {
-        let parsed_params = params.into_iter().map(|p| p.into()).collect();
+        let parsed_params = params.into_iter().map(std::convert::Into::into).collect();
         ParsedParameters(parsed_params)
     }
 }
 
 impl ParsedParameters {
+    #[must_use]
     pub fn new(params: Vec<ParsedParameter>) -> Self {
         Self(params)
     }
-    pub fn parameters<'a>(&'a self) -> &'a Vec<ParsedParameter> {
+    #[must_use]
+    pub fn parameters(&self) -> &Vec<ParsedParameter> {
         &self.0
     }
-    pub fn owned_parameters<'a>(self) -> Vec<ParsedParameter> {
+    #[must_use]
+    pub fn owned_parameters(self) -> Vec<ParsedParameter> {
         self.0
     }
-    pub fn get<'a>(&'a self, name: &str) -> Option<&'a ParsedParameter> {
+    #[must_use]
+    pub fn get(&self, name: &str) -> Option<&ParsedParameter> {
         self.0.iter().find(|p| match p {
             ParsedParameter::Resource(param) | ParsedParameter::Result(param) => param.name == name,
         })
@@ -211,11 +216,11 @@ impl MetaValue for ParsedParameters {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
@@ -248,21 +253,14 @@ impl TryFrom<&str> for ParsedParameters {
             query_string = &query_string[1..];
         }
 
-        let query_map = query_string.split('&').fold(
-            Ok(HashMap::new()),
-            |acc: Result<HashMap<String, String>, ParseError>, pair| {
-                let mut map = acc?;
-                let mut split = pair.splitn(2, '=');
-                let key = split
-                    .next()
-                    .ok_or_else(|| ParseError::InvalidParameter(pair.to_string()))?;
-                let value = split
-                    .next()
-                    .ok_or_else(|| ParseError::InvalidParameter(pair.to_string()))?;
-                map.insert(key.to_string(), value.to_string());
-                Ok(map)
-            },
-        )?;
+        let query_map = query_string
+            .split('&')
+            .map(|pair| {
+                pair.split_once('=')
+                    .map(|(key, value)| (key.to_string(), value.to_string()))
+                    .ok_or_else(|| ParseError::InvalidParameter(pair.to_string()))
+            })
+            .collect::<Result<std::collections::HashMap<String, String>, ParseError>>()?;
 
         Self::try_from(&query_map)
     }
@@ -282,25 +280,30 @@ impl TryFrom<&HashMap<String, String>> for ParsedParameters {
 
                 let chain = param_name
                     .split('.')
-                    .map(|s| s.to_string())
+                    .map(std::string::ToString::to_string)
                     .collect::<Vec<String>>();
 
                 if chain.is_empty() {
-                    return Err(ParseError::InvalidParameter(param_name.to_string()));
+                    return Err(ParseError::InvalidParameter(param_name.clone()));
                 }
 
                 let name_and_modifier = chain[0].split(':').collect::<Vec<&str>>();
 
                 if name_and_modifier.len() > 2 || name_and_modifier.is_empty() {
-                    return Err(ParseError::InvalidParameter(param_name.to_string()));
+                    return Err(ParseError::InvalidParameter(param_name.clone()));
                 }
 
                 let name = name_and_modifier[0].to_string();
 
                 let param = Parameter {
                     name,
-                    modifier: name_and_modifier.get(1).map(|s| s.to_string()),
-                    value: value.split(',').map(|v| v.to_string()).collect(),
+                    modifier: name_and_modifier
+                        .get(1)
+                        .map(std::string::ToString::to_string),
+                    value: value
+                        .split(',')
+                        .map(std::string::ToString::to_string)
+                        .collect(),
                     chains: if chain.len() > 1 {
                         Some(chain[1..].to_vec())
                     } else {
@@ -320,7 +323,8 @@ impl TryFrom<&HashMap<String, String>> for ParsedParameters {
     }
 }
 
-pub fn parse_prefix<'a>(v: &'a str) -> (Option<&'a str>, &'a str) {
+#[must_use]
+pub fn parse_prefix(v: &str) -> (Option<&str>, &str) {
     if v.len() < 3 {
         return (None, v);
     }
@@ -329,12 +333,7 @@ pub fn parse_prefix<'a>(v: &'a str) -> (Option<&'a str>, &'a str) {
     let remainder = &v[2..];
 
     match sub_str {
-        "lt" => (Some(sub_str), remainder),
-        "le" => (Some(sub_str), remainder),
-        "gt" => (Some(sub_str), remainder),
-        "ge" => (Some(sub_str), remainder),
-        "eq" => (Some(sub_str), remainder),
-        "ne" => (Some(sub_str), remainder),
+        "lt" | "le" | "gt" | "ge" | "eq" | "ne" => (Some(sub_str), remainder),
         _ => (None, v),
     }
 }

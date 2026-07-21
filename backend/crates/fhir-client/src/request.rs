@@ -129,10 +129,12 @@ pub enum OperationParseError {
 #[derivative(Debug)]
 pub struct Operation(String);
 impl Operation {
-    pub fn new(name: &str) -> Result<Self, OperationParseError> {
+    #[must_use]
+    pub fn new(name: &str) -> Self {
         let operation_name = name.trim_start_matches('$');
-        Ok(Operation(operation_name.to_string()))
+        Operation(operation_name.to_string())
     }
+    #[must_use]
     pub fn name(&self) -> &str {
         &self.0
     }
@@ -402,7 +404,7 @@ pub enum SearchResponse {
 #[derivative(Debug = "transparent")]
 pub enum DeleteResponse {
     #[derivative(Debug = "transparent")]
-    Instance(FHIRDeleteInstanceResponse),
+    Instance(Box<FHIRDeleteInstanceResponse>),
     #[derivative(Debug = "transparent")]
     Type(FHIRDeleteTypeResponse),
     #[derivative(Debug = "transparent")]
