@@ -13,7 +13,7 @@ use syn::{Data, DeriveInput, Field, Fields, Ident};
 
 fn unwrap_and_validate_cardinality_field(
     field: &Field,
-    value_identifier: proc_macro2::Ident,
+    value_identifier: &proc_macro2::Ident,
 ) -> TokenStream {
     let value_string_name = value_identifier.to_string();
     if is_optional_field(field) {
@@ -47,7 +47,7 @@ pub fn fhir_primitive_deserialization(input: DeriveInput) -> TokenStream {
 
             let unwrap_required = unwrap_and_validate_cardinality_field(
                 value_field_found.unwrap(),
-                format_ident!("value"),
+                &format_ident!("value"),
             );
 
             let expanded = quote! {
@@ -99,7 +99,7 @@ pub fn fhir_primitive_deserialization(input: DeriveInput) -> TokenStream {
 
             // println!("{}", expanded.to_string());
 
-            expanded.into()
+            expanded
         }
         _ => panic!("Only structs can be serialized for primitive serializer."),
     }
@@ -110,28 +110,24 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
     match input.data {
         Data::Enum(data) => {
             let variants_deserialize_value = data.variants.iter().filter_map(|variant| {
-                let variant_name = variant.ident.to_owned();
+                let variant_name = variant.ident.clone();
                 let code = get_attribute_value(&variant.attrs, "code");
-                if let Some(code) = code {
-                    Some(quote! {
+                code.map(|code| {
+                    quote! {
                         #code =>  Ok(#name::#variant_name(None))
-                    })
-                } else {
-                    None
-                }
+                    }
+                })
             });
 
             let variants_deserialize_value_with_element =
                 data.variants.iter().filter_map(|variant| {
-                    let variant_name = variant.ident.to_owned();
+                    let variant_name = variant.ident.clone();
                     let code = get_attribute_value(&variant.attrs, "code");
-                    if let Some(code) = code {
-                        Some(quote! {
+                    code.map(|code| {
+                        quote! {
                             #code =>  Ok(#name::#variant_name(element))
-                        })
-                    } else {
-                        None
-                    }
+                        }
+                    })
                 });
 
             let expanded: TokenStream = quote! {
@@ -194,7 +190,7 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
 
             //println!("{}", expanded.to_string());
 
-            expanded.into()
+            expanded
         }
         _ => panic!("Value set serialization only works for enums"),
     }
@@ -207,7 +203,7 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
 /// to resolve target and verify it's type.
 #[allow(unused)]
 fn reference_validator(targets: &Vec<String>, reference_id: &Ident) -> TokenStream {
-    if targets.len() == 0 {
+    if targets.is_empty() {
         quote! {}
     } else {
         quote! {
@@ -230,8 +226,8 @@ pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
     match input.data {
         Data::Enum(data) => {
             let serialize_by_name_matches = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
-                let field_name = format!("{}{}", typechoice_name, name);
+                let name = variant.ident.clone();
+                let field_name = format!("{typechoice_name}{name}");
                 let field: &Field = variant.fields.iter().next().unwrap();
 
                 let full_value_type = &field.ty;
@@ -278,7 +274,7 @@ pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
             };
 
             // println!("{}", expanded.to_string());
-            expanded.into()
+            expanded
         }
         _ => panic!("Only enums can be deserialized for typechoice serializer."),
     }
@@ -292,7 +288,7 @@ fn create_primitive_struct_handler(
 ) -> TokenStream {
     let field_ident = field.ident.as_ref().unwrap();
     let field_str = get_field_name(field);
-    let extension_str = format!("_{}", field_str);
+    let extension_str = format!("_{field_str}");
     let field_type = get_field_type(field);
 
     quote! {
@@ -318,7 +314,7 @@ fn create_type_choice_struct_handler(
 
     // For each individual primitve variant also check the extension
     let primitive_checks = primitive_variants.iter().map(|primitive_variant| {
-        let extension_variant = format!("_{}", primitive_variant);
+        let extension_variant = format!("_{primitive_variant}");
         quote!{
             if(#primitive_variant == #field_variable || #extension_variant == #field_variable) {
                 #found_fields_variable.insert(#primitive_variant);
@@ -368,7 +364,7 @@ fn set_struct_field(
     field_variable: &Ident,
     field: &Field,
 ) -> TokenStream {
-    let struct_set = if is_attribute_present(&field.attrs, "primitive") {
+    if is_attribute_present(&field.attrs, "primitive") {
         create_primitive_struct_handler(found_fields_variable, obj_variable, field_variable, field)
     } else if is_type_choice_field(field) {
         create_type_choice_struct_handler(
@@ -379,9 +375,7 @@ fn set_struct_field(
         )
     } else {
         create_complex_struct_handler(found_fields_variable, obj_variable, field_variable, field)
-    };
-
-    struct_set
+    }
 }
 
 fn instantiate_struct_with_required_cardinality_checks(fields: &Fields) -> TokenStream {
@@ -404,8 +398,8 @@ fn instantiate_struct_with_required_cardinality_checks(fields: &Fields) -> Token
                 conditions.push(quote! { #field_name.len() < #min });
             }
             if let Some(max) = cardinality.max {
-                conditions.push(quote! { #field_name.len() > #max })
-            };
+                conditions.push(quote! { #field_name.len() > #max });
+            }
 
             field_instantiation = quote! {#field_instantiation
                 if let Some(#field_name) = #field_name.as_ref() && (#(#conditions)||*) {
@@ -549,7 +543,7 @@ pub fn deserialize_complex(
                 }
             };
 
-            expanded.into()
+            expanded
         }
         _ => panic!("Only enums can be deserialized for typechoice serializer."),
     }
@@ -563,7 +557,7 @@ pub fn enum_variant_deserialization(input: DeriveInput) -> TokenStream {
         Data::Enum(data) => {
             let determine_by_value = format_ident!("_determine_by_");
             let serialize_by_name_matches = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
+                let name = variant.ident.clone();
                 let field_name = name.to_string();
                 let field: &Field = variant.fields.iter().next().unwrap();
                 let variant_type = get_field_type(field);
@@ -614,7 +608,7 @@ pub fn enum_variant_deserialization(input: DeriveInput) -> TokenStream {
 
             // println!("{}", expanded.to_string());
 
-            expanded.into()
+            expanded
         }
         _ => panic!("Only enums can be deserialized for enum serializer."),
     }

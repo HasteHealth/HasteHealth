@@ -12,10 +12,10 @@ fn get_value<'a>(value: &'a mut Value, context: &Context) -> Option<&'a mut Valu
 impl FHIRJSONDeserializer for i64 {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
         let mut json_value: Value = serde_json::from_str(s)?;
-        i64::from_serde_value(&mut json_value, Context::AsValue)
+        i64::from_serde_value(&raw mut json_value, Context::AsValue)
     }
     fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
-        let value = unsafe { &mut *(value as *mut Value) };
+        let value = unsafe { &mut *(value.cast::<Value>()) };
         let k = get_value(value, &context).and_then(|v| v.as_i64());
         k.ok_or_else(|| DeserializeError::FailedToConvertType("i64".to_string()))
     }
@@ -24,10 +24,10 @@ impl FHIRJSONDeserializer for i64 {
 impl FHIRJSONDeserializer for u64 {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
         let mut json_value: Value = serde_json::from_str(s)?;
-        u64::from_serde_value(&mut json_value, Context::AsValue)
+        u64::from_serde_value(&raw mut json_value, Context::AsValue)
     }
     fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
-        let value = unsafe { &mut *(value as *mut Value) };
+        let value = unsafe { &mut *(value.cast::<Value>()) };
         let k = get_value(value, &context).and_then(|v| v.as_u64());
         k.ok_or_else(|| DeserializeError::FailedToConvertType("u64".to_string()))
     }
@@ -36,10 +36,10 @@ impl FHIRJSONDeserializer for u64 {
 impl FHIRJSONDeserializer for f64 {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
         let mut json_value: Value = serde_json::from_str(s)?;
-        f64::from_serde_value(&mut json_value, Context::AsValue)
+        f64::from_serde_value(&raw mut json_value, Context::AsValue)
     }
     fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
-        let value = unsafe { &mut *(value as *mut Value) };
+        let value = unsafe { &mut *(value.cast::<Value>()) };
         let k = get_value(value, &context).and_then(|v| v.as_f64());
         k.ok_or_else(|| DeserializeError::FailedToConvertType("f64".to_string()))
     }
@@ -48,10 +48,10 @@ impl FHIRJSONDeserializer for f64 {
 impl FHIRJSONDeserializer for bool {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
         let mut json_value: Value = serde_json::from_str(s)?;
-        bool::from_serde_value(&mut json_value, Context::AsValue)
+        bool::from_serde_value(&raw mut json_value, Context::AsValue)
     }
     fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
-        let value = unsafe { &mut *(value as *mut Value) };
+        let value = unsafe { &mut *(value.cast::<Value>()) };
         let k = get_value(value, &context).and_then(|v| v.as_bool());
         k.ok_or_else(|| DeserializeError::FailedToConvertType("bool".to_string()))
     }
@@ -60,10 +60,10 @@ impl FHIRJSONDeserializer for bool {
 impl FHIRJSONDeserializer for String {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
         let mut json_value: Value = serde_json::from_str(s)?;
-        String::from_serde_value(&mut json_value, Context::AsValue)
+        String::from_serde_value(&raw mut json_value, Context::AsValue)
     }
     fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
-        let value = unsafe { &mut *(value as *mut Value) };
+        let value = unsafe { &mut *(value.cast::<Value>()) };
         let k = get_value(value, &context).and_then(|v| match v.take() {
             Value::String(s) => Some(s),
             _ => None,
@@ -79,15 +79,15 @@ where
 {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
         let mut json_value: Value = serde_json::from_str(s)?;
-        Vec::<T>::from_serde_value(&mut json_value, Context::AsValue)
+        Vec::<T>::from_serde_value(&raw mut json_value, Context::AsValue)
     }
     fn from_serde_value(v: *mut Value, context: Context) -> Result<Self, DeserializeError> {
-        let v = unsafe { &mut *(v as *mut Value) };
+        let v = unsafe { &mut *(v.cast::<Value>()) };
         match &context {
             Context::AsValue => {
                 if let Some(json_array) = v.as_array_mut() {
                     json_array
-                        .into_iter()
+                        .iter_mut()
                         .map(|item| T::from_serde_value(item, Context::AsValue))
                         .collect()
                 } else {
@@ -97,28 +97,11 @@ where
                 }
             }
             Context::AsField(field_context) => {
-                if !field_context.is_primitive {
-                    if let Some(json) = v.get_mut(field_context.field)
-                        && let Some(json_array) = json.as_array_mut()
-                    {
-                        json_array
-                            .into_iter()
-                            .map(|item| T::from_serde_value(item, Context::AsValue))
-                            .collect()
-                    } else {
-                        Err(DeserializeError::InvalidType(
-                            "Expected an array".to_string(),
-                        ))
-                    }
-                }
                 // Special handling because array primitives live in two locations _<field> for element fields and <field> for values.
-                else {
+                if field_context.is_primitive {
                     let mut return_v = vec![];
-                    let mut value_json = if let Some(v) = v.get_mut(field_context.field) {
-                        Some(v.take())
-                    } else {
-                        None
-                    };
+                    let mut value_json =
+                        v.get_mut(field_context.field).map(serde_json::Value::take);
                     let mut values = {
                         if let Some(value_json) = value_json.as_mut() {
                             if let Some(array) = value_json.as_array_mut() {
@@ -133,12 +116,9 @@ where
                         }
                     }?;
 
-                    let mut elements_json =
-                        if let Some(v) = v.get_mut(&format!("_{}", field_context.field)) {
-                            Some(v.take())
-                        } else {
-                            None
-                        };
+                    let mut elements_json = v
+                        .get_mut(format!("_{}", field_context.field))
+                        .map(serde_json::Value::take);
                     let mut elements = {
                         if let Some(elements_json) = elements_json.as_mut() {
                             if let Some(array) = elements_json.as_array_mut() {
@@ -154,8 +134,8 @@ where
                     }?;
 
                     let length = std::cmp::max(
-                        values.as_ref().map(|v| v.len()).unwrap_or(0),
-                        elements.as_ref().map(|v| v.len()).unwrap_or(0),
+                        values.as_ref().map_or(0, |v| v.len()),
+                        elements.as_ref().map_or(0, |v| v.len()),
                     );
 
                     for i in 0..length {
@@ -181,6 +161,17 @@ where
                     }
 
                     Ok(return_v)
+                } else if let Some(json) = v.get_mut(field_context.field)
+                    && let Some(json_array) = json.as_array_mut()
+                {
+                    json_array
+                        .iter_mut()
+                        .map(|item| T::from_serde_value(item, Context::AsValue))
+                        .collect()
+                } else {
+                    Err(DeserializeError::InvalidType(
+                        "Expected an array".to_string(),
+                    ))
                 }
             }
         }
@@ -193,11 +184,11 @@ where
 {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
         let mut json_value: Value = serde_json::from_str(s)?;
-        Option::<T>::from_serde_value(&mut json_value, Context::AsValue)
+        Option::<T>::from_serde_value(&raw mut json_value, Context::AsValue)
     }
 
     fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
-        let value = unsafe { &mut *(value as *mut Value) };
+        let value = unsafe { &mut *(value.cast::<Value>()) };
         match &context {
             Context::AsField(field_context) => match value.get(field_context.field) {
                 Some(_v) => T::from_serde_value(value, context).map(|res| Some(res)),
@@ -220,7 +211,7 @@ where
 {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
         let mut json_value: Value = serde_json::from_str(s)?;
-        Box::<T>::from_serde_value(&mut json_value, Context::AsValue)
+        Box::<T>::from_serde_value(&raw mut json_value, Context::AsValue)
     }
     fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
         T::from_serde_value(value, context).map(|res| Box::new(res))

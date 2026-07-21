@@ -145,7 +145,7 @@ impl FHIRJSONSerializer for bool {
 //               %x75 4HEXDIG )  ; uXXXX                U+XXXX
 impl FHIRJSONSerializer for String {
     fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
-        writer.write_all(&[b'"'])?;
+        writer.write_all(b"\"")?;
         for c in self.chars() {
             match c {
                 // '\u{002F}' => {
@@ -154,31 +154,31 @@ impl FHIRJSONSerializer for String {
 
                 // backslash
                 '\u{005C}' => {
-                    writer.write_all(&[b'\x5c', b'\x5c'])?;
+                    writer.write_all(b"\x5c\x5c")?;
                 }
                 '\u{0022}' => {
                     writer.write_all(&[b'\x5c', c as u8])?;
                 }
                 // Backspace
                 '\u{0008}' => {
-                    writer.write_all(&[b'\x5c', b'\x62'])?;
+                    writer.write_all(b"\x5c\x62")?;
                 }
                 // Form feed
                 '\u{000C}' => {
-                    writer.write_all(&[b'\x5c', b'\x66'])?;
+                    writer.write_all(b"\x5c\x66")?;
                 }
                 // Line Feed
                 '\u{000A}' => {
-                    writer.write_all(&[b'\x5c', b'\x6e'])?;
+                    writer.write_all(b"\x5c\x6e")?;
                 }
                 // Carriage return
                 '\u{000D}' => {
-                    writer.write_all(&[b'\x5c', b'\x72'])?;
+                    writer.write_all(b"\x5c\x72")?;
                 }
 
                 // Tab
                 '\u{0009}' => {
-                    writer.write_all(&[b'\x5c', b'\x74'])?;
+                    writer.write_all(b"\x5c\x74")?;
                 }
 
                 ch => {
@@ -188,7 +188,7 @@ impl FHIRJSONSerializer for String {
             }
         }
 
-        writer.write_all(&[b'"'])?;
+        writer.write_all(b"\"")?;
 
         Ok(true)
     }
@@ -205,9 +205,9 @@ impl FHIRJSONSerializer for String {
         field: &str,
         writer: &mut dyn std::io::Write,
     ) -> Result<bool, SerializeError> {
-        writer.write_all(&[b'"'])?;
+        writer.write_all(b"\"")?;
         writer.write_all(field.as_bytes())?;
-        writer.write_all(&[b'"', b':'])?;
+        writer.write_all(b"\":")?;
         self.serialize_value(writer)?;
         Ok(true)
     }
@@ -226,36 +226,32 @@ where
             return Ok(false);
         }
 
-        let mut total = 0;
+        let mut serialized = 0;
+        let mut tmp = BufWriter::new(Vec::new());
 
-        let mut tmp_buffer = BufWriter::new(Vec::new());
-        tmp_buffer.write_all(&[b'['])?;
+        tmp.write_all(b"[")?;
 
-        for i in 0..(self.len() - 1) {
-            let v = &self[i];
-            if v.serialize_value(&mut tmp_buffer)? {
-                total += 1;
-            } else {
-                tmp_buffer.write_all("null".as_bytes())?;
+        for (i, value) in self.iter().enumerate() {
+            if i > 0 {
+                tmp.write_all(b",")?;
             }
-            tmp_buffer.write_all(&[b','])?;
+
+            if value.serialize_value(&mut tmp)? {
+                serialized += 1;
+            } else {
+                tmp.write_all(b"null")?;
+            }
         }
 
-        // Last one don't want trailing comma.
-        if self[self.len() - 1].serialize_value(&mut tmp_buffer)? {
-            total += 1;
-        } else {
-            tmp_buffer.write_all("null".as_bytes())?;
+        tmp.write_all(b"]")?;
+
+        if serialized == 0 {
+            return Ok(false);
         }
 
-        tmp_buffer.write_all(&[b']'])?;
-        if total > 0 {
-            tmp_buffer.flush()?;
-            writer.write_all(&tmp_buffer.into_inner()?)?;
-            Ok(true)
-        } else {
-            Ok(false)
-        }
+        tmp.flush()?;
+        writer.write_all(&tmp.into_inner()?)?;
+        Ok(true)
     }
 
     fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
@@ -267,16 +263,17 @@ where
             let mut total = 0;
 
             let mut tmp_buffer = BufWriter::new(Vec::new());
-            tmp_buffer.write_all(&[b'['])?;
+            tmp_buffer.write_all(b"[")?;
 
-            for i in 0..(self.len() - 1) {
-                let v = &self[i];
-                if v.serialize_extension(&mut tmp_buffer)? {
-                    total += 1;
-                } else {
-                    tmp_buffer.write_all("null".as_bytes())?;
+            if self.len() > 1 {
+                for v in &self[..self.len() - 1] {
+                    if v.serialize_extension(&mut tmp_buffer)? {
+                        total += 1;
+                    } else {
+                        tmp_buffer.write_all(b"null")?;
+                    }
+                    tmp_buffer.write_all(b",")?;
                 }
-                tmp_buffer.write_all(&[b','])?;
             }
 
             // Last one don't want trailing comma.
@@ -286,7 +283,7 @@ where
                 tmp_buffer.write_all("null".as_bytes())?;
             }
 
-            tmp_buffer.write_all(&[b']'])?;
+            tmp_buffer.write_all(b"]")?;
 
             if total > 0 {
                 tmp_buffer.flush()?;
@@ -318,20 +315,20 @@ where
         let extension_u8 = extension_buffer.into_inner()?;
 
         if should_serialize_extension {
-            writer.write_all(&[b'"', b'_'])?;
+            writer.write_all(b"\"_")?;
             writer.write_all(field.as_bytes())?;
-            writer.write_all(&[b'"', b':'])?;
+            writer.write_all(b"\":")?;
             writer.write_all(&extension_u8)?;
             // If value not empty put trailing comma after extension value.
             if shoud_serialize_value {
-                writer.write_all(&[b','])?;
+                writer.write_all(b",")?;
             }
         }
 
         if shoud_serialize_value {
-            writer.write_all(&[b'"'])?;
+            writer.write_all(b"\"")?;
             writer.write_all(field.as_bytes())?;
-            writer.write_all(&[b'"', b':'])?;
+            writer.write_all(b"\":")?;
             writer.write_all(&value_u8)?;
         }
 

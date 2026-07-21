@@ -4,7 +4,7 @@ use syn::{
     Attribute, Expr, Field, Ident, Lit, Meta, MetaList, Token, Type, punctuated::Punctuated,
 };
 
-/// Use rename_field attribute if present else use the struct name
+/// Use `rename_field` attribute if present else use the struct name
 pub fn get_field_name(field: &Field) -> String {
     get_attribute_value(&field.attrs, "rename_field")
         .unwrap_or_else(|| field.ident.as_ref().unwrap().to_string())
@@ -38,7 +38,7 @@ pub fn get_field_type(field: &Field) -> proc_macro2::Ident {
 
 pub fn is_optional_field(field: &Field) -> bool {
     let field_type = get_field_type(field);
-    if field_type == "Option" { true } else { false }
+    field_type == "Option"
 }
 
 pub fn is_type_choice_field(field: &Field) -> bool {
@@ -50,35 +50,28 @@ pub fn is_attribute_present(attrs: &[Attribute], attribute: &str) -> bool {
 }
 
 pub fn get_inner_type_if_optional(type_: &Type) -> Type {
-    if let Type::Path(path) = type_ {
-        if let Some(inner_type) = path.path.segments.first() {
-            if inner_type.ident == "Option" {
-                if let syn::PathArguments::AngleBracketed(args) = &inner_type.arguments {
-                    if let Some(syn::GenericArgument::Type(ty)) = args.args.first() {
-                        return ty.clone();
-                    }
-                }
-            }
-        }
+    if let Type::Path(path) = type_
+        && let Some(inner_type) = path.path.segments.first()
+        && inner_type.ident == "Option"
+        && let syn::PathArguments::AngleBracketed(args) = &inner_type.arguments
+        && let Some(syn::GenericArgument::Type(ty)) = args.args.first()
+    {
+        return ty.clone();
     }
+
     type_.clone()
 }
 
 pub fn get_inner_type_if_vector_or_optional_or_box(type_: &Type) -> Type {
-    if let Type::Path(path) = type_ {
-        if let Some(inner_type) = path.path.segments.first() {
-            if inner_type.ident == "Option"
-                || inner_type.ident == "Vec"
-                || inner_type.ident == "Box"
-            {
-                if let syn::PathArguments::AngleBracketed(args) = &inner_type.arguments {
-                    if let Some(syn::GenericArgument::Type(ty)) = args.args.first() {
-                        return get_inner_type_if_vector_or_optional_or_box(ty);
-                    }
-                }
-            }
-        }
+    if let Type::Path(path) = type_
+        && let Some(inner_type) = path.path.segments.first()
+        && (inner_type.ident == "Option" || inner_type.ident == "Vec" || inner_type.ident == "Box")
+        && let syn::PathArguments::AngleBracketed(args) = &inner_type.arguments
+        && let Some(syn::GenericArgument::Type(ty)) = args.args.first()
+    {
+        return get_inner_type_if_vector_or_optional_or_box(ty);
     }
+
     type_.clone()
 }
 
@@ -130,8 +123,7 @@ pub fn is_type_string(type_: &Type) -> bool {
             .path
             .segments
             .last()
-            .map(|segment| segment.ident == "String")
-            .unwrap_or(false),
+            .is_some_and(|segment| segment.ident == "String"),
         _ => false,
     }
 }
@@ -145,10 +137,10 @@ pub fn is_vector(field: &Field) -> bool {
         // Check if it's an Option<Vec<T>>
         let inner_type = get_inner_type_if_optional(&field.ty);
 
-        if let Type::Path(path) = inner_type {
-            if let Some(inner_type) = path.path.segments.first() {
-                return inner_type.ident == "Vec";
-            }
+        if let Type::Path(path) = inner_type
+            && let Some(inner_type) = path.path.segments.first()
+        {
+            return inner_type.ident == "Vec";
         }
 
         false
@@ -231,7 +223,7 @@ impl TypeChoiceAttribute {
         let mut all_variants = self.complex_variants.clone();
         all_variants.extend(self.primitive_variants.clone());
         // Extension variant.
-        all_variants.extend(self.primitive_variants.iter().map(|v| format!("_{}", v)));
+        all_variants.extend(self.primitive_variants.iter().map(|v| format!("_{v}")));
         all_variants
     }
 }
@@ -247,9 +239,10 @@ pub fn get_type_choice_attribute(attrs: &[Attribute]) -> Option<TypeChoiceAttrib
             .parse_args_with(Punctuated::<Expr, Token![,]>::parse_terminated)
             .unwrap();
 
-        if parsed_arguments.len() > 2 {
-            panic!("Expected exactly 2 type choice variants");
-        }
+        assert!(
+            parsed_arguments.len() <= 2,
+            "Expected exactly 2 type choice variants"
+        );
 
         for expression in parsed_arguments {
             match expression {
@@ -276,10 +269,9 @@ pub fn get_type_choice_attribute(attrs: &[Attribute]) -> Option<TypeChoiceAttrib
                             }
                         }
                         (k, v) => {
-                            println!("{:?}", k);
+                            println!("{k:?}");
                             panic!(
-                                "typechoice must be in format like #[type_choice_variants(primitive =[\"valueString\"], complex = [\"valueAddress\"]) but found {:?} = {:?}",
-                                k, v
+                                "typechoice must be in format like #[type_choice_variants(primitive =[\"valueString\"], complex = [\"valueAddress\"]) but found {k:?} = {v:?}",
                             );
                         }
                     }
@@ -330,10 +322,9 @@ pub fn get_reference_target_attribute(attrs: &[Attribute]) -> Vec<String> {
                             }
                         }
                         (k, v) => {
-                            println!("{:?}", k);
+                            println!("{k:?}");
                             panic!(
-                                "reference must be in format like #[reference(target =[\"Resource\"])] but found {:?} = {:?}",
-                                k, v
+                                "reference must be in format like #[reference(target =[\"Resource\"])] but found {k:?} = {v:?}",
                             );
                         }
                     }

@@ -3,6 +3,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{Data, DeriveInput};
 
+#[derive(Clone, Copy)]
 pub enum ComplexSerializeType {
     Resource,
     Complex,
@@ -94,28 +95,28 @@ pub fn typechoice_serialization(input: DeriveInput) -> TokenStream {
     match input.data {
         Data::Enum(data) => {
             let variants_serialize_value = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
+                let name = variant.ident.clone();
                 quote! {
                     Self::#name(k) => k.serialize_value(writer)
                 }
             });
 
             let variants_serialize_extension = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
+                let name = variant.ident.clone();
                 quote! {
                     Self::#name(k) => k.serialize_extension(writer)
                 }
             });
 
             let variants_serialize_field = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
+                let name = variant.ident.clone();
                 quote! {
                     Self::#name(k) => k.serialize_field(&field, writer)
                 }
             });
 
             let variants_field_name = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
+                let name = variant.ident.clone();
                 let name_str = name.to_string();
                 quote! {
                     Self::#name(k) => field.to_string() + #name_str
@@ -123,7 +124,7 @@ pub fn typechoice_serialization(input: DeriveInput) -> TokenStream {
             });
 
             let variants_is_primitive = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
+                let name = variant.ident.clone();
                 quote! {
                     Self::#name(k) => k.is_fp_primitive()
                 }
@@ -172,7 +173,7 @@ pub fn complex_serialization(
     complex_type: ComplexSerializeType,
 ) -> TokenStream {
     let name = input.ident;
-    let resource_type = format!("\"{}\"", name.to_string());
+    let resource_type = format!("\"{name}\"");
     match input.data {
         Data::Struct(data) => {
             let serializers = data.fields.iter().map(|field| {
@@ -182,10 +183,10 @@ pub fn complex_serialization(
                 {
                     renamed_field
                 } else {
-                    field.ident.to_owned().unwrap().to_string()
+                    field.ident.clone().unwrap().to_string()
                 };
 
-                let accessor = field.ident.to_owned().unwrap();
+                let accessor = field.ident.clone().unwrap();
                 quote! {
                     // Means successful serialization so increment total.
                    if self.#accessor.serialize_field(#field_str, &mut tmp_buffer)? {
@@ -270,7 +271,7 @@ pub fn value_set_serialization(input: DeriveInput) -> TokenStream {
     match input.data {
         Data::Enum(data) => {
             let variants_serialize_value = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
+                let name = variant.ident.clone();
                 let code = get_attribute_value(&variant.attrs, "code");
                 if let Some(code) = code {
                     quote! {
@@ -285,7 +286,7 @@ pub fn value_set_serialization(input: DeriveInput) -> TokenStream {
             });
 
             let variants_serialize_extension = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
+                let name = variant.ident.clone();
                 quote! {
                     Self::#name(k) => k.serialize_value(writer)
                 }
@@ -353,28 +354,28 @@ pub fn enum_variant_serialization(input: DeriveInput) -> TokenStream {
     match input.data {
         Data::Enum(data) => {
             let variants_serialize_value = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
+                let name = variant.ident.clone();
                 quote! {
                     Self::#name(k) => k.serialize_value(writer)
                 }
             });
 
             let variants_serialize_extension = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
+                let name = variant.ident.clone();
                 quote! {
                     Self::#name(k) => k.serialize_extension(writer)
                 }
             });
 
             let variants_serialize_fields = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
+                let name = variant.ident.clone();
                 quote! {
                     Self::#name(k) => k.serialize_field(field, writer)
                 }
             });
 
             let variants_is_fp_primitive = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
+                let name = variant.ident.clone();
                 quote! {
                     Self::#name(k) => k.is_fp_primitive()
                 }

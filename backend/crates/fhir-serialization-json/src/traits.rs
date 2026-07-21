@@ -13,14 +13,44 @@ pub enum SerializeError {
     #[error("UTF-8 conversion error: {0}")]
     Utf8Error(#[from] std::string::FromUtf8Error),
 }
+
+/// Trait for serializing FHIR values to JSON.
 pub trait FHIRJSONSerializer {
+    /// Serializes the JSON value representation.
+    ///
+    /// Returns `true` if any output was written.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`SerializeError`] if writing to `writer` fails or if the value
+    /// cannot be serialized.
     fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError>;
+
+    /// Serializes the JSON extension representation.
+    ///
+    /// Returns `true` if any output was written.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`SerializeError`] if writing to `writer` fails or if the
+    /// extension cannot be serialized.
     fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError>;
+
+    /// Serializes a named JSON field.
+    ///
+    /// Returns `true` if the field was written.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`SerializeError`] if writing to `writer` fails or if the field
+    /// cannot be serialized.
     fn serialize_field(
         &self,
         field: &str,
         writer: &mut dyn std::io::Write,
     ) -> Result<bool, SerializeError>;
+
+    /// Returns whether this value is a FHIR primitive.
     fn is_fp_primitive(&self) -> bool;
 }
 
@@ -30,6 +60,7 @@ pub struct ContextAsField<'a> {
 }
 
 impl<'a> ContextAsField<'a> {
+    #[must_use]
     pub fn new(field: &'a str, is_primitive: bool) -> Self {
         ContextAsField {
             field,
@@ -55,8 +86,22 @@ impl<'a> From<(&'a String, bool)> for Context<'a> {
     }
 }
 
+/// Trait for deserializing FHIR values from JSON.
 pub trait FHIRJSONDeserializer: Sized {
+    /// Deserializes a value from a JSON string.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`DeserializeError`] if the input is not valid JSON or cannot be
+    /// deserialized into `Self`.
     fn from_json_str(s: &str) -> Result<Self, DeserializeError>;
+
+    /// Deserializes a value from a parsed JSON value.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`DeserializeError`] if the JSON value cannot be deserialized
+    /// into `Self` or if the provided context is invalid for deserialization.
     fn from_serde_value(v: *mut Value, context: Context) -> Result<Self, DeserializeError>;
 }
 

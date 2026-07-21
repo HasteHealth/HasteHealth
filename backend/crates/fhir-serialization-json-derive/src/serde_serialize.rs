@@ -46,7 +46,7 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
                 .find(|f| f.ident.as_ref().unwrap() == "value")
                 .unwrap();
             // Value could be optional or not depending on SD.
-            let function_to_check_empty = if is_optional_field(&value_field) {
+            let function_to_check_empty = if is_optional_field(value_field) {
                 // Special handling for string types: empty string is considered empty even if the field is present.
                 if is_type_string(&value_field.ty) {
                     quote! {
