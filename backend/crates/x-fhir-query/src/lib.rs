@@ -10,8 +10,19 @@ use crate::conversion::stringify_meta_value;
 pub mod conversion;
 
 static FP_EXPRESSION_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r#"\{\{([^}]*)\}\}"#).expect("Failed to compile regex"));
+    LazyLock::new(|| Regex::new(r"\{\{([^}]*)\}\}").expect("Failed to compile regex"));
 
+/// Evaluates `FHIRPath` expressions embedded in an x-fhir-query string.
+///
+/// Replaces each `FHIRPath` expression found in the query with the evaluated
+/// string representation of its result.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] if:
+/// - the embedded `FHIRPath` expression is empty,
+/// - `FHIRPath` evaluation fails,
+/// - a result value cannot be converted into a string representation.
 pub async fn evaluation<'a, 'b>(
     x_fhir_query: &str,
     values: Vec<&'a dyn MetaValue>,
@@ -25,11 +36,11 @@ where
     let mut result = x_fhir_query.to_string();
 
     for expression in FP_EXPRESSION_REGEX.captures_iter(x_fhir_query) {
-        let full_match = expression.get(0).map(|m| m.as_str()).unwrap_or("");
+        let full_match = expression.get(0).map_or("", |m| m.as_str());
 
-        let expr = expression.get(1).map(|m| m.as_str()).unwrap_or("");
+        let expr = expression.get(1).map_or("", |m| m.as_str());
 
-        println!("Evaluating FHIRPath expression: '{}'", expr);
+        println!("Evaluating FHIRPath expression: '{expr}'");
 
         if expr.is_empty() {
             return Err(OperationOutcomeError::fatal(
@@ -44,13 +55,13 @@ where
             .map_err(|e| {
                 OperationOutcomeError::fatal(
                     IssueType::INVALID,
-                    format!("FHIRPath evaluation error: {}", e),
+                    format!("FHIRPath evaluation error: {e}"),
                 )
             })?;
 
         let fp_string_result = fp_result
             .iter()
-            .map(|v| stringify_meta_value(v))
+            .map(stringify_meta_value)
             .collect::<Result<Vec<String>, OperationOutcomeError>>()?
             .join(",");
 
