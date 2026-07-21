@@ -1,3 +1,4 @@
+use crate::documentation::{format_documentation, generate_doc_attributes};
 use crate::utilities::{RUST_KEYWORDS, generate::capitalize, load};
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_generated_ops::generated::ValueSetExpand;
@@ -115,10 +116,11 @@ fn format_const_code_name(identifier: &str) -> String {
 }
 
 fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
-    let terminology_enum_name = format_ident!(
-        "{}",
-        format_term_struct_name(&value_set.id.clone().expect("ValueSet must have an id"))
-    );
+    let terminology_enum_name_str =
+        format_term_struct_name(&value_set.id.clone().expect("ValueSet must have an id"));
+
+    let terminology_enum_name = format_ident!("{}", terminology_enum_name_str);
+
     let terminology_url = value_set
         .url
         .as_ref()
@@ -144,23 +146,36 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
 
         let code_vec = codes.iter().map(|c| &c.code).collect::<Vec<_>>();
 
+        let type_name_snake_case =
+            camelcase_to_snake_case(&terminology_enum_name_str).to_lowercase();
+
         let code_fn_variants = codes.iter().enumerate().map(|(i, c)| {
             let mut variant_name_str = format_const_code_name(&c.code).to_lowercase();
-            // In event of concurrent _ characters, replace with a single _ character
+
+            // In event of concurrent `_` characters, replace with a single `_`.
             let re = Regex::new(r"_+").unwrap();
             variant_name_str = re.replace_all(&variant_name_str, "_").to_string();
+
             if RUST_KEYWORDS.contains(variant_name_str.as_str()) {
-                variant_name_str = format!("{variant_name_str}_");
+                variant_name_str.push('_');
+            }
+
+            if variant_name_str == type_name_snake_case {
+                variant_name_str.push_str("_code");
             }
 
             let variant = format_ident!("{variant_name_str}");
             let display = c.description.as_deref().unwrap_or(c.code.as_str());
+
+            let formatted_display = format_documentation(display);
+            let doc_attributes = generate_doc_attributes(&formatted_display);
+
             let index = u16::try_from(i).expect("too many code variants");
 
             quote! {
+                #doc_attributes
                 #[inline]
                 #[must_use]
-                #[doc = #display]
                 pub fn #variant() -> BoundCode<Self> {
                     BoundCode::from_index(#index)
                 }
@@ -168,8 +183,11 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
         });
 
         if !codes.is_empty() && codes.len() < 400 {
+            let formatted_url = format_documentation(terminology_url);
+            let doc_attributes = generate_doc_attributes(&formatted_url);
+
             return Some(quote! {
-                #[doc = #terminology_url]
+                #doc_attributes
                 pub struct #terminology_enum_name;
 
                 impl ValueSetDef for #terminology_enum_name {
@@ -186,8 +204,6 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
                         BoundCode::null()
                     }
                 }
-
-
             });
         }
     }
@@ -368,6 +384,7 @@ fn prebuilt_code_struct() -> TokenStream {
 fn prebuilt_code_impl() -> TokenStream {
     quote! {
         impl<VS: ValueSetDef> BoundCode<VS> {
+            #[must_use]
             pub const fn from_index(i: u16) -> Self {
                 Self {
                     code: Some(i),
@@ -377,6 +394,7 @@ fn prebuilt_code_impl() -> TokenStream {
                 }
             }
 
+            #[must_use]
             pub const fn null() -> Self {
                 Self {
                     code: None,
@@ -386,11 +404,13 @@ fn prebuilt_code_impl() -> TokenStream {
                 }
             }
 
+            #[must_use]
             pub fn new(s: &str) -> Option<Self> {
                 VS::CODES
                     .binary_search(&s)
                     .ok()
-                    .map(|i| Self::from_index(i as u16))
+                    .and_then(|i| u16::try_from(i).ok())
+                    .map(Self::from_index)
             }
 
             pub fn as_str(&self) -> Option<&'static str> {
@@ -417,6 +437,16 @@ fn prebuilt_code_impl() -> TokenStream {
                 self.code.is_none() && self.element.is_none()
             }
 
+            /// Serializes this bound code as a FHIR field, including its
+            /// element metadata when present.
+            ///
+            /// The code value is serialized under `field_name`, while element
+            /// metadata is serialized under `_{field_name}`.
+            ///
+            /// # Errors
+            ///
+            /// Returns an error if the serializer fails to serialize the code
+            /// value or element metadata.
             pub fn serialize_as_field<M: serde::ser::SerializeMap>(
                 &self,
                 field_name: &str,
@@ -430,30 +460,40 @@ fn prebuilt_code_impl() -> TokenStream {
                 }
 
                 if let Some(element) = element {
-                    let element_key = format!("_{}", field_name);
+                    let element_key = format!("_{field_name}");
                     serializer.serialize_entry(&element_key, element)?;
                 }
 
                 Ok(())
             }
 
+            /// Serializes a slice of bound codes as a FHIR array field,
+            /// including corresponding element metadata when present.
+            ///
+            /// The value array is serialized under `field_name`, while element
+            /// metadata is serialized under `_{field_name}`.
+            ///
+            /// # Errors
+            ///
+            /// Returns an error if the serializer fails to serialize either
+            /// the value array or the element metadata array.
             pub fn serialize_as_vector<M: serde::ser::SerializeMap>(
                 field_name: &str,
                 values: &[Self],
                 serializer: &mut M,
             ) -> Result<(), M::Error> {
                 let value_array: Vec<Option<&'static str>> =
-                    values.iter().map(|v| v.as_str()).collect();
+                    values.iter().map(BoundCode::as_str).collect();
 
                 let element_array: Vec<Option<_>> =
                     values.iter().map(|v| v.element()).collect();
 
-                if value_array.iter().any(|v| v.is_some()) {
+                if value_array.iter().any(std::option::Option::is_some) {
                     serializer.serialize_entry(field_name, &value_array)?;
                 }
 
-                if element_array.iter().any(|e| e.is_some()) {
-                    let element_key = format!("_{}", field_name);
+                if element_array.iter().any(std::option::Option::is_some) {
+                    let element_key = format!("_{field_name}");
                     let element_array: Vec<Option<_>> = values.iter().map(|v| v.element()).collect();
                     serializer.serialize_entry(&element_key, &element_array)?;
                 }
@@ -520,14 +560,14 @@ fn prebuilt_code_traits() -> TokenStream {
                 }
             }
 
-            fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+            fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
                 None
             }
 
-            fn get_index_mut<'a>(
-                &'a mut self,
+            fn get_index_mut(
+                &mut self,
                 _index: usize,
-            ) -> Option<&'a mut dyn MetaValue> {
+            ) -> Option<&mut dyn MetaValue> {
                 None
             }
 
@@ -560,25 +600,37 @@ fn prebuilt_code_serde() -> TokenStream {
         ) -> Result<u16, E> {
             codes
                 .binary_search(&s)
-                .map(|i| i as u16)
-                .map_err(|_| {
+                .map_err(|insertion_index| {
                     E::custom(format_args!(
-                        "'{s}' is not a valid code in ValueSet {url}"
+                            "'{s}' is not a valid code in ValueSet {url} \
+                         (insertion index: {insertion_index})"
                     ))
+                })
+                .and_then(|i| {
+                    u16::try_from(i).map_err(|e| {
+                        E::custom(format_args!(
+                                "code '{s}' has index {i}, \
+                                 which cannot be represented as u16: {e}"
+                        ))
+                    })
                 })
         }
 
         struct BoundCodeVisitor<VS>(PhantomData<VS>);
 
-        impl<'de, VS: ValueSetDef> serde::de::Visitor<'de> for BoundCodeVisitor<VS> {
+        impl<VS: ValueSetDef> serde::de::Visitor<'_> for BoundCodeVisitor<VS> {
             type Value = BoundCode<VS>;
 
             fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 write!(f, "a string code in ValueSet {}", VS::URL)
             }
 
-            fn visit_str<E: serde::de::Error>(self, v: &str) -> Result<Self::Value, E> {
-                parse_code::<E>(VS::CODES, VS::URL, v).map(BoundCode::from_index)
+            fn visit_str<E: serde::de::Error>(
+                self,
+                v: &str,
+            ) -> Result<Self::Value, E> {
+                parse_code::<E>(VS::CODES, VS::URL, v)
+                    .map(BoundCode::from_index)
             }
         }
 
