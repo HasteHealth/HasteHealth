@@ -35,6 +35,148 @@ pub struct WellKnownDiscoveryDocument {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SmartConfigurationAssociatedEndpoint {
+    pub url: String,
+    pub capabilities: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SmartConfigurationDocument {
+    /**
+     * CONDITIONAL.  String conveying this system's OpenID Connect Issuer
+     * URL.  Required if the server's capabilities include
+     * sso-openid-connect; otherwise, omitted.
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub issuer: Option<String>,
+
+    /**
+     * CONDITIONAL.  String conveying this system's JSON Web Key Set URL.
+     * Required if the server's capabilities include sso-openid-connect;
+     * otherwise, optional.
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub jwks_uri: Option<String>,
+
+    /**
+     * CONDITIONAL.  URL to the OAuth2 authorization endpoint.  Required if
+     * server supports the launch-ehr or launch-standalone capability;
+     * otherwise, optional.
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub authorization_endpoint: Option<String>,
+
+    /**
+     * REQUIRED.  Array of grant types supported at the token endpoint.
+     * The options are "authorization_code" (when SMART App Launch is
+     * supported) and "client_credentials" (when SMART Backend Services is
+     * supported).
+     */
+    pub grant_types_supported: Vec<String>,
+
+    /**
+     * REQUIRED.  URL to the OAuth2 token endpoint.
+     */
+    pub token_endpoint: String,
+
+    /**
+     * OPTIONAL.  Array of client authentication methods supported by the
+     * token endpoint.  The options are "client_secret_post",
+     * "client_secret_basic", and "private_key_jwt".
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub token_endpoint_auth_methods_supported: Option<Vec<String>>,
+
+    /**
+     * OPTIONAL.  If available, URL to the OAuth2 dynamic registration
+     * endpoint for this FHIR server.
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub registration_endpoint: Option<String>,
+
+    /**
+     * OPTIONAL, DEPRECATED.  URL to the EHR's app state endpoint.
+     * Deprecated; use associated_endpoints with the smart-app-state
+     * capability instead.
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub smart_app_state_endpoint: Option<String>,
+
+    /**
+     * OPTIONAL.  Array of objects for endpoints that share the same
+     * authorization mechanism as this FHIR endpoint, each with a "url"
+     * and "capabilities" array.  This property is deemed experimental.
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub associated_endpoints: Option<Vec<SmartConfigurationAssociatedEndpoint>>,
+
+    /**
+     * RECOMMENDED.  URL for a Brand Bundle.  See User Access Brands.
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub user_access_brand_bundle: Option<String>,
+
+    /**
+     * RECOMMENDED.  Identifier for the primary entry in a Brand Bundle.
+     * See User Access Brands.
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub user_access_brand_identifier: Option<String>,
+
+    /**
+     * RECOMMENDED.  Array of scopes a client may request.  See scopes and
+     * launch context.  The server SHALL support all scopes listed here;
+     * additional scopes MAY be supported (so clients should not consider
+     * this an exhaustive list).
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub scopes_supported: Option<Vec<String>>,
+
+    /**
+     * RECOMMENDED.  Array of OAuth2 response_type values that are
+     * supported.  Implementers can refer to response_types defined in
+     * OAuth 2.0 (RFC 6749) and in OIDC Core.
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub response_types_supported: Option<Vec<String>>,
+
+    /**
+     * RECOMMENDED.  URL where an end-user can view which applications
+     * currently have access to data and can make adjustments to these
+     * access rights.
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub management_endpoint: Option<String>,
+
+    /**
+     * RECOMMENDED.  URL to a server's introspection endpoint that can be
+     * used to validate a token.
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub introspection_endpoint: Option<String>,
+
+    /**
+     * RECOMMENDED.  URL to a server's revoke endpoint that can be used to
+     * revoke a token.
+     */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub revocation_endpoint: Option<String>,
+
+    /**
+     * REQUIRED.  Array of strings representing SMART capabilities (e.g.,
+     * sso-openid-connect or launch-standalone) that the server supports.
+     */
+    pub capabilities: Vec<String>,
+
+    /**
+     * REQUIRED.  Array of PKCE code challenge methods supported.  The
+     * S256 method SHALL be included in this list, and the plain method
+     * SHALL NOT be included in this list.
+     */
+    pub code_challenge_methods_supported: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OAuthProtectedResourceDocument {
     /**
      * REQUIRED.  The protected resource's resource identifier, as
@@ -330,6 +472,101 @@ pub fn create_oidc_discovery_document(
     Ok(oidc_response)
 }
 
+pub fn create_smart_configuration(
+    tenant: &TenantId,
+    project: &ProjectId,
+    api_url_string: &str,
+) -> Result<SmartConfigurationDocument, OIDCError> {
+    if api_url_string.is_empty() {
+        return Err(OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("api_uri is not set in the configuration".to_string()),
+            None,
+        ));
+    }
+
+    let Ok(api_url) = Url::parse(api_url_string) else {
+        return Err(OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Invalid api_uri format".to_string()),
+            None,
+        ));
+    };
+
+    let authorize_path = api_v1_oidc_auth_path(tenant, project).join(
+        &authorize::AuthorizePath
+            .to_string()
+            .strip_prefix("/")
+            .unwrap(),
+    );
+
+    let token_path = api_v1_oidc_auth_path(tenant, project)
+        .join(&token::TokenPath.to_string().strip_prefix("/").unwrap());
+
+    let jwks_path = api_v1_oidc_path(tenant, project)
+        .join(&jwks::JWKSPath.to_string().strip_prefix("/").unwrap());
+
+    let smart_document = SmartConfigurationDocument {
+        issuer: Some(api_url.to_string()),
+        authorization_endpoint: Some(
+            api_url
+                .join(authorize_path.to_str().unwrap_or_default())
+                .unwrap()
+                .to_string(),
+        ),
+        token_endpoint: api_url
+            .join(token_path.to_str().unwrap_or_default())
+            .unwrap()
+            .to_string(),
+        jwks_uri: Some(
+            api_url
+                .join(jwks_path.to_str().unwrap_or_default())
+                .unwrap()
+                .to_string(),
+        ),
+        scopes_supported: Some(vec![
+            "openid".to_string(),
+            "profile".to_string(),
+            "email".to_string(),
+            "offline_access".to_string(),
+            // SMART scopes supported TODO patient scopes.
+            "user/*.cruds".to_string(),
+            "system/*.cruds".to_string(),
+        ]),
+        response_types_supported: Some(vec![
+            "code".to_string(),
+            "id_token".to_string(),
+            "id_token token".to_string(),
+        ]),
+        token_endpoint_auth_methods_supported: Some(vec![
+            "client_secret_basic".to_string(),
+            "client_secret_post".to_string(),
+        ]),
+        grant_types_supported: vec![
+            "authorization_code".to_string(),
+            "client_credentials".to_string(),
+        ],
+        capabilities: vec![
+            "sso-openid-connect".to_string(),
+            "client-confidential-symmetric".to_string(),
+            "launch-standalone".to_string(),
+            "permission-user".to_string(),
+            "permission-v2".to_string(),
+        ],
+        code_challenge_methods_supported: vec!["S256".to_string()],
+        registration_endpoint: None,
+        smart_app_state_endpoint: None,
+        associated_endpoints: None,
+        user_access_brand_bundle: None,
+        user_access_brand_identifier: None,
+        management_endpoint: None,
+        introspection_endpoint: None,
+        revocation_endpoint: None,
+    };
+
+    Ok(smart_document)
+}
+
 pub async fn openid_configuration<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -342,6 +579,24 @@ pub async fn openid_configuration<
     let api_url_string = &state.config.api_uri;
 
     Ok(Json(create_oidc_discovery_document(
+        &tenant,
+        &project,
+        &api_url_string,
+    )?))
+}
+
+pub async fn smart_configuration<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
+) -> Result<Json<SmartConfigurationDocument>, OIDCError> {
+    let api_url_string = &state.config.api_uri;
+
+    Ok(Json(create_smart_configuration(
         &tenant,
         &project,
         &api_url_string,

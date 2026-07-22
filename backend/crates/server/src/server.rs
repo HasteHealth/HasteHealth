@@ -223,10 +223,25 @@ pub async fn server(
                 )),
         );
 
-    let mut project_router = Router::new().merge(protected_resources_router).nest(
-        "/oidc",
-        auth_n::oidc::routes::create_router(shared_state.clone()),
-    );
+    let smart_configuration_router = Router::new()
+        .route(
+            "/.well-known/smart-configuration",
+            get(auth_n::oidc::routes::discovery::smart_configuration),
+        )
+        .route_layer(
+            ServiceBuilder::new().layer(axum::middleware::from_fn_with_state(
+                shared_state.clone(),
+                auth_n::oidc::middleware::project_exists,
+            )),
+        );
+
+    let mut project_router = Router::new()
+        .merge(protected_resources_router)
+        .merge(smart_configuration_router)
+        .nest(
+            "/oidc",
+            auth_n::oidc::routes::create_router(shared_state.clone()),
+        );
 
     if config.security.publicize_fhir_metadata {
         project_router = project_router.route(
