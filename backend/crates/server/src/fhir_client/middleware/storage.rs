@@ -175,7 +175,7 @@ impl<
                         .await?;
                         if let Some(mut resource) = current_resource {
                             Ok(Some(FHIRResponse::Delete(DeleteResponse::Instance(
-                                FHIRDeleteInstanceResponse {
+                                Box::new(FHIRDeleteInstanceResponse {
                                     resource: FHIRRepository::delete(
                                         state.repo.as_ref(),
                                         &context.ctx.tenant,
@@ -186,7 +186,7 @@ impl<
                                         &delete_request.id,
                                     )
                                     .await?,
-                                },
+                                }),
                             ))))
                         } else {
                             Err(OperationOutcomeError::error(

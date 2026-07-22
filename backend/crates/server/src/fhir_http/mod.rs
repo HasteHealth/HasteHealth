@@ -145,7 +145,7 @@ fn parse_request_1_non_empty(
                 // Handle operation request
                 Ok(FHIRRequest::Invocation(InvocationRequest::System(
                     FHIRInvokeSystemRequest {
-                        operation: Operation::new(&url_chunks[0])?,
+                        operation: Operation::new(&url_chunks[0]),
                         parameters: get_parameters(req)?,
                     },
                 )))
@@ -315,7 +315,7 @@ fn parse_request_2(
                 Ok(FHIRRequest::Invocation(InvocationRequest::Type(
                     FHIRInvokeTypeRequest {
                         resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
-                        operation: Operation::new(&url_chunks[1])?,
+                        operation: Operation::new(&url_chunks[1]),
                         parameters: get_parameters(req)?,
                     },
                 )))
@@ -420,7 +420,7 @@ fn parse_request_3(
                     FHIRInvokeInstanceRequest {
                         resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
                         id: url_chunks[1].to_string(),
-                        operation: Operation::new(&url_chunks[2])?,
+                        operation: Operation::new(&url_chunks[2]),
                         parameters: get_parameters(req)?,
                     },
                 )))
