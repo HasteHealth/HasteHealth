@@ -65857,7 +65857,7 @@ impl V3ActClass {
     #[inline]
     #[must_use]
     #[doc = "genomic observation"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -66989,7 +66989,7 @@ impl V3ActClassClinicalDocument {
     #[inline]
     #[must_use]
     #[doc = "genomic observation"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -68121,7 +68121,7 @@ impl V3ActClassDocument {
     #[inline]
     #[must_use]
     #[doc = "genomic observation"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -69253,7 +69253,7 @@ impl V3ActClassInvestigation {
     #[inline]
     #[must_use]
     #[doc = "genomic observation"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -70385,7 +70385,7 @@ impl V3ActClassObservation {
     #[inline]
     #[must_use]
     #[doc = "genomic observation"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -71517,7 +71517,7 @@ impl V3ActClassProcedure {
     #[inline]
     #[must_use]
     #[doc = "genomic observation"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -72649,7 +72649,7 @@ impl V3ActClassROI {
     #[inline]
     #[must_use]
     #[doc = "genomic observation"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -73781,7 +73781,7 @@ impl V3ActClassSupply {
     #[inline]
     #[must_use]
     #[doc = "genomic observation"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -78584,7 +78584,7 @@ impl V3ActRelationshipConditional {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(44u16)
     }
     #[inline]
@@ -79835,7 +79835,7 @@ impl V3ActRelationshipFulfills {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(44u16)
     }
     #[inline]
@@ -81086,7 +81086,7 @@ impl V3ActRelationshipHasComponent {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(44u16)
     }
     #[inline]
@@ -82384,7 +82384,7 @@ impl V3ActRelationshipPertains {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(44u16)
     }
     #[inline]
@@ -83824,7 +83824,7 @@ impl V3ActRelationshipType {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(44u16)
     }
     #[inline]
@@ -126420,7 +126420,7 @@ impl V3RoleClass {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -127444,7 +127444,7 @@ impl V3RoleClassAgent {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -128468,7 +128468,7 @@ impl V3RoleClassAssociative {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -129492,7 +129492,7 @@ impl V3RoleClassManufacturedProduct {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -130516,7 +130516,7 @@ impl V3RoleClassMutualRelationship {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -131540,7 +131540,7 @@ impl V3RoleClassPartitive {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -132564,7 +132564,7 @@ impl V3RoleClassPassive {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -133588,7 +133588,7 @@ impl V3RoleClassRelationshipFormal {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -134612,7 +134612,7 @@ impl V3RoleClassRoot {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -135637,7 +135637,7 @@ impl V3RoleClassServiceDeliveryLocation {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -136661,7 +136661,7 @@ impl V3RoleClassSpecimen {
     #[inline]
     #[must_use]
     #[doc = "has generalization"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
@@ -153285,7 +153285,7 @@ impl V3SpecimenType {
     #[inline]
     #[must_use]
     #[doc = "Genital"]
-    pub fn gen() -> BoundCode<Self> {
+    pub fn gen_() -> BoundCode<Self> {
         BoundCode::from_index(47u16)
     }
     #[inline]
