@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 
 const __dirname = import.meta.dirname;
+const cliPath = join(__dirname, "../target/debug/haste-health");
 
 function flattenData(data) {
   if (data.resourceType === "Bundle") {
@@ -55,13 +56,9 @@ function loadUSCoreProfiles() {
   console.log(`Sending transaction with ${entries.length} entries ...`);
 
   try {
-    execFileSync(
-      join(__dirname, "../target/debug/haste-health"),
-      ["api", "transaction", "--file", tmpFile],
-      {
-        stdio: "inherit",
-      },
-    );
+    execFileSync(cliPath, ["api", "transaction", "--file", tmpFile], {
+      stdio: "inherit",
+    });
   } finally {
     unlinkSync(tmpFile);
   }
@@ -69,4 +66,36 @@ function loadUSCoreProfiles() {
   console.log("Done loading US Core artifacts.");
 }
 
+function waitForUSCoreProfilesIndexed() {
+  const maxAttempts = 10;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const result = execFileSync(
+        cliPath,
+        ["api", "search-type", "StructureDefinition", "_id=us-core-patient"],
+        { encoding: "utf-8" },
+      );
+
+      const bundle = JSON.parse(result);
+
+      if ((bundle.total ?? 0) > 0 || (bundle.entry?.length ?? 0) > 0) {
+        return; // Profiles are searchable, exit the function
+      }
+    } catch (err) {
+      console.log(`Search attempt ${attempt} failed: ${err.message}`);
+    }
+
+    console.log(
+      `US Core profiles not yet searchable, retrying (${attempt}/${maxAttempts}) ...`,
+    );
+    execFileSync("sleep", ["1"]);
+  }
+
+  throw new Error(
+    "US Core profiles did not become searchable in Elasticsearch in time.",
+  );
+}
+
 loadUSCoreProfiles();
+waitForUSCoreProfilesIndexed();
