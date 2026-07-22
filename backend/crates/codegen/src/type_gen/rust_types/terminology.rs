@@ -1,4 +1,4 @@
-use crate::utilities::{generate::capitalize, load};
+use crate::utilities::{RUST_KEYWORDS, generate::capitalize, load};
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_generated_ops::generated::ValueSetExpand;
 use haste_fhir_model::r4::generated::{
@@ -149,7 +149,7 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
 
         let code_vec = codes.iter().map(|c| &c.code).collect::<Vec<_>>();
 
-        let const_variants = codes.iter().enumerate().map(|(i, c)| {
+        let code_const_variants = codes.iter().enumerate().map(|(i, c)| {
             let variant_name = format_ident!("{}", &format_const_code_name(&c.code).to_uppercase());
             let display = c.description.as_ref().map(|d| d.as_str()).unwrap_or("");
             let index = i as u16;
@@ -157,6 +157,26 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
             quote! {
                 #[doc = #display]
                 pub const #variant_name: BoundCode<Self> = BoundCode::from_index(#index);
+            }
+        });
+
+        let code_fn_variants = codes.iter().enumerate().map(|(i, c)| {
+            let mut variant_name_str = format_const_code_name(&c.code).to_lowercase();
+            if RUST_KEYWORDS.contains(variant_name_str.as_str()) {
+                variant_name_str = format!("{}_", variant_name_str);
+            }
+
+            let variant = format_ident!("{}", variant_name_str);
+            let display = c.description.as_ref().map(|d| d.as_str()).unwrap_or("");
+            let index = i as u16;
+
+            quote! {
+                #[inline]
+                #[must_use]
+                #[doc = #display]
+                pub fn #variant() -> BoundCode<Self> {
+                    BoundCode::from_index(#index)
+                }
             }
         });
 
@@ -171,9 +191,17 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
                 }
 
                 impl #terminology_enum_name {
-                    #(#const_variants)*
+                    #(#code_const_variants)*
                     #[doc = "Element present without a value."]
                     pub const NULL: BoundCode<Self> = BoundCode::null();
+
+                    #(#code_fn_variants)*
+
+                    #[inline]
+                    #[must_use]
+                    pub fn null() -> BoundCode<Self> {
+                        BoundCode::null()
+                    }
                 }
 
 
