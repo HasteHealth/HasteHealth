@@ -38,6 +38,25 @@ pub static RUST_KEYWORDS: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     m.insert("true");
     m.insert("mod");
     m.insert("gen");
+    m.insert("crate");
+    m.insert("fn");
+    m.insert("let");
+    m.insert("const");
+    m.insert("static");
+    m.insert("struct");
+    m.insert("enum");
+    m.insert("trait");
+    m.insert("impl");
+    m.insert("unsafe");
+    m.insert("extern");
+    m.insert("move");
+    m.insert("mut");
+    m.insert("dyn");
+    m.insert("await");
+    m.insert("try");
+    m.insert("yield");
+    m.insert("macro");
+    m.insert("union");
     m
 });
 
