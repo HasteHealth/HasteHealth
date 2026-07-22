@@ -37,6 +37,7 @@ pub static RUST_KEYWORDS: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     m.insert("false");
     m.insert("true");
     m.insert("mod");
+    m.insert("gen");
     m
 });
 
