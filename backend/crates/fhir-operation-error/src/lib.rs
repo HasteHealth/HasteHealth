@@ -25,8 +25,8 @@ fn create_operation_outcome(
 ) -> OperationOutcome {
     OperationOutcome {
         issue: vec![OperationOutcomeIssue {
-            severity: severity,
-            code: code,
+            severity,
+            code,
             diagnostics: Some(Box::new(FHIRString {
                 value: Some(diagnostic),
                 ..Default::default()
