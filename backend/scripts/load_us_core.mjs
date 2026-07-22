@@ -73,13 +73,18 @@ function waitForUSCoreProfilesIndexed() {
     try {
       const result = execFileSync(
         cliPath,
-        ["api", "search-type", "StructureDefinition", "_id=us-core-patient"],
+        [
+          "api",
+          "search-type",
+          "StructureDefinition",
+          "_id=us-core-patient&_total=accurate",
+        ],
         { encoding: "utf-8" },
       );
 
       const bundle = JSON.parse(result);
 
-      if ((bundle.total ?? 0) > 0 || (bundle.entry?.length ?? 0) > 0) {
+      if ((bundle.total ?? 0) > 0) {
         return; // Profiles are searchable, exit the function
       }
     } catch (err) {
