@@ -699,12 +699,7 @@ async fn testscript_operation_to_fhir_request(
             )));
         };
 
-        let op_code = Operation::new(op_code).map_err(|_e| {
-            TestScriptError::ExecutionError(format!(
-                "Invalid operation code for invoke operation '{}'",
-                op_code
-            ))
-        })?;
+        let op_code = Operation::new(op_code);
 
         let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
