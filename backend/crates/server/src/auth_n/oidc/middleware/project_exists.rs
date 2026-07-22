@@ -33,8 +33,8 @@ pub async fn project_exists<
         &tenant,
         &project.as_ref().to_string(),
     )
-    .await
-    .map_err(|_| {
+    .await?
+    .ok_or_else(|| {
         OperationOutcomeError::fatal(
             haste_fhir_model::r4::generated::terminology::IssueType::NOT_FOUND,
             format!(
