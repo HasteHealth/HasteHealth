@@ -18,7 +18,7 @@ impl TryFrom<&str> for PluginCodeType {
                 Ok(PluginCodeType::JavaScript)
             }
             _ => Err(OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 format!("Unsupported custom-code media-type: {value}"),
             )),
         }

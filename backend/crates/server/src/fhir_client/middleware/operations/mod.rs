@@ -226,13 +226,13 @@ impl<
                     } else {
                         // No operation found, return 404
                         Err(OperationOutcomeError::error(
-                            IssueType::NOT_FOUND,
+                            IssueType::not_found(),
                             "Operation not found".to_string(),
                         ))
                     }
                 }
                 _ => Err(OperationOutcomeError::fatal(
-                    IssueType::EXCEPTION,
+                    IssueType::exception(),
                     "Operation not supported".to_string(),
                 )),
             }

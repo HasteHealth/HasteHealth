@@ -29,7 +29,7 @@ pub fn convert_discriminator_to_path(
 ) -> Result<String, OperationOutcomeError> {
     let Some(discriminator_path) = discriminator.path.value.as_ref() else {
         return Err(OperationOutcomeError::error(
-            IssueType::EXCEPTION,
+            IssueType::exception(),
             "Discriminator path is missing".to_string(),
         ));
     };
@@ -39,7 +39,7 @@ pub fn convert_discriminator_to_path(
         || discriminator_path.contains("extension(")
     {
         return Err(OperationOutcomeError::error(
-            IssueType::NOT_SUPPORTED,
+            IssueType::not_supported(),
             format!(
                 "Discriminator path '{}' is not supported",
                 discriminator_path

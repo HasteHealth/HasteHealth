@@ -77,14 +77,14 @@ fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
         .await
         .map_err(|_e| {
             OperationOutcomeError::error(
-                IssueType::NOT_FOUND,
+                IssueType::not_found(),
                 format!("Project '{}' not found or is system created and cannot be deleted.", id),
             )
         })?;
 
         if !_deleted_project.is_some() {
             return Err(OperationOutcomeError::error(
-                IssueType::NOT_FOUND,
+                IssueType::not_found(),
                 format!(
                     "Project '{}' not found or is system created and cannot be deleted.",
                     id
@@ -152,7 +152,7 @@ fn update_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
             .await?
             .ok_or_else(|| {
                 OperationOutcomeError::error(
-                    IssueType::NOT_FOUND,
+                    IssueType::not_found(),
                     format!("Project '{}' not found.", model.id.as_ref()),
                 )
             })

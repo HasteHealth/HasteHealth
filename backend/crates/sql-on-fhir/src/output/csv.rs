@@ -33,7 +33,7 @@ pub fn csv(
 
         writer.write_record(column_names.iter()).map_err(|_e| {
             OperationOutcomeError::error(
-                IssueType::PROCESSING,
+                IssueType::processing(),
                 "Failed to write CSV header".to_string(),
             )
         })?;
@@ -73,7 +73,7 @@ pub fn csv(
 
         writer.write_record(&row).map_err(|_e| {
             OperationOutcomeError::error(
-                IssueType::PROCESSING,
+                IssueType::processing(),
                 "Failed to write CSV row".to_string(),
             )
         })?;
@@ -81,7 +81,7 @@ pub fn csv(
 
     writer.flush().map_err(|_e| {
         OperationOutcomeError::error(
-            IssueType::PROCESSING,
+            IssueType::processing(),
             "Failed to flush CSV output".to_string(),
         )
     })?;

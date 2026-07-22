@@ -19,7 +19,7 @@ pub async fn generate(
 
     let data_types =
         data_types::generate(file_paths, level, &terminology_types.inlined_terminologies)
-            .map_err(|d| OperationOutcomeError::error(IssueType::EXCEPTION, d))?;
+            .map_err(|d| OperationOutcomeError::error(IssueType::exception(), d))?;
 
     Ok(GeneratedTypes {
         terminology: terminology_types.tokens,

@@ -62,7 +62,7 @@ async fn get_required_totp_credentials<
         Some(SessionAuthorizationState::MFARequired { user }) => user,
         _ => {
             return Err(OperationOutcomeError::error(
-                IssueType::SECURITY,
+                IssueType::security(),
                 "MFA verification is not required.".to_string(),
             ));
         }
@@ -84,7 +84,7 @@ async fn get_required_totp_credentials<
 
     if credentials.is_empty() {
         return Err(OperationOutcomeError::error(
-            IssueType::NOT_FOUND,
+            IssueType::not_found(),
             "No active TOTP credential found for this user.".to_string(),
         ));
     }
@@ -126,7 +126,7 @@ pub async fn totp_verification_get<
 ) -> Result<Response, OperationOutcomeError> {
     if !is_safe_local_redirect_path(&query.redirect_to) {
         return Err(OperationOutcomeError::error(
-            IssueType::SECURITY,
+            IssueType::security(),
             "Invalid MFA redirect target.".to_string(),
         ));
     }
@@ -160,14 +160,14 @@ pub async fn totp_verification_post<
 ) -> Result<Response, OperationOutcomeError> {
     if form_data.csrf_token != csrf_token {
         return Err(OperationOutcomeError::error(
-            IssueType::SECURITY,
+            IssueType::security(),
             "Invalid CSRF token.".to_string(),
         ));
     }
 
     if !is_safe_local_redirect_path(&query.redirect_to) {
         return Err(OperationOutcomeError::error(
-            IssueType::SECURITY,
+            IssueType::security(),
             "Invalid MFA redirect target.".to_string(),
         ));
     }
@@ -189,7 +189,7 @@ pub async fn totp_verification_post<
 
         if totp.check_current(&form_data.otp_code).map_err(|_e| {
             OperationOutcomeError::error(
-                IssueType::SECURITY,
+                IssueType::security(),
                 "Invalid verification code.".to_string(),
             )
         })? {

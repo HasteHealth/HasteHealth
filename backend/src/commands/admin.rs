@@ -149,7 +149,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
             .merge(Toml::file("haste.toml"))
             .merge(Env::prefixed("HASTE_"))
             .extract()
-            .map_err(|e| OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string()))?,
+            .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?,
     );
 
     match &command {
@@ -198,7 +198,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
 
                 if let Err(operation_outcome_error) = result.as_ref()
                     && let Some(issue) = operation_outcome_error.outcome().issue.first()
-                    && issue.code == IssueType::DUPLICATE
+                    && issue.code == IssueType::duplicate()
                 {
                     println!("Tenant with ID '{}' already exists.", id);
                     return Ok(());

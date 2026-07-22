@@ -51,7 +51,7 @@ pub fn idp_registration_info_op<
                 else {
                     return Box::pin(async move {
                         Err(OperationOutcomeError::error(
-                            IssueType::EXCEPTION,
+                            IssueType::exception(),
                             "Invalid invocation request type".to_string(),
                         ))
                     });
@@ -60,7 +60,7 @@ pub fn idp_registration_info_op<
                 if resource_type != &ResourceType::IdentityProvider {
                     return Box::pin(async move {
                         Err(OperationOutcomeError::error(
-                            IssueType::INVALID,
+                            IssueType::invalid(),
                             "Resource type must be IdentityProvider".to_string(),
                         ))
                     });
@@ -74,7 +74,7 @@ pub fn idp_registration_info_op<
                     let api_url = Url::parse(&api_url_string).map_err(|e| {
                         tracing::error!("Failed to parse API URL: {:?}", e);
                         OperationOutcomeError::error(
-                            IssueType::INVALID,
+                            IssueType::invalid(),
                             "Invalid API URL configured".to_string(),
                         )
                     })?;
@@ -91,7 +91,7 @@ pub fn idp_registration_info_op<
                         .map_err(|e| {
                             tracing::error!("Failed to derive FHIR URL: {:?}", e);
                             OperationOutcomeError::error(
-                                IssueType::INVALID,
+                                IssueType::invalid(),
                                 "Invalid API URL configured".to_string(),
                             )
                         })?

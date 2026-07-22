@@ -125,7 +125,7 @@ pub async fn create_tenant<
 
     let Some(user_id) = user.id else {
         return Err(OperationOutcomeError::fatal(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "The user ID is required to complete the tenant creation process.".to_string(),
         ));
     };
@@ -138,7 +138,7 @@ pub async fn create_tenant<
     .await?
     else {
         return Err(OperationOutcomeError::fatal(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "The user does not exist after creation.".to_string(),
         ));
     };

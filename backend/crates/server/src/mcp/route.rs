@@ -95,7 +95,7 @@ pub async fn mcp_handler<
             .into_response())
         }
         _ => Err(OperationOutcomeError::error(
-            IssueType::NOT_SUPPORTED,
+            IssueType::not_supported(),
             "Request not implemented".to_string(),
         )
         .into()),

@@ -56,7 +56,7 @@ fn extract_profile_url_and_resource_from_request(
             let profiles_url = extract_profile_url_from_resource(resource).unwrap_or(vec![]);
             if profiles_url.len() > MAX_PROFILES_PER_RESOURCE {
                 return Err(OperationOutcomeError::error(
-                    haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+                    haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
                     format!(
                         "Too many profiles on resource. Maximum allowed is '{}'",
                         MAX_PROFILES_PER_RESOURCE
@@ -111,7 +111,7 @@ impl<
         Box::pin(async move {
             let Some(next) = next else {
                 return Err(OperationOutcomeError::error(
-                    haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+                    haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
                     "Next middleware must be provided for profile middleware.".to_string(),
                 ));
             };

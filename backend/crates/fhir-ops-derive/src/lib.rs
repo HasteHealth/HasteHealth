@@ -121,7 +121,7 @@ fn build_return_value(fields: &Fields) -> proc_macro2::TokenStream {
             quote!{
                 #field: #field.ok_or_else(||
                     OperationOutcomeError::error(
-                        haste_fhir_model::r4::generated::terminology::IssueType::INVALID, format!("Field '{}' is required.", stringify!(#field_name))))?
+                        haste_fhir_model::r4::generated::terminology::IssueType::invalid(), format!("Field '{}' is required.", stringify!(#field_name))))?
              }
         }
 
@@ -285,7 +285,7 @@ pub fn haste_from_parameters(input: TokenStream) -> TokenStream {
                         if let Some(Resource::#value_type(resource)) = #current_parameter.resource.map(|r| *r) {
                             Ok(Some(resource))
                         } else {
-                            return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::INVALID, format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
+                            return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::invalid(), format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
                         }
                     }
                 } else {
@@ -297,7 +297,7 @@ pub fn haste_from_parameters(input: TokenStream) -> TokenStream {
                         if let Some(haste_fhir_model::r4::generated::resources::ParametersParameterValueTypeChoice::#parameter_value_type(value)) = #current_parameter.value {
                             Ok(Some(*value))
                         } else {
-                            return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::INVALID, format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
+                            return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::invalid(), format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
                         }
                     }
                 };
@@ -316,7 +316,7 @@ pub fn haste_from_parameters(input: TokenStream) -> TokenStream {
                 } else {
                     quote! {
                         if #field_name.is_some(){
-                            return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::INVALID, format!("Parameter '{}' is not allowed to be repeated.", #expected_parameter_name)));
+                            return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::invalid(), format!("Parameter '{}' is not allowed to be repeated.", #expected_parameter_name)));
                         }
                         let tmp_value: Result<_, OperationOutcomeError> = #get_value_from_param;
                         #field_name = tmp_value?;
@@ -342,10 +342,10 @@ pub fn haste_from_parameters(input: TokenStream) -> TokenStream {
                             match #current_parameter.name.value.as_ref().map(|v| v.as_str()) {
                                 #(#set_fields),*
                                 Some(k) => {
-                                    return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::INVALID, format!("Parameter '{}' is not allowed.", k)));
+                                    return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::invalid(), format!("Parameter '{}' is not allowed.", k)));
                                 },
                                 None => {
-                                    return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::INVALID, format!("Parameter must have a name on it")));
+                                    return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::invalid(), format!("Parameter must have a name on it")));
                                 }
                             }
                         }

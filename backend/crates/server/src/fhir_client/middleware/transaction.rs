@@ -44,7 +44,7 @@ pub async fn setup_transaction_context<
         }
         FHIRRequest::Read(_) | FHIRRequest::Search(_) => Ok(state),
         _ => Err(OperationOutcomeError::fatal(
-            IssueType::NOT_SUPPORTED,
+            IssueType::not_supported(),
             "Request type not supported for transaction middleware.".to_string(),
         )),
     }
@@ -100,7 +100,7 @@ impl<
                         Arc::try_unwrap(repo_client)
                             .map_err(|_e| {
                                 OperationOutcomeError::fatal(
-                                    IssueType::EXCEPTION,
+                                    IssueType::exception(),
                                     "Failed to unwrap transaction client".to_string(),
                                 )
                             })?
@@ -111,7 +111,7 @@ impl<
                         Arc::try_unwrap(repo_client)
                             .map_err(|_e| {
                                 OperationOutcomeError::fatal(
-                                    IssueType::EXCEPTION,
+                                    IssueType::exception(),
                                     "Failed to unwrap transaction client".to_string(),
                                 )
                             })?
@@ -123,7 +123,7 @@ impl<
                 }
             } else {
                 Err(OperationOutcomeError::fatal(
-                    IssueType::EXCEPTION,
+                    IssueType::exception(),
                     "No next middleware found".to_string(),
                 ))
             }

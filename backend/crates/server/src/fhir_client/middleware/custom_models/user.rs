@@ -98,7 +98,7 @@ impl<
                                 Ok(res)
                             } else {
                                 Err(OperationOutcomeError::fatal(
-                                    IssueType::INVALID,
+                                    IssueType::invalid(),
                                     "User resource is invalid.".to_string(),
                                 ))
                             }
@@ -117,7 +117,7 @@ impl<
                                 Ok(res)
                             } else {
                                 Err(OperationOutcomeError::fatal(
-                                    IssueType::INVALID,
+                                    IssueType::invalid(),
                                     "User resource is invalid.".to_string(),
                                 ))
                             }
@@ -143,7 +143,7 @@ impl<
                                 Ok(res)
                             } else {
                                 Err(OperationOutcomeError::fatal(
-                                    IssueType::INVALID,
+                                    IssueType::invalid(),
                                     "User resource is invalid.".to_string(),
                                 ))
                             }
@@ -154,7 +154,7 @@ impl<
                 }
             } else {
                 Err(OperationOutcomeError::fatal(
-                    IssueType::EXCEPTION,
+                    IssueType::exception(),
                     "No next middleware found".to_string(),
                 ))
             }

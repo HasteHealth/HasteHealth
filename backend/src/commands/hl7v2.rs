@@ -51,7 +51,7 @@ pub(crate) async fn hl7v2(
 
             let template = environment
                 .get_template(&main)
-                .map_err(|e| OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string()))?;
+                .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
 
             for stream in listener.incoming() {
                 let mut stream = match stream {

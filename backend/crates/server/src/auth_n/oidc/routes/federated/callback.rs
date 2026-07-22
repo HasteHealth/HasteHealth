@@ -83,14 +83,14 @@ async fn decode_using_jwk(
 ) -> Result<FederatedTokenClaims, OperationOutcomeError> {
     let header = jsonwebtoken::decode_header(token).map_err(|_| {
         OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Failed to decode token header".to_string(),
         )
     })?;
 
     let res = reqwest::get(jwk_url).await.map_err(|_e| {
         OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Failed to fetch JWKs from identity provider".to_string(),
         )
     })?;
@@ -100,7 +100,7 @@ async fn decode_using_jwk(
         .await
         .map_err(|_e| {
             OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "Failed to parse JWKs from identity provider".to_string(),
             )
         })?;
@@ -113,14 +113,14 @@ async fn decode_using_jwk(
 
     let jwk = jwk.ok_or_else(|| {
         OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "No matching JWK found for token".to_string(),
         )
     })?;
 
     let decoding_key = DecodingKey::from_jwk(&jwk).map_err(|_e| {
         OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Failed to create decoding key from JWK".to_string(),
         )
     })?;
@@ -137,7 +137,7 @@ async fn decode_using_jwk(
         tracing::error!("Federated token decode error: {:?}", e);
 
         OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Failed to decode and verify token. Ensure openid is in scope and claims contain a sub claim.".to_string(),
         )
     })?;
@@ -148,7 +148,7 @@ async fn decode_using_jwk(
 fn user_federated_id(idp: &IdentityProvider, sub: &str) -> Result<String, OperationOutcomeError> {
     let Some(id_prefix) = idp.id.as_ref() else {
         return Err(OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Identity Provider is missing ID".to_string(),
         ));
     };
@@ -315,7 +315,7 @@ async fn create_user_if_not_exists<
             Resource::User(user) => user,
             _ => {
                 return Err(OperationOutcomeError::error(
-                    IssueType::EXCEPTION,
+                    IssueType::exception(),
                     "Failed to create federated user".to_string(),
                 ));
             }
@@ -354,7 +354,7 @@ pub async fn federated_callback<
         .and_then(|c| c.value.as_ref())
         .ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "Identity Provider is missing client ID".to_string(),
             )
         })?;
@@ -367,14 +367,14 @@ pub async fn federated_callback<
 
     if state != idp_session_info.state {
         return Err(OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "State parameter does not match the stored session state.".to_string(),
         ));
     }
 
     if project != ProjectId::System && idp_session_info.project != project {
         return Err(OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Project in session does not match the current project.".to_string(),
         ));
     }
@@ -399,7 +399,7 @@ pub async fn federated_callback<
         .and_then(|uri| uri.value.as_ref())
         .ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "Identity Provider is missing token endpoint".to_string(),
             )
         })?;
@@ -411,7 +411,7 @@ pub async fn federated_callback<
         .and_then(|uri| uri.value.as_ref())
         .ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "Identity Provider is missing JWKS URI".to_string(),
             )
         })?;
@@ -426,7 +426,7 @@ pub async fn federated_callback<
             tracing::error!("Failed to send request to token endpoint: {:?}", _e);
 
             OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "Failed at sending request to identity provider token endpoint".to_string(),
             )
         })?;
@@ -439,7 +439,7 @@ pub async fn federated_callback<
         );
         tracing::error!("Token endpoint returned error status: {}", status);
         return Err(OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             format!(
                 "Identity provider token endpoint returned error status: {}",
                 status
@@ -454,7 +454,7 @@ pub async fn federated_callback<
             tracing::error!("Failed to parse token response body: {:?}", _e);
 
             OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "Failed to parse token response from identity provider".to_string(),
             )
         })?;
@@ -480,7 +480,7 @@ pub async fn federated_callback<
     .await?
     else {
         return Err(OperationOutcomeError::error(
-            IssueType::EXCEPTION,
+            IssueType::exception(),
             "Failed to retrieve created federated user from repository".to_string(),
         ));
     };
@@ -505,7 +505,7 @@ pub fn create_federated_callback_url(
 ) -> Result<String, OperationOutcomeError> {
     let Ok(api_url) = Url::parse(&api_url_string) else {
         return Err(OperationOutcomeError::error(
-            IssueType::EXCEPTION,
+            IssueType::exception(),
             "Invalid API_URL format".to_string(),
         ));
     };

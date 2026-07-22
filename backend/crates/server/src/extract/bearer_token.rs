@@ -25,7 +25,7 @@ where
 
         let authorization = header.to_str().map_err(|_| {
             OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "Invalid Authorization Header".to_string(),
             )
         })?;
@@ -39,7 +39,7 @@ where
             _ if authorization == "Bearer" => Ok(Self::from_header("")),
             // Found nothing
             _ => Err(OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "Invalid Authorization Header".to_string(),
             )),
         }

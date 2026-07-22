@@ -188,7 +188,7 @@ pub(crate) async fn testscript_commands(
                     output,
                     serde_json::to_string(&testreport_bundle).map_err(|e| {
                         OperationOutcomeError::fatal(
-                            IssueType::EXCEPTION,
+                            IssueType::exception(),
                             format!("Failed to serialize TestReport bundle: {}", e),
                         )
                     })?,
@@ -199,7 +199,7 @@ pub(crate) async fn testscript_commands(
                     "{}",
                     serde_json::to_string(&testreport_bundle).map_err(|e| {
                         OperationOutcomeError::fatal(
-                            IssueType::EXCEPTION,
+                            IssueType::exception(),
                             format!("Failed to serialize TestReport bundle: {}", e),
                         )
                     })?
@@ -208,7 +208,7 @@ pub(crate) async fn testscript_commands(
 
             if status_code != 0 {
                 Err(OperationOutcomeError::fatal(
-                    IssueType::EXCEPTION,
+                    IssueType::exception(),
                     "One or more TestScripts failed".to_string(),
                 ))
             } else {

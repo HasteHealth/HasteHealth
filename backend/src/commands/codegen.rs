@@ -67,14 +67,14 @@ pub(crate) async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeErr
         CodeGen::Operations { input, output } => {
             let generated_operation_definitions =
                 type_gen::operation_definitions::generate_operation_definitions_from_files(input)
-                    .map_err(|e| OperationOutcomeError::error(IssueType::EXCEPTION, e))?;
+                    .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e))?;
 
             let formatted_code = format_code(generated_operation_definitions);
 
             match output {
                 Some(output_path) => {
                     std::fs::write(output_path, formatted_code.to_string()).map_err(|e| {
-                        OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string())
+                        OperationOutcomeError::error(IssueType::exception(), e.to_string())
                     })?;
                     println!("Generated FHIR types written to: {}", output_path);
                 }
@@ -104,18 +104,18 @@ pub(crate) async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeErr
             let output_path = Path::new(output);
             let resource_path = output_path.join("resources.rs");
             std::fs::write(resource_path, format_code(rust_code.resources.to_string()))
-                .map_err(|e| OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string()))?;
+                .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
 
             let type_path = output_path.join("types.rs");
             std::fs::write(type_path, format_code(rust_code.types.to_string()))
-                .map_err(|e| OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string()))?;
+                .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
 
             let terminology_path = output_path.join("terminology.rs");
             std::fs::write(
                 terminology_path,
                 format_code(rust_code.terminology.to_string()),
             )
-            .map_err(|e| OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string()))?;
+            .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
 
             let mod_path = output_path.join("mod.rs");
             let module_code = quote! {
@@ -125,7 +125,7 @@ pub(crate) async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeErr
                pub mod terminology;
             };
             std::fs::write(mod_path, module_code.to_string())
-                .map_err(|e| OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string()))?;
+                .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
 
             let mod_path = output_path.join("mod.rs");
             let module_code = quote! {
@@ -135,7 +135,7 @@ pub(crate) async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeErr
                pub mod terminology;
             };
             std::fs::write(mod_path, format_code(module_code.to_string()))
-                .map_err(|e| OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string()))?;
+                .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
 
             println!("Generated FHIR types written to: {}", output_path.display());
             Ok(())
@@ -143,7 +143,7 @@ pub(crate) async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeErr
         CodeGen::TestScripts { input, output } => {
             let output_path = Path::new(output);
             let testscripts = testscript_gen::generate_testscripts(input)
-                .map_err(|e| OperationOutcomeError::error(IssueType::EXCEPTION, e))?;
+                .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e))?;
 
             for testscript in &testscripts {
                 let id = testscript.id.clone().unwrap();
@@ -157,7 +157,7 @@ pub(crate) async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeErr
                     serde_json::to_string_pretty(testscript)
                         .expect("Failed to serialize TestScript to JSON"),
                 )
-                .map_err(|e| OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string()))?;
+                .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
             }
 
             println!(

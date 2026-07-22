@@ -27,7 +27,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             .cloned()
             .ok_or_else(|| {
                 OperationOutcomeError::fatal(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     "http://hl7.org/fhirpath/System.String value is missing.".to_string(),
                 )
             }),
@@ -71,7 +71,7 @@ pub fn stringify_meta_value(value: &dyn MetaValue) -> Result<String, OperationOu
             v.value.as_ref().map(ToString::to_string)
         }),
         typename => Err(OperationOutcomeError::fatal(
-            IssueType::INVALID,
+            IssueType::invalid(),
             format!("Unsupported MetaValue type for stringification: '{typename}'"),
         )),
     }
@@ -90,7 +90,7 @@ where
         .and_then(extractor)
         .ok_or_else(|| {
             OperationOutcomeError::fatal(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 format!("{type_name} value is missing."),
             )
         })

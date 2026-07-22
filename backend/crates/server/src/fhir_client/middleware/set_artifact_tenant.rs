@@ -70,7 +70,7 @@ fn zip_together_search_requests(
             )))
         }
         _ => Err(OperationOutcomeError::fatal(
-            IssueType::EXCEPTION,
+            IssueType::exception(),
             "Unexpected request type".to_string(),
         )),
     }
@@ -91,7 +91,7 @@ impl<
         Box::pin(async move {
             let Some(next) = next else {
                 return Err(OperationOutcomeError::fatal(
-                    IssueType::EXCEPTION,
+                    IssueType::exception(),
                     "No next middleware found".to_string(),
                 ));
             };
@@ -134,7 +134,7 @@ impl<
                 }
                 _ => {
                     return Err(OperationOutcomeError::fatal(
-                        IssueType::EXCEPTION,
+                        IssueType::exception(),
                         "Artifact tenant middleware only supports read and search requests."
                             .to_string(),
                     ));

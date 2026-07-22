@@ -11,7 +11,7 @@ pub fn json(
 
     serde_json::to_writer(&mut byte_vector, &results).map_err(|_e| {
         OperationOutcomeError::error(
-            IssueType::PROCESSING,
+            IssueType::processing(),
             "Failed to write JSON output".to_string(),
         )
     })?;

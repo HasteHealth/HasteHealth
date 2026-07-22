@@ -58,7 +58,7 @@ pub async fn mfa_delete_post<
 ) -> Result<Response, OperationOutcomeError> {
     if csrf_token != delete_body.csrf_token {
         return Err(OperationOutcomeError::error(
-            IssueType::SECURITY,
+            IssueType::security(),
             "Invalid CSRF token.".to_string(),
         ));
     }
@@ -66,7 +66,7 @@ pub async fn mfa_delete_post<
     let get_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
         .map_err(|_e| {
-            OperationOutcomeError::error(IssueType::SECURITY, "User is not logged in.".to_string())
+            OperationOutcomeError::error(IssueType::security(), "User is not logged in.".to_string())
         })?;
 
     let redirect_to_path = replace_mfa_route(&uri, &id, "/admin");

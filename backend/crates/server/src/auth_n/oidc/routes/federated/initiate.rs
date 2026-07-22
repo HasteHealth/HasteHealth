@@ -53,7 +53,7 @@ pub fn validate_identity_provider_in_project(
         }
     }
     Err(OperationOutcomeError::error(
-        IssueType::FORBIDDEN,
+        IssueType::forbidden(),
         "The specified identity provider is not associated with the project.".to_string(),
     ))
 }
@@ -86,7 +86,7 @@ pub async fn get_idp<
         })
         .ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::NOT_FOUND,
+                IssueType::not_found(),
                 "The specified identity provider was not found.".to_string(),
             )
         })?;
@@ -112,7 +112,7 @@ pub async fn get_idp_session_info(
 ) -> Result<IDPSessionInfo, OperationOutcomeError> {
     let idp_id = idp.id.as_ref().ok_or_else(|| {
         OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Identity Provider resource is missing an ID.".to_string(),
         )
     })?;
@@ -122,13 +122,13 @@ pub async fn get_idp_session_info(
         .await
         .map_err(|_| {
             OperationOutcomeError::error(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 "Failed to retrieve session information.".to_string(),
             )
         })?
         .ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::NOT_FOUND,
+                IssueType::not_found(),
                 "No session information found for the specified identity provider.".to_string(),
             )
         })?;
@@ -144,7 +144,7 @@ async fn set_session_info(
 ) -> Result<IDPSessionInfo, OperationOutcomeError> {
     let idp_id = idp.id.as_ref().ok_or_else(|| {
         OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Identity Provider resource is missing an ID.".to_string(),
         )
     })?;
@@ -178,7 +178,7 @@ async fn set_session_info(
         .await
         .map_err(|_| {
             OperationOutcomeError::error(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 "Failed to set session information.".to_string(),
             )
         })?;
@@ -214,14 +214,14 @@ async fn create_federated_authorization_url(
             .and_then(|s| Url::parse(s).ok())
             .ok_or_else(|| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     "Invalid authorization endpoint URL for identity provider".to_string(),
                 )
             })?;
 
         let client_id = oidc.client.clientId.value.as_ref().ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "Missing client ID for identity provider.".to_string(),
             )
         })?;
@@ -271,7 +271,7 @@ async fn create_federated_authorization_url(
         Ok(authorization_url)
     } else {
         return Err(OperationOutcomeError::error(
-            IssueType::NOT_FOUND,
+            IssueType::not_found(),
             "The specified identity provider was not found.".to_string(),
         ));
     }

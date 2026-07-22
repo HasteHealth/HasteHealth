@@ -637,7 +637,7 @@ fn fhir_request_to_http_request<'a>(
                 "Authorization",
                 HeaderValue::from_str(&format!("Bearer {}", token)).map_err(|_| {
                     OperationOutcomeError::error(
-                        IssueType::INVALID,
+                        IssueType::invalid(),
                         "Failed to create Authorization header.".to_string(),
                     )
                 })?,
@@ -660,7 +660,7 @@ async fn check_for_errors(
         }
 
         return Err(OperationOutcomeError::error(
-            IssueType::EXCEPTION,
+            IssueType::exception(),
             format!("HTTP returned error '{}'.", status),
         ));
     }

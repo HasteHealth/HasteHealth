@@ -249,7 +249,7 @@ fn setup_tracing(
             config,
         )),
         _ => Err(OperationOutcomeError::fatal(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Invalid log type specified in environment variable LOG_TYPE. Supported values are 'TREE' and 'JSON'.".to_string(),
         )),
     }

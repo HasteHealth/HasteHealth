@@ -80,7 +80,7 @@ async fn get_concepts(
     match &codesystem.content {
         content_type if content_type == &CodesystemContentMode::NOT_PRESENT => {
             Err(OperationOutcomeError::error(
-                IssueType::NOT_SUPPORTED,
+                IssueType::not_supported(),
                 "CodeSystem content is 'not-present'".to_string(),
             ))
         }
@@ -92,7 +92,7 @@ async fn get_concepts(
             Ok(codesystem.concept.clone().unwrap_or_default())
         }
         _ => Err(OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "CodeSystem content has invalid value".to_string(),
         )),
     }
@@ -261,7 +261,7 @@ fn expand_valueset<Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
             })
         } else {
             return Err(OperationOutcomeError::error(
-                IssueType::NOT_FOUND,
+                IssueType::not_found(),
                 "ValueSet could not be resolved".to_string(),
             ));
         }
@@ -283,7 +283,7 @@ impl FHIRTerminology for FHIRCanonicalTerminology {
     ) -> Result<ValueSetValidateCode::Output, OperationOutcomeError> {
         let Some(code) = input.code else {
             return Err(OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "No code provided for validation only support 'code' field validation".to_string(),
             ));
         };

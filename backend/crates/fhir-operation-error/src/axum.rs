@@ -7,15 +7,15 @@ impl OperationOutcomeError {
     pub fn status(&self) -> axum::http::StatusCode {
         match self.outcome.issue.first() {
             Some(issue) => {
-                if issue.code == IssueType::INVALID {
+                if issue.code == IssueType::invalid() {
                     axum::http::StatusCode::BAD_REQUEST
-                } else if issue.code == IssueType::NOT_FOUND {
+                } else if issue.code == IssueType::not_found() {
                     axum::http::StatusCode::NOT_FOUND
-                } else if issue.code == IssueType::FORBIDDEN {
+                } else if issue.code == IssueType::forbidden() {
                     axum::http::StatusCode::FORBIDDEN
-                } else if issue.code == IssueType::CONFLICT {
+                } else if issue.code == IssueType::conflict() {
                     axum::http::StatusCode::CONFLICT
-                } else if issue.code == IssueType::THROTTLED {
+                } else if issue.code == IssueType::throttled() {
                     axum::http::StatusCode::TOO_MANY_REQUESTS
                 } else {
                     axum::http::StatusCode::INTERNAL_SERVER_ERROR

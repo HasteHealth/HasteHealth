@@ -108,7 +108,7 @@ impl<
                     let req =
                         Arc::try_unwrap(policy_context.environment.request).map_err(|_| {
                             OperationOutcomeError::fatal(
-                                IssueType::EXCEPTION,
+                                IssueType::exception(),
                                 "Internal error during policy evaluation.".to_string(),
                             )
                         })?;

@@ -36,7 +36,7 @@ pub async fn send_email(
 ) -> Result<(), OperationOutcomeError> {
     let email_config = config.as_ref().ok_or_else(|| {
         OperationOutcomeError::fatal(
-            IssueType::EXCEPTION,
+            IssueType::exception(),
             "Email configuration is not set".to_string(),
         )
     })?;
@@ -57,7 +57,7 @@ pub async fn send_email(
                 tracing::error!("Failed to send email '{}'", e);
                 tracing::error!("{}", report(&e));
                 OperationOutcomeError::fatal(
-                    IssueType::EXCEPTION,
+                    IssueType::exception(),
                     "Failed to send email".to_string(),
                 )
             })?;
@@ -115,7 +115,7 @@ pub async fn send_password_reset_email<
     let api_url_string = &state.config.api_uri;
 
     let mut api_url = Url::parse(&api_url_string).map_err(|_| {
-        OperationOutcomeError::fatal(IssueType::EXCEPTION, "API Url is invalid".to_string())
+        OperationOutcomeError::fatal(IssueType::exception(), "API Url is invalid".to_string())
     })?;
 
     api_url.set_path(
@@ -133,7 +133,7 @@ pub async fn send_password_reset_email<
 
     let reset_button = crate::ui::email::base::base(
         &Uri::try_from(api_url.as_str()).map_err(|_| {
-            OperationOutcomeError::fatal(IssueType::EXCEPTION, "API Url is invalid".to_string())
+            OperationOutcomeError::fatal(IssueType::exception(), "API Url is invalid".to_string())
         })?,
         html! {
             @if let Some(message) = message.body {
@@ -150,7 +150,7 @@ pub async fn send_password_reset_email<
 
     let email_str = user.email.as_ref().ok_or_else(|| {
         OperationOutcomeError::fatal(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "User does not have an email associated.".to_string(),
         )
     })?;
@@ -159,7 +159,7 @@ pub async fn send_password_reset_email<
         &state.config.email,
         &EmailAddress::from_str(email_str).map_err(|_| {
             OperationOutcomeError::fatal(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "User has an invalid email associated.".to_string(),
             )
         })?,

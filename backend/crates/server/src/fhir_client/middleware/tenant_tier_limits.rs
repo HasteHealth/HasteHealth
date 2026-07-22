@@ -33,7 +33,7 @@ fn get_request_limit(
         FHIRRequest::Update(_) | FHIRRequest::Create(_) => {
             let Some(resource_type) = request_to_resource_type(request) else {
                 return Err(OperationOutcomeError::fatal(
-                    IssueType::EXCEPTION,
+                    IssueType::exception(),
                     "Unable to determine resource type for request".to_string(),
                 ));
             };
@@ -60,7 +60,7 @@ impl<
         Box::pin(async move {
             let Some(next) = next else {
                 return Err(OperationOutcomeError::fatal(
-                    IssueType::EXCEPTION,
+                    IssueType::exception(),
                     "No next middleware found".to_string(),
                 ));
             };
@@ -77,7 +77,7 @@ impl<
                             tracing::error!("Failed to construct search query for subscription tier limit middleware: {}", e);
 
                             OperationOutcomeError::fatal(
-                                IssueType::EXCEPTION,
+                                IssueType::exception(),
                                 "Failed to construct search query for subscription tier limit middleware".to_string(),
                             )
                         })?)
@@ -85,14 +85,14 @@ impl<
 
                     let total = result.total.and_then(|total| total.value).ok_or_else(|| {
                         OperationOutcomeError::fatal(
-                            IssueType::EXCEPTION,
+                            IssueType::exception(),
                             "Failed to retrieve total count for resource type".to_string(),
                         )
                     })?;
 
                     if total >= (limit as u64) {
                         return Err(OperationOutcomeError::error(
-                            IssueType::TOO_COSTLY,
+                            IssueType::too_costly(),
                             format!(
                                 "Request exceeds the limit of '{}' for resource type '{}' for subscription tier {:?}",
                                 limit,

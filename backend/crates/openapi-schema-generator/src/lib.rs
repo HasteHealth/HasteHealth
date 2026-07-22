@@ -438,7 +438,7 @@ pub fn open_api_schema_generator(
         let json_schema = haste_sd_to_json_schema::isolated_schema("#/components/schemas", sd)?;
         let type_name = sd.type_.value.as_ref().ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::STRUCTURE,
+                IssueType::structure(),
                 format!(
                     "StructureDefinition missing type for id {}",
                     sd.id.as_ref().unwrap_or(&"unknown".to_string())
@@ -459,7 +459,7 @@ pub fn open_api_schema_generator(
         let json_schema = haste_sd_to_json_schema::isolated_schema("#/components/schemas", sd)?;
         let resource_name = sd.type_.value.as_ref().ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::STRUCTURE,
+                IssueType::structure(),
                 format!(
                     "StructureDefinition missing type for id {}",
                     sd.id.as_ref().unwrap_or(&"unknown".to_string())

@@ -44,7 +44,7 @@ where
 
         if expr.is_empty() {
             return Err(OperationOutcomeError::fatal(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "FHIRPath expression is empty.".to_string(),
             ));
         }
@@ -54,7 +54,7 @@ where
             .await
             .map_err(|e| {
                 OperationOutcomeError::fatal(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!("FHIRPath evaluation error: {e}"),
                 )
             })?;

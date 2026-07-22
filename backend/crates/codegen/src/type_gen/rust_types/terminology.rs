@@ -234,7 +234,7 @@ fn load_terminologies(
             .filter(|e| e.path().extension().map_or(false, |ext| ext == "json"))
         {
             let resource = load::load_from_file(entry.path())
-                .map_err(|f| OperationOutcomeError::error(IssueType::EXCEPTION, f))?;
+                .map_err(|f| OperationOutcomeError::error(IssueType::exception(), f))?;
 
             match resource {
                 Resource::Bundle(bundle) => {
@@ -331,7 +331,7 @@ impl CanonicalResolver for InlineResolver {
                 Ok(Some(resource.clone()))
             } else {
                 Err(OperationOutcomeError::error(
-                    IssueType::NOT_FOUND,
+                    IssueType::not_found(),
                     format!("Could not resolve canonical url: {}", url),
                 ))
             }

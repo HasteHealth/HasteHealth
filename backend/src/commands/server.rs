@@ -42,7 +42,7 @@ pub(crate) async fn server(command: &ServerCommands) -> Result<(), OperationOutc
         .merge(Toml::file("haste.toml"))
         .merge(Env::prefixed("HASTE_"))
         .extract()
-        .map_err(|e| OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string()))?;
+        .map_err(|e| OperationOutcomeError::error(IssueType::exception(), e.to_string()))?;
 
     match &command {
         ServerCommands::Start { port } => {

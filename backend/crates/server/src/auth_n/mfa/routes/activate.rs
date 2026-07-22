@@ -83,7 +83,7 @@ pub async fn activate_html<
         tracing::error!(error = ?e);
 
         OperationOutcomeError::error(
-            IssueType::EXCEPTION,
+            IssueType::exception(),
             "Could not generate QR code for MFA".to_string(),
         )
     })?;
@@ -97,7 +97,7 @@ pub async fn activate_html<
             .id
             .as_ref()
             .ok_or(OperationOutcomeError::error(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 "User MFA credential ID is missing.".to_string(),
             ))?,
         &qr_code_image,
@@ -124,7 +124,7 @@ pub async fn activate_get<
     let get_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
         .map_err(|_e| {
-            OperationOutcomeError::error(IssueType::SECURITY, "User is not logged in.".to_string())
+            OperationOutcomeError::error(IssueType::security(), "User is not logged in.".to_string())
         })?;
 
     let Some(user_mfa_credential) = TenantModelAdmin::<UserMFACredentialCreate, _, _, _, _>::read(
@@ -135,14 +135,14 @@ pub async fn activate_get<
     .await?
     else {
         return Err(OperationOutcomeError::error(
-            IssueType::NOT_FOUND,
+            IssueType::not_found(),
             "User MFA credential not found.".to_string(),
         ));
     };
 
     if user_mfa_credential.is_active {
         return Err(OperationOutcomeError::error(
-            IssueType::SECURITY,
+            IssueType::security(),
             "MFA credential is already active.".to_string(),
         ));
     }
@@ -175,7 +175,7 @@ pub async fn activate_post<
 ) -> Result<Response, OperationOutcomeError> {
     if mfa_activate_data.csrf_token != csrf_token {
         return Err(OperationOutcomeError::error(
-            IssueType::SECURITY,
+            IssueType::security(),
             "Invalid CSRF token.".to_string(),
         ));
     }
@@ -183,7 +183,7 @@ pub async fn activate_post<
     let get_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
         .map_err(|_e| {
-            OperationOutcomeError::error(IssueType::SECURITY, "User is not logged in.".to_string())
+            OperationOutcomeError::error(IssueType::security(), "User is not logged in.".to_string())
         })?;
 
     let Some(user_mfa_credential) = TenantModelAdmin::<UserMFACredentialCreate, _, _, _, _>::read(
@@ -194,7 +194,7 @@ pub async fn activate_post<
     .await?
     else {
         return Err(OperationOutcomeError::error(
-            IssueType::NOT_FOUND,
+            IssueType::not_found(),
             "User MFA credential not found.".to_string(),
         ));
     };
@@ -210,12 +210,12 @@ pub async fn activate_post<
     let is_otp_valid = totp
         .check_current(&mfa_activate_data.otp_code)
         .map_err(|_e| {
-            OperationOutcomeError::error(IssueType::SECURITY, "Invalid OTP code.".to_string())
+            OperationOutcomeError::error(IssueType::security(), "Invalid OTP code.".to_string())
         })?;
 
     if !is_otp_valid {
         return Err(OperationOutcomeError::error(
-            IssueType::SECURITY,
+            IssueType::security(),
             "Invalid OTP code.".to_string(),
         ));
     }
@@ -225,7 +225,7 @@ pub async fn activate_post<
         &tenant,
         UserMFACredentialUpdate {
             id: user_mfa_credential.id.ok_or(OperationOutcomeError::error(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 "User MFA credential ID is missing.".to_string(),
             ))?,
             user_id: UserId::new(get_auth_state.user.id),

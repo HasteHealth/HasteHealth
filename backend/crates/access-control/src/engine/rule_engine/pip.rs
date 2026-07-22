@@ -57,7 +57,7 @@ async fn evaluate_attribute<
 ) -> Result<Option<ResolvedValue>, OperationOutcomeError> {
     let access_policy = pointer.value().ok_or_else(|| {
         OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
             "Pointer root does not contain an AccessPolicyV2 resource.".to_string(),
         )
     })?;
@@ -68,7 +68,7 @@ async fn evaluate_attribute<
 
     let Some(attribute_operation) = &attribute.operation else {
         return Err(OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
             format!("Attribute operation is not specified for attribute '{variable_id}'."),
         ));
     };
@@ -88,12 +88,12 @@ async fn evaluate_attribute<
 
         attribute_type if attribute_type == &AccessPolicyAttributeOperationTypes::NULL => {
             Err(OperationOutcomeError::fatal(
-                haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+                haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
                 format!("Attribute operation type is not specified for attribute '{variable_id}'."),
             ))
         }
         _ => Err(OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
             format!(
                 "Attribute operation type '{:?}' is not supported for attribute '{}'.",
                 attribute_operation.type_, variable_id
@@ -113,7 +113,7 @@ async fn evaluate_read<
 ) -> Result<Option<ResolvedValue>, OperationOutcomeError> {
     let path_expression = operation.path.as_ref().ok_or_else(|| {
         OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
             format!("Attribute operation path is not specified for attribute '{variable_id}'."),
         )
     })?;
@@ -124,7 +124,7 @@ async fn evaluate_read<
 
     let [resource_type, id] = reference_chunks.as_slice() else {
         return Err(OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
             format!(
                 "Attribute operation path '{path}' is not a valid resource path for attribute '{variable_id}'."
             ),
@@ -133,7 +133,7 @@ async fn evaluate_read<
 
     let resource_type = ResourceType::try_from(*resource_type).map_err(|_| {
         OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
             format!("Resource type '{resource_type}' is not valid for attribute '{variable_id}'."),
         )
     })?;
@@ -163,7 +163,7 @@ async fn evaluate_search_system<
 ) -> Result<Option<ResolvedValue>, OperationOutcomeError> {
     let parameter_expression = operation.params.as_ref().ok_or_else(|| {
         OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
             format!("Attribute operation params are not specified for attribute '{variable_id}'."),
         )
     })?;
@@ -198,7 +198,7 @@ async fn evaluate_search_type<
 ) -> Result<Option<ResolvedValue>, OperationOutcomeError> {
     let path_expression = operation.path.as_ref().ok_or_else(|| {
         OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
             format!("Attribute operation path is not specified for attribute '{variable_id}'."),
         )
     })?;
@@ -208,14 +208,14 @@ async fn evaluate_search_type<
 
     let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|_| {
         OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
             format!("Resource type '{resource_type}' is not valid for attribute '{variable_id}'."),
         )
     })?;
 
     let parameter_expression = operation.params.as_ref().ok_or_else(|| {
         OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
             format!("Attribute operation params are not specified for attribute '{variable_id}'."),
         )
     })?;

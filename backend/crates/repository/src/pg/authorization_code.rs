@@ -304,7 +304,7 @@ impl<Key: AsRef<str> + Send + Sync>
         _model: AuthorizationCode,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         Err(OperationOutcomeError::fatal(
-            IssueType::EXCEPTION,
+            IssueType::exception(),
             "Update operation for AuthorizationCode is not implemented.".to_string(),
         ))
     }
@@ -400,7 +400,7 @@ impl<Key: AsRef<str> + Send + Sync>
         _model: AuthorizationCode,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         Err(OperationOutcomeError::fatal(
-            IssueType::EXCEPTION,
+            IssueType::exception(),
             "Update operation for AuthorizationCode is not implemented.".to_string(),
         ))
     }

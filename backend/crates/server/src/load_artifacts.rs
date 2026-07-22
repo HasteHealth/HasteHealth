@@ -215,11 +215,11 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
                         .unwrap_or("unknown");
 
                     match &err.outcome().issue[0].code {
-                        i if i == &IssueType::INVALID => {
+                        i if i == &IssueType::invalid() => {
                             tracing::error!("{:#?}", err);
                             panic!("INVALID");
                         }
-                        i if i == &IssueType::CONFLICT => {
+                        i if i == &IssueType::conflict() => {
                             // Ignore.
                         }
                         _ => {

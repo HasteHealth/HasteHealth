@@ -70,7 +70,7 @@ fn create_capability_rest_statement(
     Ok(CapabilityStatementRestResource {
         type_: BoundCode::<ResourceTypes>::new(&sd_type).ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 format!(
                     "Failed to parse resource type in capabilities generation: '{}'",
                     sd_type

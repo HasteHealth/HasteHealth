@@ -398,7 +398,7 @@ impl IndexingWorker {
 
         if !search_engine.is_connected().await.is_ok() {
             return Err(OperationOutcomeError::fatal(
-                haste_fhir_model::r4::generated::terminology::IssueType::EXCEPTION,
+                haste_fhir_model::r4::generated::terminology::IssueType::exception(),
                 "Elasticsearch is not connected after 5 attempts".to_string(),
             ));
         }

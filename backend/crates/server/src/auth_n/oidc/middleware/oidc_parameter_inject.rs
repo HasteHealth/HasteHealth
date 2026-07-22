@@ -128,7 +128,7 @@ where
                         Ok(json_params)
                     }
                     content_type => Err(OperationOutcomeError::error(
-                        IssueType::NOT_SUPPORTED,
+                        IssueType::not_supported(),
                         format!(
                             "Unsupported Content-Type for OIDC parameter injection '{}'",
                             content_type
@@ -137,7 +137,7 @@ where
                 },
                 &Method::GET => Ok(query_params),
                 _ => Err(OperationOutcomeError::error(
-                    IssueType::NOT_SUPPORTED,
+                    IssueType::not_supported(),
                     "Unsupported HTTP method for OIDC parameter injection".to_string(),
                 )),
             };

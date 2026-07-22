@@ -145,21 +145,21 @@ async fn derive_resource_data_arg_file_arg_or_stdin<Type: serde::de::Deserialize
     if let Some(data) = data_arg {
         serde_json::from_str::<Type>(data).map_err(|e| {
             OperationOutcomeError::error(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 format!("Failed to parse transaction data: {}", e),
             )
         })
     } else if let Some(file_path) = file_path {
         let file_content = std::fs::read_to_string(file_path).map_err(|e| {
             OperationOutcomeError::error(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 format!("Failed to read transaction file: {}", e),
             )
         })?;
 
         serde_json::from_str::<Type>(&file_content).map_err(|e| {
             OperationOutcomeError::error(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 format!("Failed to parse file: {}", e),
             )
         })
@@ -169,14 +169,14 @@ async fn derive_resource_data_arg_file_arg_or_stdin<Type: serde::de::Deserialize
 
         std::io::stdin().read_line(&mut buffer).map_err(|e| {
             OperationOutcomeError::error(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 format!("Failed to read from stdin: {}", e),
             )
         })?;
 
         serde_json::from_str::<Type>(&buffer).map_err(|e| {
             OperationOutcomeError::error(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 format!("Failed to parse transaction from stdin: {}", e),
             )
         })
@@ -197,7 +197,7 @@ pub(crate) async fn api_commands(
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!(
                         "'{}' is not a valid FHIR resource type: {}",
                         resource_type, e
@@ -220,7 +220,7 @@ pub(crate) async fn api_commands(
         ApiCommands::Read { resource_type, id } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!(
                         "'{}' is not a valid FHIR resource type: {}",
                         resource_type, e
@@ -246,34 +246,34 @@ pub(crate) async fn api_commands(
             let patches = if let Some(file) = file {
                 let file_content = std::fs::read_to_string(file).map_err(|e| {
                     OperationOutcomeError::error(
-                        IssueType::EXCEPTION,
+                        IssueType::exception(),
                         format!("Failed to read transaction file: {}", e),
                     )
                 })?;
 
                 serde_json::from_str::<json_patch::Patch>(&file_content).map_err(|e| {
                     OperationOutcomeError::error(
-                        IssueType::INVALID,
+                        IssueType::invalid(),
                         format!("Failed to parse patch JSON: {}", e),
                     )
                 })?
             } else if let Some(data) = data {
                 serde_json::from_str::<json_patch::Patch>(&data).map_err(|e| {
                     OperationOutcomeError::error(
-                        IssueType::INVALID,
+                        IssueType::invalid(),
                         format!("Failed to parse patch JSON: {}", e),
                     )
                 })?
             } else {
                 return Err(OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     "Either --data or --file must be provided for patch operation.".to_string(),
                 ));
             };
 
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!(
                         "'{}' is not a valid FHIR resource type: {}",
                         resource_type, e
@@ -300,7 +300,7 @@ pub(crate) async fn api_commands(
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!(
                         "'{}' is not a valid FHIR resource type: {}",
                         resource_type, e
@@ -362,7 +362,7 @@ pub(crate) async fn api_commands(
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!(
                         "'{}' is not a valid FHIR resource type: {}",
                         resource_type, e
@@ -416,7 +416,7 @@ pub(crate) async fn api_commands(
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!(
                         "'{}' is not a valid FHIR resource type: {}",
                         resource_type, e
@@ -446,7 +446,7 @@ pub(crate) async fn api_commands(
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!(
                         "'{}' is not a valid FHIR resource type: {}",
                         resource_type, e
@@ -476,7 +476,7 @@ pub(crate) async fn api_commands(
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!(
                         "'{}' is not a valid FHIR resource type: {}",
                         resource_type, e
@@ -543,7 +543,7 @@ pub(crate) async fn api_commands(
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!(
                         "'{}' is not a valid FHIR resource type: {}",
                         resource_type, e
@@ -576,7 +576,7 @@ pub(crate) async fn api_commands(
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!(
                         "'{}' is not a valid FHIR resource type: {}",
                         resource_type, e
@@ -619,7 +619,7 @@ pub(crate) async fn api_commands(
         ApiCommands::DeleteInstance { resource_type, id } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!(
                         "'{}' is not a valid FHIR resource type: {}",
                         resource_type, e
@@ -645,7 +645,7 @@ pub(crate) async fn api_commands(
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!(
                         "'{}' is not a valid FHIR resource type: {}",
                         resource_type, e

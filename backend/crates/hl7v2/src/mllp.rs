@@ -28,7 +28,7 @@ impl MllpFormatter {
         {
             let k = String::from_utf8_lossy(framed);
             return Err(OperationOutcomeError::error(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 format!("Expected MLLP frame <SB>...<EB><CR>, got: {:?}", k),
             ));
         }
@@ -61,7 +61,7 @@ impl MllpFormatter {
             match reader.read(&mut byte) {
                 Ok(0) => {
                     return Err(OperationOutcomeError::error(
-                        IssueType::EXCEPTION,
+                        IssueType::exception(),
                         "Connection closed before complete MLLP frame".to_string(),
                     ));
                 }
@@ -71,7 +71,7 @@ impl MllpFormatter {
 
                     if buf[0] != START_BLOCK {
                         return Err(OperationOutcomeError::error(
-                            IssueType::EXCEPTION,
+                            IssueType::exception(),
                             "MLLP frame does not start with START_BLOCK".to_string(),
                         ));
                     }
@@ -82,7 +82,7 @@ impl MllpFormatter {
                 }
                 Err(e) => {
                     return Err(OperationOutcomeError::error(
-                        IssueType::EXCEPTION,
+                        IssueType::exception(),
                         format!("Failed to read from stream: {}", e),
                     ));
                 }

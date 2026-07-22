@@ -28,7 +28,7 @@ where
 
         let bytes = to_bytes(body, 1000000).await.map_err(|_e| {
             OperationOutcomeError::fatal(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 "Failed to extract request body".to_string(),
             )
         })?;
@@ -38,7 +38,7 @@ where
                 let body = serde_json::from_slice::<schemas::token_body::OAuth2TokenBody>(&bytes)
                     .map_err(|e| {
                     tracing::error!("JSON parse error: {:?}", e);
-                    OperationOutcomeError::fatal(IssueType::INVALID, e.to_string())
+                    OperationOutcomeError::fatal(IssueType::invalid(), e.to_string())
                 })?;
 
                 body
@@ -47,14 +47,14 @@ where
                 let body =
                     serde_html_form::from_bytes::<schemas::token_body::OAuth2TokenBody>(&bytes)
                         .map_err(|e| {
-                            OperationOutcomeError::fatal(IssueType::INVALID, e.to_string())
+                            OperationOutcomeError::fatal(IssueType::invalid(), e.to_string())
                         })?;
 
                 body
             }
             _ => {
                 return Err(OperationOutcomeError::fatal(
-                    haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+                    haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
                     "Invalid content type, expected 'application/json' or 'application/fhir+json'"
                         .to_string(),
                 ));

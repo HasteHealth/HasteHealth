@@ -13,7 +13,7 @@ impl Migrate for super::PGConnection {
                     .await
                     .map_err(|e| {
                         OperationOutcomeError::fatal(
-                            IssueType::EXCEPTION,
+                            IssueType::exception(),
                             format!("Failed to migrate repository schema: {}", e),
                         )
                     })?;
@@ -21,7 +21,7 @@ impl Migrate for super::PGConnection {
             }
             super::PGConnection::Transaction(_, _) => {
                 return Err(OperationOutcomeError::fatal(
-                    IssueType::EXCEPTION,
+                    IssueType::exception(),
                     "Cannot run migrations in a transaction.".to_string(),
                 ));
             }

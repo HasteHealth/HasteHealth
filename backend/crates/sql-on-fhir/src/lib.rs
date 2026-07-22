@@ -41,7 +41,7 @@ async fn resolve_view_definition<
             .as_ref()
             .ok_or_else(|| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     "viewReference.reference is required".to_string(),
                 )
             })?
@@ -49,7 +49,7 @@ async fn resolve_view_definition<
             .as_ref()
             .ok_or_else(|| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     "viewReference.reference.value is required".to_string(),
                 )
             })?;
@@ -60,7 +60,7 @@ async fn resolve_view_definition<
             .last()
             .ok_or_else(|| {
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     "Invalid viewReference.reference format".to_string(),
                 )
             })?
@@ -75,7 +75,7 @@ async fn resolve_view_definition<
             .await?
             .ok_or_else(|| {
                 OperationOutcomeError::error(
-                    IssueType::NOT_FOUND,
+                    IssueType::not_found(),
                     format!(
                         "ViewDefinition not found with id '{:?}'",
                         view_definition_id
@@ -87,13 +87,13 @@ async fn resolve_view_definition<
             Ok(Cow::Owned(view_definition))
         } else {
             Err(OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "Referenced resource is not a ViewDefinition".to_string(),
             ))
         }
     } else {
         Err(OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Either viewResource or viewReference must be provided".to_string(),
         ))
     }
@@ -119,14 +119,14 @@ async fn get_resources_to_process<
 
         let Some(resource_type) = view_definition.resource.as_str() else {
             return Err(OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "ViewDefinition.resource is required".to_string(),
             ));
         };
 
         let resource_type = ResourceType::try_from(resource_type).map_err(|e| {
             OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 format!("Invalid resource type: {}", e),
             )
         })?;
@@ -231,7 +231,7 @@ async fn process_resource<
                     .await
                     .map_err(|e| {
                         OperationOutcomeError::error(
-                            IssueType::EXCEPTION,
+                            IssueType::exception(),
                             format!("Error evaluating forEach expression: {}", e),
                         )
                     })?,
@@ -247,7 +247,7 @@ async fn process_resource<
                     .await
                     .map_err(|e| {
                         OperationOutcomeError::error(
-                            IssueType::EXCEPTION,
+                            IssueType::exception(),
                             format!("Error evaluating forEachOrNull expression: {}", e),
                         )
                     })?,
@@ -267,7 +267,7 @@ async fn process_resource<
                         .await
                         .map_err(|e| {
                             OperationOutcomeError::error(
-                                IssueType::EXCEPTION,
+                                IssueType::exception(),
                                 format!("Error evaluating repeat expression: {}", e),
                             )
                         })?,
@@ -294,7 +294,7 @@ async fn process_resource<
             for column in select_statement.column.as_ref().into_iter().flatten() {
                 let Some(name) = column.name.value.as_ref().map(|n| n.as_str()) else {
                     return Err(OperationOutcomeError::error(
-                        IssueType::INVALID,
+                        IssueType::invalid(),
                         "Column name is required".to_string(),
                     ));
                 };
@@ -308,14 +308,14 @@ async fn process_resource<
             for column in select_statement.column.as_ref().into_iter().flatten() {
                 let Some(path) = column.path.value.as_ref().map(|p| p.as_str()) else {
                     return Err(OperationOutcomeError::error(
-                        IssueType::INVALID,
+                        IssueType::invalid(),
                         "Column path is required".to_string(),
                     ));
                 };
 
                 let Some(name) = column.name.value.as_ref().map(|n| n.as_str()) else {
                     return Err(OperationOutcomeError::error(
-                        IssueType::INVALID,
+                        IssueType::invalid(),
                         "Column name is required".to_string(),
                     ));
                 };
@@ -325,7 +325,7 @@ async fn process_resource<
                     .await
                     .map_err(|e| {
                         OperationOutcomeError::error(
-                            IssueType::EXCEPTION,
+                            IssueType::exception(),
                             format!("Error evaluating expression: {}", e),
                         )
                     })?;
@@ -363,7 +363,7 @@ async fn process_resource<
                 } else {
                     if column_result.len() > 1 {
                         return Err(OperationOutcomeError::error(
-                            IssueType::INVALID,
+                            IssueType::invalid(),
                             "Column result is a collection but the column is not marked as a collection"
                                 .to_string(),
                         ));
@@ -429,7 +429,7 @@ async fn passes_where_clauses(
             .await
             .map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::EXCEPTION,
+                    IssueType::exception(),
                     format!("Error evaluating where clause expression: {}", e),
                 )
             })?;
@@ -446,7 +446,7 @@ async fn passes_where_clauses(
                     Ok(v.as_any().downcast_ref::<bool>().unwrap_or(&false))
                 }
                 _ => Err(OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     format!(
                         "Where clause expression must evaluate to a boolean, got: {}",
                         v.fhir_type()
@@ -568,7 +568,7 @@ async fn process_view_definition<
             })
         }
         _ => Err(OperationOutcomeError::error(
-            IssueType::NOT_SUPPORTED,
+            IssueType::not_supported(),
             format!("Output format '{:?}' is not supported", output_format),
         )),
     }

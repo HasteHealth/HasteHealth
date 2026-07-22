@@ -73,13 +73,13 @@ pub fn derive_well_known_openid_configuration_url(
             .map_err(|e| {
                 tracing::error!("Failed to derive well-known URL: {:?}", e);
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     "Invalid API URL configured".to_string(),
                 )
             })
     } else {
         Err(OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Invalid API URL configured".to_string(),
         ))
     }
@@ -100,7 +100,7 @@ pub fn derive_protected_resource_metadata_url(
             .map_err(|e| {
                 tracing::error!("Failed to derive well-known URL: {:?}", e);
                 OperationOutcomeError::error(
-                    IssueType::INVALID,
+                    IssueType::invalid(),
                     "Invalid API URL configured".to_string(),
                 )
             })?;
@@ -108,7 +108,7 @@ pub fn derive_protected_resource_metadata_url(
         Ok(tenant_url)
     } else {
         Err(OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Invalid API URL configured".to_string(),
         ))
     }

@@ -36,7 +36,7 @@ pub async fn get_completed_authorization_state(
     match authorization_state {
         Some(SessionAuthorizationState::Complete(completed_state)) => Ok(completed_state),
         _ => Err(OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Authorization state is not complete.".to_string(),
         )),
     }
@@ -50,7 +50,7 @@ pub async fn get_authorization_state(
         .await
         .map_err(|_e| {
             OperationOutcomeError::fatal(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 "Session returned an error when retrieving current user.".to_string(),
             )
         })?;
@@ -86,7 +86,7 @@ pub async fn set_initial_authorization_state<Repo: Repository>(
         .await
         .map_err(|_e| {
             OperationOutcomeError::fatal(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 "Failed to set user in session.".to_string(),
             )
         })
@@ -104,7 +104,7 @@ pub async fn set_completed_authorization_state(
         .await
         .map_err(|_e| {
             OperationOutcomeError::fatal(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 "Failed to set user in session.".to_string(),
             )
         })
@@ -116,7 +116,7 @@ pub async fn clear_authorization_state(session: &Session) -> Result<(), Operatio
         .await
         .map_err(|_e| {
             OperationOutcomeError::fatal(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 "Failed to clear user from session.".to_string(),
             )
         })?;

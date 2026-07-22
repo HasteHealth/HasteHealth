@@ -126,16 +126,15 @@ where
 {
     let output_data = template
         .render(ctx)
-        .map_err(|e| OperationOutcomeError::error(IssueType::INVALID, e.to_string()))?;
+        .map_err(|e| OperationOutcomeError::error(IssueType::invalid(), e.to_string()))?;
 
     match output {
-        OutputFormat::FHIR => Ok(Output::FHIR(
-            serde_json::from_str(&output_data)
-                .map_err(|e| OperationOutcomeError::error(IssueType::INVALID, e.to_string()))?,
-        )),
+        OutputFormat::FHIR => Ok(Output::FHIR(serde_json::from_str(&output_data).map_err(
+            |e| OperationOutcomeError::error(IssueType::invalid(), e.to_string()),
+        )?)),
         OutputFormat::JSON => Ok(Output::JSON(
             serde_json::from_str::<serde_json::Value>(&output_data)
-                .map_err(|e| OperationOutcomeError::error(IssueType::INVALID, e.to_string()))?,
+                .map_err(|e| OperationOutcomeError::error(IssueType::invalid(), e.to_string()))?,
         )),
         OutputFormat::HL7V2 => {
             // Verify that the output is a valid HL7v2 message by attempting to parse it.

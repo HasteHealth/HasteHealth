@@ -36,7 +36,7 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
                     response: Some(BundleEntryResponse {
                         outcome: Some(Box::new(Resource::OperationOutcome(
                             OperationOutcomeError::error(
-                                IssueType::NOT_FOUND,
+                                IssueType::not_found(),
                                 "Resource not found".to_string(),
                             )
                             .outcome()
@@ -148,7 +148,7 @@ pub fn bundle_entry_to_fhir_request(
         let request_method_string = request.method.as_str();
         let Ok(method) = Method::from_str(&request_method_string.unwrap_or_default()) else {
             return Err(OperationOutcomeError::error(
-                IssueType::INVALID,
+                IssueType::invalid(),
                 "Invalid HTTP Method".to_string(),
             ));
         };
@@ -172,7 +172,7 @@ pub fn bundle_entry_to_fhir_request(
         Ok(fhir_request)
     } else {
         Err(OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Bundle entry missing request".to_string(),
         ))
     }
@@ -291,7 +291,7 @@ pub async fn build_sorted_transaction_graph<'a>(
 
     let topo_sort_ordering = toposort(&graph, None).map_err(|e| {
         OperationOutcomeError::fatal(
-            IssueType::EXCEPTION,
+            IssueType::exception(),
             format!(
                 "Cyclic dependency detected in transaction bundle at node {:?}",
                 e.node_id()
@@ -347,7 +347,7 @@ pub async fn process_transaction_bundle<
 
         let sorted_transaction_entry = entry.ok_or_else(|| {
             OperationOutcomeError::fatal(
-                IssueType::EXCEPTION,
+                IssueType::exception(),
                 "Failed to get node from graph".to_string(),
             )
         })?;
@@ -377,7 +377,7 @@ pub async fn process_transaction_bundle<
                 }
             } else {
                 return Err(OperationOutcomeError::fatal(
-                    IssueType::EXCEPTION,
+                    IssueType::exception(),
                     "Failed to update reference - response did not return valid resource with an id."
                         .to_string(),
                 ));

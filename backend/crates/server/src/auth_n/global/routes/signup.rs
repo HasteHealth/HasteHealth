@@ -153,7 +153,7 @@ pub async fn global_signup_post<
 ) -> Result<Response, OperationOutcomeError> {
     if form.csrf_token != csrf_token {
         return Err(OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Invalid CSRF Token".to_string(),
         ));
     }

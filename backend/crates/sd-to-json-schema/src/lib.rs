@@ -303,7 +303,7 @@ pub fn isolated_schema(
 
     let mut result = traversal::traversal(sd, &mut visitor).map_err(|e| {
         OperationOutcomeError::error(
-            IssueType::EXCEPTION,
+            IssueType::exception(),
             format!("Error traversing StructureDefinition: {}", e),
         )
     })?;
@@ -312,7 +312,7 @@ pub fn isolated_schema(
         Ok(result.schema)
     } else {
         Err(OperationOutcomeError::error(
-            IssueType::EXCEPTION,
+            IssueType::exception(),
             "No schema generated from StructureDefinition".to_string(),
         ))
     }

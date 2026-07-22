@@ -26,7 +26,7 @@ pub async fn logout(
 
     let redirect_uri = oidc_params.parameters.get("redirect_uri").ok_or_else(|| {
         OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "redirect_uri parameter is required.".to_string(),
         )
     })?;
@@ -35,7 +35,7 @@ pub async fn logout(
         Ok(Redirect::to(&redirect_uri.replace("/logout", "/login")))
     } else {
         Err(OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Invalid redirect_uri parameter.".to_string(),
         ))
     }

@@ -36,12 +36,12 @@ pub async fn evaluate_policy<
         }
         policy_engine if policy_engine == &AccessPolicyv2Engine::NULL => {
             Err(OperationOutcomeError::fatal(
-                haste_fhir_model::r4::generated::terminology::IssueType::FORBIDDEN,
+                haste_fhir_model::r4::generated::terminology::IssueType::forbidden(),
                 "Access policy denies access.".to_string(),
             ))
         }
         _ => Err(OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
             "Unsupported policy engine.".to_string(),
         )),
     }
@@ -76,7 +76,7 @@ pub async fn evaluate_policies<
                 PermissionLevel::Allow => {
                     return Arc::into_inner(context).ok_or_else(|| {
                         OperationOutcomeError::error(
-                            IssueType::FORBIDDEN,
+                            IssueType::forbidden(),
                             "Failed to retrieve policy context.".to_string(),
                         )
                     });
@@ -89,7 +89,7 @@ pub async fn evaluate_policies<
     }
 
     Err(OperationOutcomeError::error(
-        IssueType::FORBIDDEN,
+        IssueType::forbidden(),
         format!("No policy has granted access to your request."),
     ))
 }

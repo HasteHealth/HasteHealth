@@ -82,7 +82,7 @@ pub async fn global_login_post<
 ) -> Result<Response, OperationOutcomeError> {
     if login_data.csrf_token != csrf_token {
         return Err(OperationOutcomeError::error(
-            IssueType::INVALID,
+            IssueType::invalid(),
             "Invalid CSRF Token".to_string(),
         ));
     }
@@ -101,7 +101,7 @@ pub async fn global_login_post<
 
     let tenant_select_email = crate::ui::email::base::base(
         &Uri::try_from(api_url.as_str()).map_err(|_| {
-            OperationOutcomeError::fatal(IssueType::EXCEPTION, "API Url is invalid".to_string())
+            OperationOutcomeError::fatal(IssueType::exception(), "API Url is invalid".to_string())
         })?,
         html! {
             div style="padding-top: 24px;" {

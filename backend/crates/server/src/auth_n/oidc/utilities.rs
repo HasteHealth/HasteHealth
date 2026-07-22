@@ -39,7 +39,7 @@ pub async fn set_user_password<Repo: Repository>(
             .map(|f| format!("{}", f))
             .unwrap_or_default();
 
-        return Err(OperationOutcomeError::fatal(IssueType::SECURITY, feedback));
+        return Err(OperationOutcomeError::fatal(IssueType::security(), feedback));
     }
 
     TenantModelAdmin::<CreateUser, _, _, _, String>::update(

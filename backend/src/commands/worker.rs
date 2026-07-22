@@ -24,7 +24,7 @@ pub(crate) async fn worker(command: &Option<WorkerCommands>) -> Result<(), Opera
                     .merge(Env::prefixed("HASTE_"))
                     .extract()
                     .map_err(|e| {
-                        OperationOutcomeError::error(IssueType::EXCEPTION, e.to_string())
+                        OperationOutcomeError::error(IssueType::exception(), e.to_string())
                     })?,
             );
 
@@ -34,7 +34,7 @@ pub(crate) async fn worker(command: &Option<WorkerCommands>) -> Result<(), Opera
 
             handler.await.map_err(|e| {
                 OperationOutcomeError::fatal(
-                    haste_fhir_model::r4::generated::terminology::IssueType::EXCEPTION,
+                    haste_fhir_model::r4::generated::terminology::IssueType::exception(),
                     format!("Worker task failed: {:?}", e),
                 )
             })?;
