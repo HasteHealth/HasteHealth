@@ -25,7 +25,6 @@ pub enum PDPError {
 type PolicyResult<T, Context> = (T, Context);
 
 async fn should_evaluate_rule<
-    'a,
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
@@ -84,7 +83,7 @@ fn coalesce_boolean(
         ));
     }
 
-    let Some(value) = values.get(0) else {
+    let Some(value) = values.first() else {
         return Err(OperationOutcomeError::fatal(
             haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
             "Condition expression did not evaluate to a value.".to_string(),
@@ -112,17 +111,14 @@ fn coalesce_boolean(
                     "Condition expression evaluated to a System.Boolean with no value.".to_string(),
                 )
             }),
-        _ => {
-            return Err(OperationOutcomeError::fatal(
-                haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
-                "Condition expression did not evaluate to a boolean value.".to_string(),
-            ));
-        }
+        _ => Err(OperationOutcomeError::fatal(
+            haste_fhir_model::r4::generated::terminology::IssueType::INVALID,
+            "Condition expression did not evaluate to a boolean value.".to_string(),
+        )),
     }
 }
 
 async fn evaluate_condition<
-    'a,
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
@@ -174,7 +170,6 @@ async fn evaluate_condition<
 }
 
 async fn evaluate_access_policy_rule<
-    'a,
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
@@ -185,7 +180,7 @@ async fn evaluate_access_policy_rule<
         .value()
         .ok_or(PDPError::PointerError(rule_pointer.path().to_string()))?;
 
-    let (should_evaluate, mut policy_context) = should_evaluate_rule(
+    let (should_evaluate, policy_context) = should_evaluate_rule(
         policy_context,
         rule_pointer
             .descend::<AccessPolicyV2RuleTarget>(&haste_pointer::Key::Field("target".to_string())),
@@ -198,128 +193,132 @@ async fn evaluate_access_policy_rule<
 
     match rule.combineBehavior.as_ref() {
         combine_behavior if combine_behavior == Some(&AccessPolicyv2CombineBehavior::ANY) => {
-            let mut result = PermissionLevel::Deny;
-            if rule.condition.is_some() {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::INVALID,
-                    "Condition is not supported when combineBehavior is 'any'.".to_string(),
-                ));
-            }
-
-            for (nested_index, _) in rule.rule.as_ref().unwrap_or(&vec![]).iter().enumerate() {
-                let nested_rule_pointer = rule_pointer
-                    .descend::<Vec<AccessPolicyV2Rule>>(&haste_pointer::Key::Field(
-                        "rule".to_string(),
-                    ))
-                    .and_then(|p| {
-                        p.descend::<AccessPolicyV2Rule>(&haste_pointer::Key::Index(nested_index))
-                    })
-                    .ok_or_else(|| {
-                        PDPError::PointerError(format!(
-                            "{}/rule/{}",
-                            rule_pointer.path(),
-                            nested_index
-                        ))
-                    })?;
-
-                let context = policy_context.clone();
-
-                let rule_result: Result<
-                    (PermissionLevel, Arc<PolicyContext<CTX, Client>>),
-                    OperationOutcomeError,
-                > = Box::pin(async move {
-                    let nested_rule_result =
-                        evaluate_access_policy_rule(context.clone(), nested_rule_pointer).await?;
-
-                    Ok(nested_rule_result)
-                })
-                .await;
-
-                let (rule_result, next_context) = rule_result?;
-
-                // Any logic means if any rule grants access, access is granted. So we can just take the max permission allowed.
-                result = get_max(&result, &rule_result)?;
-
-                policy_context = next_context;
-            }
-
-            Ok((result, policy_context))
+            evaluate_any_rules(policy_context, rule_pointer).await
         }
+
         combine_behavior if combine_behavior == Some(&AccessPolicyv2CombineBehavior::ALL_OF) => {
-            // Set as allowed because doing min logic below.
-            let mut result = PermissionLevel::Allow;
-            if rule.condition.is_some() {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::INVALID,
-                    "Condition is not supported when combineBehavior is 'any'.".to_string(),
-                ));
-            }
-
-            for (nested_index, _) in rule.rule.as_ref().unwrap_or(&vec![]).iter().enumerate() {
-                let nested_rule_pointer = rule_pointer
-                    .descend::<Vec<AccessPolicyV2Rule>>(&haste_pointer::Key::Field(
-                        "rule".to_string(),
-                    ))
-                    .and_then(|p| {
-                        p.descend::<AccessPolicyV2Rule>(&haste_pointer::Key::Index(nested_index))
-                    })
-                    .ok_or_else(|| {
-                        PDPError::PointerError(format!(
-                            "{}/rule/{}",
-                            rule_pointer.path(),
-                            nested_index
-                        ))
-                    })?;
-                let context = policy_context.clone();
-
-                let rule_result: Result<
-                    (PermissionLevel, Arc<PolicyContext<CTX, Client>>),
-                    OperationOutcomeError,
-                > = Box::pin(async move {
-                    let nested_rule_result =
-                        evaluate_access_policy_rule(context.clone(), nested_rule_pointer).await?;
-
-                    Ok(nested_rule_result)
-                })
-                .await;
-
-                let (rule_result, next_context) = rule_result?;
-
-                // Shortcircuit deny.
-                if rule_result == PermissionLevel::Deny {
-                    // Short-circuit deny.
-                    return Ok((PermissionLevel::Deny, next_context));
-                }
-
-                // And logic means minimum permission level is taken.
-                result = get_min(&result, &rule_result)?;
-
-                policy_context = next_context;
-            }
-
-            Ok((result, policy_context))
+            evaluate_all_of_rules(policy_context, rule_pointer).await
         }
+
         combine_behavior
             if combine_behavior == Some(&AccessPolicyv2CombineBehavior::NULL)
                 || combine_behavior == None =>
         {
-            if rule.rule.is_some() {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::INVALID,
-                    "Nested rules are not supported when combineBehavior is 'null' or unspecified."
-                        .to_string(),
-                ));
-            }
-
-            let result = evaluate_condition(policy_context, rule_pointer).await?;
-
-            Ok(result)
+            evaluate_leaf_rule(policy_context, rule_pointer).await
         }
         _ => Err(OperationOutcomeError::fatal(
             IssueType::INVALID,
             "Unsupported combineBehavior value.".to_string(),
         )),
     }
+}
+
+async fn evaluate_any_rules<
+    CTX: Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
+    mut policy_context: Arc<PolicyContext<CTX, Client>>,
+    rule_pointer: TypedPointer<AccessPolicyV2, AccessPolicyV2Rule>,
+) -> Result<PolicyResult<PermissionLevel, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
+    let rule = rule_pointer
+        .value()
+        .ok_or(PDPError::PointerError(rule_pointer.path().to_string()))?;
+
+    if rule.condition.is_some() {
+        return Err(OperationOutcomeError::fatal(
+            IssueType::INVALID,
+            "Condition is not supported when combineBehavior is 'any'.".to_string(),
+        ));
+    }
+
+    let mut result = PermissionLevel::Deny;
+
+    for (index, _) in rule.rule.as_ref().unwrap_or(&vec![]).iter().enumerate() {
+        let nested_rule_pointer = get_nested_rule_pointer(&rule_pointer, index)?;
+
+        let (permission, next_context) = Box::pin(evaluate_access_policy_rule(
+            policy_context.clone(),
+            nested_rule_pointer,
+        ))
+        .await?;
+
+        result = get_max(&result, &permission)?;
+        policy_context = next_context;
+    }
+
+    Ok((result, policy_context))
+}
+
+async fn evaluate_all_of_rules<
+    CTX: Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
+    mut policy_context: Arc<PolicyContext<CTX, Client>>,
+    rule_pointer: TypedPointer<AccessPolicyV2, AccessPolicyV2Rule>,
+) -> Result<PolicyResult<PermissionLevel, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
+    let rule = rule_pointer
+        .value()
+        .ok_or(PDPError::PointerError(rule_pointer.path().to_string()))?;
+
+    if rule.condition.is_some() {
+        return Err(OperationOutcomeError::fatal(
+            IssueType::INVALID,
+            "Condition is not supported when combineBehavior is 'allOf'.".to_string(),
+        ));
+    }
+
+    let mut result = PermissionLevel::Allow;
+
+    for (index, _) in rule.rule.as_ref().unwrap_or(&vec![]).iter().enumerate() {
+        let nested_rule_pointer = get_nested_rule_pointer(&rule_pointer, index)?;
+
+        let (permission, next_context) = Box::pin(evaluate_access_policy_rule(
+            policy_context.clone(),
+            nested_rule_pointer,
+        ))
+        .await?;
+
+        if permission == PermissionLevel::Deny {
+            return Ok((PermissionLevel::Deny, next_context));
+        }
+
+        result = get_min(&result, &permission)?;
+        policy_context = next_context;
+    }
+
+    Ok((result, policy_context))
+}
+
+async fn evaluate_leaf_rule<
+    CTX: Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
+    policy_context: Arc<PolicyContext<CTX, Client>>,
+    rule_pointer: TypedPointer<AccessPolicyV2, AccessPolicyV2Rule>,
+) -> Result<PolicyResult<PermissionLevel, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
+    let rule = rule_pointer
+        .value()
+        .ok_or(PDPError::PointerError(rule_pointer.path().to_string()))?;
+
+    if rule.rule.is_some() {
+        return Err(OperationOutcomeError::fatal(
+            IssueType::INVALID,
+            "Nested rules are not supported when combineBehavior is 'null' or unspecified."
+                .to_string(),
+        ));
+    }
+
+    evaluate_condition(policy_context, rule_pointer).await
+}
+
+fn get_nested_rule_pointer(
+    rule_pointer: &TypedPointer<AccessPolicyV2, AccessPolicyV2Rule>,
+    index: usize,
+) -> Result<TypedPointer<AccessPolicyV2, AccessPolicyV2Rule>, PDPError> {
+    rule_pointer
+        .descend::<Vec<AccessPolicyV2Rule>>(&haste_pointer::Key::Field("rule".to_string()))
+        .and_then(|p| p.descend::<AccessPolicyV2Rule>(&haste_pointer::Key::Index(index)))
+        .ok_or_else(|| PDPError::PointerError(format!("{}/rule/{}", rule_pointer.path(), index)))
 }
 
 pub async fn evaluate<
@@ -330,23 +329,24 @@ pub async fn evaluate<
     policy: Arc<AccessPolicyV2>,
 ) -> Result<PermissionLevel, OperationOutcomeError> {
     let pointer = TypedPointer::<AccessPolicyV2, AccessPolicyV2>::new(policy.clone());
-    let rules_pointer = pointer
+
+    let rules_collection_pointer = pointer
         .descend::<Vec<AccessPolicyV2Rule>>(&haste_pointer::Key::Field("rule".to_string()))
         .ok_or_else(|| PDPError::PointerError("rule".to_string()))?;
 
     let mut result = PermissionLevel::Deny;
 
     for (index, _) in policy.rule.as_ref().unwrap_or(&vec![]).iter().enumerate() {
-        let rule_pointer = rules_pointer
+        let rule_pointer = rules_collection_pointer
             .descend::<AccessPolicyV2Rule>(&haste_pointer::Key::Index(index))
-            .ok_or_else(|| PDPError::PointerError(format!("{}/{}", rules_pointer.path(), index)))?;
+            .ok_or_else(|| {
+                PDPError::PointerError(format!("{}/{}", rules_collection_pointer.path(), index))
+            })?;
 
         match evaluate_access_policy_rule(policy_context.clone(), rule_pointer).await? {
             (PermissionLevel::Deny, _) => return Ok(PermissionLevel::Deny),
             (permission_level, context) => {
-                // Continue evaluating other rules
                 policy_context = context;
-
                 result = get_max(&result, &permission_level)?;
             }
         }

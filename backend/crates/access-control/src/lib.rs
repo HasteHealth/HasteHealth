@@ -12,8 +12,15 @@ mod engine;
 mod request_reflection;
 mod utilities;
 
+/// Evaluates an access policy using the configured policy engine.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] when:
+/// - the policy engine denies access,
+/// - the rule engine fails while evaluating rules,
+/// - the policy contains an invalid or unsupported configuration.
 pub async fn evaluate_policy<
-    'a,
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
@@ -22,7 +29,7 @@ pub async fn evaluate_policy<
 ) -> Result<PermissionLevel, OperationOutcomeError> {
     match &policy.engine {
         policy_engine if policy_engine == &AccessPolicyv2Engine::FULL_ACCESS => {
-            engine::full_access::evaluate(policy.as_ref()).await
+            Ok(engine::full_access::evaluate(policy.as_ref()))
         }
         policy_engine if policy_engine == &AccessPolicyv2Engine::RULE_ENGINE => {
             Ok(engine::rule_engine::pdp::evaluate(context, policy).await?)
@@ -40,39 +47,49 @@ pub async fn evaluate_policy<
     }
 }
 
-pub fn evaluate_policies<
+/// Evaluates a list of access policies and returns the updated policy context
+/// when access is granted.
+///
+/// Policies are evaluated in order. The first policy returning
+/// [`PermissionLevel::Allow`] grants access.
+///
+/// # Errors
+///
+/// Returns [`OperationOutcomeError`] when:
+/// - no policy grants access,
+/// - the evaluated policy returns an evaluation error,
+/// - the policy context cannot be recovered after granting access.
+pub async fn evaluate_policies<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: context::PolicyContext<CTX, Client>,
     policies: &Vec<Arc<AccessPolicyV2>>,
-) -> impl Future<Output = Result<context::PolicyContext<CTX, Client>, OperationOutcomeError>> {
-    async move {
-        let mut outcomes = vec![];
-        let context = Arc::new(context);
+) -> Result<context::PolicyContext<CTX, Client>, OperationOutcomeError> {
+    let mut outcomes = vec![];
+    let context = Arc::new(context);
 
-        for policy in policies {
-            let result = evaluate_policy(context.clone(), policy.clone()).await;
-            if let Ok(permission) = result {
-                match permission {
-                    PermissionLevel::Allow => {
-                        return Arc::into_inner(context).ok_or_else(|| {
-                            OperationOutcomeError::error(
-                                IssueType::FORBIDDEN,
-                                "Failed to retrieve policy context.".to_string(),
-                            )
-                        });
-                    }
-                    _ => {}
+    for policy in policies {
+        let result = evaluate_policy(context.clone(), policy.clone()).await;
+        if let Ok(permission) = result {
+            match permission {
+                PermissionLevel::Allow => {
+                    return Arc::into_inner(context).ok_or_else(|| {
+                        OperationOutcomeError::error(
+                            IssueType::FORBIDDEN,
+                            "Failed to retrieve policy context.".to_string(),
+                        )
+                    });
                 }
-            } else if let Err(e) = result {
-                outcomes.push(e);
+                _ => {}
             }
+        } else if let Err(e) = result {
+            outcomes.push(e);
         }
-
-        Err(OperationOutcomeError::error(
-            IssueType::FORBIDDEN,
-            format!("No policy has granted access to your request."),
-        ))
     }
+
+    Err(OperationOutcomeError::error(
+        IssueType::FORBIDDEN,
+        format!("No policy has granted access to your request."),
+    ))
 }

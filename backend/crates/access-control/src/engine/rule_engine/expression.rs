@@ -22,11 +22,10 @@ pub fn create_config<
             let pointer = pointer.clone();
             let context = context.clone();
             Box::pin(async move {
-                if let Some(result) = pip(context, pointer, &variable_id).await.ok() {
-                    result
-                } else {
-                    None
-                }
+                pip(context, pointer, &variable_id)
+                    .await
+                    .ok()
+                    .unwrap_or_default()
             })
         }),
     ))
@@ -56,12 +55,7 @@ pub async fn evaluate_expression<
     expression: &Expression,
 ) -> Result<ExpressionResult<'a>, OperationOutcomeError> {
     match (
-        expression
-            .language
-            .as_ref()
-            .value
-            .as_ref()
-            .map(|s| s.as_str()),
+        expression.language.as_ref().value.as_deref(),
         expression
             .expression
             .as_ref()
@@ -79,7 +73,7 @@ pub async fn evaluate_expression<
                 .map_err(|e: FHIRPathError| {
                     OperationOutcomeError::fatal(
                         IssueType::NOT_SUPPORTED,
-                        format!("FHIRPath evaluation error: '{}'", e),
+                        format!("FHIRPath evaluation error: '{e}'"),
                     )
                 })?;
 
@@ -103,7 +97,6 @@ pub async fn evaluate_expression<
 }
 
 pub async fn evaluate_to_string<
-    'a,
     CTX: Sync + Send + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(

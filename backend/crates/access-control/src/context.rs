@@ -63,6 +63,7 @@ pub struct PolicyEnvironment {
 }
 
 impl PolicyEnvironment {
+    #[must_use]
     pub fn new(
         tenant: TenantId,
         project: ProjectId,

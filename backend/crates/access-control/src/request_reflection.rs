@@ -79,8 +79,8 @@ fn request_resource_type_string(fhir_request: &FHIRRequest) -> Option<String> {
 static SHARED_FIELDS: &[&str] = &["type", "level"];
 
 // Type codes pulled from https://hl7.org/fhir/R4/http.html
-///
-/// Instance Level Interactions
+//
+// Instance Level Interactions
 // read	Read the current state of the resource
 // vread	Read the state of a specific version of the resource
 // update	Update an existing resource by its id (or create it if it is new)
@@ -96,7 +96,6 @@ static SHARED_FIELDS: &[&str] = &["type", "level"];
 // batch/transaction	Update, create or delete a set of resources in a single interaction
 // history	Retrieve the change history for all resources
 // search	Search across all resource types based on some filter criteria
-
 fn request_to_request_type(request: &FHIRRequest) -> &'static str {
     match request {
         FHIRRequest::Create(_) => "create",
@@ -150,15 +149,9 @@ fn get_request_id(fhir_request: &FHIRRequest) -> Option<&String> {
     match fhir_request {
         FHIRRequest::Read(fhirread_request) => Some(&fhirread_request.id),
         FHIRRequest::VersionRead(fhirversion_read_request) => Some(&fhirversion_read_request.id),
-        FHIRRequest::Update(update_request) => match update_request {
-            UpdateRequest::Instance(instance) => Some(&instance.id),
-            _ => None,
-        },
+        FHIRRequest::Update(UpdateRequest::Instance(instance)) => Some(&instance.id),
         FHIRRequest::Patch(fhirpatch_request) => Some(&fhirpatch_request.id),
-        FHIRRequest::Delete(delete_request) => match delete_request {
-            DeleteRequest::Instance(instance) => Some(&instance.id),
-            _ => None,
-        },
+        FHIRRequest::Delete(DeleteRequest::Instance(instance)) => Some(&instance.id),
         FHIRRequest::Compartment(comp) => get_request_id(&comp.request),
         _ => None,
     }
@@ -173,36 +166,30 @@ impl MetaValue for RequestReflection {
         match field {
             "type" => Some(&self.1.request_type),
             "level" => Some(&self.1.request_level),
-            "resource_type" => {
-                if let Some(v) = self.1.resource_type.as_ref() {
-                    Some(v)
-                } else {
-                    None
-                }
-            }
+            "resource_type" => self.1.resource_type.as_ref().map(|v| v as &dyn MetaValue),
             "resource" => match &self.0 {
                 FHIRRequest::Create(fhircreate_request) => Some(&fhircreate_request.resource),
                 FHIRRequest::Batch(fhirbatch_request) => Some(&fhirbatch_request.resource),
                 FHIRRequest::Transaction(fhirtransaction_request) => {
                     Some(&fhirtransaction_request.resource)
                 }
-                FHIRRequest::Update(update_request) => match update_request {
-                    UpdateRequest::Conditional(conditional_update) => {
-                        Some(&conditional_update.resource)
-                    }
-                    UpdateRequest::Instance(instance_update) => Some(&instance_update.resource),
-                },
-                FHIRRequest::Invocation(invocation_request) => match invocation_request {
-                    InvocationRequest::Instance(invocation_request) => {
-                        Some(&invocation_request.parameters)
-                    }
-                    InvocationRequest::Type(invocation_request) => {
-                        Some(&invocation_request.parameters)
-                    }
-                    InvocationRequest::System(invocation_request) => {
-                        Some(&invocation_request.parameters)
-                    }
-                },
+
+                FHIRRequest::Update(UpdateRequest::Conditional(conditional_update)) => {
+                    Some(&conditional_update.resource)
+                }
+                FHIRRequest::Update(UpdateRequest::Instance(instance_update)) => {
+                    Some(&instance_update.resource)
+                }
+
+                FHIRRequest::Invocation(InvocationRequest::Instance(invocation_request)) => {
+                    Some(&invocation_request.parameters)
+                }
+                FHIRRequest::Invocation(InvocationRequest::Type(invocation_request)) => {
+                    Some(&invocation_request.parameters)
+                }
+                FHIRRequest::Invocation(InvocationRequest::System(invocation_request)) => {
+                    Some(&invocation_request.parameters)
+                }
                 FHIRRequest::Compartment(_)
                 | FHIRRequest::Read(_)
                 | FHIRRequest::VersionRead(_)
@@ -212,40 +199,27 @@ impl MetaValue for RequestReflection {
                 | FHIRRequest::Search(_)
                 | FHIRRequest::History(_) => None,
             },
-            "id" => {
-                if let Some(id) = get_request_id(&self.0) {
-                    Some(id)
-                } else {
-                    None
-                }
-            }
+            "id" => get_request_id(&self.0).map(|id| id as &dyn MetaValue),
             "parameters" => match &self.0 {
-                FHIRRequest::Search(search_request) => match search_request {
-                    SearchRequest::Type(type_search_request) => {
-                        Some(&type_search_request.parameters)
-                    }
-                    SearchRequest::System(system_search_request) => {
-                        Some(&system_search_request.parameters)
-                    }
-                },
-                FHIRRequest::Update(update_request) => match update_request {
-                    UpdateRequest::Conditional(conditional_update) => {
-                        Some(&conditional_update.parameters)
-                    }
-                    _ => None,
-                },
-                FHIRRequest::Delete(delete_request) => match delete_request {
-                    DeleteRequest::Type(type_delete_request) => {
-                        Some(&type_delete_request.parameters)
-                    }
-                    DeleteRequest::System(system_delete_request) => {
-                        Some(&system_delete_request.parameters)
-                    }
-                    _ => None,
-                },
+                FHIRRequest::Search(SearchRequest::Type(type_search_request)) => {
+                    Some(&type_search_request.parameters)
+                }
+                FHIRRequest::Search(SearchRequest::System(system_search_request)) => {
+                    Some(&system_search_request.parameters)
+                }
+
+                FHIRRequest::Update(UpdateRequest::Conditional(conditional_update)) => {
+                    Some(&conditional_update.parameters)
+                }
+
+                FHIRRequest::Delete(DeleteRequest::Type(type_delete_request)) => {
+                    Some(&type_delete_request.parameters)
+                }
+                FHIRRequest::Delete(DeleteRequest::System(system_delete_request)) => {
+                    Some(&system_delete_request.parameters)
+                }
                 _ => None,
             },
-
             _ => None,
         }
     }
@@ -254,11 +228,11 @@ impl MetaValue for RequestReflection {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
