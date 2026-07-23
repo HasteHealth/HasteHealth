@@ -189,9 +189,9 @@ async fn set_session_info(
 fn oidc_pkce_challenge_method(
     challenge: &BoundCode<IdentityProviderPkceChallengeMethod>,
 ) -> Option<PKCECodeChallengeMethod> {
-    if challenge == &IdentityProviderPkceChallengeMethod::S256 {
+    if challenge == &IdentityProviderPkceChallengeMethod::s256() {
         Some(PKCECodeChallengeMethod::S256)
-    } else if challenge == &IdentityProviderPkceChallengeMethod::PLAIN {
+    } else if challenge == &IdentityProviderPkceChallengeMethod::plain() {
         Some(PKCECodeChallengeMethod::Plain)
     } else {
         None

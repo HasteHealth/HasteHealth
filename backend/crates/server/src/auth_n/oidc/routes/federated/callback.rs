@@ -260,7 +260,7 @@ async fn create_user_if_not_exists<
                     user_id.clone(),
                     Resource::User(User {
                         id: Some(user_id.clone()),
-                        role: UserRole::MEMBER,
+                        role: UserRole::member(),
                         federated: Some(Box::new(Reference {
                             reference: Some(Box::new(FHIRString {
                                 value: Some(format!(

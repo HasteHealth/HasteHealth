@@ -175,7 +175,7 @@ async fn create_token_response<Repo: Repository>(
             .grantType
             .iter()
             .find(|gt| {
-                gt == &&ClientapplicationGrantType::REFRESH_TOKEN
+                gt == &&ClientapplicationGrantType::refresh_token()
             })
             .is_some()
             // Client credentials grant does not get refresh tokens. Serves no purpose and requires knowing user kind to 
@@ -315,16 +315,16 @@ fn verify_client(
         schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials => {
             validate_client_grant_type(
                 client_app,
-                &ClientapplicationGrantType::CLIENT_CREDENTIALS,
+                &ClientapplicationGrantType::client_credentials(),
             )?;
         }
         schemas::token_body::OAuth2TokenBodyGrantType::RefreshToken => {
-            validate_client_grant_type(client_app, &ClientapplicationGrantType::REFRESH_TOKEN)?;
+            validate_client_grant_type(client_app, &ClientapplicationGrantType::refresh_token())?;
         }
         schemas::token_body::OAuth2TokenBodyGrantType::AuthorizationCode => {
             validate_client_grant_type(
                 client_app,
-                &ClientapplicationGrantType::AUTHORIZATION_CODE,
+                &ClientapplicationGrantType::authorization_code(),
             )?;
         }
     }
@@ -427,7 +427,7 @@ pub async fn client_credentials_to_token_response<
 
     // Allow basic auth if client app allows grant.
     if method == ClientCredentialsMethod::BasicAuth {
-        validate_client_grant_type(&client_app, &ClientapplicationGrantType::BASIC_AUTH)?;
+        validate_client_grant_type(&client_app, &ClientapplicationGrantType::basic_auth())?;
     }
 
     let client_app_scopes = client_app

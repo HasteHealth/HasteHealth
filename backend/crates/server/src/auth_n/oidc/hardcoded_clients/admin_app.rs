@@ -15,14 +15,14 @@ pub fn get_admin_app(config: &ServerConfig) -> Option<ClientApplication> {
             value: Some("Admin Application".to_string()),
             ..Default::default()
         }),
-        responseTypes: ClientapplicationResponseTypes::CODE,
+        responseTypes: ClientapplicationResponseTypes::code(),
         scope: Some(Box::new(FHIRString {
             value: Some("offline_access openid email profile fhirUser system/*.*".to_string()),
             ..Default::default()
         })),
         grantType: vec![
-            ClientapplicationGrantType::AUTHORIZATION_CODE,
-            ClientapplicationGrantType::REFRESH_TOKEN,
+            ClientapplicationGrantType::authorization_code(),
+            ClientapplicationGrantType::refresh_token(),
         ],
         redirectUri: Some(vec![Box::new(FHIRString {
             value: Some(redirect_uri.clone()),

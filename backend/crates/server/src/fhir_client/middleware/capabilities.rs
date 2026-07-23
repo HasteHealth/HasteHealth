@@ -138,7 +138,7 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
 
     Ok(CapabilityStatement {
         status: PublicationStatus::active(),
-        kind: CapabilityStatementKind::CAPABILITY,
+        kind: CapabilityStatementKind::capability(),
         date: Box::new(FHIRDateTime {
             value: Some(DateTime::Year(2025)),
             ..Default::default()
@@ -147,9 +147,9 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
             value: Some("application/fhir+json".to_string()),
             ..Default::default()
         })],
-        fhirVersion: FHIRVersion::V401,
+        fhirVersion: FHIRVersion::v401(),
         rest: Some(vec![CapabilityStatementRest {
-            mode: RestfulCapabilityMode::SERVER,
+            mode: RestfulCapabilityMode::server(),
             security: Some(CapabilityStatementRestSecurity {
                 cors: Some(Box::new(FHIRBoolean {
                     value: Some(true),

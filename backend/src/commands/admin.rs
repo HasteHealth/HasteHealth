@@ -183,7 +183,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                             .unwrap_or(UserSubscriptionChoice::Free),
                     ),
                     haste_fhir_model::r4::generated::resources::User {
-                        role: UserRole::OWNER,
+                        role: UserRole::owner(),
                         email: Some(Box::new(
                             haste_fhir_model::r4::generated::types::FHIRString {
                                 value: Some(owner_email.clone()),
@@ -226,7 +226,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                     &services,
                     &tenant,
                     haste_fhir_model::r4::generated::resources::User {
-                        role: UserRole::ADMIN,
+                        role: UserRole::admin(),
                         email: Some(Box::new(
                             haste_fhir_model::r4::generated::types::FHIRString {
                                 value: Some(email.clone()),
@@ -323,8 +323,10 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                                         value: Some("CLI".to_string()),
                                         ..Default::default()
                                     }),
-                                    grantType: vec![ClientapplicationGrantType::CLIENT_CREDENTIALS],
-                                    responseTypes: ClientapplicationResponseTypes::TOKEN,
+                                    grantType: vec![
+                                        ClientapplicationGrantType::client_credentials(),
+                                    ],
+                                    responseTypes: ClientapplicationResponseTypes::token(),
                                     ..Default::default()
                                 },
                             ))),
