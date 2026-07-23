@@ -22,7 +22,7 @@ mod tests {
         let mut term_ = r4::generated::terminology::BoundCode::<
             r4::generated::terminology::AdministrativeGender,
         >::new(
-            r4::generated::terminology::AdministrativeGender::MALE
+            r4::generated::terminology::AdministrativeGender::male()
                 .as_str()
                 .unwrap(),
         )
@@ -471,7 +471,7 @@ mod tests {
 
         let admin_gender = serde_json::from_str::<BoundCode<AdministrativeGender>>("\"male\"");
 
-        assert!(admin_gender.unwrap() == AdministrativeGender::MALE);
+        assert!(admin_gender.unwrap() == AdministrativeGender::male());
     }
 
     #[test]
