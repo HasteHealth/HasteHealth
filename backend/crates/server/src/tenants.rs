@@ -4,7 +4,7 @@ use crate::{
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::{Project, Resource, ResourceType, User},
-    terminology::IssueType,
+    terminology::{IssueType, SupportedFhirVersion},
     types::FHIRString,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -115,8 +115,7 @@ pub async fn create_tenant<
                     value: Some(ProjectId::System.to_string()),
                     ..Default::default()
                 }),
-                fhirVersion: haste_fhir_model::r4::generated::terminology::SupportedFhirVersion::r4(
-                ),
+                fhirVersion: SupportedFhirVersion::r4(),
                 ..Default::default()
             }),
         )
