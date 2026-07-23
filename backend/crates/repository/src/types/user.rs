@@ -66,9 +66,9 @@ pub enum UserRole {
 
 impl From<BoundCode<FHIRUserRole>> for UserRole {
     fn from(role: BoundCode<FHIRUserRole>) -> Self {
-        if role == FHIRUserRole::OWNER {
+        if role == FHIRUserRole::owner() {
             UserRole::Owner
-        } else if role == FHIRUserRole::ADMIN {
+        } else if role == FHIRUserRole::admin() {
             UserRole::Admin
         } else {
             UserRole::Member
