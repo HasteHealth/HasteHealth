@@ -264,9 +264,9 @@ fn resource_search_parameters_schema(
             base == Some(resource_name)
                 || base == Some("Resource")
                 || base == Some("DomainResource")
-        }) && sp.type_ != SearchParamType::COMPOSITE
+        }) && sp.type_ != SearchParamType::composite()
     }) {
-        let search_type = if sp.type_ == SearchParamType::NUMBER {
+        let search_type = if sp.type_ == SearchParamType::number() {
             "number"
         } else {
             "string"

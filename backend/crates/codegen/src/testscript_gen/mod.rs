@@ -120,7 +120,7 @@ fn generate_testcases_for_resource(
                         )
                         .into(),
                     )),
-                    direction: Some(AssertDirectionCodes::RESPONSE),
+                    direction: Some(AssertDirectionCodes::response()),
                     resource: defined_type.clone(),
                     warningOnly: Box::new(false.into()),
                     ..Default::default()

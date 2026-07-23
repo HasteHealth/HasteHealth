@@ -81,7 +81,7 @@ fn sort_build(
     })?;
 
     match &search_param.type_ {
-        param_type if param_type == &SearchParamType::DATE => match direction {
+        param_type if param_type == &SearchParamType::date() => match direction {
             SortDirection::Asc => {
                 let sort_col = url.clone() + ".start";
                 Ok(json!({
@@ -105,7 +105,7 @@ fn sort_build(
                 }))
             }
         },
-        param_type if param_type == &SearchParamType::STRING => match direction {
+        param_type if param_type == &SearchParamType::string() => match direction {
             SortDirection::Asc => Ok(json!({
                 url: {
                     "order": "asc"
@@ -117,7 +117,7 @@ fn sort_build(
                 }
             })),
         },
-        param_type if param_type == &SearchParamType::TOKEN => match direction {
+        param_type if param_type == &SearchParamType::token() => match direction {
             SortDirection::Asc => {
                 let sort_col = url.clone() + ".code";
                 Ok(json!({
@@ -154,7 +154,7 @@ fn simple_missing_modifier(
     search_param: &SearchParameter,
     parsed_parameter: &Parameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
-    if search_param.type_ == SearchParamType::COMPOSITE {
+    if search_param.type_ == SearchParamType::composite() {
         return Err(QueryBuildError::UnsupportedModifier("missing".to_string()));
     }
 
@@ -167,9 +167,9 @@ fn simple_missing_modifier(
 
     let field_name = match &search_param.type_ {
         param_type
-            if param_type == &SearchParamType::URI
-                || param_type == &SearchParamType::STRING
-                || param_type == &SearchParamType::NUMBER =>
+            if param_type == &SearchParamType::uri()
+                || param_type == &SearchParamType::string()
+                || param_type == &SearchParamType::number() =>
         {
             url
         }
@@ -216,25 +216,25 @@ fn parameter_to_elasticsearch_clauses(
     };
     let search_param = parameter.search_parameter.as_ref();
     let elastic_clause = match &search_param.type_ {
-        param_type if param_type == &SearchParamType::URI => {
+        param_type if param_type == &SearchParamType::uri() => {
             clauses::uri(namespace, parsed_parameter, search_param)
         }
-        param_type if param_type == &SearchParamType::QUANTITY => {
+        param_type if param_type == &SearchParamType::quantity() => {
             clauses::quantity(namespace, parsed_parameter, search_param)
         }
-        param_type if param_type == &SearchParamType::REFERENCE => {
+        param_type if param_type == &SearchParamType::reference() => {
             clauses::reference(namespace, parsed_parameter, search_param)
         }
-        param_type if param_type == &SearchParamType::DATE => {
+        param_type if param_type == &SearchParamType::date() => {
             clauses::date(namespace, parsed_parameter, search_param)
         }
-        param_type if param_type == &SearchParamType::TOKEN => {
+        param_type if param_type == &SearchParamType::token() => {
             clauses::token(namespace, parsed_parameter, search_param)
         }
-        param_type if param_type == &SearchParamType::NUMBER => {
+        param_type if param_type == &SearchParamType::number() => {
             clauses::number(namespace, parsed_parameter, search_param)
         }
-        param_type if param_type == &SearchParamType::STRING => {
+        param_type if param_type == &SearchParamType::string() => {
             clauses::string(namespace, parsed_parameter, search_param)
         }
         _ => Err(QueryBuildError::UnsupportedParameter(

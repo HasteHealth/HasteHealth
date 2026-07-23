@@ -281,7 +281,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                                     value: Some("ADMIN".to_string()),
                                     ..Default::default()
                                 }),
-                                engine: AccessPolicyv2Engine::FULL_ACCESS,
+                                engine: AccessPolicyv2Engine::full_access(),
                                 target: Some(vec![AccessPolicyV2Target {
                                     link: Box::new(Reference {
                                         reference: Some(Box::new(FHIRString {

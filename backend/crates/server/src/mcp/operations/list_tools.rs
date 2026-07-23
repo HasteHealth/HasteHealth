@@ -30,15 +30,15 @@ pub fn search_tool_parameters(
             .as_ref()
             .and_then(|d| d.value.as_ref());
 
-        let json_schema_type = if capability_parameter.type_ == SearchParamType::NUMBER {
+        let json_schema_type = if capability_parameter.type_ == SearchParamType::number() {
             Some("number".to_string())
-        } else if capability_parameter.type_ == SearchParamType::SPECIAL
-            || capability_parameter.type_ == SearchParamType::QUANTITY
-            || capability_parameter.type_ == SearchParamType::REFERENCE
-            || capability_parameter.type_ == SearchParamType::DATE
-            || capability_parameter.type_ == SearchParamType::STRING
-            || capability_parameter.type_ == SearchParamType::TOKEN
-            || capability_parameter.type_ == SearchParamType::URI
+        } else if capability_parameter.type_ == SearchParamType::special()
+            || capability_parameter.type_ == SearchParamType::quantity()
+            || capability_parameter.type_ == SearchParamType::reference()
+            || capability_parameter.type_ == SearchParamType::date()
+            || capability_parameter.type_ == SearchParamType::string()
+            || capability_parameter.type_ == SearchParamType::token()
+            || capability_parameter.type_ == SearchParamType::uri()
         {
             Some("string".to_string())
         } else {

@@ -238,7 +238,7 @@ fn generate_output(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<T
     let input_parameters = parameters
         .iter()
         .filter(|p| match &p.use_ {
-            use_ if use_ == &OperationParameterUse::OUT => true,
+            use_ if use_ == &OperationParameterUse::out() => true,
             _ => false,
         })
         .collect::<Vec<_>>();
@@ -250,7 +250,7 @@ fn generate_input(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<To
     let input_parameters = parameters
         .iter()
         .filter(|p| match &p.use_ {
-            use_ if use_ == &OperationParameterUse::IN => true,
+            use_ if use_ == &OperationParameterUse::in() => true,
             _ => false,
         })
         .collect::<Vec<_>>();

@@ -79,7 +79,7 @@ impl TestState {
             fixtures: HashMap::new(),
             latest_request: None,
             latest_response: None,
-            result: ReportResultCodes::PENDING,
+            result: ReportResultCodes::pending(),
         }
     }
     fn resolve_fixture<'a>(
@@ -817,7 +817,7 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
             Ok(TestResult {
                 state: state.clone(),
                 value: TestReportSetupActionOperation {
-                    result: ReportActionResultCodes::PASS,
+                    result: ReportActionResultCodes::pass(),
                     ..Default::default()
                 },
             })
@@ -835,7 +835,7 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
             Ok(TestResult {
                 state: state.clone(),
                 value: TestReportSetupActionOperation {
-                    result: ReportActionResultCodes::WARNING,
+                    result: ReportActionResultCodes::warning(),
                     message: Some(Box::new(FHIRMarkdown {
                         value: Some(format!("Operation failed: {}", op_error)),
                         ..Default::default()
@@ -858,9 +858,9 @@ async fn get_source<'a>(
         match assertion
             .direction
             .as_ref()
-            .unwrap_or(&AssertDirectionCodes::RESPONSE)
+            .unwrap_or(&AssertDirectionCodes::response())
         {
-            assertion if assertion == &AssertDirectionCodes::REQUEST => {
+            assertion if assertion == &AssertDirectionCodes::request() => {
                 if let Some(request) = state.latest_request.as_ref() {
                     request_to_meta_value(request)
                         .ok_or_else(|| TestScriptError::InvalidFixture)
@@ -869,7 +869,7 @@ async fn get_source<'a>(
                     Ok(None)
                 }
             }
-            assertion if assertion == &AssertDirectionCodes::RESPONSE => {
+            assertion if assertion == &AssertDirectionCodes::response() => {
                 if let Some(response) = state.latest_response.as_ref() {
                     response_to_meta_value(response)
                         .ok_or_else(|| TestScriptError::InvalidFixture)
@@ -892,14 +892,14 @@ fn evaluate_operator(
 ) -> bool {
     match operator {
         operator
-            if operator == &AssertOperatorCodes::EQUALS
-                || operator == &AssertOperatorCodes::NULL =>
+            if operator == &AssertOperatorCodes::equals()
+                || operator == &AssertOperatorCodes::null() =>
         {
             a == b
         }
-        operator if operator == &AssertOperatorCodes::NOT_EQUALS => !(a == b),
+        operator if operator == &AssertOperatorCodes::not_equals() => !(a == b),
 
-        operator if operator == &AssertOperatorCodes::CONTAINS => {
+        operator if operator == &AssertOperatorCodes::contains() => {
             if a.len() != 1 || b.len() != 1 {
                 return false;
             }
@@ -911,26 +911,26 @@ fn evaluate_operator(
                 _ => false,
             }
         }
-        operator if operator == &AssertOperatorCodes::EMPTY => {
+        operator if operator == &AssertOperatorCodes::empty() => {
             todo!("Empty operator not implemented")
         }
-        operator if operator == &AssertOperatorCodes::EVAL => {
+        operator if operator == &AssertOperatorCodes::eval() => {
             todo!("Eval operator not implemented")
         }
-        operator if operator == &AssertOperatorCodes::GREATER_THAN => {
+        operator if operator == &AssertOperatorCodes::greater_than() => {
             todo!("GreaterThan operator not implemented")
         }
-        operator if operator == &AssertOperatorCodes::IN => todo!("In operator not implemented"),
-        operator if operator == &AssertOperatorCodes::LESS_THAN => {
+        operator if operator == &AssertOperatorCodes::in() => todo!("In operator not implemented"),
+        operator if operator == &AssertOperatorCodes::less_than() => {
             todo!("LessThan operator not implemented")
         }
-        operator if operator == &AssertOperatorCodes::NOT_CONTAINS => {
+        operator if operator == &AssertOperatorCodes::not_contains() => {
             todo!("NotContains operator not implemented")
         }
-        operator if operator == &AssertOperatorCodes::NOT_EMPTY => {
+        operator if operator == &AssertOperatorCodes::not_empty() => {
             todo!("NotEmpty operator not implemented")
         }
-        operator if operator == &AssertOperatorCodes::NOT_IN => {
+        operator if operator == &AssertOperatorCodes::not_in() => {
             todo!("NotIn operator not implemented")
         }
         _ => {
@@ -1024,7 +1024,7 @@ async fn run_assertion(
             pointer.path()
         )));
     };
-    let default = AssertOperatorCodes::EQUALS;
+    let default = AssertOperatorCodes::equals();
     let operator = assertion.operator.as_ref().unwrap_or(&default);
 
     if assertion.resource.is_some() {
@@ -1052,11 +1052,11 @@ async fn run_assertion(
                 source.fhir_type()
             );
 
-            state_guard.result = ReportResultCodes::FAIL;
+            state_guard.result = ReportResultCodes::fail();
             return Ok(TestResult {
                 state: state.clone(),
                 value: TestReportSetupActionAssert {
-                    result: ReportActionResultCodes::FAIL,
+                    result: ReportActionResultCodes::fail(),
                     ..Default::default()
                 },
             });
@@ -1077,7 +1077,7 @@ async fn run_assertion(
                 pointer.path()
             );
 
-            state_guard.result = ReportResultCodes::FAIL;
+            state_guard.result = ReportResultCodes::fail();
             return Err(TestScriptError::ExecutionError(format!(
                 "FHIRPath failed to evaluate at '{}' error.",
                 pointer.path()
@@ -1102,11 +1102,11 @@ async fn run_assertion(
                 comparison_to
             );
 
-            state_guard.result = ReportResultCodes::FAIL;
+            state_guard.result = ReportResultCodes::fail();
             return Ok(TestResult {
                 state: state.clone(),
                 value: TestReportSetupActionAssert {
-                    result: ReportActionResultCodes::FAIL,
+                    result: ReportActionResultCodes::fail(),
                     ..Default::default()
                 },
             });
@@ -1116,7 +1116,7 @@ async fn run_assertion(
     return Ok(TestResult {
         state: state.clone(),
         value: TestReportSetupActionAssert {
-            result: ReportActionResultCodes::PASS,
+            result: ReportActionResultCodes::pass(),
             ..Default::default()
         },
     });
@@ -1570,7 +1570,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     tracing::info!("Running TestScript Runner with FHIR Client");
 
     let mut test_report = TestReport {
-        status: ReportStatusCodes::COMPLETED,
+        status: ReportStatusCodes::completed(),
         testScript: Box::new(Reference {
             reference: Some(Box::new(FHIRString {
                 value: Some(format!(
@@ -1668,8 +1668,8 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     // Only set result to fail so if still pending can assume pass.
     // Flip to fail in assertion tests if any fail.
     match &state_guard.result {
-        state if state == &ReportResultCodes::PENDING => {
-            test_report.result = ReportResultCodes::PASS
+        state if state == &ReportResultCodes::pending() => {
+            test_report.result = ReportResultCodes::pass()
         }
         status => test_report.result = status.clone(),
     }

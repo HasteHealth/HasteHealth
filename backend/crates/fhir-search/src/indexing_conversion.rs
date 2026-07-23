@@ -834,7 +834,7 @@ pub fn to_insertable_index(
 ) -> Result<InsertableIndex, OperationOutcomeError> {
     let search_parameter = &parameter.search_parameter;
     match &search_parameter.type_ {
-        param_type if param_type == &SearchParamType::NUMBER => {
+        param_type if param_type == &SearchParamType::number() => {
             let numbers = result
                 .iter()
                 .filter_map(|v| index_number(*v).ok())
@@ -842,7 +842,7 @@ pub fn to_insertable_index(
                 .collect::<Vec<_>>();
             Ok(InsertableIndex::Number(numbers))
         }
-        param_type if param_type == &SearchParamType::STRING => {
+        param_type if param_type == &SearchParamType::string() => {
             let strings = result
                 .iter()
                 .filter_map(|v| index_string(*v).ok())
@@ -850,7 +850,7 @@ pub fn to_insertable_index(
                 .collect();
             Ok(InsertableIndex::String(strings))
         }
-        param_type if param_type == &SearchParamType::URI => {
+        param_type if param_type == &SearchParamType::uri() => {
             let uris = result
                 .iter()
                 .filter_map(|v| index_uri(*v).ok())
@@ -858,7 +858,7 @@ pub fn to_insertable_index(
                 .collect();
             Ok(InsertableIndex::URI(uris))
         }
-        param_type if param_type == &SearchParamType::TOKEN => {
+        param_type if param_type == &SearchParamType::token() => {
             let tokens = result
                 .iter()
                 .filter_map(|v| index_token(*v).ok())
@@ -866,7 +866,7 @@ pub fn to_insertable_index(
                 .collect();
             Ok(InsertableIndex::Token(tokens))
         }
-        param_type if param_type == &SearchParamType::DATE => {
+        param_type if param_type == &SearchParamType::date() => {
             let dates = result
                 .iter()
                 .filter_map(|v| index_date(*v).ok())
@@ -874,7 +874,7 @@ pub fn to_insertable_index(
                 .collect();
             Ok(InsertableIndex::Date(dates))
         }
-        param_type if param_type == &SearchParamType::REFERENCE => {
+        param_type if param_type == &SearchParamType::reference() => {
             let references = result
                 .iter()
                 .filter_map(|v: &&dyn MetaValue| index_reference(*v).ok())
@@ -882,7 +882,7 @@ pub fn to_insertable_index(
                 .collect();
             Ok(InsertableIndex::Reference(references))
         }
-        param_type if param_type == &SearchParamType::QUANTITY => {
+        param_type if param_type == &SearchParamType::quantity() => {
             let quantities = result
                 .iter()
                 .filter_map(|v| index_quantity(*v).ok())
@@ -891,10 +891,10 @@ pub fn to_insertable_index(
             Ok(InsertableIndex::Quantity(quantities))
         }
         // Not Supported yet
-        param_type if param_type == &SearchParamType::COMPOSITE => {
+        param_type if param_type == &SearchParamType::composite() => {
             Ok(InsertableIndex::Composite(vec![]))
         }
-        param_type if param_type == &SearchParamType::SPECIAL => {
+        param_type if param_type == &SearchParamType::special() => {
             Ok(InsertableIndex::Special(vec![]))
         }
         _ => {

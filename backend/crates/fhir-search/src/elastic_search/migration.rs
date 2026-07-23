@@ -88,32 +88,32 @@ pub async fn create_elasticsearch_searchparameter_mappings(
         let search_parameter = &parameter.search_parameter;
         if let Some(parameter_url) = search_parameter.url.value.as_ref() {
             match &search_parameter.type_ {
-                param_type if param_type == &SearchParamType::NUMBER => {
+                param_type if param_type == &SearchParamType::number() => {
                     property_mapping.insert(parameter_url.to_string(), number_index_mapping());
                 }
-                param_type if param_type == &SearchParamType::STRING => {
+                param_type if param_type == &SearchParamType::string() => {
                     property_mapping.insert(parameter_url.to_string(), string_index_mapping());
                 }
-                param_type if param_type == &SearchParamType::URI => {
+                param_type if param_type == &SearchParamType::uri() => {
                     property_mapping.insert(parameter_url.to_string(), uri_index_mapping());
                 }
-                param_type if param_type == &SearchParamType::TOKEN => {
+                param_type if param_type == &SearchParamType::token() => {
                     property_mapping.insert(parameter_url.to_string(), token_index_mapping());
                 }
-                param_type if param_type == &SearchParamType::DATE => {
+                param_type if param_type == &SearchParamType::date() => {
                     property_mapping.insert(parameter_url.to_string(), date_index_mapping());
                 }
-                param_type if param_type == &SearchParamType::REFERENCE => {
+                param_type if param_type == &SearchParamType::reference() => {
                     property_mapping.insert(parameter_url.to_string(), reference_index_mapping());
                 }
-                param_type if param_type == &SearchParamType::QUANTITY => {
+                param_type if param_type == &SearchParamType::quantity() => {
                     property_mapping.insert(parameter_url.to_string(), quantity_index_mapping());
                 }
                 // Not Supported yet
                 param_type
-                    if param_type == &SearchParamType::COMPOSITE
-                        || param_type == &SearchParamType::SPECIAL
-                        || param_type == &SearchParamType::NULL =>
+                    if param_type == &SearchParamType::composite()
+                        || param_type == &SearchParamType::special()
+                        || param_type == &SearchParamType::null() =>
                 {
                     tracing::warn!("Unsupported search parameter type");
                 }

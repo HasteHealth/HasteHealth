@@ -148,10 +148,10 @@ pub(crate) async fn testscript_commands(
                     Ok(test_report) => {
                         match &test_report.result {
                             // Ignore for rest.
-                            r if r == &ReportResultCodes::PASS
-                                || r == &ReportResultCodes::PENDING
-                                || r == &ReportResultCodes::NULL => {}
-                            r if r == &ReportResultCodes::FAIL => status_code = 1,
+                            r if r == &ReportResultCodes::pass()
+                                || r == &ReportResultCodes::pending()
+                                || r == &ReportResultCodes::null() => {}
+                            r if r == &ReportResultCodes::fail() => status_code = 1,
                             _ => status_code = 1,
                         }
 

@@ -7,7 +7,7 @@ use crate::context::PermissionLevel;
 pub fn evaluate(policy: &AccessPolicyV2) -> PermissionLevel {
     // Sanity check to ensure we are only evaluating FullAccess policies here.
     // Note this is done on root lib.rs evaluation of policy.
-    if AccessPolicyv2Engine::FULL_ACCESS == policy.engine {
+    if AccessPolicyv2Engine::full_access() == policy.engine {
         PermissionLevel::Allow
     } else {
         PermissionLevel::Deny
