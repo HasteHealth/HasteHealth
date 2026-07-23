@@ -211,7 +211,7 @@ fn load_terminologies(
     resolver_data.insert(ResourceType::CodeSystem, BTreeMap::new());
 
     for dir_path in file_paths {
-        let walker = WalkDir::new(dir_path).into_iter();
+        let walker = WalkDir::new(dir_path).sort_by_file_name().into_iter();
         for entry in walker
             .filter_map(|e| e.ok())
             .filter(|e| e.metadata().unwrap().is_file())

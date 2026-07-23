@@ -317,7 +317,7 @@ pub fn generate_operation_definitions_from_files(
     };
 
     for dir_path in file_paths {
-        let walker = WalkDir::new(dir_path).into_iter();
+        let walker = WalkDir::new(dir_path).sort_by_file_name().into_iter();
 
         for entry in walker
             .filter_map(|e| e.ok())

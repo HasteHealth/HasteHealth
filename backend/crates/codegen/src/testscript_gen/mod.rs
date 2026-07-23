@@ -234,7 +234,7 @@ fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String>
 pub fn generate_testscripts(file_paths: &Vec<String>) -> Result<Vec<TestScript>, String> {
     let mut testscripts = vec![];
     for dir_path in file_paths {
-        let walker = WalkDir::new(dir_path).into_iter();
+        let walker = WalkDir::new(dir_path).sort_by_file_name().into_iter();
         for entry in walker
             .filter_map(|e| e.ok())
             .filter(|e| e.metadata().unwrap().is_file())
