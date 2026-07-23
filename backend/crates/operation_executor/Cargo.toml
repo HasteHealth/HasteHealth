@@ -17,9 +17,9 @@ haste-fhir-serialization-json = { path = "../fhir-serialization-json", version =
 haste-reflect = { path = "../reflect", version = "0.*" }
 
 deno_ast = { version = "0.53.2", default-features = false, features = ["transpiling"] }
-deno_core = { version = "0.407.0", default-features = false, features = ["reactor-tokio"] }
+deno_core = { version = "=0.409.0", default-features = false, features = ["reactor-tokio"] }
 deno_error = { version = "0.7.1", default-features = false }
 tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }
 
 [build-dependencies]
-deno_core = { version = "0.407.0", default-features = false, features = ["reactor-tokio"] }
+deno_core = { version = "=0.409.0", default-features = false, features = ["reactor-tokio"] }
