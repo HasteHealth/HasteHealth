@@ -351,7 +351,7 @@ async fn testscript_operation_to_fhir_request(
         .and_then(|t| t.code.as_ref())
         .and_then(|c| c.value.as_ref().map(|s| s.as_str()));
 
-    if operation_type == TestscriptOperationCodes::READ.as_str() {
+    if operation_type == TestscriptOperationCodes::read().as_str() {
         let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Read operation requires targetId at '{}'.",
@@ -376,7 +376,7 @@ async fn testscript_operation_to_fhir_request(
                 .cloned()
                 .unwrap_or_default(),
         }))
-    } else if operation_type == TestscriptOperationCodes::VREAD.as_str() {
+    } else if operation_type == TestscriptOperationCodes::vread().as_str() {
         let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Version Read operation requires targetId at '{}'.",
@@ -422,7 +422,7 @@ async fn testscript_operation_to_fhir_request(
             id: id,
             version_id: version_id.into(),
         }))
-    } else if operation_type == TestscriptOperationCodes::SEARCH.as_str() {
+    } else if operation_type == TestscriptOperationCodes::search().as_str() {
         let query_string = operation
             .params
             .as_ref()
@@ -461,7 +461,7 @@ async fn testscript_operation_to_fhir_request(
                 ),
             ))
         }
-    } else if operation_type == TestscriptOperationCodes::HISTORY.as_str() {
+    } else if operation_type == TestscriptOperationCodes::history().as_str() {
         let query_string = operation
             .params
             .as_ref()
@@ -518,7 +518,7 @@ async fn testscript_operation_to_fhir_request(
                 },
             )));
         }
-    } else if operation_type == TestscriptOperationCodes::TRANSACTION.as_str() {
+    } else if operation_type == TestscriptOperationCodes::transaction().as_str() {
         let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Transaction operation requires sourceId at '{}'.",
@@ -539,7 +539,7 @@ async fn testscript_operation_to_fhir_request(
 
         match resource {
             Resource::Bundle(bundle) => {
-                if bundle.type_ != BundleType::TRANSACTION {
+                if bundle.type_ != BundleType::transaction() {
                     return Err(TestScriptError::ExecutionError(format!(
                         "Fixture must be a transaction bundle for transaction operations for sourceId '{}'.",
                         source_id
@@ -556,7 +556,7 @@ async fn testscript_operation_to_fhir_request(
                 source_id
             ))),
         }
-    } else if operation_type == TestscriptOperationCodes::CREATE.as_str() {
+    } else if operation_type == TestscriptOperationCodes::create().as_str() {
         let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Create operation requires sourceId at '{}'.",
@@ -579,7 +579,7 @@ async fn testscript_operation_to_fhir_request(
             resource_type: derive_resource_type(operation, Some(source), pointer.path())?,
             resource: resource,
         }))
-    } else if operation_type == TestscriptOperationCodes::UPDATE.as_str() {
+    } else if operation_type == TestscriptOperationCodes::update().as_str() {
         let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Update operation requires sourceId at '{}'.",
@@ -633,7 +633,7 @@ async fn testscript_operation_to_fhir_request(
                 resource: resource,
             },
         )))
-    } else if operation_type == TestscriptOperationCodes::DELETE.as_str() {
+    } else if operation_type == TestscriptOperationCodes::delete().as_str() {
         let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Delete operation requires targetId at '{}'.",
@@ -660,7 +660,7 @@ async fn testscript_operation_to_fhir_request(
                     .unwrap_or_default(),
             },
         )))
-    } else if operation_type == TestscriptOperationCodes::DELETE_COND_MULTIPLE.as_str() {
+    } else if operation_type == TestscriptOperationCodes::delete_cond_multiple().as_str() {
         let delete_parameters = ParsedParameters::try_from(
             operation
                 .params
@@ -920,7 +920,7 @@ fn evaluate_operator(
         operator if operator == &AssertOperatorCodes::greater_than() => {
             todo!("GreaterThan operator not implemented")
         }
-        operator if operator == &AssertOperatorCodes::in() => todo!("In operator not implemented"),
+        operator if operator == &AssertOperatorCodes::in_() => todo!("In operator not implemented"),
         operator if operator == &AssertOperatorCodes::less_than() => {
             todo!("LessThan operator not implemented")
         }

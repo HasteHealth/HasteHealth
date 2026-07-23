@@ -74,19 +74,21 @@ async fn evaluate_attribute<
     };
 
     match &attribute_operation.type_ {
-        attribute_type if attribute_type == &AccessPolicyAttributeOperationTypes::READ => {
+        attribute_type if attribute_type == &AccessPolicyAttributeOperationTypes::read() => {
             evaluate_read(policy_context, &pointer, variable_id, attribute_operation).await
         }
 
-        attribute_type if attribute_type == &AccessPolicyAttributeOperationTypes::SEARCH_SYSTEM => {
+        attribute_type
+            if attribute_type == &AccessPolicyAttributeOperationTypes::search_system() =>
+        {
             evaluate_search_system(policy_context, &pointer, variable_id, attribute_operation).await
         }
 
-        attribute_type if attribute_type == &AccessPolicyAttributeOperationTypes::SEARCH_TYPE => {
+        attribute_type if attribute_type == &AccessPolicyAttributeOperationTypes::search_type() => {
             evaluate_search_type(policy_context, &pointer, variable_id, attribute_operation).await
         }
 
-        attribute_type if attribute_type == &AccessPolicyAttributeOperationTypes::NULL => {
+        attribute_type if attribute_type == &AccessPolicyAttributeOperationTypes::null() => {
             Err(OperationOutcomeError::fatal(
                 haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
                 format!("Attribute operation type is not specified for attribute '{variable_id}'."),

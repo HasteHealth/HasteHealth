@@ -85,7 +85,7 @@ fn is_resource_return(parameters: &Vec<&OperationDefinitionParameter>) -> bool {
     if parameters.len() == 1
         && parameters[0].name.value.as_deref() == Some("return")
         && let Some(parameter_type) = parameters[0].type_.as_ref()
-        && (parameter_type == &AllTypes::ANY
+        && (parameter_type == &AllTypes::any()
             || ResourceType::try_from(parameter_type.as_str().unwrap_or_default()).is_ok())
     {
         true
@@ -129,8 +129,8 @@ fn generate_parameter_type(
         };
 
         if let Some(type_) = p.type_.as_ref() {
-            let type_ = if type_ == &AllTypes::ANY {
-                AllTypes::RESOURCE
+            let type_ = if type_ == &AllTypes::any() {
+                AllTypes::resource()
             } else {
                 type_.clone()
             };
@@ -250,7 +250,7 @@ fn generate_input(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<To
     let input_parameters = parameters
         .iter()
         .filter(|p| match &p.use_ {
-            use_ if use_ == &OperationParameterUse::in() => true,
+            use_ if use_ == &OperationParameterUse::in_() => true,
             _ => false,
         })
         .collect::<Vec<_>>();

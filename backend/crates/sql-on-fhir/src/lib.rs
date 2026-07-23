@@ -529,7 +529,7 @@ async fn process_view_definition<
     let results = results.into_iter().flatten().collect::<Vec<_>>();
 
     match output_format {
-        binding if binding == &OutputFormatCodes::CSV => {
+        binding if binding == &OutputFormatCodes::csv() => {
             let data = output::csv::csv(results)?;
 
             let base64_string: String = general_purpose::STANDARD.encode(&data);
@@ -542,7 +542,7 @@ async fn process_view_definition<
                 ..Default::default()
             })
         }
-        binding if binding == &OutputFormatCodes::JSON => {
+        binding if binding == &OutputFormatCodes::json() => {
             let data = output::json::json(results)?;
 
             let base64_string: String = general_purpose::STANDARD.encode(&data);
@@ -555,7 +555,7 @@ async fn process_view_definition<
                 ..Default::default()
             })
         }
-        binding if binding == &OutputFormatCodes::NDJSON => {
+        binding if binding == &OutputFormatCodes::ndjson() => {
             let data = output::ndjson::ndjson(results)?;
             let base64_string: String = general_purpose::STANDARD.encode(&data);
 
@@ -587,7 +587,7 @@ pub async fn view_definition_run<
         .as_ref()
         .and_then(|v| v.value.as_ref())
         .and_then(|s| BoundCode::<OutputFormatCodes>::new(s))
-        .unwrap_or(OutputFormatCodes::CSV);
+        .unwrap_or(OutputFormatCodes::csv());
 
     let view_definition =
         Arc::new(resolve_view_definition(context.clone(), client.as_ref(), &input).await?);

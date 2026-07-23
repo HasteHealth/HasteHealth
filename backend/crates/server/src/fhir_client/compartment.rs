@@ -30,11 +30,11 @@ fn compartment_type_to_resource_type(
     compartment_type: &BoundCode<CompartmentType>,
 ) -> Option<ResourceType> {
     match compartment_type {
-        c if c == &CompartmentType::DEVICE => Some(ResourceType::Device),
-        c if c == &CompartmentType::ENCOUNTER => Some(ResourceType::Encounter),
-        c if c == &CompartmentType::PATIENT => Some(ResourceType::Patient),
-        c if c == &CompartmentType::PRACTITIONER => Some(ResourceType::Practitioner),
-        c if c == &CompartmentType::RELATED_PERSON => Some(ResourceType::RelatedPerson),
+        c if c == &CompartmentType::device() => Some(ResourceType::Device),
+        c if c == &CompartmentType::encounter() => Some(ResourceType::Encounter),
+        c if c == &CompartmentType::patient() => Some(ResourceType::Patient),
+        c if c == &CompartmentType::practitioner() => Some(ResourceType::Practitioner),
+        c if c == &CompartmentType::related_person() => Some(ResourceType::RelatedPerson),
         _ => None,
     }
 }

@@ -103,14 +103,14 @@ fn create_capability_rest_statement(
         ),
         interaction: Some(
             vec![
-                TypeRestfulInteraction::READ,
-                TypeRestfulInteraction::VREAD,
-                TypeRestfulInteraction::UPDATE,
-                TypeRestfulInteraction::DELETE,
-                TypeRestfulInteraction::SEARCH_TYPE,
-                TypeRestfulInteraction::CREATE,
-                TypeRestfulInteraction::HISTORY_INSTANCE,
-                TypeRestfulInteraction::HISTORY_TYPE,
+                TypeRestfulInteraction::read(),
+                TypeRestfulInteraction::vread(),
+                TypeRestfulInteraction::update(),
+                TypeRestfulInteraction::delete(),
+                TypeRestfulInteraction::search_type(),
+                TypeRestfulInteraction::create(),
+                TypeRestfulInteraction::history_instance(),
+                TypeRestfulInteraction::history_type(),
             ]
             .into_iter()
             .map(|code| CapabilityStatementRestResourceInteraction {
@@ -119,7 +119,7 @@ fn create_capability_rest_statement(
             })
             .collect(),
         ),
-        versioning: Some(VersioningPolicy::VERSIONED),
+        versioning: Some(VersioningPolicy::versioned()),
         ..Default::default()
     })
 }
@@ -137,7 +137,7 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
     let sps = sps?;
 
     Ok(CapabilityStatement {
-        status: PublicationStatus::ACTIVE,
+        status: PublicationStatus::active(),
         kind: CapabilityStatementKind::CAPABILITY,
         date: Box::new(FHIRDateTime {
             value: Some(DateTime::Year(2025)),

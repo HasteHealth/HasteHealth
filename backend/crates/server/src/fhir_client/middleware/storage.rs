@@ -58,12 +58,15 @@ pub fn to_bundle_entry(
     let mut entry = BundleEntry::default();
 
     if let Some(request_method) = request_method {
-        let http_verb = BoundCode::<HttpVerb>::new(&request_method).unwrap_or(HttpVerb::POST);
+        let http_verb = BoundCode::<HttpVerb>::new(&request_method).unwrap_or(HttpVerb::post());
         entry.request = Some(BundleEntryRequest {
             url: Box::new(FHIRUri {
                 value: match &http_verb {
-                    h if h == &HttpVerb::POST => Some(resource_type.as_ref().to_string()),
-                    h if h == &HttpVerb::DELETE || h == &HttpVerb::PUT || h == &HttpVerb::PATCH => {
+                    h if h == &HttpVerb::post() => Some(resource_type.as_ref().to_string()),
+                    h if h == &HttpVerb::delete()
+                        || h == &HttpVerb::put()
+                        || h == &HttpVerb::patch() =>
+                    {
                         Some(format!("{}/{}", resource_type.as_ref(), id))
                     }
                     _ => None,
@@ -340,7 +343,7 @@ impl<
                         Ok(Some(FHIRResponse::History(HistoryResponse::Instance(
                             FHIRHistoryInstanceResponse {
                                 bundle: to_bundle(
-                                    BundleType::HISTORY,
+                                    BundleType::history(),
                                     None,
                                     history_resources
                                         .into_iter()
@@ -371,7 +374,7 @@ impl<
                         Ok(Some(FHIRResponse::History(HistoryResponse::Type(
                             FHIRHistoryTypeResponse {
                                 bundle: to_bundle(
-                                    BundleType::HISTORY,
+                                    BundleType::history(),
                                     None,
                                     history_resources
                                         .into_iter()
@@ -402,7 +405,7 @@ impl<
                         Ok(Some(FHIRResponse::History(HistoryResponse::System(
                             FHIRHistorySystemResponse {
                                 bundle: to_bundle(
-                                    BundleType::HISTORY,
+                                    BundleType::history(),
                                     None,
                                     history_resources
                                         .into_iter()
@@ -642,7 +645,7 @@ impl<
                         Ok(Some(FHIRResponse::Search(SearchResponse::Type(
                             FHIRSearchTypeResponse {
                                 bundle: to_bundle(
-                                    BundleType::SEARCHSET,
+                                    BundleType::searchset(),
                                     search_results.total,
                                     resources
                                         .into_iter()
@@ -687,7 +690,7 @@ impl<
                         Ok(Some(FHIRResponse::Search(SearchResponse::System(
                             FHIRSearchSystemResponse {
                                 bundle: to_bundle(
-                                    BundleType::SEARCHSET,
+                                    BundleType::searchset(),
                                     search_results.total,
                                     resources
                                         .into_iter()

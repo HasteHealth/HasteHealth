@@ -73,7 +73,7 @@ impl<
                         FHIRRequest::Create(create_request) => {
                             if let Resource::Project(project) = &create_request.resource {
                                 let fhir_version = match &project.fhirVersion {
-                                    f if f == &SupportedFhirVersion::R4 => {
+                                    f if f == &SupportedFhirVersion::r4() => {
                                         Ok(SupportedFHIRVersions::R4)
                                     }
                                     _ => Err(OperationOutcomeError::fatal(
@@ -115,7 +115,7 @@ impl<
                                                     name: name,
                                                     fhirVersion: match project_model.fhir_version {
                                                         SupportedFHIRVersions::R4 => {
-                                                            SupportedFhirVersion::R4
+                                                            SupportedFhirVersion::r4()
                                                         }
                                                     },
                                                     ..Default::default()
@@ -138,7 +138,7 @@ impl<
                         FHIRRequest::Update(UpdateRequest::Instance(update_request)) => {
                             if let Resource::Project(project) = &update_request.resource {
                                 let fhir_version = match &project.fhirVersion {
-                                    f if f == &SupportedFhirVersion::R4 => {
+                                    f if f == &SupportedFhirVersion::r4() => {
                                         Ok(SupportedFHIRVersions::R4)
                                     }
                                     _ => Err(OperationOutcomeError::fatal(

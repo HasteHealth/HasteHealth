@@ -515,10 +515,10 @@ fn generate_fhir_types_from_file(
     let mut rust_type_name_to_fhir_type: HashMap<String, String> = HashMap::new();
 
     for sd in structure_definitions.iter().filter(|sd| {
-        if sd.derivation.as_ref() == Some(&TypeDerivationRule::SPECIALIZATION)
+        if sd.derivation.as_ref() == Some(&TypeDerivationRule::specialization())
             || sd.derivation.is_none()
         {
-            if sd.kind == StructureDefinitionKind::RESOURCE {
+            if sd.kind == StructureDefinitionKind::resource() {
                 !extract::is_abstract(sd)
             } else {
                 true

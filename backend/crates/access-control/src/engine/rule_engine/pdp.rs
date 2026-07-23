@@ -147,13 +147,13 @@ async fn evaluate_condition<
     let effect = rule
         .effect
         .clone()
-        .unwrap_or(AccessPolicyRuleEffect::PERMIT);
+        .unwrap_or(AccessPolicyRuleEffect::permit());
 
     if should_permit {
         match effect {
             effect
-                if effect == AccessPolicyRuleEffect::NULL
-                    || effect == AccessPolicyRuleEffect::PERMIT =>
+                if effect == AccessPolicyRuleEffect::null()
+                    || effect == AccessPolicyRuleEffect::permit() =>
             {
                 Ok((PermissionLevel::Allow, policy_context.clone()))
             }
@@ -161,7 +161,7 @@ async fn evaluate_condition<
         }
     } else {
         match effect {
-            effect if effect == AccessPolicyRuleEffect::DENY => {
+            effect if effect == AccessPolicyRuleEffect::deny() => {
                 Ok((PermissionLevel::Allow, policy_context.clone()))
             }
             _effect => Ok((PermissionLevel::Deny, policy_context.clone())),
@@ -192,16 +192,16 @@ async fn evaluate_access_policy_rule<
     }
 
     match rule.combineBehavior.as_ref() {
-        combine_behavior if combine_behavior == Some(&AccessPolicyv2CombineBehavior::ANY) => {
+        combine_behavior if combine_behavior == Some(&AccessPolicyv2CombineBehavior::any()) => {
             evaluate_any_rules(policy_context, rule_pointer).await
         }
 
-        combine_behavior if combine_behavior == Some(&AccessPolicyv2CombineBehavior::ALL_OF) => {
+        combine_behavior if combine_behavior == Some(&AccessPolicyv2CombineBehavior::all_of()) => {
             evaluate_all_of_rules(policy_context, rule_pointer).await
         }
 
         combine_behavior
-            if combine_behavior == Some(&AccessPolicyv2CombineBehavior::NULL)
+            if combine_behavior == Some(&AccessPolicyv2CombineBehavior::null())
                 || combine_behavior == None =>
         {
             evaluate_leaf_rule(policy_context, rule_pointer).await

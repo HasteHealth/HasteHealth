@@ -66,7 +66,7 @@ pub async fn validate_profile<'a>(
 ) -> Result<OperationOutcome, OperationOutcomeError> {
     let mut outcome = OperationOutcome::default();
     match ctx.profile().derivation.as_ref() {
-        derivation if derivation == Some(&TypeDerivationRule::CONSTRAINT) => {
+        derivation if derivation == Some(&TypeDerivationRule::constraint()) => {
             let element_location = Path::new()
                 .descend("snapshot")
                 .descend("element")

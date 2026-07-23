@@ -273,10 +273,10 @@ async fn is_conformant_to_slice_descriptor(
     let values = values.iter().collect::<Vec<_>>();
 
     match &discriminator.type_ {
-        discriminator_type if discriminator_type == &DiscriminatorType::EXISTS => {
+        discriminator_type if discriminator_type == &DiscriminatorType::exists() => {
             Ok(values.len() > 0)
         }
-        discriminator_type if discriminator_type == &DiscriminatorType::PATTERN => {
+        discriminator_type if discriminator_type == &DiscriminatorType::pattern() => {
             let pattern = slice_value_element_definition.pattern.as_ref().ok_or_else(|| OperationOutcomeError::error(
                 IssueType::invalid(),
                 "Slice value element definition must have a pattern for pattern discriminator".to_string(),
@@ -290,13 +290,13 @@ async fn is_conformant_to_slice_descriptor(
 
             return Ok(false);
         }
-        discriminator_type if discriminator_type == &DiscriminatorType::PROFILE => {
+        discriminator_type if discriminator_type == &DiscriminatorType::profile() => {
             Err(OperationOutcomeError::error(
                 IssueType::not_supported(),
                 "Profile discriminator type is not supported".to_string(),
             ))
         }
-        discriminator_type if discriminator_type == &DiscriminatorType::TYPE => {
+        discriminator_type if discriminator_type == &DiscriminatorType::type_() => {
             let expected_types =
                 slice_value_element_definition
                     .type_
@@ -322,7 +322,7 @@ async fn is_conformant_to_slice_descriptor(
             Ok(result.is_some())
         }
         // Observation us-core has pattern even though it's value based slicing
-        discriminator_type if discriminator_type == &DiscriminatorType::VALUE => {
+        discriminator_type if discriminator_type == &DiscriminatorType::value() => {
             if let Some(fixed_value) = slice_value_element_definition.fixed.as_ref() {
                 for value in values.iter() {
                     if is_equal(*value, fixed_value)? {
@@ -382,7 +382,7 @@ async fn is_conformant_to_slice_descriptor(
 
             return Ok(false);
         }
-        discriminator_type if discriminator_type == &DiscriminatorType::NULL => {
+        discriminator_type if discriminator_type == &DiscriminatorType::null() => {
             Err(OperationOutcomeError::error(
                 IssueType::not_supported(),
                 "Null discriminator type is not supported".to_string(),

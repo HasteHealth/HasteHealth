@@ -418,7 +418,7 @@ mod test {
                 }
             })
             .filter(|sd|
-                sd.kind  == StructureDefinitionKind::COMPLEX_TYPE
+                sd.kind  == StructureDefinitionKind::complex_type()
             )
             .map(|sd| {
                 (

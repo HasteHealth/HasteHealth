@@ -146,7 +146,7 @@ impl OperationExecutor for DenoPool {
         validate_parameters(
             get_parameters(input),
             &operation.parameter.as_deref().unwrap_or_default(),
-            &OperationParameterUse::in(),
+            &OperationParameterUse::in_(),
         )?;
 
         let (code, media_type) =

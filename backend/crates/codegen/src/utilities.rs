@@ -215,7 +215,7 @@ pub mod conversion {
                     // inlined could be a url | version for canonical.
                     // Only do inlined if the binding is required and exists as inlined terminology.
 
-                    if Some(&BindingStrength::REQUIRED)
+                    if Some(&BindingStrength::required())
                         == element.binding.as_ref().map(|b| &b.strength)
                         && let Some(canonical_string) = element
                             .binding
@@ -458,7 +458,7 @@ pub mod conditionals {
     }
 
     pub fn is_resource_sd(sd: &StructureDefinition) -> bool {
-        sd.kind == StructureDefinitionKind::RESOURCE
+        sd.kind == StructureDefinitionKind::resource()
     }
 
     pub fn is_primitive_type(fhir_type: &str) -> bool {
@@ -482,7 +482,7 @@ pub mod conditionals {
     }
 
     pub fn is_primitive_sd(sd: &StructureDefinition) -> bool {
-        sd.kind == StructureDefinitionKind::PRIMITIVE_TYPE
+        sd.kind == StructureDefinitionKind::primitive_type()
     }
 
     pub fn is_typechoice(element: &ElementDefinition) -> bool {
@@ -528,15 +528,15 @@ pub mod load {
                     let filtered_sds = sds.filter(move |sd| {
                         if let Some(level) = level {
                             match &sd.kind {
-                                kind if kind == &StructureDefinitionKind::RESOURCE
-                                    || kind == &StructureDefinitionKind::NULL =>
+                                kind if kind == &StructureDefinitionKind::resource()
+                                    || kind == &StructureDefinitionKind::null() =>
                                 {
                                     level == "resource"
                                 }
-                                kind if kind == &StructureDefinitionKind::COMPLEX_TYPE => {
+                                kind if kind == &StructureDefinitionKind::complex_type() => {
                                     level == "complex-type"
                                 }
-                                kind if kind == &StructureDefinitionKind::PRIMITIVE_TYPE => {
+                                kind if kind == &StructureDefinitionKind::primitive_type() => {
                                     level == "primitive-type"
                                 }
                                 _ => false,
@@ -556,15 +556,15 @@ pub mod load {
                 let filtered_resources = resources.filter(|sd| {
                     if let Some(level) = level {
                         match &sd.kind {
-                            kind if kind == &StructureDefinitionKind::RESOURCE
-                                || kind == &StructureDefinitionKind::NULL =>
+                            kind if kind == &StructureDefinitionKind::resource()
+                                || kind == &StructureDefinitionKind::null() =>
                             {
                                 level == "resource"
                             }
-                            kind if kind == &StructureDefinitionKind::COMPLEX_TYPE => {
+                            kind if kind == &StructureDefinitionKind::complex_type() => {
                                 level == "complex-type"
                             }
-                            kind if kind == &StructureDefinitionKind::PRIMITIVE_TYPE => {
+                            kind if kind == &StructureDefinitionKind::primitive_type() => {
                                 level == "primitive-type"
                             }
                             _ => false,

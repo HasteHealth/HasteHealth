@@ -261,7 +261,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                 ));
 
                 let transaction_bundle = Bundle {
-                    type_: BundleType::TRANSACTION,
+                    type_: BundleType::transaction(),
                     entry: Some(vec![
                         BundleEntry {
                             fullUrl: Some(Box::new(FHIRUri {
@@ -269,7 +269,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                                 ..Default::default()
                             })),
                             request: Some(BundleEntryRequest {
-                                method: HttpVerb::POST,
+                                method: HttpVerb::post(),
                                 url: Box::new(FHIRUri {
                                     value: Some("AccessPolicyV2".to_string()),
                                     ..Default::default()
@@ -301,7 +301,7 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                                 ..Default::default()
                             })),
                             request: Some(BundleEntryRequest {
-                                method: HttpVerb::PUT,
+                                method: HttpVerb::put(),
                                 url: Box::new(FHIRUri {
                                     value: Some(format!("ClientApplication/{}", id)),
                                     ..Default::default()

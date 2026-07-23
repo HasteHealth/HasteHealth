@@ -194,7 +194,7 @@ pub async fn process_batch_bundle<
     }
 
     Ok(Bundle {
-        type_: BundleType::BATCH_RESPONSE,
+        type_: BundleType::batch_response(),
         entry: Some(bundle_response_entries),
         ..Default::default()
     })
@@ -393,7 +393,7 @@ pub async fn process_transaction_bundle<
     };
 
     Ok(Bundle {
-        type_: BundleType::TRANSACTION_RESPONSE,
+        type_: BundleType::transaction_response(),
         entry: Some(response_entries),
         ..Default::default()
     })

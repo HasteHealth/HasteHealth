@@ -78,16 +78,16 @@ async fn get_concepts(
     codesystem: &CodeSystem,
 ) -> Result<Vec<CodeSystemConcept>, OperationOutcomeError> {
     match &codesystem.content {
-        content_type if content_type == &CodesystemContentMode::NOT_PRESENT => {
+        content_type if content_type == &CodesystemContentMode::not_present() => {
             Err(OperationOutcomeError::error(
                 IssueType::not_supported(),
                 "CodeSystem content is 'not-present'".to_string(),
             ))
         }
         content_type
-            if content_type == &CodesystemContentMode::FRAGMENT
-                || content_type == &CodesystemContentMode::COMPLETE
-                || content_type == &CodesystemContentMode::SUPPLEMENT =>
+            if content_type == &CodesystemContentMode::fragment()
+                || content_type == &CodesystemContentMode::complete()
+                || content_type == &CodesystemContentMode::supplement() =>
         {
             Ok(codesystem.concept.clone().unwrap_or_default())
         }

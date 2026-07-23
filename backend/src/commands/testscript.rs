@@ -157,7 +157,7 @@ pub(crate) async fn testscript_commands(
 
                         testreport_entries.push(BundleEntry {
                             request: Some(BundleEntryRequest {
-                                method: HttpVerb::PUT,
+                                method: HttpVerb::put(),
                                 url: Box::new(FHIRUri {
                                     value: Some(format!(
                                         "TestReport/{}",
@@ -178,7 +178,7 @@ pub(crate) async fn testscript_commands(
             }
 
             let testreport_bundle = Bundle {
-                type_: BundleType::TRANSACTION,
+                type_: BundleType::transaction(),
                 entry: Some(testreport_entries),
                 ..Default::default()
             };

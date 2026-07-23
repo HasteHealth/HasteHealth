@@ -236,7 +236,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
             FHIRRequest::Create(request) => build_audit_event(
                 &audit.0,
                 Some(terminology::AuditEventAction::C),
-                &AuditEventSubType::CREATE,
+                &AuditEventSubType::create(),
                 "create",
                 Some(request.resource_type.as_ref().to_string()),
                 request.resource.id().as_ref().map(|s| s.to_string()),
@@ -245,7 +245,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
             FHIRRequest::Read(request) => build_audit_event(
                 &audit.0,
                 Some(terminology::AuditEventAction::R),
-                &AuditEventSubType::READ,
+                &AuditEventSubType::read(),
                 "read",
                 Some(request.resource_type.as_ref().to_string()),
                 Some(request.id.clone()),
@@ -254,7 +254,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
             FHIRRequest::VersionRead(request) => build_audit_event(
                 &audit.0,
                 Some(terminology::AuditEventAction::R),
-                &AuditEventSubType::READ,
+                &AuditEventSubType::read(),
                 "versioned read",
                 Some(request.resource_type.as_ref().to_string()),
                 Some(request.id.clone()),
@@ -267,7 +267,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 UpdateRequest::Instance(instance) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::U),
-                    &AuditEventSubType::UPDATE,
+                    &AuditEventSubType::update(),
                     "update",
                     Some(instance.resource_type.as_ref().to_string()),
                     Some(instance.id.clone()),
@@ -276,7 +276,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 UpdateRequest::Conditional(conditional) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::U),
-                    &AuditEventSubType::UPDATE,
+                    &AuditEventSubType::update(),
                     "conditional update",
                     Some(conditional.resource_type.as_ref().to_string()),
                     conditional.resource.id().as_ref().map(|s| s.to_string()),
@@ -286,7 +286,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
             FHIRRequest::Patch(request) => build_audit_event(
                 &audit.0,
                 Some(terminology::AuditEventAction::U),
-                &AuditEventSubType::PATCH,
+                &AuditEventSubType::patch(),
                 "patch",
                 Some(request.resource_type.as_ref().to_string()),
                 Some(request.id.clone()),
@@ -296,7 +296,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 DeleteRequest::Instance(instance) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::D),
-                    &AuditEventSubType::DELETE,
+                    &AuditEventSubType::delete(),
                     "delete",
                     Some(instance.resource_type.as_ref().to_string()),
                     Some(instance.id.clone()),
@@ -305,7 +305,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 DeleteRequest::Type(type_request) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::D),
-                    &AuditEventSubType::DELETE,
+                    &AuditEventSubType::delete(),
                     "type delete",
                     Some(type_request.resource_type.as_ref().to_string()),
                     None,
@@ -314,7 +314,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 DeleteRequest::System(_) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::D),
-                    &AuditEventSubType::DELETE,
+                    &AuditEventSubType::delete(),
                     "system delete",
                     None,
                     None,
@@ -324,7 +324,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
             FHIRRequest::Capabilities => build_audit_event(
                 &audit.0,
                 Some(terminology::AuditEventAction::R),
-                &AuditEventSubType::CAPABILITIES,
+                &AuditEventSubType::capabilities(),
                 "capability statement",
                 None,
                 None,
@@ -334,7 +334,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 SearchRequest::Type(type_request) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::R),
-                    &AuditEventSubType::SEARCH,
+                    &AuditEventSubType::search(),
                     "type search",
                     Some(type_request.resource_type.as_ref().to_string()),
                     None,
@@ -343,7 +343,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 SearchRequest::System(_) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::R),
-                    &AuditEventSubType::SEARCH,
+                    &AuditEventSubType::search(),
                     "system search",
                     None,
                     None,
@@ -354,7 +354,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 HistoryRequest::Instance(instance) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::R),
-                    &AuditEventSubType::HISTORY_INSTANCE,
+                    &AuditEventSubType::history_instance(),
                     "instance history",
                     Some(instance.resource_type.as_ref().to_string()),
                     Some(instance.id.clone()),
@@ -363,7 +363,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 HistoryRequest::Type(type_request) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::R),
-                    &AuditEventSubType::HISTORY_TYPE,
+                    &AuditEventSubType::history_type(),
                     "type history",
                     Some(type_request.resource_type.as_ref().to_string()),
                     None,
@@ -372,7 +372,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 HistoryRequest::System(_) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::R),
-                    &AuditEventSubType::HISTORY_SYSTEM,
+                    &AuditEventSubType::history_system(),
                     "system history",
                     None,
                     None,
@@ -383,7 +383,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 InvocationRequest::Instance(instance) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::E),
-                    &AuditEventSubType::OPERATION,
+                    &AuditEventSubType::operation(),
                     "instance operation",
                     Some(instance.resource_type.as_ref().to_string()),
                     Some(instance.id.clone()),
@@ -392,7 +392,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 InvocationRequest::Type(type_request) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::E),
-                    &AuditEventSubType::OPERATION,
+                    &AuditEventSubType::operation(),
                     "type operation",
                     Some(type_request.resource_type.as_ref().to_string()),
                     None,
@@ -404,7 +404,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
                 InvocationRequest::System(system_request) => build_audit_event(
                     &audit.0,
                     Some(terminology::AuditEventAction::E),
-                    &AuditEventSubType::OPERATION,
+                    &AuditEventSubType::operation(),
                     "system operation",
                     None,
                     None,
@@ -417,7 +417,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
             FHIRRequest::Batch(_) => build_audit_event(
                 &audit.0,
                 Some(terminology::AuditEventAction::E),
-                &AuditEventSubType::BATCH,
+                &AuditEventSubType::batch(),
                 "batch",
                 Some("Bundle".to_string()),
                 None,
@@ -426,7 +426,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
             FHIRRequest::Transaction(_) => build_audit_event(
                 &audit.0,
                 Some(terminology::AuditEventAction::E),
-                &AuditEventSubType::TRANSACTION,
+                &AuditEventSubType::transaction(),
                 "transaction",
                 Some("Bundle".to_string()),
                 None,
@@ -435,7 +435,7 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
             FHIRRequest::Compartment(request) => build_audit_event(
                 &audit.0,
                 Some(terminology::AuditEventAction::R),
-                &AuditEventSubType::SEARCH,
+                &AuditEventSubType::search(),
                 "compartment search",
                 Some(request.resource_type.as_ref().to_string()),
                 Some(request.id.clone()),
