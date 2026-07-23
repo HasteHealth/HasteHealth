@@ -15,155 +15,6 @@ use thiserror::Error;
 )]
 #[fhir_type = "BackboneElement"]
 #[fhir_serialize_type = "complex"]
-#[doc = "Registered client for the OIDC provider."]
-pub struct IdentityProviderOidcClient {
-    #[primitive]
-    #[doc = "Registered clients id."]
-    pub clientId: Box<FHIRString>,
-    #[primitive]
-    #[doc = "Registered clients secret."]
-    pub secret: Option<Box<FHIRString>>,
-}
-#[derive(
-    Clone,
-    Reflect,
-    Debug,
-    Default,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
-)]
-#[fhir_type = "BackboneElement"]
-#[fhir_serialize_type = "complex"]
-#[doc = "PKCE Configuration"]
-pub struct IdentityProviderOidcPkce {
-    #[primitive]
-    #[doc = "PKCE code challenge method."]
-    pub code_challenge_method:
-        Option<terminology::BoundCode<terminology::IdentityProviderPkceChallengeMethod>>,
-    #[primitive]
-    #[doc = "PKCE enabled."]
-    pub enabled: Option<Box<FHIRBoolean>>,
-}
-#[derive(
-    Clone,
-    Reflect,
-    Debug,
-    Default,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
-)]
-#[fhir_type = "BackboneElement"]
-#[fhir_serialize_type = "complex"]
-#[doc = "OIDC connection configuration for the identity provider."]
-pub struct IdentityProviderOidc {
-    #[primitive]
-    #[doc = "OIDC authorization endpoint."]
-    pub authorization_endpoint: Box<FHIRString>,
-    #[primitive]
-    #[doc = "OIDC token endpoint."]
-    pub token_endpoint: Box<FHIRString>,
-    #[primitive]
-    #[doc = "The OIDC user info endpoint."]
-    pub userinfo_endpoint: Option<Box<FHIRString>>,
-    #[primitive]
-    #[doc = "If included will verify id token based on this jwks keys."]
-    pub jwks_uri: Option<Box<FHIRString>>,
-    #[primitive]
-    #[doc = "Scopes to send to the OIDC provider."]
-    pub scopes: Option<Vec<Box<FHIRString>>>,
-    #[doc = "Registered client for the OIDC provider."]
-    pub client: IdentityProviderOidcClient,
-    #[doc = "PKCE Configuration"]
-    pub pkce: Option<IdentityProviderOidcPkce>,
-}
-#[derive(
-    Clone,
-    Reflect,
-    Debug,
-    Default,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
-)]
-#[fhir_type = "IdentityProvider"]
-#[fhir_serialize_type = "resource"]
-#[doc = "External identity provider configuration."]
-pub struct IdentityProvider {
-    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
-    pub id: Option<String>,
-    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
-    pub meta: Option<Box<Meta>>,
-    #[primitive]
-    #[doc = "The name of the external identity provider."]
-    pub name: Box<FHIRString>,
-    #[primitive]
-    #[doc = "The status of the identity provider."]
-    pub status: terminology::BoundCode<terminology::IdentityProviderStatus>,
-    #[primitive]
-    #[doc = "Method for connecting to external identity provider."]
-    pub accessType: terminology::BoundCode<terminology::IdentityProviderAccessType>,
-    #[doc = "OIDC connection configuration for the identity provider."]
-    pub oidc: Option<IdentityProviderOidc>,
-}
-#[derive(
-    Clone,
-    Reflect,
-    Debug,
-    Default,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
-)]
-#[fhir_type = "Membership"]
-#[fhir_serialize_type = "resource"]
-#[doc = ""]
-pub struct Membership {
-    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
-    pub id: Option<String>,
-    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
-    pub meta: Option<Box<Meta>>,
-    # [reference (targets = ["Patient" , "Practitioner" , "RelatedPerson" , "Person"])]
-    #[doc = ""]
-    pub link: Option<Box<Reference>>,
-    # [reference (targets = ["User"])]
-    #[doc = ""]
-    pub user: Box<Reference>,
-}
-#[derive(
-    Clone,
-    Reflect,
-    Debug,
-    Default,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
-)]
-#[fhir_type = "Project"]
-#[fhir_serialize_type = "resource"]
-#[doc = ""]
-pub struct Project {
-    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
-    pub id: Option<String>,
-    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
-    pub meta: Option<Box<Meta>>,
-    #[primitive]
-    #[doc = ""]
-    pub name: Box<FHIRString>,
-    #[primitive]
-    #[doc = ""]
-    pub fhirVersion: terminology::BoundCode<terminology::SupportedFhirVersion>,
-    #[cardinality(max = 3usize)]
-    # [reference (targets = ["IdentityProvider"])]
-    #[doc = ""]
-    pub identityProvider: Option<Vec<Box<Reference>>>,
-}
-#[derive(
-    Clone,
-    Reflect,
-    Debug,
-    Default,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
-    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
-)]
-#[fhir_type = "BackboneElement"]
-#[fhir_serialize_type = "complex"]
 #[doc = "The operation to retrieve the attribute."]
 pub struct AccessPolicyV2AttributeOperation {
     #[rename_field = "type"]
@@ -311,6 +162,60 @@ pub struct AccessPolicyV2 {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "ClientApplication"]
+#[fhir_serialize_type = "resource"]
+#[doc = ""]
+pub struct ClientApplication {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[primitive]
+    #[doc = ""]
+    pub name: Box<FHIRString>,
+    #[primitive]
+    #[doc = ""]
+    pub description: Option<Box<FHIRString>>,
+    #[primitive]
+    #[cardinality(min = 1usize)]
+    #[doc = "The grant type for this client application."]
+    pub grantType: Vec<terminology::BoundCode<terminology::ClientapplicationGrantType>>,
+    #[primitive]
+    #[doc = ""]
+    pub responseTypes: terminology::BoundCode<terminology::ClientapplicationResponseTypes>,
+    #[primitive]
+    #[doc = "For client credentials (or other confidential authentication methods), the client secret."]
+    pub secret: Option<Box<FHIRString>>,
+    #[primitive]
+    #[cardinality(max = 5usize)]
+    #[doc = "Array of redirection URI strings for use in redirect-based flows such as the authorization code and implicit flows.  As required by Section 2 of OAuth 2.0 [RFC6749], clients using flows with redirection MUST register their redirection URI values. Authorization servers that support dynamic registration for redirect-based flows MUST implement support for this metadata value."]
+    pub redirectUri: Option<Vec<Box<FHIRString>>>,
+    #[primitive]
+    #[doc = ""]
+    pub uri: Option<Box<FHIRUri>>,
+    #[primitive]
+    #[doc = ""]
+    pub logoUri: Option<Box<FHIRUri>>,
+    #[primitive]
+    #[doc = ""]
+    pub scope: Option<Box<FHIRString>>,
+    #[doc = ""]
+    pub contact: Option<Box<ContactPoint>>,
+    #[primitive]
+    #[doc = ""]
+    pub tosUri: Option<Box<FHIRUri>>,
+    #[primitive]
+    #[doc = ""]
+    pub policyUri: Option<Box<FHIRUri>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
 #[fhir_type = "BackboneElement"]
 #[fhir_serialize_type = "complex"]
 #[doc = "The component when no sub-components are present."]
@@ -404,10 +309,132 @@ pub struct HL7V2 {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
-#[fhir_type = "ClientApplication"]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Registered client for the OIDC provider."]
+pub struct IdentityProviderOidcClient {
+    #[primitive]
+    #[doc = "Registered clients id."]
+    pub clientId: Box<FHIRString>,
+    #[primitive]
+    #[doc = "Registered clients secret."]
+    pub secret: Option<Box<FHIRString>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "PKCE Configuration"]
+pub struct IdentityProviderOidcPkce {
+    #[primitive]
+    #[doc = "PKCE code challenge method."]
+    pub code_challenge_method:
+        Option<terminology::BoundCode<terminology::IdentityProviderPkceChallengeMethod>>,
+    #[primitive]
+    #[doc = "PKCE enabled."]
+    pub enabled: Option<Box<FHIRBoolean>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "OIDC connection configuration for the identity provider."]
+pub struct IdentityProviderOidc {
+    #[primitive]
+    #[doc = "OIDC authorization endpoint."]
+    pub authorization_endpoint: Box<FHIRString>,
+    #[primitive]
+    #[doc = "OIDC token endpoint."]
+    pub token_endpoint: Box<FHIRString>,
+    #[primitive]
+    #[doc = "The OIDC user info endpoint."]
+    pub userinfo_endpoint: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "If included will verify id token based on this jwks keys."]
+    pub jwks_uri: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Scopes to send to the OIDC provider."]
+    pub scopes: Option<Vec<Box<FHIRString>>>,
+    #[doc = "Registered client for the OIDC provider."]
+    pub client: IdentityProviderOidcClient,
+    #[doc = "PKCE Configuration"]
+    pub pkce: Option<IdentityProviderOidcPkce>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "IdentityProvider"]
+#[fhir_serialize_type = "resource"]
+#[doc = "External identity provider configuration."]
+pub struct IdentityProvider {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[primitive]
+    #[doc = "The name of the external identity provider."]
+    pub name: Box<FHIRString>,
+    #[primitive]
+    #[doc = "The status of the identity provider."]
+    pub status: terminology::BoundCode<terminology::IdentityProviderStatus>,
+    #[primitive]
+    #[doc = "Method for connecting to external identity provider."]
+    pub accessType: terminology::BoundCode<terminology::IdentityProviderAccessType>,
+    #[doc = "OIDC connection configuration for the identity provider."]
+    pub oidc: Option<IdentityProviderOidc>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "Membership"]
 #[fhir_serialize_type = "resource"]
 #[doc = ""]
-pub struct ClientApplication {
+pub struct Membership {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    # [reference (targets = ["Patient" , "Practitioner" , "RelatedPerson" , "Person"])]
+    #[doc = ""]
+    pub link: Option<Box<Reference>>,
+    # [reference (targets = ["User"])]
+    #[doc = ""]
+    pub user: Box<Reference>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
+#[fhir_type = "Project"]
+#[fhir_serialize_type = "resource"]
+#[doc = ""]
+pub struct Project {
     #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
     pub id: Option<String>,
     #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
@@ -417,38 +444,11 @@ pub struct ClientApplication {
     pub name: Box<FHIRString>,
     #[primitive]
     #[doc = ""]
-    pub description: Option<Box<FHIRString>>,
-    #[primitive]
-    #[cardinality(min = 1usize)]
-    #[doc = "The grant type for this client application."]
-    pub grantType: Vec<terminology::BoundCode<terminology::ClientapplicationGrantType>>,
-    #[primitive]
+    pub fhirVersion: terminology::BoundCode<terminology::SupportedFhirVersion>,
+    #[cardinality(max = 3usize)]
+    # [reference (targets = ["IdentityProvider"])]
     #[doc = ""]
-    pub responseTypes: terminology::BoundCode<terminology::ClientapplicationResponseTypes>,
-    #[primitive]
-    #[doc = "For client credentials (or other confidential authentication methods), the client secret."]
-    pub secret: Option<Box<FHIRString>>,
-    #[primitive]
-    #[cardinality(max = 5usize)]
-    #[doc = "Array of redirection URI strings for use in redirect-based flows such as the authorization code and implicit flows.  As required by Section 2 of OAuth 2.0 [RFC6749], clients using flows with redirection MUST register their redirection URI values. Authorization servers that support dynamic registration for redirect-based flows MUST implement support for this metadata value."]
-    pub redirectUri: Option<Vec<Box<FHIRString>>>,
-    #[primitive]
-    #[doc = ""]
-    pub uri: Option<Box<FHIRUri>>,
-    #[primitive]
-    #[doc = ""]
-    pub logoUri: Option<Box<FHIRUri>>,
-    #[primitive]
-    #[doc = ""]
-    pub scope: Option<Box<FHIRString>>,
-    #[doc = ""]
-    pub contact: Option<Box<ContactPoint>>,
-    #[primitive]
-    #[doc = ""]
-    pub tosUri: Option<Box<FHIRUri>>,
-    #[primitive]
-    #[doc = ""]
-    pub policyUri: Option<Box<FHIRUri>>,
+    pub identityProvider: Option<Vec<Box<Reference>>>,
 }
 #[derive(
     Clone,
@@ -29584,12 +29584,12 @@ pub struct ViewDefinition {
 #[fhir_serialize_type = "enum-variant"]
 #[serde(tag = "resourceType")]
 pub enum Resource {
+    AccessPolicyV2(AccessPolicyV2),
+    ClientApplication(ClientApplication),
+    HL7V2(HL7V2),
     IdentityProvider(IdentityProvider),
     Membership(Membership),
     Project(Project),
-    AccessPolicyV2(AccessPolicyV2),
-    HL7V2(HL7V2),
-    ClientApplication(ClientApplication),
     User(User),
     Account(Account),
     ActivityDefinition(ActivityDefinition),
@@ -29746,12 +29746,12 @@ impl Resource {
     }
     pub fn resource_type(&self) -> ResourceType {
         match self {
+            Resource::AccessPolicyV2(_) => ResourceType::AccessPolicyV2,
+            Resource::ClientApplication(_) => ResourceType::ClientApplication,
+            Resource::HL7V2(_) => ResourceType::HL7V2,
             Resource::IdentityProvider(_) => ResourceType::IdentityProvider,
             Resource::Membership(_) => ResourceType::Membership,
             Resource::Project(_) => ResourceType::Project,
-            Resource::AccessPolicyV2(_) => ResourceType::AccessPolicyV2,
-            Resource::HL7V2(_) => ResourceType::HL7V2,
-            Resource::ClientApplication(_) => ResourceType::ClientApplication,
             Resource::User(_) => ResourceType::User,
             Resource::Account(_) => ResourceType::Account,
             Resource::ActivityDefinition(_) => ResourceType::ActivityDefinition,
@@ -29914,12 +29914,12 @@ impl Resource {
     }
     pub fn id<'a>(&'a self) -> &'a Option<String> {
         match self {
+            Resource::AccessPolicyV2(r) => &r.id,
+            Resource::ClientApplication(r) => &r.id,
+            Resource::HL7V2(r) => &r.id,
             Resource::IdentityProvider(r) => &r.id,
             Resource::Membership(r) => &r.id,
             Resource::Project(r) => &r.id,
-            Resource::AccessPolicyV2(r) => &r.id,
-            Resource::HL7V2(r) => &r.id,
-            Resource::ClientApplication(r) => &r.id,
             Resource::User(r) => &r.id,
             Resource::Account(r) => &r.id,
             Resource::ActivityDefinition(r) => &r.id,
@@ -30080,12 +30080,12 @@ pub enum ResourceTypeError {
     Debug, Clone, PartialEq, Eq, Hash, serde :: Deserialize, serde :: Serialize, PartialOrd, Ord,
 )]
 pub enum ResourceType {
+    AccessPolicyV2,
+    ClientApplication,
+    HL7V2,
     IdentityProvider,
     Membership,
     Project,
-    AccessPolicyV2,
-    HL7V2,
-    ClientApplication,
     User,
     Account,
     ActivityDefinition,
@@ -30241,6 +30241,15 @@ impl ResourceType {
         data: &str,
     ) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
         match self {
+            ResourceType::AccessPolicyV2 => Ok(Resource::AccessPolicyV2(serde_json::from_str::<
+                AccessPolicyV2,
+            >(data)?)),
+            ResourceType::ClientApplication => {
+                Ok(Resource::ClientApplication(serde_json::from_str::<
+                    ClientApplication,
+                >(data)?))
+            }
+            ResourceType::HL7V2 => Ok(Resource::HL7V2(serde_json::from_str::<HL7V2>(data)?)),
             ResourceType::IdentityProvider => {
                 Ok(Resource::IdentityProvider(serde_json::from_str::<
                     IdentityProvider,
@@ -30250,15 +30259,6 @@ impl ResourceType {
                 serde_json::from_str::<Membership>(data)?,
             )),
             ResourceType::Project => Ok(Resource::Project(serde_json::from_str::<Project>(data)?)),
-            ResourceType::AccessPolicyV2 => Ok(Resource::AccessPolicyV2(serde_json::from_str::<
-                AccessPolicyV2,
-            >(data)?)),
-            ResourceType::HL7V2 => Ok(Resource::HL7V2(serde_json::from_str::<HL7V2>(data)?)),
-            ResourceType::ClientApplication => {
-                Ok(Resource::ClientApplication(serde_json::from_str::<
-                    ClientApplication,
-                >(data)?))
-            }
             ResourceType::User => Ok(Resource::User(serde_json::from_str::<User>(data)?)),
             ResourceType::Account => Ok(Resource::Account(serde_json::from_str::<Account>(data)?)),
             ResourceType::ActivityDefinition => {
@@ -30783,12 +30783,12 @@ impl ResourceType {
 impl AsRef<str> for ResourceType {
     fn as_ref(&self) -> &str {
         match self {
+            ResourceType::AccessPolicyV2 => "AccessPolicyV2",
+            ResourceType::ClientApplication => "ClientApplication",
+            ResourceType::HL7V2 => "HL7V2",
             ResourceType::IdentityProvider => "IdentityProvider",
             ResourceType::Membership => "Membership",
             ResourceType::Project => "Project",
-            ResourceType::AccessPolicyV2 => "AccessPolicyV2",
-            ResourceType::HL7V2 => "HL7V2",
-            ResourceType::ClientApplication => "ClientApplication",
             ResourceType::User => "User",
             ResourceType::Account => "Account",
             ResourceType::ActivityDefinition => "ActivityDefinition",
@@ -30944,12 +30944,12 @@ impl TryFrom<String> for ResourceType {
     type Error = ResourceTypeError;
     fn try_from(s: String) -> Result<Self, Self::Error> {
         match s.as_str() {
+            "AccessPolicyV2" => Ok(ResourceType::AccessPolicyV2),
+            "ClientApplication" => Ok(ResourceType::ClientApplication),
+            "HL7V2" => Ok(ResourceType::HL7V2),
             "IdentityProvider" => Ok(ResourceType::IdentityProvider),
             "Membership" => Ok(ResourceType::Membership),
             "Project" => Ok(ResourceType::Project),
-            "AccessPolicyV2" => Ok(ResourceType::AccessPolicyV2),
-            "HL7V2" => Ok(ResourceType::HL7V2),
-            "ClientApplication" => Ok(ResourceType::ClientApplication),
             "User" => Ok(ResourceType::User),
             "Account" => Ok(ResourceType::Account),
             "ActivityDefinition" => Ok(ResourceType::ActivityDefinition),
@@ -31110,12 +31110,12 @@ impl TryFrom<&str> for ResourceType {
     type Error = ResourceTypeError;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s {
+            "AccessPolicyV2" => Ok(ResourceType::AccessPolicyV2),
+            "ClientApplication" => Ok(ResourceType::ClientApplication),
+            "HL7V2" => Ok(ResourceType::HL7V2),
             "IdentityProvider" => Ok(ResourceType::IdentityProvider),
             "Membership" => Ok(ResourceType::Membership),
             "Project" => Ok(ResourceType::Project),
-            "AccessPolicyV2" => Ok(ResourceType::AccessPolicyV2),
-            "HL7V2" => Ok(ResourceType::HL7V2),
-            "ClientApplication" => Ok(ResourceType::ClientApplication),
             "User" => Ok(ResourceType::User),
             "Account" => Ok(ResourceType::Account),
             "ActivityDefinition" => Ok(ResourceType::ActivityDefinition),

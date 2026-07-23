@@ -3,16 +3,18 @@ use haste_fhir_model::r4::generated::resources::*;
 use haste_fhir_model::r4::generated::types::*;
 use haste_fhir_operation_error::*;
 use haste_fhir_ops::derive::{FromParameters, ToParameters};
-#[doc = "This operation is used to return the current status information about one or more topic-based Subscriptions in R4."]
-pub mod BackportSubscriptionStatus {
+#[doc = "This operation is used to search for and return notifications that have been previously triggered by a topic-based Subscription in R4."]
+pub mod BackportSubscriptionEvents {
     use super::*;
-    pub const CODE: &str = "status";
+    pub const CODE: &str = "events";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
-        #[doc = "At the Instance level, this parameter is ignored.  At the Resource level, one or more parameters containing a FHIR id for a Subscription to get status information for. In the absence of any specified ids, the server returns the status for all Subscriptions available to the caller. Multiple values are joined via OR (e.g., \"id1\" OR \"id2\")."]
-        pub id: Option<Vec<FHIRId>>,
-        #[doc = "At the Instance level, this parameter is ignored. At the Resource level, a Subscription status to filter by (e.g., \"active\"). In the absence of any specified status values, the server does not filter contents based on the status. Multiple values are joined via OR (e.g., \"error\" OR \"off\")."]
-        pub status: Option<Vec<FHIRCode>>,
+        #[doc = "The starting event number, inclusive of this event (lower bound)."]
+        pub eventsSinceNumber: Option<FHIRString>,
+        #[doc = "The ending event number, inclusive of this event (upper bound)."]
+        pub eventsUntilNumber: Option<FHIRString>,
+        #[doc = "Requested content style of returned data. Codes from backport-content-value-set (e.g., empty, id-only, full-resource). This is a hint to the server what a client would prefer, and MAY be ignored."]
+        pub content: Option<FHIRCode>,
     }
     impl From<Input> for Resource {
         fn from(value: Input) -> Self {
@@ -25,7 +27,7 @@ pub mod BackportSubscriptionStatus {
     }
     #[derive(Debug, FromParameters)]
     pub struct Output {
-        #[doc = "The operation returns a bundle containing one or more subscription status resources, one per Subscription being queried. The Bundle type is \"searchset\"."]
+        #[doc = "The operation returns a valid notification bundle, with the first entry being the subscription status information resource. The bundle type is \"history\"."]
         #[parameter_rename = "return"]
         pub return_: Bundle,
     }
@@ -111,18 +113,16 @@ pub mod BackportSubscriptionResend {
         }
     }
 }
-#[doc = "This operation is used to search for and return notifications that have been previously triggered by a topic-based Subscription in R4."]
-pub mod BackportSubscriptionEvents {
+#[doc = "This operation is used to return the current status information about one or more topic-based Subscriptions in R4."]
+pub mod BackportSubscriptionStatus {
     use super::*;
-    pub const CODE: &str = "events";
+    pub const CODE: &str = "status";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
-        #[doc = "The starting event number, inclusive of this event (lower bound)."]
-        pub eventsSinceNumber: Option<FHIRString>,
-        #[doc = "The ending event number, inclusive of this event (upper bound)."]
-        pub eventsUntilNumber: Option<FHIRString>,
-        #[doc = "Requested content style of returned data. Codes from backport-content-value-set (e.g., empty, id-only, full-resource). This is a hint to the server what a client would prefer, and MAY be ignored."]
-        pub content: Option<FHIRCode>,
+        #[doc = "At the Instance level, this parameter is ignored.  At the Resource level, one or more parameters containing a FHIR id for a Subscription to get status information for. In the absence of any specified ids, the server returns the status for all Subscriptions available to the caller. Multiple values are joined via OR (e.g., \"id1\" OR \"id2\")."]
+        pub id: Option<Vec<FHIRId>>,
+        #[doc = "At the Instance level, this parameter is ignored. At the Resource level, a Subscription status to filter by (e.g., \"active\"). In the absence of any specified status values, the server does not filter contents based on the status. Multiple values are joined via OR (e.g., \"error\" OR \"off\")."]
+        pub status: Option<Vec<FHIRCode>>,
     }
     impl From<Input> for Resource {
         fn from(value: Input) -> Self {
@@ -135,13 +135,236 @@ pub mod BackportSubscriptionEvents {
     }
     #[derive(Debug, FromParameters)]
     pub struct Output {
-        #[doc = "The operation returns a valid notification bundle, with the first entry being the subscription status information resource. The bundle type is \"history\"."]
+        #[doc = "The operation returns a bundle containing one or more subscription status resources, one per Subscription being queried. The Bundle type is \"searchset\"."]
         #[parameter_rename = "return"]
         pub return_: Bundle,
     }
     impl From<Output> for Resource {
         fn from(value: Output) -> Self {
             Resource::Bundle(value.return_)
+        }
+    }
+}
+#[doc = "Get Project resource for the current project."]
+pub mod ProjectInformation {
+    use super::*;
+    pub const CODE: &str = "current-project";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[doc = "Users current project."]
+        pub project: Project,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
+#[doc = "Get tenant information for the current tenant."]
+pub mod TenantInformation {
+    use super::*;
+    pub const CODE: &str = "current-tenant";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[doc = "tenant id"]
+        pub id: FHIRString,
+        #[doc = "tenant subscription level"]
+        pub subscription: FHIRCode,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
+#[doc = "Get tenant endpoint information for the current tenant."]
+pub mod TenantEndpointInformation {
+    use super::*;
+    pub const CODE: &str = "endpoints";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[doc = "FHIR R4 Endpoint URL."]
+        #[parameter_rename = "fhir-r4-base-url"]
+        pub fhir_r4_base_url: FHIRUri,
+        #[doc = "FHIR R4 Capabilities URL."]
+        #[parameter_rename = "fhir-r4-capabilities-url"]
+        pub fhir_r4_capabilities_url: FHIRUri,
+        #[doc = "OIDC Discovery URL."]
+        #[parameter_rename = "oidc-discovery-url"]
+        pub oidc_discovery_url: FHIRUri,
+        #[doc = "OIDC Token Endpoint."]
+        #[parameter_rename = "oidc-token-endpoint"]
+        pub oidc_token_endpoint: FHIRUri,
+        #[doc = "OIDC Authorize Endpoint."]
+        #[parameter_rename = "oidc-authorize-endpoint"]
+        pub oidc_authorize_endpoint: FHIRUri,
+        #[doc = "OIDC JWKS Endpoint."]
+        #[parameter_rename = "oidc-jwks-endpoint"]
+        pub oidc_jwks_endpoint: FHIRUri,
+        #[doc = "Model context protocol endpoint."]
+        #[parameter_rename = "mcp-endpoint"]
+        pub mcp_endpoint: FHIRUri,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
+#[doc = "Evaluate an Access Policy."]
+pub mod HasteHealthEvaluatePolicy {
+    use super::*;
+    pub const CODE: &str = "evaluate-policy";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        #[doc = "The user to evaluate the policy against. Defaults to logged in user if not present."]
+        pub user: Option<Reference>,
+        #[doc = "The requests to evaluate against the policy."]
+        pub request: Bundle,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
+    pub struct Output {
+        #[doc = "The result of the policy evaluation."]
+        #[parameter_rename = "return"]
+        pub return_: OperationOutcome,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::OperationOutcome(value.return_)
+        }
+    }
+}
+#[doc = "Parse HL7v2 messages."]
+pub mod Hl7v2Parse {
+    use super::*;
+    pub const CODE: &str = "hl7v2-parse";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        #[doc = "HL7v2 message to be parsed."]
+        pub hl7v2: FHIRString,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[doc = "Parsed HL7v2 message."]
+        pub hl7v2: HL7V2,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
+#[doc = "Get the registration information for an identity provider."]
+pub mod HasteHealthIdpRegistrationInfo {
+    use super::*;
+    pub const CODE: &str = "registration-info";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct OutputInformation {
+        #[doc = "The name of the property."]
+        pub name: FHIRString,
+        #[doc = "the value of the property."]
+        pub value: FHIRString,
+    }
+    impl From<OutputInformation> for Resource {
+        fn from(value: OutputInformation) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[doc = "IdentityProviders registration information."]
+        #[parameter_nested]
+        pub information: Option<Vec<OutputInformation>>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
         }
     }
 }
@@ -227,167 +450,6 @@ pub mod HasteHealthListRefreshTokens {
         }
     }
 }
-#[doc = "Parse HL7v2 messages."]
-pub mod Hl7v2Parse {
-    use super::*;
-    pub const CODE: &str = "hl7v2-parse";
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Input {
-        #[doc = "HL7v2 message to be parsed."]
-        pub hl7v2: FHIRString,
-    }
-    impl From<Input> for Resource {
-        fn from(value: Input) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Output {
-        #[doc = "Parsed HL7v2 message."]
-        pub hl7v2: HL7V2,
-    }
-    impl From<Output> for Resource {
-        fn from(value: Output) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-}
-#[doc = "Get tenant endpoint information for the current tenant."]
-pub mod TenantEndpointInformation {
-    use super::*;
-    pub const CODE: &str = "endpoints";
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Input {}
-    impl From<Input> for Resource {
-        fn from(value: Input) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Output {
-        #[doc = "FHIR R4 Endpoint URL."]
-        #[parameter_rename = "fhir-r4-base-url"]
-        pub fhir_r4_base_url: FHIRUri,
-        #[doc = "FHIR R4 Capabilities URL."]
-        #[parameter_rename = "fhir-r4-capabilities-url"]
-        pub fhir_r4_capabilities_url: FHIRUri,
-        #[doc = "OIDC Discovery URL."]
-        #[parameter_rename = "oidc-discovery-url"]
-        pub oidc_discovery_url: FHIRUri,
-        #[doc = "OIDC Token Endpoint."]
-        #[parameter_rename = "oidc-token-endpoint"]
-        pub oidc_token_endpoint: FHIRUri,
-        #[doc = "OIDC Authorize Endpoint."]
-        #[parameter_rename = "oidc-authorize-endpoint"]
-        pub oidc_authorize_endpoint: FHIRUri,
-        #[doc = "OIDC JWKS Endpoint."]
-        #[parameter_rename = "oidc-jwks-endpoint"]
-        pub oidc_jwks_endpoint: FHIRUri,
-        #[doc = "Model context protocol endpoint."]
-        #[parameter_rename = "mcp-endpoint"]
-        pub mcp_endpoint: FHIRUri,
-    }
-    impl From<Output> for Resource {
-        fn from(value: Output) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-}
-#[doc = "Get the registration information for an identity provider."]
-pub mod HasteHealthIdpRegistrationInfo {
-    use super::*;
-    pub const CODE: &str = "registration-info";
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Input {}
-    impl From<Input> for Resource {
-        fn from(value: Input) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct OutputInformation {
-        #[doc = "The name of the property."]
-        pub name: FHIRString,
-        #[doc = "the value of the property."]
-        pub value: FHIRString,
-    }
-    impl From<OutputInformation> for Resource {
-        fn from(value: OutputInformation) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Output {
-        #[doc = "IdentityProviders registration information."]
-        #[parameter_nested]
-        pub information: Option<Vec<OutputInformation>>,
-    }
-    impl From<Output> for Resource {
-        fn from(value: Output) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-}
-#[doc = "Evaluate an Access Policy."]
-pub mod HasteHealthEvaluatePolicy {
-    use super::*;
-    pub const CODE: &str = "evaluate-policy";
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Input {
-        #[doc = "The user to evaluate the policy against. Defaults to logged in user if not present."]
-        pub user: Option<Reference>,
-        #[doc = "The requests to evaluate against the policy."]
-        pub request: Bundle,
-    }
-    impl From<Input> for Resource {
-        fn from(value: Input) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-    #[derive(Debug, FromParameters)]
-    pub struct Output {
-        #[doc = "The result of the policy evaluation."]
-        #[parameter_rename = "return"]
-        pub return_: OperationOutcome,
-    }
-    impl From<Output> for Resource {
-        fn from(value: Output) -> Self {
-            Resource::OperationOutcome(value.return_)
-        }
-    }
-}
 #[doc = "Delete scope from user accepted scopes for the client."]
 pub mod HasteHealthDeleteScope {
     use super::*;
@@ -456,68 +518,6 @@ pub mod HasteHealthListScopes {
         #[doc = "The result of the operation."]
         #[parameter_nested]
         pub scopes: Option<Vec<OutputScopes>>,
-    }
-    impl From<Output> for Resource {
-        fn from(value: Output) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-}
-#[doc = "Get Project resource for the current project."]
-pub mod ProjectInformation {
-    use super::*;
-    pub const CODE: &str = "current-project";
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Input {}
-    impl From<Input> for Resource {
-        fn from(value: Input) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Output {
-        #[doc = "Users current project."]
-        pub project: Project,
-    }
-    impl From<Output> for Resource {
-        fn from(value: Output) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-}
-#[doc = "Get tenant information for the current tenant."]
-pub mod TenantInformation {
-    use super::*;
-    pub const CODE: &str = "current-tenant";
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Input {}
-    impl From<Input> for Resource {
-        fn from(value: Input) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Output {
-        #[doc = "tenant id"]
-        pub id: FHIRString,
-        #[doc = "tenant subscription level"]
-        pub subscription: FHIRCode,
     }
     impl From<Output> for Resource {
         fn from(value: Output) -> Self {
@@ -631,7 +631,8 @@ pub mod CapabilityStatementConforms {
         #[doc = "Outcome of the CapabilityStatement test"]
         pub issues: OperationOutcome,
         #[doc = "The intersection of the functionality described by the CapabilityStatement resources"]
-        pub union: Option<CapabilityStatement>,
+        #[parameter_rename = "union"]
+        pub union_: Option<CapabilityStatement>,
         #[doc = "The union of the functionality described by the CapabilityStatement resources"]
         pub intersection: Option<CapabilityStatement>,
     }
