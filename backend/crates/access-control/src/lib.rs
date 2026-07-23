@@ -72,16 +72,13 @@ pub async fn evaluate_policies<
     for policy in policies {
         let result = evaluate_policy(context.clone(), policy.clone()).await;
         if let Ok(permission) = result {
-            match permission {
-                PermissionLevel::Allow => {
-                    return Arc::into_inner(context).ok_or_else(|| {
-                        OperationOutcomeError::error(
-                            IssueType::forbidden(),
-                            "Failed to retrieve policy context.".to_string(),
-                        )
-                    });
-                }
-                _ => {}
+            if permission == PermissionLevel::Allow {
+                return Arc::into_inner(context).ok_or_else(|| {
+                    OperationOutcomeError::error(
+                        IssueType::forbidden(),
+                        "Failed to retrieve policy context.".to_string(),
+                    )
+                });
             }
         } else if let Err(e) = result {
             outcomes.push(e);
@@ -90,6 +87,6 @@ pub async fn evaluate_policies<
 
     Err(OperationOutcomeError::error(
         IssueType::forbidden(),
-        format!("No policy has granted access to your request."),
+        "No policy has granted access to your request.".to_string(),
     ))
 }

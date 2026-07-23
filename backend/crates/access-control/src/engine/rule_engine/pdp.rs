@@ -202,7 +202,7 @@ async fn evaluate_access_policy_rule<
 
         combine_behavior
             if combine_behavior == Some(&AccessPolicyv2CombineBehavior::null())
-                || combine_behavior == None =>
+                || combine_behavior.is_none() =>
         {
             evaluate_leaf_rule(policy_context, rule_pointer).await
         }
