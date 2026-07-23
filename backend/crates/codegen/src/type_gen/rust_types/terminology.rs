@@ -150,17 +150,6 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
 
         let code_vec = codes.iter().map(|c| &c.code).collect::<Vec<_>>();
 
-        let code_const_variants = codes.iter().enumerate().map(|(i, c)| {
-            let variant_name = format_ident!("{}", &format_const_code_name(&c.code).to_uppercase());
-            let display = c.description.as_ref().map(|d| d.as_str()).unwrap_or("");
-            let index = i as u16;
-
-            quote! {
-                #[doc = #display]
-                pub const #variant_name: BoundCode<Self> = BoundCode::from_index(#index);
-            }
-        });
-
         let code_fn_variants = codes.iter().enumerate().map(|(i, c)| {
             let mut variant_name_str = format_const_code_name(&c.code).to_lowercase();
             // In event of concurrent _ characters, replace with a single _ character
@@ -195,10 +184,6 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
                 }
 
                 impl #terminology_enum_name {
-                    #(#code_const_variants)*
-                    #[doc = "Element present without a value."]
-                    pub const NULL: BoundCode<Self> = BoundCode::null();
-
                     #(#code_fn_variants)*
 
                     #[inline]
