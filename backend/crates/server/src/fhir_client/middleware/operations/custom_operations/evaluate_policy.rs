@@ -147,7 +147,7 @@ pub fn evaluate_policy_op<
                                 PermissionLevel::Allow => Ok(HasteHealthEvaluatePolicy::Output {
                                     return_: OperationOutcome {
                                         issue: vec![OperationOutcomeIssue {
-                                            severity: IssueSeverity::INFORMATION,
+                                            severity: IssueSeverity::information(),
                                             code: IssueType::informational(),
                                             diagnostics: Some(Box::new(FHIRString {
                                                 value: Some(
@@ -163,7 +163,7 @@ pub fn evaluate_policy_op<
                                 _ => Ok(HasteHealthEvaluatePolicy::Output {
                                     return_: OperationOutcome {
                                         issue: vec![OperationOutcomeIssue {
-                                            severity: IssueSeverity::INFORMATION,
+                                            severity: IssueSeverity::information(),
                                             code: IssueType::informational(),
                                             diagnostics: Some(Box::new(FHIRString {
                                                 value: Some(

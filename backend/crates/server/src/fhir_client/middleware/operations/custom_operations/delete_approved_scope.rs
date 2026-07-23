@@ -64,7 +64,7 @@ pub fn delete_approved_scope_op<
                     Ok(HasteHealthDeleteScope::Output {
                         return_: OperationOutcome {
                             issue: vec![OperationOutcomeIssue {
-                                severity: IssueSeverity::INFORMATION,
+                                severity: IssueSeverity::information(),
                                 code: IssueType::informational(),
                                 diagnostics: Some(Box::new(FHIRString {
                                     value: Some(format!(

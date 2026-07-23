@@ -62,7 +62,7 @@ pub fn validate_parameters(
         let min = parameter_definition.min.value.unwrap_or(0);
         if count < min {
             issues.push(create_issue(
-                IssueSeverity::ERROR,
+                IssueSeverity::error(),
                 IssueType::invariant(),
                 format!(
                     "Parameter '{}' requires at least {} occurrence(s) but only {} were supplied.",
@@ -76,7 +76,7 @@ pub fn validate_parameters(
             if max_str != "*" {
                 if let Ok(max) = max_str.parse::<i64>() {
                     if count > max {
-                        issues.push(create_issue(IssueSeverity::ERROR, IssueType::invariant(),
+                        issues.push(create_issue(IssueSeverity::error(), IssueType::invariant(),
                         format!(
                                 "Parameter '{}' allows a maximum of {} occurrence(s) but {} were supplied.",
                                 name, max, count
@@ -100,7 +100,7 @@ pub fn validate_parameters(
 
                 if type_ != type_name.as_deref().unwrap_or_default() {
                     issues.push(create_issue(
-                        IssueSeverity::ERROR,
+                        IssueSeverity::error(),
                         IssueType::invalid(),
                         format!(
                             "Parameter '{}' expects type '{}' but found '{}'.",
@@ -137,7 +137,7 @@ pub fn validate_parameters(
         if !defined {
             let display_direction = direction.as_str();
             issues.push(create_issue(
-                IssueSeverity::ERROR,
+                IssueSeverity::error(),
                 IssueType::invalid(),
                 format!(
                     "Parameter '{}' is not defined for the '{}' direction.",

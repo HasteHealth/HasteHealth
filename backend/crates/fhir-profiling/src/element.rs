@@ -96,7 +96,7 @@ async fn validate_types_and_profiles_if_present<'a>(
     } else {
         Ok(vec![outcome_issue(
             &Path::new(),
-            IssueSeverity::ERROR,
+            IssueSeverity::error(),
             IssueType::value(),
             format!(
                 "Type '{}' is not allowed for element '{}'",
@@ -209,7 +209,7 @@ pub async fn validate_singular_element<'a>(
     {
         issues.push(outcome_issue(
             value_path,
-            IssueSeverity::ERROR,
+            IssueSeverity::error(),
             IssueType::value(),
             format!("Value does not match pattern: {:?}", pattern),
         ));
@@ -220,7 +220,7 @@ pub async fn validate_singular_element<'a>(
     {
         issues.push(outcome_issue(
             value_path,
-            IssueSeverity::ERROR,
+            IssueSeverity::error(),
             IssueType::value(),
             format!("Value does not match fixed value: {:?}", fixed_value),
         ));

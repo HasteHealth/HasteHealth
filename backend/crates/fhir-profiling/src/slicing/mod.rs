@@ -544,7 +544,7 @@ fn validate_slice_cardinality(
     if slice_locs.len() < min as usize {
         issues.push(outcome_issue(
             slice_locs.first().unwrap_or(&Path::new()),
-            IssueSeverity::ERROR,
+            IssueSeverity::error(),
             IssueType::value(),
             format!(
                  "Profile: '{}' Element: '{}' Minimum number of required values not met expected at least '{}', found '{}'",
@@ -561,7 +561,7 @@ fn validate_slice_cardinality(
             if slice_locs.len() > fixed_max as usize {
                 issues.push(outcome_issue(
                     slice_locs.first().unwrap_or(&Path::new()),
-                    IssueSeverity::ERROR,
+                    IssueSeverity::error(),
                     IssueType::value(),
                     format!(
                         "Cardinality too high: expected at most '{}', found '{}'",

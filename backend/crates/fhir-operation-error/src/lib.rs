@@ -67,28 +67,28 @@ impl OperationOutcomeError {
     pub fn fatal(code: BoundCode<IssueType>, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome(IssueSeverity::FATAL, code, diagnostic),
+            create_operation_outcome(IssueSeverity::fatal(), code, diagnostic),
         )
     }
     #[must_use]
     pub fn error(code: BoundCode<IssueType>, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome(IssueSeverity::ERROR, code, diagnostic),
+            create_operation_outcome(IssueSeverity::error(), code, diagnostic),
         )
     }
     #[must_use]
     pub fn warning(code: BoundCode<IssueType>, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome(IssueSeverity::WARNING, code, diagnostic),
+            create_operation_outcome(IssueSeverity::warning(), code, diagnostic),
         )
     }
     #[must_use]
     pub fn information(code: BoundCode<IssueType>, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome(IssueSeverity::INFORMATION, code, diagnostic),
+            create_operation_outcome(IssueSeverity::information(), code, diagnostic),
         )
     }
 }
