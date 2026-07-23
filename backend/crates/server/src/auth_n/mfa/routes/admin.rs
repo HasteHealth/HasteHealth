@@ -59,7 +59,10 @@ pub async fn admin_get<
     let get_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
         .map_err(|_e| {
-            OperationOutcomeError::error(IssueType::security(), "User is not logged in.".to_string())
+            OperationOutcomeError::error(
+                IssueType::security(),
+                "User is not logged in.".to_string(),
+            )
         })?;
 
     let existing_mfa_credentials = TenantModelAdmin::<UserMFACredentialCreate, _, _, _, _>::search(
