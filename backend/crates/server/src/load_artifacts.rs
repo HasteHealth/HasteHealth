@@ -168,12 +168,12 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
         let sha_hash = generate_sha256_hash(*&resource);
         hashes.insert(sha_hash);
 
-        match &**resource {
+        match &resource {
             Resource::SearchParameter(_)
             | Resource::CodeSystem(_)
             | Resource::ValueSet(_)
             | Resource::StructureDefinition(_) => {
-                let mut resource = (**resource).clone();
+                let mut resource = resource.clone();
                 let resource_type = get_resource_type(&resource);
                 let id = get_id(&resource);
                 let sha_hash = generate_sha256_hash(&resource);
