@@ -1,7 +1,10 @@
+//! Generate typescripts for testscript test cases by providing
+//! `resource_files`.
+
 use std::path::Path;
 
-use crate::utilities::load;
-/// Generate typescripts for testscript test cases by providing resource_files.
+use walkdir::WalkDir;
+
 use haste_fhir_model::r4::generated::{
     resources::{
         Resource, TestScript, TestScriptFixture, TestScriptSetupActionAssert,
@@ -12,7 +15,8 @@ use haste_fhir_model::r4::generated::{
     types::{Coding, Meta, Reference},
 };
 use haste_reflect::MetaValue;
-use walkdir::WalkDir;
+
+use crate::utilities::load;
 
 fn file_path_to_resources(file_path: &Path) -> Result<Vec<Box<Resource>>, String> {
     let resource = load::load_from_file(file_path)?;
@@ -28,7 +32,7 @@ fn file_path_to_resources(file_path: &Path) -> Result<Vec<Box<Resource>>, String
     })
 }
 
-fn get_meta_mutable<'a>(resource: &'a mut Resource) -> Result<&'a mut Meta, String> {
+fn get_meta_mutable(resource: &mut Resource) -> Result<&mut Meta, String> {
     let meta: &mut dyn std::any::Any = resource
         .get_field_mut("meta")
         .ok_or("Missing Meta Field".to_string())?;
@@ -37,7 +41,7 @@ fn get_meta_mutable<'a>(resource: &'a mut Resource) -> Result<&'a mut Meta, Stri
         .ok_or("Failed to downcast meta".to_string())?;
 
     if meta.is_none() {
-        *meta = Some(Box::new(Meta::default()))
+        *meta = Some(Box::new(Meta::default()));
     }
 
     Ok(meta.as_mut().unwrap())
@@ -69,7 +73,7 @@ fn set_resource_id(id: &str, resource: &mut Resource) -> Result<(), String> {
 }
 
 fn fixture_name(i: usize, resource_type: &str) -> String {
-    format!("fixture-{}-{}", resource_type, i)
+    format!("fixture-{resource_type}-{i}")
 }
 
 fn generate_testcases_for_resource(
@@ -84,7 +88,7 @@ fn generate_testcases_for_resource(
 
     vec![TestScriptTest {
         name: Some(Box::new(
-            format!("Test for resource with tag: {}", tag).into(),
+            format!("Test for resource with tag: {tag}").into(),
         )),
         action: vec![
             TestScriptTestAction {
@@ -100,9 +104,7 @@ fn generate_testcases_for_resource(
                     })),
                     resource: defined_type.clone(),
                     sourceId: Some(Box::new(
-                        fixture_name(index, resource_type.as_ref())
-                            .to_string()
-                            .into(),
+                        fixture_name(index, resource_type.as_ref()).clone().into(),
                     )),
                     responseId: Some(Box::new(fixture_name(index, resource_type.as_ref()).into())),
                     encodeRequestUrl: Box::new(true.into()),
@@ -132,10 +134,7 @@ fn generate_testcases_for_resource(
     }]
 }
 
-fn generate_fixtures_for_resource(
-    testscript: &mut TestScript,
-    resources: Vec<Box<Resource>>,
-) -> Result<(), String> {
+fn generate_fixtures_for_resource(testscript: &mut TestScript, resources: Vec<Box<Resource>>) {
     let mut contained = vec![];
     let mut fixtures = vec![];
 
@@ -148,7 +147,7 @@ fn generate_fixtures_for_resource(
             autocreate: Box::new(false.into()),
             autodelete: Box::new(false.into()),
             resource: Some(Box::new(Reference {
-                reference: Some(Box::new(format!("#{}", fixture_id).into())),
+                reference: Some(Box::new(format!("#{fixture_id}").into())),
                 ..Default::default()
             })),
             ..Default::default()
@@ -158,17 +157,10 @@ fn generate_fixtures_for_resource(
 
     testscript.contained = Some(contained);
     testscript.fixture = Some(fixtures);
-
-    Ok(())
 }
 
 fn create_tag(file_path: &Path) -> String {
-    file_path
-        .to_str()
-        .unwrap()
-        .replace("/", "-")
-        .replace("\\", "-")
-        .replace(".", "-")
+    file_path.to_str().unwrap().replace(['/', '\\', '.'], "-")
 }
 
 fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String> {
@@ -177,28 +169,27 @@ fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String>
 
     let tag = create_tag(file_path);
 
-    testscript.url = Box::new(tag.to_string().into());
+    testscript.url = Box::new(tag.clone().into());
     testscript.status = PublicationStatus::active();
-    testscript.id = Some(tag.to_string());
-    testscript.name = Box::new(tag.to_string().into());
+    testscript.id = Some(tag.clone());
+    testscript.name = Box::new(tag.clone().into());
 
     for (i, resource) in resources.iter_mut().enumerate() {
         set_resource_tag(&tag, resource).expect("Failed to set resource tag");
         set_resource_id(
-            &fixture_name(i, &resource.resource_type().as_ref()),
+            &fixture_name(i, resource.resource_type().as_ref()),
             resource,
         )
         .expect("Failed to set resource id");
     }
 
-    generate_fixtures_for_resource(&mut testscript, resources.clone())?;
+    generate_fixtures_for_resource(&mut testscript, resources.clone());
 
     testscript.test = Some(
         resources
             .iter()
             .enumerate()
-            .map(|(i, r)| generate_testcases_for_resource(&tag, i, r))
-            .flatten()
+            .flat_map(|(i, r)| generate_testcases_for_resource(&tag, i, r))
             .collect::<Vec<_>>(),
     );
 
@@ -216,7 +207,7 @@ fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String>
                 })),
                 encodeRequestUrl: Box::new(true.into()),
                 resource: None,
-                params: Some(Box::new(format!("_tag={}", tag).into())),
+                params: Some(Box::new(format!("_tag={tag}").into())),
                 description: Some(Box::new(
                     "Delete resources created in test.".to_string().into(),
                 )),
@@ -231,15 +222,21 @@ fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String>
     Ok(testscript)
 }
 
-pub fn generate_testscripts(file_paths: &Vec<String>) -> Result<Vec<TestScript>, String> {
-    let mut testscripts = vec![];
+/// Generates test scripts from the provided file paths.
+///
+/// # Errors
+///
+/// Returns an error if a test script cannot be generated from a file.
+pub fn generate_testscripts(file_paths: &[String]) -> Result<Vec<TestScript>, String> {
+    let mut testscripts = Vec::new();
+
     for dir_path in file_paths {
         let walker = WalkDir::new(dir_path).sort_by_file_name().into_iter();
         for entry in walker
-            .filter_map(|e| e.ok())
-            .filter(|e| e.metadata().unwrap().is_file())
+            .filter_map(std::result::Result::ok)
+            .filter(|e| e.metadata().is_ok_and(|metadata| metadata.is_file()))
         {
-            let testscript = generate_testscript_from_file(&entry.path().to_path_buf())?;
+            let testscript = generate_testscript_from_file(entry.path())?;
             testscripts.push(testscript);
         }
     }
