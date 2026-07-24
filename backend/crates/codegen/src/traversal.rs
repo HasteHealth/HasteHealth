@@ -1,25 +1,33 @@
 use haste_fhir_model::r4::generated::{resources::StructureDefinition, types::ElementDefinition};
 use regex::Regex;
 
+/// Returns the indices of the direct child elements of the element at `index`.
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - `index` is out of bounds.
+/// - An element does not contain a path.
+/// - The child matching regular expression cannot be compiled.
 pub fn ele_index_to_child_indices(
     elements: &[Box<ElementDefinition>],
     index: usize,
 ) -> Result<Vec<usize>, String> {
     let parent = elements
         .get(index)
-        .ok_or_else(|| format!("Index {} out of bounds", index))?;
+        .ok_or_else(|| format!("Index {index} out of bounds"))?;
 
     let parent_path: String = parent
         .path
         .value
         .as_ref()
         .ok_or("Element has no path")?
-        .to_string();
+        .clone();
 
     let depth = parent_path.matches('.').count();
     let parent_path_escaped = parent_path.replace('.', "\\.");
-    let child_regex = Regex::new(&format!("^{}\\.[^.]+$", parent_path_escaped))
-        .map_err(|e| format!("Failed to compile regex: {}", e))?;
+    let child_regex = Regex::new(&format!("^{parent_path_escaped}\\.[^.]+$"))
+        .map_err(|e| format!("Failed to compile regex: {e}"))?;
 
     let mut cur_index = index + 1;
     let mut children_indices = Vec::new();
@@ -66,6 +74,13 @@ where
     ))
 }
 
+/// Traverses the elements of a [`StructureDefinition`] in bottom-up order.
+///
+/// The visitor function is called after all child elements have been traversed.
+///
+/// # Errors
+///
+/// Returns an error if the [`StructureDefinition`] does not contain a snapshot.
 pub fn traversal<'a, F, V>(sd: &'a StructureDefinition, visitor: &mut F) -> Result<V, String>
 where
     F: FnMut(&'a ElementDefinition, Vec<V>, usize) -> V,
@@ -101,17 +116,18 @@ mod tests {
             .as_ref()
             .unwrap()
             .iter()
-            .filter_map(|e| match e.resource.as_ref().map(|r| r.as_ref()) {
-                Some(Resource::StructureDefinition(sd)) => Some(sd),
-                _ => None,
-            })
+            .filter_map(
+                |e| match e.resource.as_ref().map(std::convert::AsRef::as_ref) {
+                    Some(Resource::StructureDefinition(sd)) => Some(sd),
+                    _ => None,
+                },
+            )
             .collect();
 
         let mut visitor =
             |element: &ElementDefinition, children: Vec<String>, _index: usize| -> String {
-                let path: String = element.path.value.as_ref().unwrap().to_string();
-                let result = children.join("\n") + "\n" + &path;
-                result
+                let path: String = element.path.value.as_ref().unwrap().clone();
+                children.join("\n") + "\n" + &path
             };
 
         println!("StructureDefinitions: {}", sds.len());
@@ -119,7 +135,7 @@ mod tests {
         for sd in sds {
             let result = traversal(sd, &mut visitor);
 
-            println!("Result: {:?}", result);
+            println!("Result: {result:?}");
         }
     }
 }

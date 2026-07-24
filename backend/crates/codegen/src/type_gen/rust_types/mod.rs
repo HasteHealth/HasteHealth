@@ -11,6 +11,13 @@ pub struct GeneratedTypes {
     pub types: TokenStream,
 }
 
+/// Generates the Rust types for the provided FHIR definition files.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] if:
+/// - terminology generation fails; or
+/// - data type generation fails.
 pub async fn generate(
     file_paths: &Vec<String>,
     level: Option<&'static str>,
