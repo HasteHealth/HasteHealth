@@ -32,6 +32,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
       - run: rustup update
       - name: Build
         run: cd backend && cargo build --locked --release
