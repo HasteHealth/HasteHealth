@@ -35,6 +35,11 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "./backend -> target"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
       - name: Build
         run: cargo build --locked --verbose --workspace
         working-directory: ./backend
