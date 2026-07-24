@@ -163,7 +163,7 @@ pub static R4_SEARCH_PARAMETERS_INDEX: LazyLock<Arc<SearchParametersIndex>> = La
         &ParameterLevel::System,
         R4_SEARCH_PARAMETERS
             .iter()
-            .map(|param| param.as_ref().clone())
+            .map(|param| param.clone())
             .collect(),
     ))
 });

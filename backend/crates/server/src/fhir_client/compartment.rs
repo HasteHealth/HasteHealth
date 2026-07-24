@@ -19,7 +19,7 @@ use std::sync::{Arc, LazyLock};
 static COMPARTMENTS: LazyLock<Vec<&'static CompartmentDefinition>> = LazyLock::new(|| {
     ARTIFACT_RESOURCES
         .iter()
-        .filter_map(|r| match r.as_ref() {
+        .filter_map(|r| match r {
             Resource::CompartmentDefinition(c) => Some(c),
             _ => None,
         })
