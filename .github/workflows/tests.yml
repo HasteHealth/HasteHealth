@@ -37,7 +37,6 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          cache-workspace-crates: true
           workspaces: "./backend -> target"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
