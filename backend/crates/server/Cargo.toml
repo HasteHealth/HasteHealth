@@ -65,7 +65,7 @@ moka = { workspace = true, features = ["future"] }
 petgraph = { version = "0.8.3", default-features = false }
 rand = { version = "0.8", default-features = false }
 regex = { workspace = true }
-reqwest = { workspace = true, features = ["form"] }
+reqwest = { workspace = true, features = ["form", "default-tls", "http2"] }
 rsa = { version = "0.9.10", default-features = false, features = ["pem"] }
 rust-embed = { workspace = true, features = ["axum-ex"] }
 sendgrid = { version = "0.26.0", default-features = false }
