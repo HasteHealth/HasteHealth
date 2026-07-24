@@ -37,7 +37,7 @@
 		"@haste-health/hl7.fhir.r4.core": "workspace:^",
 		"@tailwindcss/postcss": "^4.3.2",
 		"autoprefixer": "^10.5.2",
-		"postcss": "^8.5.16",
+		"postcss": "^8.5.18",
 		"tailwindcss": "^4.3.2",
 		"typescript": "~6.0.3",
 		"wrangler": "^4.107.0"
