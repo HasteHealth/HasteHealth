@@ -16,11 +16,18 @@ use haste_fhir_model::r4::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::{borrow::Cow, pin::Pin, sync::Arc};
 
-pub struct FHIRCanonicalTerminology {}
+pub struct FHIRCanonicalTerminology;
+
+impl Default for FHIRCanonicalTerminology {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl FHIRCanonicalTerminology {
+    #[must_use]
     pub fn new() -> Self {
-        FHIRCanonicalTerminology {}
+        FHIRCanonicalTerminology
     }
 }
 
@@ -31,7 +38,7 @@ async fn resolve_valueset<Resolver: CanonicalResolver>(
     if input.valueSet.is_some() {
         let mut valueset: Option<ValueSet> = None;
         std::mem::swap(&mut input.valueSet, &mut valueset);
-        return Ok(valueset.map(|v| Arc::new(Resource::ValueSet(v))));
+        Ok(valueset.map(|v| Arc::new(Resource::ValueSet(v))))
     } else if let Some(url) = &input.url.as_ref().and_then(|u| u.value.as_ref()) {
         let resolved_resource = canonical_resolution
             .resolve(ResourceType::ValueSet, url)
@@ -51,8 +58,7 @@ fn codes_inline_to_expansion(include: &ValueSetComposeInclude) -> Vec<ValueSetEx
     include
         .concept
         .as_ref()
-        .map(|v| Cow::Borrowed(v))
-        .unwrap_or(Cow::Owned(vec![]))
+        .map_or(Cow::Owned(vec![]), Cow::Borrowed)
         .iter()
         .map(|c| ValueSetExpansionContains {
             system: include.system.clone(),
@@ -74,9 +80,7 @@ async fn resolve_codesystem<Resolver: CanonicalResolver>(
     Ok(code_system)
 }
 
-async fn get_concepts(
-    codesystem: &CodeSystem,
-) -> Result<Vec<CodeSystemConcept>, OperationOutcomeError> {
+fn get_concepts(codesystem: &CodeSystem) -> Result<Vec<CodeSystemConcept>, OperationOutcomeError> {
     match &codesystem.content {
         content_type if content_type == &CodesystemContentMode::not_present() => {
             Err(OperationOutcomeError::error(
@@ -133,13 +137,9 @@ fn code_system_concept_to_valueset_expansion(
                     })
                     .collect::<Vec<_>>()
             }),
-            contains: if let Some(concepts) = c.concept {
-                Some(code_system_concept_to_valueset_expansion(
-                    url, version, concepts,
-                ))
-            } else {
-                None
-            },
+            contains: c
+                .concept
+                .map(|concepts| code_system_concept_to_valueset_expansion(url, version, concepts)),
             ..Default::default()
         })
         .collect()
@@ -161,7 +161,7 @@ async fn get_valueset_expansion_contains<
                     canonical_resolution.clone(),
                     ValueSetExpand::Input {
                         url: Some(FHIRUri {
-                            value: Some(valueset_uri.to_string()),
+                            value: Some(valueset_uri.clone()),
                             ..Default::default()
                         }),
                         valueSet: None,
@@ -195,7 +195,7 @@ async fn get_valueset_expansion_contains<
                         .unwrap_or_default()
                         .contains
                         .unwrap_or_default(),
-                )
+                );
             }
         }
         Ok(contains)
@@ -208,11 +208,11 @@ async fn get_valueset_expansion_contains<
         let url = code_system.url.clone();
         let version = code_system.version.clone();
 
-        return Ok(code_system_concept_to_valueset_expansion(
-            url.and_then(|v| v.value).as_ref().map(|url| url.as_str()),
-            version.and_then(|v| v.value).as_ref().map(|v| v.as_str()),
-            get_concepts(code_system).await?,
-        ));
+        Ok(code_system_concept_to_valueset_expansion(
+            url.and_then(|v| v.value).as_deref(),
+            version.and_then(|v| v.value).as_deref(),
+            get_concepts(code_system)?,
+        ))
     } else {
         Ok(vec![])
     }
@@ -224,7 +224,7 @@ async fn get_valueset_expansion<Resolver: CanonicalResolver + Sync + Send + Clon
 ) -> Result<Vec<ValueSetExpansionContains>, OperationOutcomeError> {
     let mut result = Vec::new();
     if let Some(compose) = value_set.compose.as_ref() {
-        for include in compose.include.iter() {
+        for include in &compose.include {
             result.extend(
                 get_valueset_expansion_contains(canonical_resolution.clone(), include).await?,
             );
@@ -260,10 +260,10 @@ fn expand_valueset<Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
                 return_: expanded_valueset,
             })
         } else {
-            return Err(OperationOutcomeError::error(
+            Err(OperationOutcomeError::error(
                 IssueType::not_found(),
                 "ValueSet could not be resolved".to_string(),
-            ));
+            ))
         }
     })
 }
@@ -324,12 +324,7 @@ impl FHIRTerminology for FHIRCanonicalTerminology {
             && let Some(contains) = expansion.contains
         {
             for contain in contains {
-                if contain
-                    .code
-                    .as_ref()
-                    .map(|c| &c.value == &code.value)
-                    .unwrap_or(false)
-                {
+                if contain.code.as_ref().is_some_and(|c| c.value == code.value) {
                     return Ok(ValueSetValidateCode::Output {
                         result: FHIRBoolean {
                             value: Some(true),
