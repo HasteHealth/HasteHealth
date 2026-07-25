@@ -4,6 +4,7 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use std::sync::Arc;
 
 impl OperationOutcomeError {
+    #[must_use]
     pub fn status(&self) -> axum::http::StatusCode {
         match self.outcome.issue.first() {
             Some(issue) => {
