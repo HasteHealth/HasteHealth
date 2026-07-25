@@ -1,7 +1,8 @@
-use crate::Config;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 
-pub struct EnvironmentConfig();
+use crate::Config;
+
+pub struct EnvironmentConfig;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum EnvironmentConfigError {
@@ -15,12 +16,12 @@ pub enum EnvironmentConfigError {
 }
 
 impl EnvironmentConfig {
-    pub fn new(config_files: &[&str]) -> Result<Self, OperationOutcomeError> {
+    pub fn new(config_files: &[&str]) -> Self {
         for file in config_files {
             let _file_result = dotenvy::from_filename(file).map_err(EnvironmentConfigError::from);
         }
 
-        Ok(EnvironmentConfig())
+        EnvironmentConfig
     }
 }
 
@@ -31,6 +32,7 @@ impl<Key: Into<String>> Config<Key> for EnvironmentConfig {
             .map_err(|e| EnvironmentConfigError::EnvironmentVariableNotSet(e, key_string))?;
         Ok(k)
     }
+
     fn set(&self, key: Key, value: String) -> Result<(), OperationOutcomeError> {
         unsafe {
             std::env::set_var(key.into(), value);
