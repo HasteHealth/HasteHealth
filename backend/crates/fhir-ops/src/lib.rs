@@ -40,8 +40,20 @@ pub trait OperationInvocation<CTX: Send>: Send + Sync {
         project: ProjectId,
         request: &'a InvocationRequest,
     ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + 'a>>;
-    fn code<'a>(&'a self) -> &'a str;
+    fn code(&self) -> &str;
 }
+
+type Executor<CTX, I, O> = Box<
+    dyn Fn(
+            CTX,
+            TenantId,
+            ProjectId,
+            &InvocationRequest,
+            I,
+        ) -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
+        + Send
+        + Sync,
+>;
 
 pub struct OperationExecutor<
     CTX: Send,
@@ -52,20 +64,7 @@ pub struct OperationExecutor<
 > {
     _ctx: std::marker::PhantomData<CTX>,
     code: String,
-    executor: Arc<
-        Box<
-            dyn Fn(
-                    CTX,
-                    TenantId,
-                    ProjectId,
-                    &InvocationRequest,
-                    I,
-                )
-                    -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
-                + Send
-                + Sync,
-        >,
-    >,
+    executor: Arc<Executor<CTX, I, O>>,
 }
 
 impl<
@@ -76,21 +75,8 @@ impl<
     O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError> + Into<Resource> + Send,
 > OperationExecutor<CTX, I, O>
 {
-    pub fn new(
-        code: String,
-        executor: Box<
-            dyn Fn(
-                    CTX,
-                    TenantId,
-                    ProjectId,
-                    &InvocationRequest,
-                    I,
-                )
-                    -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
-                + Send
-                + Sync,
-        >,
-    ) -> Self {
+    #[must_use]
+    pub fn new(code: String, executor: Executor<CTX, I, O>) -> Self {
         Self {
             _ctx: std::marker::PhantomData,
             executor: Arc::new(executor),
@@ -134,7 +120,7 @@ impl<
         })
     }
 
-    fn code<'a>(&'a self) -> &'a str {
+    fn code(&self) -> &str {
         &self.code
     }
 }
