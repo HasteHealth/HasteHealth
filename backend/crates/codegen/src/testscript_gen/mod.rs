@@ -50,10 +50,10 @@ fn get_meta_mutable(resource: &mut Resource) -> Result<&mut Meta, String> {
 fn set_resource_tag(tag: &str, resource: &mut Resource) -> Result<(), String> {
     let meta = get_meta_mutable(resource)?;
 
-    meta.tag = Some(vec![Box::new(Coding {
+    meta.tag = Some(vec![Coding {
         code: Some(Box::new(tag.to_string().into())),
         ..Default::default()
-    })]);
+    }]);
 
     Ok(())
 }
@@ -152,7 +152,7 @@ fn generate_fixtures_for_resource(testscript: &mut TestScript, resources: Vec<Bo
             })),
             ..Default::default()
         });
-        contained.push(resource);
+        contained.push(*resource);
     }
 
     testscript.contained = Some(contained);

@@ -101,18 +101,18 @@ mod tests {
     #[test]
     fn test_partial_pattern() {
         let pattern = Address {
-            line: Some(vec![Box::new(FHIRString {
+            line: Some(vec![FHIRString {
                 value: Some("test".to_string()),
                 ..Default::default()
-            })]),
+            }]),
             ..Default::default()
         };
 
         let data = Address {
-            line: Some(vec![Box::new(FHIRString {
+            line: Some(vec![FHIRString {
                 value: Some("test".to_string()),
                 ..Default::default()
-            })]),
+            }]),
             city: Some(Box::new(FHIRString {
                 value: Some("any".to_string()),
                 ..Default::default()

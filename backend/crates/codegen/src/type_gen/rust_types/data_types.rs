@@ -106,7 +106,7 @@ fn get_reference_target_attribute(element: &ElementDefinition) -> TokenStream {
         let profiles = targets
             .iter()
             .filter_map(
-                |tp: &Box<haste_fhir_model::r4::generated::types::FHIRCanonical>| tp.value.as_ref(),
+                |tp: &haste_fhir_model::r4::generated::types::FHIRCanonical| tp.value.as_ref(),
             )
             .filter_map(|tp| tp.split("/").last())
             .collect::<Vec<_>>();
@@ -195,7 +195,7 @@ fn resolve_content_reference<'a>(
         .unwrap()[1..]
         .to_string();
 
-    let content_reference_element: Vec<&Box<ElementDefinition>> = sd
+    let content_reference_element: Vec<&ElementDefinition> = sd
         .snapshot
         .as_ref()
         .ok_or("StructureDefinition has no snapshot")

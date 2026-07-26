@@ -24,10 +24,10 @@ pub fn get_admin_app(config: &ServerConfig) -> Option<ClientApplication> {
             ClientapplicationGrantType::authorization_code(),
             ClientapplicationGrantType::refresh_token(),
         ],
-        redirectUri: Some(vec![Box::new(FHIRString {
+        redirectUri: Some(vec![FHIRString {
             value: Some(redirect_uri.clone()),
             ..Default::default()
-        })]),
+        }]),
         ..Default::default()
     })
 }

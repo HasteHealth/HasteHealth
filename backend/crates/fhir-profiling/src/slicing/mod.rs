@@ -40,7 +40,7 @@ pub struct SlicingDescriptor {
 
 /// Return child elements that are slice element definitions.
 pub fn get_slice_descriptors(
-    elements: &[Box<ElementDefinition>],
+    elements: &[ElementDefinition],
     children: &Vec<usize>,
 ) -> Result<Vec<SlicingDescriptor>, OperationOutcomeError> {
     let mut i = 0;
@@ -52,7 +52,7 @@ pub fn get_slice_descriptors(
         let element = &elements[child_index];
         i += 1;
 
-        if is_slice(element.as_ref()) {
+        if is_slice(element) {
             let mut slice_index = SlicingDescriptor {
                 discriminator: child_index,
                 slices: vec![],
@@ -353,7 +353,7 @@ async fn is_conformant_to_slice_descriptor(
                 };
 
                 let codeable_concept_pattern = CodeableConcept {
-                    coding: Some(vec![Box::new(coding_pattern.clone())]),
+                    coding: Some(vec![coding_pattern.clone()]),
                     ..Default::default()
                 };
 
@@ -517,7 +517,7 @@ async fn split_slicing<'a>(
 fn get_element<'a>(
     profile: &'a StructureDefinition,
     element_index: usize,
-) -> Result<&'a Box<ElementDefinition>, OperationOutcomeError> {
+) -> Result<&'a ElementDefinition, OperationOutcomeError> {
     let element = profile
         .snapshot
         .as_ref()

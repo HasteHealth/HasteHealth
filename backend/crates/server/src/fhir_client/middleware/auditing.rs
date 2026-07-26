@@ -36,13 +36,13 @@ struct Audit<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeErro
     &'a FHIRRequest,
 );
 
-fn coding(system: &str, code: Option<String>, display: &str) -> Box<Coding> {
-    Box::new(Coding {
+fn coding(system: &str, code: Option<String>, display: &str) -> Coding {
+    Coding {
         system: Some(Box::new(FHIRUri::from(system.to_string()))),
         code: code.map(|code| Box::new(code.into())),
         display: Some(Box::new(FHIRString::from(display.to_string()))),
         ..Default::default()
-    })
+    }
 }
 
 fn detail(name: &str, value: String) -> AuditEventEntityDetail {
@@ -181,11 +181,11 @@ fn build_audit_event<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcome
     };
 
     Some(AuditEvent {
-        type_: coding(
+        type_: Box::new(coding(
             "http://dicom.nema.org/resources/ontology/DCM",
             Some("110100".to_string()),
             "Application Activity",
-        ),
+        )),
         subtype: Some(vec![coding(
             "http://hl7.org/fhir/restful-interaction",
             subtype_code.as_str().map(|s| s.to_string()),

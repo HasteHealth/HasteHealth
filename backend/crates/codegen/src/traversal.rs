@@ -10,7 +10,7 @@ use regex::Regex;
 /// - An element does not contain a path.
 /// - The child matching regular expression cannot be compiled.
 pub fn ele_index_to_child_indices(
-    elements: &[Box<ElementDefinition>],
+    elements: &[ElementDefinition],
     index: usize,
 ) -> Result<Vec<usize>, String> {
     let parent = elements
@@ -51,7 +51,7 @@ pub fn ele_index_to_child_indices(
 }
 
 fn traversal_bottom_up_sd_elements<'a, F, V>(
-    elements: &'a Vec<Box<ElementDefinition>>,
+    elements: &'a Vec<ElementDefinition>,
     index: usize,
     visitor_function: &mut F,
 ) -> Result<V, String>

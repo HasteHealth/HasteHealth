@@ -117,10 +117,10 @@ async fn create_or_retrieve_user_tenant<
                     ..Default::default()
                 })),
                 name: Some(Box::new(HumanName {
-                    given: Some(vec![Box::new(FHIRString {
+                    given: Some(vec![FHIRString {
                         value: Some(signup_form.first_name.to_string()),
                         ..Default::default()
-                    })]),
+                    }]),
                     family: Some(Box::new(FHIRString {
                         value: Some(signup_form.last_name.to_string()),
                         ..Default::default()

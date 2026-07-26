@@ -44,7 +44,7 @@ mod tests {
                 ..Default::default()
             }),
             userType: Some(CodeableConcept {
-                coding: Some(vec![Box::new(Coding {
+                coding: Some(vec![Coding {
                     system: Some(Box::new(FHIRUri {
                         value: Some(
                             "http://terminology.hl7.org/CodeSystem/encounter-type".to_string(),
@@ -52,7 +52,7 @@ mod tests {
                         ..Default::default()
                     })),
                     ..Default::default()
-                })]),
+                }]),
                 ..Default::default()
             }),
             userLanguage: None,
