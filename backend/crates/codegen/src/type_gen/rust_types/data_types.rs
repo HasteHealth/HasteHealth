@@ -343,7 +343,7 @@ fn from_rust_type_to_fhir_primitive<'a>(
             quote! {
                 impl From<#value_type> for #sd_ident {
                     fn from(value: #value_type) -> Self {
-                        Self { value: value, ..Default::default() }
+                        Self { value, ..Default::default() }
                     }
                 }
             }

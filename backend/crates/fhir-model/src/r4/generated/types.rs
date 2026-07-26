@@ -736,7 +736,7 @@ impl FHIRXhtml {
 impl From<String> for FHIRXhtml {
     fn from(value: String) -> Self {
         Self {
-            value: value,
+            value,
             ..Default::default()
         }
     }

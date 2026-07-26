@@ -4882,139 +4882,139 @@ impl ValueSetDef for AuditEventSubType {
 impl AuditEventSubType {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110120"]
     pub fn v110120() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110121"]
     pub fn v110121() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110122"]
     pub fn v110122() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110123"]
     pub fn v110123() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110124"]
     pub fn v110124() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110125"]
     pub fn v110125() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110126"]
     pub fn v110126() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110127"]
     pub fn v110127() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110128"]
     pub fn v110128() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110129"]
     pub fn v110129() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110130"]
     pub fn v110130() -> BoundCode<Self> {
         BoundCode::from_index(10u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110131"]
     pub fn v110131() -> BoundCode<Self> {
         BoundCode::from_index(11u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110132"]
     pub fn v110132() -> BoundCode<Self> {
         BoundCode::from_index(12u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110133"]
     pub fn v110133() -> BoundCode<Self> {
         BoundCode::from_index(13u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110134"]
     pub fn v110134() -> BoundCode<Self> {
         BoundCode::from_index(14u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110135"]
     pub fn v110135() -> BoundCode<Self> {
         BoundCode::from_index(15u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110136"]
     pub fn v110136() -> BoundCode<Self> {
         BoundCode::from_index(16u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110137"]
     pub fn v110137() -> BoundCode<Self> {
         BoundCode::from_index(17u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110138"]
     pub fn v110138() -> BoundCode<Self> {
         BoundCode::from_index(18u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110139"]
     pub fn v110139() -> BoundCode<Self> {
         BoundCode::from_index(19u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110140"]
     pub fn v110140() -> BoundCode<Self> {
         BoundCode::from_index(20u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110141"]
     pub fn v110141() -> BoundCode<Self> {
         BoundCode::from_index(21u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110142"]
     pub fn v110142() -> BoundCode<Self> {
         BoundCode::from_index(22u16)
     }
@@ -5179,91 +5179,91 @@ impl ValueSetDef for AuditEventType {
 impl AuditEventType {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110100"]
     pub fn v110100() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110101"]
     pub fn v110101() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110102"]
     pub fn v110102() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110103"]
     pub fn v110103() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110104"]
     pub fn v110104() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110105"]
     pub fn v110105() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110106"]
     pub fn v110106() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110107"]
     pub fn v110107() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110108"]
     pub fn v110108() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110109"]
     pub fn v110109() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110110"]
     pub fn v110110() -> BoundCode<Self> {
         BoundCode::from_index(10u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110111"]
     pub fn v110111() -> BoundCode<Self> {
         BoundCode::from_index(11u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110112"]
     pub fn v110112() -> BoundCode<Self> {
         BoundCode::from_index(12u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110113"]
     pub fn v110113() -> BoundCode<Self> {
         BoundCode::from_index(13u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110114"]
     pub fn v110114() -> BoundCode<Self> {
         BoundCode::from_index(14u16)
     }
@@ -7491,49 +7491,49 @@ impl ValueSetDef for CarePlanActivityKind {
 impl CarePlanActivityKind {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "Appointment"]
     pub fn appointment() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "CommunicationRequest"]
     pub fn communication_request() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DeviceRequest"]
     pub fn device_request() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "MedicationRequest"]
     pub fn medication_request() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "NutritionOrder"]
     pub fn nutrition_order() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ServiceRequest"]
     pub fn service_request() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "Task"]
     pub fn task() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "VisionPrescription"]
     pub fn vision_prescription() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
@@ -7629,25 +7629,25 @@ impl ValueSetDef for CarePlanIntent {
 impl CarePlanIntent {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "option"]
     pub fn option() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "order"]
     pub fn order() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "plan"]
     pub fn plan() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "proposal"]
     pub fn proposal() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
@@ -8545,19 +8545,19 @@ impl ValueSetDef for ClinicalimpressionStatus {
 impl ClinicalimpressionStatus {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "completed"]
     pub fn completed() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "entered-in-error"]
     pub fn entered_in_error() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "in-progress"]
     pub fn in_progress() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
@@ -9404,19 +9404,19 @@ impl ValueSetDef for ConditionSeverity {
 impl ConditionSeverity {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "24484000"]
     pub fn v24484000() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "255604002"]
     pub fn v255604002() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "6736007"]
     pub fn v6736007() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
@@ -14290,13 +14290,13 @@ impl ValueSetDef for DesignationUse {
 impl DesignationUse {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "900000000000003001"]
     pub fn v900000000000003001() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "900000000000013009"]
     pub fn v900000000000013009() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
@@ -14871,61 +14871,61 @@ impl ValueSetDef for Dicm405Mediatype {
 impl Dicm405Mediatype {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110010"]
     pub fn v110010() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110030"]
     pub fn v110030() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110031"]
     pub fn v110031() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110032"]
     pub fn v110032() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110033"]
     pub fn v110033() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110034"]
     pub fn v110034() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110035"]
     pub fn v110035() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110036"]
     pub fn v110036() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110037"]
     pub fn v110037() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "110038"]
     pub fn v110038() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
@@ -15038,331 +15038,331 @@ impl ValueSetDef for DocSectionCodes {
 impl DocSectionCodes {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "10154-3"]
     pub fn v10154_3() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "10157-6"]
     pub fn v10157_6() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "10160-0"]
     pub fn v10160_0() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "10164-2"]
     pub fn v10164_2() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "10183-2"]
     pub fn v10183_2() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "10184-0"]
     pub fn v10184_0() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "10187-3"]
     pub fn v10187_3() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "10210-3"]
     pub fn v10210_3() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "10216-0"]
     pub fn v10216_0() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "10218-6"]
     pub fn v10218_6() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "10222-8"]
     pub fn v10222_8() -> BoundCode<Self> {
         BoundCode::from_index(10u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "10223-6"]
     pub fn v10223_6() -> BoundCode<Self> {
         BoundCode::from_index(11u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "11329-0"]
     pub fn v11329_0() -> BoundCode<Self> {
         BoundCode::from_index(12u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "11348-0"]
     pub fn v11348_0() -> BoundCode<Self> {
         BoundCode::from_index(13u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "11369-6"]
     pub fn v11369_6() -> BoundCode<Self> {
         BoundCode::from_index(14u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "11493-4"]
     pub fn v11493_4() -> BoundCode<Self> {
         BoundCode::from_index(15u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "11535-2"]
     pub fn v11535_2() -> BoundCode<Self> {
         BoundCode::from_index(16u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "11537-8"]
     pub fn v11537_8() -> BoundCode<Self> {
         BoundCode::from_index(17u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "18776-5"]
     pub fn v18776_5() -> BoundCode<Self> {
         BoundCode::from_index(18u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "18841-7"]
     pub fn v18841_7() -> BoundCode<Self> {
         BoundCode::from_index(19u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "29299-5"]
     pub fn v29299_5() -> BoundCode<Self> {
         BoundCode::from_index(20u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "29545-1"]
     pub fn v29545_1() -> BoundCode<Self> {
         BoundCode::from_index(21u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "29549-3"]
     pub fn v29549_3() -> BoundCode<Self> {
         BoundCode::from_index(22u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "29554-3"]
     pub fn v29554_3() -> BoundCode<Self> {
         BoundCode::from_index(23u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "29762-2"]
     pub fn v29762_2() -> BoundCode<Self> {
         BoundCode::from_index(24u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "30954-2"]
     pub fn v30954_2() -> BoundCode<Self> {
         BoundCode::from_index(25u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "42344-2"]
     pub fn v42344_2() -> BoundCode<Self> {
         BoundCode::from_index(26u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "42346-7"]
     pub fn v42346_7() -> BoundCode<Self> {
         BoundCode::from_index(27u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "42348-3"]
     pub fn v42348_3() -> BoundCode<Self> {
         BoundCode::from_index(28u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "42349-1"]
     pub fn v42349_1() -> BoundCode<Self> {
         BoundCode::from_index(29u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "46240-8"]
     pub fn v46240_8() -> BoundCode<Self> {
         BoundCode::from_index(30u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "46241-6"]
     pub fn v46241_6() -> BoundCode<Self> {
         BoundCode::from_index(31u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "46264-8"]
     pub fn v46264_8() -> BoundCode<Self> {
         BoundCode::from_index(32u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "47420-5"]
     pub fn v47420_5() -> BoundCode<Self> {
         BoundCode::from_index(33u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "47519-4"]
     pub fn v47519_4() -> BoundCode<Self> {
         BoundCode::from_index(34u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "48765-2"]
     pub fn v48765_2() -> BoundCode<Self> {
         BoundCode::from_index(35u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "48768-6"]
     pub fn v48768_6() -> BoundCode<Self> {
         BoundCode::from_index(36u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "51848-0"]
     pub fn v51848_0() -> BoundCode<Self> {
         BoundCode::from_index(37u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "55109-3"]
     pub fn v55109_3() -> BoundCode<Self> {
         BoundCode::from_index(38u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "55122-6"]
     pub fn v55122_6() -> BoundCode<Self> {
         BoundCode::from_index(39u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "57852-6"]
     pub fn v57852_6() -> BoundCode<Self> {
         BoundCode::from_index(40u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "59768-2"]
     pub fn v59768_2() -> BoundCode<Self> {
         BoundCode::from_index(41u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "59769-0"]
     pub fn v59769_0() -> BoundCode<Self> {
         BoundCode::from_index(42u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "59770-8"]
     pub fn v59770_8() -> BoundCode<Self> {
         BoundCode::from_index(43u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "59771-6"]
     pub fn v59771_6() -> BoundCode<Self> {
         BoundCode::from_index(44u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "59772-4"]
     pub fn v59772_4() -> BoundCode<Self> {
         BoundCode::from_index(45u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "59773-2"]
     pub fn v59773_2() -> BoundCode<Self> {
         BoundCode::from_index(46u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "59775-7"]
     pub fn v59775_7() -> BoundCode<Self> {
         BoundCode::from_index(47u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "59776-5"]
     pub fn v59776_5() -> BoundCode<Self> {
         BoundCode::from_index(48u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "61149-1"]
     pub fn v61149_1() -> BoundCode<Self> {
         BoundCode::from_index(49u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "61150-9"]
     pub fn v61150_9() -> BoundCode<Self> {
         BoundCode::from_index(50u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "69730-0"]
     pub fn v69730_0() -> BoundCode<Self> {
         BoundCode::from_index(51u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "8648-8"]
     pub fn v8648_8() -> BoundCode<Self> {
         BoundCode::from_index(52u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "8653-8"]
     pub fn v8653_8() -> BoundCode<Self> {
         BoundCode::from_index(53u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "8716-3"]
     pub fn v8716_3() -> BoundCode<Self> {
         BoundCode::from_index(54u16)
     }
@@ -16550,13 +16550,13 @@ impl EncounterParticipantType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PART"]
     pub fn part() -> BoundCode<Self> {
         BoundCode::from_index(37u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PPRF"]
     pub fn pprf() -> BoundCode<Self> {
         BoundCode::from_index(38u16)
     }
@@ -16640,7 +16640,7 @@ impl EncounterParticipantType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "SPRF"]
     pub fn sprf() -> BoundCode<Self> {
         BoundCode::from_index(52u16)
     }
@@ -16762,37 +16762,37 @@ impl ValueSetDef for EncounterSpecialCourtesy {
 impl EncounterSpecialCourtesy {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "EXT"]
     pub fn ext() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "NRM"]
     pub fn nrm() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PRF"]
     pub fn prf() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "STF"]
     pub fn stf() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "UNK"]
     pub fn unk() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "VIP"]
     pub fn vip() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
@@ -17620,55 +17620,55 @@ impl ValueSetDef for EnteralRoute {
 impl EnteralRoute {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "EFT"]
     pub fn eft() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ENTINSTL"]
     pub fn entinstl() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "GJT"]
     pub fn gjt() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "GT"]
     pub fn gt() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "JJTINSTL"]
     pub fn jjtinstl() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "NGT"]
     pub fn ngt() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "OGT"]
     pub fn ogt() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "OJJ"]
     pub fn ojj() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PO"]
     pub fn po() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
@@ -18826,25 +18826,25 @@ impl ValueSetDef for EventTiming {
 impl EventTiming {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "AC"]
     pub fn ac() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ACD"]
     pub fn acd() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ACM"]
     pub fn acm() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ACV"]
     pub fn acv() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
@@ -18868,25 +18868,25 @@ impl EventTiming {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "C"]
     pub fn c() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "CD"]
     pub fn cd() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "CM"]
     pub fn cm() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "CV"]
     pub fn cv() -> BoundCode<Self> {
         BoundCode::from_index(10u16)
     }
@@ -18910,7 +18910,7 @@ impl EventTiming {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "HS"]
     pub fn hs() -> BoundCode<Self> {
         BoundCode::from_index(14u16)
     }
@@ -18946,25 +18946,25 @@ impl EventTiming {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PC"]
     pub fn pc() -> BoundCode<Self> {
         BoundCode::from_index(20u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PCD"]
     pub fn pcd() -> BoundCode<Self> {
         BoundCode::from_index(21u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PCM"]
     pub fn pcm() -> BoundCode<Self> {
         BoundCode::from_index(22u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PCV"]
     pub fn pcv() -> BoundCode<Self> {
         BoundCode::from_index(23u16)
     }
@@ -18976,7 +18976,7 @@ impl EventTiming {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "WAKE"]
     pub fn wake() -> BoundCode<Self> {
         BoundCode::from_index(25u16)
     }
@@ -19726,79 +19726,79 @@ impl ValueSetDef for ExampleHierarchical {
 impl ExampleHierarchical {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "conflict"]
     pub fn conflict() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "duplicate"]
     pub fn duplicate() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "exception"]
     pub fn exception() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "invalid"]
     pub fn invalid() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "lock"]
     pub fn lock() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "login"]
     pub fn login() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "not-found"]
     pub fn not_found() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "processing"]
     pub fn processing() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "required"]
     pub fn required() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "structure"]
     pub fn structure() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tbrottled"]
     pub fn tbrottled() -> BoundCode<Self> {
         BoundCode::from_index(10u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "unknown"]
     pub fn unknown() -> BoundCode<Self> {
         BoundCode::from_index(11u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "value"]
     pub fn value() -> BoundCode<Self> {
         BoundCode::from_index(12u16)
     }
@@ -21847,109 +21847,109 @@ impl ValueSetDef for IdentifierType {
 impl IdentifierType {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ACSN"]
     pub fn acsn() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "BRN"]
     pub fn brn() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DL"]
     pub fn dl() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DR"]
     pub fn dr() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "EN"]
     pub fn en() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "FILL"]
     pub fn fill() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "JHN"]
     pub fn jhn() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "MCN"]
     pub fn mcn() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "MD"]
     pub fn md() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "MR"]
     pub fn mr() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "NIIP"]
     pub fn niip() -> BoundCode<Self> {
         BoundCode::from_index(10u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PLAC"]
     pub fn plac() -> BoundCode<Self> {
         BoundCode::from_index(11u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PPN"]
     pub fn ppn() -> BoundCode<Self> {
         BoundCode::from_index(12u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PRN"]
     pub fn prn() -> BoundCode<Self> {
         BoundCode::from_index(13u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "SB"]
     pub fn sb() -> BoundCode<Self> {
         BoundCode::from_index(14u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "SNO"]
     pub fn sno() -> BoundCode<Self> {
         BoundCode::from_index(15u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TAX"]
     pub fn tax() -> BoundCode<Self> {
         BoundCode::from_index(16u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "UDI"]
     pub fn udi() -> BoundCode<Self> {
         BoundCode::from_index(17u16)
     }
@@ -22172,13 +22172,13 @@ impl ValueSetDef for ImmunizationEvaluationStatus {
 impl ImmunizationEvaluationStatus {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "completed"]
     pub fn completed() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "entered-in-error"]
     pub fn entered_in_error() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
@@ -22207,55 +22207,55 @@ impl ValueSetDef for ImmunizationEvaluationTargetDisease {
 impl ImmunizationEvaluationTargetDisease {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "14189004"]
     pub fn v14189004() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "1857005"]
     pub fn v1857005() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "27836007"]
     pub fn v27836007() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "36653000"]
     pub fn v36653000() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "36989005"]
     pub fn v36989005() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "397430003"]
     pub fn v397430003() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "398102009"]
     pub fn v398102009() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "709410003"]
     pub fn v709410003() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "76902006"]
     pub fn v76902006() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
@@ -22274,13 +22274,13 @@ impl ValueSetDef for ImmunizationFunction {
 impl ImmunizationFunction {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "AP"]
     pub fn ap() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "OP"]
     pub fn op() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
@@ -22386,13 +22386,13 @@ impl ValueSetDef for ImmunizationReason {
 impl ImmunizationReason {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "281657000"]
     pub fn v281657000() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "429060002"]
     pub fn v429060002() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
@@ -22412,25 +22412,25 @@ impl ValueSetDef for ImmunizationRecommendationDateCriterion {
 impl ImmunizationRecommendationDateCriterion {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "30980-7"]
     pub fn v30980_7() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "30981-5"]
     pub fn v30981_5() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "59777-3"]
     pub fn v59777_3() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "59778-1"]
     pub fn v59778_1() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
@@ -22449,13 +22449,13 @@ impl ValueSetDef for ImmunizationRecommendationReason {
 impl ImmunizationRecommendationReason {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "77176002"]
     pub fn v77176002() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "77386006"]
     pub fn v77386006() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
@@ -22529,55 +22529,55 @@ impl ValueSetDef for ImmunizationRecommendationTargetDisease {
 impl ImmunizationRecommendationTargetDisease {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "14189004"]
     pub fn v14189004() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "1857005"]
     pub fn v1857005() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "27836007"]
     pub fn v27836007() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "36653000"]
     pub fn v36653000() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "36989005"]
     pub fn v36989005() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "397430003"]
     pub fn v397430003() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "398102009"]
     pub fn v398102009() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "709410003"]
     pub fn v709410003() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "76902006"]
     pub fn v76902006() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
@@ -22677,19 +22677,19 @@ impl ValueSetDef for ImmunizationStatus {
 impl ImmunizationStatus {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "completed"]
     pub fn completed() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "entered-in-error"]
     pub fn entered_in_error() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "not-done"]
     pub fn not_done() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
@@ -22749,55 +22749,55 @@ impl ValueSetDef for ImmunizationTargetDisease {
 impl ImmunizationTargetDisease {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "14189004"]
     pub fn v14189004() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "1857005"]
     pub fn v1857005() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "27836007"]
     pub fn v27836007() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "36653000"]
     pub fn v36653000() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "36989005"]
     pub fn v36989005() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "397430003"]
     pub fn v397430003() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "398102009"]
     pub fn v398102009() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "709410003"]
     pub fn v709410003() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "76902006"]
     pub fn v76902006() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
@@ -23063,25 +23063,25 @@ impl ValueSetDef for InstanceAvailability {
 impl InstanceAvailability {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "NEARLINE"]
     pub fn nearline() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "OFFLINE"]
     pub fn offline() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ONLINE"]
     pub fn online() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "UNAVAILABLE"]
     pub fn unavailable() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
@@ -26743,7 +26743,7 @@ impl MaritalStatus {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "UNK"]
     pub fn unk() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
@@ -28970,19 +28970,19 @@ impl ValueSetDef for NameV3Representation {
 impl NameV3Representation {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ABC"]
     pub fn abc() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "IDE"]
     pub fn ide() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "SYL"]
     pub fn syl() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
@@ -30606,79 +30606,79 @@ impl ValueSetDef for ObservationVitalsignresult {
 impl ObservationVitalsignresult {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "2708-6"]
     pub fn v2708_6() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "29463-7"]
     pub fn v29463_7() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "39156-5"]
     pub fn v39156_5() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "8302-2"]
     pub fn v8302_2() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "8310-5"]
     pub fn v8310_5() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "8462-4"]
     pub fn v8462_4() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "8478-0"]
     pub fn v8478_0() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "8480-6"]
     pub fn v8480_6() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "85353-1"]
     pub fn v85353_1() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "85354-9"]
     pub fn v85354_9() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "8867-4"]
     pub fn v8867_4() -> BoundCode<Self> {
         BoundCode::from_index(10u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "9279-1"]
     pub fn v9279_1() -> BoundCode<Self> {
         BoundCode::from_index(11u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "9843-4"]
     pub fn v9843_4() -> BoundCode<Self> {
         BoundCode::from_index(12u16)
     }
@@ -32237,7 +32237,7 @@ impl ParentRelationshipCodes {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DEP"]
     pub fn dep() -> BoundCode<Self> {
         BoundCode::from_index(72u16)
     }
@@ -33437,7 +33437,7 @@ impl ParentRelationshipCodes {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PSYCHCF"]
     pub fn psychcf() -> BoundCode<Self> {
         BoundCode::from_index(272u16)
     }
@@ -34383,85 +34383,85 @@ impl ValueSetDef for PerformerFunction {
 impl PerformerFunction {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ATND"]
     pub fn atnd() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "AUT"]
     pub fn aut() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "AUTHEN"]
     pub fn authen() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "CON"]
     pub fn con() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ENT"]
     pub fn ent() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "INF"]
     pub fn inf() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LA"]
     pub fn la() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PART"]
     pub fn part() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PPRF"]
     pub fn pprf() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "RESP"]
     pub fn resp() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "SPRF"]
     pub fn sprf() -> BoundCode<Self> {
         BoundCode::from_index(10u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TRANS"]
     pub fn trans() -> BoundCode<Self> {
         BoundCode::from_index(11u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "VRF"]
     pub fn vrf() -> BoundCode<Self> {
         BoundCode::from_index(12u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "WIT"]
     pub fn wit() -> BoundCode<Self> {
         BoundCode::from_index(13u16)
     }
@@ -34830,43 +34830,43 @@ impl ValueSetDef for ProcedureCategory {
 impl ProcedureCategory {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "103693007"]
     pub fn v103693007() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "24642003"]
     pub fn v24642003() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "387713003"]
     pub fn v387713003() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "409063005"]
     pub fn v409063005() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "409073007"]
     pub fn v409073007() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "410606002"]
     pub fn v410606002() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "46947000"]
     pub fn v46947000() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
@@ -34896,61 +34896,61 @@ impl ValueSetDef for ProcedureFollowup {
 impl ProcedureFollowup {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "18949003"]
     pub fn v18949003() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "225164002"]
     pub fn v225164002() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "229506003"]
     pub fn v229506003() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "241031001"]
     pub fn v241031001() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "274441001"]
     pub fn v274441001() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "30549001"]
     pub fn v30549001() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "35963001"]
     pub fn v35963001() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "359825008"]
     pub fn v359825008() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "394725008"]
     pub fn v394725008() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "447346005"]
     pub fn v447346005() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
@@ -34969,19 +34969,19 @@ impl ValueSetDef for ProcedureOutcome {
 impl ProcedureOutcome {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "385669000"]
     pub fn v385669000() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "385670004"]
     pub fn v385670004() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "385671000"]
     pub fn v385671000() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
@@ -35314,13 +35314,13 @@ impl ProvenanceActivityType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ANONY"]
     pub fn anony() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "APPEND"]
     pub fn append() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
@@ -35386,7 +35386,7 @@ impl ProvenanceActivityType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "CREATE"]
     pub fn create() -> BoundCode<Self> {
         BoundCode::from_index(14u16)
     }
@@ -35404,13 +35404,13 @@ impl ProvenanceActivityType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DEID"]
     pub fn deid() -> BoundCode<Self> {
         BoundCode::from_index(17u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DELETE"]
     pub fn delete() -> BoundCode<Self> {
         BoundCode::from_index(18u16)
     }
@@ -35530,7 +35530,7 @@ impl ProvenanceActivityType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LABEL"]
     pub fn label() -> BoundCode<Self> {
         BoundCode::from_index(38u16)
     }
@@ -35542,7 +35542,7 @@ impl ProvenanceActivityType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "MASK"]
     pub fn mask() -> BoundCode<Self> {
         BoundCode::from_index(40u16)
     }
@@ -35560,7 +35560,7 @@ impl ProvenanceActivityType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "NULLIFY"]
     pub fn nullify() -> BoundCode<Self> {
         BoundCode::from_index(43u16)
     }
@@ -35602,7 +35602,7 @@ impl ProvenanceActivityType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PSEUD"]
     pub fn pseud() -> BoundCode<Self> {
         BoundCode::from_index(50u16)
     }
@@ -35692,7 +35692,7 @@ impl ProvenanceActivityType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "UPDATE"]
     pub fn update() -> BoundCode<Self> {
         BoundCode::from_index(65u16)
     }
@@ -36071,7 +36071,7 @@ impl ProvenanceHistoryRecordActivity {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "RESUME"]
     pub fn resume() -> BoundCode<Self> {
         BoundCode::from_index(11u16)
     }
@@ -36528,7 +36528,7 @@ impl QuestionnaireItemControl {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "group"]
     pub fn group() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
@@ -36588,7 +36588,7 @@ impl QuestionnaireItemControl {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "question"]
     pub fn question() -> BoundCode<Self> {
         BoundCode::from_index(16u16)
     }
@@ -36618,7 +36618,7 @@ impl QuestionnaireItemControl {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "text"]
     pub fn text() -> BoundCode<Self> {
         BoundCode::from_index(21u16)
     }
@@ -36704,19 +36704,19 @@ impl ValueSetDef for QuestionnaireresponseMode {
 impl QuestionnaireresponseMode {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ELECTRONIC"]
     pub fn electronic() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "VERBAL"]
     pub fn verbal() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "WRITTEN"]
     pub fn written() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
@@ -41731,7 +41731,7 @@ impl SiblingRelationshipCodes {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DEP"]
     pub fn dep() -> BoundCode<Self> {
         BoundCode::from_index(72u16)
     }
@@ -42931,7 +42931,7 @@ impl SiblingRelationshipCodes {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PSYCHCF"]
     pub fn psychcf() -> BoundCode<Self> {
         BoundCode::from_index(272u16)
     }
@@ -46990,31 +46990,31 @@ impl ValueSetDef for SubjectType {
 impl SubjectType {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "Device"]
     pub fn device() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "Location"]
     pub fn location() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "Organization"]
     pub fn organization() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "Patient"]
     pub fn patient() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "Practitioner"]
     pub fn practitioner() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
@@ -47931,25 +47931,25 @@ impl ValueSetDef for SystemRestfulInteraction {
 impl SystemRestfulInteraction {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "batch"]
     pub fn batch() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "history-system"]
     pub fn history_system() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "search-system"]
     pub fn search_system() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "transaction"]
     pub fn transaction() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
@@ -48035,49 +48035,49 @@ impl ValueSetDef for TaskIntent {
 impl TaskIntent {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "filler-order"]
     pub fn filler_order() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "instance-order"]
     pub fn instance_order() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "option"]
     pub fn option() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "order"]
     pub fn order() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "original-order"]
     pub fn original_order() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "plan"]
     pub fn plan() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "proposal"]
     pub fn proposal() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "reflex-order"]
     pub fn reflex_order() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
@@ -49504,55 +49504,55 @@ impl ValueSetDef for TypeRestfulInteraction {
 impl TypeRestfulInteraction {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "create"]
     pub fn create() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "delete"]
     pub fn delete() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "history-instance"]
     pub fn history_instance() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "history-type"]
     pub fn history_type() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "patch"]
     pub fn patch() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "read"]
     pub fn read() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "search-type"]
     pub fn search_type() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "update"]
     pub fn update() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "vread"]
     pub fn vread() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
@@ -49571,13 +49571,13 @@ impl ValueSetDef for UcumBodylength {
 impl UcumBodylength {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "[in_i]"]
     pub fn left_square_bracketin_i_right_square_bracket() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "cm"]
     pub fn cm() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
@@ -49596,13 +49596,13 @@ impl ValueSetDef for UcumBodytemp {
 impl UcumBodytemp {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "Cel"]
     pub fn cel() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "[degF]"]
     pub fn left_square_bracketdegf_right_square_bracket() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
@@ -49621,19 +49621,19 @@ impl ValueSetDef for UcumBodyweight {
 impl UcumBodyweight {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "[lb_av]"]
     pub fn left_square_bracketlb_av_right_square_bracket() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "g"]
     pub fn g() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "kg"]
     pub fn kg() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
@@ -50999,7 +50999,7 @@ impl V3AcknowledgementDetailType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ERR"]
     pub fn err() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
@@ -51011,7 +51011,7 @@ impl V3AcknowledgementDetailType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "INFO"]
     pub fn info() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
@@ -51023,7 +51023,7 @@ impl V3AcknowledgementDetailType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "WARN"]
     pub fn warn() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
@@ -51408,25 +51408,25 @@ impl V3ActClass {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCCNTNT"]
     pub fn doccntnt() -> BoundCode<Self> {
         BoundCode::from_index(32u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLIST"]
     pub fn doclist() -> BoundCode<Self> {
         BoundCode::from_index(33u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLSTITM"]
     pub fn doclstitm() -> BoundCode<Self> {
         BoundCode::from_index(34u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCPARA"]
     pub fn docpara() -> BoundCode<Self> {
         BoundCode::from_index(35u16)
     }
@@ -51438,7 +51438,7 @@ impl V3ActClass {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCTBL"]
     pub fn doctbl() -> BoundCode<Self> {
         BoundCode::from_index(37u16)
     }
@@ -51546,7 +51546,7 @@ impl V3ActClass {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LINKHTML"]
     pub fn linkhtml() -> BoundCode<Self> {
         BoundCode::from_index(55u16)
     }
@@ -51570,13 +51570,13 @@ impl V3ActClass {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALATTR"]
     pub fn localattr() -> BoundCode<Self> {
         BoundCode::from_index(59u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALMRKP"]
     pub fn localmrkp() -> BoundCode<Self> {
         BoundCode::from_index(60u16)
     }
@@ -51684,7 +51684,7 @@ impl V3ActClass {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "REFR"]
     pub fn refr() -> BoundCode<Self> {
         BoundCode::from_index(78u16)
     }
@@ -51828,31 +51828,31 @@ impl V3ActClass {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOL"]
     pub fn tblcol() -> BoundCode<Self> {
         BoundCode::from_index(102u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOLGP"]
     pub fn tblcolgp() -> BoundCode<Self> {
         BoundCode::from_index(103u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLDATA"]
     pub fn tbldata() -> BoundCode<Self> {
         BoundCode::from_index(104u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLHDR"]
     pub fn tblhdr() -> BoundCode<Self> {
         BoundCode::from_index(105u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLROW"]
     pub fn tblrow() -> BoundCode<Self> {
         BoundCode::from_index(106u16)
     }
@@ -51930,31 +51930,31 @@ impl V3ActClass {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ordered"]
     pub fn ordered() -> BoundCode<Self> {
         BoundCode::from_index(119u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tbody"]
     pub fn tbody() -> BoundCode<Self> {
         BoundCode::from_index(120u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tfoot"]
     pub fn tfoot() -> BoundCode<Self> {
         BoundCode::from_index(121u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "thead"]
     pub fn thead() -> BoundCode<Self> {
         BoundCode::from_index(122u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "unordered"]
     pub fn unordered() -> BoundCode<Self> {
         BoundCode::from_index(123u16)
     }
@@ -52290,25 +52290,25 @@ impl V3ActClassClinicalDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCCNTNT"]
     pub fn doccntnt() -> BoundCode<Self> {
         BoundCode::from_index(32u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLIST"]
     pub fn doclist() -> BoundCode<Self> {
         BoundCode::from_index(33u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLSTITM"]
     pub fn doclstitm() -> BoundCode<Self> {
         BoundCode::from_index(34u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCPARA"]
     pub fn docpara() -> BoundCode<Self> {
         BoundCode::from_index(35u16)
     }
@@ -52320,7 +52320,7 @@ impl V3ActClassClinicalDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCTBL"]
     pub fn doctbl() -> BoundCode<Self> {
         BoundCode::from_index(37u16)
     }
@@ -52428,7 +52428,7 @@ impl V3ActClassClinicalDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LINKHTML"]
     pub fn linkhtml() -> BoundCode<Self> {
         BoundCode::from_index(55u16)
     }
@@ -52452,13 +52452,13 @@ impl V3ActClassClinicalDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALATTR"]
     pub fn localattr() -> BoundCode<Self> {
         BoundCode::from_index(59u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALMRKP"]
     pub fn localmrkp() -> BoundCode<Self> {
         BoundCode::from_index(60u16)
     }
@@ -52566,7 +52566,7 @@ impl V3ActClassClinicalDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "REFR"]
     pub fn refr() -> BoundCode<Self> {
         BoundCode::from_index(78u16)
     }
@@ -52710,31 +52710,31 @@ impl V3ActClassClinicalDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOL"]
     pub fn tblcol() -> BoundCode<Self> {
         BoundCode::from_index(102u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOLGP"]
     pub fn tblcolgp() -> BoundCode<Self> {
         BoundCode::from_index(103u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLDATA"]
     pub fn tbldata() -> BoundCode<Self> {
         BoundCode::from_index(104u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLHDR"]
     pub fn tblhdr() -> BoundCode<Self> {
         BoundCode::from_index(105u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLROW"]
     pub fn tblrow() -> BoundCode<Self> {
         BoundCode::from_index(106u16)
     }
@@ -52812,31 +52812,31 @@ impl V3ActClassClinicalDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ordered"]
     pub fn ordered() -> BoundCode<Self> {
         BoundCode::from_index(119u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tbody"]
     pub fn tbody() -> BoundCode<Self> {
         BoundCode::from_index(120u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tfoot"]
     pub fn tfoot() -> BoundCode<Self> {
         BoundCode::from_index(121u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "thead"]
     pub fn thead() -> BoundCode<Self> {
         BoundCode::from_index(122u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "unordered"]
     pub fn unordered() -> BoundCode<Self> {
         BoundCode::from_index(123u16)
     }
@@ -53172,25 +53172,25 @@ impl V3ActClassDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCCNTNT"]
     pub fn doccntnt() -> BoundCode<Self> {
         BoundCode::from_index(32u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLIST"]
     pub fn doclist() -> BoundCode<Self> {
         BoundCode::from_index(33u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLSTITM"]
     pub fn doclstitm() -> BoundCode<Self> {
         BoundCode::from_index(34u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCPARA"]
     pub fn docpara() -> BoundCode<Self> {
         BoundCode::from_index(35u16)
     }
@@ -53202,7 +53202,7 @@ impl V3ActClassDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCTBL"]
     pub fn doctbl() -> BoundCode<Self> {
         BoundCode::from_index(37u16)
     }
@@ -53310,7 +53310,7 @@ impl V3ActClassDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LINKHTML"]
     pub fn linkhtml() -> BoundCode<Self> {
         BoundCode::from_index(55u16)
     }
@@ -53334,13 +53334,13 @@ impl V3ActClassDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALATTR"]
     pub fn localattr() -> BoundCode<Self> {
         BoundCode::from_index(59u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALMRKP"]
     pub fn localmrkp() -> BoundCode<Self> {
         BoundCode::from_index(60u16)
     }
@@ -53448,7 +53448,7 @@ impl V3ActClassDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "REFR"]
     pub fn refr() -> BoundCode<Self> {
         BoundCode::from_index(78u16)
     }
@@ -53592,31 +53592,31 @@ impl V3ActClassDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOL"]
     pub fn tblcol() -> BoundCode<Self> {
         BoundCode::from_index(102u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOLGP"]
     pub fn tblcolgp() -> BoundCode<Self> {
         BoundCode::from_index(103u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLDATA"]
     pub fn tbldata() -> BoundCode<Self> {
         BoundCode::from_index(104u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLHDR"]
     pub fn tblhdr() -> BoundCode<Self> {
         BoundCode::from_index(105u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLROW"]
     pub fn tblrow() -> BoundCode<Self> {
         BoundCode::from_index(106u16)
     }
@@ -53694,31 +53694,31 @@ impl V3ActClassDocument {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ordered"]
     pub fn ordered() -> BoundCode<Self> {
         BoundCode::from_index(119u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tbody"]
     pub fn tbody() -> BoundCode<Self> {
         BoundCode::from_index(120u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tfoot"]
     pub fn tfoot() -> BoundCode<Self> {
         BoundCode::from_index(121u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "thead"]
     pub fn thead() -> BoundCode<Self> {
         BoundCode::from_index(122u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "unordered"]
     pub fn unordered() -> BoundCode<Self> {
         BoundCode::from_index(123u16)
     }
@@ -54054,25 +54054,25 @@ impl V3ActClassInvestigation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCCNTNT"]
     pub fn doccntnt() -> BoundCode<Self> {
         BoundCode::from_index(32u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLIST"]
     pub fn doclist() -> BoundCode<Self> {
         BoundCode::from_index(33u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLSTITM"]
     pub fn doclstitm() -> BoundCode<Self> {
         BoundCode::from_index(34u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCPARA"]
     pub fn docpara() -> BoundCode<Self> {
         BoundCode::from_index(35u16)
     }
@@ -54084,7 +54084,7 @@ impl V3ActClassInvestigation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCTBL"]
     pub fn doctbl() -> BoundCode<Self> {
         BoundCode::from_index(37u16)
     }
@@ -54192,7 +54192,7 @@ impl V3ActClassInvestigation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LINKHTML"]
     pub fn linkhtml() -> BoundCode<Self> {
         BoundCode::from_index(55u16)
     }
@@ -54216,13 +54216,13 @@ impl V3ActClassInvestigation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALATTR"]
     pub fn localattr() -> BoundCode<Self> {
         BoundCode::from_index(59u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALMRKP"]
     pub fn localmrkp() -> BoundCode<Self> {
         BoundCode::from_index(60u16)
     }
@@ -54330,7 +54330,7 @@ impl V3ActClassInvestigation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "REFR"]
     pub fn refr() -> BoundCode<Self> {
         BoundCode::from_index(78u16)
     }
@@ -54474,31 +54474,31 @@ impl V3ActClassInvestigation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOL"]
     pub fn tblcol() -> BoundCode<Self> {
         BoundCode::from_index(102u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOLGP"]
     pub fn tblcolgp() -> BoundCode<Self> {
         BoundCode::from_index(103u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLDATA"]
     pub fn tbldata() -> BoundCode<Self> {
         BoundCode::from_index(104u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLHDR"]
     pub fn tblhdr() -> BoundCode<Self> {
         BoundCode::from_index(105u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLROW"]
     pub fn tblrow() -> BoundCode<Self> {
         BoundCode::from_index(106u16)
     }
@@ -54576,31 +54576,31 @@ impl V3ActClassInvestigation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ordered"]
     pub fn ordered() -> BoundCode<Self> {
         BoundCode::from_index(119u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tbody"]
     pub fn tbody() -> BoundCode<Self> {
         BoundCode::from_index(120u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tfoot"]
     pub fn tfoot() -> BoundCode<Self> {
         BoundCode::from_index(121u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "thead"]
     pub fn thead() -> BoundCode<Self> {
         BoundCode::from_index(122u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "unordered"]
     pub fn unordered() -> BoundCode<Self> {
         BoundCode::from_index(123u16)
     }
@@ -54936,25 +54936,25 @@ impl V3ActClassObservation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCCNTNT"]
     pub fn doccntnt() -> BoundCode<Self> {
         BoundCode::from_index(32u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLIST"]
     pub fn doclist() -> BoundCode<Self> {
         BoundCode::from_index(33u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLSTITM"]
     pub fn doclstitm() -> BoundCode<Self> {
         BoundCode::from_index(34u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCPARA"]
     pub fn docpara() -> BoundCode<Self> {
         BoundCode::from_index(35u16)
     }
@@ -54966,7 +54966,7 @@ impl V3ActClassObservation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCTBL"]
     pub fn doctbl() -> BoundCode<Self> {
         BoundCode::from_index(37u16)
     }
@@ -55074,7 +55074,7 @@ impl V3ActClassObservation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LINKHTML"]
     pub fn linkhtml() -> BoundCode<Self> {
         BoundCode::from_index(55u16)
     }
@@ -55098,13 +55098,13 @@ impl V3ActClassObservation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALATTR"]
     pub fn localattr() -> BoundCode<Self> {
         BoundCode::from_index(59u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALMRKP"]
     pub fn localmrkp() -> BoundCode<Self> {
         BoundCode::from_index(60u16)
     }
@@ -55212,7 +55212,7 @@ impl V3ActClassObservation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "REFR"]
     pub fn refr() -> BoundCode<Self> {
         BoundCode::from_index(78u16)
     }
@@ -55356,31 +55356,31 @@ impl V3ActClassObservation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOL"]
     pub fn tblcol() -> BoundCode<Self> {
         BoundCode::from_index(102u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOLGP"]
     pub fn tblcolgp() -> BoundCode<Self> {
         BoundCode::from_index(103u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLDATA"]
     pub fn tbldata() -> BoundCode<Self> {
         BoundCode::from_index(104u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLHDR"]
     pub fn tblhdr() -> BoundCode<Self> {
         BoundCode::from_index(105u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLROW"]
     pub fn tblrow() -> BoundCode<Self> {
         BoundCode::from_index(106u16)
     }
@@ -55458,31 +55458,31 @@ impl V3ActClassObservation {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ordered"]
     pub fn ordered() -> BoundCode<Self> {
         BoundCode::from_index(119u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tbody"]
     pub fn tbody() -> BoundCode<Self> {
         BoundCode::from_index(120u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tfoot"]
     pub fn tfoot() -> BoundCode<Self> {
         BoundCode::from_index(121u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "thead"]
     pub fn thead() -> BoundCode<Self> {
         BoundCode::from_index(122u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "unordered"]
     pub fn unordered() -> BoundCode<Self> {
         BoundCode::from_index(123u16)
     }
@@ -55818,25 +55818,25 @@ impl V3ActClassProcedure {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCCNTNT"]
     pub fn doccntnt() -> BoundCode<Self> {
         BoundCode::from_index(32u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLIST"]
     pub fn doclist() -> BoundCode<Self> {
         BoundCode::from_index(33u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLSTITM"]
     pub fn doclstitm() -> BoundCode<Self> {
         BoundCode::from_index(34u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCPARA"]
     pub fn docpara() -> BoundCode<Self> {
         BoundCode::from_index(35u16)
     }
@@ -55848,7 +55848,7 @@ impl V3ActClassProcedure {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCTBL"]
     pub fn doctbl() -> BoundCode<Self> {
         BoundCode::from_index(37u16)
     }
@@ -55956,7 +55956,7 @@ impl V3ActClassProcedure {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LINKHTML"]
     pub fn linkhtml() -> BoundCode<Self> {
         BoundCode::from_index(55u16)
     }
@@ -55980,13 +55980,13 @@ impl V3ActClassProcedure {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALATTR"]
     pub fn localattr() -> BoundCode<Self> {
         BoundCode::from_index(59u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALMRKP"]
     pub fn localmrkp() -> BoundCode<Self> {
         BoundCode::from_index(60u16)
     }
@@ -56094,7 +56094,7 @@ impl V3ActClassProcedure {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "REFR"]
     pub fn refr() -> BoundCode<Self> {
         BoundCode::from_index(78u16)
     }
@@ -56238,31 +56238,31 @@ impl V3ActClassProcedure {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOL"]
     pub fn tblcol() -> BoundCode<Self> {
         BoundCode::from_index(102u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOLGP"]
     pub fn tblcolgp() -> BoundCode<Self> {
         BoundCode::from_index(103u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLDATA"]
     pub fn tbldata() -> BoundCode<Self> {
         BoundCode::from_index(104u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLHDR"]
     pub fn tblhdr() -> BoundCode<Self> {
         BoundCode::from_index(105u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLROW"]
     pub fn tblrow() -> BoundCode<Self> {
         BoundCode::from_index(106u16)
     }
@@ -56340,31 +56340,31 @@ impl V3ActClassProcedure {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ordered"]
     pub fn ordered() -> BoundCode<Self> {
         BoundCode::from_index(119u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tbody"]
     pub fn tbody() -> BoundCode<Self> {
         BoundCode::from_index(120u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tfoot"]
     pub fn tfoot() -> BoundCode<Self> {
         BoundCode::from_index(121u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "thead"]
     pub fn thead() -> BoundCode<Self> {
         BoundCode::from_index(122u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "unordered"]
     pub fn unordered() -> BoundCode<Self> {
         BoundCode::from_index(123u16)
     }
@@ -56700,25 +56700,25 @@ impl V3ActClassROI {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCCNTNT"]
     pub fn doccntnt() -> BoundCode<Self> {
         BoundCode::from_index(32u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLIST"]
     pub fn doclist() -> BoundCode<Self> {
         BoundCode::from_index(33u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLSTITM"]
     pub fn doclstitm() -> BoundCode<Self> {
         BoundCode::from_index(34u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCPARA"]
     pub fn docpara() -> BoundCode<Self> {
         BoundCode::from_index(35u16)
     }
@@ -56730,7 +56730,7 @@ impl V3ActClassROI {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCTBL"]
     pub fn doctbl() -> BoundCode<Self> {
         BoundCode::from_index(37u16)
     }
@@ -56838,7 +56838,7 @@ impl V3ActClassROI {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LINKHTML"]
     pub fn linkhtml() -> BoundCode<Self> {
         BoundCode::from_index(55u16)
     }
@@ -56862,13 +56862,13 @@ impl V3ActClassROI {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALATTR"]
     pub fn localattr() -> BoundCode<Self> {
         BoundCode::from_index(59u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALMRKP"]
     pub fn localmrkp() -> BoundCode<Self> {
         BoundCode::from_index(60u16)
     }
@@ -56976,7 +56976,7 @@ impl V3ActClassROI {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "REFR"]
     pub fn refr() -> BoundCode<Self> {
         BoundCode::from_index(78u16)
     }
@@ -57120,31 +57120,31 @@ impl V3ActClassROI {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOL"]
     pub fn tblcol() -> BoundCode<Self> {
         BoundCode::from_index(102u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOLGP"]
     pub fn tblcolgp() -> BoundCode<Self> {
         BoundCode::from_index(103u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLDATA"]
     pub fn tbldata() -> BoundCode<Self> {
         BoundCode::from_index(104u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLHDR"]
     pub fn tblhdr() -> BoundCode<Self> {
         BoundCode::from_index(105u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLROW"]
     pub fn tblrow() -> BoundCode<Self> {
         BoundCode::from_index(106u16)
     }
@@ -57222,31 +57222,31 @@ impl V3ActClassROI {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ordered"]
     pub fn ordered() -> BoundCode<Self> {
         BoundCode::from_index(119u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tbody"]
     pub fn tbody() -> BoundCode<Self> {
         BoundCode::from_index(120u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tfoot"]
     pub fn tfoot() -> BoundCode<Self> {
         BoundCode::from_index(121u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "thead"]
     pub fn thead() -> BoundCode<Self> {
         BoundCode::from_index(122u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "unordered"]
     pub fn unordered() -> BoundCode<Self> {
         BoundCode::from_index(123u16)
     }
@@ -57582,25 +57582,25 @@ impl V3ActClassSupply {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCCNTNT"]
     pub fn doccntnt() -> BoundCode<Self> {
         BoundCode::from_index(32u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLIST"]
     pub fn doclist() -> BoundCode<Self> {
         BoundCode::from_index(33u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCLSTITM"]
     pub fn doclstitm() -> BoundCode<Self> {
         BoundCode::from_index(34u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCPARA"]
     pub fn docpara() -> BoundCode<Self> {
         BoundCode::from_index(35u16)
     }
@@ -57612,7 +57612,7 @@ impl V3ActClassSupply {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DOCTBL"]
     pub fn doctbl() -> BoundCode<Self> {
         BoundCode::from_index(37u16)
     }
@@ -57720,7 +57720,7 @@ impl V3ActClassSupply {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LINKHTML"]
     pub fn linkhtml() -> BoundCode<Self> {
         BoundCode::from_index(55u16)
     }
@@ -57744,13 +57744,13 @@ impl V3ActClassSupply {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALATTR"]
     pub fn localattr() -> BoundCode<Self> {
         BoundCode::from_index(59u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LOCALMRKP"]
     pub fn localmrkp() -> BoundCode<Self> {
         BoundCode::from_index(60u16)
     }
@@ -57858,7 +57858,7 @@ impl V3ActClassSupply {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "REFR"]
     pub fn refr() -> BoundCode<Self> {
         BoundCode::from_index(78u16)
     }
@@ -58002,31 +58002,31 @@ impl V3ActClassSupply {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOL"]
     pub fn tblcol() -> BoundCode<Self> {
         BoundCode::from_index(102u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLCOLGP"]
     pub fn tblcolgp() -> BoundCode<Self> {
         BoundCode::from_index(103u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLDATA"]
     pub fn tbldata() -> BoundCode<Self> {
         BoundCode::from_index(104u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLHDR"]
     pub fn tblhdr() -> BoundCode<Self> {
         BoundCode::from_index(105u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TBLROW"]
     pub fn tblrow() -> BoundCode<Self> {
         BoundCode::from_index(106u16)
     }
@@ -58104,31 +58104,31 @@ impl V3ActClassSupply {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ordered"]
     pub fn ordered() -> BoundCode<Self> {
         BoundCode::from_index(119u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tbody"]
     pub fn tbody() -> BoundCode<Self> {
         BoundCode::from_index(120u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "tfoot"]
     pub fn tfoot() -> BoundCode<Self> {
         BoundCode::from_index(121u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "thead"]
     pub fn thead() -> BoundCode<Self> {
         BoundCode::from_index(122u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "unordered"]
     pub fn unordered() -> BoundCode<Self> {
         BoundCode::from_index(123u16)
     }
@@ -59309,7 +59309,7 @@ impl V3ActReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "BONUS"]
     pub fn bonus() -> BoundCode<Self> {
         BoundCode::from_index(12u16)
     }
@@ -59507,7 +59507,7 @@ impl V3ActReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "EDU"]
     pub fn edu() -> BoundCode<Self> {
         BoundCode::from_index(45u16)
     }
@@ -59879,7 +59879,7 @@ impl V3ActReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "INVOICE"]
     pub fn invoice() -> BoundCode<Self> {
         BoundCode::from_index(107u16)
     }
@@ -60329,7 +60329,7 @@ impl V3ActReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PROA"]
     pub fn proa() -> BoundCode<Self> {
         BoundCode::from_index(182u16)
     }
@@ -60401,7 +60401,7 @@ impl V3ActReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "RECOV"]
     pub fn recov() -> BoundCode<Self> {
         BoundCode::from_index(194u16)
     }
@@ -60455,7 +60455,7 @@ impl V3ActReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "RETRO"]
     pub fn retro() -> BoundCode<Self> {
         BoundCode::from_index(203u16)
     }
@@ -60587,7 +60587,7 @@ impl V3ActReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TRAN"]
     pub fn tran() -> BoundCode<Self> {
         BoundCode::from_index(225u16)
     }
@@ -61573,7 +61573,7 @@ impl V3ActRelationshipConditional {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "RACT"]
     pub fn ract() -> BoundCode<Self> {
         BoundCode::from_index(77u16)
     }
@@ -61819,7 +61819,7 @@ impl V3ActRelationshipConditional {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "SUGG"]
     pub fn sugg() -> BoundCode<Self> {
         BoundCode::from_index(118u16)
     }
@@ -62546,7 +62546,7 @@ impl V3ActRelationshipFulfills {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "RACT"]
     pub fn ract() -> BoundCode<Self> {
         BoundCode::from_index(77u16)
     }
@@ -62792,7 +62792,7 @@ impl V3ActRelationshipFulfills {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "SUGG"]
     pub fn sugg() -> BoundCode<Self> {
         BoundCode::from_index(118u16)
     }
@@ -63519,7 +63519,7 @@ impl V3ActRelationshipHasComponent {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "RACT"]
     pub fn ract() -> BoundCode<Self> {
         BoundCode::from_index(77u16)
     }
@@ -63765,7 +63765,7 @@ impl V3ActRelationshipHasComponent {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "SUGG"]
     pub fn sugg() -> BoundCode<Self> {
         BoundCode::from_index(118u16)
     }
@@ -64529,7 +64529,7 @@ impl V3ActRelationshipPertains {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "RACT"]
     pub fn ract() -> BoundCode<Self> {
         BoundCode::from_index(77u16)
     }
@@ -64775,7 +64775,7 @@ impl V3ActRelationshipPertains {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "SUGG"]
     pub fn sugg() -> BoundCode<Self> {
         BoundCode::from_index(118u16)
     }
@@ -65651,7 +65651,7 @@ impl V3ActRelationshipType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "RACT"]
     pub fn ract() -> BoundCode<Self> {
         BoundCode::from_index(77u16)
     }
@@ -65897,7 +65897,7 @@ impl V3ActRelationshipType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "SUGG"]
     pub fn sugg() -> BoundCode<Self> {
         BoundCode::from_index(118u16)
     }
@@ -69406,37 +69406,37 @@ impl ValueSetDef for V3ConfidentialityClassification {
 impl V3ConfidentialityClassification {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "L"]
     pub fn l() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "M"]
     pub fn m() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "N"]
     pub fn n() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "R"]
     pub fn r() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "U"]
     pub fn u() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "V"]
     pub fn v() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
@@ -76815,7 +76815,7 @@ impl V3FamilyMember {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DEP"]
     pub fn dep() -> BoundCode<Self> {
         BoundCode::from_index(72u16)
     }
@@ -78015,7 +78015,7 @@ impl V3FamilyMember {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PSYCHCF"]
     pub fn psychcf() -> BoundCode<Self> {
         BoundCode::from_index(272u16)
     }
@@ -79127,55 +79127,55 @@ impl ValueSetDef for V3GeneralPurposeOfUse {
 impl V3GeneralPurposeOfUse {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "COVERAGE"]
     pub fn coverage() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ETREAT"]
     pub fn etreat() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "HMARKT"]
     pub fn hmarkt() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "HOPERAT"]
     pub fn hoperat() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "HPAYMT"]
     pub fn hpaymt() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "HRESCH"]
     pub fn hresch() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PATRQT"]
     pub fn patrqt() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PUBHLTH"]
     pub fn pubhlth() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TREAT"]
     pub fn treat() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
@@ -80996,7 +80996,7 @@ impl V3MilitaryRoleType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DEP"]
     pub fn dep() -> BoundCode<Self> {
         BoundCode::from_index(72u16)
     }
@@ -82196,7 +82196,7 @@ impl V3MilitaryRoleType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PSYCHCF"]
     pub fn psychcf() -> BoundCode<Self> {
         BoundCode::from_index(272u16)
     }
@@ -92978,7 +92978,7 @@ impl V3PersonalRelationshipRoleType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DEP"]
     pub fn dep() -> BoundCode<Self> {
         BoundCode::from_index(72u16)
     }
@@ -94178,7 +94178,7 @@ impl V3PersonalRelationshipRoleType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PSYCHCF"]
     pub fn psychcf() -> BoundCode<Self> {
         BoundCode::from_index(272u16)
     }
@@ -95088,67 +95088,67 @@ impl ValueSetDef for V3ProvenanceEventCurrentState {
 impl V3ProvenanceEventCurrentState {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "AU"]
     pub fn au() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DI"]
     pub fn di() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DO"]
     pub fn do_() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LA"]
     pub fn la() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "UC"]
     pub fn uc() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "aborted"]
     pub fn aborted() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "cancelled"]
     pub fn cancelled() -> BoundCode<Self> {
         BoundCode::from_index(6u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "completed"]
     pub fn completed() -> BoundCode<Self> {
         BoundCode::from_index(7u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "new"]
     pub fn new() -> BoundCode<Self> {
         BoundCode::from_index(8u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "nullified"]
     pub fn nullified() -> BoundCode<Self> {
         BoundCode::from_index(9u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "obsolete"]
     pub fn obsolete() -> BoundCode<Self> {
         BoundCode::from_index(10u16)
     }
@@ -95175,37 +95175,37 @@ impl ValueSetDef for V3ProvenanceEventCurrentStateAS {
 impl V3ProvenanceEventCurrentStateAS {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "aborted"]
     pub fn aborted() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "cancelled"]
     pub fn cancelled() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "completed"]
     pub fn completed() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "new"]
     pub fn new() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "nullified"]
     pub fn nullified() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "obsolete"]
     pub fn obsolete() -> BoundCode<Self> {
         BoundCode::from_index(5u16)
     }
@@ -95225,31 +95225,31 @@ impl ValueSetDef for V3ProvenanceEventCurrentStateDC {
 impl V3ProvenanceEventCurrentStateDC {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "AU"]
     pub fn au() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DI"]
     pub fn di() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DO"]
     pub fn do_() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "LA"]
     pub fn la() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "UC"]
     pub fn uc() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
@@ -95621,7 +95621,7 @@ impl V3PurposeOfUse {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "BONUS"]
     pub fn bonus() -> BoundCode<Self> {
         BoundCode::from_index(12u16)
     }
@@ -95819,7 +95819,7 @@ impl V3PurposeOfUse {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "EDU"]
     pub fn edu() -> BoundCode<Self> {
         BoundCode::from_index(45u16)
     }
@@ -96191,7 +96191,7 @@ impl V3PurposeOfUse {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "INVOICE"]
     pub fn invoice() -> BoundCode<Self> {
         BoundCode::from_index(107u16)
     }
@@ -96641,7 +96641,7 @@ impl V3PurposeOfUse {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PROA"]
     pub fn proa() -> BoundCode<Self> {
         BoundCode::from_index(182u16)
     }
@@ -96713,7 +96713,7 @@ impl V3PurposeOfUse {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "RECOV"]
     pub fn recov() -> BoundCode<Self> {
         BoundCode::from_index(194u16)
     }
@@ -96767,7 +96767,7 @@ impl V3PurposeOfUse {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "RETRO"]
     pub fn retro() -> BoundCode<Self> {
         BoundCode::from_index(203u16)
     }
@@ -96899,7 +96899,7 @@ impl V3PurposeOfUse {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TRAN"]
     pub fn tran() -> BoundCode<Self> {
         BoundCode::from_index(225u16)
     }
@@ -107836,7 +107836,7 @@ impl V3RoleCode {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DEP"]
     pub fn dep() -> BoundCode<Self> {
         BoundCode::from_index(72u16)
     }
@@ -109036,7 +109036,7 @@ impl V3RoleCode {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PSYCHCF"]
     pub fn psychcf() -> BoundCode<Self> {
         BoundCode::from_index(272u16)
     }
@@ -115324,7 +115324,7 @@ impl V3ServiceDeliveryLocationRoleType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "DEP"]
     pub fn dep() -> BoundCode<Self> {
         BoundCode::from_index(72u16)
     }
@@ -116524,7 +116524,7 @@ impl V3ServiceDeliveryLocationRoleType {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PSYCHCF"]
     pub fn psychcf() -> BoundCode<Self> {
         BoundCode::from_index(272u16)
     }
@@ -120336,7 +120336,7 @@ impl V3SubstanceAdminSubstitutionReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "BONUS"]
     pub fn bonus() -> BoundCode<Self> {
         BoundCode::from_index(12u16)
     }
@@ -120534,7 +120534,7 @@ impl V3SubstanceAdminSubstitutionReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "EDU"]
     pub fn edu() -> BoundCode<Self> {
         BoundCode::from_index(45u16)
     }
@@ -120906,7 +120906,7 @@ impl V3SubstanceAdminSubstitutionReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "INVOICE"]
     pub fn invoice() -> BoundCode<Self> {
         BoundCode::from_index(107u16)
     }
@@ -121356,7 +121356,7 @@ impl V3SubstanceAdminSubstitutionReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "PROA"]
     pub fn proa() -> BoundCode<Self> {
         BoundCode::from_index(182u16)
     }
@@ -121428,7 +121428,7 @@ impl V3SubstanceAdminSubstitutionReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "RECOV"]
     pub fn recov() -> BoundCode<Self> {
         BoundCode::from_index(194u16)
     }
@@ -121482,7 +121482,7 @@ impl V3SubstanceAdminSubstitutionReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "RETRO"]
     pub fn retro() -> BoundCode<Self> {
         BoundCode::from_index(203u16)
     }
@@ -121614,7 +121614,7 @@ impl V3SubstanceAdminSubstitutionReason {
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "TRAN"]
     pub fn tran() -> BoundCode<Self> {
         BoundCode::from_index(225u16)
     }
@@ -131047,19 +131047,19 @@ impl ValueSetDef for V3XBasicConfidentialityKind {
 impl V3XBasicConfidentialityKind {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "N"]
     pub fn n() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "R"]
     pub fn r() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "V"]
     pub fn v() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
@@ -133182,31 +133182,31 @@ impl ValueSetDef for SQLQueryRunOutputFormatCodes {
 impl SQLQueryRunOutputFormatCodes {
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "csv"]
     pub fn csv() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "fhir"]
     pub fn fhir() -> BoundCode<Self> {
         BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "json"]
     pub fn json() -> BoundCode<Self> {
         BoundCode::from_index(2u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "ndjson"]
     pub fn ndjson() -> BoundCode<Self> {
         BoundCode::from_index(3u16)
     }
     #[inline]
     #[must_use]
-    #[doc = ""]
+    #[doc = "parquet"]
     pub fn parquet() -> BoundCode<Self> {
         BoundCode::from_index(4u16)
     }
