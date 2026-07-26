@@ -1487,10 +1487,10 @@ mod tests {
         };
         identifier.value = Some(Box::new(FHIRString {
             id: None,
-            extension: Some(vec![Box::new(extension)]),
+            extension: Some(vec![extension]),
             value: Some("12345".to_string()),
         }));
-        patient.identifier_ = Some(vec![Box::new(identifier)]);
+        patient.identifier_ = Some(vec![identifier]);
 
         let context = engine
             .evaluate(
@@ -1534,11 +1534,11 @@ mod tests {
     fn test_patient() -> Patient {
         let mut patient = Patient::default();
         let mut name = HumanName::default();
-        name.given = Some(vec![Box::new(FHIRString {
+        name.given = Some(vec![FHIRString {
             id: None,
             extension: None,
             value: Some("Bob".to_string()),
-        })]);
+        }]);
 
         let mut mrn_identifier = Identifier::default();
         mrn_identifier.value = Some(Box::new(FHIRString {
@@ -1570,8 +1570,8 @@ mod tests {
             value: Some("mrn".to_string()),
         }));
 
-        patient.identifier_ = Some(vec![Box::new(mrn_identifier), Box::new(ssn_identifier)]);
-        patient.name = Some(vec![Box::new(name)]);
+        patient.identifier_ = Some(vec![mrn_identifier, ssn_identifier]);
+        patient.name = Some(vec![name]);
         patient
     }
 
@@ -2008,13 +2008,13 @@ mod tests {
     async fn children_test() {
         let engine = FPEngine::new();
         let patient = Patient {
-            name: Some(vec![Box::new(HumanName {
-                given: Some(vec![Box::new(FHIRString {
+            name: Some(vec![HumanName {
+                given: Some(vec![FHIRString {
                     value: Some("Alice".to_string()),
                     ..Default::default()
-                })]),
+                }]),
                 ..Default::default()
-            })]),
+            }]),
             deceased: Some(PatientDeceasedTypeChoice::Boolean(Box::new(FHIRBoolean {
                 value: Some(true),
                 ..Default::default()
@@ -2042,13 +2042,13 @@ mod tests {
     async fn repeat_test() {
         let engine = FPEngine::new();
         let patient = Patient {
-            name: Some(vec![Box::new(HumanName {
-                given: Some(vec![Box::new(FHIRString {
+            name: Some(vec![HumanName {
+                given: Some(vec![FHIRString {
                     value: Some("Alice".to_string()),
                     ..Default::default()
-                })]),
+                }]),
                 ..Default::default()
-            })]),
+            }]),
             deceased: Some(PatientDeceasedTypeChoice::Boolean(Box::new(FHIRBoolean {
                 value: Some(true),
                 ..Default::default()
@@ -2089,13 +2089,13 @@ mod tests {
     async fn descendants_test() {
         let engine = FPEngine::new();
         let patient = Patient {
-            name: Some(vec![Box::new(HumanName {
-                given: Some(vec![Box::new(FHIRString {
+            name: Some(vec![HumanName {
+                given: Some(vec![FHIRString {
                     value: Some("Alice".to_string()),
                     ..Default::default()
-                })]),
+                }]),
                 ..Default::default()
-            })]),
+            }]),
             deceased: Some(PatientDeceasedTypeChoice::Boolean(Box::new(FHIRBoolean {
                 value: Some(true),
                 ..Default::default()
@@ -2137,13 +2137,13 @@ mod tests {
                 }),
                 ..Default::default()
             }]),
-            name: Some(vec![Box::new(HumanName {
-                given: Some(vec![Box::new(FHIRString {
+            name: Some(vec![HumanName {
+                given: Some(vec![FHIRString {
                     value: Some("Alice".to_string()),
                     ..Default::default()
-                })]),
+                }]),
                 ..Default::default()
-            })]),
+            }]),
             deceased: Some(PatientDeceasedTypeChoice::Boolean(Box::new(FHIRBoolean {
                 value: Some(true),
                 ..Default::default()
@@ -2213,13 +2213,13 @@ mod tests {
                 }),
                 ..Default::default()
             }]),
-            name: Some(vec![Box::new(HumanName {
-                given: Some(vec![Box::new(FHIRString {
+            name: Some(vec![HumanName {
+                given: Some(vec![FHIRString {
                     value: Some("Alice".to_string()),
                     ..Default::default()
-                })]),
+                }]),
                 ..Default::default()
-            })]),
+            }]),
             deceased: Some(PatientDeceasedTypeChoice::Boolean(Box::new(FHIRBoolean {
                 value: Some(true),
                 ..Default::default()
@@ -2290,13 +2290,13 @@ mod tests {
                 Box::pin(async move {
                     match v.as_ref() {
                         "test_variable" => Some(ResolvedValue::Box(Box::new(Patient {
-                            name: Some(vec![Box::new(HumanName {
-                                given: Some(vec![Box::new(FHIRString {
+                            name: Some(vec![HumanName {
+                                given: Some(vec![FHIRString {
                                     value: Some("Paul".to_string()),
                                     ..Default::default()
-                                })]),
+                                }]),
                                 ..Default::default()
-                            })]),
+                            }]),
                             ..Default::default()
                         })
                             as Box<dyn MetaValue>)),
@@ -2324,13 +2324,13 @@ mod tests {
         let engine = FPEngine::new();
 
         let patient = Arc::new(Patient {
-            name: Some(vec![Box::new(HumanName {
-                given: Some(vec![Box::new(FHIRString {
+            name: Some(vec![HumanName {
+                given: Some(vec![FHIRString {
                     value: Some("Paul".to_string()),
                     ..Default::default()
-                })]),
+                }]),
                 ..Default::default()
-            })]),
+            }]),
             ..Default::default()
         });
 
@@ -2485,20 +2485,20 @@ mod tests {
     async fn exists_with_clause() {
         let patient = Patient {
             name: Some(vec![
-                Box::new(HumanName {
-                    given: Some(vec![Box::new(FHIRString {
+                HumanName {
+                    given: Some(vec![FHIRString {
                         value: Some("Alice".to_string()),
                         ..Default::default()
-                    })]),
+                    }]),
                     ..Default::default()
-                }),
-                Box::new(HumanName {
-                    given: Some(vec![Box::new(FHIRString {
+                },
+                HumanName {
+                    given: Some(vec![FHIRString {
                         value: Some("Matilda".to_string()),
                         ..Default::default()
-                    })]),
+                    }]),
                     ..Default::default()
-                }),
+                },
             ]),
             ..Default::default()
         };
@@ -2593,10 +2593,10 @@ mod tests {
             .given
             .as_mut()
             .unwrap()
-            .push(Box::new(FHIRString {
+            .push(FHIRString {
                 value: Some("David".to_string()),
                 ..Default::default()
-            }));
+            });
 
         let result = engine
             .evaluate("$this.name.given.join(',')", vec![&patient])
