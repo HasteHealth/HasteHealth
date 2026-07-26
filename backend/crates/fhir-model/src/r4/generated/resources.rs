@@ -610,7 +610,7 @@ pub enum ActivityDefinitionSubjectTypeChoice {
 }
 impl Default for ActivityDefinitionSubjectTypeChoice {
     fn default() -> Self {
-        ActivityDefinitionSubjectTypeChoice::CodeableConcept(Box::new(Default::default()))
+        ActivityDefinitionSubjectTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -633,7 +633,7 @@ pub enum ActivityDefinitionTimingTypeChoice {
 }
 impl Default for ActivityDefinitionTimingTypeChoice {
     fn default() -> Self {
-        ActivityDefinitionTimingTypeChoice::Timing(Box::new(Default::default()))
+        ActivityDefinitionTimingTypeChoice::Timing(Box::default())
     }
 }
 #[derive(
@@ -677,7 +677,7 @@ pub enum ActivityDefinitionProductTypeChoice {
 }
 impl Default for ActivityDefinitionProductTypeChoice {
     fn default() -> Self {
-        ActivityDefinitionProductTypeChoice::Reference(Box::new(Default::default()))
+        ActivityDefinitionProductTypeChoice::Reference(Box::default())
     }
 }
 #[derive(
@@ -1015,7 +1015,7 @@ pub enum AllergyIntoleranceOnsetTypeChoice {
 }
 impl Default for AllergyIntoleranceOnsetTypeChoice {
     fn default() -> Self {
-        AllergyIntoleranceOnsetTypeChoice::DateTime(Box::new(Default::default()))
+        AllergyIntoleranceOnsetTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -1426,7 +1426,7 @@ pub enum AuditEventEntityDetailValueTypeChoice {
 }
 impl Default for AuditEventEntityDetailValueTypeChoice {
     fn default() -> Self {
-        AuditEventEntityDetailValueTypeChoice::String(Box::new(Default::default()))
+        AuditEventEntityDetailValueTypeChoice::String(Box::default())
     }
 }
 #[derive(
@@ -1649,9 +1649,7 @@ pub enum BiologicallyDerivedProductCollectionCollectedTypeChoice {
 }
 impl Default for BiologicallyDerivedProductCollectionCollectedTypeChoice {
     fn default() -> Self {
-        BiologicallyDerivedProductCollectionCollectedTypeChoice::DateTime(Box::new(
-            Default::default(),
-        ))
+        BiologicallyDerivedProductCollectionCollectedTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -1698,7 +1696,7 @@ pub enum BiologicallyDerivedProductProcessingTimeTypeChoice {
 }
 impl Default for BiologicallyDerivedProductProcessingTimeTypeChoice {
     fn default() -> Self {
-        BiologicallyDerivedProductProcessingTimeTypeChoice::DateTime(Box::new(Default::default()))
+        BiologicallyDerivedProductProcessingTimeTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -1747,7 +1745,7 @@ pub enum BiologicallyDerivedProductManipulationTimeTypeChoice {
 }
 impl Default for BiologicallyDerivedProductManipulationTimeTypeChoice {
     fn default() -> Self {
-        BiologicallyDerivedProductManipulationTimeTypeChoice::DateTime(Box::new(Default::default()))
+        BiologicallyDerivedProductManipulationTimeTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -2633,7 +2631,7 @@ pub enum CarePlanActivityDetailScheduledTypeChoice {
 }
 impl Default for CarePlanActivityDetailScheduledTypeChoice {
     fn default() -> Self {
-        CarePlanActivityDetailScheduledTypeChoice::Timing(Box::new(Default::default()))
+        CarePlanActivityDetailScheduledTypeChoice::Timing(Box::default())
     }
 }
 #[derive(
@@ -2652,7 +2650,7 @@ pub enum CarePlanActivityDetailProductTypeChoice {
 }
 impl Default for CarePlanActivityDetailProductTypeChoice {
     fn default() -> Self {
-        CarePlanActivityDetailProductTypeChoice::CodeableConcept(Box::new(Default::default()))
+        CarePlanActivityDetailProductTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -3046,7 +3044,7 @@ pub enum ChargeItemOccurrenceTypeChoice {
 }
 impl Default for ChargeItemOccurrenceTypeChoice {
     fn default() -> Self {
-        ChargeItemOccurrenceTypeChoice::DateTime(Box::new(Default::default()))
+        ChargeItemOccurrenceTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -3089,7 +3087,7 @@ pub enum ChargeItemProductTypeChoice {
 }
 impl Default for ChargeItemProductTypeChoice {
     fn default() -> Self {
-        ChargeItemProductTypeChoice::Reference(Box::new(Default::default()))
+        ChargeItemProductTypeChoice::Reference(Box::default())
     }
 }
 #[derive(
@@ -3467,7 +3465,7 @@ pub enum ClaimSupportingInfoTimingTypeChoice {
 }
 impl Default for ClaimSupportingInfoTimingTypeChoice {
     fn default() -> Self {
-        ClaimSupportingInfoTimingTypeChoice::Date(Box::new(Default::default()))
+        ClaimSupportingInfoTimingTypeChoice::Date(Box::default())
     }
 }
 #[derive(
@@ -3491,7 +3489,7 @@ pub enum ClaimSupportingInfoValueTypeChoice {
 }
 impl Default for ClaimSupportingInfoValueTypeChoice {
     fn default() -> Self {
-        ClaimSupportingInfoValueTypeChoice::Boolean(Box::new(Default::default()))
+        ClaimSupportingInfoValueTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -3544,7 +3542,7 @@ pub enum ClaimDiagnosisDiagnosisTypeChoice {
 }
 impl Default for ClaimDiagnosisDiagnosisTypeChoice {
     fn default() -> Self {
-        ClaimDiagnosisDiagnosisTypeChoice::CodeableConcept(Box::new(Default::default()))
+        ClaimDiagnosisDiagnosisTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -3595,7 +3593,7 @@ pub enum ClaimProcedureProcedureTypeChoice {
 }
 impl Default for ClaimProcedureProcedureTypeChoice {
     fn default() -> Self {
-        ClaimProcedureProcedureTypeChoice::CodeableConcept(Box::new(Default::default()))
+        ClaimProcedureProcedureTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -3688,7 +3686,7 @@ pub enum ClaimAccidentLocationTypeChoice {
 }
 impl Default for ClaimAccidentLocationTypeChoice {
     fn default() -> Self {
-        ClaimAccidentLocationTypeChoice::Address(Box::new(Default::default()))
+        ClaimAccidentLocationTypeChoice::Address(Box::default())
     }
 }
 #[derive(
@@ -3735,7 +3733,7 @@ pub enum ClaimItemServicedTypeChoice {
 }
 impl Default for ClaimItemServicedTypeChoice {
     fn default() -> Self {
-        ClaimItemServicedTypeChoice::Date(Box::new(Default::default()))
+        ClaimItemServicedTypeChoice::Date(Box::default())
     }
 }
 #[derive(
@@ -3755,7 +3753,7 @@ pub enum ClaimItemLocationTypeChoice {
 }
 impl Default for ClaimItemLocationTypeChoice {
     fn default() -> Self {
-        ClaimItemLocationTypeChoice::CodeableConcept(Box::new(Default::default()))
+        ClaimItemLocationTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -4150,7 +4148,7 @@ pub enum ClaimResponseAddItemServicedTypeChoice {
 }
 impl Default for ClaimResponseAddItemServicedTypeChoice {
     fn default() -> Self {
-        ClaimResponseAddItemServicedTypeChoice::Date(Box::new(Default::default()))
+        ClaimResponseAddItemServicedTypeChoice::Date(Box::default())
     }
 }
 #[derive(
@@ -4170,7 +4168,7 @@ pub enum ClaimResponseAddItemLocationTypeChoice {
 }
 impl Default for ClaimResponseAddItemLocationTypeChoice {
     fn default() -> Self {
-        ClaimResponseAddItemLocationTypeChoice::CodeableConcept(Box::new(Default::default()))
+        ClaimResponseAddItemLocationTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -4582,7 +4580,7 @@ pub enum ClinicalImpressionEffectiveTypeChoice {
 }
 impl Default for ClinicalImpressionEffectiveTypeChoice {
     fn default() -> Self {
-        ClinicalImpressionEffectiveTypeChoice::DateTime(Box::new(Default::default()))
+        ClinicalImpressionEffectiveTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -4839,7 +4837,7 @@ pub enum CodeSystemConceptPropertyValueTypeChoice {
 }
 impl Default for CodeSystemConceptPropertyValueTypeChoice {
     fn default() -> Self {
-        CodeSystemConceptPropertyValueTypeChoice::Code(Box::new(Default::default()))
+        CodeSystemConceptPropertyValueTypeChoice::Code(Box::default())
     }
 }
 #[derive(
@@ -5022,7 +5020,7 @@ pub enum CommunicationPayloadContentTypeChoice {
 }
 impl Default for CommunicationPayloadContentTypeChoice {
     fn default() -> Self {
-        CommunicationPayloadContentTypeChoice::String(Box::new(Default::default()))
+        CommunicationPayloadContentTypeChoice::String(Box::default())
     }
 }
 #[derive(
@@ -5158,7 +5156,7 @@ pub enum CommunicationRequestPayloadContentTypeChoice {
 }
 impl Default for CommunicationRequestPayloadContentTypeChoice {
     fn default() -> Self {
-        CommunicationRequestPayloadContentTypeChoice::String(Box::new(Default::default()))
+        CommunicationRequestPayloadContentTypeChoice::String(Box::default())
     }
 }
 #[derive(
@@ -5199,7 +5197,7 @@ pub enum CommunicationRequestOccurrenceTypeChoice {
 }
 impl Default for CommunicationRequestOccurrenceTypeChoice {
     fn default() -> Self {
-        CommunicationRequestOccurrenceTypeChoice::DateTime(Box::new(Default::default()))
+        CommunicationRequestOccurrenceTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -5434,7 +5432,7 @@ pub enum CompositionRelatesToTargetTypeChoice {
 }
 impl Default for CompositionRelatesToTargetTypeChoice {
     fn default() -> Self {
-        CompositionRelatesToTargetTypeChoice::Identifier(Box::new(Default::default()))
+        CompositionRelatesToTargetTypeChoice::Identifier(Box::default())
     }
 }
 #[derive(
@@ -5622,7 +5620,7 @@ pub enum ConceptMapSourceTypeChoice {
 }
 impl Default for ConceptMapSourceTypeChoice {
     fn default() -> Self {
-        ConceptMapSourceTypeChoice::Uri(Box::new(Default::default()))
+        ConceptMapSourceTypeChoice::Uri(Box::default())
     }
 }
 #[derive(
@@ -5642,7 +5640,7 @@ pub enum ConceptMapTargetTypeChoice {
 }
 impl Default for ConceptMapTargetTypeChoice {
     fn default() -> Self {
-        ConceptMapTargetTypeChoice::Uri(Box::new(Default::default()))
+        ConceptMapTargetTypeChoice::Uri(Box::default())
     }
 }
 #[derive(
@@ -5906,7 +5904,7 @@ pub enum ConditionOnsetTypeChoice {
 }
 impl Default for ConditionOnsetTypeChoice {
     fn default() -> Self {
-        ConditionOnsetTypeChoice::DateTime(Box::new(Default::default()))
+        ConditionOnsetTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -5929,7 +5927,7 @@ pub enum ConditionAbatementTypeChoice {
 }
 impl Default for ConditionAbatementTypeChoice {
     fn default() -> Self {
-        ConditionAbatementTypeChoice::DateTime(Box::new(Default::default()))
+        ConditionAbatementTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -6072,7 +6070,7 @@ pub enum ConsentSourceTypeChoice {
 }
 impl Default for ConsentSourceTypeChoice {
     fn default() -> Self {
-        ConsentSourceTypeChoice::Attachment(Box::new(Default::default()))
+        ConsentSourceTypeChoice::Attachment(Box::default())
     }
 }
 #[derive(
@@ -6301,7 +6299,7 @@ pub enum ContractTopicTypeChoice {
 }
 impl Default for ContractTopicTypeChoice {
     fn default() -> Self {
-        ContractTopicTypeChoice::CodeableConcept(Box::new(Default::default()))
+        ContractTopicTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -6356,7 +6354,7 @@ pub enum ContractTermTopicTypeChoice {
 }
 impl Default for ContractTermTopicTypeChoice {
     fn default() -> Self {
-        ContractTermTopicTypeChoice::CodeableConcept(Box::new(Default::default()))
+        ContractTermTopicTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -6446,7 +6444,7 @@ pub enum ContractTermOfferAnswerValueTypeChoice {
 }
 impl Default for ContractTermOfferAnswerValueTypeChoice {
     fn default() -> Self {
-        ContractTermOfferAnswerValueTypeChoice::Boolean(Box::new(Default::default()))
+        ContractTermOfferAnswerValueTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -6559,7 +6557,7 @@ pub enum ContractTermAssetValuedItemEntityTypeChoice {
 }
 impl Default for ContractTermAssetValuedItemEntityTypeChoice {
     fn default() -> Self {
-        ContractTermAssetValuedItemEntityTypeChoice::CodeableConcept(Box::new(Default::default()))
+        ContractTermAssetValuedItemEntityTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -6717,7 +6715,7 @@ pub enum ContractTermActionOccurrenceTypeChoice {
 }
 impl Default for ContractTermActionOccurrenceTypeChoice {
     fn default() -> Self {
-        ContractTermActionOccurrenceTypeChoice::DateTime(Box::new(Default::default()))
+        ContractTermActionOccurrenceTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -6887,7 +6885,7 @@ pub enum ContractFriendlyContentTypeChoice {
 }
 impl Default for ContractFriendlyContentTypeChoice {
     fn default() -> Self {
-        ContractFriendlyContentTypeChoice::Attachment(Box::new(Default::default()))
+        ContractFriendlyContentTypeChoice::Attachment(Box::default())
     }
 }
 #[derive(
@@ -6928,7 +6926,7 @@ pub enum ContractLegalContentTypeChoice {
 }
 impl Default for ContractLegalContentTypeChoice {
     fn default() -> Self {
-        ContractLegalContentTypeChoice::Attachment(Box::new(Default::default()))
+        ContractLegalContentTypeChoice::Attachment(Box::default())
     }
 }
 #[derive(
@@ -6969,7 +6967,7 @@ pub enum ContractRuleContentTypeChoice {
 }
 impl Default for ContractRuleContentTypeChoice {
     fn default() -> Self {
-        ContractRuleContentTypeChoice::Attachment(Box::new(Default::default()))
+        ContractRuleContentTypeChoice::Attachment(Box::default())
     }
 }
 #[derive(
@@ -7010,7 +7008,7 @@ pub enum ContractLegallyBindingTypeChoice {
 }
 impl Default for ContractLegallyBindingTypeChoice {
     fn default() -> Self {
-        ContractLegallyBindingTypeChoice::Attachment(Box::new(Default::default()))
+        ContractLegallyBindingTypeChoice::Attachment(Box::default())
     }
 }
 #[derive(
@@ -7174,7 +7172,7 @@ pub enum CoverageCostToBeneficiaryValueTypeChoice {
 }
 impl Default for CoverageCostToBeneficiaryValueTypeChoice {
     fn default() -> Self {
-        CoverageCostToBeneficiaryValueTypeChoice::Quantity(Box::new(Default::default()))
+        CoverageCostToBeneficiaryValueTypeChoice::Quantity(Box::default())
     }
 }
 #[derive(
@@ -7323,7 +7321,7 @@ pub enum CoverageEligibilityRequestServicedTypeChoice {
 }
 impl Default for CoverageEligibilityRequestServicedTypeChoice {
     fn default() -> Self {
-        CoverageEligibilityRequestServicedTypeChoice::Date(Box::new(Default::default()))
+        CoverageEligibilityRequestServicedTypeChoice::Date(Box::default())
     }
 }
 #[derive(
@@ -7398,9 +7396,7 @@ pub enum CoverageEligibilityRequestItemDiagnosisDiagnosisTypeChoice {
 }
 impl Default for CoverageEligibilityRequestItemDiagnosisDiagnosisTypeChoice {
     fn default() -> Self {
-        CoverageEligibilityRequestItemDiagnosisDiagnosisTypeChoice::CodeableConcept(Box::new(
-            Default::default(),
-        ))
+        CoverageEligibilityRequestItemDiagnosisDiagnosisTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -7554,7 +7550,7 @@ pub enum CoverageEligibilityResponseServicedTypeChoice {
 }
 impl Default for CoverageEligibilityResponseServicedTypeChoice {
     fn default() -> Self {
-        CoverageEligibilityResponseServicedTypeChoice::Date(Box::new(Default::default()))
+        CoverageEligibilityResponseServicedTypeChoice::Date(Box::default())
     }
 }
 #[derive(
@@ -7575,9 +7571,7 @@ pub enum CoverageEligibilityResponseInsuranceItemBenefitAllowedTypeChoice {
 }
 impl Default for CoverageEligibilityResponseInsuranceItemBenefitAllowedTypeChoice {
     fn default() -> Self {
-        CoverageEligibilityResponseInsuranceItemBenefitAllowedTypeChoice::UnsignedInt(Box::new(
-            Default::default(),
-        ))
+        CoverageEligibilityResponseInsuranceItemBenefitAllowedTypeChoice::UnsignedInt(Box::default())
     }
 }
 #[derive(
@@ -7598,9 +7592,7 @@ pub enum CoverageEligibilityResponseInsuranceItemBenefitUsedTypeChoice {
 }
 impl Default for CoverageEligibilityResponseInsuranceItemBenefitUsedTypeChoice {
     fn default() -> Self {
-        CoverageEligibilityResponseInsuranceItemBenefitUsedTypeChoice::UnsignedInt(Box::new(
-            Default::default(),
-        ))
+        CoverageEligibilityResponseInsuranceItemBenefitUsedTypeChoice::UnsignedInt(Box::default())
     }
 }
 #[derive(
@@ -7824,7 +7816,7 @@ pub enum DetectedIssueIdentifiedTypeChoice {
 }
 impl Default for DetectedIssueIdentifiedTypeChoice {
     fn default() -> Self {
-        DetectedIssueIdentifiedTypeChoice::DateTime(Box::new(Default::default()))
+        DetectedIssueIdentifiedTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -8227,7 +8219,7 @@ pub enum DeviceDefinitionManufacturerTypeChoice {
 }
 impl Default for DeviceDefinitionManufacturerTypeChoice {
     fn default() -> Self {
-        DeviceDefinitionManufacturerTypeChoice::String(Box::new(Default::default()))
+        DeviceDefinitionManufacturerTypeChoice::String(Box::default())
     }
 }
 #[derive(
@@ -8545,7 +8537,7 @@ pub enum DeviceRequestCodeTypeChoice {
 }
 impl Default for DeviceRequestCodeTypeChoice {
     fn default() -> Self {
-        DeviceRequestCodeTypeChoice::Reference(Box::new(Default::default()))
+        DeviceRequestCodeTypeChoice::Reference(Box::default())
     }
 }
 #[derive(
@@ -8566,7 +8558,7 @@ pub enum DeviceRequestParameterValueTypeChoice {
 }
 impl Default for DeviceRequestParameterValueTypeChoice {
     fn default() -> Self {
-        DeviceRequestParameterValueTypeChoice::CodeableConcept(Box::new(Default::default()))
+        DeviceRequestParameterValueTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -8610,7 +8602,7 @@ pub enum DeviceRequestOccurrenceTypeChoice {
 }
 impl Default for DeviceRequestOccurrenceTypeChoice {
     fn default() -> Self {
-        DeviceRequestOccurrenceTypeChoice::DateTime(Box::new(Default::default()))
+        DeviceRequestOccurrenceTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -8728,7 +8720,7 @@ pub enum DeviceUseStatementTimingTypeChoice {
 }
 impl Default for DeviceUseStatementTimingTypeChoice {
     fn default() -> Self {
-        DeviceUseStatementTimingTypeChoice::Timing(Box::new(Default::default()))
+        DeviceUseStatementTimingTypeChoice::Timing(Box::default())
     }
 }
 #[derive(
@@ -8814,7 +8806,7 @@ pub enum DiagnosticReportEffectiveTypeChoice {
 }
 impl Default for DiagnosticReportEffectiveTypeChoice {
     fn default() -> Self {
-        DiagnosticReportEffectiveTypeChoice::DateTime(Box::new(Default::default()))
+        DiagnosticReportEffectiveTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -10016,7 +10008,7 @@ pub enum EventDefinitionSubjectTypeChoice {
 }
 impl Default for EventDefinitionSubjectTypeChoice {
     fn default() -> Self {
-        EventDefinitionSubjectTypeChoice::CodeableConcept(Box::new(Default::default()))
+        EventDefinitionSubjectTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -10249,7 +10241,7 @@ pub enum EvidenceVariableCharacteristicDefinitionTypeChoice {
 }
 impl Default for EvidenceVariableCharacteristicDefinitionTypeChoice {
     fn default() -> Self {
-        EvidenceVariableCharacteristicDefinitionTypeChoice::Reference(Box::new(Default::default()))
+        EvidenceVariableCharacteristicDefinitionTypeChoice::Reference(Box::default())
     }
 }
 #[derive(
@@ -10270,9 +10262,7 @@ pub enum EvidenceVariableCharacteristicParticipantEffectiveTypeChoice {
 }
 impl Default for EvidenceVariableCharacteristicParticipantEffectiveTypeChoice {
     fn default() -> Self {
-        EvidenceVariableCharacteristicParticipantEffectiveTypeChoice::DateTime(Box::new(
-            Default::default(),
-        ))
+        EvidenceVariableCharacteristicParticipantEffectiveTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -10843,7 +10833,7 @@ pub enum ExplanationOfBenefitSupportingInfoTimingTypeChoice {
 }
 impl Default for ExplanationOfBenefitSupportingInfoTimingTypeChoice {
     fn default() -> Self {
-        ExplanationOfBenefitSupportingInfoTimingTypeChoice::Date(Box::new(Default::default()))
+        ExplanationOfBenefitSupportingInfoTimingTypeChoice::Date(Box::default())
     }
 }
 #[derive(
@@ -10867,7 +10857,7 @@ pub enum ExplanationOfBenefitSupportingInfoValueTypeChoice {
 }
 impl Default for ExplanationOfBenefitSupportingInfoValueTypeChoice {
     fn default() -> Self {
-        ExplanationOfBenefitSupportingInfoValueTypeChoice::Boolean(Box::new(Default::default()))
+        ExplanationOfBenefitSupportingInfoValueTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -10920,9 +10910,7 @@ pub enum ExplanationOfBenefitDiagnosisDiagnosisTypeChoice {
 }
 impl Default for ExplanationOfBenefitDiagnosisDiagnosisTypeChoice {
     fn default() -> Self {
-        ExplanationOfBenefitDiagnosisDiagnosisTypeChoice::CodeableConcept(Box::new(
-            Default::default(),
-        ))
+        ExplanationOfBenefitDiagnosisDiagnosisTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -10973,9 +10961,7 @@ pub enum ExplanationOfBenefitProcedureProcedureTypeChoice {
 }
 impl Default for ExplanationOfBenefitProcedureProcedureTypeChoice {
     fn default() -> Self {
-        ExplanationOfBenefitProcedureProcedureTypeChoice::CodeableConcept(Box::new(
-            Default::default(),
-        ))
+        ExplanationOfBenefitProcedureProcedureTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -11056,7 +11042,7 @@ pub enum ExplanationOfBenefitAccidentLocationTypeChoice {
 }
 impl Default for ExplanationOfBenefitAccidentLocationTypeChoice {
     fn default() -> Self {
-        ExplanationOfBenefitAccidentLocationTypeChoice::Address(Box::new(Default::default()))
+        ExplanationOfBenefitAccidentLocationTypeChoice::Address(Box::default())
     }
 }
 #[derive(
@@ -11103,7 +11089,7 @@ pub enum ExplanationOfBenefitItemServicedTypeChoice {
 }
 impl Default for ExplanationOfBenefitItemServicedTypeChoice {
     fn default() -> Self {
-        ExplanationOfBenefitItemServicedTypeChoice::Date(Box::new(Default::default()))
+        ExplanationOfBenefitItemServicedTypeChoice::Date(Box::default())
     }
 }
 #[derive(
@@ -11123,7 +11109,7 @@ pub enum ExplanationOfBenefitItemLocationTypeChoice {
 }
 impl Default for ExplanationOfBenefitItemLocationTypeChoice {
     fn default() -> Self {
-        ExplanationOfBenefitItemLocationTypeChoice::CodeableConcept(Box::new(Default::default()))
+        ExplanationOfBenefitItemLocationTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -11346,7 +11332,7 @@ pub enum ExplanationOfBenefitAddItemServicedTypeChoice {
 }
 impl Default for ExplanationOfBenefitAddItemServicedTypeChoice {
     fn default() -> Self {
-        ExplanationOfBenefitAddItemServicedTypeChoice::Date(Box::new(Default::default()))
+        ExplanationOfBenefitAddItemServicedTypeChoice::Date(Box::default())
     }
 }
 #[derive(
@@ -11366,7 +11352,7 @@ pub enum ExplanationOfBenefitAddItemLocationTypeChoice {
 }
 impl Default for ExplanationOfBenefitAddItemLocationTypeChoice {
     fn default() -> Self {
-        ExplanationOfBenefitAddItemLocationTypeChoice::CodeableConcept(Box::new(Default::default()))
+        ExplanationOfBenefitAddItemLocationTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -11614,9 +11600,7 @@ pub enum ExplanationOfBenefitBenefitBalanceFinancialAllowedTypeChoice {
 }
 impl Default for ExplanationOfBenefitBenefitBalanceFinancialAllowedTypeChoice {
     fn default() -> Self {
-        ExplanationOfBenefitBenefitBalanceFinancialAllowedTypeChoice::UnsignedInt(Box::new(
-            Default::default(),
-        ))
+        ExplanationOfBenefitBenefitBalanceFinancialAllowedTypeChoice::UnsignedInt(Box::default())
     }
 }
 #[derive(
@@ -11635,9 +11619,7 @@ pub enum ExplanationOfBenefitBenefitBalanceFinancialUsedTypeChoice {
 }
 impl Default for ExplanationOfBenefitBenefitBalanceFinancialUsedTypeChoice {
     fn default() -> Self {
-        ExplanationOfBenefitBenefitBalanceFinancialUsedTypeChoice::UnsignedInt(Box::new(
-            Default::default(),
-        ))
+        ExplanationOfBenefitBenefitBalanceFinancialUsedTypeChoice::UnsignedInt(Box::default())
     }
 }
 #[derive(
@@ -11862,7 +11844,7 @@ pub enum FamilyMemberHistoryBornTypeChoice {
 }
 impl Default for FamilyMemberHistoryBornTypeChoice {
     fn default() -> Self {
-        FamilyMemberHistoryBornTypeChoice::Period(Box::new(Default::default()))
+        FamilyMemberHistoryBornTypeChoice::Period(Box::default())
     }
 }
 #[derive(
@@ -11882,7 +11864,7 @@ pub enum FamilyMemberHistoryAgeTypeChoice {
 }
 impl Default for FamilyMemberHistoryAgeTypeChoice {
     fn default() -> Self {
-        FamilyMemberHistoryAgeTypeChoice::Age(Box::new(Default::default()))
+        FamilyMemberHistoryAgeTypeChoice::Age(Box::default())
     }
 }
 #[derive(
@@ -11906,7 +11888,7 @@ pub enum FamilyMemberHistoryDeceasedTypeChoice {
 }
 impl Default for FamilyMemberHistoryDeceasedTypeChoice {
     fn default() -> Self {
-        FamilyMemberHistoryDeceasedTypeChoice::Boolean(Box::new(Default::default()))
+        FamilyMemberHistoryDeceasedTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -11927,7 +11909,7 @@ pub enum FamilyMemberHistoryConditionOnsetTypeChoice {
 }
 impl Default for FamilyMemberHistoryConditionOnsetTypeChoice {
     fn default() -> Self {
-        FamilyMemberHistoryConditionOnsetTypeChoice::Age(Box::new(Default::default()))
+        FamilyMemberHistoryConditionOnsetTypeChoice::Age(Box::default())
     }
 }
 #[derive(
@@ -12108,7 +12090,7 @@ pub enum GoalStartTypeChoice {
 }
 impl Default for GoalStartTypeChoice {
     fn default() -> Self {
-        GoalStartTypeChoice::Date(Box::new(Default::default()))
+        GoalStartTypeChoice::Date(Box::default())
     }
 }
 #[derive(
@@ -12134,7 +12116,7 @@ pub enum GoalTargetDetailTypeChoice {
 }
 impl Default for GoalTargetDetailTypeChoice {
     fn default() -> Self {
-        GoalTargetDetailTypeChoice::Quantity(Box::new(Default::default()))
+        GoalTargetDetailTypeChoice::Quantity(Box::default())
     }
 }
 #[derive(
@@ -12153,7 +12135,7 @@ pub enum GoalTargetDueTypeChoice {
 }
 impl Default for GoalTargetDueTypeChoice {
     fn default() -> Self {
-        GoalTargetDueTypeChoice::Date(Box::new(Default::default()))
+        GoalTargetDueTypeChoice::Date(Box::default())
     }
 }
 #[derive(
@@ -12450,7 +12432,7 @@ pub enum GroupCharacteristicValueTypeChoice {
 }
 impl Default for GroupCharacteristicValueTypeChoice {
     fn default() -> Self {
-        GroupCharacteristicValueTypeChoice::CodeableConcept(Box::new(Default::default()))
+        GroupCharacteristicValueTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -12586,7 +12568,7 @@ pub enum GuidanceResponseModuleTypeChoice {
 }
 impl Default for GuidanceResponseModuleTypeChoice {
     fn default() -> Self {
-        GuidanceResponseModuleTypeChoice::Uri(Box::new(Default::default()))
+        GuidanceResponseModuleTypeChoice::Uri(Box::default())
     }
 }
 #[derive(
@@ -13038,7 +13020,7 @@ pub enum ImmunizationOccurrenceTypeChoice {
 }
 impl Default for ImmunizationOccurrenceTypeChoice {
     fn default() -> Self {
-        ImmunizationOccurrenceTypeChoice::DateTime(Box::new(Default::default()))
+        ImmunizationOccurrenceTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -13141,7 +13123,7 @@ pub enum ImmunizationProtocolAppliedDoseNumberTypeChoice {
 }
 impl Default for ImmunizationProtocolAppliedDoseNumberTypeChoice {
     fn default() -> Self {
-        ImmunizationProtocolAppliedDoseNumberTypeChoice::PositiveInt(Box::new(Default::default()))
+        ImmunizationProtocolAppliedDoseNumberTypeChoice::PositiveInt(Box::default())
     }
 }
 #[derive(
@@ -13161,7 +13143,7 @@ pub enum ImmunizationProtocolAppliedSeriesDosesTypeChoice {
 }
 impl Default for ImmunizationProtocolAppliedSeriesDosesTypeChoice {
     fn default() -> Self {
-        ImmunizationProtocolAppliedSeriesDosesTypeChoice::PositiveInt(Box::new(Default::default()))
+        ImmunizationProtocolAppliedSeriesDosesTypeChoice::PositiveInt(Box::default())
     }
 }
 #[derive(
@@ -13314,7 +13296,7 @@ pub enum ImmunizationEvaluationDoseNumberTypeChoice {
 }
 impl Default for ImmunizationEvaluationDoseNumberTypeChoice {
     fn default() -> Self {
-        ImmunizationEvaluationDoseNumberTypeChoice::PositiveInt(Box::new(Default::default()))
+        ImmunizationEvaluationDoseNumberTypeChoice::PositiveInt(Box::default())
     }
 }
 #[derive(
@@ -13334,7 +13316,7 @@ pub enum ImmunizationEvaluationSeriesDosesTypeChoice {
 }
 impl Default for ImmunizationEvaluationSeriesDosesTypeChoice {
     fn default() -> Self {
-        ImmunizationEvaluationSeriesDosesTypeChoice::PositiveInt(Box::new(Default::default()))
+        ImmunizationEvaluationSeriesDosesTypeChoice::PositiveInt(Box::default())
     }
 }
 #[derive(
@@ -13445,9 +13427,7 @@ pub enum ImmunizationRecommendationRecommendationDoseNumberTypeChoice {
 }
 impl Default for ImmunizationRecommendationRecommendationDoseNumberTypeChoice {
     fn default() -> Self {
-        ImmunizationRecommendationRecommendationDoseNumberTypeChoice::PositiveInt(Box::new(
-            Default::default(),
-        ))
+        ImmunizationRecommendationRecommendationDoseNumberTypeChoice::PositiveInt(Box::default())
     }
 }
 #[derive(
@@ -13467,9 +13447,7 @@ pub enum ImmunizationRecommendationRecommendationSeriesDosesTypeChoice {
 }
 impl Default for ImmunizationRecommendationRecommendationSeriesDosesTypeChoice {
     fn default() -> Self {
-        ImmunizationRecommendationRecommendationSeriesDosesTypeChoice::PositiveInt(Box::new(
-            Default::default(),
-        ))
+        ImmunizationRecommendationRecommendationSeriesDosesTypeChoice::PositiveInt(Box::default())
     }
 }
 #[derive(
@@ -13663,9 +13641,7 @@ pub enum ImplementationGuideDefinitionResourceExampleTypeChoice {
 }
 impl Default for ImplementationGuideDefinitionResourceExampleTypeChoice {
     fn default() -> Self {
-        ImplementationGuideDefinitionResourceExampleTypeChoice::Boolean(
-            Box::new(Default::default()),
-        )
+        ImplementationGuideDefinitionResourceExampleTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -13722,7 +13698,7 @@ pub enum ImplementationGuideDefinitionPageNameTypeChoice {
 }
 impl Default for ImplementationGuideDefinitionPageNameTypeChoice {
     fn default() -> Self {
-        ImplementationGuideDefinitionPageNameTypeChoice::Url(Box::new(Default::default()))
+        ImplementationGuideDefinitionPageNameTypeChoice::Url(Box::default())
     }
 }
 #[derive(
@@ -13855,7 +13831,7 @@ pub enum ImplementationGuideManifestResourceExampleTypeChoice {
 }
 impl Default for ImplementationGuideManifestResourceExampleTypeChoice {
     fn default() -> Self {
-        ImplementationGuideManifestResourceExampleTypeChoice::Boolean(Box::new(Default::default()))
+        ImplementationGuideManifestResourceExampleTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -14386,7 +14362,7 @@ pub enum InvoiceLineItemChargeItemTypeChoice {
 }
 impl Default for InvoiceLineItemChargeItemTypeChoice {
     fn default() -> Self {
-        InvoiceLineItemChargeItemTypeChoice::Reference(Box::new(Default::default()))
+        InvoiceLineItemChargeItemTypeChoice::Reference(Box::default())
     }
 }
 #[derive(
@@ -14535,7 +14511,7 @@ pub enum LibrarySubjectTypeChoice {
 }
 impl Default for LibrarySubjectTypeChoice {
     fn default() -> Self {
-        LibrarySubjectTypeChoice::CodeableConcept(Box::new(Default::default()))
+        LibrarySubjectTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -14961,7 +14937,7 @@ pub enum MeasureSubjectTypeChoice {
 }
 impl Default for MeasureSubjectTypeChoice {
     fn default() -> Self {
-        MeasureSubjectTypeChoice::CodeableConcept(Box::new(Default::default()))
+        MeasureSubjectTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -15471,7 +15447,7 @@ pub enum MediaCreatedTypeChoice {
 }
 impl Default for MediaCreatedTypeChoice {
     fn default() -> Self {
-        MediaCreatedTypeChoice::DateTime(Box::new(Default::default()))
+        MediaCreatedTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -15581,7 +15557,7 @@ pub enum MedicationIngredientItemTypeChoice {
 }
 impl Default for MedicationIngredientItemTypeChoice {
     fn default() -> Self {
-        MedicationIngredientItemTypeChoice::CodeableConcept(Box::new(Default::default()))
+        MedicationIngredientItemTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -15702,7 +15678,7 @@ pub enum MedicationAdministrationMedicationTypeChoice {
 }
 impl Default for MedicationAdministrationMedicationTypeChoice {
     fn default() -> Self {
-        MedicationAdministrationMedicationTypeChoice::CodeableConcept(Box::new(Default::default()))
+        MedicationAdministrationMedicationTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -15721,7 +15697,7 @@ pub enum MedicationAdministrationEffectiveTypeChoice {
 }
 impl Default for MedicationAdministrationEffectiveTypeChoice {
     fn default() -> Self {
-        MedicationAdministrationEffectiveTypeChoice::DateTime(Box::new(Default::default()))
+        MedicationAdministrationEffectiveTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -15763,7 +15739,7 @@ pub enum MedicationAdministrationDosageRateTypeChoice {
 }
 impl Default for MedicationAdministrationDosageRateTypeChoice {
     fn default() -> Self {
-        MedicationAdministrationDosageRateTypeChoice::Ratio(Box::new(Default::default()))
+        MedicationAdministrationDosageRateTypeChoice::Ratio(Box::default())
     }
 }
 #[derive(
@@ -15897,7 +15873,7 @@ pub enum MedicationDispenseStatusReasonTypeChoice {
 }
 impl Default for MedicationDispenseStatusReasonTypeChoice {
     fn default() -> Self {
-        MedicationDispenseStatusReasonTypeChoice::CodeableConcept(Box::new(Default::default()))
+        MedicationDispenseStatusReasonTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -15916,7 +15892,7 @@ pub enum MedicationDispenseMedicationTypeChoice {
 }
 impl Default for MedicationDispenseMedicationTypeChoice {
     fn default() -> Self {
-        MedicationDispenseMedicationTypeChoice::CodeableConcept(Box::new(Default::default()))
+        MedicationDispenseMedicationTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -16136,7 +16112,7 @@ pub enum MedicationKnowledgeIngredientItemTypeChoice {
 }
 impl Default for MedicationKnowledgeIngredientItemTypeChoice {
     fn default() -> Self {
-        MedicationKnowledgeIngredientItemTypeChoice::CodeableConcept(Box::new(Default::default()))
+        MedicationKnowledgeIngredientItemTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -16259,9 +16235,9 @@ pub enum MedicationKnowledgeAdministrationGuidelinesIndicationTypeChoice {
 }
 impl Default for MedicationKnowledgeAdministrationGuidelinesIndicationTypeChoice {
     fn default() -> Self {
-        MedicationKnowledgeAdministrationGuidelinesIndicationTypeChoice::CodeableConcept(Box::new(
-            Default::default(),
-        ))
+        MedicationKnowledgeAdministrationGuidelinesIndicationTypeChoice::CodeableConcept(
+            Box::default(),
+        )
     }
 }
 #[derive(
@@ -16281,7 +16257,7 @@ impl Default
     for MedicationKnowledgeAdministrationGuidelinesPatientCharacteristicsCharacteristicTypeChoice
 {
     fn default() -> Self {
-        MedicationKnowledgeAdministrationGuidelinesPatientCharacteristicsCharacteristicTypeChoice :: CodeableConcept (Box :: new (Default :: default ()))
+        MedicationKnowledgeAdministrationGuidelinesPatientCharacteristicsCharacteristicTypeChoice :: CodeableConcept (Box :: default ())
     }
 }
 #[derive(
@@ -16404,9 +16380,7 @@ pub enum MedicationKnowledgeDrugCharacteristicValueTypeChoice {
 }
 impl Default for MedicationKnowledgeDrugCharacteristicValueTypeChoice {
     fn default() -> Self {
-        MedicationKnowledgeDrugCharacteristicValueTypeChoice::CodeableConcept(Box::new(
-            Default::default(),
-        ))
+        MedicationKnowledgeDrugCharacteristicValueTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -16654,7 +16628,7 @@ pub enum MedicationRequestReportedTypeChoice {
 }
 impl Default for MedicationRequestReportedTypeChoice {
     fn default() -> Self {
-        MedicationRequestReportedTypeChoice::Boolean(Box::new(Default::default()))
+        MedicationRequestReportedTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -16673,7 +16647,7 @@ pub enum MedicationRequestMedicationTypeChoice {
 }
 impl Default for MedicationRequestMedicationTypeChoice {
     fn default() -> Self {
-        MedicationRequestMedicationTypeChoice::CodeableConcept(Box::new(Default::default()))
+        MedicationRequestMedicationTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -16750,7 +16724,7 @@ pub enum MedicationRequestSubstitutionAllowedTypeChoice {
 }
 impl Default for MedicationRequestSubstitutionAllowedTypeChoice {
     fn default() -> Self {
-        MedicationRequestSubstitutionAllowedTypeChoice::Boolean(Box::new(Default::default()))
+        MedicationRequestSubstitutionAllowedTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -16910,7 +16884,7 @@ pub enum MedicationStatementMedicationTypeChoice {
 }
 impl Default for MedicationStatementMedicationTypeChoice {
     fn default() -> Self {
-        MedicationStatementMedicationTypeChoice::CodeableConcept(Box::new(Default::default()))
+        MedicationStatementMedicationTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -16929,7 +16903,7 @@ pub enum MedicationStatementEffectiveTypeChoice {
 }
 impl Default for MedicationStatementEffectiveTypeChoice {
     fn default() -> Self {
-        MedicationStatementEffectiveTypeChoice::DateTime(Box::new(Default::default()))
+        MedicationStatementEffectiveTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -17135,9 +17109,7 @@ pub enum MedicinalProductSpecialDesignationIndicationTypeChoice {
 }
 impl Default for MedicinalProductSpecialDesignationIndicationTypeChoice {
     fn default() -> Self {
-        MedicinalProductSpecialDesignationIndicationTypeChoice::CodeableConcept(Box::new(
-            Default::default(),
-        ))
+        MedicinalProductSpecialDesignationIndicationTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -17304,7 +17276,7 @@ pub enum MedicinalProductAuthorizationProcedureDateTypeChoice {
 }
 impl Default for MedicinalProductAuthorizationProcedureDateTypeChoice {
     fn default() -> Self {
-        MedicinalProductAuthorizationProcedureDateTypeChoice::Period(Box::new(Default::default()))
+        MedicinalProductAuthorizationProcedureDateTypeChoice::Period(Box::default())
     }
 }
 #[derive(
@@ -17425,9 +17397,9 @@ pub enum MedicinalProductContraindicationOtherTherapyMedicationTypeChoice {
 }
 impl Default for MedicinalProductContraindicationOtherTherapyMedicationTypeChoice {
     fn default() -> Self {
-        MedicinalProductContraindicationOtherTherapyMedicationTypeChoice::CodeableConcept(Box::new(
-            Default::default(),
-        ))
+        MedicinalProductContraindicationOtherTherapyMedicationTypeChoice::CodeableConcept(
+            Box::default(),
+        )
     }
 }
 #[derive(
@@ -17517,9 +17489,7 @@ pub enum MedicinalProductIndicationOtherTherapyMedicationTypeChoice {
 }
 impl Default for MedicinalProductIndicationOtherTherapyMedicationTypeChoice {
     fn default() -> Self {
-        MedicinalProductIndicationOtherTherapyMedicationTypeChoice::CodeableConcept(Box::new(
-            Default::default(),
-        ))
+        MedicinalProductIndicationOtherTherapyMedicationTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -17774,9 +17744,7 @@ pub enum MedicinalProductInteractionInteractantItemTypeChoice {
 }
 impl Default for MedicinalProductInteractionInteractantItemTypeChoice {
     fn default() -> Self {
-        MedicinalProductInteractionInteractantItemTypeChoice::Reference(
-            Box::new(Default::default()),
-        )
+        MedicinalProductInteractionInteractantItemTypeChoice::Reference(Box::default())
     }
 }
 #[derive(
@@ -18237,7 +18205,7 @@ pub enum MessageDefinitionEventTypeChoice {
 }
 impl Default for MessageDefinitionEventTypeChoice {
     fn default() -> Self {
-        MessageDefinitionEventTypeChoice::Coding(Box::new(Default::default()))
+        MessageDefinitionEventTypeChoice::Coding(Box::default())
     }
 }
 #[derive(
@@ -18410,7 +18378,7 @@ pub enum MessageHeaderEventTypeChoice {
 }
 impl Default for MessageHeaderEventTypeChoice {
     fn default() -> Self {
-        MessageHeaderEventTypeChoice::Coding(Box::new(Default::default()))
+        MessageHeaderEventTypeChoice::Coding(Box::default())
     }
 }
 #[derive(
@@ -19168,9 +19136,7 @@ pub enum NutritionOrderEnteralFormulaAdministrationRateTypeChoice {
 }
 impl Default for NutritionOrderEnteralFormulaAdministrationRateTypeChoice {
     fn default() -> Self {
-        NutritionOrderEnteralFormulaAdministrationRateTypeChoice::Quantity(Box::new(
-            Default::default(),
-        ))
+        NutritionOrderEnteralFormulaAdministrationRateTypeChoice::Quantity(Box::default())
     }
 }
 #[derive(
@@ -19334,7 +19300,7 @@ pub enum ObservationEffectiveTypeChoice {
 }
 impl Default for ObservationEffectiveTypeChoice {
     fn default() -> Self {
-        ObservationEffectiveTypeChoice::DateTime(Box::new(Default::default()))
+        ObservationEffectiveTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -19366,7 +19332,7 @@ pub enum ObservationValueTypeChoice {
 }
 impl Default for ObservationValueTypeChoice {
     fn default() -> Self {
-        ObservationValueTypeChoice::Quantity(Box::new(Default::default()))
+        ObservationValueTypeChoice::Quantity(Box::default())
     }
 }
 #[derive(
@@ -19431,7 +19397,7 @@ pub enum ObservationComponentValueTypeChoice {
 }
 impl Default for ObservationComponentValueTypeChoice {
     fn default() -> Self {
-        ObservationComponentValueTypeChoice::Quantity(Box::new(Default::default()))
+        ObservationComponentValueTypeChoice::Quantity(Box::default())
     }
 }
 #[derive(
@@ -20221,7 +20187,7 @@ pub enum ParametersParameterValueTypeChoice {
 }
 impl Default for ParametersParameterValueTypeChoice {
     fn default() -> Self {
-        ParametersParameterValueTypeChoice::Base64Binary(Box::new(Default::default()))
+        ParametersParameterValueTypeChoice::Base64Binary(Box::default())
     }
 }
 #[derive(
@@ -20295,7 +20261,7 @@ pub enum PatientDeceasedTypeChoice {
 }
 impl Default for PatientDeceasedTypeChoice {
     fn default() -> Self {
-        PatientDeceasedTypeChoice::Boolean(Box::new(Default::default()))
+        PatientDeceasedTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -20315,7 +20281,7 @@ pub enum PatientMultipleBirthTypeChoice {
 }
 impl Default for PatientMultipleBirthTypeChoice {
     fn default() -> Self {
-        PatientMultipleBirthTypeChoice::Boolean(Box::new(Default::default()))
+        PatientMultipleBirthTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -20779,7 +20745,7 @@ pub enum PlanDefinitionSubjectTypeChoice {
 }
 impl Default for PlanDefinitionSubjectTypeChoice {
     fn default() -> Self {
-        PlanDefinitionSubjectTypeChoice::CodeableConcept(Box::new(Default::default()))
+        PlanDefinitionSubjectTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -20798,7 +20764,7 @@ pub enum PlanDefinitionGoalTargetDetailTypeChoice {
 }
 impl Default for PlanDefinitionGoalTargetDetailTypeChoice {
     fn default() -> Self {
-        PlanDefinitionGoalTargetDetailTypeChoice::Quantity(Box::new(Default::default()))
+        PlanDefinitionGoalTargetDetailTypeChoice::Quantity(Box::default())
     }
 }
 #[derive(
@@ -20876,7 +20842,7 @@ pub enum PlanDefinitionActionSubjectTypeChoice {
 }
 impl Default for PlanDefinitionActionSubjectTypeChoice {
     fn default() -> Self {
-        PlanDefinitionActionSubjectTypeChoice::CodeableConcept(Box::new(Default::default()))
+        PlanDefinitionActionSubjectTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -20918,7 +20884,7 @@ pub enum PlanDefinitionActionRelatedActionOffsetTypeChoice {
 }
 impl Default for PlanDefinitionActionRelatedActionOffsetTypeChoice {
     fn default() -> Self {
-        PlanDefinitionActionRelatedActionOffsetTypeChoice::Duration(Box::new(Default::default()))
+        PlanDefinitionActionRelatedActionOffsetTypeChoice::Duration(Box::default())
     }
 }
 #[derive(
@@ -20969,7 +20935,7 @@ pub enum PlanDefinitionActionTimingTypeChoice {
 }
 impl Default for PlanDefinitionActionTimingTypeChoice {
     fn default() -> Self {
-        PlanDefinitionActionTimingTypeChoice::DateTime(Box::new(Default::default()))
+        PlanDefinitionActionTimingTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -21014,7 +20980,7 @@ pub enum PlanDefinitionActionDefinitionTypeChoice {
 }
 impl Default for PlanDefinitionActionDefinitionTypeChoice {
     fn default() -> Self {
-        PlanDefinitionActionDefinitionTypeChoice::Canonical(Box::new(Default::default()))
+        PlanDefinitionActionDefinitionTypeChoice::Canonical(Box::default())
     }
 }
 #[derive(
@@ -21468,7 +21434,7 @@ pub enum ProcedurePerformedTypeChoice {
 }
 impl Default for ProcedurePerformedTypeChoice {
     fn default() -> Self {
-        ProcedurePerformedTypeChoice::DateTime(Box::new(Default::default()))
+        ProcedurePerformedTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -21641,7 +21607,7 @@ pub enum ProvenanceOccurredTypeChoice {
 }
 impl Default for ProvenanceOccurredTypeChoice {
     fn default() -> Self {
-        ProvenanceOccurredTypeChoice::Period(Box::new(Default::default()))
+        ProvenanceOccurredTypeChoice::Period(Box::default())
     }
 }
 #[derive(
@@ -21790,7 +21756,7 @@ pub enum QuestionnaireItemEnableWhenAnswerTypeChoice {
 }
 impl Default for QuestionnaireItemEnableWhenAnswerTypeChoice {
     fn default() -> Self {
-        QuestionnaireItemEnableWhenAnswerTypeChoice::Boolean(Box::new(Default::default()))
+        QuestionnaireItemEnableWhenAnswerTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -21845,7 +21811,7 @@ pub enum QuestionnaireItemAnswerOptionValueTypeChoice {
 }
 impl Default for QuestionnaireItemAnswerOptionValueTypeChoice {
     fn default() -> Self {
-        QuestionnaireItemAnswerOptionValueTypeChoice::Integer(Box::new(Default::default()))
+        QuestionnaireItemAnswerOptionValueTypeChoice::Integer(Box::default())
     }
 }
 #[derive(
@@ -21907,7 +21873,7 @@ pub enum QuestionnaireItemInitialValueTypeChoice {
 }
 impl Default for QuestionnaireItemInitialValueTypeChoice {
     fn default() -> Self {
-        QuestionnaireItemInitialValueTypeChoice::Boolean(Box::new(Default::default()))
+        QuestionnaireItemInitialValueTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -22120,7 +22086,7 @@ pub enum QuestionnaireResponseItemAnswerValueTypeChoice {
 }
 impl Default for QuestionnaireResponseItemAnswerValueTypeChoice {
     fn default() -> Self {
-        QuestionnaireResponseItemAnswerValueTypeChoice::Boolean(Box::new(Default::default()))
+        QuestionnaireResponseItemAnswerValueTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -22365,7 +22331,7 @@ pub enum RequestGroupActionRelatedActionOffsetTypeChoice {
 }
 impl Default for RequestGroupActionRelatedActionOffsetTypeChoice {
     fn default() -> Self {
-        RequestGroupActionRelatedActionOffsetTypeChoice::Duration(Box::new(Default::default()))
+        RequestGroupActionRelatedActionOffsetTypeChoice::Duration(Box::default())
     }
 }
 #[derive(
@@ -22416,7 +22382,7 @@ pub enum RequestGroupActionTimingTypeChoice {
 }
 impl Default for RequestGroupActionTimingTypeChoice {
     fn default() -> Self {
-        RequestGroupActionTimingTypeChoice::DateTime(Box::new(Default::default()))
+        RequestGroupActionTimingTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -22586,7 +22552,7 @@ pub enum ResearchDefinitionSubjectTypeChoice {
 }
 impl Default for ResearchDefinitionSubjectTypeChoice {
     fn default() -> Self {
-        ResearchDefinitionSubjectTypeChoice::CodeableConcept(Box::new(Default::default()))
+        ResearchDefinitionSubjectTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -22728,7 +22694,7 @@ pub enum ResearchElementDefinitionSubjectTypeChoice {
 }
 impl Default for ResearchElementDefinitionSubjectTypeChoice {
     fn default() -> Self {
-        ResearchElementDefinitionSubjectTypeChoice::CodeableConcept(Box::new(Default::default()))
+        ResearchElementDefinitionSubjectTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -22749,9 +22715,7 @@ pub enum ResearchElementDefinitionCharacteristicDefinitionTypeChoice {
 }
 impl Default for ResearchElementDefinitionCharacteristicDefinitionTypeChoice {
     fn default() -> Self {
-        ResearchElementDefinitionCharacteristicDefinitionTypeChoice::CodeableConcept(Box::new(
-            Default::default(),
-        ))
+        ResearchElementDefinitionCharacteristicDefinitionTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -22772,9 +22736,7 @@ pub enum ResearchElementDefinitionCharacteristicStudyEffectiveTypeChoice {
 }
 impl Default for ResearchElementDefinitionCharacteristicStudyEffectiveTypeChoice {
     fn default() -> Self {
-        ResearchElementDefinitionCharacteristicStudyEffectiveTypeChoice::DateTime(Box::new(
-            Default::default(),
-        ))
+        ResearchElementDefinitionCharacteristicStudyEffectiveTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -22795,9 +22757,9 @@ pub enum ResearchElementDefinitionCharacteristicParticipantEffectiveTypeChoice {
 }
 impl Default for ResearchElementDefinitionCharacteristicParticipantEffectiveTypeChoice {
     fn default() -> Self {
-        ResearchElementDefinitionCharacteristicParticipantEffectiveTypeChoice::DateTime(Box::new(
-            Default::default(),
-        ))
+        ResearchElementDefinitionCharacteristicParticipantEffectiveTypeChoice::DateTime(
+            Box::default(),
+        )
     }
 }
 #[derive(
@@ -23185,7 +23147,7 @@ pub enum RiskAssessmentOccurrenceTypeChoice {
 }
 impl Default for RiskAssessmentOccurrenceTypeChoice {
     fn default() -> Self {
-        RiskAssessmentOccurrenceTypeChoice::DateTime(Box::new(Default::default()))
+        RiskAssessmentOccurrenceTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -23204,7 +23166,7 @@ pub enum RiskAssessmentPredictionProbabilityTypeChoice {
 }
 impl Default for RiskAssessmentPredictionProbabilityTypeChoice {
     fn default() -> Self {
-        RiskAssessmentPredictionProbabilityTypeChoice::Decimal(Box::new(Default::default()))
+        RiskAssessmentPredictionProbabilityTypeChoice::Decimal(Box::default())
     }
 }
 #[derive(
@@ -23222,7 +23184,7 @@ pub enum RiskAssessmentPredictionWhenTypeChoice {
 }
 impl Default for RiskAssessmentPredictionWhenTypeChoice {
     fn default() -> Self {
-        RiskAssessmentPredictionWhenTypeChoice::Period(Box::new(Default::default()))
+        RiskAssessmentPredictionWhenTypeChoice::Period(Box::default())
     }
 }
 #[derive(
@@ -23793,7 +23755,7 @@ pub enum ServiceRequestQuantityTypeChoice {
 }
 impl Default for ServiceRequestQuantityTypeChoice {
     fn default() -> Self {
-        ServiceRequestQuantityTypeChoice::Quantity(Box::new(Default::default()))
+        ServiceRequestQuantityTypeChoice::Quantity(Box::default())
     }
 }
 #[derive(
@@ -23813,7 +23775,7 @@ pub enum ServiceRequestOccurrenceTypeChoice {
 }
 impl Default for ServiceRequestOccurrenceTypeChoice {
     fn default() -> Self {
-        ServiceRequestOccurrenceTypeChoice::DateTime(Box::new(Default::default()))
+        ServiceRequestOccurrenceTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -23832,7 +23794,7 @@ pub enum ServiceRequestAsNeededTypeChoice {
 }
 impl Default for ServiceRequestAsNeededTypeChoice {
     fn default() -> Self {
-        ServiceRequestAsNeededTypeChoice::Boolean(Box::new(Default::default()))
+        ServiceRequestAsNeededTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -24032,7 +23994,7 @@ pub enum SpecimenCollectionCollectedTypeChoice {
 }
 impl Default for SpecimenCollectionCollectedTypeChoice {
     fn default() -> Self {
-        SpecimenCollectionCollectedTypeChoice::DateTime(Box::new(Default::default()))
+        SpecimenCollectionCollectedTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -24050,7 +24012,7 @@ pub enum SpecimenCollectionFastingStatusTypeChoice {
 }
 impl Default for SpecimenCollectionFastingStatusTypeChoice {
     fn default() -> Self {
-        SpecimenCollectionFastingStatusTypeChoice::CodeableConcept(Box::new(Default::default()))
+        SpecimenCollectionFastingStatusTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -24105,7 +24067,7 @@ pub enum SpecimenProcessingTimeTypeChoice {
 }
 impl Default for SpecimenProcessingTimeTypeChoice {
     fn default() -> Self {
-        SpecimenProcessingTimeTypeChoice::DateTime(Box::new(Default::default()))
+        SpecimenProcessingTimeTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -24154,7 +24116,7 @@ pub enum SpecimenContainerAdditiveTypeChoice {
 }
 impl Default for SpecimenContainerAdditiveTypeChoice {
     fn default() -> Self {
-        SpecimenContainerAdditiveTypeChoice::CodeableConcept(Box::new(Default::default()))
+        SpecimenContainerAdditiveTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -24272,9 +24234,7 @@ pub enum SpecimenDefinitionTypeTestedContainerMinimumVolumeTypeChoice {
 }
 impl Default for SpecimenDefinitionTypeTestedContainerMinimumVolumeTypeChoice {
     fn default() -> Self {
-        SpecimenDefinitionTypeTestedContainerMinimumVolumeTypeChoice::Quantity(Box::new(
-            Default::default(),
-        ))
+        SpecimenDefinitionTypeTestedContainerMinimumVolumeTypeChoice::Quantity(Box::default())
     }
 }
 #[derive(
@@ -24293,9 +24253,9 @@ pub enum SpecimenDefinitionTypeTestedContainerAdditiveAdditiveTypeChoice {
 }
 impl Default for SpecimenDefinitionTypeTestedContainerAdditiveAdditiveTypeChoice {
     fn default() -> Self {
-        SpecimenDefinitionTypeTestedContainerAdditiveAdditiveTypeChoice::CodeableConcept(Box::new(
-            Default::default(),
-        ))
+        SpecimenDefinitionTypeTestedContainerAdditiveAdditiveTypeChoice::CodeableConcept(
+            Box::default(),
+        )
     }
 }
 #[derive(
@@ -24823,9 +24783,7 @@ pub enum StructureMapGroupRuleSourceDefaultValueTypeChoice {
 }
 impl Default for StructureMapGroupRuleSourceDefaultValueTypeChoice {
     fn default() -> Self {
-        StructureMapGroupRuleSourceDefaultValueTypeChoice::Base64Binary(
-            Box::new(Default::default()),
-        )
+        StructureMapGroupRuleSourceDefaultValueTypeChoice::Base64Binary(Box::default())
     }
 }
 #[derive(
@@ -24904,7 +24862,7 @@ pub enum StructureMapGroupRuleTargetParameterValueTypeChoice {
 }
 impl Default for StructureMapGroupRuleTargetParameterValueTypeChoice {
     fn default() -> Self {
-        StructureMapGroupRuleTargetParameterValueTypeChoice::Id(Box::new(Default::default()))
+        StructureMapGroupRuleTargetParameterValueTypeChoice::Id(Box::default())
     }
 }
 #[derive(
@@ -25274,7 +25232,7 @@ pub enum SubstanceIngredientSubstanceTypeChoice {
 }
 impl Default for SubstanceIngredientSubstanceTypeChoice {
     fn default() -> Self {
-        SubstanceIngredientSubstanceTypeChoice::CodeableConcept(Box::new(Default::default()))
+        SubstanceIngredientSubstanceTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -25874,7 +25832,7 @@ pub enum SubstanceReferenceInformationTargetAmountTypeChoice {
 }
 impl Default for SubstanceReferenceInformationTargetAmountTypeChoice {
     fn default() -> Self {
-        SubstanceReferenceInformationTargetAmountTypeChoice::Quantity(Box::new(Default::default()))
+        SubstanceReferenceInformationTargetAmountTypeChoice::Quantity(Box::default())
     }
 }
 #[derive(
@@ -26200,7 +26158,7 @@ pub enum SubstanceSpecificationMoietyAmountTypeChoice {
 }
 impl Default for SubstanceSpecificationMoietyAmountTypeChoice {
     fn default() -> Self {
-        SubstanceSpecificationMoietyAmountTypeChoice::Quantity(Box::new(Default::default()))
+        SubstanceSpecificationMoietyAmountTypeChoice::Quantity(Box::default())
     }
 }
 #[derive(
@@ -26256,9 +26214,7 @@ pub enum SubstanceSpecificationPropertyDefiningSubstanceTypeChoice {
 }
 impl Default for SubstanceSpecificationPropertyDefiningSubstanceTypeChoice {
     fn default() -> Self {
-        SubstanceSpecificationPropertyDefiningSubstanceTypeChoice::Reference(Box::new(
-            Default::default(),
-        ))
+        SubstanceSpecificationPropertyDefiningSubstanceTypeChoice::Reference(Box::default())
     }
 }
 #[derive(
@@ -26277,7 +26233,7 @@ pub enum SubstanceSpecificationPropertyAmountTypeChoice {
 }
 impl Default for SubstanceSpecificationPropertyAmountTypeChoice {
     fn default() -> Self {
-        SubstanceSpecificationPropertyAmountTypeChoice::Quantity(Box::new(Default::default()))
+        SubstanceSpecificationPropertyAmountTypeChoice::Quantity(Box::default())
     }
 }
 #[derive(
@@ -26552,9 +26508,7 @@ pub enum SubstanceSpecificationRelationshipSubstanceTypeChoice {
 }
 impl Default for SubstanceSpecificationRelationshipSubstanceTypeChoice {
     fn default() -> Self {
-        SubstanceSpecificationRelationshipSubstanceTypeChoice::Reference(Box::new(
-            Default::default(),
-        ))
+        SubstanceSpecificationRelationshipSubstanceTypeChoice::Reference(Box::default())
     }
 }
 #[derive(
@@ -26575,7 +26529,7 @@ pub enum SubstanceSpecificationRelationshipAmountTypeChoice {
 }
 impl Default for SubstanceSpecificationRelationshipAmountTypeChoice {
     fn default() -> Self {
-        SubstanceSpecificationRelationshipAmountTypeChoice::Quantity(Box::new(Default::default()))
+        SubstanceSpecificationRelationshipAmountTypeChoice::Quantity(Box::default())
     }
 }
 #[derive(
@@ -26710,7 +26664,7 @@ pub enum SupplyDeliverySuppliedItemItemTypeChoice {
 }
 impl Default for SupplyDeliverySuppliedItemItemTypeChoice {
     fn default() -> Self {
-        SupplyDeliverySuppliedItemItemTypeChoice::CodeableConcept(Box::new(Default::default()))
+        SupplyDeliverySuppliedItemItemTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -26754,7 +26708,7 @@ pub enum SupplyDeliveryOccurrenceTypeChoice {
 }
 impl Default for SupplyDeliveryOccurrenceTypeChoice {
     fn default() -> Self {
-        SupplyDeliveryOccurrenceTypeChoice::DateTime(Box::new(Default::default()))
+        SupplyDeliveryOccurrenceTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -26836,7 +26790,7 @@ pub enum SupplyRequestItemTypeChoice {
 }
 impl Default for SupplyRequestItemTypeChoice {
     fn default() -> Self {
-        SupplyRequestItemTypeChoice::CodeableConcept(Box::new(Default::default()))
+        SupplyRequestItemTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -26857,7 +26811,7 @@ pub enum SupplyRequestParameterValueTypeChoice {
 }
 impl Default for SupplyRequestParameterValueTypeChoice {
     fn default() -> Self {
-        SupplyRequestParameterValueTypeChoice::CodeableConcept(Box::new(Default::default()))
+        SupplyRequestParameterValueTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -26901,7 +26855,7 @@ pub enum SupplyRequestOccurrenceTypeChoice {
 }
 impl Default for SupplyRequestOccurrenceTypeChoice {
     fn default() -> Self {
-        SupplyRequestOccurrenceTypeChoice::DateTime(Box::new(Default::default()))
+        SupplyRequestOccurrenceTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -27085,7 +27039,7 @@ pub enum TaskInputValueTypeChoice {
 }
 impl Default for TaskInputValueTypeChoice {
     fn default() -> Self {
-        TaskInputValueTypeChoice::Base64Binary(Box::new(Default::default()))
+        TaskInputValueTypeChoice::Base64Binary(Box::default())
     }
 }
 #[derive(
@@ -27195,7 +27149,7 @@ pub enum TaskOutputValueTypeChoice {
 }
 impl Default for TaskOutputValueTypeChoice {
     fn default() -> Self {
-        TaskOutputValueTypeChoice::Base64Binary(Box::new(Default::default()))
+        TaskOutputValueTypeChoice::Base64Binary(Box::default())
     }
 }
 #[derive(
@@ -28770,7 +28724,7 @@ pub enum ValueSetExpansionParameterValueTypeChoice {
 }
 impl Default for ValueSetExpansionParameterValueTypeChoice {
     fn default() -> Self {
-        ValueSetExpansionParameterValueTypeChoice::String(Box::new(Default::default()))
+        ValueSetExpansionParameterValueTypeChoice::String(Box::default())
     }
 }
 #[derive(
@@ -29277,7 +29231,7 @@ pub enum ViewDefinitionVersionAlgorithmTypeChoice {
 }
 impl Default for ViewDefinitionVersionAlgorithmTypeChoice {
     fn default() -> Self {
-        ViewDefinitionVersionAlgorithmTypeChoice::String(Box::new(Default::default()))
+        ViewDefinitionVersionAlgorithmTypeChoice::String(Box::default())
     }
 }
 #[derive(
@@ -29329,7 +29283,7 @@ pub enum ViewDefinitionConstantValueTypeChoice {
 }
 impl Default for ViewDefinitionConstantValueTypeChoice {
     fn default() -> Self {
-        ViewDefinitionConstantValueTypeChoice::Base64Binary(Box::new(Default::default()))
+        ViewDefinitionConstantValueTypeChoice::Base64Binary(Box::default())
     }
 }
 #[derive(
