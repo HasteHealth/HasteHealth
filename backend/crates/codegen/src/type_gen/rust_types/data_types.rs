@@ -461,7 +461,6 @@ fn create_complex_struct(
     let i = struct_name.clone();
     types.insert(i, type_value);
     let i = format_ident!("{}", struct_name.clone());
-    // TODO
     get_struct_key_value(element, (quote! {#i}, false))
 }
 
