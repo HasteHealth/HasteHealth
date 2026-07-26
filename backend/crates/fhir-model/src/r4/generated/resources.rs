@@ -54,9 +54,9 @@ pub struct AccessPolicyV2Attribute {
 )]
 #[fhir_type = "BackboneElement"]
 #[fhir_serialize_type = "complex"]
-#[doc = ""]
+#[doc = "AccessPolicyV2.rule.target"]
 pub struct AccessPolicyV2RuleTarget {
-    #[doc = ""]
+    #[doc = "AccessPolicyV2.rule.target.expression"]
     pub expression: Box<Expression>,
 }
 #[derive(
@@ -69,9 +69,9 @@ pub struct AccessPolicyV2RuleTarget {
 )]
 #[fhir_type = "BackboneElement"]
 #[fhir_serialize_type = "complex"]
-#[doc = ""]
+#[doc = "AccessPolicyV2.rule.condition"]
 pub struct AccessPolicyV2RuleCondition {
-    #[doc = ""]
+    #[doc = "AccessPolicyV2.rule.condition.expression"]
     pub expression: Box<Expression>,
 }
 #[derive(
@@ -96,11 +96,11 @@ pub struct AccessPolicyV2Rule {
     #[doc = "Rule combination behavior for children elements."]
     pub combineBehavior: Option<terminology::BoundCode<terminology::AccessPolicyv2CombineBehavior>>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "AccessPolicyV2.rule.effect"]
     pub effect: Option<terminology::BoundCode<terminology::AccessPolicyRuleEffect>>,
-    #[doc = ""]
+    #[doc = "AccessPolicyV2.rule.target"]
     pub target: Option<AccessPolicyV2RuleTarget>,
-    #[doc = ""]
+    #[doc = "AccessPolicyV2.rule.condition"]
     pub condition: Option<AccessPolicyV2RuleCondition>,
     #[doc = "Nested rules to evaluate."]
     pub rule: Option<Vec<AccessPolicyV2Rule>>,
@@ -164,24 +164,24 @@ pub struct AccessPolicyV2 {
 )]
 #[fhir_type = "ClientApplication"]
 #[fhir_serialize_type = "resource"]
-#[doc = ""]
+#[doc = "ClientApplication"]
 pub struct ClientApplication {
     #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
     pub id: Option<String>,
     #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
     pub meta: Option<Box<Meta>>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "ClientApplication.name"]
     pub name: Box<FHIRString>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "ClientApplication.description"]
     pub description: Option<Box<FHIRString>>,
     #[primitive]
     #[cardinality(min = 1usize)]
     #[doc = "The grant type for this client application."]
     pub grantType: Vec<terminology::BoundCode<terminology::ClientapplicationGrantType>>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "ClientApplication.responseTypes"]
     pub responseTypes: terminology::BoundCode<terminology::ClientapplicationResponseTypes>,
     #[primitive]
     #[doc = "For client credentials (or other confidential authentication methods), the client secret."]
@@ -191,21 +191,21 @@ pub struct ClientApplication {
     #[doc = "Array of redirection URI strings for use in redirect-based flows such as the authorization code and implicit flows.  As required by Section 2 of OAuth 2.0 [RFC6749], clients using flows with redirection MUST register their redirection URI values. Authorization servers that support dynamic registration for redirect-based flows MUST implement support for this metadata value."]
     pub redirectUri: Option<Vec<Box<FHIRString>>>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "ClientApplication.uri"]
     pub uri: Option<Box<FHIRUri>>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "ClientApplication.logoUri"]
     pub logoUri: Option<Box<FHIRUri>>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "ClientApplication.scope"]
     pub scope: Option<Box<FHIRString>>,
-    #[doc = ""]
+    #[doc = "ClientApplication.contact"]
     pub contact: Option<Box<ContactPoint>>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "ClientApplication.tosUri"]
     pub tosUri: Option<Box<FHIRUri>>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "ClientApplication.policyUri"]
     pub policyUri: Option<Box<FHIRUri>>,
 }
 #[derive(
@@ -410,17 +410,17 @@ pub struct IdentityProvider {
 )]
 #[fhir_type = "Membership"]
 #[fhir_serialize_type = "resource"]
-#[doc = ""]
+#[doc = "Membership"]
 pub struct Membership {
     #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
     pub id: Option<String>,
     #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
     pub meta: Option<Box<Meta>>,
     # [reference (targets = ["Patient" , "Practitioner" , "RelatedPerson" , "Person"])]
-    #[doc = ""]
+    #[doc = "Membership.link"]
     pub link: Option<Box<Reference>>,
     # [reference (targets = ["User"])]
-    #[doc = ""]
+    #[doc = "Membership.user"]
     pub user: Box<Reference>,
 }
 #[derive(
@@ -433,21 +433,21 @@ pub struct Membership {
 )]
 #[fhir_type = "Project"]
 #[fhir_serialize_type = "resource"]
-#[doc = ""]
+#[doc = "Project"]
 pub struct Project {
     #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
     pub id: Option<String>,
     #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
     pub meta: Option<Box<Meta>>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "Project.name"]
     pub name: Box<FHIRString>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "Project.fhirVersion"]
     pub fhirVersion: terminology::BoundCode<terminology::SupportedFhirVersion>,
     #[cardinality(max = 3usize)]
     # [reference (targets = ["IdentityProvider"])]
-    #[doc = ""]
+    #[doc = "Project.identityProvider"]
     pub identityProvider: Option<Vec<Box<Reference>>>,
 }
 #[derive(
@@ -460,25 +460,25 @@ pub struct Project {
 )]
 #[fhir_type = "User"]
 #[fhir_serialize_type = "resource"]
-#[doc = ""]
+#[doc = "User"]
 pub struct User {
     #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
     pub id: Option<String>,
     #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
     pub meta: Option<Box<Meta>>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "User.email"]
     pub email: Option<Box<FHIRString>>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "User.emailVerified"]
     pub emailVerified: Option<Box<FHIRBoolean>>,
-    #[doc = ""]
+    #[doc = "User.name"]
     pub name: Option<Box<HumanName>>,
     #[primitive]
-    #[doc = ""]
+    #[doc = "User.role"]
     pub role: terminology::BoundCode<terminology::UserRole>,
     # [reference (targets = ["IdentityProvider"])]
-    #[doc = ""]
+    #[doc = "User.federated"]
     pub federated: Option<Box<Reference>>,
 }
 #[derive(
