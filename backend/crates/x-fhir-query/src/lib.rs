@@ -100,13 +100,13 @@ mod tests {
     async fn test_multiple() {
         let patient = Patient {
             id: Some("example".to_string()),
-            name: Some(vec![Box::new(HumanName {
+            name: Some(vec![HumanName {
                 family: Some(Box::new(FHIRString {
                     value: Some("Doe".to_string()),
                     ..Default::default()
                 })),
                 ..Default::default()
-            })]),
+            }]),
             ..Default::default()
         };
         let result = evaluation(
