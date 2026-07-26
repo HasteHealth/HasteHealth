@@ -13,18 +13,17 @@ pub(crate) fn extract_code_from_operation_definition(
     operation: &OperationDefinition,
 ) -> Option<(&str, &str)> {
     let code_extension = operation.extension.as_ref()?.iter().find(|extension| {
-        extension.url == CUSTOM_CODE_EXTENSION_URL
-            && extension_value_as_string(extension.as_ref()).is_some()
+        extension.url == CUSTOM_CODE_EXTENSION_URL && extension_value_as_string(extension).is_some()
     })?;
 
-    let code = extension_value_as_string(code_extension.as_ref())?;
+    let code = extension_value_as_string(code_extension)?;
 
     let media_type = code_extension
         .extension
         .as_ref()?
         .iter()
         .find(|extension| extension.url == CUSTOM_CODE_TYPE_EXTENSION_URL)
-        .and_then(|extension| extension_value_as_string(extension.as_ref()))?;
+        .and_then(|extension| extension_value_as_string(extension))?;
 
     Some((code, media_type))
 }

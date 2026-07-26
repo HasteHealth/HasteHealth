@@ -176,22 +176,22 @@ mod test {
     fn test_pointer_descend() {
         let patient = Arc::new(Patient {
             id: Some("patient-1".to_string()),
-            name: Some(vec![Box::new(HumanName {
+            name: Some(vec![HumanName {
                 family: Some(Box::new(FHIRString {
                     value: Some("Doe".to_string()),
                     ..Default::default()
                 })),
                 ..Default::default()
-            })]),
+            }]),
             ..Default::default()
         });
 
         let pointer = TypedPointer::<Patient, Patient>::new(patient);
         let pointer = pointer
-            .descend::<Vec<Box<HumanName>>>(&Key::Field("name".to_string()))
+            .descend::<Vec<HumanName>>(&Key::Field("name".to_string()))
             .unwrap();
         assert_eq!(pointer.path(), "/name");
-        let pointer = pointer.descend::<Box<HumanName>>(&Key::Index(0)).unwrap();
+        let pointer = pointer.descend::<HumanName>(&Key::Index(0)).unwrap();
         assert_eq!(pointer.path(), "/name/0");
         let pointer = pointer
             .descend::<Box<FHIRString>>(&Key::Field("family".to_string()))
@@ -208,13 +208,13 @@ mod test {
     fn test_path() {
         let patient = Arc::new(Patient {
             id: Some("patient-1".to_string()),
-            name: Some(vec![Box::new(HumanName {
+            name: Some(vec![HumanName {
                 family: Some(Box::new(FHIRString {
                     value: Some("Doe".to_string()),
                     ..Default::default()
                 })),
                 ..Default::default()
-            })]),
+            }]),
             ..Default::default()
         });
 

@@ -455,17 +455,17 @@ mod test {
         // println!("{}", serde_json::to_string_pretty(&schema).unwrap());
 
         let patient_data = serde_json::to_string(&Patient {
-            name: Some(vec![Box::new(HumanName {
+            name: Some(vec![HumanName {
                 family: Some(Box::new(FHIRString {
                     value: Some("Doe".to_string()),
                     ..Default::default()
                 })),
-                given: Some(vec![Box::new(FHIRString {
+                given: Some(vec![FHIRString {
                     value: Some("John".to_string()),
                     ..Default::default()
-                })]),
+                }]),
                 ..Default::default()
-            })]),
+            }]),
             ..Default::default()
         })
         .unwrap();

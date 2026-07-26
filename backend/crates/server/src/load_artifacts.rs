@@ -34,7 +34,7 @@ fn generate_sha256_hash(value: &Resource) -> String {
 static HASH_TAG_SYSTEM: &str = "https://haste.health/fhir/CodeSystem/hash";
 
 fn _add_hash_tag(meta: &mut Option<Box<Meta>>, sha_hash: String) {
-    let hash_tag = Box::new(Coding {
+    let hash_tag = Coding {
         system: Some(Box::new(FHIRUri {
             value: Some(HASH_TAG_SYSTEM.to_string()),
             ..Default::default()
@@ -44,7 +44,7 @@ fn _add_hash_tag(meta: &mut Option<Box<Meta>>, sha_hash: String) {
             ..Default::default()
         })),
         ..Default::default()
-    });
+    };
 
     let meta = if let Some(meta) = meta {
         meta

@@ -143,10 +143,10 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
             value: Some(DateTime::Year(2025)),
             ..Default::default()
         }),
-        format: vec![Box::new(FHIRCode {
+        format: vec![FHIRCode {
             value: Some("application/fhir+json".to_string()),
             ..Default::default()
-        })],
+        }],
         fhirVersion: FHIRVersion::v401(),
         rest: Some(vec![CapabilityStatementRest {
             mode: RestfulCapabilityMode::server(),

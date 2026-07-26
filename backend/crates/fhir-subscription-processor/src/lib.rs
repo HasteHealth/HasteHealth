@@ -371,13 +371,13 @@ mod tests {
         .await
         .unwrap();
         let patient = Resource::Patient(Patient {
-            name: Some(vec![Box::new(HumanName {
+            name: Some(vec![HumanName {
                 family: Some(Box::new(FHIRString {
                     value: Some("Smith".to_string()),
                     ..Default::default()
                 })),
                 ..Default::default()
-            })]),
+            }]),
             ..Default::default()
         });
 
@@ -418,13 +418,13 @@ mod tests {
         assert_eq!(sub_filter_casing.matches(&patient).await.unwrap(), true);
 
         let patient = Resource::Patient(Patient {
-            name: Some(vec![Box::new(HumanName {
+            name: Some(vec![HumanName {
                 family: Some(Box::new(FHIRString {
                     value: Some("NotSmith".to_string()),
                     ..Default::default()
                 })),
                 ..Default::default()
-            })]),
+            }]),
             ..Default::default()
         });
 

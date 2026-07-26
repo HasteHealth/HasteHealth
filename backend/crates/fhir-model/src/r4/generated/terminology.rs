@@ -47,7 +47,7 @@ impl<VS: ValueSetDef> BoundCode<VS> {
     pub fn element_mut(&mut self) -> &mut Element {
         self.element.get_or_insert_with(Default::default)
     }
-    pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+    pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
         &mut self.element_mut().extension
     }
     pub fn id_mut(&mut self) -> &mut Option<String> {

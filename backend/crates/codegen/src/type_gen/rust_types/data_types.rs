@@ -50,7 +50,11 @@ fn min_max_attribute(element: &ElementDefinition) -> TokenStream {
     }
 }
 
-fn wrap_if_vec(element: &ElementDefinition, field_value: TokenStream) -> TokenStream {
+fn wrap_if_vec(
+    element: &ElementDefinition,
+    field_value: TokenStream,
+    should_box: bool,
+) -> TokenStream {
     let cardinality = extract::cardinality(element);
 
     // Check the cardinality.
@@ -58,9 +62,13 @@ fn wrap_if_vec(element: &ElementDefinition, field_value: TokenStream) -> TokenSt
         extract::Max::Unlimited => quote! {
             Vec<#field_value>
         },
-        extract::Max::Fixed(1) => quote! {
-            #field_value
-        },
+        extract::Max::Fixed(1) => {
+            if should_box {
+                quote! { Box<#field_value> }
+            } else {
+                quote! { #field_value }
+            }
+        }
         extract::Max::Fixed(_n) => quote! {
             Vec<#field_value>
         },
@@ -72,10 +80,11 @@ fn wrap_if_vec(element: &ElementDefinition, field_value: TokenStream) -> TokenSt
 fn wrap_cardinality_and_optionality(
     element: &ElementDefinition,
     field_value: TokenStream,
+    should_box: bool,
 ) -> TokenStream {
     let cardinality = extract::cardinality(element);
 
-    let field_value = wrap_if_vec(element, field_value);
+    let field_value = wrap_if_vec(element, field_value, should_box);
 
     // Check the Optionality
     if cardinality.0 == 0 {
@@ -97,7 +106,7 @@ fn get_reference_target_attribute(element: &ElementDefinition) -> TokenStream {
         let profiles = targets
             .iter()
             .filter_map(
-                |tp: &Box<haste_fhir_model::r4::generated::types::FHIRCanonical>| tp.value.as_ref(),
+                |tp: &haste_fhir_model::r4::generated::types::FHIRCanonical| tp.value.as_ref(),
             )
             .filter_map(|tp| tp.split("/").last())
             .collect::<Vec<_>>();
@@ -111,7 +120,7 @@ fn get_reference_target_attribute(element: &ElementDefinition) -> TokenStream {
 
 fn get_struct_key_value(
     element: &ElementDefinition,
-    field_value_type_name: TokenStream,
+    field_value_type_name: (TokenStream, bool),
 ) -> TokenStream {
     let description = extract::element_description(element);
     let field_name = extract::field_name(&extract::path(element));
@@ -159,7 +168,8 @@ fn get_struct_key_value(
     };
 
     let cardinality_attribute = min_max_attribute(element);
-    let field_value = wrap_cardinality_and_optionality(element, field_value_type_name);
+    let field_value =
+        wrap_cardinality_and_optionality(element, field_value_type_name.0, field_value_type_name.1);
 
     quote! {
         #type_choice_variants
@@ -185,7 +195,7 @@ fn resolve_content_reference<'a>(
         .unwrap()[1..]
         .to_string();
 
-    let content_reference_element: Vec<&Box<ElementDefinition>> = sd
+    let content_reference_element: Vec<&ElementDefinition> = sd
         .snapshot
         .as_ref()
         .ok_or("StructureDefinition has no snapshot")
@@ -219,10 +229,9 @@ fn create_type_choice(
         .iter()
         .map(|fhir_type| {
             let enum_name = format_ident!("{}", generate::capitalize(fhir_type));
-            let rust_type = wrap_if_vec(
-                element,
-                fhir_type_to_rust_type(element, fhir_type, inlined_terminology),
-            );
+            let (rust_type, should_box) =
+                fhir_type_to_rust_type(element, fhir_type, inlined_terminology);
+            let rust_type = wrap_if_vec(element, rust_type, should_box);
             // For Reference types, extract target profiles and use as an attribute.
             let target_types = if *fhir_type == "Reference" {
                 get_reference_target_attribute(element)
@@ -292,12 +301,12 @@ fn process_leaf(
         let field_type_name = field_typename(sd, content_reference_element, inlined_terminology);
         get_struct_key_value(element, field_type_name)
     } else if conditionals::is_typechoice(element) {
-        let type_choice_name_ident = field_typename(sd, element, inlined_terminology);
+        let (type_choice_name_ident, should_box) = field_typename(sd, element, inlined_terminology);
         let type_choice = create_type_choice(sd, element, inlined_terminology);
 
         types.insert(type_choice_name_ident.to_string(), type_choice);
 
-        get_struct_key_value(element, quote! {#type_choice_name_ident})
+        get_struct_key_value(element, (quote! {#type_choice_name_ident}, should_box))
     } else {
         let fhir_type = extract::field_types(element)[0];
         let rust_type = fhir_type_to_rust_type(element, fhir_type, inlined_terminology);
@@ -331,7 +340,8 @@ fn from_rust_type_to_fhir_primitive<'a>(
     if let Some(value_element) = value_element
         && let Some(fhir_type) = extract::field_types(&*value_element).get(0)
     {
-        let value_type = fhir_type_to_rust_type(value_element, *fhir_type, inlined_terminology);
+        let (value_type, _should_box) =
+            fhir_type_to_rust_type(value_element, *fhir_type, inlined_terminology);
 
         if value_element
             .min
@@ -385,7 +395,7 @@ fn create_complex_struct(
         let from_impl = from_rust_type_to_fhir_primitive(&struct_ident, sd, inlined_terminology);
         additional_impls = quote! {
             impl #struct_ident {
-                pub fn extension_mut(&mut self) -> &mut Option<Vec<Box<Extension>>> {
+                pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
                     &mut self.extension
                 }
                 pub fn id_mut(&mut self) -> &mut Option<String> {
@@ -451,7 +461,7 @@ fn create_complex_struct(
     let i = struct_name.clone();
     types.insert(i, type_value);
     let i = format_ident!("{}", struct_name.clone());
-    get_struct_key_value(element, quote! {#i})
+    get_struct_key_value(element, (quote! {#i}, false))
 }
 
 fn generate_from_structure_definition(

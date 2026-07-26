@@ -115,7 +115,7 @@ fn convert_optional_fp_string(value: &Option<Box<FHIRString>>) -> Vec<String> {
         .unwrap_or_else(|| vec![])
 }
 
-fn convert_optional_fp_string_vec(value: &Option<Vec<Box<FHIRString>>>) -> Vec<String> {
+fn convert_optional_fp_string_vec(value: &Option<Vec<FHIRString>>) -> Vec<String> {
     value
         .as_ref()
         .map(|v| v.iter().flat_map(|s| convert_fp_string(s)).collect())
@@ -664,7 +664,7 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
             if let Some(events) = fp_timing.event.as_ref() {
                 let date_ranges = events
                     .iter()
-                    .map(|event| index_date(event.as_ref()))
+                    .map(|event| index_date(event))
                     .collect::<Result<Vec<_>, _>>()?;
                 Ok(date_ranges.into_iter().flatten().collect())
             } else {
@@ -1160,16 +1160,16 @@ mod tests {
     fn test_timing() {
         let mut timing = Timing::default();
         timing.event = Some(vec![
-            Box::new(FHIRDateTime {
+            FHIRDateTime {
                 id: None,
                 extension: None,
                 value: Some(DateTime::YearMonthDay(2023, 12, 31)),
-            }),
-            Box::new(FHIRDateTime {
+            },
+            FHIRDateTime {
                 id: None,
                 extension: None,
                 value: Some(DateTime::YearMonthDay(2024, 1, 1)),
-            }),
+            },
         ]);
 
         let date_ranges = index_date(&timing).unwrap();

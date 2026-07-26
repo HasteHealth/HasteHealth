@@ -79,9 +79,7 @@ impl TryFrom<&str> for ParsedHL7V2Message {
                                         subcomponents: Some(
                                             subcomponent
                                                 .iter()
-                                                .map(|s| {
-                                                    Box::new(parse_empty_string(s.to_string()))
-                                                })
+                                                .map(|s| parse_empty_string(s.to_string()))
                                                 .collect(),
                                         ),
                                     }

@@ -179,15 +179,18 @@ pub mod conversion {
         element: &ElementDefinition,
         fhir_type: &str,
         inlined_terminology: &HashMap<String, String>,
-    ) -> TokenStream {
+    ) -> (TokenStream, bool) {
         let path = element.path.value.as_ref().map(|p| p.as_str());
 
         match path {
             Some("unsignedInt.value") | Some("positiveInt.value") => {
                 let k = format_ident!("{}", "u64");
-                quote! {
-                    #k
-                }
+                (
+                    quote! {
+                        #k
+                    },
+                    false,
+                )
             }
 
             _ => {
@@ -201,14 +204,20 @@ pub mod conversion {
                             .parse::<TokenStream>()
                             .unwrap();
 
-                        quote! {
-                            #k
-                        }
+                        (
+                            quote! {
+                                #k
+                            },
+                            false,
+                        )
                     } else {
                         let k = rust_primitive.parse::<TokenStream>().unwrap();
-                        quote! {
-                            #k
-                        }
+                        (
+                            quote! {
+                                #k
+                            },
+                            false,
+                        )
                     }
                 } else if let Some(primitive) = FHIR_PRIMITIVES.get(fhir_type) {
                     // Support for inlined types.
@@ -227,20 +236,29 @@ pub mod conversion {
                         && let Some(inlined) = inlined_terminology.get(url)
                     {
                         let inline_type = format_ident!("{}", inlined);
-                        quote! {
-                            terminology::BoundCode<terminology::#inline_type>
-                        }
+                        (
+                            quote! {
+                                terminology::BoundCode<terminology::#inline_type>
+                            },
+                            false,
+                        )
                     } else {
                         let k = format_ident!("{}", primitive.clone());
-                        quote! {
-                            Box<#k>
-                        }
+                        (
+                            quote! {
+                                #k
+                            },
+                            true,
+                        )
                     }
                 } else {
                     let k = format_ident!("{}", fhir_type.to_string());
-                    quote! {
-                        Box<#k>
-                    }
+                    (
+                        quote! {
+                            #k
+                        },
+                        true,
+                    )
                 }
             }
         }
@@ -425,17 +443,23 @@ pub mod generate {
         sd: &StructureDefinition,
         element: &ElementDefinition,
         inlined_terminology: &HashMap<String, String>,
-    ) -> TokenStream {
+    ) -> (TokenStream, bool) {
         let field_value_type_name = if conditionals::is_typechoice(element) {
             let k = format_ident!("{}", type_choice_name(sd, element));
-            quote! {
-                #k
-            }
+            (
+                quote! {
+                    #k
+                },
+                false,
+            )
         } else if conditionals::is_nested_complex(element) {
             let k = format_ident!("{}", struct_name(sd, element));
-            quote! {
-                #k
-            }
+            (
+                quote! {
+                    #k
+                },
+                false,
+            )
         } else {
             let fhir_type = element.type_.as_ref().unwrap()[0]
                 .code

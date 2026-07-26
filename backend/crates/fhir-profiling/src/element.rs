@@ -120,10 +120,10 @@ pub fn outcome_issue(
             value: Some(diagnostic),
             ..Default::default()
         })),
-        location: Some(vec![Box::new(FHIRString {
+        location: Some(vec![FHIRString {
             value: Some(format!("{}", value_location)),
             ..Default::default()
-        })]),
+        }]),
         ..Default::default()
     }
 }
@@ -134,7 +134,7 @@ pub async fn validate_singular_element<'a>(
     value_path: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
     let element = element_path
-        .get_typed::<Box<ElementDefinition>>(ctx.profile())
+        .get_typed::<ElementDefinition>(ctx.profile())
         .ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::exception(),
@@ -157,7 +157,7 @@ pub async fn validate_singular_element<'a>(
     };
 
     let elements = elements_pointer
-        .get_typed::<Vec<Box<ElementDefinition>>>(ctx.profile())
+        .get_typed::<Vec<ElementDefinition>>(ctx.profile())
         .ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::exception(),
@@ -260,7 +260,7 @@ pub async fn validate_element<'a>(
     value_pointer: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
     let mut issues = vec![];
-    let Some(element) = element_pointer.get_typed::<Box<ElementDefinition>>(ctx.profile()) else {
+    let Some(element) = element_pointer.get_typed::<ElementDefinition>(ctx.profile()) else {
         return Err(OperationOutcomeError::error(
             IssueType::exception(),
             format!("Invalid element path: {}", element_pointer),

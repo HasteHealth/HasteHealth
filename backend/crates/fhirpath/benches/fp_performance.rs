@@ -8,13 +8,13 @@ use tokio::runtime::Runtime;
 
 fn fp_performance_simple(c: &mut Criterion) {
     let root = Patient {
-        name: Some(vec![Box::new(HumanName {
-            given: Some(vec![Box::new(FHIRString {
+        name: Some(vec![HumanName {
+            given: Some(vec![FHIRString {
                 value: Some("John".to_string()),
                 ..Default::default()
-            })]),
+            }]),
             ..Default::default()
-        })]),
+        }]),
         ..Default::default()
     };
     let engine = FPEngine::new();
