@@ -301,7 +301,13 @@ pub mod extract {
             .as_ref()
             .and_then(|d| d.value.as_ref())
             .cloned()
-            .unwrap_or_else(|| "".to_string())
+            .unwrap_or_else(|| {
+                element
+                    .path
+                    .value
+                    .clone()
+                    .unwrap_or_else(|| "no description".to_string())
+            })
     }
 
     pub fn fhir_type(sd: &StructureDefinition, element: &ElementDefinition) -> String {

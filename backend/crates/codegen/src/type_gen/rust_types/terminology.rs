@@ -160,7 +160,11 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
             }
 
             let variant = format_ident!("{}", variant_name_str);
-            let display = c.description.as_ref().map(|d| d.as_str()).unwrap_or("");
+            let display = c
+                .description
+                .as_ref()
+                .map(|d| d.as_str())
+                .unwrap_or(c.code.as_str());
             let index = i as u16;
 
             quote! {

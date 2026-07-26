@@ -69,9 +69,10 @@ impl FHIRBase64Binary {
 }
 impl From<String> for FHIRBase64Binary {
     fn from(value: String) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -103,9 +104,10 @@ impl FHIRBoolean {
 }
 impl From<bool> for FHIRBoolean {
     fn from(value: bool) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -137,9 +139,10 @@ impl FHIRCanonical {
 }
 impl From<String> for FHIRCanonical {
     fn from(value: String) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -171,9 +174,10 @@ impl FHIRCode {
 }
 impl From<String> for FHIRCode {
     fn from(value: String) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -205,9 +209,10 @@ impl FHIRDate {
 }
 impl From<crate::r4::datetime::Date> for FHIRDate {
     fn from(value: crate::r4::datetime::Date) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -239,9 +244,10 @@ impl FHIRDateTime {
 }
 impl From<crate::r4::datetime::DateTime> for FHIRDateTime {
     fn from(value: crate::r4::datetime::DateTime) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -273,9 +279,10 @@ impl FHIRDecimal {
 }
 impl From<f64> for FHIRDecimal {
     fn from(value: f64) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -307,9 +314,10 @@ impl FHIRId {
 }
 impl From<String> for FHIRId {
     fn from(value: String) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -341,9 +349,10 @@ impl FHIRInstant {
 }
 impl From<crate::r4::datetime::Instant> for FHIRInstant {
     fn from(value: crate::r4::datetime::Instant) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -375,9 +384,10 @@ impl FHIRInteger {
 }
 impl From<i64> for FHIRInteger {
     fn from(value: i64) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -409,9 +419,10 @@ impl FHIRMarkdown {
 }
 impl From<String> for FHIRMarkdown {
     fn from(value: String) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -443,9 +454,10 @@ impl FHIROid {
 }
 impl From<String> for FHIROid {
     fn from(value: String) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -477,9 +489,10 @@ impl FHIRPositiveInt {
 }
 impl From<u64> for FHIRPositiveInt {
     fn from(value: u64) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -511,9 +524,10 @@ impl FHIRString {
 }
 impl From<String> for FHIRString {
     fn from(value: String) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -545,9 +559,10 @@ impl FHIRTime {
 }
 impl From<crate::r4::datetime::Time> for FHIRTime {
     fn from(value: crate::r4::datetime::Time) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -579,9 +594,10 @@ impl FHIRUnsignedInt {
 }
 impl From<u64> for FHIRUnsignedInt {
     fn from(value: u64) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -613,9 +629,10 @@ impl FHIRUri {
 }
 impl From<String> for FHIRUri {
     fn from(value: String) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -647,9 +664,10 @@ impl FHIRUrl {
 }
 impl From<String> for FHIRUrl {
     fn from(value: String) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -681,9 +699,10 @@ impl FHIRUuid {
 }
 impl From<String> for FHIRUuid {
     fn from(value: String) -> Self {
-        let mut instance = Self::default();
-        instance.value = Some(value);
-        instance
+        Self {
+            value: Some(value),
+            ..Default::default()
+        }
     }
 }
 #[derive(
@@ -717,7 +736,7 @@ impl FHIRXhtml {
 impl From<String> for FHIRXhtml {
     fn from(value: String) -> Self {
         Self {
-            value: value,
+            value,
             ..Default::default()
         }
     }
@@ -819,7 +838,7 @@ pub enum AnnotationAuthorTypeChoice {
 }
 impl Default for AnnotationAuthorTypeChoice {
     fn default() -> Self {
-        AnnotationAuthorTypeChoice::Reference(Box::new(Default::default()))
+        AnnotationAuthorTypeChoice::Reference(Box::default())
     }
 }
 #[derive(
@@ -1071,7 +1090,7 @@ pub enum DataRequirementSubjectTypeChoice {
 }
 impl Default for DataRequirementSubjectTypeChoice {
     fn default() -> Self {
-        DataRequirementSubjectTypeChoice::CodeableConcept(Box::new(Default::default()))
+        DataRequirementSubjectTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(
@@ -1119,7 +1138,7 @@ pub enum DataRequirementDateFilterValueTypeChoice {
 }
 impl Default for DataRequirementDateFilterValueTypeChoice {
     fn default() -> Self {
-        DataRequirementDateFilterValueTypeChoice::DateTime(Box::new(Default::default()))
+        DataRequirementDateFilterValueTypeChoice::DateTime(Box::default())
     }
 }
 #[derive(
@@ -1258,7 +1277,7 @@ pub enum DosageAsNeededTypeChoice {
 }
 impl Default for DosageAsNeededTypeChoice {
     fn default() -> Self {
-        DosageAsNeededTypeChoice::Boolean(Box::new(Default::default()))
+        DosageAsNeededTypeChoice::Boolean(Box::default())
     }
 }
 #[derive(
@@ -1276,7 +1295,7 @@ pub enum DosageDoseAndRateDoseTypeChoice {
 }
 impl Default for DosageDoseAndRateDoseTypeChoice {
     fn default() -> Self {
-        DosageDoseAndRateDoseTypeChoice::Range(Box::new(Default::default()))
+        DosageDoseAndRateDoseTypeChoice::Range(Box::default())
     }
 }
 #[derive(
@@ -1295,7 +1314,7 @@ pub enum DosageDoseAndRateRateTypeChoice {
 }
 impl Default for DosageDoseAndRateRateTypeChoice {
     fn default() -> Self {
-        DosageDoseAndRateRateTypeChoice::Ratio(Box::new(Default::default()))
+        DosageDoseAndRateRateTypeChoice::Ratio(Box::default())
     }
 }
 #[derive(
@@ -1597,7 +1616,7 @@ pub enum ElementDefinitionDefaultValueTypeChoice {
 }
 impl Default for ElementDefinitionDefaultValueTypeChoice {
     fn default() -> Self {
-        ElementDefinitionDefaultValueTypeChoice::Base64Binary(Box::new(Default::default()))
+        ElementDefinitionDefaultValueTypeChoice::Base64Binary(Box::default())
     }
 }
 #[derive(
@@ -1682,7 +1701,7 @@ pub enum ElementDefinitionFixedTypeChoice {
 }
 impl Default for ElementDefinitionFixedTypeChoice {
     fn default() -> Self {
-        ElementDefinitionFixedTypeChoice::Base64Binary(Box::new(Default::default()))
+        ElementDefinitionFixedTypeChoice::Base64Binary(Box::default())
     }
 }
 #[derive(
@@ -1767,7 +1786,7 @@ pub enum ElementDefinitionPatternTypeChoice {
 }
 impl Default for ElementDefinitionPatternTypeChoice {
     fn default() -> Self {
-        ElementDefinitionPatternTypeChoice::Base64Binary(Box::new(Default::default()))
+        ElementDefinitionPatternTypeChoice::Base64Binary(Box::default())
     }
 }
 #[derive(
@@ -1852,7 +1871,7 @@ pub enum ElementDefinitionExampleValueTypeChoice {
 }
 impl Default for ElementDefinitionExampleValueTypeChoice {
     fn default() -> Self {
-        ElementDefinitionExampleValueTypeChoice::Base64Binary(Box::new(Default::default()))
+        ElementDefinitionExampleValueTypeChoice::Base64Binary(Box::default())
     }
 }
 #[derive(
@@ -1908,7 +1927,7 @@ pub enum ElementDefinitionMinValueTypeChoice {
 }
 impl Default for ElementDefinitionMinValueTypeChoice {
     fn default() -> Self {
-        ElementDefinitionMinValueTypeChoice::Date(Box::new(Default::default()))
+        ElementDefinitionMinValueTypeChoice::Date(Box::default())
     }
 }
 #[derive(
@@ -1941,7 +1960,7 @@ pub enum ElementDefinitionMaxValueTypeChoice {
 }
 impl Default for ElementDefinitionMaxValueTypeChoice {
     fn default() -> Self {
-        ElementDefinitionMaxValueTypeChoice::Date(Box::new(Default::default()))
+        ElementDefinitionMaxValueTypeChoice::Date(Box::default())
     }
 }
 #[derive(
@@ -2265,7 +2284,7 @@ pub enum ExtensionValueTypeChoice {
 }
 impl Default for ExtensionValueTypeChoice {
     fn default() -> Self {
-        ExtensionValueTypeChoice::Base64Binary(Box::new(Default::default()))
+        ExtensionValueTypeChoice::Base64Binary(Box::default())
     }
 }
 #[derive(
@@ -2550,7 +2569,7 @@ pub enum PopulationAgeTypeChoice {
 }
 impl Default for PopulationAgeTypeChoice {
     fn default() -> Self {
-        PopulationAgeTypeChoice::Range(Box::new(Default::default()))
+        PopulationAgeTypeChoice::Range(Box::default())
     }
 }
 #[derive(
@@ -2889,7 +2908,7 @@ pub enum SubstanceAmountAmountTypeChoice {
 }
 impl Default for SubstanceAmountAmountTypeChoice {
     fn default() -> Self {
-        SubstanceAmountAmountTypeChoice::Quantity(Box::new(Default::default()))
+        SubstanceAmountAmountTypeChoice::Quantity(Box::default())
     }
 }
 #[derive(
@@ -2958,7 +2977,7 @@ pub enum TimingRepeatBoundsTypeChoice {
 }
 impl Default for TimingRepeatBoundsTypeChoice {
     fn default() -> Self {
-        TimingRepeatBoundsTypeChoice::Duration(Box::new(Default::default()))
+        TimingRepeatBoundsTypeChoice::Duration(Box::default())
     }
 }
 #[derive(
@@ -3069,7 +3088,7 @@ pub enum TriggerDefinitionTimingTypeChoice {
 }
 impl Default for TriggerDefinitionTimingTypeChoice {
     fn default() -> Self {
-        TriggerDefinitionTimingTypeChoice::Timing(Box::new(Default::default()))
+        TriggerDefinitionTimingTypeChoice::Timing(Box::default())
     }
 }
 #[derive(
@@ -3121,7 +3140,7 @@ pub enum UsageContextValueTypeChoice {
 }
 impl Default for UsageContextValueTypeChoice {
     fn default() -> Self {
-        UsageContextValueTypeChoice::CodeableConcept(Box::new(Default::default()))
+        UsageContextValueTypeChoice::CodeableConcept(Box::default())
     }
 }
 #[derive(

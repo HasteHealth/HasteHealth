@@ -251,7 +251,7 @@ fn create_type_choice(
         quote! {
             impl Default for #type_name {
                 fn default() -> Self {
-                    #type_name::#default_enum(Box::new(Default::default()))
+                    #type_name::#default_enum(Box::default())
                 }
             }
         }
@@ -343,7 +343,7 @@ fn from_rust_type_to_fhir_primitive<'a>(
             quote! {
                 impl From<#value_type> for #sd_ident {
                     fn from(value: #value_type) -> Self {
-                        Self { value: value, ..Default::default() }
+                        Self { value, ..Default::default() }
                     }
                 }
             }
@@ -351,9 +351,10 @@ fn from_rust_type_to_fhir_primitive<'a>(
             quote! {
                 impl From<#value_type> for #sd_ident {
                     fn from(value: #value_type) -> Self {
-                        let mut instance = Self::default();
-                        instance.value = Some(value);
-                        instance
+                        Self {
+                            value: Some(value),
+                            ..Default::default()
+                        }
                     }
                 }
             }
