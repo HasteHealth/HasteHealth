@@ -41,5 +41,5 @@ jobs:
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Unit tests
-        run: cargo test --verbose --workspace
+        run: cargo test --locked --verbose --workspace
         working-directory: ./backend
