@@ -14,7 +14,7 @@ fn extension_derive() -> proc_macro2::TokenStream {
     quote! {
          struct Companion<'a, Ext: serde::Serialize> {
             id: &'a Option<String>,
-            extension: &'a Option<Vec<Box<Ext>>>,
+            extension: &'a Option<Vec<Ext>>,
         }
 
         impl<'a, Ext: serde::Serialize> serde::Serialize for Companion<'a, Ext> {
@@ -96,7 +96,7 @@ pub fn fhir_primitive_serialization(input: DeriveInput) -> TokenStream {
                         Ok(())
                     }
 
-                    pub fn serialize_as_vector<M: serde::ser::SerializeMap>(field_name: &str, values: &[Box<Self>], serializer: &mut M) -> Result<(), M::Error> {
+                    pub fn serialize_as_vector<M: serde::ser::SerializeMap>(field_name: &str, values: &[Self], serializer: &mut M) -> Result<(), M::Error> {
                         let has_extensions = values.iter().any(|item| item.extension.is_some() || item.id.is_some());
 
                         if has_extensions {
@@ -265,7 +265,7 @@ pub fn valueset_serialization(input: DeriveInput) -> TokenStream {
                         Ok(())
                     }
 
-                    pub fn serialize_as_vector<M: serde::ser::SerializeMap>(field_name: &str, values: &[Box<Self>], serializer: &mut M) -> Result<(), M::Error> {
+                    pub fn serialize_as_vector<M: serde::ser::SerializeMap>(field_name: &str, values: &[Self], serializer: &mut M) -> Result<(), M::Error> {
                         let value_array: Vec<Option<String>> = values.iter().map(|v| v.as_ref().into()).collect();
                         let element_array: Vec<Option<_>> = values.iter().map(|v| v.element()).collect();
 
