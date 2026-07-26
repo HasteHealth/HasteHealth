@@ -164,7 +164,7 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
                 .description
                 .as_ref()
                 .map(|d| d.as_str())
-                .unwrap_or(&c.code.as_str());
+                .unwrap_or(c.code.as_str());
             let index = i as u16;
 
             quote! {
