@@ -266,7 +266,7 @@ pub fn valueset_serialization(input: DeriveInput) -> TokenStream {
                     }
 
                     pub fn serialize_as_vector<M: serde::ser::SerializeMap>(field_name: &str, values: &[Self], serializer: &mut M) -> Result<(), M::Error> {
-                        let value_array: Vec<Option<String>> = values.iter().map(|v| v.as_ref().into()).collect();
+                        let value_array: Vec<Option<String>> = values.iter().map(|v| v.into()).collect();
                         let element_array: Vec<Option<_>> = values.iter().map(|v| v.element()).collect();
 
                         if value_array.iter().any(|v| v.is_some()) {
