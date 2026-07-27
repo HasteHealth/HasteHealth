@@ -1277,7 +1277,7 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
         {
             let resolved_resource = if reference_string.starts_with('#')
                 && let Some(contained) =
-                    pointer.descend::<Vec<Box<Resource>>>(&Key::Field("contained".to_string()))
+                    pointer.descend::<Vec<Resource>>(&Key::Field("contained".to_string()))
                 && let Some(contained) = contained.value()
             {
                 let local_id = &reference_string[1..];
