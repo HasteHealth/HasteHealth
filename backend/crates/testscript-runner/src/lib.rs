@@ -1296,7 +1296,7 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
                     ));
                 };
 
-                resource.as_ref().clone()
+                resource.clone()
             } else {
                 let parts = reference_string.split("/").collect::<Vec<&str>>();
                 if parts.len() != 2 {
