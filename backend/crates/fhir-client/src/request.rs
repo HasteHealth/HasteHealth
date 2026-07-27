@@ -242,6 +242,21 @@ pub struct CompartmentRequest {
     pub request: Box<FHIRRequest>,
 }
 
+pub(crate) enum FHIRResponseRequest<'a> {
+    Read,
+    Create,
+    Patch,
+    Transaction,
+    VersionRead,
+    Update(&'a UpdateRequest),
+    Delete(&'a DeleteRequest),
+    Capabilities,
+    Search(&'a SearchRequest),
+    History(&'a HistoryRequest),
+    Invocation(&'a InvocationRequest),
+    Batch,
+}
+
 #[derive(Derivative, Clone)]
 #[derivative(Debug = "transparent")]
 pub enum FHIRRequest {
@@ -271,6 +286,27 @@ pub enum FHIRRequest {
     #[derivative(Debug = "transparent")]
     Compartment(CompartmentRequest),
 }
+
+impl FHIRRequest {
+    pub(crate) const fn response_request(&self) -> FHIRResponseRequest<'_> {
+        match self {
+            FHIRRequest::Compartment(request) => request.request.response_request(),
+            FHIRRequest::Read(_) => FHIRResponseRequest::Read,
+            FHIRRequest::Create(_) => FHIRResponseRequest::Create,
+            FHIRRequest::Patch(_) => FHIRResponseRequest::Patch,
+            FHIRRequest::Transaction(_) => FHIRResponseRequest::Transaction,
+            FHIRRequest::VersionRead(_) => FHIRResponseRequest::VersionRead,
+            FHIRRequest::Update(request) => FHIRResponseRequest::Update(request),
+            FHIRRequest::Delete(request) => FHIRResponseRequest::Delete(request),
+            FHIRRequest::Capabilities => FHIRResponseRequest::Capabilities,
+            FHIRRequest::Search(request) => FHIRResponseRequest::Search(request),
+            FHIRRequest::History(request) => FHIRResponseRequest::History(request),
+            FHIRRequest::Invocation(request) => FHIRResponseRequest::Invocation(request),
+            FHIRRequest::Batch(_) => FHIRResponseRequest::Batch,
+        }
+    }
+}
+
 #[derive(Derivative, Clone)]
 #[derivative(Debug)]
 pub struct FHIRCreateResponse {
