@@ -16,7 +16,7 @@ import {
   useMatches,
   useNavigate,
   useParams,
-} from "react-router-dom";
+} from "react-router";
 
 import {
   HasteHealthProvider,

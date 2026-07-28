@@ -8,7 +8,7 @@ import {
 } from "@haste-health/fhir-types/versions";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
-import { generatePath, useNavigate, useParams } from "react-router-dom";
+import { generatePath, useNavigate, useParams } from "react-router";
 import { getClient } from "../../db/client";
 
 const RESOURCE_DESCRIPTIONS: Record<string, string> = {

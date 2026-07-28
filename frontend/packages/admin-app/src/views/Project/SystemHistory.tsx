@@ -1,7 +1,7 @@
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { generatePath, useNavigate } from "react-router-dom";
+import { generatePath, useNavigate } from "react-router";
 
 import { Button, Table, Toaster } from "@haste-health/components";
 import { BundleEntry, id } from "@haste-health/fhir-types/r4/types";

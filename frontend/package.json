@@ -10,6 +10,6 @@
     "@changesets/cli": "^2.31.0",
     "typedoc": "^0.28.19",
     "typescript": "^6.0.3",
-    "wrangler": "^4.107.0"
+    "wrangler": "^4.115.0"
   }
 }

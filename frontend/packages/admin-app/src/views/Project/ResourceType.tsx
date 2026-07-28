@@ -6,7 +6,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { generatePath, useNavigate, useParams } from "react-router-dom";
+import { generatePath, useNavigate, useParams } from "react-router";
 
 import {
   Button,
