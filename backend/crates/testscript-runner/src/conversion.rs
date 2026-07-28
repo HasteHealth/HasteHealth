@@ -10,12 +10,12 @@ pub enum ConvertedValue {
     Number(f64),
 }
 
-impl ToString for ConvertedValue {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for ConvertedValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ConvertedValue::String(s) => s.clone(),
-            ConvertedValue::Boolean(b) => b.to_string(),
-            ConvertedValue::Number(n) => n.to_string(),
+            ConvertedValue::String(s) => write!(f, "{s}"),
+            ConvertedValue::Boolean(b) => write!(f, "{b}"),
+            ConvertedValue::Number(n) => write!(f, "{n}"),
         }
     }
 }
@@ -23,29 +23,27 @@ impl ToString for ConvertedValue {
 fn downcast_string(value: &dyn MetaValue) -> Option<String> {
     match value.fhir_type() {
         "canonical" | "base64Binary" | "code" | "string" | "oid" | "id" | "uri" | "url"
-        | "uuid" | "xhtml" => downcast_string(value.get_field("value").unwrap_or(&"".to_string())),
+        | "uuid" | "xhtml" => downcast_string(value.get_field("value").unwrap_or(&String::new())),
 
         "date" => value
             .as_any()
             .downcast_ref::<haste_fhir_model::r4::generated::types::FHIRDate>()
             .and_then(|dt| dt.value.as_ref())
-            .map(|d| d.to_string()),
+            .map(std::string::ToString::to_string),
 
         "dateTime" => value
             .as_any()
             .downcast_ref::<haste_fhir_model::r4::generated::types::FHIRDateTime>()
             .and_then(|dt| dt.value.as_ref())
-            .map(|d| d.to_string()),
+            .map(std::string::ToString::to_string),
 
         "instant" => value
             .as_any()
             .downcast_ref::<haste_fhir_model::r4::generated::types::FHIRInstant>()
             .and_then(|dt| dt.value.as_ref())
-            .map(|d| d.to_string()),
+            .map(std::string::ToString::to_string),
 
-        "http://hl7.org/fhirpath/System.String" => {
-            value.as_any().downcast_ref::<String>().map(|v| v.clone())
-        }
+        "http://hl7.org/fhirpath/System.String" => value.as_any().downcast_ref::<String>().cloned(),
         _ => None,
     }
 }
@@ -59,32 +57,30 @@ fn downcast_number(value: &dyn MetaValue) -> Option<f64> {
         "decimal" => value
             .as_any()
             .downcast_ref::<FHIRDecimal>()
-            .and_then(|fp_dec| downcast_number(fp_dec.value.as_ref().unwrap_or(&(0 as f64)))),
+            .and_then(|fp_dec| downcast_number(fp_dec.value.as_ref().unwrap_or(&f64::from(0)))),
         "positiveInt" => value
             .as_any()
             .downcast_ref::<FHIRPositiveInt>()
-            .and_then(|fp_pint| downcast_number(fp_pint.value.as_ref().unwrap_or(&(0 as u64)))),
+            .and_then(|fp_pint| downcast_number(fp_pint.value.as_ref().unwrap_or(&0_u64))),
 
         "unsignedInt" => value
             .as_any()
             .downcast_ref::<FHIRUnsignedInt>()
-            .and_then(|fp_uint| downcast_number(fp_uint.value.as_ref().unwrap_or(&(0 as u64)))),
-        "http://hl7.org/fhirpath/System.Integer" => {
+            .and_then(|fp_uint| downcast_number(fp_uint.value.as_ref().unwrap_or(&0_u64))),
+        "http://hl7.org/fhirpath/System.Integer" =>
+        {
+            #[allow(clippy::cast_precision_loss)]
             value.as_any().downcast_ref::<i64>().map(|v| *v as f64)
         }
 
-        "http://hl7.org/fhirpath/System.Decimal" => {
-            value.as_any().downcast_ref::<f64>().map(|v| *v)
-        }
+        "http://hl7.org/fhirpath/System.Decimal" => value.as_any().downcast_ref::<f64>().copied(),
         _ => None,
     }
 }
 
 fn downcast_bool(value: &dyn MetaValue) -> Option<bool> {
     match value.fhir_type() {
-        "http://hl7.org/fhirpath/System.Boolean" => {
-            value.as_any().downcast_ref::<bool>().map(|v| *v)
-        }
+        "http://hl7.org/fhirpath/System.Boolean" => value.as_any().downcast_ref::<bool>().copied(),
 
         "boolean" => value
             .as_any()
@@ -95,16 +91,15 @@ fn downcast_bool(value: &dyn MetaValue) -> Option<bool> {
     }
 }
 
-pub fn convert_meta_value(value: &dyn MetaValue) -> Option<ConvertedValue> {
+pub fn convert_meta_value(value: &dyn MetaValue) -> ConvertedValue {
     if let Some(s) = downcast_string(value) {
-        return Some(ConvertedValue::String(s));
+        return ConvertedValue::String(s);
     } else if let Some(i) = downcast_number(value) {
-        return Some(ConvertedValue::Number(i));
+        return ConvertedValue::Number(i);
     } else if let Some(b) = downcast_bool(value) {
-        return Some(ConvertedValue::Boolean(b));
-    } else {
-        Some(ConvertedValue::String(format!("{:?}", value)))
+        return ConvertedValue::Boolean(b);
     }
+    ConvertedValue::String(format!("{value:?}"))
 }
 
 pub fn convert_string_value(value: &str) -> Option<ConvertedValue> {
@@ -114,8 +109,8 @@ pub fn convert_string_value(value: &str) -> Option<ConvertedValue> {
         }
         None
     } else if let Ok(i) = value.parse::<f64>() {
-        return Some(ConvertedValue::Number(i));
+        Some(ConvertedValue::Number(i))
     } else {
-        return Some(ConvertedValue::String(value.to_string()));
+        Some(ConvertedValue::String(value.to_string()))
     }
 }

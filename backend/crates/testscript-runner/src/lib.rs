@@ -52,7 +52,7 @@ pub enum TestScriptError {
 
 #[derive(Debug, Clone)]
 enum Response {
-    FHIRResponse(FHIRResponse),
+    FHIRResponse(Box<FHIRResponse>),
     OperationError(Arc<OperationOutcomeError>),
 }
 
@@ -108,9 +108,9 @@ struct TestResult<T> {
     pub value: T,
 }
 
-fn response_to_meta_value<'a>(response: &'a Response) -> Option<&'a dyn MetaValue> {
+fn response_to_meta_value(response: &Response) -> Option<&dyn MetaValue> {
     match response {
-        Response::FHIRResponse(fhir_response) => match fhir_response {
+        Response::FHIRResponse(fhir_response) => match &**fhir_response {
             FHIRResponse::Create(res) => Some(&res.resource),
             FHIRResponse::Read(res) => Some(&res.resource),
             FHIRResponse::VersionRead(res) => Some(&res.resource),
@@ -144,7 +144,7 @@ fn response_to_meta_value<'a>(response: &'a Response) -> Option<&'a dyn MetaValu
     }
 }
 
-fn request_to_meta_value<'a>(request: &'a FHIRRequest) -> Option<&'a dyn MetaValue> {
+fn request_to_meta_value(request: &FHIRRequest) -> Option<&dyn MetaValue> {
     match request {
         FHIRRequest::Create(req) => Some(&req.resource),
 
@@ -213,22 +213,19 @@ fn derive_resource_type(
         let string_type = operation_resource_type.as_str();
         ResourceType::try_from(string_type.unwrap_or_default()).map_err(|_| {
             TestScriptError::ExecutionError(format!(
-                "Unsupported resource type '{:?}' for operation at '{}'.",
-                operation_resource_type, path
+                "Unsupported resource type '{operation_resource_type:?}' for operation at '{path}'."
             ))
         })
     } else if let Some(target) = target {
         ResourceType::try_from(target.fhir_type()).map_err(|_| {
             TestScriptError::ExecutionError(format!(
-                "Unsupported resource type '{}' for operation at '{}'.",
-                target.fhir_type(),
-                path
+                "Unsupported resource type '{}' for operation at '{path}'.",
+                target.fhir_type()
             ))
         })
     } else {
         Err(TestScriptError::ExecutionError(format!(
-            "Failed to derive resource type for operation at '{}'.",
-            path
+            "Failed to derive resource type for operation at '{path}'.",
         )))
     }
 }
@@ -237,16 +234,15 @@ static EXPRESSION_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\$\{([^
 
 async fn get_variable(
     state: &TestState,
-    variables: &Vec<TestScriptVariable>,
+    variables: &[TestScriptVariable],
     variable_id: &str,
 ) -> Result<ConvertedValue, TestScriptError> {
     let Some(variable) = variables
         .iter()
-        .find(|v| v.name.value.as_ref().map(|s| s.as_str()) == Some(variable_id))
+        .find(|v| v.name.value.as_deref() == Some(variable_id))
     else {
         return Err(TestScriptError::ExecutionError(format!(
-            "Variable with id '{}' not found.",
-            variable_id
+            "Variable with id '{variable_id}' not found."
         )));
     };
 
@@ -269,36 +265,26 @@ async fn get_variable(
             .await
             .map_err(|e| {
                 TestScriptError::ExecutionError(format!(
-                    "Failed to evaluate FHIRPath expression for variable '{}': {}",
-                    variable_id, e
+                    "Failed to evaluate FHIRPath expression for variable '{variable_id}': {e}"
                 ))
             })?;
 
         let converted_values = eval_result
             .iter()
-            .map(|d| {
-                conversion::convert_meta_value(d).ok_or_else(|| {
-                    TestScriptError::ExecutionError(format!(
-                        "Failed to convert comparison fixture value '{}'.",
-                        d.fhir_type()
-                    ))
-                })
-            })
-            .collect::<Result<Vec<_>, TestScriptError>>()?;
+            .map(conversion::convert_meta_value)
+            .collect::<Vec<_>>();
 
         if converted_values.len() == 1 {
             Ok(converted_values.into_iter().next().unwrap())
         } else {
             Err(TestScriptError::ExecutionError(format!(
-                "Variable '{}' evaluation returned multiple values; only single value supported.",
-                variable_id
+                "Variable '{variable_id}' evaluation returned multiple values; only single value supported.",
             )))
         }
     } else {
-        return Err(TestScriptError::ExecutionError(format!(
-            "Only support variable with expression for variable id '{}'.",
-            variable_id
-        )));
+        Err(TestScriptError::ExecutionError(format!(
+            "Only support variable with expression for variable id '{variable_id}'.",
+        )))
     }
 }
 
@@ -319,11 +305,10 @@ async fn evaluate_variable(
     };
 
     for reg_match in EXPRESSION_REGEX.captures_iter(value) {
-        let full_match = reg_match.get(0).map(|m| m.as_str()).unwrap_or("");
+        let full_match = reg_match.get(0).map_or("", |m| m.as_str());
         let Some(variable_id) = reg_match.get(1).map(|m| m.as_str()) else {
             return Err(TestScriptError::ExecutionError(format!(
-                "Invalid variable expression in '{}'.",
-                value
+                "Invalid variable expression in '{value}'."
             )));
         };
 
@@ -338,448 +323,458 @@ async fn testscript_operation_to_fhir_request(
     state: &TestState,
     pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
 ) -> Result<FHIRRequest, TestScriptError> {
-    let operation = pointer.value().ok_or_else(|| {
+    let operation = get_operation(pointer)?;
+    let op = get_operation_type(operation);
+
+    match op {
+        Some(op) if Some(op) == TestscriptOperationCodes::read().as_str() => {
+            read_request(state, pointer, operation)
+        }
+
+        Some(op) if Some(op) == TestscriptOperationCodes::vread().as_str() => {
+            version_read_request(state, pointer, operation)
+        }
+
+        Some(op) if Some(op) == TestscriptOperationCodes::search().as_str() => {
+            search_request(state, pointer, operation).await
+        }
+
+        Some(op) if Some(op) == TestscriptOperationCodes::history().as_str() => {
+            history_request(state, pointer, operation).await
+        }
+
+        Some(op) if Some(op) == TestscriptOperationCodes::transaction().as_str() => {
+            transaction_request(state, pointer, operation)
+        }
+
+        Some(op) if Some(op) == TestscriptOperationCodes::create().as_str() => {
+            create_request(state, pointer, operation)
+        }
+
+        Some(op) if Some(op) == TestscriptOperationCodes::update().as_str() => {
+            update_request(state, pointer, operation)
+        }
+
+        Some(op) if Some(op) == TestscriptOperationCodes::delete().as_str() => {
+            delete_request(state, pointer, operation)
+        }
+
+        Some(op) if Some(op) == TestscriptOperationCodes::delete_cond_multiple().as_str() => {
+            delete_cond_multiple_request(state, pointer, operation)
+        }
+
+        Some("invoke") => invoke_request(state, pointer, operation),
+
+        _ => Err(TestScriptError::ExecutionError(format!(
+            "Unsupported TestScript operation type: {op:?} at '{}'.",
+            pointer.path(),
+        ))),
+    }
+}
+
+fn read_request(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<FHIRRequest, TestScriptError> {
+    let target_id = require_target_id(operation, pointer.path(), "Read")?;
+    let target = state.resolve_fixture(target_id)?;
+
+    Ok(FHIRRequest::Read(FHIRReadRequest {
+        resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
+        id: fixture_string_field(target, target_id, "id")?,
+    }))
+}
+
+fn version_read_request(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<FHIRRequest, TestScriptError> {
+    let target_id = require_target_id(operation, pointer.path(), "Version Read")?;
+    let target = state.resolve_fixture(target_id)?;
+
+    Ok(FHIRRequest::VersionRead(FHIRVersionReadRequest {
+        resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
+        id: fixture_string_field(target, target_id, "id")?,
+        version_id: fixture_version_id(target, target_id)?.into(),
+    }))
+}
+
+async fn search_request(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<FHIRRequest, TestScriptError> {
+    let query = operation
+        .params
+        .as_ref()
+        .and_then(|p| p.value.as_deref())
+        .unwrap_or_default();
+
+    let parameters =
+        parsed_parameters(state, pointer.root(), query, pointer.path(), "Search").await?;
+
+    if let Ok(resource_type) = derive_resource_type(operation, None, pointer.path()) {
+        Ok(FHIRRequest::Search(
+            haste_fhir_client::request::SearchRequest::Type(
+                haste_fhir_client::request::FHIRSearchTypeRequest {
+                    resource_type,
+                    parameters,
+                },
+            ),
+        ))
+    } else {
+        Ok(FHIRRequest::Search(
+            haste_fhir_client::request::SearchRequest::System(
+                haste_fhir_client::request::FHIRSearchSystemRequest { parameters },
+            ),
+        ))
+    }
+}
+
+async fn history_request(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<FHIRRequest, TestScriptError> {
+    let parameters = parsed_parameters(
+        state,
+        pointer.root(),
+        operation
+            .params
+            .as_ref()
+            .and_then(|p| p.value.as_deref())
+            .unwrap_or_default(),
+        pointer.path(),
+        "History",
+    )
+    .await?;
+
+    if let Some(target_id) = operation
+        .targetId
+        .as_ref()
+        .and_then(|id| id.value.as_deref())
+    {
+        let target = state.resolve_fixture(target_id)?;
+
+        Ok(FHIRRequest::History(HistoryRequest::Instance(
+            FHIRHistoryInstanceRequest {
+                resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
+                id: fixture_string_field(target, target_id, "id")?,
+                parameters,
+            },
+        )))
+    } else if operation.resource.is_some() {
+        Ok(FHIRRequest::History(HistoryRequest::Type(
+            FHIRHistoryTypeRequest {
+                resource_type: derive_resource_type(operation, None, pointer.path())?,
+                parameters,
+            },
+        )))
+    } else {
+        Ok(FHIRRequest::History(HistoryRequest::System(
+            FHIRHistorySystemRequest { parameters },
+        )))
+    }
+}
+
+fn transaction_request(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<FHIRRequest, TestScriptError> {
+    let source_id = require_source_id(operation, pointer.path(), "Transaction")?;
+    let source = state.resolve_fixture(source_id)?;
+    let resource = fixture_resource(source, source_id)?;
+
+    match resource {
+        Resource::Bundle(bundle) => {
+            if bundle.type_ != BundleType::transaction() {
+                return Err(TestScriptError::ExecutionError(format!(
+                    "Fixture must be a transaction bundle for transaction operations for sourceId '{source_id}'."
+                )));
+            }
+
+            Ok(FHIRRequest::Transaction(FHIRTransactionRequest {
+                resource: bundle,
+            }))
+        }
+        _ => Err(TestScriptError::ExecutionError(format!(
+            "Fixture '{source_id}' is not a transaction Bundle resource."
+        ))),
+    }
+}
+
+fn create_request(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<FHIRRequest, TestScriptError> {
+    let source_id = require_source_id(operation, pointer.path(), "Create")?;
+    let source = state.resolve_fixture(source_id)?;
+    let resource = fixture_resource(source, source_id)?;
+
+    Ok(FHIRRequest::Create(FHIRCreateRequest {
+        resource_type: derive_resource_type(operation, Some(source), pointer.path())?,
+        resource,
+    }))
+}
+
+fn update_request(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<FHIRRequest, TestScriptError> {
+    let source_id = require_source_id(operation, pointer.path(), "Update")?;
+    let source = state.resolve_fixture(source_id)?;
+    let resource = fixture_resource(source, source_id)?;
+
+    let target_id = require_target_id(operation, pointer.path(), "Update")?;
+    let target = state.resolve_fixture(target_id)?;
+    let target_resource = fixture_resource(target, target_id)?;
+
+    Ok(FHIRRequest::Update(UpdateRequest::Instance(
+        FHIRUpdateInstanceRequest {
+            resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
+            id: fixture_string_field(&target_resource, target_id, "id")?,
+            resource,
+        },
+    )))
+}
+
+fn delete_request(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<FHIRRequest, TestScriptError> {
+    let target_id = require_target_id(operation, pointer.path(), "Delete")?;
+    let target = state.resolve_fixture(target_id)?;
+
+    Ok(FHIRRequest::Delete(DeleteRequest::Instance(
+        FHIRDeleteInstanceRequest {
+            resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
+            id: fixture_string_field(target, target_id, "id")?,
+        },
+    )))
+}
+
+fn delete_cond_multiple_request(
+    _state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<FHIRRequest, TestScriptError> {
+    let parameters = ParsedParameters::try_from(
+        operation
+            .params
+            .as_ref()
+            .and_then(|p| p.value.as_deref())
+            .unwrap_or_default(),
+    )
+    .map_err(|e| {
+        TestScriptError::ExecutionError(format!(
+            "Failed to parse parameters for DeleteCondMultiple operation at '{}': {}",
+            pointer.path(),
+            e
+        ))
+    })?;
+
+    if operation.resource.is_some() {
+        Ok(FHIRRequest::Delete(DeleteRequest::Type(
+            FHIRDeleteTypeRequest {
+                resource_type: derive_resource_type(operation, None, pointer.path())?,
+                parameters,
+            },
+        )))
+    } else {
+        Ok(FHIRRequest::Delete(DeleteRequest::System(
+            FHIRDeleteSystemRequest { parameters },
+        )))
+    }
+}
+
+fn invoke_request(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<FHIRRequest, TestScriptError> {
+    let op_code = operation
+        .url
+        .as_ref()
+        .and_then(|u| u.value.as_deref())
+        .ok_or_else(|| {
+            TestScriptError::ExecutionError(format!(
+                "Invoke operation requires url at '{}' which is used for the operation code.",
+                pointer.path()
+            ))
+        })?;
+
+    let fhir_operation = Operation::new(op_code);
+
+    let source_id = require_source_id(operation, pointer.path(), "Invoke")?;
+    let source = state.resolve_fixture(source_id)?;
+
+    let Resource::Parameters(parameters) = fixture_resource(source, source_id)? else {
+        return Err(TestScriptError::ExecutionError(format!(
+            "Source fixture '{source_id}' is not a Parameters resource."
+        )));
+    };
+
+    if let Some(target_id) = operation
+        .targetId
+        .as_ref()
+        .and_then(|id| id.value.as_deref())
+    {
+        let target = state.resolve_fixture(target_id)?;
+
+        Ok(FHIRRequest::Invocation(InvocationRequest::Instance(
+            FHIRInvokeInstanceRequest {
+                operation: fhir_operation,
+                resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
+                id: fixture_string_field(target, target_id, "id")?,
+                parameters,
+            },
+        )))
+    } else if let Ok(resource_type) = derive_resource_type(operation, None, pointer.path()) {
+        Ok(FHIRRequest::Invocation(InvocationRequest::Type(
+            FHIRInvokeTypeRequest {
+                operation: fhir_operation,
+                resource_type,
+                parameters,
+            },
+        )))
+    } else {
+        Ok(FHIRRequest::Invocation(InvocationRequest::System(
+            FHIRInvokeSystemRequest {
+                operation: fhir_operation,
+                parameters,
+            },
+        )))
+    }
+}
+
+fn get_operation(
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+) -> Result<&TestScriptSetupActionOperation, TestScriptError> {
+    pointer.value().ok_or_else(|| {
         TestScriptError::ExecutionError(format!(
             "Failed to retrieve TestScript operation at '{}'.",
             pointer.path()
         ))
-    })?;
+    })
+}
 
-    let operation_type = operation
+fn get_operation_type(operation: &TestScriptSetupActionOperation) -> Option<&str> {
+    operation
         .type_
         .as_ref()
         .and_then(|t| t.code.as_ref())
-        .and_then(|c| c.value.as_ref().map(|s| s.as_str()));
+        .and_then(|c| c.value.as_deref())
+}
 
-    if operation_type == TestscriptOperationCodes::read().as_str() {
-        let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
-            return Err(TestScriptError::ExecutionError(format!(
-                "Read operation requires targetId at '{}'.",
-                pointer.path()
-            )));
-        };
-
-        let target = state.resolve_fixture(target_id)?;
-
-        Ok(FHIRRequest::Read(FHIRReadRequest {
-            resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
-            id: target
-                .get_field("id")
-                .ok_or_else(|| {
-                    TestScriptError::ExecutionError(format!(
-                        "Target fixture '{}' does not have an 'id' field.",
-                        target_id
-                    ))
-                })?
-                .as_any()
-                .downcast_ref::<String>()
-                .cloned()
-                .unwrap_or_default(),
-        }))
-    } else if operation_type == TestscriptOperationCodes::vread().as_str() {
-        let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
-            return Err(TestScriptError::ExecutionError(format!(
-                "Version Read operation requires targetId at '{}'.",
-                pointer.path()
-            )));
-        };
-        let target = state.resolve_fixture(target_id)?;
-
-        let id = target
-            .get_field("id")
-            .ok_or_else(|| {
-                TestScriptError::ExecutionError(format!(
-                    "Target fixture '{}' does not have an 'id' field.",
-                    target_id
-                ))
-            })?
-            .as_any()
-            .downcast_ref::<String>()
-            .cloned()
-            .unwrap_or_default();
-        let version_id = target
-            .get_field("meta")
-            .and_then(|meta| meta.get_field("versionId"))
-            .ok_or_else(|| {
-                TestScriptError::ExecutionError(format!(
-                    "Target fixture '{}' does not have an 'versionId' field.",
-                    target_id
-                ))
-            })?
-            .as_any()
-            .downcast_ref::<Box<FHIRId>>()
-            .cloned()
-            .and_then(|v| v.value)
-            .ok_or_else(|| {
-                TestScriptError::ExecutionError(format!(
-                    "Target fixture '{}' does not have an 'versionId' field.",
-                    target_id
-                ))
-            })?;
-
-        Ok(FHIRRequest::VersionRead(FHIRVersionReadRequest {
-            resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
-            id: id,
-            version_id: version_id.into(),
-        }))
-    } else if operation_type == TestscriptOperationCodes::search().as_str() {
-        let query_string = operation
-            .params
-            .as_ref()
-            .and_then(|p| p.value.as_ref())
-            .cloned()
-            .unwrap_or_default();
-
-        let processed_query = ParsedParameters::try_from(
-            evaluate_variable(state, pointer.root(), &query_string)
-                .await?
-                .as_str(),
-        )
-        .map_err(|e| {
+fn require_target_id<'a>(
+    operation: &'a TestScriptSetupActionOperation,
+    path: &str,
+    operation_name: &str,
+) -> Result<&'a str, TestScriptError> {
+    operation
+        .targetId
+        .as_ref()
+        .and_then(|id| id.value.as_deref())
+        .ok_or_else(|| {
             TestScriptError::ExecutionError(format!(
-                "Failed to parse parameters for History operation at '{}': {}",
-                pointer.path(),
-                e
+                "{operation_name} operation requires targetId at '{path}'."
             ))
-        })?;
+        })
+}
 
-        if let Ok(resource_type) = derive_resource_type(operation, None, pointer.path()) {
-            Ok(FHIRRequest::Search(
-                haste_fhir_client::request::SearchRequest::Type(
-                    haste_fhir_client::request::FHIRSearchTypeRequest {
-                        resource_type,
-                        parameters: processed_query,
-                    },
-                ),
-            ))
-        } else {
-            Ok(FHIRRequest::Search(
-                haste_fhir_client::request::SearchRequest::System(
-                    haste_fhir_client::request::FHIRSearchSystemRequest {
-                        parameters: processed_query,
-                    },
-                ),
-            ))
-        }
-    } else if operation_type == TestscriptOperationCodes::history().as_str() {
-        let query_string = operation
-            .params
-            .as_ref()
-            .and_then(|p| p.value.as_ref())
-            .cloned()
-            .unwrap_or_default();
-
-        let processed_query = ParsedParameters::try_from(
-            evaluate_variable(state, pointer.root(), &query_string)
-                .await?
-                .as_str(),
-        )
-        .map_err(|e| {
+fn require_source_id<'a>(
+    operation: &'a TestScriptSetupActionOperation,
+    path: &str,
+    operation_name: &str,
+) -> Result<&'a str, TestScriptError> {
+    operation
+        .sourceId
+        .as_ref()
+        .and_then(|id| id.value.as_deref())
+        .ok_or_else(|| {
             TestScriptError::ExecutionError(format!(
-                "Failed to parse parameters for History operation at '{}': {}",
-                pointer.path(),
-                e
+                "{operation_name} operation requires sourceId at '{path}'."
             ))
-        })?;
+        })
+}
 
-        if let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) {
-            let target = state.resolve_fixture(target_id)?;
-
-            return Ok(FHIRRequest::History(HistoryRequest::Instance(
-                FHIRHistoryInstanceRequest {
-                    resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
-                    id: target
-                        .get_field("id")
-                        .ok_or_else(|| {
-                            TestScriptError::ExecutionError(format!(
-                                "Target fixture '{}' does not have an 'id' field.",
-                                target_id
-                            ))
-                        })?
-                        .as_any()
-                        .downcast_ref::<String>()
-                        .cloned()
-                        .unwrap_or_default(),
-                    parameters: processed_query,
-                },
-            )));
-        } else if operation.resource.is_some() {
-            let resource_type = derive_resource_type(operation, None, pointer.path())?;
-            return Ok(FHIRRequest::History(HistoryRequest::Type(
-                FHIRHistoryTypeRequest {
-                    resource_type,
-                    parameters: processed_query,
-                },
-            )));
-        } else {
-            return Ok(FHIRRequest::History(HistoryRequest::System(
-                FHIRHistorySystemRequest {
-                    parameters: processed_query,
-                },
-            )));
-        }
-    } else if operation_type == TestscriptOperationCodes::transaction().as_str() {
-        let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
-            return Err(TestScriptError::ExecutionError(format!(
-                "Transaction operation requires sourceId at '{}'.",
-                pointer.path()
-            )));
-        };
-
-        let source = state.resolve_fixture(source_id)?;
-        let resource = (source as &dyn Any)
-            .downcast_ref::<Resource>()
-            .cloned()
-            .ok_or_else(|| {
-                TestScriptError::ExecutionError(format!(
-                    "Target fixture '{}' is not a Resource.",
-                    source_id
-                ))
-            })?;
-
-        match resource {
-            Resource::Bundle(bundle) => {
-                if bundle.type_ != BundleType::transaction() {
-                    return Err(TestScriptError::ExecutionError(format!(
-                        "Fixture must be a transaction bundle for transaction operations for sourceId '{}'.",
-                        source_id
-                    )));
-                }
-
-                Ok(FHIRRequest::Transaction(FHIRTransactionRequest {
-                    resource: bundle,
-                }))
-            }
-
-            _ => Err(TestScriptError::ExecutionError(format!(
-                "Fixture '{}' is not a transaction Bundle resource.",
-                source_id
-            ))),
-        }
-    } else if operation_type == TestscriptOperationCodes::create().as_str() {
-        let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
-            return Err(TestScriptError::ExecutionError(format!(
-                "Create operation requires sourceId at '{}'.",
-                pointer.path()
-            )));
-        };
-
-        let source = state.resolve_fixture(source_id)?;
-        let resource = (source as &dyn Any)
-            .downcast_ref::<Resource>()
-            .cloned()
-            .ok_or_else(|| {
-                TestScriptError::ExecutionError(format!(
-                    "Target fixture '{}' is not a Resource.",
-                    source_id
-                ))
-            })?;
-
-        Ok(FHIRRequest::Create(FHIRCreateRequest {
-            resource_type: derive_resource_type(operation, Some(source), pointer.path())?,
-            resource: resource,
-        }))
-    } else if operation_type == TestscriptOperationCodes::update().as_str() {
-        let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
-            return Err(TestScriptError::ExecutionError(format!(
-                "Update operation requires sourceId at '{}'.",
-                pointer.path()
-            )));
-        };
-        let source = state.resolve_fixture(source_id)?;
-        let resource = (source as &dyn Any)
-            .downcast_ref::<Resource>()
-            .cloned()
-            .ok_or_else(|| {
-                TestScriptError::ExecutionError(format!(
-                    "Source fixture '{}' is not a Resource.",
-                    source_id
-                ))
-            })?;
-
-        let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
-            return Err(TestScriptError::ExecutionError(format!(
-                "Update operation requires targetId at '{}'.",
-                pointer.path()
-            )));
-        };
-
-        let target = state.resolve_fixture(target_id)?;
-        let target_resource = (target as &dyn Any)
-            .downcast_ref::<Resource>()
-            .cloned()
-            .ok_or_else(|| {
-                TestScriptError::ExecutionError(format!(
-                    "Source fixture '{}' is not a Resource.",
-                    source_id
-                ))
-            })?;
-
-        Ok(FHIRRequest::Update(UpdateRequest::Instance(
-            FHIRUpdateInstanceRequest {
-                resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
-                id: target_resource
-                    .get_field("id")
-                    .ok_or_else(|| {
-                        TestScriptError::ExecutionError(format!(
-                            "Source fixture '{}' does not have an 'id' field.",
-                            source_id
-                        ))
-                    })?
-                    .as_any()
-                    .downcast_ref::<String>()
-                    .cloned()
-                    .unwrap_or_default(),
-                resource: resource,
-            },
-        )))
-    } else if operation_type == TestscriptOperationCodes::delete().as_str() {
-        let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
-            return Err(TestScriptError::ExecutionError(format!(
-                "Delete operation requires targetId at '{}'.",
-                pointer.path()
-            )));
-        };
-
-        let target = state.resolve_fixture(target_id)?;
-
-        Ok(FHIRRequest::Delete(DeleteRequest::Instance(
-            FHIRDeleteInstanceRequest {
-                resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
-                id: target
-                    .get_field("id")
-                    .ok_or_else(|| {
-                        TestScriptError::ExecutionError(format!(
-                            "Target fixture '{}' does not have an 'id' field.",
-                            target_id
-                        ))
-                    })?
-                    .as_any()
-                    .downcast_ref::<String>()
-                    .cloned()
-                    .unwrap_or_default(),
-            },
-        )))
-    } else if operation_type == TestscriptOperationCodes::delete_cond_multiple().as_str() {
-        let delete_parameters = ParsedParameters::try_from(
-            operation
-                .params
-                .as_ref()
-                .and_then(|p| p.value.as_ref())
-                .cloned()
-                .unwrap_or("".to_string())
-                .as_str(),
-        )
-        .map_err(|e| {
+fn fixture_string_field(
+    fixture: &dyn MetaValue,
+    fixture_name: &str,
+    field: &str,
+) -> Result<String, TestScriptError> {
+    fixture
+        .get_field(field)
+        .ok_or_else(|| {
             TestScriptError::ExecutionError(format!(
-                "Failed to parse parameters for DeleteCondMultiple operation at '{}': {}",
-                pointer.path(),
-                e
+                "Fixture '{fixture_name}' does not have '{field}' field."
             ))
-        })?;
-        if operation.resource.is_some() {
-            Ok(FHIRRequest::Delete(DeleteRequest::Type(
-                FHIRDeleteTypeRequest {
-                    resource_type: derive_resource_type(operation, None, pointer.path())?,
-                    parameters: delete_parameters,
-                },
-            )))
-        } else {
-            Ok(FHIRRequest::Delete(DeleteRequest::System(
-                FHIRDeleteSystemRequest {
-                    parameters: delete_parameters,
-                },
-            )))
-        }
-    } else if operation_type == Some("invoke") {
-        let Some(op_code) = operation.url.as_ref().and_then(|u| u.value.as_ref()) else {
-            return Err(TestScriptError::ExecutionError(format!(
-                "Invoke operation requires url at '{}' which is used for the operation code.",
-                pointer.path()
-            )));
-        };
+        })?
+        .as_any()
+        .downcast_ref::<String>()
+        .cloned()
+        .ok_or_else(|| {
+            TestScriptError::ExecutionError(format!(
+                "Field '{field}' on fixture '{fixture_name}' is not a String."
+            ))
+        })
+}
 
-        let op_code = Operation::new(op_code);
+fn fixture_version_id(
+    fixture: &dyn MetaValue,
+    fixture_name: &str,
+) -> Result<String, TestScriptError> {
+    fixture
+        .get_field("meta")
+        .and_then(|meta| meta.get_field("versionId"))
+        .ok_or_else(|| {
+            TestScriptError::ExecutionError(format!(
+                "Fixture '{fixture_name}' does not have a 'versionId' field."
+            ))
+        })?
+        .as_any()
+        .downcast_ref::<Box<FHIRId>>()
+        .cloned()
+        .and_then(|v| v.value)
+        .ok_or_else(|| {
+            TestScriptError::ExecutionError(format!(
+                "Fixture '{fixture_name}' does not have a valid 'versionId' field."
+            ))
+        })
+}
 
-        let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
-            return Err(TestScriptError::ExecutionError(format!(
-                "Invoke operation requires sourceId at '{}'.",
-                pointer.path()
-            )));
-        };
-        let source = state.resolve_fixture(source_id)?;
-        let Resource::Parameters(parameters) = (source as &dyn Any)
-            .downcast_ref::<Resource>()
-            .cloned()
-            .ok_or_else(|| {
-                TestScriptError::ExecutionError(format!(
-                    "Source fixture '{}' is not a Resource.",
-                    source_id
-                ))
-            })?
-        else {
-            return Err(TestScriptError::ExecutionError(format!(
-                "Source fixture '{}' is not a Parameters resource.",
-                source_id
-            )));
-        };
+fn fixture_resource(
+    fixture: &dyn MetaValue,
+    fixture_name: &str,
+) -> Result<Resource, TestScriptError> {
+    (fixture as &dyn Any)
+        .downcast_ref::<Resource>()
+        .cloned()
+        .ok_or_else(|| {
+            TestScriptError::ExecutionError(format!("Fixture '{fixture_name}' is not a Resource."))
+        })
+}
 
-        if let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) {
-            let target = state.resolve_fixture(target_id)?;
-            let target_resource = (target as &dyn Any)
-                .downcast_ref::<Resource>()
-                .cloned()
-                .ok_or_else(|| {
-                    TestScriptError::ExecutionError(format!(
-                        "Source fixture '{}' is not a Resource.",
-                        source_id
-                    ))
-                })?;
-            let target_id = target_resource
-                .get_field("id")
-                .ok_or_else(|| {
-                    TestScriptError::ExecutionError(format!(
-                        "Source fixture '{}' does not have an 'id' field.",
-                        source_id
-                    ))
-                })?
-                .as_any()
-                .downcast_ref::<String>()
-                .cloned()
-                .unwrap_or_default();
-            let resource_type = derive_resource_type(operation, Some(target), pointer.path())?;
+async fn parsed_parameters(
+    state: &TestState,
+    root: TypedPointer<TestScript, TestScript>,
+    raw: &str,
+    path: &str,
+    operation: &str,
+) -> Result<ParsedParameters, TestScriptError> {
+    let evaluated = evaluate_variable(state, root, raw).await?;
 
-            Ok(FHIRRequest::Invocation(InvocationRequest::Instance(
-                FHIRInvokeInstanceRequest {
-                    operation: op_code,
-                    resource_type,
-                    id: target_id,
-                    parameters,
-                },
-            )))
-        } else if let Ok(resource_type) = derive_resource_type(operation, None, pointer.path()) {
-            Ok(FHIRRequest::Invocation(InvocationRequest::Type(
-                FHIRInvokeTypeRequest {
-                    operation: op_code,
-                    resource_type,
-                    parameters,
-                },
-            )))
-        } else {
-            Ok(FHIRRequest::Invocation(InvocationRequest::System(
-                FHIRInvokeSystemRequest {
-                    operation: op_code,
-                    parameters,
-                },
-            )))
-        }
-    } else {
-        Err(TestScriptError::ExecutionError(format!(
-            "Unsupported TestScript operation type: {:?} at '{}'.",
-            operation_type,
-            pointer.path()
-        )))
-    }
+    ParsedParameters::try_from(evaluated.as_str()).map_err(|e| {
+        TestScriptError::ExecutionError(format!(
+            "Failed to parse parameters for {operation} operation at '{path}': {e}"
+        ))
+    })
 }
 
 async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
@@ -809,7 +804,7 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
                 &mut state_guard,
                 operation,
                 fhir_request,
-                Response::FHIRResponse(fhir_response),
+                Response::FHIRResponse(Box::new(fhir_response)),
             );
 
             drop(state_guard);
@@ -837,7 +832,7 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
                 value: TestReportSetupActionOperation {
                     result: ReportActionResultCodes::warning(),
                     message: Some(Box::new(FHIRMarkdown {
-                        value: Some(format!("Operation failed: {}", op_error)),
+                        value: Some(format!("Operation failed: {op_error}")),
                         ..Default::default()
                     })),
                     ..Default::default()
@@ -847,7 +842,7 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     }
 }
 
-async fn get_source<'a>(
+fn get_source<'a>(
     state: &'a TestState,
     assertion: &TestScriptSetupActionAssert,
 ) -> Result<Option<&'a dyn MetaValue>, TestScriptError> {
@@ -968,22 +963,14 @@ async fn derive_comparison_to(
             .await
             .map_err(|e| {
                 TestScriptError::ExecutionError(format!(
-                    "FHIRPath evaluation error for comparison fixture '{}': {}",
-                    comparision_fixture_id, e
+                    "FHIRPath evaluation error for comparison fixture '{comparision_fixture_id}': {e}"
                 ))
             })?;
 
-        result
+        Ok(result
             .iter()
-            .map(|d| {
-                conversion::convert_meta_value(d).ok_or_else(|| {
-                    TestScriptError::ExecutionError(format!(
-                        "Failed to convert comparison fixture value '{}'.",
-                        d.fhir_type()
-                    ))
-                })
-            })
-            .collect::<Result<Vec<_>, TestScriptError>>()
+            .map(conversion::convert_meta_value)
+            .collect::<Vec<_>>())
     } else if let Some(value) = assertion.value.as_ref().and_then(|v| v.value.as_ref())
         && let Some(converted_value) = conversion::convert_string_value(value.as_ref())
     {
@@ -1018,7 +1005,7 @@ async fn run_assertion(
 
     let mut state_guard = state.lock().await;
 
-    let Some(source) = get_source(&*state_guard, assertion).await? else {
+    let Some(source) = get_source(&state_guard, assertion)? else {
         return Err(TestScriptError::ExecutionError(format!(
             "Failed to resolve source for assertion at '{}'.",
             pointer.path()
@@ -1031,7 +1018,7 @@ async fn run_assertion(
         let resource_string = assertion
             .resource
             .as_ref()
-            .and_then(|r| r.as_str())
+            .and_then(haste_fhir_model::r4::generated::terminology::BoundCode::as_str)
             .unwrap_or("");
 
         let operation_evaluation_result = evaluate_operator(
@@ -1086,7 +1073,7 @@ async fn run_assertion(
 
         let converted_values = result
             .iter()
-            .filter_map(|v| conversion::convert_meta_value(v))
+            .map(conversion::convert_meta_value)
             .collect::<Vec<_>>();
 
         let operation_evaluation_result =
@@ -1094,12 +1081,9 @@ async fn run_assertion(
 
         if !operation_evaluation_result {
             tracing::error!(
-                "{} Assertion at '{}' failed: '{:?}' {:?} '{:?}'.",
+                "{} Assertion at '{}' failed: '{converted_values:?}' {operator:?} '{comparison_to:?}'.",
                 get_id(&pointer),
                 pointer.path(),
-                converted_values,
-                operator,
-                comparison_to
             );
 
             state_guard.result = ReportResultCodes::fail();
@@ -1113,13 +1097,13 @@ async fn run_assertion(
         }
     }
 
-    return Ok(TestResult {
+    Ok(TestResult {
         state: state.clone(),
         value: TestReportSetupActionAssert {
             result: ReportActionResultCodes::pass(),
             ..Default::default()
         },
-    });
+    })
 }
 
 async fn run_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
@@ -1268,7 +1252,7 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
         return Ok(state.clone());
     };
 
-    for fixture in fixtures.iter() {
+    for fixture in fixtures {
         if let Some(reference_string) = fixture
             .resource
             .as_ref()
@@ -1292,17 +1276,17 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
                 }) else {
                     return Err(OperationOutcomeError::error(
                         IssueType::not_found(),
-                        format!("Contained resource with id '{}' not found.", local_id),
+                        format!("Contained resource with id '{local_id}' not found."),
                     ));
                 };
 
                 resource.clone()
             } else {
-                let parts = reference_string.split("/").collect::<Vec<&str>>();
+                let parts = reference_string.split('/').collect::<Vec<&str>>();
                 if parts.len() != 2 {
                     return Err(OperationOutcomeError::error(
                         IssueType::invalid(),
-                        format!("Invalid fixture reference: {}", reference_string),
+                        format!("Invalid fixture reference: {reference_string}"),
                     ));
                 }
 
@@ -1316,8 +1300,7 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
                             OperationOutcomeError::error(
                                 IssueType::invalid(),
                                 format!(
-                                    "Invalid resource type in fixture reference: '{}'",
-                                    resource_type
+                                    "Invalid resource type in fixture reference: '{resource_type}'"
                                 ),
                             )
                         })?,
@@ -1327,7 +1310,7 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
                 else {
                     return Err(OperationOutcomeError::error(
                         IssueType::not_found(),
-                        format!("Resource '{}' with id '{}' not found.", resource_type, id),
+                        format!("Resource '{resource_type}' with id '{id}' not found."),
                     ));
                 };
 
@@ -1560,6 +1543,22 @@ pub struct TestRunnerOptions {
     pub wait_between_operations: Option<Duration>,
 }
 
+/// Runs a FHIR `TestScript` using the provided client and execution context.
+///
+/// This executes the `TestScript` lifecycle:
+/// - fixture setup
+/// - setup actions
+/// - test actions
+/// - teardown actions
+///
+/// # Errors
+///
+/// Returns [`TestScriptError`] if:
+/// - fixture setup fails
+/// - setup actions fail
+/// - test execution fails
+/// - teardown execution fails
+/// - an operation performed by the FHIR client fails
 pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     client: &Client,
     ctx: CTX,
@@ -1589,7 +1588,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
 
     state = setup_fixtures(client, ctx.clone(), state, pointer.clone(), options.clone())
         .await
-        .map_err(|e| TestScriptError::OperationError(e))?;
+        .map_err(TestScriptError::OperationError)?;
 
     let mut running_state = Ok(());
 
@@ -1669,7 +1668,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     // Flip to fail in assertion tests if any fail.
     match &state_guard.result {
         state if state == &ReportResultCodes::pending() => {
-            test_report.result = ReportResultCodes::pass()
+            test_report.result = ReportResultCodes::pass();
         }
         status => test_report.result = status.clone(),
     }
