@@ -25,6 +25,8 @@ auditConfig:
     - 'GHSA-52cp-r559-cp3m'
     # Fhirpath
     - 'GHSA-r5fr-rjxr-66jc'
+    # Brace expansion DoS not affecting us, but we are ignoring it to avoid noise
+    - 'GHSA-mh99-v99m-4gvg'
 
 minimumReleaseAgeExclude:
   - brace-expansion@1.1.16 || 2.1.2 || 5.0.8
