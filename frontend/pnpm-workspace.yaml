@@ -43,6 +43,5 @@ minimumReleaseAgeExclude:
   - dompurify@3.4.12
   - sharp@0.35.0
   - react-router@8.3.0
-  - postcss@8.5.18
   - miniflare@4.20260722.1
   - wrangler@4.115.0
