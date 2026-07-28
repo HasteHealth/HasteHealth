@@ -17,7 +17,7 @@ import {
   deriveTenantId,
   getErrorMessage,
 } from "../../utilities";
-import { generatePath, useNavigate } from "react-router-dom";
+import { generatePath, useNavigate } from "react-router";
 
 function openProject(project: Project) {
   const currentTenant = deriveTenantId();

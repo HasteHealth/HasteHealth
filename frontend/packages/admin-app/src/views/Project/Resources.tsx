@@ -1,6 +1,6 @@
 import { useAtomValue } from "jotai";
 import React from "react";
-import { generatePath, useNavigate } from "react-router-dom";
+import { generatePath, useNavigate } from "react-router";
 import { ChevronRightIcon, HomeIcon } from "@heroicons/react/24/outline";
 
 import { Loading, Table } from "@haste-health/components";

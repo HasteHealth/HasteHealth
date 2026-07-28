@@ -7,7 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { generatePath, useNavigate } from "react-router-dom";
+import { generatePath, useNavigate } from "react-router";
 import {
   FixedSizeListProps,
   FixedSizeList as _FixedSizeList,

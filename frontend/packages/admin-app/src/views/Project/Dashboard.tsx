@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { generatePath, useNavigate } from "react-router-dom";
+import { generatePath, useNavigate } from "react-router";
 
 import { isResponseError } from "@haste-health/client/http";
 import { Loading, Toaster } from "@haste-health/components";

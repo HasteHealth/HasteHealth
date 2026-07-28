@@ -1,7 +1,7 @@
 import { ChevronRightIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
 import React, { useEffect, useState } from "react";
-import { generatePath, useNavigate, useParams } from "react-router-dom";
+import { generatePath, useNavigate, useParams } from "react-router";
 
 import { FHIRGenerativeForm, Loading } from "@haste-health/components";
 import {
