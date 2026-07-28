@@ -41,7 +41,6 @@ minimumReleaseAgeExclude:
   - body-parser@1.20.6
   - svgo@2.8.3 || 3.3.4 || 4.0.2
   - dompurify@3.4.12
-  - sharp@0.35.0
   - react-router@8.3.0
   - miniflare@4.20260722.1
   - wrangler@4.115.0
