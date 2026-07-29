@@ -1,162 +1,163 @@
 use crate::{
     admin::TenantModelAdmin,
     pg::{PGConnection, StoreError},
-    types::{
-        SupportedFHIRVersions,
-        project::{CreateProject, Project, ProjectSearchClaims},
-    },
+    types::project::{CreateProject, Project, ProjectSearchClaims},
     utilities::{generate_id, validate_id},
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
-use sqlx::{Acquire, Postgres, QueryBuilder};
+use sqlx::{PgExecutor, QueryBuilder};
 
-fn create_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn create_project<'a, 'e, E>(
+    executor: E,
     tenant: &'a TenantId,
     project: CreateProject,
-) -> impl Future<Output = Result<Project, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let id = project.id.unwrap_or(ProjectId::new(generate_id(None)));
+) -> Result<Project, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let id = project.id.unwrap_or(ProjectId::new(generate_id(None)));
 
-        validate_id(id.as_ref())?;
+    validate_id(id.as_ref())?;
 
-        let project = sqlx::query_as!(
-            Project,
-            r#"INSERT INTO projects (tenant, id, fhir_version, system_created) VALUES ($1, $2, $3, $4) RETURNING tenant as "tenant: TenantId", system_created, id as "id: ProjectId", fhir_version as "fhir_version: SupportedFHIRVersions""#,
-            tenant.as_ref(),
-            id.as_ref(),
-            project.fhir_version as SupportedFHIRVersions,
-            project.system_created
-        )
-        .fetch_one(&mut *conn)
-        .await
-        .map_err(StoreError::SQLXError)?;
+    let project = sqlx::query_as::<_, Project>(
+        r"
+            INSERT INTO projects (tenant, id, fhir_version, system_created)
+            VALUES ($1, $2, $3, $4)
+            RETURNING tenant, system_created, id, fhir_version
+        ",
+    )
+    .bind(tenant.as_ref())
+    .bind(id.as_ref())
+    .bind(project.fhir_version)
+    .bind(project.system_created)
+    .fetch_one(executor)
+    .await
+    .map_err(StoreError::SQLXError)?;
 
-        Ok(project)
-    }
+    Ok(project)
 }
 
-fn read_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn read_project<'a, 'e, E>(
+    executor: E,
     tenant: &'a TenantId,
     id: &'a str,
-) -> impl Future<Output = Result<Option<Project>, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let project = sqlx::query_as!(
-            Project,
-            r#"SELECT id as "id: ProjectId", tenant as "tenant: TenantId", system_created, fhir_version as "fhir_version: SupportedFHIRVersions" FROM projects where tenant = $1 AND id = $2"#,
-            tenant.as_ref(),
-            id
-        )
-        .fetch_optional(&mut *conn)
-        .await
-        .map_err(StoreError::SQLXError)?;
+) -> Result<Option<Project>, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let project = sqlx::query_as::<_, Project>(
+        r"
+            SELECT id, tenant, system_created, fhir_version
+            FROM projects
+            WHERE tenant = $1 AND id = $2
+        ",
+    )
+    .bind(tenant.as_ref())
+    .bind(id)
+    .fetch_optional(executor)
+    .await
+    .map_err(StoreError::SQLXError)?;
 
-        Ok(project)
-    }
+    Ok(project)
 }
 
-fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn delete_project<'a, 'e, E>(
+    executor: E,
     tenant: &'a TenantId,
     id: &'a str,
-) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let _deleted_project = sqlx::query_as!(
-            Project,
-            r#"DELETE FROM projects WHERE tenant = $1 AND id = $2 and system_created = false RETURNING id as "id: ProjectId", tenant as "tenant: TenantId", system_created, fhir_version as "fhir_version: SupportedFHIRVersions""#,
-            tenant.as_ref(),
-            id
+) -> Result<(), OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let rows_affected = sqlx::query(
+        r"
+            DELETE FROM projects
+            WHERE tenant = $1 AND id = $2 AND system_created = false
+        ",
+    )
+    .bind(tenant.as_ref())
+    .bind(id)
+    .execute(executor)
+    .await
+    .map_err(|_e| {
+        OperationOutcomeError::error(
+            IssueType::not_found(),
+            format!("Project '{id}' not found or is system created and cannot be deleted."),
         )
-        .fetch_optional(&mut *conn)
-        .await
-        .map_err(|_e| {
-            OperationOutcomeError::error(
-                IssueType::not_found(),
-                format!("Project '{}' not found or is system created and cannot be deleted.", id),
-            )
-        })?;
+    })?
+    .rows_affected();
 
-        if !_deleted_project.is_some() {
-            return Err(OperationOutcomeError::error(
-                IssueType::not_found(),
-                format!(
-                    "Project '{}' not found or is system created and cannot be deleted.",
-                    id
-                ),
-            ));
-        }
-
-        Ok(())
+    if rows_affected == 0 {
+        return Err(OperationOutcomeError::error(
+            IssueType::not_found(),
+            format!("Project '{id}' not found or is system created and cannot be deleted."),
+        ));
     }
+
+    Ok(())
 }
 
-fn search_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn search_project<'a, 'e, E>(
+    executor: E,
     tenant: &'a TenantId,
     clauses: &'a ProjectSearchClaims,
-) -> impl Future<Output = Result<Vec<Project>, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let mut query_builder: QueryBuilder<Postgres> =
-            QueryBuilder::new(r#"SELECT tenant, id, fhir_version FROM projects WHERE "#);
+) -> Result<Vec<Project>, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let mut query_builder: QueryBuilder<sqlx::Postgres> =
+        QueryBuilder::new(r"SELECT tenant, id, fhir_version, system_created FROM projects WHERE ");
 
-        let mut and_clauses = query_builder.separated(" AND ");
+    let mut and_clauses = query_builder.separated(" AND ");
 
+    and_clauses
+        .push(" tenant = ")
+        .push_bind_unseparated(tenant.as_ref());
+
+    if let Some(id) = clauses.id.as_ref() {
         and_clauses
-            .push(" tenant = ")
-            .push_bind_unseparated(tenant.as_ref());
-
-        if let Some(id) = clauses.id.as_ref() {
-            and_clauses
-                .push(" id = ")
-                .push_bind_unseparated(id.as_ref());
-        }
-
-        if let Some(fhir_version) = clauses.fhir_version.as_ref() {
-            and_clauses
-                .push(" fhir_version = ")
-                .push_bind_unseparated(fhir_version);
-        }
-
-        if let Some(system_created) = clauses.system_created.as_ref() {
-            and_clauses
-                .push(" system_created = ")
-                .push_bind_unseparated(system_created);
-        }
-
-        let query = query_builder.build_query_as();
-
-        let projects: Vec<Project> = query
-            .fetch_all(&mut *conn)
-            .await
-            .map_err(StoreError::from)?;
-
-        Ok(projects)
+            .push(" id = ")
+            .push_bind_unseparated(id.as_ref());
     }
+
+    if let Some(fhir_version) = clauses.fhir_version.as_ref() {
+        and_clauses
+            .push(" fhir_version = ")
+            .push_bind_unseparated(fhir_version);
+    }
+
+    if let Some(system_created) = clauses.system_created.as_ref() {
+        and_clauses
+            .push(" system_created = ")
+            .push_bind_unseparated(system_created);
+    }
+
+    let query = query_builder.build_query_as::<Project>();
+
+    let projects: Vec<Project> = query.fetch_all(executor).await.map_err(StoreError::from)?;
+
+    Ok(projects)
 }
 
 /// Not allowing updates on internal row just reading to confirm it's existance.
-fn update_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn update_project<'a, 'e, E>(
+    executor: E,
     tenant: &'a TenantId,
     model: Project,
-) -> impl Future<Output = Result<Project, OperationOutcomeError>> + Send + 'a {
-    async move {
-        read_project(connection, tenant, model.id.as_ref())
-            .await?
-            .ok_or_else(|| {
-                OperationOutcomeError::error(
-                    IssueType::not_found(),
-                    format!("Project '{}' not found.", model.id.as_ref()),
-                )
-            })
-    }
+) -> Result<Project, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    read_project(executor, tenant, model.id.as_ref())
+        .await?
+        .ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::not_found(),
+                format!("Project '{}' not found.", model.id.as_ref()),
+            )
+        })
 }
 
 impl<Key: AsRef<str> + Send + Sync>
@@ -168,14 +169,10 @@ impl<Key: AsRef<str> + Send + Sync>
         new_project: CreateProject,
     ) -> Result<Project, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = create_project(pool, tenant, new_project).await?;
-                Ok(res)
-            }
+            PGConnection::Pool(pool, _) => create_project(pool, tenant, new_project).await,
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = create_project(&mut *tx, tenant, new_project).await?;
-                Ok(res)
+                create_project(&mut **tx, tenant, new_project).await
             }
         }
     }
@@ -186,14 +183,10 @@ impl<Key: AsRef<str> + Send + Sync>
         id: &Key,
     ) -> Result<Option<Project>, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = read_project(pool, tenant, id.as_ref()).await?;
-                Ok(res)
-            }
+            PGConnection::Pool(pool, _) => read_project(pool, tenant, id.as_ref()).await,
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = read_project(&mut *tx, tenant, id.as_ref()).await?;
-                Ok(res)
+                read_project(&mut **tx, tenant, id.as_ref()).await
             }
         }
     }
@@ -204,14 +197,10 @@ impl<Key: AsRef<str> + Send + Sync>
         model: Project,
     ) -> Result<Project, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = update_project(pool, tenant, model).await?;
-                Ok(res)
-            }
+            PGConnection::Pool(pool, _) => update_project(pool, tenant, model).await,
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = update_project(&mut *tx, tenant, model).await?;
-                Ok(res)
+                update_project(&mut **tx, tenant, model).await
             }
         }
     }
@@ -222,14 +211,10 @@ impl<Key: AsRef<str> + Send + Sync>
         id: &Key,
     ) -> Result<(), haste_fhir_operation_error::OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = delete_project(pool, tenant, id.as_ref()).await?;
-                Ok(res)
-            }
+            PGConnection::Pool(pool, _) => delete_project(pool, tenant, id.as_ref()).await,
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = delete_project(&mut *tx, tenant, id.as_ref()).await?;
-                Ok(res)
+                delete_project(&mut **tx, tenant, id.as_ref()).await
             }
         }
     }
@@ -240,14 +225,10 @@ impl<Key: AsRef<str> + Send + Sync>
         claims: &ProjectSearchClaims,
     ) -> Result<Vec<Project>, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = search_project(pool, tenant, claims).await?;
-                Ok(res)
-            }
+            PGConnection::Pool(pool, _) => search_project(pool, tenant, claims).await,
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = search_project(&mut *tx, tenant, claims).await?;
-                Ok(res)
+                search_project(&mut **tx, tenant, claims).await
             }
         }
     }

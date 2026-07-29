@@ -22,14 +22,9 @@ use haste_fhir_model::r4::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId, claims::UserTokenClaims};
 use moka::future::Cache;
-use sqlx::{Acquire, Postgres, QueryBuilder, query_builder::Separated};
+use sqlx::{PgExecutor, Postgres, QueryBuilder, query_builder::Separated};
 use std::sync::Arc;
 use tokio::sync::Mutex;
-
-#[derive(sqlx::FromRow, Debug)]
-struct ReturnSingularResource {
-    resource: FHIRJson<Resource>,
-}
 
 #[derive(sqlx::FromRow, Debug)]
 struct ReturnVersionedResource {
@@ -49,9 +44,9 @@ async fn read_version_ids_from_cache<'a>(
 ) -> (Vec<Resource>, Vec<&'a VersionId>) {
     let mut remaining_version_ids = vec![];
     let mut cached_resources = vec![];
-    for version_id in version_ids.iter() {
+    for version_id in version_ids {
         if let Some(resource) = cache.get(*version_id).await {
-            cached_resources.push(resource)
+            cached_resources.push(resource);
         } else {
             remaining_version_ids.push(*version_id);
         }
@@ -74,17 +69,14 @@ impl FHIRRepository for PGConnection {
                 let tx = create_transaction(self, true).await?;
                 let res = {
                     let mut conn = tx.lock().await;
-                    let res =
-                        create(&mut *conn, tenant, project, author, fhir_version, resource).await?;
-                    res
+                    create(&mut **conn, tenant, project, author, fhir_version, resource).await?
                 };
                 commit_transaction(tx).await?;
                 Ok(res)
             }
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = create(&mut *tx, tenant, project, author, fhir_version, resource).await?;
-                Ok(res)
+                create(&mut **tx, tenant, project, author, fhir_version, resource).await
             }
         }
     }
@@ -103,8 +95,8 @@ impl FHIRRepository for PGConnection {
                 let tx = create_transaction(self, true).await?;
                 let res = {
                     let mut conn = tx.lock().await;
-                    let res = delete(
-                        &mut *conn,
+                    delete(
+                        &mut **conn,
                         tenant,
                         project,
                         author,
@@ -112,8 +104,7 @@ impl FHIRRepository for PGConnection {
                         resource,
                         id,
                     )
-                    .await?;
-                    res
+                    .await?
                 };
                 commit_transaction(tx).await?;
                 Ok(res)
@@ -121,8 +112,8 @@ impl FHIRRepository for PGConnection {
             PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
-                let res = delete(
-                    &mut *conn,
+                delete(
+                    &mut **conn,
                     tenant,
                     project,
                     author,
@@ -130,8 +121,7 @@ impl FHIRRepository for PGConnection {
                     resource,
                     id,
                 )
-                .await?;
-                Ok(res)
+                .await
             }
         }
     }
@@ -150,8 +140,8 @@ impl FHIRRepository for PGConnection {
                 let tx = create_transaction(self, true).await?;
                 let res = {
                     let mut conn = tx.lock().await;
-                    let res = update(
-                        &mut *conn,
+                    update(
+                        &mut **conn,
                         tenant,
                         project,
                         author,
@@ -159,8 +149,7 @@ impl FHIRRepository for PGConnection {
                         resource,
                         id,
                     )
-                    .await?;
-                    res
+                    .await?
                 };
 
                 commit_transaction(tx).await?;
@@ -169,8 +158,8 @@ impl FHIRRepository for PGConnection {
             PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
-                let res = update(
-                    &mut *conn,
+                update(
+                    &mut **conn,
                     tenant,
                     project,
                     author,
@@ -178,8 +167,7 @@ impl FHIRRepository for PGConnection {
                     resource,
                     id,
                 )
-                .await?;
-                Ok(res)
+                .await
             }
         }
     }
@@ -192,11 +180,11 @@ impl FHIRRepository for PGConnection {
         cache_policy: CachePolicy,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         if version_ids.is_empty() {
-            return Ok(vec![]);
+            return Ok(Vec::new());
         }
 
         let (cached_result, remaining_version_ids) =
-            read_version_ids_from_cache(self.cache(), &version_ids).await;
+            read_version_ids_from_cache(self.cache(), version_ids).await;
 
         if remaining_version_ids.is_empty() {
             return Ok(cached_result);
@@ -208,7 +196,7 @@ impl FHIRRepository for PGConnection {
                     .await?;
 
                 if cache_policy == CachePolicy::Cache {
-                    for v in res.iter() {
+                    for v in &res {
                         cache
                             .insert(v.version_id.clone(), v.resource.0.clone())
                             .await;
@@ -224,11 +212,11 @@ impl FHIRRepository for PGConnection {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res =
-                    read_by_version_ids(&mut *conn, tenant_id, project_id, &remaining_version_ids)
+                    read_by_version_ids(&mut **conn, tenant_id, project_id, &remaining_version_ids)
                         .await?;
 
                 if cache_policy == CachePolicy::Cache {
-                    for v in res.iter() {
+                    for v in &res {
                         cache
                             .insert(v.version_id.clone(), v.resource.0.clone())
                             .await;
@@ -259,15 +247,14 @@ impl FHIRRepository for PGConnection {
             PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
-                let res = read_latest(
-                    &mut *conn,
+                read_latest(
+                    &mut **conn,
                     tenant_id,
                     project_id,
                     resource_type,
                     resource_id,
                 )
-                .await?;
-                Ok(res)
+                .await
             }
         }
     }
@@ -279,30 +266,20 @@ impl FHIRRepository for PGConnection {
         request: &HistoryRequest,
     ) -> Result<Vec<ResourceHistoryValue>, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = history(pool, tenant_id, project_id, request).await?;
-                Ok(res)
-            }
+            PGConnection::Pool(pool, _) => history(pool, tenant_id, project_id, request).await,
             PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
-                let res = history(&mut *conn, tenant_id, project_id, request).await?;
-                Ok(res)
+                history(&mut **conn, tenant_id, project_id, request).await
             }
         }
     }
 
     fn in_transaction(&self) -> bool {
-        match self {
-            PGConnection::Transaction(_tx, _) => true,
-            _ => false,
-        }
+        matches!(self, PGConnection::Transaction(_tx, _))
     }
 
-    async fn transaction<'a>(
-        &'a self,
-        is_updating_sequence: bool,
-    ) -> Result<Self, OperationOutcomeError> {
+    async fn transaction(&self, is_updating_sequence: bool) -> Result<Self, OperationOutcomeError> {
         let tx = create_transaction(self, is_updating_sequence).await?;
         Ok(PGConnection::Transaction(tx, self.cache().clone()))
     }
@@ -323,190 +300,197 @@ impl FHIRRepository for PGConnection {
                 );
 
                 // Handle PgConnection connection
-                let res = conn.rollback().await.map_err(StoreError::from)?;
-                Ok(res)
+                conn.rollback().await.map_err(StoreError::from)?;
+                Ok(())
             }
         }
     }
 }
 
-fn create<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn create<'a, 'e, E>(
+    executor: E,
     tenant: &'a TenantId,
     project: &'a ProjectId,
     author: &'a UserTokenClaims,
     fhir_version: &'a SupportedFHIRVersions,
     resource: &'a mut Resource,
-) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send + 'a {
-    async move {
-        utilities::set_resource_id(resource, None)?;
-        utilities::set_version_id(resource)?;
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let result = sqlx::query_as!(
-                ReturnSingularResource,
-                r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-                RETURNING resource as "resource: FHIRJson<Resource>""#,
-                tenant.as_ref() as &str,
-                project.as_ref() as &str,
-                author.sub.as_ref() as &str,
-                // Useless cast so that macro has access to the type information.
-                // Otherwise it will not compile on type check.
-                fhir_version as &SupportedFHIRVersions,
-                &FHIRJsonRef(resource) as &FHIRJsonRef<'_ , Resource>,
-                false, // deleted
-                "POST",
-                author.resource_type.as_ref() as &str,
-                &FHIRMethod::Create as &FHIRMethod,
-            ).fetch_one(&mut *conn).await.map_err(StoreError::from)?;
-        Ok(result.resource.0)
-    }
+) -> Result<Resource, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    utilities::set_resource_id(resource, None)?;
+    utilities::set_version_id(resource)?;
+
+    let result = sqlx::query_as::<_, (FHIRJson<Resource>,)>(
+        r"
+            INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            RETURNING resource
+        ",
+    )
+    .bind(tenant.as_ref())
+    .bind(project.as_ref())
+    .bind(author.sub.as_ref())
+    .bind(fhir_version)
+    .bind(FHIRJsonRef(resource))
+    .bind(false)
+    .bind("POST")
+    .bind(author.resource_type.as_ref())
+    .bind(FHIRMethod::Create)
+    .fetch_one(executor)
+    .await
+    .map_err(StoreError::from)?;
+
+    Ok(result.0.0)
 }
 
-fn delete<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
-    tenant: &'a TenantId,
-    project: &'a ProjectId,
-    author: &'a UserTokenClaims,
-    fhir_version: &'a SupportedFHIRVersions,
-    resource: &'a mut Resource,
-    id: &'a str,
-) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send + 'a {
-    async move {
-        utilities::set_resource_id(resource, Some(id.to_string()))?;
-        utilities::set_version_id(resource)?;
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let result = sqlx::query_as!(
-                ReturnSingularResource,
-                r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-                RETURNING resource as "resource: FHIRJson<Resource>""#,
-                tenant.as_ref() as &str,
-                project.as_ref() as &str,
-                author.sub.as_ref() as &str,
-                // Useless cast so that macro has access to the type information.
-                // Otherwise it will not compile on type check.
-                fhir_version as &SupportedFHIRVersions,
-                &FHIRJsonRef(resource) as &FHIRJsonRef<'_ , Resource>,
-                true, // deleted
-                "DELETE",
-                author.resource_type.as_ref() as &str,
-                &FHIRMethod::Delete as &FHIRMethod,
-            ).fetch_one(&mut *conn).await.map_err(StoreError::from)?;
-
-        Ok(result.resource.0)
-    }
-}
-
-fn update<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn delete<'a, 'e, E>(
+    executor: E,
     tenant: &'a TenantId,
     project: &'a ProjectId,
     author: &'a UserTokenClaims,
     fhir_version: &'a SupportedFHIRVersions,
     resource: &'a mut Resource,
     id: &'a str,
-) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send + 'a {
-    async move {
-        utilities::set_resource_id(resource, Some(id.to_string()))?;
-        utilities::set_version_id(resource)?;
+) -> Result<Resource, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    utilities::set_resource_id(resource, Some(id.to_string()))?;
+    utilities::set_version_id(resource)?;
 
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+    let result = sqlx::query_as::<_, (FHIRJson<Resource>,)>(
+        r"
+            INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            RETURNING resource
+        ",
+    )
+    .bind(tenant.as_ref())
+    .bind(project.as_ref())
+    .bind(author.sub.as_ref())
+    .bind(fhir_version)
+    .bind(FHIRJsonRef(resource))
+    .bind(true)
+    .bind("DELETE")
+    .bind(author.resource_type.as_ref())
+    .bind(FHIRMethod::Delete)
+    .fetch_one(executor)
+    .await
+    .map_err(StoreError::from)?;
 
-        let query = sqlx::query_as!(
-            ReturnSingularResource,
-            r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-                RETURNING resource as "resource: FHIRJson<Resource>""#,
-            tenant.as_ref() as &str,
-            project.as_ref() as &str,
-            author.sub.as_ref() as &str,
-            // Useless cast so that macro has access to the type information.
-            // Otherwise it will not compile on type check.
-            fhir_version as &SupportedFHIRVersions,
-            &FHIRJsonRef(resource) as &FHIRJsonRef<'_, Resource>,
-            false, // deleted
-            "PUT",
-            author.resource_type.as_ref() as &str,
-            &FHIRMethod::Update as &FHIRMethod,
-        );
-
-        let result = query
-            .fetch_one(&mut *conn)
-            .await
-            .map_err(StoreError::from)?;
-
-        Ok(result.resource.0)
-    }
+    Ok(result.0.0)
 }
 
-fn read_by_version_ids<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn update<'a, 'e, E>(
+    executor: E,
+    tenant: &'a TenantId,
+    project: &'a ProjectId,
+    author: &'a UserTokenClaims,
+    fhir_version: &'a SupportedFHIRVersions,
+    resource: &'a mut Resource,
+    id: &'a str,
+) -> Result<Resource, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    utilities::set_resource_id(resource, Some(id.to_string()))?;
+    utilities::set_version_id(resource)?;
+
+    let result = sqlx::query_as::<_, (FHIRJson<Resource>,)>(
+        r"
+            INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            RETURNING resource
+        ",
+    )
+    .bind(tenant.as_ref())
+    .bind(project.as_ref())
+    .bind(author.sub.as_ref())
+    .bind(fhir_version)
+    .bind(FHIRJsonRef(resource))
+    .bind(false)
+    .bind("PUT")
+    .bind(author.resource_type.as_ref())
+    .bind(FHIRMethod::Update)
+    .fetch_one(executor)
+    .await
+    .map_err(StoreError::from)?;
+
+    Ok(result.0.0)
+}
+
+async fn read_by_version_ids<'a, 'e, E>(
+    executor: E,
     tenant_id: &'a TenantId,
     project_id: &'a ProjectId,
     version_ids: &'a Vec<&'a VersionId>,
-) -> impl Future<Output = Result<Vec<ReturnVersionedResource>, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+) -> Result<Vec<ReturnVersionedResource>, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let mut query_builder: QueryBuilder<sqlx::Postgres> =
+        QueryBuilder::new("SELECT resource, version_id FROM resources WHERE tenant = ");
 
-        let mut query_builder: QueryBuilder<Postgres> =
-            QueryBuilder::new(r#"SELECT resource, version_id FROM resources WHERE tenant = "#);
+    query_builder
+        .push_bind(tenant_id.as_ref())
+        .push(" AND project =")
+        .push_bind(project_id.as_ref());
 
-        query_builder
-            .push_bind(tenant_id.as_ref())
-            .push(" AND project =")
-            .push_bind(project_id.as_ref());
+    query_builder.push(" AND version_id in (");
 
-        query_builder.push(" AND version_id in (");
-
-        let mut separated = query_builder.separated(", ");
-        for version_id in version_ids.iter() {
-            separated.push_bind(version_id.as_ref());
-        }
-        separated.push_unseparated(")");
-
-        // To preserve sort order.
-        query_builder.push(" ORDER BY  array_position(array[");
-        let mut order_separator = query_builder.separated(", ");
-        for version_id in version_ids.iter() {
-            order_separator.push_bind(version_id.as_ref());
-        }
-        query_builder.push("], version_id)");
-
-        let query = query_builder.build_query_as();
-        let response: Vec<ReturnVersionedResource> = query
-            .fetch_all(&mut *conn)
-            .await
-            .map_err(StoreError::from)?;
-
-        Ok(response)
+    let mut separated = query_builder.separated(", ");
+    for version_id in version_ids {
+        separated.push_bind(version_id.as_ref());
     }
+    separated.push_unseparated(")");
+
+    query_builder.push(" ORDER BY array_position(array[");
+    let mut order_separator = query_builder.separated(", ");
+    for version_id in version_ids {
+        order_separator.push_bind(version_id.as_ref());
+    }
+    query_builder.push("], version_id)");
+
+    let query = query_builder.build_query_as::<ReturnVersionedResource>();
+
+    let response: Vec<ReturnVersionedResource> =
+        query.fetch_all(executor).await.map_err(StoreError::from)?;
+
+    Ok(response)
 }
 
-fn read_latest<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn read_latest<'a, 'e, E>(
+    executor: E,
     tenant_id: &'a TenantId,
     project_id: &'a ProjectId,
     resource_type: &'a ResourceType,
     resource_id: &'a ResourceId,
-) -> impl Future<Output = Result<Option<Resource>, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let response = sqlx::query!(
-            r#"SELECT resource as "resource: FHIRJson<Resource>", deleted FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC LIMIT 1"#,
-            tenant_id.as_ref(),
-            project_id.as_ref(),
-            resource_id.as_ref(),
-            resource_type.as_ref(),
-        ).fetch_optional(&mut *conn).await.map_err(StoreError::from)?;
+) -> Result<Option<Resource>, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let response = sqlx::query_as::<_, (FHIRJson<Resource>, bool)>(
+        r"
+            SELECT resource, deleted
+            FROM resources
+            WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4
+            ORDER BY sequence DESC
+            LIMIT 1
+        ",
+    )
+    .bind(tenant_id.as_ref())
+    .bind(project_id.as_ref())
+    .bind(resource_id.as_ref())
+    .bind(resource_type.as_ref())
+    .fetch_optional(executor)
+    .await
+    .map_err(StoreError::from)?;
 
-        // For deletes entry will contain deleted = true.
-        // In that case return None.
-        if let Some(true) = response.as_ref().map(|r| r.deleted) {
-            Ok(None)
-        } else {
-            Ok(response.map(|r| r.resource.0))
-        }
+    if let Some((_, true)) = response {
+        Ok(None)
+    } else {
+        Ok(response.map(|(json, _)| json.0))
     }
 }
 
@@ -516,13 +500,13 @@ fn process_history_parameters<'a>(
 ) -> Result<(), OperationOutcomeError> {
     for parameter in parameters.parameters() {
         match parameter {
-            ParsedParameter::Result(result_param) => match result_param.name.as_str() {
-                "_since" => {
-                    if let Some(value) = &result_param.value.get(0) {
+            ParsedParameter::Result(result_param) => {
+                if result_param.name.as_str() == "_since" {
+                    if let Some(value) = &result_param.value.first() {
                         let date_time = parse_datetime(value.as_str()).map_err(|e| {
                             OperationOutcomeError::fatal(
                                 IssueType::invalid(),
-                                format!("Invalid _since parameter datetime: {:?}", e),
+                                format!("Invalid _since parameter datetime: {e:?}"),
                             )
                         })?;
 
@@ -530,18 +514,16 @@ fn process_history_parameters<'a>(
                             chrono::DateTime::try_from(date_time).map_err(|e| {
                                 OperationOutcomeError::fatal(
                                     IssueType::invalid(),
-                                    format!("Invalid _since parameter datetime: {:?}", e),
+                                    format!("Invalid _since parameter datetime: {e:?}"),
                                 )
                             })?,
                         );
                     }
-                }
-                "_count" | "_offset" => {
+                } else {
                     // Ignore offset and count parameter as these parameters are held separately and not used in the where clause.
                 }
-                _ => {}
-            },
-            _ => {
+            }
+            ParsedParameter::Resource(_) => {
                 return Err(OperationOutcomeError::fatal(
                     IssueType::not_supported(),
                     format!(
@@ -556,96 +538,97 @@ fn process_history_parameters<'a>(
     Ok(())
 }
 
-fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn history<'a, 'e, E>(
+    executor: E,
     tenant: &'a TenantId,
     project: &'a ProjectId,
     history_request: &'a HistoryRequest,
-) -> impl Future<Output = Result<Vec<ResourceHistoryValue>, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::from)?;
+) -> Result<Vec<ResourceHistoryValue>, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let mut query_builder: QueryBuilder<sqlx::Postgres> =
+        QueryBuilder::new(r"SELECT resource, request_method FROM resources WHERE ");
 
-        let mut query_builder: QueryBuilder<Postgres> =
-            QueryBuilder::new(r#"SELECT resource, request_method FROM resources WHERE  "#);
+    let mut clauses = query_builder.separated(" AND ");
+    clauses
+        .push(" tenant = ")
+        .push_bind_unseparated(tenant.as_ref())
+        .push(" project = ")
+        .push_bind_unseparated(project.as_ref());
 
-        let mut clauses = query_builder.separated(" AND ");
-        clauses
-            .push(" tenant = ")
-            .push_bind_unseparated(tenant.as_ref())
-            .push(" project = ")
-            .push_bind_unseparated(project.as_ref());
+    let history_parameters = match history_request {
+        HistoryRequest::Instance(history_instance_request) => &history_instance_request.parameters,
+        HistoryRequest::Type(history_type_request) => &history_type_request.parameters,
+        HistoryRequest::System(system_request) => &system_request.parameters,
+    };
 
-        let history_parameters = match history_request {
-            HistoryRequest::Instance(history_instance_request) => {
-                &history_instance_request.parameters
-            }
-            HistoryRequest::Type(history_type_request) => &history_type_request.parameters,
-            HistoryRequest::System(system_request) => &system_request.parameters,
-        };
+    process_history_parameters(history_parameters, &mut clauses)?;
 
-        process_history_parameters(&history_parameters, &mut clauses)?;
-
-        match history_request {
-            HistoryRequest::Instance(history_instance_request) => {
-                clauses
-                    .push(" resource_type = ")
-                    .push_bind_unseparated(history_instance_request.resource_type.as_ref())
-                    .push(" id = ")
-                    .push_bind_unseparated(&history_instance_request.id);
-            }
-            HistoryRequest::Type(history_type_request) => {
-                clauses
-                    .push(" resource_type = ")
-                    .push_bind_unseparated(history_type_request.resource_type.as_ref());
-            }
-            HistoryRequest::System(_request) => {}
-        };
-
-        let count =
-            if let Some(ParsedParameter::Result(count_param)) = history_parameters.get("_count") {
-                // Enforce a maximum count of 1000 to prevent abuse and performance issues.
-                std::cmp::min(
-                    1000,
-                    count_param
-                        .value
-                        .get(0)
-                        .and_then(|v| v.parse::<usize>().ok())
-                        .unwrap_or(100),
-                )
-            } else {
-                1000
-            };
-
-        query_builder
-            .push(" ORDER BY sequence DESC LIMIT ")
-            .push_bind(count as i64);
-
-        if let Some(ParsedParameter::Result(offset_param)) = history_parameters.get("_offset") {
-            let offset = std::cmp::max(
-                offset_param
-                    .value
-                    .get(0)
-                    .and_then(|v| v.parse::<usize>().ok())
-                    .unwrap_or(0),
-                0,
-            );
-
-            query_builder.push(" OFFSET ").push_bind(offset as i64);
+    match history_request {
+        HistoryRequest::Instance(history_instance_request) => {
+            clauses
+                .push(" resource_type = ")
+                .push_bind_unseparated(history_instance_request.resource_type.as_ref())
+                .push(" id = ")
+                .push_bind_unseparated(&history_instance_request.id);
         }
-
-        let query = query_builder.build_query_as();
-
-        let result: Vec<HistoryValue> = query
-            .fetch_all(&mut *conn)
-            .await
-            .map_err(StoreError::from)?;
-
-        Ok(result
-            .into_iter()
-            .map(|r| ResourceHistoryValue {
-                resource: r.resource.0,
-                request_method: r.request_method,
-            })
-            .collect::<Vec<_>>())
+        HistoryRequest::Type(history_type_request) => {
+            clauses
+                .push(" resource_type = ")
+                .push_bind_unseparated(history_type_request.resource_type.as_ref());
+        }
+        HistoryRequest::System(_request) => {}
     }
+
+    let count = if let Some(ParsedParameter::Result(count_param)) = history_parameters.get("_count")
+    {
+        std::cmp::min(
+            1000,
+            count_param
+                .value
+                .first()
+                .and_then(|v| v.parse::<usize>().ok())
+                .unwrap_or(100),
+        )
+    } else {
+        1000
+    };
+
+    let limit = i64::try_from(count).map_err(|_| {
+        OperationOutcomeError::error(IssueType::invalid(), "count exceeds i64::MAX".into())
+    })?;
+
+    query_builder
+        .push(" ORDER BY sequence DESC LIMIT ")
+        .push_bind(limit);
+
+    if let Some(ParsedParameter::Result(offset_param)) = history_parameters.get("_offset") {
+        let offset = std::cmp::max(
+            offset_param
+                .value
+                .first()
+                .and_then(|v| v.parse::<usize>().ok())
+                .unwrap_or(0),
+            0,
+        );
+
+        let offset = i64::try_from(offset).map_err(|_| {
+            OperationOutcomeError::error(IssueType::invalid(), "offset exceeds i64::MAX".into())
+        })?;
+
+        query_builder.push(" OFFSET ").push_bind(offset);
+    }
+
+    let query = query_builder.build_query_as::<HistoryValue>();
+
+    let result: Vec<HistoryValue> = query.fetch_all(executor).await.map_err(StoreError::from)?;
+
+    Ok(result
+        .into_iter()
+        .map(|r| ResourceHistoryValue {
+            resource: r.resource.0,
+            request_method: r.request_method,
+        })
+        .collect::<Vec<_>>())
 }

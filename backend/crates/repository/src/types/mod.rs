@@ -44,7 +44,7 @@ impl TryFrom<&str> for FHIRMethod {
             "read" => Ok(FHIRMethod::Read),
             "update" => Ok(FHIRMethod::Update),
             "delete" => Ok(FHIRMethod::Delete),
-            _ => Err(format!("Unsupported FHIR method: {}", value)),
+            _ => Err(format!("Unsupported FHIR method: {value}")),
         }
     }
 }

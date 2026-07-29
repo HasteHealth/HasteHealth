@@ -1,3 +1,5 @@
+use std::sync::LazyLock;
+
 use haste_fhir_model::r4::generated::{
     resources::Resource,
     terminology::IssueType,
@@ -18,16 +20,26 @@ pub fn generate_id(len: Option<usize>) -> String {
     nanoid::nanoid!(len, ID_CHARACTERS).to_string()
 }
 
-pub fn validate_id(id: &str) -> Result<(), OperationOutcomeError> {
+static ID_REGEX: LazyLock<regex::Regex> = LazyLock::new(|| {
     let characters_allowed = ID_CHARACTERS.iter().collect::<String>();
-    let re = regex::Regex::new(&format!("^[{}]*$", characters_allowed)).unwrap();
-    if !re.is_match(id) {
+    regex::Regex::new(&format!("^[{characters_allowed}]*$"))
+        .expect("ID_CHARACTERS should produce a valid regex")
+});
+
+/// Validates a FHIR resource ID.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] if `id` contains characters that are
+/// not permitted in a FHIR resource ID.
+pub fn validate_id(id: &str) -> Result<(), OperationOutcomeError> {
+    if ID_REGEX.is_match(id) {
+        Ok(())
+    } else {
         Err(OperationOutcomeError::fatal(
             IssueType::invalid(),
-            format!("ID contains invalid characters: {}", id),
+            format!("ID contains invalid characters: {id}"),
         ))
-    } else {
-        Ok(())
     }
 }
 
@@ -39,6 +51,15 @@ pub enum DataTransformError {
     NotFound(String),
 }
 
+/// Sets the ID of a FHIR resource.
+///
+/// If `id_` is `Some`, that value is assigned as the resource ID. Otherwise, a
+/// new ID is generated and assigned.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] if the resource does not contain an `id`
+/// field or if the `id` field is not of type [`Option<String>`].
 pub fn set_resource_id(
     resource: &mut Resource,
     id_: Option<String>,
@@ -58,6 +79,15 @@ pub fn set_resource_id(
     Ok(())
 }
 
+/// Sets the version ID of a FHIR resource.
+///
+/// If the resource does not have a `meta` element, one is created. The
+/// `versionId` field is then populated with a newly generated ID.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] if the resource does not contain a
+/// `meta` field or if the `meta` field is not of type [`Option<Box<Meta>>`].
 pub fn set_version_id(resource: &mut Resource) -> Result<(), OperationOutcomeError> {
     let meta: &mut dyn std::any::Any =
         resource
@@ -72,15 +102,15 @@ pub fn set_version_id(resource: &mut Resource) -> Result<(), OperationOutcomeErr
             ))?;
 
     if meta.is_none() {
-        *meta = Some(Box::new(Meta::default()))
+        *meta = Some(Box::new(Meta::default()));
     }
-    meta.as_mut().map(|meta| {
+    if let Some(meta) = meta.as_mut() {
         meta.versionId = Some(Box::new(FHIRId {
             id: None,
             extension: None,
             value: Some(generate_id(None)),
         }));
-    });
+    }
 
     Ok(())
 }

@@ -67,8 +67,8 @@ pub trait FHIRRepository: Sized {
         project_id: &ProjectId,
         request: &HistoryRequest,
     ) -> impl Future<Output = Result<Vec<ResourceHistoryValue>, OperationOutcomeError>> + Send;
-    fn transaction<'a>(
-        &'a self,
+    fn transaction(
+        &self,
         register: bool,
     ) -> impl Future<Output = Result<Self, OperationOutcomeError>> + Send;
     fn in_transaction(&self) -> bool;

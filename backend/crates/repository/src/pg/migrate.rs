@@ -7,24 +7,19 @@ use crate::admin::Migrate;
 impl Migrate for super::PGConnection {
     async fn migrate(&self) -> Result<(), OperationOutcomeError> {
         match self {
-            super::PGConnection::Pool(pool, _) => {
-                sqlx::migrate!("./pg-migrations")
-                    .run(pool)
-                    .await
-                    .map_err(|e| {
-                        OperationOutcomeError::fatal(
-                            IssueType::exception(),
-                            format!("Failed to migrate repository schema: {}", e),
-                        )
-                    })?;
-                Ok(())
-            }
-            super::PGConnection::Transaction(_, _) => {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::exception(),
-                    "Cannot run migrations in a transaction.".to_string(),
-                ));
-            }
+            super::PGConnection::Pool(pool, _) => sqlx::migrate!("./pg-migrations")
+                .run(pool)
+                .await
+                .map_err(|e| {
+                    OperationOutcomeError::fatal(
+                        IssueType::exception(),
+                        format!("Failed to migrate repository schema: {e}"),
+                    )
+                }),
+            super::PGConnection::Transaction(_, _) => Err(OperationOutcomeError::fatal(
+                IssueType::exception(),
+                "Cannot run migrations in a transaction.".to_string(),
+            )),
         }
     }
 }
