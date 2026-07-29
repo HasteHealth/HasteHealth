@@ -66,6 +66,7 @@ impl FHIRHttpState {
         if !url.path().ends_with('/') {
             url.set_path(&format!("{}/", url.path()));
         }
+
         Ok(FHIRHttpState {
             client: reqwest::Client::new(),
             api_url: url,
@@ -232,8 +233,7 @@ fn request_from_read(
     let read_request_url = state
         .api_url
         .join(&format!(
-            "{}/{}/{}",
-            state.api_url.path(),
+            "{}/{}",
             read_request.resource_type.as_ref(),
             read_request.id
         ))
@@ -250,8 +250,7 @@ fn request_from_compartment<'a>(
         let compartment_url = state
             .api_url
             .join(&format!(
-                "{}/{}/{}",
-                state.api_url.path(),
+                "{}/{}",
                 compartment_request.resource_type.as_ref(),
                 compartment_request.id
             ))
@@ -273,11 +272,7 @@ fn request_from_create(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let create_request_url = state
         .api_url
-        .join(&format!(
-            "{}/{}",
-            state.api_url.path(),
-            create_request.resource_type.as_ref(),
-        ))
+        .join(&format!("{}", create_request.resource_type.as_ref(),))
         .map_err(|_| FHIRHTTPError::UrlParseError("Create request".to_string()))?;
 
     let body = serialize_json(&create_request.resource)?;
@@ -292,8 +287,7 @@ fn request_from_patch(
     let patch_request_url = state
         .api_url
         .join(&format!(
-            "{}/{}/{}",
-            state.api_url.path(),
+            "{}/{}",
             patch_request.resource_type.as_ref(),
             patch_request.id
         ))
@@ -320,13 +314,12 @@ fn request_from_version_read(
     let version_request_url = state
         .api_url
         .join(&format!(
-            "{}/{}/{}/_history/{}",
-            state.api_url.path(),
+            "{}/{}/_history/{}",
             version_request.resource_type.as_ref(),
             version_request.id,
             version_request.version_id.as_ref(),
         ))
-        .map_err(|_| FHIRHTTPError::UrlParseError("Patch request".to_string()))?;
+        .map_err(|_| FHIRHTTPError::UrlParseError("Version read request".to_string()))?;
 
     build_get(state, version_request_url)
 }
@@ -368,8 +361,7 @@ fn request_from_update_instance(
     let update_request_url = state
         .api_url
         .join(&format!(
-            "{}/{}/{}",
-            state.api_url.path(),
+            "{}/{}",
             update_request.resource_type.as_ref(),
             update_request.id
         ))
@@ -386,11 +378,7 @@ fn request_from_update_conditional(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let mut request_url = state
         .api_url
-        .join(&format!(
-            "{}/{}",
-            state.api_url.path(),
-            update_request.resource_type.as_ref(),
-        ))
+        .join(&format!("{}", update_request.resource_type.as_ref(),))
         .map_err(|_| FHIRHTTPError::UrlParseError("ConditionalUpdate request".to_string()))?;
 
     fhir_parameter_to_query_parameters(&mut request_url, &update_request.parameters);
@@ -416,11 +404,7 @@ fn request_from_search_type(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let mut request_url = state
         .api_url
-        .join(&format!(
-            "{}/{}",
-            state.api_url.path(),
-            search_request.resource_type.as_ref(),
-        ))
+        .join(&format!("{}", search_request.resource_type.as_ref(),))
         .map_err(|_| FHIRHTTPError::UrlParseError("SearchType request".to_string()))?;
 
     fhir_parameter_to_query_parameters(&mut request_url, &search_request.parameters);
@@ -432,10 +416,7 @@ fn request_from_search_system(
     state: &FHIRHttpState,
     search_request: &FHIRSearchSystemRequest,
 ) -> Result<reqwest::Request, OperationOutcomeError> {
-    let mut request_url = state
-        .api_url
-        .join(state.api_url.path())
-        .map_err(|_| FHIRHTTPError::UrlParseError("SearchSystem request".to_string()))?;
+    let mut request_url = state.api_url.clone();
 
     fhir_parameter_to_query_parameters(&mut request_url, &search_request.parameters);
 
@@ -460,8 +441,7 @@ fn request_from_delete_instance(
     let delete_request_url = state
         .api_url
         .join(&format!(
-            "{}/{}/{}",
-            state.api_url.path(),
+            "{}/{}",
             delete_request.resource_type.as_ref(),
             delete_request.id
         ))
@@ -476,11 +456,7 @@ fn request_from_delete_type(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let mut request_url = state
         .api_url
-        .join(&format!(
-            "{}/{}",
-            state.api_url.path(),
-            delete_request.resource_type.as_ref(),
-        ))
+        .join(&format!("{}", delete_request.resource_type.as_ref(),))
         .map_err(|_| FHIRHTTPError::UrlParseError("DeleteType request".to_string()))?;
 
     fhir_parameter_to_query_parameters(&mut request_url, &delete_request.parameters);
@@ -492,10 +468,7 @@ fn request_from_delete_system(
     state: &FHIRHttpState,
     delete_request: &FHIRDeleteSystemRequest,
 ) -> Result<reqwest::Request, OperationOutcomeError> {
-    let mut request_url = state
-        .api_url
-        .join(state.api_url.path())
-        .map_err(|_| FHIRHTTPError::UrlParseError("DeleteSystem request".to_string()))?;
+    let mut request_url = state.api_url.clone();
 
     fhir_parameter_to_query_parameters(&mut request_url, &delete_request.parameters);
 
@@ -520,8 +493,7 @@ fn request_from_history_instance(
     let mut request_url = state
         .api_url
         .join(&format!(
-            "{}/{}/{}/_history",
-            state.api_url.path(),
+            "{}/{}/_history",
             history_request.resource_type.as_ref(),
             history_request.id
         ))
@@ -539,8 +511,7 @@ fn request_from_history_type(
     let mut request_url = state
         .api_url
         .join(&format!(
-            "{}/{}/_history",
-            state.api_url.path(),
+            "{}/_history",
             history_request.resource_type.as_ref(),
         ))
         .map_err(|_| FHIRHTTPError::UrlParseError("HistoryType request".to_string()))?;
@@ -556,7 +527,7 @@ fn request_from_history_system(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let mut request_url = state
         .api_url
-        .join(&format!("{}/_history", state.api_url.path()))
+        .join(&format!("_history"))
         .map_err(|_| FHIRHTTPError::UrlParseError("HistorySystem request".to_string()))?;
 
     fhir_parameter_to_query_parameters(&mut request_url, &history_request.parameters);
@@ -582,8 +553,7 @@ fn request_from_invocation_instance(
     let request_url = state
         .api_url
         .join(&format!(
-            "{}/{}/{}/${}",
-            state.api_url.path(),
+            "{}/{}/${}",
             invocation_request.resource_type.as_ref(),
             invocation_request.id,
             invocation_request.operation.name(),
@@ -602,8 +572,7 @@ fn request_from_invocation_type(
     let request_url = state
         .api_url
         .join(&format!(
-            "{}/{}/${}",
-            state.api_url.path(),
+            "{}/${}",
             invocation_request.resource_type.as_ref(),
             invocation_request.operation.name(),
         ))
@@ -620,11 +589,7 @@ fn request_from_invocation_system(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let request_url = state
         .api_url
-        .join(&format!(
-            "{}/${}",
-            state.api_url.path(),
-            invocation_request.operation.name(),
-        ))
+        .join(&format!("${}", invocation_request.operation.name(),))
         .map_err(|_| FHIRHTTPError::UrlParseError("InvokeSystem request".to_string()))?;
 
     let body = serialize_json(&invocation_request.parameters)?;
