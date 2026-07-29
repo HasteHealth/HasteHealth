@@ -60,8 +60,12 @@ impl FHIRHttpState {
         api_url: &str,
         get_access_token: Option<Arc<AccessToken>>,
     ) -> Result<Self, OperationOutcomeError> {
-        let url =
+        let mut url =
             Url::parse(api_url).map_err(|_| FHIRHTTPError::UrlParseError(api_url.to_string()))?;
+
+        if !url.path().ends_with('/') {
+            url.set_path(&format!("{}/", url.path()));
+        }
         Ok(FHIRHttpState {
             client: reqwest::Client::new(),
             api_url: url,
