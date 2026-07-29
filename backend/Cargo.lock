@@ -2460,6 +2460,7 @@ name = "haste-fhir-client"
 version = "0.20.0"
 dependencies = [
  "axum",
+ "bytes",
  "derivative",
  "haste-fhir-model",
  "haste-fhir-operation-error",
@@ -2469,6 +2470,7 @@ dependencies = [
  "http",
  "json-patch",
  "reqwest 0.13.4",
+ "serde",
  "serde_json",
  "thiserror 2.0.19",
  "tokio",

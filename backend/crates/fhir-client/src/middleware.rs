@@ -108,19 +108,18 @@ impl<
 mod test {
     use super::*;
 
-    struct MiddlewareChain1 {}
+    struct MiddlewareChain1;
     impl MiddlewareChain<(), (), usize, usize, String> for MiddlewareChain1 {
         fn call(
             &self,
             _state: (),
             x: Context<(), usize, usize>,
-            _next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
+            next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
         ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>>
         {
             Box::pin(async move {
-                let mut x = if let Some(next) = _next {
-                    let p = next((), x).await;
-                    p
+                let mut x = if let Some(next) = next {
+                    next((), x).await
                 } else {
                     Ok(x)
                 }?;
@@ -131,19 +130,18 @@ mod test {
         }
     }
 
-    struct MiddlewareChain2 {}
+    struct MiddlewareChain2;
     impl MiddlewareChain<(), (), usize, usize, String> for MiddlewareChain2 {
         fn call(
             &self,
             _state: (),
             x: Context<(), usize, usize>,
-            _next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
+            next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
         ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>>
         {
             Box::pin(async move {
-                let mut x = if let Some(next) = _next {
-                    let p = next((), x).await;
-                    p
+                let mut x = if let Some(next) = next {
+                    next((), x).await
                 } else {
                     Ok(x)
                 }?;
@@ -155,19 +153,18 @@ mod test {
         }
     }
 
-    struct MiddlewareChain3 {}
+    struct MiddlewareChain3;
     impl MiddlewareChain<(), (), usize, usize, String> for MiddlewareChain3 {
         fn call(
             &self,
             _state: (),
             x: Context<(), usize, usize>,
-            _next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
+            next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
         ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>>
         {
             Box::pin(async move {
-                let mut x = if let Some(next) = _next {
-                    let p = next((), x).await;
-                    p
+                let mut x = if let Some(next) = next {
+                    next((), x).await
                 } else {
                     Ok(x)
                 }?;

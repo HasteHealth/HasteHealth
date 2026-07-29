@@ -357,7 +357,7 @@ mod tests {
 
         for (input, expected) in cases {
             let result = parse_prefix(input);
-            assert_eq!(result, expected, "Failed for input: {}", input);
+            assert_eq!(result, expected, "Failed for input: {input}");
         }
     }
 
