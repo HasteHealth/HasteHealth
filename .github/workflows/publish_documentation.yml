@@ -24,7 +24,7 @@ jobs:
       - name: Build & Deploy Worker
         uses: cloudflare/wrangler-action@v4
         with:
-          wranglerVersion: "4.107.0"
+          wranglerVersion: "4.115.0"
           workingDirectory: "backend"
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -65,7 +65,7 @@ jobs:
       - name: Build & Deploy Worker
         uses: cloudflare/wrangler-action@v4
         with:
-          wranglerVersion: "4.107.0"
+          wranglerVersion: "4.115.0"
           workingDirectory: "frontend"
           packageManager: pnpm
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
