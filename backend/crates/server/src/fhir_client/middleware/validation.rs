@@ -20,19 +20,19 @@ use haste_reflect::MetaValue;
 use haste_repository::Repository;
 use std::sync::Arc;
 
-fn extract_profile_url_from_resource<'a>(resource: &'a Resource) -> Option<Vec<&'a str>> {
+fn extract_profile_url_from_resource(resource: &Resource) -> Option<Vec<&str>> {
     let meta = resource.get_field("meta")?;
     let meta = meta.as_any().downcast_ref::<Box<Meta>>()?;
 
     meta.profile
         .as_ref()?
         .iter()
-        .filter_map(|p| p.value.as_ref().map(|v| v.as_str()))
+        .filter_map(|p| p.value.as_deref())
         .collect::<Vec<&str>>()
         .into()
 }
 
-fn extract_resource_from_request<'a>(request: &'a FHIRRequest) -> Option<&'a Resource> {
+fn extract_resource_from_request(request: &FHIRRequest) -> Option<&Resource> {
     match request {
         FHIRRequest::Create(create_request) => Some(&create_request.resource),
         FHIRRequest::Update(update_request) => match update_request {
@@ -50,7 +50,7 @@ fn extract_profile_url_and_resource_from_request(
 ) -> Result<Option<(Vec<&str>, &dyn haste_reflect::MetaValue)>, OperationOutcomeError> {
     match request {
         FHIRRequest::Create(_) | FHIRRequest::Update(_) => {
-            let Some(resource) = extract_resource_from_request(&request) else {
+            let Some(resource) = extract_resource_from_request(request) else {
                 return Ok(None);
             };
             let profiles_url = extract_profile_url_from_resource(resource).unwrap_or(vec![]);

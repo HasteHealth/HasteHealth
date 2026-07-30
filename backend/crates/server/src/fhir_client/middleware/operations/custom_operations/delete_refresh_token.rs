@@ -74,7 +74,7 @@ pub fn delete_refresh_token_op<
                     )
                     .await?;
 
-                    let refresh_token = refresh_token.get(0).ok_or_else(|| {
+                    let refresh_token = refresh_token.first().ok_or_else(|| {
                         OperationOutcomeError::fatal(
                             IssueType::not_found(),
                             "Refresh token not found".to_string(),

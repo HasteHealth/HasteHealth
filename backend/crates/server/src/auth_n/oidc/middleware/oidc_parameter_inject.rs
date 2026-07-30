@@ -42,7 +42,7 @@ impl<S> Layer<S> for OIDCParameterInjectLayer {
 
 impl OIDCParameterInjectLayer {
     pub fn new(state: Arc<ParameterConfig>) -> Self {
-        OIDCParameterInjectLayer { state: state }
+        OIDCParameterInjectLayer { state }
     }
 }
 
@@ -110,8 +110,8 @@ where
                 .unwrap_or("");
 
             // Either check the body if serializes or check the query params.
-            let unvalidated_parameters = match &parts.method {
-                &Method::POST => match content_type {
+            let unvalidated_parameters = match parts.method {
+                Method::POST => match content_type {
                     "application/x-www-form-urlencoded" => {
                         let mut form_params =
                             serde_html_form::from_bytes::<HashMap<String, String>>(&bytes)
@@ -135,7 +135,7 @@ where
                         ),
                     )),
                 },
-                &Method::GET => Ok(query_params),
+                Method::GET => Ok(query_params),
                 _ => Err(OperationOutcomeError::error(
                     IssueType::not_supported(),
                     "Unsupported HTTP method for OIDC parameter injection".to_string(),

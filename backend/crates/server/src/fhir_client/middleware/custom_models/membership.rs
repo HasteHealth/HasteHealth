@@ -25,13 +25,13 @@ use haste_repository::{
 };
 use std::sync::Arc;
 
-fn get_user_id<'a>(membership: &'a Membership) -> Option<&'a str> {
+fn get_user_id(membership: &Membership) -> Option<&str> {
     if let Some(user_reference) = membership
         .user
         .reference
         .as_ref()
         .and_then(|r| r.value.as_ref())
-        && let Some(user_id) = user_reference.split('/').last()
+        && let Some(user_id) = user_reference.split('/').next_back()
     {
         Some(user_id)
     } else {

@@ -44,7 +44,7 @@ fn create_capability_rest_statement(
     all_sps: &Vec<SearchParameter>,
 ) -> Result<CapabilityStatementRestResource, OperationOutcomeError> {
     let sd_type = sd.type_.value.unwrap_or_default();
-    let shared_base_types = vec!["DomainResource".to_string(), "Resource".to_string()];
+    let shared_base_types = ["DomainResource".to_string(), "Resource".to_string()];
 
     let resource_parameters = all_sps
         .iter()
@@ -56,14 +56,9 @@ fn create_capability_rest_statement(
                 .filter_map(|b: Option<&str>| b)
                 .collect::<Vec<_>>();
 
-            if types.contains(&shared_base_types[0].as_str())
+            types.contains(&shared_base_types[0].as_str())
                 || types.contains(&shared_base_types[1].as_str())
                 || types.contains(&sd_type.as_str())
-            {
-                true
-            } else {
-                false
-            }
         })
         .collect::<Vec<&SearchParameter>>();
 
@@ -114,7 +109,7 @@ fn create_capability_rest_statement(
             ]
             .into_iter()
             .map(|code| CapabilityStatementRestResourceInteraction {
-                code: code,
+                code,
                 ..Default::default()
             })
             .collect(),
@@ -216,7 +211,7 @@ impl<
 
                         context.response =
                             Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
-                                capabilities: capabilities,
+                                capabilities,
                             }));
                     }
 

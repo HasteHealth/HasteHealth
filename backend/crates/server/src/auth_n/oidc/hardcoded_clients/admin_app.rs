@@ -43,7 +43,7 @@ pub fn redirect_url(
     if let Some(app) = admin_app {
         app.redirectUri
             .as_ref()
-            .and_then(|uris| uris.get(0))
+            .and_then(|uris| uris.first())
             .and_then(|uri| uri.value.as_ref())
             .map(|uri| {
                 uri.replace(

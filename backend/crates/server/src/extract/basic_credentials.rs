@@ -11,10 +11,10 @@ pub struct BasicCredentialsHeader(pub Option<BasicCredentials>);
 
 impl BasicCredentialsHeader {
     pub fn from_header(header: &str) -> Result<Self, OperationOutcomeError> {
-        if let Some((name, contents)) = header.split_once(' ') {
-            if name == "Basic" {
-                return Self::from_base64_credentials(contents);
-            }
+        if let Some((name, contents)) = header.split_once(' ')
+            && name == "Basic"
+        {
+            return Self::from_base64_credentials(contents);
         }
         Ok(Self(None))
     }

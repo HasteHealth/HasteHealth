@@ -46,9 +46,9 @@ pub async fn send_email(
             from_address,
             api_key,
         } => {
-            let sender = Sender::new(&api_key, None);
+            let sender = Sender::new(api_key, None);
 
-            let m = sendgrid::v3::Message::new(Email::new(&from_address))
+            let m = sendgrid::v3::Message::new(Email::new(from_address))
                 .set_subject(subject)
                 .add_content(Content::new().set_content_type("text/html").set_value(body))
                 .add_personalization(Personalization::new(Email::new(to.as_str())));
@@ -69,18 +69,10 @@ pub async fn send_email(
     }
 }
 
+#[derive(Default)]
 pub struct Message {
     pub subject: Option<String>,
     pub body: Option<Markup>,
-}
-
-impl Default for Message {
-    fn default() -> Self {
-        Self {
-            subject: None,
-            body: None,
-        }
-    }
 }
 
 pub async fn send_password_reset_email<
@@ -114,16 +106,15 @@ pub async fn send_password_reset_email<
 
     let api_url_string = &state.config.api_uri;
 
-    let mut api_url = Url::parse(&api_url_string).map_err(|_| {
+    let mut api_url = Url::parse(api_url_string).map_err(|_| {
         OperationOutcomeError::fatal(IssueType::exception(), "API Url is invalid".to_string())
     })?;
 
     api_url.set_path(
         api_v1_oidc_path(tenant, project)
-            .join(&format!(
+            .join(format!(
                 "interactions{}",
                 crate::auth_n::oidc::routes::interactions::password_reset::PasswordResetVerify
-                    .to_string()
             ))
             .to_str()
             .unwrap_or_default(),

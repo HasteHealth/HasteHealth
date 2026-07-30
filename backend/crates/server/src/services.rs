@@ -24,12 +24,12 @@ pub async fn get_pool(config: &ServerConfig) -> &'static Pool<Postgres> {
         crate::config::RepoConfig::Postgres(pg_config) => {
             POOL.get_or_init(async || {
                 info!("Connecting to postgres database");
-                let connection = PgPoolOptions::new()
+
+                PgPoolOptions::new()
                     .max_connections(pg_config.max_connections)
                     .connect(&pg_config.database_url)
                     .await
-                    .expect("Failed to create database connection pool");
-                connection
+                    .expect("Failed to create database connection pool")
             })
             .await
         }
@@ -180,7 +180,7 @@ pub async fn create_services(
         config: config.clone(),
         rate_limit: pool.clone(),
         repo: pool,
-        terminology: terminology,
+        terminology,
         search: search_engine,
         fhir_client,
         secret_provider: match &config.security.encryption {

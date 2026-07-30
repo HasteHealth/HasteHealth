@@ -78,10 +78,7 @@ impl<
                                     }
                                     _ => Err(OperationOutcomeError::fatal(
                                         IssueType::invalid(),
-                                        format!(
-                                            "Invalid FHIR Version '{:?}'",
-                                            &project.fhirVersion
-                                        ),
+                                        format!("Invalid FHIR Version '{:?}'", project.fhirVersion),
                                     )),
                                 }?;
 
@@ -112,7 +109,7 @@ impl<
                                                 id: id.clone(),
                                                 resource: Resource::Project(Project {
                                                     id: Some(id),
-                                                    name: name,
+                                                    name,
                                                     fhirVersion: match project_model.fhir_version {
                                                         SupportedFHIRVersions::R4 => {
                                                             SupportedFhirVersion::r4()
@@ -143,10 +140,7 @@ impl<
                                     }
                                     _ => Err(OperationOutcomeError::fatal(
                                         IssueType::invalid(),
-                                        format!(
-                                            "Invalid FHIR Version '{:?}'",
-                                            &project.fhirVersion
-                                        ),
+                                        format!("Invalid FHIR Version '{:?}'", project.fhirVersion),
                                     )),
                                 }?;
 
@@ -166,7 +160,7 @@ impl<
                                     ));
                                 };
 
-                                if &cur_model.fhir_version != &fhir_version {
+                                if cur_model.fhir_version != fhir_version {
                                     return Err(OperationOutcomeError::fatal(
                                         IssueType::not_supported(),
                                         "Changing FHIR version of existing project is not supported."

@@ -26,9 +26,7 @@ fn generate_sha256_hash(value: &Resource) -> String {
     sha_hasher.update(json.as_bytes());
     let sha1 = sha_hasher.finalize();
 
-    let sha_string = URL_SAFE_NO_PAD.encode(&sha1);
-
-    sha_string
+    URL_SAFE_NO_PAD.encode(sha1)
 }
 
 static HASH_TAG_SYSTEM: &str = "https://haste.health/fhir/CodeSystem/hash";
@@ -165,7 +163,7 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
 
     let mut total_loaded: usize = 0;
     for resource in ARTIFACT_RESOURCES.iter() {
-        let sha_hash = generate_sha256_hash(*&resource);
+        let sha_hash = generate_sha256_hash(resource);
         hashes.insert(sha_hash);
 
         match &resource {
@@ -211,7 +209,7 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
                     let diagnostic = err.outcome().issue[0]
                         .diagnostics
                         .as_deref()
-                        .and_then(|d| d.value.as_ref().map(|v| v.as_str()))
+                        .and_then(|d| d.value.as_deref())
                         .unwrap_or("unknown");
 
                     match &err.outcome().issue[0].code {

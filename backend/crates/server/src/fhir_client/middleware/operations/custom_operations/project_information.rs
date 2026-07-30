@@ -54,10 +54,10 @@ pub fn project_information_op<
                     {
                         Ok(ProjectInformation::Output { project })
                     } else {
-                        return Err(OperationOutcomeError::fatal(
+                        Err(OperationOutcomeError::fatal(
                             IssueType::not_found(),
                             "Project not found".to_string(),
-                        ));
+                        ))
                     }
                 })
             },

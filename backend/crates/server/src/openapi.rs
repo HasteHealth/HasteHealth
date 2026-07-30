@@ -50,7 +50,7 @@ pub async fn openapi_document_handler<
         let api_version = env!("CARGO_PKG_VERSION");
 
         let openapi_document = haste_openapi_schema_generator::open_api_schema_generator(
-            &api_url,
+            api_url,
             api_version,
             &sds,
             &sps,

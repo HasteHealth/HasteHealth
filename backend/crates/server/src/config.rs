@@ -41,6 +41,7 @@ pub struct MFAConfig {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
+#[derive(Default)]
 pub struct MonitoringConfig {
     pub audit_enabled: bool,
     pub ip_source: IpSource,
@@ -180,15 +181,6 @@ impl Default for RateLimitsConfig {
             rate_limit_subscription_tiers: None,
             rate_limit_window_seconds: 60 * 60 * 24, // 1 day in seconds
             rate_limit_operation_points: 100,
-        }
-    }
-}
-
-impl Default for MonitoringConfig {
-    fn default() -> Self {
-        Self {
-            audit_enabled: false,
-            ip_source: IpSource::default(),
         }
     }
 }

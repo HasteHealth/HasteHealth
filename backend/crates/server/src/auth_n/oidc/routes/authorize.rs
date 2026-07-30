@@ -72,8 +72,8 @@ pub async fn find_membership<Repo: Repository>(
             // Check that user is a member of the tenant.
             let membership = ProjectModelAdmin::search(
                 repo,
-                &tenant,
-                &project,
+                tenant,
+                project,
                 &MembershipSearchClaims {
                     user_id: Some(UserId::new(user.id.clone())),
                     role: None,
@@ -137,7 +137,7 @@ pub async fn authorize<
         )
     })?;
 
-    if !is_valid_redirect_url(&redirect_uri, &client_app) {
+    if !is_valid_redirect_url(redirect_uri, &client_app) {
         return Err(OIDCError::new(
             OIDCErrorCode::InvalidRequest,
             Some("Invalid redirect URI.".to_string()),
@@ -180,7 +180,7 @@ pub async fn authorize<
     )
     .await?;
 
-    if membership.is_none() && &completed_auth_state.user.role == &UserRole::Member {
+    if membership.is_none() && completed_auth_state.user.role == UserRole::Member {
         warn!(
             "User '{}' is not a member of project '{}'",
             completed_auth_state.user.id, project
@@ -202,8 +202,7 @@ pub async fn authorize<
                 project_resource
                     .name
                     .value
-                    .as_ref()
-                    .map(|s| s.as_str())
+                    .as_deref()
                     .unwrap_or(project.as_ref())
             )),
             Some(redirect_uri.to_string()),
@@ -275,7 +274,7 @@ pub async fn authorize<
             &project_resource,
             &client_app,
             &ScopeForm {
-                csrf_token: csrf_token,
+                csrf_token,
                 client_id: client_app
                     .id
                     .as_ref()

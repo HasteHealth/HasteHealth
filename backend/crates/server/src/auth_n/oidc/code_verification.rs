@@ -15,8 +15,8 @@ use sha2::{Digest, Sha256};
 
 pub fn generate_code_verifier() -> String {
     // Generate a random code verifier between 43 and 128 characters.
-    let code_verifier = generate_id(Some(100));
-    code_verifier
+
+    generate_id(Some(100))
 }
 
 pub fn generate_code_challenge(
@@ -29,7 +29,7 @@ pub fn generate_code_challenge(
             hasher.update(code_verifier.as_bytes());
             let hashed = hasher.finalize();
 
-            let mut computed_challenge = URL_SAFE.encode(&hashed);
+            let mut computed_challenge = URL_SAFE.encode(hashed);
             // Remove last character which is an equal.
             computed_challenge.pop();
 
@@ -77,8 +77,8 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
 ) -> Result<AuthorizationCode, OperationOutcomeError> {
     let mut code: Vec<AuthorizationCode> = ProjectModelAdmin::search(
         repo,
-        &tenant,
-        &project,
+        tenant,
+        project,
         &AuthorizationCodeSearchClaims {
             client_id: client.id.clone(),
             code: Some(code.to_string()),
@@ -116,7 +116,7 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
             && verify_code_verifier(
                 &code.pkce_code_challenge,
                 &code.pkce_code_challenge_method,
-                &code_verifier,
+                code_verifier,
             )
             .is_err()
         {
@@ -126,14 +126,14 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
             ));
         }
 
-        if code.client_id.as_ref().map(|c| c.as_str()) != client.id.as_ref().map(|c| c.as_str()) {
+        if code.client_id.as_deref() != client.id.as_deref() {
             return Err(OperationOutcomeError::fatal(
                 IssueType::invalid(),
                 "Invalid authorization code.".to_string(),
             ));
         }
 
-        if code.redirect_uri.as_ref().map(String::as_str) != redirect_uri {
+        if code.redirect_uri.as_deref() != redirect_uri {
             return Err(OperationOutcomeError::fatal(
                 IssueType::invalid(),
                 "Redirect URI does not match the one used to create the authorization code."
@@ -143,9 +143,9 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
 
         Ok(code)
     } else {
-        return Err(OperationOutcomeError::fatal(
+        Err(OperationOutcomeError::fatal(
             IssueType::invalid(),
             "Authorization code not found.".to_string(),
-        ));
+        ))
     }
 }

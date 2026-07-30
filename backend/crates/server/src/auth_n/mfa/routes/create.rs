@@ -104,9 +104,9 @@ pub async fn create_post<
             secret_nonce: aes_encrypted_secret.nonce,
             key_id: aes_key_id.to_string(),
             totp_algorithm: Some(totp_rs::Algorithm::SHA1.to_string()),
-            totp_digits: Some(6 as i16),
-            totp_period: Some(30 as i16),
-            totp_skew: Some(1 as i16),
+            totp_digits: Some(6_i16),
+            totp_period: Some(30_i16),
+            totp_skew: Some(1_i16),
         },
     )
     .await?;

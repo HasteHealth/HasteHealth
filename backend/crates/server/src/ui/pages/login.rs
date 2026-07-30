@@ -16,7 +16,7 @@ pub fn login_form_html(
     login_route: &str,
     errors: Option<Vec<String>>,
 ) -> Markup {
-    let project_id = project.id.clone().map(|id| ProjectId::new(id)).unwrap();
+    let project_id = project.id.clone().map(ProjectId::new).unwrap();
     let project_name = project
         .name
         .value
@@ -32,7 +32,7 @@ pub fn login_form_html(
         .name
         .value
         .as_ref()
-        .map(|s| Cow::Borrowed(s))
+        .map(Cow::Borrowed)
         .unwrap_or_else(|| {
             Cow::Owned(
                 client_app

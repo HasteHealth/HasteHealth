@@ -27,7 +27,7 @@ fn derive_kid(cert_path: &Path) -> String {
         .unwrap()
         .to_string();
     let chunks = file_name.split("_").collect::<Vec<&str>>();
-    chunks.get(0).unwrap().to_string()
+    chunks.first().unwrap().to_string()
 }
 
 fn get_sorted_private_cert_paths(config: &ServerConfig) -> Vec<DirEntry> {
@@ -86,9 +86,9 @@ fn create_jwk_set(
             kid: derive_kid(cert_path),
             alg: JSONWebKeyAlgorithm::RS256,
             kty: JSONWebKeyType::RSA,
-            e: URL_SAFE_NO_PAD.encode(&rsa_public_key.e().clone().to_bytes_be()),
-            n: URL_SAFE_NO_PAD.encode(&rsa_public_key.n().clone().to_bytes_be()),
-            x5t: Some(URL_SAFE_NO_PAD.encode(&x5t)),
+            e: URL_SAFE_NO_PAD.encode(rsa_public_key.e().clone().to_bytes_be()),
+            n: URL_SAFE_NO_PAD.encode(rsa_public_key.n().clone().to_bytes_be()),
+            x5t: Some(URL_SAFE_NO_PAD.encode(x5t)),
         });
     }
 
@@ -214,7 +214,7 @@ impl CertificationProvider for LocalCertifications {
             })
     }
 
-    fn encoding_key<'a>(&'a self) -> Result<&'a EncodingKey, OperationOutcomeError> {
+    fn encoding_key(&self) -> Result<&EncodingKey, OperationOutcomeError> {
         self.encoding_keys.first().ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::exception(),

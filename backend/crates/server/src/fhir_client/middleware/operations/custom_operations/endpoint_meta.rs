@@ -45,20 +45,20 @@ pub fn endpoint_metadata_op<
                 Box::pin(async move {
                     let api_url_string = &context.state.config.api_uri;
 
-                    let discovery_document =
-                        create_oidc_discovery_document(&tenant, &project, &api_url_string)
-                            .map_err(|e| {
-                                tracing::error!(
-                                    "Failed to create OIDC discovery document: {:?}",
-                                    e
-                                );
-                                OperationOutcomeError::error(
-                                    IssueType::exception(),
-                                    "failed to create OIDC discovery document".to_string(),
-                                )
-                            })?;
+                    let discovery_document = create_oidc_discovery_document(
+                        &tenant,
+                        &project,
+                        api_url_string,
+                    )
+                    .map_err(|e| {
+                        tracing::error!("Failed to create OIDC discovery document: {:?}", e);
+                        OperationOutcomeError::error(
+                            IssueType::exception(),
+                            "failed to create OIDC discovery document".to_string(),
+                        )
+                    })?;
 
-                    let api_url = Url::parse(&api_url_string).map_err(|e| {
+                    let api_url = Url::parse(api_url_string).map_err(|e| {
                         tracing::error!("Failed to parse API URL: {:?}", e);
                         OperationOutcomeError::error(
                             IssueType::invalid(),
@@ -67,7 +67,7 @@ pub fn endpoint_metadata_op<
                     })?;
 
                     let fhir_url =
-                        api_fhir_root_url(&api_url_string, &tenant, &project).map_err(|e| {
+                        api_fhir_root_url(api_url_string, &tenant, &project).map_err(|e| {
                             tracing::error!("Failed to derive FHIR Base URL: {:?}", e);
                             OperationOutcomeError::error(
                                 IssueType::invalid(),
@@ -105,7 +105,7 @@ pub fn endpoint_metadata_op<
                         oidc_discovery_url: FHIRUri {
                             value: Some(
                                 derive_well_known_openid_configuration_url(
-                                    &api_url_string,
+                                    api_url_string,
                                     &tenant,
                                     &project,
                                 )?

@@ -91,8 +91,8 @@ pub async fn activate_html<
     let qr_code_image = format!("data:image/png;base64,{}", qr_code);
 
     let mfa_active_html = mfa::activate::mfa_activate_html(
-        &tenant,
-        &csrf_token,
+        tenant,
+        csrf_token,
         user_mfa_credential
             .id
             .as_ref()

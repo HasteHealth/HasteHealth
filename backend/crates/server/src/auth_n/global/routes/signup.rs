@@ -103,7 +103,7 @@ async fn create_or_retrieve_user_tenant<
     .await?;
 
     if let Some(user) = result.pop() {
-        return Ok(user);
+        Ok(user)
     } else {
         let result = create_tenant(
             app_state,

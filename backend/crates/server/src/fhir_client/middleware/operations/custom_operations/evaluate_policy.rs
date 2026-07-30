@@ -109,7 +109,7 @@ pub fn evaluate_policy_op<
                                 ));
                             };
 
-                            let Some(entry) = input.request.entry.as_ref().and_then(|e| e.get(0))
+                            let Some(entry) = input.request.entry.as_ref().and_then(|e| e.first())
                             else {
                                 return Err(OperationOutcomeError::fatal(
                                     IssueType::invalid(),

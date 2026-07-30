@@ -98,7 +98,7 @@ pub async fn scope_post<
             )
         })?;
 
-    if let Some("on") = scope_data.accept.as_ref().map(String::as_str) {
+    if let Some("on") = scope_data.accept.as_deref() {
         verify_requested_scope_is_subset(
             &scope_data.scope,
             &Scopes::from(

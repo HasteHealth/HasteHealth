@@ -52,9 +52,9 @@ impl<
                 // Admin and Owner roles are allowed to proceed without restrictions
                 UserRole::Admin | UserRole::Owner => {
                     if let Some(next) = next {
-                        return Ok(next(state, context).await?);
+                        return next(state, context).await;
                     } else {
-                        return Ok(context);
+                        Ok(context)
                     }
                 }
                 UserRole::Member => {

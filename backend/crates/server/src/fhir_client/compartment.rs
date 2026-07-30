@@ -87,20 +87,17 @@ pub async fn process_compartment_request<
                 .unwrap_or(&vec![])
                 .iter()
                 .filter_map(|p| {
-                    if let Some(v) = p.value.as_ref() {
-                        Some(ParsedParameter::Resource(Parameter {
-                            name: v.to_string(),
-                            value: vec![format!(
-                                "{}/{}",
-                                compartment_request.resource_type.as_ref(),
-                                compartment_request.id
-                            )],
-                            modifier: None,
-                            chains: None,
-                        }))
-                    } else {
-                        return None;
-                    }
+                    let v = p.value.as_ref()?;
+                    Some(ParsedParameter::Resource(Parameter {
+                        name: v.to_string(),
+                        value: vec![format!(
+                            "{}/{}",
+                            compartment_request.resource_type.as_ref(),
+                            compartment_request.id
+                        )],
+                        modifier: None,
+                        chains: None,
+                    }))
                 })
                 .collect::<Vec<ParsedParameter>>();
 
@@ -132,12 +129,10 @@ pub async fn process_compartment_request<
             )))
         }
         // FHIRRequest::Read(read_request) => Ok(()),
-        _ => {
-            return Err(OperationOutcomeError::error(
-                IssueType::not_supported(),
-                "Only type search requests and reads are supported in compartment processing."
-                    .to_string(),
-            ));
-        }
+        _ => Err(OperationOutcomeError::error(
+            IssueType::not_supported(),
+            "Only type search requests and reads are supported in compartment processing."
+                .to_string(),
+        )),
     }
 }

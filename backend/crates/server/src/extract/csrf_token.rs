@@ -27,7 +27,7 @@ where
             .map_err(|_err| {
                 OperationOutcomeError::error(
                     IssueType::invalid(),
-                    format!("Failed to extract session"),
+                    "Failed to extract session".to_string(),
                 )
             })?;
 

@@ -118,7 +118,7 @@ async fn decode_using_jwk(
         )
     })?;
 
-    let decoding_key = DecodingKey::from_jwk(&jwk).map_err(|_e| {
+    let decoding_key = DecodingKey::from_jwk(jwk).map_err(|_e| {
         OperationOutcomeError::error(
             IssueType::invalid(),
             "Failed to create decoding key from JWK".to_string(),
@@ -155,7 +155,7 @@ fn user_federated_id(idp: &IdentityProvider, sub: &str) -> Result<String, Operat
 
     let mut sha_hasher = Sha1::new();
     sha_hasher.update(sub.as_bytes());
-    let hashed_user_sub_claim = URL_SAFE_NO_PAD.encode(&sha_hasher.finalize());
+    let hashed_user_sub_claim = URL_SAFE_NO_PAD.encode(sha_hasher.finalize());
 
     Ok(format!("{}|{}", id_prefix, hashed_user_sub_claim))
 }
@@ -229,15 +229,15 @@ async fn create_user_if_not_exists<
         && let Some(Resource::Membership(_project_membership)) = existing_user
             .entry
             .as_ref()
-            .and_then(|entries| entries.get(0))
+            .and_then(|entries| entries.first())
             .and_then(|e| e.resource.as_ref())
             .and_then(|r| match r.as_ref() {
                 Resource::Bundle(bundle) => bundle
                     .entry
                     .as_ref()
-                    .and_then(|entries| entries.get(0))
+                    .and_then(|entries| entries.first())
                     .and_then(|e| e.resource.as_ref())
-                    .and_then(|r| Some(r.as_ref())),
+                    .map(|r| r.as_ref()),
                 _ => None,
             })
     {
@@ -381,7 +381,7 @@ pub async fn federated_callback<
 
     let federated_token_body = FederatedTokenBodyRequest {
         grant_type: GrantType::AuthorizationCode,
-        code: code,
+        code,
         redirect_uri: create_federated_callback_url(
             &app_state.config.api_uri,
             &tenant,
@@ -461,7 +461,7 @@ pub async fn federated_callback<
 
     let id_token = token_response_body.id_token;
 
-    let claims = decode_using_jwk(&id_token, &jwk_url).await?;
+    let claims = decode_using_jwk(&id_token, jwk_url).await?;
 
     let user = create_user_if_not_exists(
         &app_state,
@@ -503,7 +503,7 @@ pub fn create_federated_callback_url(
     tenant: &TenantId,
     idp_id: &str,
 ) -> Result<String, OperationOutcomeError> {
-    let Ok(api_url) = Url::parse(&api_url_string) else {
+    let Ok(api_url) = Url::parse(api_url_string) else {
         return Err(OperationOutcomeError::error(
             IssueType::exception(),
             "Invalid API_URL format".to_string(),
