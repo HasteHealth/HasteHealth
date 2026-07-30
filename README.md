@@ -29,7 +29,6 @@ password: `testing_password`
 - [Server](https://github.com/HasteHealth/HasteHealth/pkgs/container/hastehealth%2Fhastehealth)
 - [Admin App](https://github.com/HasteHealth/HasteHealth/pkgs/container/hastehealth%2Fadmin-app)
 
-
 ## RFCs (Request for Comments)
 
 For large feature requests submit RFCS the following is a guide for viewing/submitting RFCs:
