@@ -33,7 +33,8 @@ jobs:
       - name: "Docker auth"
         run: |-
           gcloud auth configure-docker ${{ vars.GAR_LOCATION }}-docker.pkg.dev
-      - name: Build and Publish Image
+      - name: Compute image names
+        id: vars
         run: |
           IMAGE_NAME=$(echo $SERVER_IMAGE_NAME | tr '[A-Z]' '[a-z]')
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
@@ -46,16 +47,24 @@ jobs:
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$GITHUB_REF_NAME
 
-          # --platform linux/amd64,linux/arm64 \
-          docker buildx build . \
-           --file=docker/haste-health.dockerfile \
-           --platform linux/amd64 \
-           --tag $GCP_IMAGE_ID:latest \
-           --tag $GCP_IMAGE_ID:$GITHUB_REF_NAME \
-           --tag $IMAGE_ID:$GITHUB_REF_NAME \
-           --tag $IMAGE_ID:latest \
-           --label "runnumber=${GITHUB_RUN_ID}" \
-           --push
+          echo "image_id=$IMAGE_ID" >> "$GITHUB_OUTPUT"
+          echo "gcp_image_id=$GCP_IMAGE_ID" >> "$GITHUB_OUTPUT"
+      - name: Build and Publish Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/haste-health.dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ steps.vars.outputs.gcp_image_id }}:latest
+            ${{ steps.vars.outputs.gcp_image_id }}:${{ github.ref_name }}
+            ${{ steps.vars.outputs.image_id }}:${{ github.ref_name }}
+            ${{ steps.vars.outputs.image_id }}:latest
+          labels: |
+            runnumber=${{ github.run_id }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   admin-app:
     environment: production
@@ -71,7 +80,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: echo "$GITHUB_TOKEN" | docker login ghcr.io -u $ --password-stdin
-      - name: Build and Publish Image
+      - name: Compute image names
+        id: vars
         run: |
           IMAGE_NAME=$(echo $ADMIN_APP_IMAGE_NAME | tr '[A-Z]' '[a-z]')
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
@@ -81,11 +91,18 @@ jobs:
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$GITHUB_REF_NAME
 
-          # --platform linux/amd64,linux/arm64 \
-          docker buildx build . \
-           --file=docker/admin-app/dockerfile \
-           --platform linux/amd64 \
-           --tag $IMAGE_ID:$GITHUB_REF_NAME \
-           --tag $IMAGE_ID:latest \
-           --label "runnumber=${GITHUB_RUN_ID}" \
-           --push
+          echo "image_id=$IMAGE_ID" >> "$GITHUB_OUTPUT"
+      - name: Build and Publish Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/admin-app/dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ steps.vars.outputs.image_id }}:${{ github.ref_name }}
+            ${{ steps.vars.outputs.image_id }}:latest
+          labels: |
+            runnumber=${{ github.run_id }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
