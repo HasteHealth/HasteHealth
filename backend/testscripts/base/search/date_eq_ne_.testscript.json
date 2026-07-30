@@ -1,0 +1,420 @@
+{
+    "id": "date-ne-prefix-patient",
+    "url": "https://haste.health/fhir/TestScript/bundle-date-ne-prefix",
+    "title": "Full url checks",
+    "name": "Bundle date-ne-prefix tests",
+    "status": "active",
+    "description": "Validate full url is present on search and hist requests.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "patient-by-day",
+            "resourceType": "Patient",
+            "birthDate": "2021-08-01",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "date-ne-prefix-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patient-by-month",
+            "resourceType": "Patient",
+            "birthDate": "2020-07",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "date-ne-prefix-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patient-by-year",
+            "resourceType": "Patient",
+            "birthDate": "2022",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "date-ne-prefix-test"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-patient-by-day",
+            "resource": {
+                "reference": "#patient-by-day"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-by-month",
+            "resource": {
+                "reference": "#patient-by-month"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-by-year",
+            "resource": {
+                "reference": "#patient-by-year"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-date-checks-by-day",
+            "name": "Date day check.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-by-day",
+                        "responseId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "birthdate=eq2021-08-01&_tag=date-ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "birthdate=eq2021-07-31&_tag=date-ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "birthdate=eq2021-08-02&_tag=date-ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "birthdate=ne2021-08-01&_tag=date-ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "birthdate=ne2021-07-31&_tag=date-ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "targetId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-date-checks-by-month",
+            "name": "Date check for months.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-by-month",
+                        "responseId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "birthdate=eq2020-08-01&_tag=date-ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "birthdate=eq2020-07-31&_tag=date-ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "birthdate=ne2020-08-01&_tag=date-ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "birthdate=ne2020-07-31&_tag=date-ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "targetId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-date-checks-by-year",
+            "name": "Date check for years.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-by-year",
+                        "responseId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "birthdate=eq2021&_tag=date-ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "birthdate=eq2022&_tag=date-ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "birthdate=ne2021&_tag=date-ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "birthdate=ne2022&_tag=date-ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "targetId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "params": "_tag=date-ne-prefix-test",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

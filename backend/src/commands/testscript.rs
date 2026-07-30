@@ -9,7 +9,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_testscript_runner::TestRunnerOptions;
 use std::{path::Path, sync::Arc};
 use tokio::{sync::Mutex, task::JoinSet};
-use tracing::info;
+use tracing::{error, info};
 
 #[derive(Subcommand)]
 pub(crate) enum TestScriptCommands {
@@ -172,7 +172,8 @@ pub(crate) async fn testscript_commands(
                         });
                     }
                     Err(e) => {
-                        info!("Error running TestScript '{:?}'", e);
+                        status_code = 1;
+                        error!("Error running TestScript '{:?}'", e);
                     }
                 }
             }

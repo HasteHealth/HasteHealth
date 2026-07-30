@@ -17,8 +17,10 @@ pub fn date(
         .iter()
         .map(|value| {
             let (prefix, value) = parse_prefix(value);
+
             let date_time = parse_datetime(value)
                 .map_err(|_e| QueryBuildError::InvalidDateFormat(value.to_string()))?;
+
             let date_range = date_time_range(&date_time)
                 .map_err(|_e| QueryBuildError::InvalidDateFormat(value.to_string()))?;
 
@@ -95,6 +97,37 @@ pub fn date(
                         }
                     }
                 })),
+                Some("ne") => Ok(json!({
+                    "nested": {
+                        "path": &column_name,
+                        "query": {
+                            "bool": {
+                                "must_not": [
+                                    {
+                                        "bool": {
+                                            "filter": [
+                                                {
+                                                    "range": {
+                                                        format!("{}.start", column_name): {
+                                                            "lte": date_range.end
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "range": {
+                                                        format!("{}.end", column_name): {
+                                                            "gte": date_range.start
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                })),
                 Some("eq") | None => Ok(json!({
                     "nested": {
                         "path": &column_name,
@@ -104,14 +137,14 @@ pub fn date(
                                     {
                                         "range": {
                                             format!("{}.start", column_name): {
-                                                "gte": date_range.start
+                                                "lte": date_range.end
                                             }
                                         }
                                     },
                                     {
                                         "range": {
                                             format!("{}.end", column_name): {
-                                                "lte": date_range.end
+                                                "gte": date_range.start
                                             }
                                         }
                                     }
