@@ -18,7 +18,13 @@ This starts a PostgreSQL database, Elasticsearch, and a migration job for Postgr
 
 ### Backend
 
-Once the services have finished starting, run the two backend services in separate terminals.
+Once the services have finished starting, run the following two backend services in separate terminals.
+
+First from the repo go to the backend directory:
+
+```bash
+cd ./backend
+```
 
 #### Server
 
