@@ -8,16 +8,49 @@ FHIR clinical data repository built for speed.
 
 ## Running for Development
 
+### Services
+
 ```bash
 docker-compose -f docker-services-compose.yml up
-cd backend
-cargo run server start && cargo run worker
 ```
 
-go to http://my-health_system.localhost:3001
+This will startup a postgres database, elasticsearch and a migration job for postgres and elasticsearch schema migrations.
+
+### Backend
+
+Once services have finished run the two services in seperate terminals.
+
+#### Server
+
+To start up the server run the following command:
+
+```bash
+cargo run server start
+```
+
+#### Worker
+
+The final service needed is the worker. This will run search indexing in the background and fhir subscription processing.
+
+```bash
+cargo run worker
+```
+
+### Frontend
+
+To run the frontend admin application you can do the following:
+
+```bash
+cd frontend/packages/admin-app
+pnpm dev
+```
+
+Next go to http://my-health_system.localhost:3001
 and fill in the following credentails
 username: `myuser@health.org`
 password: `testing_password`
+
+This tenant and user will have been automatically created for you when you run the migration from the docker-compose step prior.
 
 ## Binaries
 
