@@ -66,7 +66,6 @@ async fn not_found() -> Html<&'static str> {
 }
 
 pub fn create_static_server() -> Router {
-    
     Router::new()
         .route("/", routing::get(index_handler))
         .route("/index.html", routing::get(index_handler))

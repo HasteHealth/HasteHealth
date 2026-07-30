@@ -288,14 +288,8 @@ static TENANT_AUTH_TYPES: &[ResourceType] = &[
 ];
 static PROJECT_AUTH_TYPES: &[ResourceType] = &[ResourceType::Membership];
 
-static SPECIAL_TYPES: LazyLock<Vec<ResourceType>> = LazyLock::new(|| {
-    [
-        TENANT_AUTH_TYPES,
-        PROJECT_AUTH_TYPES,
-        ARTIFACT_TYPES,
-    ]
-    .concat()
-});
+static SPECIAL_TYPES: LazyLock<Vec<ResourceType>> =
+    LazyLock::new(|| [TENANT_AUTH_TYPES, PROJECT_AUTH_TYPES, ARTIFACT_TYPES].concat());
 
 pub struct ServerClientConfig<
     Repo: Repository + Send + Sync + 'static,

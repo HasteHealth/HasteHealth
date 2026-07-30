@@ -40,7 +40,8 @@ struct SubscriptionTiers {
 fn setup_subscription_tiers(config: &ServerConfig) -> SubscriptionTiers {
     if let Some(subscription_tiers_rate_limit) = &config.rate_limits.rate_limit_subscription_tiers {
         SubscriptionTiers {
-            free: subscription_tiers_rate_limit.first()
+            free: subscription_tiers_rate_limit
+                .first()
                 .unwrap_or(&DEFAULT_FREE_TIER)
                 .to_owned(),
             professional: subscription_tiers_rate_limit

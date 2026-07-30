@@ -24,7 +24,6 @@ use sqlx::types::time::OffsetDateTime;
 use tower_sessions::cookie::time::format_description;
 
 fn format_datetime(datetime: &OffsetDateTime) -> Option<String> {
-    
     datetime
         .format(
             &format_description::parse_borrowed::<2>(

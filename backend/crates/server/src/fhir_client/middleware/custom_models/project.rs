@@ -78,10 +78,7 @@ impl<
                                     }
                                     _ => Err(OperationOutcomeError::fatal(
                                         IssueType::invalid(),
-                                        format!(
-                                            "Invalid FHIR Version '{:?}'",
-                                            project.fhirVersion
-                                        ),
+                                        format!("Invalid FHIR Version '{:?}'", project.fhirVersion),
                                     )),
                                 }?;
 
@@ -143,10 +140,7 @@ impl<
                                     }
                                     _ => Err(OperationOutcomeError::fatal(
                                         IssueType::invalid(),
-                                        format!(
-                                            "Invalid FHIR Version '{:?}'",
-                                            project.fhirVersion
-                                        ),
+                                        format!("Invalid FHIR Version '{:?}'", project.fhirVersion),
                                     )),
                                 }?;
 

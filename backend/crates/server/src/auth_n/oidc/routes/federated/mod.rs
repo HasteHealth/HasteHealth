@@ -20,8 +20,6 @@ pub fn federated_router<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >() -> Router<Arc<ServerState<Repo, Search, Terminology>>> {
-    
-
     Router::new().typed_get(callback::federated_callback).merge(
         // Only initiate route needs authorize params (we redirect back to authorize in callback with redirect uri stored in session).
         Router::new()

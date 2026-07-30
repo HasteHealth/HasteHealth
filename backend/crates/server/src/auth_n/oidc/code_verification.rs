@@ -15,7 +15,7 @@ use sha2::{Digest, Sha256};
 
 pub fn generate_code_verifier() -> String {
     // Generate a random code verifier between 43 and 128 characters.
-    
+
     generate_id(Some(100))
 }
 

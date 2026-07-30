@@ -75,7 +75,6 @@ pub struct Message {
     pub body: Option<Markup>,
 }
 
-
 pub async fn send_password_reset_email<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,

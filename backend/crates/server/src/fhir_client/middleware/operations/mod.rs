@@ -198,12 +198,8 @@ impl<
                                 vec![("code".to_string(), vec![code.to_string()])].into(),
                             )
                             .await?
-                        && let Some(entry) = bundle
-                            .entry
-                            .as_deref()
-                            .unwrap_or_default()
-                            .iter()
-                            .next()
+                        && let Some(entry) =
+                            bundle.entry.as_deref().unwrap_or_default().iter().next()
                         && let Some(Resource::OperationDefinition(operation_definition)) =
                             entry.resource.as_deref()
                     {

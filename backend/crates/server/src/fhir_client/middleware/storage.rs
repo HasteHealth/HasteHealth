@@ -162,9 +162,7 @@ impl<
                         )
                         .await?;
 
-                    Ok(Some(FHIRResponse::Read(FHIRReadResponse {
-                        resource,
-                    })))
+                    Ok(Some(FHIRResponse::Read(FHIRReadResponse { resource })))
                 }
                 FHIRRequest::Delete(req) => match req {
                     DeleteRequest::Instance(delete_request) => {

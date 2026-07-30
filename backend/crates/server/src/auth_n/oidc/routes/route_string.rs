@@ -13,7 +13,6 @@ pub fn project_route_string(tenant: &TenantId, project: &ProjectId) -> PathBuf {
 }
 
 pub fn oidc_route_string(tenant: &TenantId, project: &ProjectId, path: &str) -> PathBuf {
-    
     project_route_string(tenant, project)
         .join("oidc")
         .join(path)

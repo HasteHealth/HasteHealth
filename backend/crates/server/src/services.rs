@@ -24,7 +24,7 @@ pub async fn get_pool(config: &ServerConfig) -> &'static Pool<Postgres> {
         crate::config::RepoConfig::Postgres(pg_config) => {
             POOL.get_or_init(async || {
                 info!("Connecting to postgres database");
-                
+
                 PgPoolOptions::new()
                     .max_connections(pg_config.max_connections)
                     .connect(&pg_config.database_url)

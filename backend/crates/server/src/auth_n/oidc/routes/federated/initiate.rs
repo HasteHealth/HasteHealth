@@ -46,9 +46,10 @@ pub fn validate_identity_provider_in_project(
     if let Some(identity_providers) = &project.identityProvider {
         for ip_ref in identity_providers {
             if let Some(ref_id) = &ip_ref.reference.as_ref().and_then(|r| r.value.as_ref())
-                && ref_id.as_str() == format!("IdentityProvider/{}", identity_provider_id) {
-                    return Ok(());
-                }
+                && ref_id.as_str() == format!("IdentityProvider/{}", identity_provider_id)
+            {
+                return Ok(());
+            }
         }
     }
     Err(OperationOutcomeError::error(
@@ -165,10 +166,11 @@ async fn set_session_info(
 
     if let Some(oidc) = &idp.oidc
         && let Some(pkce) = &oidc.pkce
-            && pkce.enabled.as_ref().and_then(|b| b.value).unwrap_or(false) {
-                let code_verifier = generate_code_verifier();
-                info.code_verifier = Some(code_verifier);
-            }
+        && pkce.enabled.as_ref().and_then(|b| b.value).unwrap_or(false)
+    {
+        let code_verifier = generate_code_verifier();
+        info.code_verifier = Some(code_verifier);
+    }
 
     session
         .insert(federated_session_info_key(idp_id).as_str(), &info)

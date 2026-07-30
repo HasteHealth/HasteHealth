@@ -26,8 +26,6 @@ fn generate_sha256_hash(value: &Resource) -> String {
     sha_hasher.update(json.as_bytes());
     let sha1 = sha_hasher.finalize();
 
-    
-
     URL_SAFE_NO_PAD.encode(sha1)
 }
 

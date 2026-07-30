@@ -91,7 +91,6 @@ impl<
                             setup_transaction_context(&context.request, state.clone()).await?;
                         // Setup so can run a commit after.
                         repo_client = transaction_state.repo.clone();
-                        
 
                         next(transaction_state.clone(), context).await
                     };

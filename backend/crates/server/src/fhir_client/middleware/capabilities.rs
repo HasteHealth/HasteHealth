@@ -57,7 +57,8 @@ fn create_capability_rest_statement(
                 .collect::<Vec<_>>();
 
             types.contains(&shared_base_types[0].as_str())
-                || types.contains(&shared_base_types[1].as_str()) || types.contains(&sd_type.as_str())
+                || types.contains(&shared_base_types[1].as_str())
+                || types.contains(&sd_type.as_str())
         })
         .collect::<Vec<&SearchParameter>>();
 

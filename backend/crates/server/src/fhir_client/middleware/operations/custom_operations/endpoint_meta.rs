@@ -45,18 +45,18 @@ pub fn endpoint_metadata_op<
                 Box::pin(async move {
                     let api_url_string = &context.state.config.api_uri;
 
-                    let discovery_document =
-                        create_oidc_discovery_document(&tenant, &project, api_url_string)
-                            .map_err(|e| {
-                                tracing::error!(
-                                    "Failed to create OIDC discovery document: {:?}",
-                                    e
-                                );
-                                OperationOutcomeError::error(
-                                    IssueType::exception(),
-                                    "failed to create OIDC discovery document".to_string(),
-                                )
-                            })?;
+                    let discovery_document = create_oidc_discovery_document(
+                        &tenant,
+                        &project,
+                        api_url_string,
+                    )
+                    .map_err(|e| {
+                        tracing::error!("Failed to create OIDC discovery document: {:?}", e);
+                        OperationOutcomeError::error(
+                            IssueType::exception(),
+                            "failed to create OIDC discovery document".to_string(),
+                        )
+                    })?;
 
                     let api_url = Url::parse(api_url_string).map_err(|e| {
                         tracing::error!("Failed to parse API URL: {:?}", e);

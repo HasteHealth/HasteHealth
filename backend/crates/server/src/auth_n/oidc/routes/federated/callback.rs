@@ -236,7 +236,8 @@ async fn create_user_if_not_exists<
                     .entry
                     .as_ref()
                     .and_then(|entries| entries.first())
-                    .and_then(|e| e.resource.as_ref()).map(|r| r.as_ref()),
+                    .and_then(|e| e.resource.as_ref())
+                    .map(|r| r.as_ref()),
                 _ => None,
             })
     {

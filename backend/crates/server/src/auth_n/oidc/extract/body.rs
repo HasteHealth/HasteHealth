@@ -34,23 +34,17 @@ where
         })?;
 
         let mut token_body = match content_type {
-            "application/json" | "application/fhir+json" => {
-                
-
-                serde_json::from_slice::<schemas::token_body::OAuth2TokenBody>(&bytes)
-                    .map_err(|e| {
-                    tracing::error!("JSON parse error: {:?}", e);
-                    OperationOutcomeError::fatal(IssueType::invalid(), e.to_string())
-                })?
-            }
-            "application/x-www-form-urlencoded" => {
-                
-
-                serde_html_form::from_bytes::<schemas::token_body::OAuth2TokenBody>(&bytes)
-                        .map_err(|e| {
-                            OperationOutcomeError::fatal(IssueType::invalid(), e.to_string())
-                        })?
-            }
+            "application/json" | "application/fhir+json" => serde_json::from_slice::<
+                schemas::token_body::OAuth2TokenBody,
+            >(&bytes)
+            .map_err(|e| {
+                tracing::error!("JSON parse error: {:?}", e);
+                OperationOutcomeError::fatal(IssueType::invalid(), e.to_string())
+            })?,
+            "application/x-www-form-urlencoded" => serde_html_form::from_bytes::<
+                schemas::token_body::OAuth2TokenBody,
+            >(&bytes)
+            .map_err(|e| OperationOutcomeError::fatal(IssueType::invalid(), e.to_string()))?,
             _ => {
                 return Err(OperationOutcomeError::fatal(
                     haste_fhir_model::r4::generated::terminology::IssueType::invalid(),

@@ -185,7 +185,6 @@ impl Default for RateLimitsConfig {
     }
 }
 
-
 impl Default for SecurityConfig {
     fn default() -> Self {
         Self {

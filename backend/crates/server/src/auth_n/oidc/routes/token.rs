@@ -278,7 +278,8 @@ async fn get_approved_scopes<Repo: Repository>(
             Some("Failed to retrieve user's approved scopes.".to_string()),
             None,
         )
-    })?.first()
+    })?
+    .first()
     .map(|s| s.scope.clone())
     .unwrap_or_else(Default::default);
 
@@ -336,12 +337,8 @@ fn verify_client(
         ));
     }
 
-    if client_app
-        .secret
-        .as_ref()
-        .and_then(|s| s.value.as_deref())
-        != token_request_body
-            .client_secret.as_deref()
+    if client_app.secret.as_ref().and_then(|s| s.value.as_deref())
+        != token_request_body.client_secret.as_deref()
     {
         return Err(OIDCError::new(
             OIDCErrorCode::AccessDenied,

@@ -201,7 +201,8 @@ pub async fn authorize<
                 "User is not a member of project '{}'.",
                 project_resource
                     .name
-                    .value.as_deref()
+                    .value
+                    .as_deref()
                     .unwrap_or(project.as_ref())
             )),
             Some(redirect_uri.to_string()),

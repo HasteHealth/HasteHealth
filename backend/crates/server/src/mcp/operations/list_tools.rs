@@ -136,7 +136,9 @@ fn generate_get_search_parameters_tool(capabilities: &CapabilityStatement) -> To
 
     Tool {
         annotations: None,
-        description: Some("Tool to get available search parameters for a given FHIR Resource Type".to_string()),
+        description: Some(
+            "Tool to get available search parameters for a given FHIR Resource Type".to_string(),
+        ),
         execution: None,
         icons: vec![],
         input_schema,

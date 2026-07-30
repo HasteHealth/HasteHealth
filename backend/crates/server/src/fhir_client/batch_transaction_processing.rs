@@ -137,10 +137,7 @@ pub fn bundle_entry_to_fhir_request(
     entry: BundleEntry,
 ) -> Result<FHIRRequest, OperationOutcomeError> {
     if let Some(request) = entry.request.as_ref() {
-        let url = request
-            .url
-            .value.as_deref()
-            .unwrap_or_default();
+        let url = request.url.value.as_deref().unwrap_or_default();
 
         let (path, query) = url.split_once("?").unwrap_or((url, ""));
         let request_method_string = request.method.as_str();
