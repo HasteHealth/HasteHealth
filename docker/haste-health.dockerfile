@@ -31,5 +31,3 @@ COPY --from=builder /target/release/haste-health /haste-health
 RUN apt update && apt install -y ca-certificates openssl pkg-config libssl-dev && apt clean
 
 ENTRYPOINT ["/haste-health"]
-
-EXPOSE 80
