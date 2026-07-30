@@ -34,6 +34,8 @@ Start the server with the following command:
 cargo run server start
 ```
 
+Configuration for the server can be found [here](./backend/documentation/server_configuration.md).
+
 #### Worker
 
 The final service is the worker. It runs search indexing and FHIR subscription processing in the background.
@@ -41,6 +43,8 @@ The final service is the worker. It runs search indexing and FHIR subscription p
 ```bash
 cargo run worker
 ```
+
+Configuration for the worker can be found [here](./backend/documentation/worker_configuration.md).
 
 ### Frontend
 
