@@ -29,14 +29,14 @@ fn flatten_concepts(contains: ValueSetExpansionContains) -> BTreeMap<String, Cod
         && let Some(code_string) = code.value.as_ref()
     {
         codes.insert(
-            code_string.to_string(),
+            code_string.clone(),
             Code {
                 description: contains.display.and_then(|d| d.value),
-                code: code_string.to_string(),
+                code: code_string.clone(),
             },
         );
     }
-    for contains in contains.contains.unwrap_or_default().into_iter() {
+    for contains in contains.contains.unwrap_or_default() {
         codes.extend(flatten_concepts(contains));
     }
 
@@ -62,43 +62,42 @@ fn camelcase_to_snake_case(s: &str) -> String {
 fn camelcase_with_split(identifier: &str, split: char, join: Option<&str>) -> String {
     identifier
         .split(split)
-        .map(|identifier| capitalize(identifier))
+        .map(capitalize)
         .collect::<Vec<_>>()
         .join(join.unwrap_or(""))
 }
 
 fn identifier_encode_special_characters(identifier: &str) -> String {
-    let safe_string = camelcase_with_split(&identifier, ':', Some("_"));
+    let safe_string = camelcase_with_split(identifier, ':', Some("_"));
     let safe_string = camelcase_with_split(&safe_string, '/', Some("_"));
 
     let safe_string = safe_string
         // Replacements
-        .replace(" ", "")
-        .replace("<", "Greater")
-        .replace(">", "Less")
-        .replace("=", "Equal")
-        .replace("[", "LeftSquareBracket")
-        .replace("]", "RightSquareBracket")
-        .replace("*", "Star")
-        .replace("%", "Percent")
-        .replace("!", "Not")
-        .replace(";", "Semicolon")
+        .replace(' ', "")
+        .replace('<', "Greater")
+        .replace('>', "Less")
+        .replace('=', "Equal")
+        .replace('[', "LeftSquareBracket")
+        .replace(']', "RightSquareBracket")
+        .replace('*', "Star")
+        .replace('%', "Percent")
+        .replace('!', "Not")
+        .replace(';', "Semicolon")
         .split('.')
-        .map(|id| capitalize(id))
-        .collect::<Vec<_>>()
-        .join("");
+        .map(capitalize)
+        .collect::<String>();
 
     if safe_string.is_empty() {
-        println!("Invalid '{}'", identifier);
+        println!("Invalid '{identifier}'");
         panic!();
     }
 
     if safe_string.as_bytes()[0].is_ascii_digit() {
-        format!("V{}", safe_string)
+        format!("V{safe_string}")
     } else if safe_string == "Self" {
-        format!("_Self")
+        "_Self".to_string()
     } else if safe_string == "Null" {
-        format!("_Null")
+        "_Null".to_string()
     } else {
         safe_string
     }
@@ -106,17 +105,13 @@ fn identifier_encode_special_characters(identifier: &str) -> String {
 
 fn format_term_struct_name(identifier: &str) -> String {
     let safe_string = identifier_encode_special_characters(identifier);
-    let safe_string = camelcase_with_split(&safe_string, '-', None);
-
-    safe_string
+    camelcase_with_split(&safe_string, '-', None)
 }
 
 fn format_const_code_name(identifier: &str) -> String {
-    let safe_string = identifier_encode_special_characters(&identifier);
+    let safe_string = identifier_encode_special_characters(identifier);
     let safe_string = camelcase_to_snake_case(&safe_string);
-    let safe_string = camelcase_with_split(&safe_string, '-', Some("_"));
-
-    safe_string
+    camelcase_with_split(&safe_string, '-', Some("_"))
 }
 
 fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
@@ -128,7 +123,6 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
         .url
         .as_ref()
         .and_then(|v| v.value.as_ref())
-        .clone()
         .expect("ValueSet must have a url");
 
     if let Some(expansion) = value_set.expansion {
@@ -137,7 +131,7 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
             .contains
             .unwrap_or_default()
             .into_iter()
-            .map(|concept| flatten_concepts(concept))
+            .map(flatten_concepts)
             .reduce(|mut codes, cur| {
                 codes.extend(cur);
                 codes
@@ -156,16 +150,12 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
             let re = Regex::new(r"_+").unwrap();
             variant_name_str = re.replace_all(&variant_name_str, "_").to_string();
             if RUST_KEYWORDS.contains(variant_name_str.as_str()) {
-                variant_name_str = format!("{}_", variant_name_str);
+                variant_name_str = format!("{variant_name_str}_");
             }
 
-            let variant = format_ident!("{}", variant_name_str);
-            let display = c
-                .description
-                .as_ref()
-                .map(|d| d.as_str())
-                .unwrap_or(c.code.as_str());
-            let index = i as u16;
+            let variant = format_ident!("{variant_name_str}");
+            let display = c.description.as_deref().unwrap_or(c.code.as_str());
+            let index = u16::try_from(i).expect("too many code variants");
 
             quote! {
                 #[inline]
@@ -177,7 +167,7 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
             }
         });
 
-        if codes.len() > 0 && codes.len() < 400 {
+        if !codes.is_empty() && codes.len() < 400 {
             return Some(quote! {
                 #[doc = #terminology_url]
                 pub struct #terminology_enum_name;
@@ -217,10 +207,10 @@ fn load_terminologies(
     for dir_path in file_paths {
         let walker = WalkDir::new(dir_path).sort_by_file_name().into_iter();
         for entry in walker
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
             .filter(|e| e.metadata().unwrap().is_file())
             // Filter for json only
-            .filter(|e| e.path().extension().map_or(false, |ext| ext == "json"))
+            .filter(|e| e.path().extension().is_some_and(|ext| ext == "json"))
         {
             let resource = load::load_from_file(entry.path())
                 .map_err(|f| OperationOutcomeError::error(IssueType::exception(), f))?;
@@ -321,7 +311,7 @@ impl CanonicalResolver for InlineResolver {
             } else {
                 Err(OperationOutcomeError::error(
                     IssueType::not_found(),
-                    format!("Could not resolve canonical url: {}", url),
+                    format!("Could not resolve canonical url: {url}"),
                 ))
             }
         })

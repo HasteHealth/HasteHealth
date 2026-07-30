@@ -24,7 +24,7 @@ enum JSONSchemaType {
 struct JSONSchema {}
 
 struct Processed {
-    cardinality: (usize, Max),
+    cardinality: (u64, Max),
     field: String,
     schema: serde_json::Value,
 }
