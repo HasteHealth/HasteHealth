@@ -66,7 +66,6 @@ pub mod error {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct Annotations {
     #[doc = "Describes who the intended audience of this object or data is.\n\nIt can include multiple entries to indicate content useful for multiple audiences (e.g., `[\"user\", \"assistant\"]`)."]
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
@@ -84,6 +83,15 @@ pub struct Annotations {
 impl ::std::convert::From<&Annotations> for Annotations {
     fn from(value: &Annotations) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for Annotations {
+    fn default() -> Self {
+        Self {
+            audience: Default::default(),
+            last_modified: Default::default(),
+            priority: Default::default(),
+        }
     }
 }
 impl Annotations {
@@ -174,11 +182,15 @@ impl AudioContent {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct AudioContentMeta {}
 impl ::std::convert::From<&AudioContentMeta> for AudioContentMeta {
     fn from(value: &AudioContentMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for AudioContentMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl AudioContentMeta {
@@ -307,11 +319,15 @@ impl BlobResourceContents {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct BlobResourceContentsMeta {}
 impl ::std::convert::From<&BlobResourceContentsMeta> for BlobResourceContentsMeta {
     fn from(value: &BlobResourceContentsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for BlobResourceContentsMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl BlobResourceContentsMeta {
@@ -498,11 +514,15 @@ impl CallToolRequestParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct CallToolRequestParamsArguments {}
 impl ::std::convert::From<&CallToolRequestParamsArguments> for CallToolRequestParamsArguments {
     fn from(value: &CallToolRequestParamsArguments) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for CallToolRequestParamsArguments {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl CallToolRequestParamsArguments {
@@ -530,7 +550,6 @@ impl CallToolRequestParamsArguments {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct CallToolRequestParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -543,6 +562,13 @@ pub struct CallToolRequestParamsMeta {
 impl ::std::convert::From<&CallToolRequestParamsMeta> for CallToolRequestParamsMeta {
     fn from(value: &CallToolRequestParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for CallToolRequestParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl CallToolRequestParamsMeta {
@@ -635,11 +661,15 @@ impl CallToolResult {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct CallToolResultMeta {}
 impl ::std::convert::From<&CallToolResultMeta> for CallToolResultMeta {
     fn from(value: &CallToolResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for CallToolResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl CallToolResultMeta {
@@ -851,7 +881,6 @@ impl CancelledNotification {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct CancelledNotificationParams {
     #[serde(
         rename = "_meta",
@@ -875,6 +904,15 @@ impl ::std::convert::From<&CancelledNotificationParams> for CancelledNotificatio
         value.clone()
     }
 }
+impl ::std::default::Default for CancelledNotificationParams {
+    fn default() -> Self {
+        Self {
+            meta: Default::default(),
+            reason: Default::default(),
+            request_id: Default::default(),
+        }
+    }
+}
 impl CancelledNotificationParams {
     pub fn builder() -> builder::CancelledNotificationParams {
         Default::default()
@@ -894,11 +932,15 @@ impl CancelledNotificationParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct CancelledNotificationParamsMeta {}
 impl ::std::convert::From<&CancelledNotificationParamsMeta> for CancelledNotificationParamsMeta {
     fn from(value: &CancelledNotificationParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for CancelledNotificationParamsMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl CancelledNotificationParamsMeta {
@@ -1012,7 +1054,6 @@ impl CancelledNotificationParamsMeta {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ClientCapabilities {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub elicitation: ::std::option::Option<ClientCapabilitiesElicitation>,
@@ -1035,6 +1076,17 @@ pub struct ClientCapabilities {
 impl ::std::convert::From<&ClientCapabilities> for ClientCapabilities {
     fn from(value: &ClientCapabilities) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ClientCapabilities {
+    fn default() -> Self {
+        Self {
+            elicitation: Default::default(),
+            experimental: Default::default(),
+            roots: Default::default(),
+            sampling: Default::default(),
+            tasks: Default::default(),
+        }
     }
 }
 impl ClientCapabilities {
@@ -1064,7 +1116,6 @@ impl ClientCapabilities {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ClientCapabilitiesElicitation {
     #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
     pub form: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
@@ -1074,6 +1125,14 @@ pub struct ClientCapabilitiesElicitation {
 impl ::std::convert::From<&ClientCapabilitiesElicitation> for ClientCapabilitiesElicitation {
     fn from(value: &ClientCapabilitiesElicitation) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ClientCapabilitiesElicitation {
+    fn default() -> Self {
+        Self {
+            form: Default::default(),
+            url: Default::default(),
+        }
     }
 }
 impl ClientCapabilitiesElicitation {
@@ -1099,7 +1158,6 @@ impl ClientCapabilitiesElicitation {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ClientCapabilitiesRoots {
     #[doc = "Whether the client supports notifications for changes to the roots list."]
     #[serde(
@@ -1112,6 +1170,13 @@ pub struct ClientCapabilitiesRoots {
 impl ::std::convert::From<&ClientCapabilitiesRoots> for ClientCapabilitiesRoots {
     fn from(value: &ClientCapabilitiesRoots) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ClientCapabilitiesRoots {
+    fn default() -> Self {
+        Self {
+            list_changed: Default::default(),
+        }
     }
 }
 impl ClientCapabilitiesRoots {
@@ -1143,7 +1208,6 @@ impl ClientCapabilitiesRoots {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ClientCapabilitiesSampling {
     #[doc = "Whether the client supports context inclusion via includeContext parameter.\nIf not declared, servers SHOULD only use `includeContext: \"none\"` (or omit it)."]
     #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
@@ -1155,6 +1219,14 @@ pub struct ClientCapabilitiesSampling {
 impl ::std::convert::From<&ClientCapabilitiesSampling> for ClientCapabilitiesSampling {
     fn from(value: &ClientCapabilitiesSampling) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ClientCapabilitiesSampling {
+    fn default() -> Self {
+        Self {
+            context: Default::default(),
+            tools: Default::default(),
+        }
     }
 }
 impl ClientCapabilitiesSampling {
@@ -1214,7 +1286,6 @@ impl ClientCapabilitiesSampling {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ClientCapabilitiesTasks {
     #[doc = "Whether this client supports tasks/cancel."]
     #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
@@ -1228,6 +1299,15 @@ pub struct ClientCapabilitiesTasks {
 impl ::std::convert::From<&ClientCapabilitiesTasks> for ClientCapabilitiesTasks {
     fn from(value: &ClientCapabilitiesTasks) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ClientCapabilitiesTasks {
+    fn default() -> Self {
+        Self {
+            cancel: Default::default(),
+            list: Default::default(),
+            requests: Default::default(),
+        }
     }
 }
 impl ClientCapabilitiesTasks {
@@ -1271,7 +1351,6 @@ impl ClientCapabilitiesTasks {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ClientCapabilitiesTasksRequests {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub elicitation: ::std::option::Option<ClientCapabilitiesTasksRequestsElicitation>,
@@ -1281,6 +1360,14 @@ pub struct ClientCapabilitiesTasksRequests {
 impl ::std::convert::From<&ClientCapabilitiesTasksRequests> for ClientCapabilitiesTasksRequests {
     fn from(value: &ClientCapabilitiesTasksRequests) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ClientCapabilitiesTasksRequests {
+    fn default() -> Self {
+        Self {
+            elicitation: Default::default(),
+            sampling: Default::default(),
+        }
     }
 }
 impl ClientCapabilitiesTasksRequests {
@@ -1307,7 +1394,6 @@ impl ClientCapabilitiesTasksRequests {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ClientCapabilitiesTasksRequestsElicitation {
     #[doc = "Whether the client supports task-augmented elicitation/create requests."]
     #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
@@ -1318,6 +1404,13 @@ impl ::std::convert::From<&ClientCapabilitiesTasksRequestsElicitation>
 {
     fn from(value: &ClientCapabilitiesTasksRequestsElicitation) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ClientCapabilitiesTasksRequestsElicitation {
+    fn default() -> Self {
+        Self {
+            create: Default::default(),
+        }
     }
 }
 impl ClientCapabilitiesTasksRequestsElicitation {
@@ -1344,7 +1437,6 @@ impl ClientCapabilitiesTasksRequestsElicitation {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ClientCapabilitiesTasksRequestsSampling {
     #[doc = "Whether the client supports task-augmented sampling/createMessage requests."]
     #[serde(
@@ -1359,6 +1451,13 @@ impl ::std::convert::From<&ClientCapabilitiesTasksRequestsSampling>
 {
     fn from(value: &ClientCapabilitiesTasksRequestsSampling) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ClientCapabilitiesTasksRequestsSampling {
+    fn default() -> Self {
+        Self {
+            create_message: Default::default(),
+        }
     }
 }
 impl ClientCapabilitiesTasksRequestsSampling {
@@ -1642,7 +1741,6 @@ impl ::std::convert::From<CompleteRequest> for ClientRequest {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ClientResult {
     #[serde(
         flatten,
@@ -1696,6 +1794,20 @@ pub struct ClientResult {
 impl ::std::convert::From<&ClientResult> for ClientResult {
     fn from(value: &ClientResult) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ClientResult {
+    fn default() -> Self {
+        Self {
+            subtype_0: Default::default(),
+            subtype_1: Default::default(),
+            subtype_2: Default::default(),
+            subtype_3: Default::default(),
+            subtype_4: Default::default(),
+            subtype_5: Default::default(),
+            subtype_6: Default::default(),
+            subtype_7: Default::default(),
+        }
     }
 }
 impl ClientResult {
@@ -1909,7 +2021,6 @@ impl CompleteRequestParamsArgument {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct CompleteRequestParamsContext {
     #[doc = "Previously-resolved variables in a URI template or prompt."]
     #[serde(
@@ -1921,6 +2032,13 @@ pub struct CompleteRequestParamsContext {
 impl ::std::convert::From<&CompleteRequestParamsContext> for CompleteRequestParamsContext {
     fn from(value: &CompleteRequestParamsContext) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for CompleteRequestParamsContext {
+    fn default() -> Self {
+        Self {
+            arguments: Default::default(),
+        }
     }
 }
 impl CompleteRequestParamsContext {
@@ -1948,7 +2066,6 @@ impl CompleteRequestParamsContext {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct CompleteRequestParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -1961,6 +2078,13 @@ pub struct CompleteRequestParamsMeta {
 impl ::std::convert::From<&CompleteRequestParamsMeta> for CompleteRequestParamsMeta {
     fn from(value: &CompleteRequestParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for CompleteRequestParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl CompleteRequestParamsMeta {
@@ -2139,11 +2263,15 @@ impl CompleteResultCompletion {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct CompleteResultMeta {}
 impl ::std::convert::From<&CompleteResultMeta> for CompleteResultMeta {
     fn from(value: &CompleteResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for CompleteResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl CompleteResultMeta {
@@ -2521,7 +2649,6 @@ impl ::std::convert::TryFrom<::std::string::String> for CreateMessageRequestPara
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct CreateMessageRequestParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -2534,6 +2661,13 @@ pub struct CreateMessageRequestParamsMeta {
 impl ::std::convert::From<&CreateMessageRequestParamsMeta> for CreateMessageRequestParamsMeta {
     fn from(value: &CreateMessageRequestParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for CreateMessageRequestParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl CreateMessageRequestParamsMeta {
@@ -2723,11 +2857,15 @@ impl ::std::convert::From<::std::vec::Vec<SamplingMessageContentBlock>>
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct CreateMessageResultMeta {}
 impl ::std::convert::From<&CreateMessageResultMeta> for CreateMessageResultMeta {
     fn from(value: &CreateMessageResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for CreateMessageResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl CreateMessageResultMeta {
@@ -2793,11 +2931,15 @@ impl CreateTaskResult {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct CreateTaskResultMeta {}
 impl ::std::convert::From<&CreateTaskResultMeta> for CreateTaskResultMeta {
     fn from(value: &CreateTaskResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for CreateTaskResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl CreateTaskResultMeta {
@@ -3030,7 +3172,6 @@ impl ElicitRequestFormParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ElicitRequestFormParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -3043,6 +3184,13 @@ pub struct ElicitRequestFormParamsMeta {
 impl ::std::convert::From<&ElicitRequestFormParamsMeta> for ElicitRequestFormParamsMeta {
     fn from(value: &ElicitRequestFormParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ElicitRequestFormParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl ElicitRequestFormParamsMeta {
@@ -3254,7 +3402,6 @@ impl ElicitRequestUrlParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ElicitRequestUrlParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -3267,6 +3414,13 @@ pub struct ElicitRequestUrlParamsMeta {
 impl ::std::convert::From<&ElicitRequestUrlParamsMeta> for ElicitRequestUrlParamsMeta {
     fn from(value: &ElicitRequestUrlParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ElicitRequestUrlParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl ElicitRequestUrlParamsMeta {
@@ -3575,11 +3729,15 @@ impl ::std::convert::From<i64> for ElicitResultContentValueVariant1 {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ElicitResultMeta {}
 impl ::std::convert::From<&ElicitResultMeta> for ElicitResultMeta {
     fn from(value: &ElicitResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ElicitResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ElicitResultMeta {
@@ -3757,11 +3915,15 @@ impl EmbeddedResource {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct EmbeddedResourceMeta {}
 impl ::std::convert::From<&EmbeddedResourceMeta> for EmbeddedResourceMeta {
     fn from(value: &EmbeddedResourceMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for EmbeddedResourceMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl EmbeddedResourceMeta {
@@ -3868,7 +4030,6 @@ impl ::std::convert::From<Result> for EmptyResult {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct EnumSchema {
     #[serde(
         flatten,
@@ -3904,6 +4065,17 @@ pub struct EnumSchema {
 impl ::std::convert::From<&EnumSchema> for EnumSchema {
     fn from(value: &EnumSchema) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for EnumSchema {
+    fn default() -> Self {
+        Self {
+            subtype_0: Default::default(),
+            subtype_1: Default::default(),
+            subtype_2: Default::default(),
+            subtype_3: Default::default(),
+            subtype_4: Default::default(),
+        }
     }
 }
 impl EnumSchema {
@@ -4093,7 +4265,6 @@ impl GetPromptRequestParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct GetPromptRequestParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -4106,6 +4277,13 @@ pub struct GetPromptRequestParamsMeta {
 impl ::std::convert::From<&GetPromptRequestParamsMeta> for GetPromptRequestParamsMeta {
     fn from(value: &GetPromptRequestParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for GetPromptRequestParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl GetPromptRequestParamsMeta {
@@ -4181,11 +4359,15 @@ impl GetPromptResult {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct GetPromptResultMeta {}
 impl ::std::convert::From<&GetPromptResultMeta> for GetPromptResultMeta {
     fn from(value: &GetPromptResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for GetPromptResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl GetPromptResultMeta {
@@ -4308,7 +4490,6 @@ impl GetTaskPayloadRequestParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct GetTaskPayloadResult {
     #[serde(
         rename = "_meta",
@@ -4320,6 +4501,13 @@ pub struct GetTaskPayloadResult {
 impl ::std::convert::From<&GetTaskPayloadResult> for GetTaskPayloadResult {
     fn from(value: &GetTaskPayloadResult) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for GetTaskPayloadResult {
+    fn default() -> Self {
+        Self {
+            meta: Default::default(),
+        }
     }
 }
 impl GetTaskPayloadResult {
@@ -4341,11 +4529,15 @@ impl GetTaskPayloadResult {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct GetTaskPayloadResultMeta {}
 impl ::std::convert::From<&GetTaskPayloadResultMeta> for GetTaskPayloadResultMeta {
     fn from(value: &GetTaskPayloadResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for GetTaskPayloadResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl GetTaskPayloadResultMeta {
@@ -4651,7 +4843,6 @@ impl ::std::convert::TryFrom<::std::string::String> for IconTheme {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct Icons {
     #[doc = "Optional set of sized icons that the client can display in a user interface.\n\nClients that support rendering icons MUST support at least the following MIME types:\n- `image/png` - PNG images (safe, universal compatibility)\n- `image/jpeg` (and `image/jpg`) - JPEG images (safe, universal compatibility)\n\nClients that support rendering icons SHOULD also support:\n- `image/svg+xml` - SVG images (scalable but requires security precautions)\n- `image/webp` - WebP images (modern, efficient format)"]
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
@@ -4660,6 +4851,13 @@ pub struct Icons {
 impl ::std::convert::From<&Icons> for Icons {
     fn from(value: &Icons) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for Icons {
+    fn default() -> Self {
+        Self {
+            icons: Default::default(),
+        }
     }
 }
 impl Icons {
@@ -4750,11 +4948,15 @@ impl ImageContent {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ImageContentMeta {}
 impl ::std::convert::From<&ImageContentMeta> for ImageContentMeta {
     fn from(value: &ImageContentMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ImageContentMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ImageContentMeta {
@@ -4972,7 +5174,6 @@ impl InitializeRequestParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct InitializeRequestParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -4985,6 +5186,13 @@ pub struct InitializeRequestParamsMeta {
 impl ::std::convert::From<&InitializeRequestParamsMeta> for InitializeRequestParamsMeta {
     fn from(value: &InitializeRequestParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for InitializeRequestParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl InitializeRequestParamsMeta {
@@ -5071,11 +5279,15 @@ impl InitializeResult {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct InitializeResultMeta {}
 impl ::std::convert::From<&InitializeResultMeta> for InitializeResultMeta {
     fn from(value: &InitializeResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for InitializeResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl InitializeResultMeta {
@@ -5287,11 +5499,15 @@ impl JsonrpcNotification {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct JsonrpcNotificationParams {}
 impl ::std::convert::From<&JsonrpcNotificationParams> for JsonrpcNotificationParams {
     fn from(value: &JsonrpcNotificationParams) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for JsonrpcNotificationParams {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl JsonrpcNotificationParams {
@@ -5362,11 +5578,15 @@ impl JsonrpcRequest {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct JsonrpcRequestParams {}
 impl ::std::convert::From<&JsonrpcRequestParams> for JsonrpcRequestParams {
     fn from(value: &JsonrpcRequestParams) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for JsonrpcRequestParams {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl JsonrpcRequestParams {
@@ -5652,11 +5872,15 @@ impl ListPromptsResult {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ListPromptsResultMeta {}
 impl ::std::convert::From<&ListPromptsResultMeta> for ListPromptsResultMeta {
     fn from(value: &ListPromptsResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ListPromptsResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ListPromptsResultMeta {
@@ -5787,11 +6011,15 @@ impl ListResourceTemplatesResult {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ListResourceTemplatesResultMeta {}
 impl ::std::convert::From<&ListResourceTemplatesResultMeta> for ListResourceTemplatesResultMeta {
     fn from(value: &ListResourceTemplatesResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ListResourceTemplatesResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ListResourceTemplatesResultMeta {
@@ -5921,11 +6149,15 @@ impl ListResourcesResult {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ListResourcesResultMeta {}
 impl ::std::convert::From<&ListResourcesResultMeta> for ListResourcesResultMeta {
     fn from(value: &ListResourcesResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ListResourcesResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ListResourcesResultMeta {
@@ -6044,11 +6276,15 @@ impl ListRootsResult {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ListRootsResultMeta {}
 impl ::std::convert::From<&ListRootsResultMeta> for ListRootsResultMeta {
     fn from(value: &ListRootsResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ListRootsResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ListRootsResultMeta {
@@ -6178,11 +6414,15 @@ impl ListTasksResult {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ListTasksResultMeta {}
 impl ::std::convert::From<&ListTasksResultMeta> for ListTasksResultMeta {
     fn from(value: &ListTasksResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ListTasksResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ListTasksResultMeta {
@@ -6312,11 +6552,15 @@ impl ListToolsResult {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ListToolsResultMeta {}
 impl ::std::convert::From<&ListToolsResultMeta> for ListToolsResultMeta {
     fn from(value: &ListToolsResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ListToolsResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ListToolsResultMeta {
@@ -6550,13 +6794,17 @@ impl LoggingMessageNotificationParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct LoggingMessageNotificationParamsMeta {}
 impl ::std::convert::From<&LoggingMessageNotificationParamsMeta>
     for LoggingMessageNotificationParamsMeta
 {
     fn from(value: &LoggingMessageNotificationParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for LoggingMessageNotificationParamsMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl LoggingMessageNotificationParamsMeta {
@@ -6582,7 +6830,6 @@ impl LoggingMessageNotificationParamsMeta {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ModelHint {
     #[doc = "A hint for a model name.\n\nThe client SHOULD treat this as a substring of a model name; for example:\n - `claude-3-5-sonnet` should match `claude-3-5-sonnet-20241022`\n - `sonnet` should match `claude-3-5-sonnet-20241022`, `claude-3-sonnet-20240229`, etc.\n - `claude` should match any Claude model\n\nThe client MAY also map the string to a different provider's model name or a different model family, as long as it fills a similar niche; for example:\n - `gemini-1.5-flash` could match `claude-3-haiku-20240307`"]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -6591,6 +6838,13 @@ pub struct ModelHint {
 impl ::std::convert::From<&ModelHint> for ModelHint {
     fn from(value: &ModelHint) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ModelHint {
+    fn default() -> Self {
+        Self {
+            name: Default::default(),
+        }
     }
 }
 impl ModelHint {
@@ -6637,7 +6891,6 @@ impl ModelHint {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ModelPreferences {
     #[serde(
         rename = "costPriority",
@@ -6666,6 +6919,16 @@ impl ::std::convert::From<&ModelPreferences> for ModelPreferences {
         value.clone()
     }
 }
+impl ::std::default::Default for ModelPreferences {
+    fn default() -> Self {
+        Self {
+            cost_priority: Default::default(),
+            hints: Default::default(),
+            intelligence_priority: Default::default(),
+            speed_priority: Default::default(),
+        }
+    }
+}
 impl ModelPreferences {
     pub fn builder() -> builder::ModelPreferences {
         Default::default()
@@ -6689,7 +6952,6 @@ impl ModelPreferences {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct MultiSelectEnumSchema {
     #[serde(
         flatten,
@@ -6707,6 +6969,14 @@ pub struct MultiSelectEnumSchema {
 impl ::std::convert::From<&MultiSelectEnumSchema> for MultiSelectEnumSchema {
     fn from(value: &MultiSelectEnumSchema) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for MultiSelectEnumSchema {
+    fn default() -> Self {
+        Self {
+            subtype_0: Default::default(),
+            subtype_1: Default::default(),
+        }
     }
 }
 impl MultiSelectEnumSchema {
@@ -6770,7 +7040,6 @@ impl Notification {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct NotificationParams {
     #[serde(
         rename = "_meta",
@@ -6782,6 +7051,13 @@ pub struct NotificationParams {
 impl ::std::convert::From<&NotificationParams> for NotificationParams {
     fn from(value: &NotificationParams) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for NotificationParams {
+    fn default() -> Self {
+        Self {
+            meta: Default::default(),
+        }
     }
 }
 impl NotificationParams {
@@ -6804,11 +7080,15 @@ impl NotificationParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct NotificationParamsMeta {}
 impl ::std::convert::From<&NotificationParamsMeta> for NotificationParamsMeta {
     fn from(value: &NotificationParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for NotificationParamsMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl NotificationParamsMeta {
@@ -7032,7 +7312,6 @@ impl PaginatedRequest {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct PaginatedRequestParams {
     #[doc = "An opaque token representing the current pagination position.\nIf provided, the server should return results starting after this cursor."]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -7047,6 +7326,14 @@ pub struct PaginatedRequestParams {
 impl ::std::convert::From<&PaginatedRequestParams> for PaginatedRequestParams {
     fn from(value: &PaginatedRequestParams) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for PaginatedRequestParams {
+    fn default() -> Self {
+        Self {
+            cursor: Default::default(),
+            meta: Default::default(),
+        }
     }
 }
 impl PaginatedRequestParams {
@@ -7074,7 +7361,6 @@ impl PaginatedRequestParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct PaginatedRequestParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -7087,6 +7373,13 @@ pub struct PaginatedRequestParamsMeta {
 impl ::std::convert::From<&PaginatedRequestParamsMeta> for PaginatedRequestParamsMeta {
     fn from(value: &PaginatedRequestParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for PaginatedRequestParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl PaginatedRequestParamsMeta {
@@ -7116,7 +7409,6 @@ impl PaginatedRequestParamsMeta {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct PaginatedResult {
     #[serde(
         rename = "_meta",
@@ -7135,6 +7427,14 @@ pub struct PaginatedResult {
 impl ::std::convert::From<&PaginatedResult> for PaginatedResult {
     fn from(value: &PaginatedResult) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for PaginatedResult {
+    fn default() -> Self {
+        Self {
+            meta: Default::default(),
+            next_cursor: Default::default(),
+        }
     }
 }
 impl PaginatedResult {
@@ -7156,11 +7456,15 @@ impl PaginatedResult {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct PaginatedResultMeta {}
 impl ::std::convert::From<&PaginatedResultMeta> for PaginatedResultMeta {
     fn from(value: &PaginatedResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for PaginatedResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl PaginatedResultMeta {
@@ -7255,7 +7559,6 @@ impl PingRequest {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct PrimitiveSchemaDefinition {
     #[serde(
         flatten,
@@ -7309,6 +7612,20 @@ pub struct PrimitiveSchemaDefinition {
 impl ::std::convert::From<&PrimitiveSchemaDefinition> for PrimitiveSchemaDefinition {
     fn from(value: &PrimitiveSchemaDefinition) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for PrimitiveSchemaDefinition {
+    fn default() -> Self {
+        Self {
+            subtype_0: Default::default(),
+            subtype_1: Default::default(),
+            subtype_2: Default::default(),
+            subtype_3: Default::default(),
+            subtype_4: Default::default(),
+            subtype_5: Default::default(),
+            subtype_6: Default::default(),
+            subtype_7: Default::default(),
+        }
     }
 }
 impl PrimitiveSchemaDefinition {
@@ -7441,11 +7758,15 @@ impl ProgressNotificationParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ProgressNotificationParamsMeta {}
 impl ::std::convert::From<&ProgressNotificationParamsMeta> for ProgressNotificationParamsMeta {
     fn from(value: &ProgressNotificationParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ProgressNotificationParamsMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ProgressNotificationParamsMeta {
@@ -7758,11 +8079,15 @@ impl PromptMessage {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct PromptMeta {}
 impl ::std::convert::From<&PromptMeta> for PromptMeta {
     fn from(value: &PromptMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for PromptMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl PromptMeta {
@@ -7942,7 +8267,6 @@ impl ReadResourceRequestParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ReadResourceRequestParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -7955,6 +8279,13 @@ pub struct ReadResourceRequestParamsMeta {
 impl ::std::convert::From<&ReadResourceRequestParamsMeta> for ReadResourceRequestParamsMeta {
     fn from(value: &ReadResourceRequestParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ReadResourceRequestParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl ReadResourceRequestParamsMeta {
@@ -8068,11 +8399,15 @@ impl ::std::convert::From<BlobResourceContents> for ReadResourceResultContentsIt
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ReadResourceResultMeta {}
 impl ::std::convert::From<&ReadResourceResultMeta> for ReadResourceResultMeta {
     fn from(value: &ReadResourceResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ReadResourceResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ReadResourceResultMeta {
@@ -8251,7 +8586,6 @@ impl ::std::convert::From<i64> for RequestId {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct RequestParams {
     #[serde(
         rename = "_meta",
@@ -8263,6 +8597,13 @@ pub struct RequestParams {
 impl ::std::convert::From<&RequestParams> for RequestParams {
     fn from(value: &RequestParams) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for RequestParams {
+    fn default() -> Self {
+        Self {
+            meta: Default::default(),
+        }
     }
 }
 impl RequestParams {
@@ -8291,7 +8632,6 @@ impl RequestParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct RequestParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -8304,6 +8644,13 @@ pub struct RequestParamsMeta {
 impl ::std::convert::From<&RequestParamsMeta> for RequestParamsMeta {
     fn from(value: &RequestParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for RequestParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl RequestParamsMeta {
@@ -8486,11 +8833,15 @@ impl ResourceContents {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ResourceContentsMeta {}
 impl ::std::convert::From<&ResourceContentsMeta> for ResourceContentsMeta {
     fn from(value: &ResourceContentsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ResourceContentsMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ResourceContentsMeta {
@@ -8622,11 +8973,15 @@ impl ResourceLink {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ResourceLinkMeta {}
 impl ::std::convert::From<&ResourceLinkMeta> for ResourceLinkMeta {
     fn from(value: &ResourceLinkMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ResourceLinkMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ResourceLinkMeta {
@@ -8693,11 +9048,15 @@ impl ResourceListChangedNotification {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ResourceMeta {}
 impl ::std::convert::From<&ResourceMeta> for ResourceMeta {
     fn from(value: &ResourceMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ResourceMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ResourceMeta {
@@ -8778,7 +9137,6 @@ impl ResourceRequestParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ResourceRequestParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -8791,6 +9149,13 @@ pub struct ResourceRequestParamsMeta {
 impl ::std::convert::From<&ResourceRequestParamsMeta> for ResourceRequestParamsMeta {
     fn from(value: &ResourceRequestParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ResourceRequestParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl ResourceRequestParamsMeta {
@@ -8909,11 +9274,15 @@ impl ResourceTemplate {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ResourceTemplateMeta {}
 impl ::std::convert::From<&ResourceTemplateMeta> for ResourceTemplateMeta {
     fn from(value: &ResourceTemplateMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ResourceTemplateMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ResourceTemplateMeta {
@@ -9072,13 +9441,17 @@ impl ResourceUpdatedNotificationParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ResourceUpdatedNotificationParamsMeta {}
 impl ::std::convert::From<&ResourceUpdatedNotificationParamsMeta>
     for ResourceUpdatedNotificationParamsMeta
 {
     fn from(value: &ResourceUpdatedNotificationParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ResourceUpdatedNotificationParamsMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ResourceUpdatedNotificationParamsMeta {
@@ -9106,7 +9479,6 @@ impl ResourceUpdatedNotificationParamsMeta {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct Result {
     #[serde(
         rename = "_meta",
@@ -9118,6 +9490,13 @@ pub struct Result {
 impl ::std::convert::From<&Result> for Result {
     fn from(value: &Result) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for Result {
+    fn default() -> Self {
+        Self {
+            meta: Default::default(),
+        }
     }
 }
 impl Result {
@@ -9139,11 +9518,15 @@ impl Result {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ResultMeta {}
 impl ::std::convert::From<&ResultMeta> for ResultMeta {
     fn from(value: &ResultMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ResultMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ResultMeta {
@@ -9297,11 +9680,15 @@ impl Root {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct RootMeta {}
 impl ::std::convert::From<&RootMeta> for RootMeta {
     fn from(value: &RootMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for RootMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl RootMeta {
@@ -9581,11 +9968,15 @@ impl ::std::convert::From<ToolResultContent> for SamplingMessageContentBlock {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct SamplingMessageMeta {}
 impl ::std::convert::From<&SamplingMessageMeta> for SamplingMessageMeta {
     fn from(value: &SamplingMessageMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for SamplingMessageMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl SamplingMessageMeta {
@@ -9692,7 +10083,6 @@ impl SamplingMessageMeta {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ServerCapabilities {
     #[doc = "Present if the server supports argument autocompletion suggestions."]
     #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
@@ -9723,6 +10113,19 @@ impl ::std::convert::From<&ServerCapabilities> for ServerCapabilities {
         value.clone()
     }
 }
+impl ::std::default::Default for ServerCapabilities {
+    fn default() -> Self {
+        Self {
+            completions: Default::default(),
+            experimental: Default::default(),
+            logging: Default::default(),
+            prompts: Default::default(),
+            resources: Default::default(),
+            tasks: Default::default(),
+            tools: Default::default(),
+        }
+    }
+}
 impl ServerCapabilities {
     pub fn builder() -> builder::ServerCapabilities {
         Default::default()
@@ -9746,7 +10149,6 @@ impl ServerCapabilities {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ServerCapabilitiesPrompts {
     #[doc = "Whether this server supports notifications for changes to the prompt list."]
     #[serde(
@@ -9759,6 +10161,13 @@ pub struct ServerCapabilitiesPrompts {
 impl ::std::convert::From<&ServerCapabilitiesPrompts> for ServerCapabilitiesPrompts {
     fn from(value: &ServerCapabilitiesPrompts) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ServerCapabilitiesPrompts {
+    fn default() -> Self {
+        Self {
+            list_changed: Default::default(),
+        }
     }
 }
 impl ServerCapabilitiesPrompts {
@@ -9788,7 +10197,6 @@ impl ServerCapabilitiesPrompts {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ServerCapabilitiesResources {
     #[doc = "Whether this server supports notifications for changes to the resource list."]
     #[serde(
@@ -9804,6 +10212,14 @@ pub struct ServerCapabilitiesResources {
 impl ::std::convert::From<&ServerCapabilitiesResources> for ServerCapabilitiesResources {
     fn from(value: &ServerCapabilitiesResources) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ServerCapabilitiesResources {
+    fn default() -> Self {
+        Self {
+            list_changed: Default::default(),
+            subscribe: Default::default(),
+        }
     }
 }
 impl ServerCapabilitiesResources {
@@ -9852,7 +10268,6 @@ impl ServerCapabilitiesResources {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ServerCapabilitiesTasks {
     #[doc = "Whether this server supports tasks/cancel."]
     #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
@@ -9866,6 +10281,15 @@ pub struct ServerCapabilitiesTasks {
 impl ::std::convert::From<&ServerCapabilitiesTasks> for ServerCapabilitiesTasks {
     fn from(value: &ServerCapabilitiesTasks) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ServerCapabilitiesTasks {
+    fn default() -> Self {
+        Self {
+            cancel: Default::default(),
+            list: Default::default(),
+            requests: Default::default(),
+        }
     }
 }
 impl ServerCapabilitiesTasks {
@@ -9898,7 +10322,6 @@ impl ServerCapabilitiesTasks {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ServerCapabilitiesTasksRequests {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub tools: ::std::option::Option<ServerCapabilitiesTasksRequestsTools>,
@@ -9906,6 +10329,13 @@ pub struct ServerCapabilitiesTasksRequests {
 impl ::std::convert::From<&ServerCapabilitiesTasksRequests> for ServerCapabilitiesTasksRequests {
     fn from(value: &ServerCapabilitiesTasksRequests) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ServerCapabilitiesTasksRequests {
+    fn default() -> Self {
+        Self {
+            tools: Default::default(),
+        }
     }
 }
 impl ServerCapabilitiesTasksRequests {
@@ -9932,7 +10362,6 @@ impl ServerCapabilitiesTasksRequests {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ServerCapabilitiesTasksRequestsTools {
     #[doc = "Whether the server supports task-augmented tools/call requests."]
     #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
@@ -9943,6 +10372,13 @@ impl ::std::convert::From<&ServerCapabilitiesTasksRequestsTools>
 {
     fn from(value: &ServerCapabilitiesTasksRequestsTools) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ServerCapabilitiesTasksRequestsTools {
+    fn default() -> Self {
+        Self {
+            call: Default::default(),
+        }
     }
 }
 impl ServerCapabilitiesTasksRequestsTools {
@@ -9968,7 +10404,6 @@ impl ServerCapabilitiesTasksRequestsTools {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ServerCapabilitiesTools {
     #[doc = "Whether this server supports notifications for changes to the tool list."]
     #[serde(
@@ -9981,6 +10416,13 @@ pub struct ServerCapabilitiesTools {
 impl ::std::convert::From<&ServerCapabilitiesTools> for ServerCapabilitiesTools {
     fn from(value: &ServerCapabilitiesTools) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ServerCapabilitiesTools {
+    fn default() -> Self {
+        Self {
+            list_changed: Default::default(),
+        }
     }
 }
 impl ServerCapabilitiesTools {
@@ -10237,7 +10679,6 @@ impl ::std::convert::From<ElicitRequest> for ServerRequest {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ServerResult {
     #[serde(
         flatten,
@@ -10327,6 +10768,26 @@ pub struct ServerResult {
 impl ::std::convert::From<&ServerResult> for ServerResult {
     fn from(value: &ServerResult) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ServerResult {
+    fn default() -> Self {
+        Self {
+            subtype_0: Default::default(),
+            subtype_1: Default::default(),
+            subtype_2: Default::default(),
+            subtype_3: Default::default(),
+            subtype_4: Default::default(),
+            subtype_5: Default::default(),
+            subtype_6: Default::default(),
+            subtype_7: Default::default(),
+            subtype_8: Default::default(),
+            subtype_9: Default::default(),
+            subtype_10: Default::default(),
+            subtype_11: Default::default(),
+            subtype_12: Default::default(),
+            subtype_13: Default::default(),
+        }
     }
 }
 impl ServerResult {
@@ -10456,7 +10917,6 @@ impl SetLevelRequestParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct SetLevelRequestParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -10469,6 +10929,13 @@ pub struct SetLevelRequestParamsMeta {
 impl ::std::convert::From<&SetLevelRequestParamsMeta> for SetLevelRequestParamsMeta {
     fn from(value: &SetLevelRequestParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for SetLevelRequestParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl SetLevelRequestParamsMeta {
@@ -10802,7 +11269,6 @@ impl SubscribeRequestParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct SubscribeRequestParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -10815,6 +11281,13 @@ pub struct SubscribeRequestParamsMeta {
 impl ::std::convert::From<&SubscribeRequestParamsMeta> for SubscribeRequestParamsMeta {
     fn from(value: &SubscribeRequestParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for SubscribeRequestParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl SubscribeRequestParamsMeta {
@@ -10939,7 +11412,6 @@ impl Task {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct TaskAugmentedRequestParams {
     #[serde(
         rename = "_meta",
@@ -10954,6 +11426,14 @@ pub struct TaskAugmentedRequestParams {
 impl ::std::convert::From<&TaskAugmentedRequestParams> for TaskAugmentedRequestParams {
     fn from(value: &TaskAugmentedRequestParams) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for TaskAugmentedRequestParams {
+    fn default() -> Self {
+        Self {
+            meta: Default::default(),
+            task: Default::default(),
+        }
     }
 }
 impl TaskAugmentedRequestParams {
@@ -10981,7 +11461,6 @@ impl TaskAugmentedRequestParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct TaskAugmentedRequestParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -10994,6 +11473,13 @@ pub struct TaskAugmentedRequestParamsMeta {
 impl ::std::convert::From<&TaskAugmentedRequestParamsMeta> for TaskAugmentedRequestParamsMeta {
     fn from(value: &TaskAugmentedRequestParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for TaskAugmentedRequestParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl TaskAugmentedRequestParamsMeta {
@@ -11019,7 +11505,6 @@ impl TaskAugmentedRequestParamsMeta {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct TaskMetadata {
     #[doc = "Requested duration in milliseconds to retain task from creation."]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -11028,6 +11513,13 @@ pub struct TaskMetadata {
 impl ::std::convert::From<&TaskMetadata> for TaskMetadata {
     fn from(value: &TaskMetadata) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for TaskMetadata {
+    fn default() -> Self {
+        Self {
+            ttl: Default::default(),
+        }
     }
 }
 impl TaskMetadata {
@@ -11251,11 +11743,15 @@ impl TaskStatusNotificationParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct TaskStatusNotificationParamsMeta {}
 impl ::std::convert::From<&TaskStatusNotificationParamsMeta> for TaskStatusNotificationParamsMeta {
     fn from(value: &TaskStatusNotificationParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for TaskStatusNotificationParamsMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl TaskStatusNotificationParamsMeta {
@@ -11337,11 +11833,15 @@ impl TextContent {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct TextContentMeta {}
 impl ::std::convert::From<&TextContentMeta> for TextContentMeta {
     fn from(value: &TextContentMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for TextContentMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl TextContentMeta {
@@ -11427,11 +11927,15 @@ impl TextResourceContents {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct TextResourceContentsMeta {}
 impl ::std::convert::From<&TextResourceContentsMeta> for TextResourceContentsMeta {
     fn from(value: &TextResourceContentsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for TextResourceContentsMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl TextResourceContentsMeta {
@@ -11959,7 +12463,6 @@ impl Tool {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ToolAnnotations {
     #[doc = "If true, the tool may perform destructive updates to its environment.\nIf false, the tool performs only additive updates.\n\n(This property is meaningful only when `readOnlyHint == false`)\n\nDefault: true"]
     #[serde(
@@ -11998,6 +12501,17 @@ impl ::std::convert::From<&ToolAnnotations> for ToolAnnotations {
         value.clone()
     }
 }
+impl ::std::default::Default for ToolAnnotations {
+    fn default() -> Self {
+        Self {
+            destructive_hint: Default::default(),
+            idempotent_hint: Default::default(),
+            open_world_hint: Default::default(),
+            read_only_hint: Default::default(),
+            title: Default::default(),
+        }
+    }
+}
 impl ToolAnnotations {
     pub fn builder() -> builder::ToolAnnotations {
         Default::default()
@@ -12026,7 +12540,6 @@ impl ToolAnnotations {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ToolChoice {
     #[doc = "Controls the tool use ability of the model:\n- \"auto\": Model decides whether to use tools (default)\n- \"required\": Model MUST use at least one tool before completing\n- \"none\": Model MUST NOT use any tools"]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -12035,6 +12548,13 @@ pub struct ToolChoice {
 impl ::std::convert::From<&ToolChoice> for ToolChoice {
     fn from(value: &ToolChoice) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ToolChoice {
+    fn default() -> Self {
+        Self {
+            mode: Default::default(),
+        }
     }
 }
 impl ToolChoice {
@@ -12148,7 +12668,6 @@ impl ::std::convert::TryFrom<::std::string::String> for ToolChoiceMode {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[derive(Default)]
 pub struct ToolExecution {
     #[doc = "Indicates whether this tool supports task-augmented execution.\nThis allows clients to handle long-running operations through polling\nthe task system.\n\n- \"forbidden\": Tool does not support task-augmented execution (default when absent)\n- \"optional\": Tool may support task-augmented execution\n- \"required\": Tool requires task-augmented execution\n\nDefault: \"forbidden\""]
     #[serde(
@@ -12161,6 +12680,13 @@ pub struct ToolExecution {
 impl ::std::convert::From<&ToolExecution> for ToolExecution {
     fn from(value: &ToolExecution) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ToolExecution {
+    fn default() -> Self {
+        Self {
+            task_support: Default::default(),
+        }
     }
 }
 impl ToolExecution {
@@ -12311,11 +12837,15 @@ impl ToolListChangedNotification {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ToolMeta {}
 impl ::std::convert::From<&ToolMeta> for ToolMeta {
     fn from(value: &ToolMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ToolMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ToolMeta {
@@ -12490,11 +13020,15 @@ impl ToolResultContent {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ToolResultContentMeta {}
 impl ::std::convert::From<&ToolResultContentMeta> for ToolResultContentMeta {
     fn from(value: &ToolResultContentMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ToolResultContentMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ToolResultContentMeta {
@@ -12516,13 +13050,17 @@ impl ToolResultContentMeta {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ToolResultContentStructuredContent {}
 impl ::std::convert::From<&ToolResultContentStructuredContent>
     for ToolResultContentStructuredContent
 {
     fn from(value: &ToolResultContentStructuredContent) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ToolResultContentStructuredContent {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ToolResultContentStructuredContent {
@@ -12611,11 +13149,15 @@ impl ToolUseContent {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ToolUseContentInput {}
 impl ::std::convert::From<&ToolUseContentInput> for ToolUseContentInput {
     fn from(value: &ToolUseContentInput) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ToolUseContentInput {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ToolUseContentInput {
@@ -12637,11 +13179,15 @@ impl ToolUseContentInput {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct ToolUseContentMeta {}
 impl ::std::convert::From<&ToolUseContentMeta> for ToolUseContentMeta {
     fn from(value: &ToolUseContentMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for ToolUseContentMeta {
+    fn default() -> Self {
+        Self {}
     }
 }
 impl ToolUseContentMeta {
@@ -12772,7 +13318,6 @@ impl UnsubscribeRequestParams {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-#[derive(Default)]
 pub struct UnsubscribeRequestParamsMeta {
     #[doc = "If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications."]
     #[serde(
@@ -12785,6 +13330,13 @@ pub struct UnsubscribeRequestParamsMeta {
 impl ::std::convert::From<&UnsubscribeRequestParamsMeta> for UnsubscribeRequestParamsMeta {
     fn from(value: &UnsubscribeRequestParamsMeta) -> Self {
         value.clone()
+    }
+}
+impl ::std::default::Default for UnsubscribeRequestParamsMeta {
+    fn default() -> Self {
+        Self {
+            progress_token: Default::default(),
+        }
     }
 }
 impl UnsubscribeRequestParamsMeta {
@@ -13412,9 +13964,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct AudioContentMeta {}
-    
+    impl ::std::default::Default for AudioContentMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl AudioContentMeta {}
     impl ::std::convert::TryFrom<AudioContentMeta> for super::AudioContentMeta {
         type Error = super::error::ConversionError;
@@ -13575,9 +14130,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct BlobResourceContentsMeta {}
-    
+    impl ::std::default::Default for BlobResourceContentsMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl BlobResourceContentsMeta {}
     impl ::std::convert::TryFrom<BlobResourceContentsMeta> for super::BlobResourceContentsMeta {
         type Error = super::error::ConversionError;
@@ -13852,9 +14410,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct CallToolRequestParamsArguments {}
-    
+    impl ::std::default::Default for CallToolRequestParamsArguments {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl CallToolRequestParamsArguments {}
     impl ::std::convert::TryFrom<CallToolRequestParamsArguments>
         for super::CallToolRequestParamsArguments
@@ -14006,9 +14567,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct CallToolResultMeta {}
-    
+    impl ::std::default::Default for CallToolResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl CallToolResultMeta {}
     impl ::std::convert::TryFrom<CallToolResultMeta> for super::CallToolResultMeta {
         type Error = super::error::ConversionError;
@@ -14292,9 +14856,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct CancelledNotificationParamsMeta {}
-    
+    impl ::std::default::Default for CancelledNotificationParamsMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl CancelledNotificationParamsMeta {}
     impl ::std::convert::TryFrom<CancelledNotificationParamsMeta>
         for super::CancelledNotificationParamsMeta
@@ -15453,9 +16020,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct CompleteResultMeta {}
-    
+    impl ::std::default::Default for CompleteResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl CompleteResultMeta {}
     impl ::std::convert::TryFrom<CompleteResultMeta> for super::CompleteResultMeta {
         type Error = super::error::ConversionError;
@@ -15926,9 +16496,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct CreateMessageResultMeta {}
-    
+    impl ::std::default::Default for CreateMessageResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl CreateMessageResultMeta {}
     impl ::std::convert::TryFrom<CreateMessageResultMeta> for super::CreateMessageResultMeta {
         type Error = super::error::ConversionError;
@@ -16001,9 +16574,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct CreateTaskResultMeta {}
-    
+    impl ::std::default::Default for CreateTaskResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl CreateTaskResultMeta {}
     impl ::std::convert::TryFrom<CreateTaskResultMeta> for super::CreateTaskResultMeta {
         type Error = super::error::ConversionError;
@@ -16591,9 +17167,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ElicitResultMeta {}
-    
+    impl ::std::default::Default for ElicitResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ElicitResultMeta {}
     impl ::std::convert::TryFrom<ElicitResultMeta> for super::ElicitResultMeta {
         type Error = super::error::ConversionError;
@@ -16814,9 +17393,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct EmbeddedResourceMeta {}
-    
+    impl ::std::default::Default for EmbeddedResourceMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl EmbeddedResourceMeta {}
     impl ::std::convert::TryFrom<EmbeddedResourceMeta> for super::EmbeddedResourceMeta {
         type Error = super::error::ConversionError;
@@ -17290,9 +17872,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct GetPromptResultMeta {}
-    
+    impl ::std::default::Default for GetPromptResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl GetPromptResultMeta {}
     impl ::std::convert::TryFrom<GetPromptResultMeta> for super::GetPromptResultMeta {
         type Error = super::error::ConversionError;
@@ -17471,9 +18056,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct GetTaskPayloadResultMeta {}
-    
+    impl ::std::default::Default for GetTaskPayloadResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl GetTaskPayloadResultMeta {}
     impl ::std::convert::TryFrom<GetTaskPayloadResultMeta> for super::GetTaskPayloadResultMeta {
         type Error = super::error::ConversionError;
@@ -17833,9 +18421,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ImageContentMeta {}
-    
+    impl ::std::default::Default for ImageContentMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ImageContentMeta {}
     impl ::std::convert::TryFrom<ImageContentMeta> for super::ImageContentMeta {
         type Error = super::error::ConversionError;
@@ -18288,9 +18879,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct InitializeResultMeta {}
-    
+    impl ::std::default::Default for InitializeResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl InitializeResultMeta {}
     impl ::std::convert::TryFrom<InitializeResultMeta> for super::InitializeResultMeta {
         type Error = super::error::ConversionError;
@@ -18516,9 +19110,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct JsonrpcNotificationParams {}
-    
+    impl ::std::default::Default for JsonrpcNotificationParams {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl JsonrpcNotificationParams {}
     impl ::std::convert::TryFrom<JsonrpcNotificationParams> for super::JsonrpcNotificationParams {
         type Error = super::error::ConversionError;
@@ -18619,9 +19216,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct JsonrpcRequestParams {}
-    
+    impl ::std::default::Default for JsonrpcRequestParams {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl JsonrpcRequestParams {}
     impl ::std::convert::TryFrom<JsonrpcRequestParams> for super::JsonrpcRequestParams {
         type Error = super::error::ConversionError;
@@ -18984,9 +19584,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ListPromptsResultMeta {}
-    
+    impl ::std::default::Default for ListPromptsResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ListPromptsResultMeta {}
     impl ::std::convert::TryFrom<ListPromptsResultMeta> for super::ListPromptsResultMeta {
         type Error = super::error::ConversionError;
@@ -19167,9 +19770,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ListResourceTemplatesResultMeta {}
-    
+    impl ::std::default::Default for ListResourceTemplatesResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ListResourceTemplatesResultMeta {}
     impl ::std::convert::TryFrom<ListResourceTemplatesResultMeta>
         for super::ListResourceTemplatesResultMeta
@@ -19348,9 +19954,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ListResourcesResultMeta {}
-    
+    impl ::std::default::Default for ListResourcesResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ListResourcesResultMeta {}
     impl ::std::convert::TryFrom<ListResourcesResultMeta> for super::ListResourcesResultMeta {
         type Error = super::error::ConversionError;
@@ -19508,9 +20117,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ListRootsResultMeta {}
-    
+    impl ::std::default::Default for ListRootsResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ListRootsResultMeta {}
     impl ::std::convert::TryFrom<ListRootsResultMeta> for super::ListRootsResultMeta {
         type Error = super::error::ConversionError;
@@ -19685,9 +20297,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ListTasksResultMeta {}
-    
+    impl ::std::default::Default for ListTasksResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ListTasksResultMeta {}
     impl ::std::convert::TryFrom<ListTasksResultMeta> for super::ListTasksResultMeta {
         type Error = super::error::ConversionError;
@@ -19862,9 +20477,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ListToolsResultMeta {}
-    
+    impl ::std::default::Default for ListToolsResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ListToolsResultMeta {}
     impl ::std::convert::TryFrom<ListToolsResultMeta> for super::ListToolsResultMeta {
         type Error = super::error::ConversionError;
@@ -20043,9 +20661,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct LoggingMessageNotificationParamsMeta {}
-    
+    impl ::std::default::Default for LoggingMessageNotificationParamsMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl LoggingMessageNotificationParamsMeta {}
     impl ::std::convert::TryFrom<LoggingMessageNotificationParamsMeta>
         for super::LoggingMessageNotificationParamsMeta
@@ -20351,9 +20972,12 @@ pub mod builder {
     }
 
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct NotificationParamsMeta {}
-    
+    impl ::std::default::Default for NotificationParamsMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl NotificationParamsMeta {}
     impl ::std::convert::TryFrom<NotificationParamsMeta> for super::NotificationParamsMeta {
         type Error = super::error::ConversionError;
@@ -20733,9 +21357,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct PaginatedResultMeta {}
-    
+    impl ::std::default::Default for PaginatedResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl PaginatedResultMeta {}
     impl ::std::convert::TryFrom<PaginatedResultMeta> for super::PaginatedResultMeta {
         type Error = super::error::ConversionError;
@@ -21172,9 +21799,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ProgressNotificationParamsMeta {}
-    
+    impl ::std::default::Default for ProgressNotificationParamsMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ProgressNotificationParamsMeta {}
     impl ::std::convert::TryFrom<ProgressNotificationParamsMeta>
         for super::ProgressNotificationParamsMeta
@@ -21525,9 +22155,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct PromptMeta {}
-    
+    impl ::std::default::Default for PromptMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl PromptMeta {}
     impl ::std::convert::TryFrom<PromptMeta> for super::PromptMeta {
         type Error = super::error::ConversionError;
@@ -21858,9 +22491,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ReadResourceResultMeta {}
-    
+    impl ::std::default::Default for ReadResourceResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ReadResourceResultMeta {}
     impl ::std::convert::TryFrom<ReadResourceResultMeta> for super::ReadResourceResultMeta {
         type Error = super::error::ConversionError;
@@ -22293,9 +22929,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ResourceContentsMeta {}
-    
+    impl ::std::default::Default for ResourceContentsMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ResourceContentsMeta {}
     impl ::std::convert::TryFrom<ResourceContentsMeta> for super::ResourceContentsMeta {
         type Error = super::error::ConversionError;
@@ -22490,9 +23129,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ResourceLinkMeta {}
-    
+    impl ::std::default::Default for ResourceLinkMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ResourceLinkMeta {}
     impl ::std::convert::TryFrom<ResourceLinkMeta> for super::ResourceLinkMeta {
         type Error = super::error::ConversionError;
@@ -22583,9 +23225,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ResourceMeta {}
-    
+    impl ::std::default::Default for ResourceMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ResourceMeta {}
     impl ::std::convert::TryFrom<ResourceMeta> for super::ResourceMeta {
         type Error = super::error::ConversionError;
@@ -22852,9 +23497,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ResourceTemplateMeta {}
-    
+    impl ::std::default::Default for ResourceTemplateMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ResourceTemplateMeta {}
     impl ::std::convert::TryFrom<ResourceTemplateMeta> for super::ResourceTemplateMeta {
         type Error = super::error::ConversionError;
@@ -23056,9 +23704,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ResourceUpdatedNotificationParamsMeta {}
-    
+    impl ::std::default::Default for ResourceUpdatedNotificationParamsMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ResourceUpdatedNotificationParamsMeta {}
     impl ::std::convert::TryFrom<ResourceUpdatedNotificationParamsMeta>
         for super::ResourceUpdatedNotificationParamsMeta
@@ -23115,9 +23766,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ResultMeta {}
-    
+    impl ::std::default::Default for ResultMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ResultMeta {}
     impl ::std::convert::TryFrom<ResultMeta> for super::ResultMeta {
         type Error = super::error::ConversionError;
@@ -23202,9 +23856,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct RootMeta {}
-    
+    impl ::std::default::Default for RootMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl RootMeta {}
     impl ::std::convert::TryFrom<RootMeta> for super::RootMeta {
         type Error = super::error::ConversionError;
@@ -23362,9 +24019,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct SamplingMessageMeta {}
-    
+    impl ::std::default::Default for SamplingMessageMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl SamplingMessageMeta {}
     impl ::std::convert::TryFrom<SamplingMessageMeta> for super::SamplingMessageMeta {
         type Error = super::error::ConversionError;
@@ -25096,9 +25756,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct TaskStatusNotificationParamsMeta {}
-    
+    impl ::std::default::Default for TaskStatusNotificationParamsMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl TaskStatusNotificationParamsMeta {}
     impl ::std::convert::TryFrom<TaskStatusNotificationParamsMeta>
         for super::TaskStatusNotificationParamsMeta
@@ -25204,9 +25867,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct TextContentMeta {}
-    
+    impl ::std::default::Default for TextContentMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl TextContentMeta {}
     impl ::std::convert::TryFrom<TextContentMeta> for super::TextContentMeta {
         type Error = super::error::ConversionError;
@@ -25310,9 +25976,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct TextResourceContentsMeta {}
-    
+    impl ::std::default::Default for TextResourceContentsMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl TextResourceContentsMeta {}
     impl ::std::convert::TryFrom<TextResourceContentsMeta> for super::TextResourceContentsMeta {
         type Error = super::error::ConversionError;
@@ -26156,9 +26825,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ToolMeta {}
-    
+    impl ::std::default::Default for ToolMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ToolMeta {}
     impl ::std::convert::TryFrom<ToolMeta> for super::ToolMeta {
         type Error = super::error::ConversionError;
@@ -26392,9 +27064,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ToolResultContentMeta {}
-    
+    impl ::std::default::Default for ToolResultContentMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ToolResultContentMeta {}
     impl ::std::convert::TryFrom<ToolResultContentMeta> for super::ToolResultContentMeta {
         type Error = super::error::ConversionError;
@@ -26410,9 +27085,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ToolResultContentStructuredContent {}
-    
+    impl ::std::default::Default for ToolResultContentStructuredContent {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ToolResultContentStructuredContent {}
     impl ::std::convert::TryFrom<ToolResultContentStructuredContent>
         for super::ToolResultContentStructuredContent
@@ -26531,9 +27209,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ToolUseContentInput {}
-    
+    impl ::std::default::Default for ToolUseContentInput {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ToolUseContentInput {}
     impl ::std::convert::TryFrom<ToolUseContentInput> for super::ToolUseContentInput {
         type Error = super::error::ConversionError;
@@ -26549,9 +27230,12 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    #[derive(Default)]
     pub struct ToolUseContentMeta {}
-    
+    impl ::std::default::Default for ToolUseContentMeta {
+        fn default() -> Self {
+            Self {}
+        }
+    }
     impl ToolUseContentMeta {}
     impl ::std::convert::TryFrom<ToolUseContentMeta> for super::ToolUseContentMeta {
         type Error = super::error::ConversionError;
