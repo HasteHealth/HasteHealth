@@ -8,16 +8,49 @@ FHIR clinical data repository built for speed.
 
 ## Running for Development
 
+### Services
+
 ```bash
 docker-compose -f docker-services-compose.yml up
-cd backend
-cargo run server start && cargo run worker
 ```
 
-go to http://my-health_system.localhost:3001
-and fill in the following credentails
+This starts a PostgreSQL database, Elasticsearch, and a migration job for PostgreSQL and Elasticsearch schema migrations.
+
+### Backend
+
+Once the services have finished starting, run the two backend services in separate terminals.
+
+#### Server
+
+Start the server with the following command:
+
+```bash
+cargo run server start
+```
+
+#### Worker
+
+The final service is the worker. It runs search indexing and FHIR subscription processing in the background.
+
+```bash
+cargo run worker
+```
+
+### Frontend
+
+To run the frontend admin application:
+
+```bash
+cd frontend/packages/admin-app
+pnpm dev
+```
+
+Then go to http://my-health_system.localhost:3001
+and fill in the following credentials:
 username: `myuser@health.org`
 password: `testing_password`
+
+This tenant and user are created automatically when you run the migration in the earlier docker-compose step.
 
 ## Binaries
 
@@ -28,7 +61,6 @@ password: `testing_password`
 
 - [Server](https://github.com/HasteHealth/HasteHealth/pkgs/container/hastehealth%2Fhastehealth)
 - [Admin App](https://github.com/HasteHealth/HasteHealth/pkgs/container/hastehealth%2Fadmin-app)
-
 
 ## RFCs (Request for Comments)
 
