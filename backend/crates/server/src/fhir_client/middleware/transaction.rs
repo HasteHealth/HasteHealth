@@ -30,7 +30,7 @@ pub async fn setup_transaction_context<
     match request {
         FHIRRequest::Create(_) | FHIRRequest::Delete(_) | FHIRRequest::Update(_) => {
             if state.repo.in_transaction() {
-                return Ok(state);
+                Ok(state)
             } else {
                 let transaction_client = Arc::new(state.repo.transaction(true).await?);
                 Ok(Arc::new(ClientState {
@@ -91,9 +91,9 @@ impl<
                             setup_transaction_context(&context.request, state.clone()).await?;
                         // Setup so can run a commit after.
                         repo_client = transaction_state.repo.clone();
-                        let res = next(transaction_state.clone(), context).await;
+                        
 
-                        res
+                        next(transaction_state.clone(), context).await
                     };
 
                     if res.is_ok() && repo_client.in_transaction() {

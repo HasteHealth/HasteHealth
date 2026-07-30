@@ -31,7 +31,7 @@ pub async fn logout(
         )
     })?;
 
-    if is_valid_redirect_url(&redirect_uri, &_client_app) {
+    if is_valid_redirect_url(redirect_uri, &_client_app) {
         Ok(Redirect::to(&redirect_uri.replace("/logout", "/login")))
     } else {
         Err(OperationOutcomeError::error(

@@ -45,11 +45,10 @@ pub fn validate_identity_provider_in_project(
 ) -> Result<(), OperationOutcomeError> {
     if let Some(identity_providers) = &project.identityProvider {
         for ip_ref in identity_providers {
-            if let Some(ref_id) = &ip_ref.reference.as_ref().and_then(|r| r.value.as_ref()) {
-                if ref_id.as_str() == &format!("IdentityProvider/{}", identity_provider_id) {
+            if let Some(ref_id) = &ip_ref.reference.as_ref().and_then(|r| r.value.as_ref())
+                && ref_id.as_str() == format!("IdentityProvider/{}", identity_provider_id) {
                     return Ok(());
                 }
-            }
         }
     }
     Err(OperationOutcomeError::error(
@@ -164,14 +163,12 @@ async fn set_session_info(
         code_verifier: None,
     };
 
-    if let Some(oidc) = &idp.oidc {
-        if let Some(pkce) = &oidc.pkce {
-            if pkce.enabled.as_ref().and_then(|b| b.value).unwrap_or(false) {
+    if let Some(oidc) = &idp.oidc
+        && let Some(pkce) = &oidc.pkce
+            && pkce.enabled.as_ref().and_then(|b| b.value).unwrap_or(false) {
                 let code_verifier = generate_code_verifier();
                 info.code_verifier = Some(code_verifier);
             }
-        }
-    }
 
     session
         .insert(federated_session_info_key(idp_id).as_str(), &info)
@@ -248,7 +245,7 @@ async fn create_federated_authorization_url(
                 )?,
             );
 
-        let info = set_session_info(session, project, &identity_provider, original_uri).await?;
+        let info = set_session_info(session, project, identity_provider, original_uri).await?;
         authorization_url
             .query_pairs_mut()
             .append_pair("state", &info.state);
@@ -257,7 +254,7 @@ async fn create_federated_authorization_url(
                 .pkce
                 .as_ref()
                 .and_then(|p| p.code_challenge_method.as_ref())
-                .and_then(|c| oidc_pkce_challenge_method(c))
+                .and_then(oidc_pkce_challenge_method)
         {
             let code_challenge = generate_code_challenge(&code_verifier, &challenge_method)?;
             authorization_url
@@ -270,10 +267,10 @@ async fn create_federated_authorization_url(
 
         Ok(authorization_url)
     } else {
-        return Err(OperationOutcomeError::error(
+        Err(OperationOutcomeError::error(
             IssueType::not_found(),
             "The specified identity provider was not found.".to_string(),
-        ));
+        ))
     }
 }
 
@@ -308,7 +305,7 @@ pub async fn federated_initiate<
         &mut current_session,
         &tenant,
         project,
-        &api_uri,
+        api_uri,
         &uri,
         &identity_provider,
     )

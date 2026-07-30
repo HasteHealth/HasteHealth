@@ -163,7 +163,7 @@ impl<
                         .await?;
 
                     Ok(Some(FHIRResponse::Read(FHIRReadResponse {
-                        resource: resource,
+                        resource,
                     })))
                 }
                 FHIRRequest::Delete(req) => match req {
@@ -319,7 +319,7 @@ impl<
                         )
                         .await?;
 
-                    if vread_resources.get(0).is_some() {
+                    if !vread_resources.is_empty() {
                         Ok(Some(FHIRResponse::VersionRead(FHIRVersionReadResponse {
                             resource: vread_resources.swap_remove(0),
                         })))
@@ -331,7 +331,7 @@ impl<
                     HistoryRequest::Instance(_) => {
                         let history_resources = state
                             .repo
-                            .history(&context.ctx.tenant, &context.ctx.project, &history_request)
+                            .history(&context.ctx.tenant, &context.ctx.project, history_request)
                             .await?;
 
                         let fhir_api_root = api_fhir_root_url(
@@ -362,7 +362,7 @@ impl<
                     HistoryRequest::Type(_) => {
                         let history_resources = state
                             .repo
-                            .history(&context.ctx.tenant, &context.ctx.project, &history_request)
+                            .history(&context.ctx.tenant, &context.ctx.project, history_request)
                             .await?;
 
                         let fhir_api_root = api_fhir_root_url(
@@ -393,7 +393,7 @@ impl<
                     HistoryRequest::System(_) => {
                         let history_resources = state
                             .repo
-                            .history(&context.ctx.tenant, &context.ctx.project, &history_request)
+                            .history(&context.ctx.tenant, &context.ctx.project, history_request)
                             .await?;
 
                         let fhir_api_root = api_fhir_root_url(
@@ -596,7 +596,7 @@ impl<
                                         &context.ctx.user.claims,
                                         &context.ctx.fhir_version,
                                         &mut update_request.resource,
-                                        &search_result.id.as_ref(),
+                                        search_result.id.as_ref(),
                                     )
                                     .await?,
                                 })))
@@ -622,7 +622,7 @@ impl<
                                 &context.ctx.fhir_version,
                                 &context.ctx.tenant,
                                 &context.ctx.project,
-                                &search_request,
+                                search_request,
                                 None,
                             )
                             .await?;
@@ -667,7 +667,7 @@ impl<
                                 &context.ctx.fhir_version,
                                 &context.ctx.tenant,
                                 &context.ctx.project,
-                                &search_request,
+                                search_request,
                                 None,
                             )
                             .await?;
@@ -786,7 +786,7 @@ impl<
                         resource: process_batch_bundle(
                             batch_context.client.as_ref(),
                             batch_context.clone(),
-                            batch_entries.unwrap_or_else(Vec::new),
+                            batch_entries.unwrap_or_default(),
                         )
                         .await?,
                     })))
@@ -820,7 +820,7 @@ impl<
                     json_patch::patch(&mut json, &fhir_patch_request.patch).map_err(|e| {
                         OperationOutcomeError::fatal(
                             IssueType::exception(),
-                            format!("Failed to apply JSON patch: '{}'", e.to_string()),
+                            format!("Failed to apply JSON patch: '{}'", e),
                         )
                     })?;
 
@@ -889,7 +889,7 @@ impl<
                     let response = process_compartment_request(
                         context.ctx.client.as_ref(),
                         context.ctx.clone(),
-                        &compartment_request,
+                        compartment_request,
                     )
                     .await?;
 

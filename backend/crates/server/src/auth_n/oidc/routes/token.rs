@@ -167,7 +167,7 @@ async fn create_token_response<Repo: Repository>(
     }
 
     // If offline means refresh token should be generated.
-    if (&args.scopes.0)
+    if args.scopes.0
         .iter()
         .find(|s| **s == Scope::OIDC(OIDCScope::OfflineAccess))
         .is_some()
@@ -264,8 +264,8 @@ async fn get_approved_scopes<Repo: Repository>(
 ) -> Result<Scopes, OIDCError> {
     let approved_scopes = ProjectModelAdmin::<CreateScope, _, _, _, _>::search(
         repo,
-        &tenant,
-        &project,
+        tenant,
+        project,
         &ScopeSearchClaims {
             user_: Some(user_id),
             client: Some(client_id),
@@ -278,10 +278,9 @@ async fn get_approved_scopes<Repo: Repository>(
             Some("Failed to retrieve user's approved scopes.".to_string()),
             None,
         )
-    })?
-    .get(0)
+    })?.first()
     .map(|s| s.scope.clone())
-    .unwrap_or_else(|| Default::default());
+    .unwrap_or_else(Default::default);
 
     Ok(approved_scopes)
 }
@@ -340,11 +339,9 @@ fn verify_client(
     if client_app
         .secret
         .as_ref()
-        .and_then(|s| s.value.as_ref().map(String::as_str))
+        .and_then(|s| s.value.as_deref())
         != token_request_body
-            .client_secret
-            .as_ref()
-            .map(String::as_str)
+            .client_secret.as_deref()
     {
         return Err(OIDCError::new(
             OIDCErrorCode::AccessDenied,
@@ -366,8 +363,8 @@ async fn find_users_access_policy_version_ids<Search: SearchEngine>(
     let access_policies = search
         .search(
             &SupportedFHIRVersions::R4,
-            &tenant,
-            &project,
+            tenant,
+            project,
             &SearchRequest::Type(FHIRSearchTypeRequest {
                 resource_type: ResourceType::AccessPolicyV2,
                 parameters: vec![(
@@ -423,7 +420,7 @@ pub async fn client_credentials_to_token_response<
     let client_app =
         find_client_app(state, tenant.clone(), project.clone(), client_id.clone()).await?;
 
-    verify_client(&client_app, &token_body)?;
+    verify_client(&client_app, token_body)?;
 
     // Allow basic auth if client app allows grant.
     if method == ClientCredentialsMethod::BasicAuth {
@@ -433,7 +430,7 @@ pub async fn client_credentials_to_token_response<
     let client_app_scopes = client_app
         .scope
         .as_ref()
-        .and_then(|s| s.value.as_ref().map(String::as_str))
+        .and_then(|s| s.value.as_deref())
         .unwrap_or_default();
 
     let requested_scopes = Scopes::from(
@@ -471,8 +468,8 @@ pub async fn client_credentials_to_token_response<
             membership: None,
             access_policy_version_ids: find_users_access_policy_version_ids(
                 state.search.as_ref(),
-                &tenant,
-                &project,
+                tenant,
+                project,
                 client_id,
                 &ResourceType::ClientApplication,
             )
@@ -537,7 +534,7 @@ pub async fn token<
                 &project,
                 &client_app,
                 AuthorizationCodeKind::RefreshToken,
-                &refresh_token,
+                refresh_token,
                 None,
                 None,
             )
@@ -579,7 +576,7 @@ pub async fn token<
                 &*state.repo,
                 &tenant,
                 &project,
-                &refresh_token,
+                refresh_token,
             )
             .await
             .map_err(|_e| {
@@ -626,7 +623,7 @@ pub async fn token<
                                 state.search.as_ref(),
                                 &tenant,
                                 &project,
-                                &membership,
+                                membership,
                                 &ResourceType::Membership,
                             )
                             .await?
@@ -684,9 +681,9 @@ pub async fn token<
                 &project,
                 &client_app,
                 AuthorizationCodeKind::OAuth2CodeGrant,
-                &code,
-                Some(&redirect_uri),
-                Some(&code_verifier),
+                code,
+                Some(redirect_uri),
+                Some(code_verifier),
             )
             .await
             .map_err(|_| {
@@ -774,7 +771,7 @@ pub async fn token<
                                 state.search.as_ref(),
                                 &tenant,
                                 &project,
-                                &membership,
+                                membership,
                                 &ResourceType::Membership,
                             )
                             .await?

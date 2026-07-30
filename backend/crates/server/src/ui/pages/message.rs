@@ -9,7 +9,7 @@ pub fn message_html(
     message: Markup,
 ) -> Markup {
     let project_id =
-        project.map(|project| project.id.clone().map(|id| ProjectId::new(id)).unwrap());
+        project.map(|project| project.id.clone().map(ProjectId::new).unwrap());
     let project_name = project
         .and_then(|project| project.name.value.as_ref())
         .map(|s| Cow::Borrowed(s.as_str()))

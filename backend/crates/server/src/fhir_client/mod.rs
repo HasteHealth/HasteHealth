@@ -290,9 +290,9 @@ static PROJECT_AUTH_TYPES: &[ResourceType] = &[ResourceType::Membership];
 
 static SPECIAL_TYPES: LazyLock<Vec<ResourceType>> = LazyLock::new(|| {
     [
-        &TENANT_AUTH_TYPES[..],
-        &PROJECT_AUTH_TYPES[..],
-        &ARTIFACT_TYPES[..],
+        TENANT_AUTH_TYPES,
+        PROJECT_AUTH_TYPES,
+        ARTIFACT_TYPES,
     ]
     .concat()
 });
@@ -357,7 +357,7 @@ impl<
                     FHIRRequest::Invocation(_) | FHIRRequest::Capabilities => false,
                     _ => {
                         if let Some(resource_type) = request_to_resource_type(req) {
-                            !SPECIAL_TYPES.contains(&resource_type)
+                            !SPECIAL_TYPES.contains(resource_type)
                         } else {
                             true
                         }
@@ -374,7 +374,7 @@ impl<
                     | FHIRRequest::Read(_)
                     | FHIRRequest::Search(SearchRequest::Type(_)) => {
                         if let Some(resource_type) = request_to_resource_type(req) {
-                            ARTIFACT_TYPES.contains(&resource_type)
+                            ARTIFACT_TYPES.contains(resource_type)
                         } else {
                             false
                         }
@@ -402,7 +402,7 @@ impl<
                 filter: Box::new(|req: &FHIRRequest| match req {
                     FHIRRequest::Invocation(_) => false,
                     _ => request_to_resource_type(req)
-                        .map_or(false, |rt| PROJECT_AUTH_TYPES.contains(rt)),
+                        .is_some_and(|rt| PROJECT_AUTH_TYPES.contains(rt)),
                 }),
                 middleware: Middleware::new(vec![
                     Box::new(middleware::transaction::Middleware::new()),
@@ -415,7 +415,7 @@ impl<
                 filter: Box::new(|req: &FHIRRequest| match req {
                     FHIRRequest::Invocation(_) => false,
                     _ => request_to_resource_type(req)
-                        .map_or(false, |rt| TENANT_AUTH_TYPES.contains(rt)),
+                        .is_some_and(|rt| TENANT_AUTH_TYPES.contains(rt)),
                 }),
                 middleware: Middleware::new(vec![
                     Box::new(

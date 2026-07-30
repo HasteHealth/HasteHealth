@@ -98,7 +98,7 @@ fn get_highest_value_for_request_scope<'a>(
         b_weight.cmp(&a_weight)
     });
 
-    Ok(sorted_scopes.first().map(|s| *s))
+    Ok(sorted_scopes.first().copied())
 }
 
 pub struct SMARTScopeAccessMiddleware {}

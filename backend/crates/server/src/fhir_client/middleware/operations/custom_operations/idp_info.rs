@@ -71,7 +71,7 @@ pub fn idp_registration_info_op<
                 Box::pin(async move {
                     let api_url_string = &context.state.config.api_uri;
 
-                    let api_url = Url::parse(&api_url_string).map_err(|e| {
+                    let api_url = Url::parse(api_url_string).map_err(|e| {
                         tracing::error!("Failed to parse API URL: {:?}", e);
                         OperationOutcomeError::error(
                             IssueType::invalid(),

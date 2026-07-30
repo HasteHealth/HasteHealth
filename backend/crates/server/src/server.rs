@@ -35,7 +35,7 @@ use haste_repository::{Repository, types::SupportedFHIRVersions, utilities::gene
 use sentry::integrations::tower::NewSentryLayer;
 use serde::Deserialize;
 use std::net::SocketAddr;
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 use tower::{Layer, ServiceBuilder};
 use tower_http::{catch_panic::CatchPanicLayer, normalize_path::NormalizePath};
 use tower_http::{
@@ -93,7 +93,7 @@ async fn fhir_handler<
                         .into_owned()
                         .collect()
                 })
-                .unwrap_or_else(HashMap::new),
+                .unwrap_or_default(),
         );
 
         let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, http_req)?;

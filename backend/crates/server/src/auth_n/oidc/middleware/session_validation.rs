@@ -85,7 +85,7 @@ where
                 .await
                 .expect("Could not extract session.");
 
-            let to_route = oidc_route_string(&tenant, &project, &to);
+            let to_route = oidc_route_string(&tenant, &project, to);
 
             if let Ok(authorization_completed_state) =
                 session::user::get_completed_authorization_state(&current_session).await

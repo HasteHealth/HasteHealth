@@ -30,7 +30,7 @@ fn get_provider_id(user: &User) -> Option<String> {
         .as_ref()
         .and_then(|f| f.reference.as_ref())
         .and_then(|r| r.value.as_ref())
-        .and_then(|s| s.split('/').last().map(|s| s.to_string()))
+        .and_then(|s| s.split('/').next_back().map(|s| s.to_string()))
 }
 
 fn get_user_method(user: &User) -> AuthMethod {

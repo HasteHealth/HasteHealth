@@ -7,7 +7,7 @@ pub fn client_app_header_html(client_app: &ClientApplication) -> Markup {
         .name
         .value
         .as_ref()
-        .map(|s| Cow::Borrowed(s))
+        .map(Cow::Borrowed)
         .unwrap_or(Cow::Owned("Unnamed Client".to_string()));
 
     html! {

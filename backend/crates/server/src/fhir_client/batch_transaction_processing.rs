@@ -139,14 +139,12 @@ pub fn bundle_entry_to_fhir_request(
     if let Some(request) = entry.request.as_ref() {
         let url = request
             .url
-            .value
-            .as_ref()
-            .map(|s| s.as_str())
+            .value.as_deref()
             .unwrap_or_default();
 
         let (path, query) = url.split_once("?").unwrap_or((url, ""));
         let request_method_string = request.method.as_str();
-        let Ok(method) = Method::from_str(&request_method_string.unwrap_or_default()) else {
+        let Ok(method) = Method::from_str(request_method_string.unwrap_or_default()) else {
             return Err(OperationOutcomeError::error(
                 IssueType::invalid(),
                 "Invalid HTTP Method".to_string(),
@@ -200,7 +198,7 @@ pub async fn process_batch_bundle<
     })
 }
 
-fn get_resource_from_response<'a>(response: &'a FHIRResponse) -> Option<&'a Resource> {
+fn get_resource_from_response(response: &FHIRResponse) -> Option<&Resource> {
     match response {
         FHIRResponse::Create(res) => Some(&res.resource),
         FHIRResponse::Read(res) => res.resource.as_ref(),

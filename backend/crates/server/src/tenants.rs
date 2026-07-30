@@ -54,7 +54,7 @@ pub async fn create_user<
     if let Some(password) = password {
         set_user_password(
             &*services.repo,
-            &tenant,
+            tenant,
             &user
                 .email
                 .as_ref()

@@ -133,11 +133,11 @@ impl<
                     Ok(context)
                 }
                 _ => {
-                    return Err(OperationOutcomeError::fatal(
+                    Err(OperationOutcomeError::fatal(
                         IssueType::exception(),
                         "Artifact tenant middleware only supports read and search requests."
                             .to_string(),
-                    ));
+                    ))
                 }
             }
         })

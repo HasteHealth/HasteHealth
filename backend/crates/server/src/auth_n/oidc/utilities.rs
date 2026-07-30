@@ -47,7 +47,7 @@ pub async fn set_user_password<Repo: Repository>(
 
     TenantModelAdmin::<CreateUser, _, _, _, String>::update(
         repo,
-        &tenant,
+        tenant,
         UpdateUser {
             id: user_id.to_string(),
             password: Some(password.to_string()),

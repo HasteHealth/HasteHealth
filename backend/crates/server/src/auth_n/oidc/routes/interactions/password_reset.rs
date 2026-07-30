@@ -246,7 +246,7 @@ pub async fn password_reset_verify_post<
             )
         })?;
 
-        set_user_password(&*state.repo, &tenant, &email, &user.id, &body.password).await?;
+        set_user_password(&*state.repo, &tenant, email, &user.id, &body.password).await?;
 
         let admin_app_url = admin_app::redirect_url(state.config.as_ref(), &tenant, &project);
 

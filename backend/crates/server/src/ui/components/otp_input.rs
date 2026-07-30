@@ -6,7 +6,7 @@ use crate::static_assets::asset_route;
 /// the script that keeps them in sync. `form_id` must be the id of the
 /// enclosing `<form>` and must be unique on the page.
 pub fn otp_code_input(digits: usize) -> Markup {
-    let digit_class = format!("digit_input");
+    let digit_class = "digit_input".to_string();
 
     html! {
         input type="hidden" name="otp_code" id="otp_code" {}

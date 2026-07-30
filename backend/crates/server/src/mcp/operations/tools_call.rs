@@ -38,7 +38,7 @@ pub async fn tools_call<
             .map_err(|e| {
                 OperationOutcomeError::error(
                     IssueType::invalid(),
-                    format!("Failed to parse tool arguments: '{}'", e.to_string()),
+                    format!("Failed to parse tool arguments: '{}'", e),
                 )
             })?;
 
@@ -74,7 +74,7 @@ pub async fn tools_call<
             let result = serde_json::to_string(&result).map_err(|e| {
                 OperationOutcomeError::error(
                     IssueType::processing(),
-                    format!("Failed to serialize search result: '{}'", e.to_string()),
+                    format!("Failed to serialize search result: '{}'", e),
                 )
             })?;
 
@@ -83,7 +83,7 @@ pub async fn tools_call<
                     serde_json::from_str::<serde_json::Value>(&result).map_err(|e| {
                         OperationOutcomeError::error(
                             IssueType::processing(),
-                            format!("Failed to parse search result JSON: '{}'", e.to_string()),
+                            format!("Failed to parse search result JSON: '{}'", e),
                         )
                     })?,
                 ),

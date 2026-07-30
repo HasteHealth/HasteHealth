@@ -14,6 +14,6 @@ pub struct EncodingKey {
 
 pub trait CertificationProvider: Sync + Send {
     fn decoding_key<'a>(&'a self, kid: &str) -> Result<&'a DecodingKey, OperationOutcomeError>;
-    fn encoding_key<'a>(&'a self) -> Result<&'a EncodingKey, OperationOutcomeError>;
+    fn encoding_key(&self) -> Result<&EncodingKey, OperationOutcomeError>;
     fn jwk_set(&self) -> Arc<JSONWebKeySet>;
 }

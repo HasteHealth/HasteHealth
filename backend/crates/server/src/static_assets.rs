@@ -66,10 +66,10 @@ async fn not_found() -> Html<&'static str> {
 }
 
 pub fn create_static_server() -> Router {
-    let assets_router = Router::new()
+    
+    Router::new()
         .route("/", routing::get(index_handler))
         .route("/index.html", routing::get(index_handler))
         .route("/{*file}", routing::get(static_handler))
-        .fallback_service(routing::get(not_found));
-    assets_router
+        .fallback_service(routing::get(not_found))
 }

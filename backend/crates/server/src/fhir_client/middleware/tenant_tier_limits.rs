@@ -38,7 +38,7 @@ fn get_request_limit(
                 ));
             };
 
-            Ok(get_tenant_resource_limit(subscription_tier, &resource_type))
+            Ok(get_tenant_resource_limit(subscription_tier, resource_type))
         }
 
         _ => Ok(TenantResourceLimit::Unlimited),

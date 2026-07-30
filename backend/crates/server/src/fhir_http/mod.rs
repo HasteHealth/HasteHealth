@@ -154,13 +154,11 @@ fn parse_request_1_non_empty(
                 // Handle operation request
                 Err(FHIRRequestParsingError::Unsupported(
                     "GET operation requests are not supported".to_string(),
-                )
-                .into())
+                ))
             }
             _ => Err(FHIRRequestParsingError::Unsupported(
                 "Invalid method for invocation".to_string(),
-            )
-            .into()),
+            )),
         }
     } else {
         match req.method {
@@ -168,8 +166,7 @@ fn parse_request_1_non_empty(
                 match url_chunks[0].as_str() {
                     "_search" => Err(FHIRRequestParsingError::Unsupported(
                         "POST search requests are not supported".to_string(),
-                    )
-                    .into()),
+                    )),
                     _ => {
                         let resource_type = ResourceType::try_from(url_chunks[0].as_str())?;
                         let resource = get_resource(&resource_type, req)?;
@@ -223,8 +220,7 @@ fn parse_request_1_non_empty(
             }
             _ => Err(FHIRRequestParsingError::Unsupported(
                 "Unsupported method for FHIR request".to_string(),
-            )
-            .into()),
+            )),
         }
     }
 }
@@ -256,8 +252,7 @@ fn parse_request_1_empty(
                 }
                 _ => Err(FHIRRequestParsingError::Unsupported(
                     "Unsupported bundle type".to_string(),
-                )
-                .into()),
+                )),
             }
         }
         Method::GET => {
@@ -275,8 +270,7 @@ fn parse_request_1_empty(
         ))),
         _ => Err(FHIRRequestParsingError::Unsupported(
             "Unsupported method for FHIR request".to_string(),
-        )
-        .into()),
+        )),
     }
 }
 
@@ -324,13 +318,11 @@ fn parse_request_2(
                 // Handle operation request
                 Err(FHIRRequestParsingError::Unsupported(
                     "GET operation requests are not supported".to_string(),
-                )
-                .into())
+                ))
             }
             _ => Err(FHIRRequestParsingError::Unsupported(
                 "Invalid method for invocation".to_string(),
-            )
-            .into()),
+            )),
         }
     } else {
         match req.method {
@@ -340,13 +332,11 @@ fn parse_request_2(
                         // Handle search request
                         Err(FHIRRequestParsingError::Unsupported(
                             "POST search requests are not supported".to_string(),
-                        )
-                        .into())
+                        ))
                     }
                     _ => Err(FHIRRequestParsingError::Unsupported(
                         "To create new resources run post at resource root.".to_string(),
-                    )
-                    .into()),
+                    )),
                 }
             }
             Method::GET => {
@@ -394,8 +384,7 @@ fn parse_request_2(
             ))),
             _ => Err(FHIRRequestParsingError::Unsupported(
                 "Unsupported method for FHIR request.".to_string(),
-            )
-            .into()),
+            )),
         }
     }
 }
@@ -429,13 +418,11 @@ fn parse_request_3(
                 // Handle operation request
                 Err(FHIRRequestParsingError::Unsupported(
                     "GET operation requests are not supported".to_string(),
-                )
-                .into())
+                ))
             }
             _ => Err(FHIRRequestParsingError::Unsupported(
                 "Invalid method for invocation".to_string(),
-            )
-            .into()),
+            )),
         }
     } else {
         match req.method {
@@ -465,8 +452,7 @@ fn parse_request_3(
             }
             _ => Err(FHIRRequestParsingError::Unsupported(
                 "Unsupported method for FHIR request.".to_string(),
-            )
-            .into()),
+            )),
         }
     }
 }
@@ -498,8 +484,7 @@ fn parse_request_4(
     } else {
         Err(FHIRRequestParsingError::Unsupported(
             "Unsupported method for FHIR request.".to_string(),
-        )
-        .into())
+        ))
     }
 }
 
@@ -518,7 +503,7 @@ pub fn http_request_to_fhir_request(
         2 => parse_request_2(fhir_version, url_pieces, req),
         3 => parse_request_3(fhir_version, url_pieces, req),
         4 => parse_request_4(fhir_version, url_pieces, req),
-        _ => Err(FHIRRequestParsingError::InvalidPath.into()),
+        _ => Err(FHIRRequestParsingError::InvalidPath),
     }
     .map_err(|e| e.into())
 }

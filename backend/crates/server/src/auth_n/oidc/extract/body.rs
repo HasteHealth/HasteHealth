@@ -35,22 +35,21 @@ where
 
         let mut token_body = match content_type {
             "application/json" | "application/fhir+json" => {
-                let body = serde_json::from_slice::<schemas::token_body::OAuth2TokenBody>(&bytes)
+                
+
+                serde_json::from_slice::<schemas::token_body::OAuth2TokenBody>(&bytes)
                     .map_err(|e| {
                     tracing::error!("JSON parse error: {:?}", e);
                     OperationOutcomeError::fatal(IssueType::invalid(), e.to_string())
-                })?;
-
-                body
+                })?
             }
             "application/x-www-form-urlencoded" => {
-                let body =
-                    serde_html_form::from_bytes::<schemas::token_body::OAuth2TokenBody>(&bytes)
+                
+
+                serde_html_form::from_bytes::<schemas::token_body::OAuth2TokenBody>(&bytes)
                         .map_err(|e| {
                             OperationOutcomeError::fatal(IssueType::invalid(), e.to_string())
-                        })?;
-
-                body
+                        })?
             }
             _ => {
                 return Err(OperationOutcomeError::fatal(

@@ -82,7 +82,7 @@ pub async fn tenant_select_post(
         tenant_route_string(&tenant_id).join("./auth/interactions/project-select");
 
     if let Some(project_select_route) = project_select_route.to_str() {
-        Ok(Redirect::to(&project_select_route).into_response())
+        Ok(Redirect::to(project_select_route).into_response())
     } else {
         tracing::error!(
             "Failed to get admin app redirect URL for tenant '{}'",

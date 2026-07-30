@@ -349,7 +349,7 @@ pub async fn oauth_protected_resource<
         ));
     }
 
-    let Ok(api_url) = Url::parse(&api_url_string) else {
+    let Ok(api_url) = Url::parse(api_url_string) else {
         return Err(OIDCError::new(
             OIDCErrorCode::ServerError,
             Some("Invalid API_URL format".to_string()),
@@ -364,11 +364,10 @@ pub async fn oauth_protected_resource<
     let oauth_protected_resource = OAuthProtectedResourceDocument {
         resource: api_url
             .join(
-                &project_path(&tenant, &project)
+                project_path(&tenant, &project)
                     .join(&resource)
                     .to_str()
-                    .unwrap_or_default()
-                    .to_string(),
+                    .unwrap_or_default(),
             )
             .unwrap()
             .to_string(),
@@ -384,7 +383,7 @@ pub async fn oauth_protected_resource<
             default_scopes
                 .0
                 .into_iter()
-                .map(|s| String::from(s))
+                .map(String::from)
                 .collect::<Vec<_>>(),
         ),
         bearer_methods_supported: None,
@@ -415,7 +414,7 @@ pub fn create_oidc_discovery_document(
         ));
     }
 
-    let Ok(api_url) = Url::parse(&api_url_string) else {
+    let Ok(api_url) = Url::parse(api_url_string) else {
         return Err(OIDCError::new(
             OIDCErrorCode::ServerError,
             Some("Invalid API_URL format".to_string()),
@@ -424,17 +423,17 @@ pub fn create_oidc_discovery_document(
     };
 
     let authorize_path = api_v1_oidc_auth_path(tenant, project).join(
-        &authorize::AuthorizePath
+        authorize::AuthorizePath
             .to_string()
             .strip_prefix("/")
             .unwrap(),
     );
 
     let token_path = api_v1_oidc_auth_path(tenant, project)
-        .join(&token::TokenPath.to_string().strip_prefix("/").unwrap());
+        .join(token::TokenPath.to_string().strip_prefix("/").unwrap());
 
     let jwks_path = api_v1_oidc_path(tenant, project)
-        .join(&jwks::JWKSPath.to_string().strip_prefix("/").unwrap());
+        .join(jwks::JWKSPath.to_string().strip_prefix("/").unwrap());
 
     let oidc_response = WellKnownDiscoveryDocument {
         issuer: api_url.to_string(),
@@ -494,17 +493,17 @@ pub fn create_smart_configuration(
     };
 
     let authorize_path = api_v1_oidc_auth_path(tenant, project).join(
-        &authorize::AuthorizePath
+        authorize::AuthorizePath
             .to_string()
             .strip_prefix("/")
             .unwrap(),
     );
 
     let token_path = api_v1_oidc_auth_path(tenant, project)
-        .join(&token::TokenPath.to_string().strip_prefix("/").unwrap());
+        .join(token::TokenPath.to_string().strip_prefix("/").unwrap());
 
     let jwks_path = api_v1_oidc_path(tenant, project)
-        .join(&jwks::JWKSPath.to_string().strip_prefix("/").unwrap());
+        .join(jwks::JWKSPath.to_string().strip_prefix("/").unwrap());
 
     let smart_document = SmartConfigurationDocument {
         issuer: Some(api_url.to_string()),
@@ -581,7 +580,7 @@ pub async fn openid_configuration<
     Ok(Json(create_oidc_discovery_document(
         &tenant,
         &project,
-        &api_url_string,
+        api_url_string,
     )?))
 }
 
@@ -599,6 +598,6 @@ pub async fn smart_configuration<
     Ok(Json(create_smart_configuration(
         &tenant,
         &project,
-        &api_url_string,
+        api_url_string,
     )?))
 }

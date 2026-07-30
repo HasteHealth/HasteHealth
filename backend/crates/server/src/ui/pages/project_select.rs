@@ -12,7 +12,7 @@ fn get_project_id(project: &Project) -> Result<ProjectId, OperationOutcomeError>
     project
         .id
         .clone()
-        .map(|id| ProjectId::new(id))
+        .map(ProjectId::new)
         .ok_or_else(|| {
             OperationOutcomeError::error(IssueType::exception(), "Project ID not found".to_string())
         })

@@ -191,7 +191,7 @@ fn build_audit_event<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcome
             subtype_code.as_str().map(|s| s.to_string()),
             subtype_display,
         )]),
-        action: action,
+        action,
         recorded: Box::new(FHIRInstant::from(Instant::Iso8601(chrono::Utc::now()))),
         agent: vec![AuditEventAgent {
             who: Some(Box::new(Reference {

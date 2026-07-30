@@ -21,7 +21,7 @@ impl<S: Send + Sync> FromRequestParts<S> for Scopes {
         let scope = oidc_params
             .parameters
             .get("scope")
-            .map(|s| Cow::Borrowed(s))
+            .map(Cow::Borrowed)
             .unwrap_or_else(|| Cow::Owned("".to_string()));
 
         let scopes = haste_jwt::scopes::Scopes::try_from(scope.as_str())

@@ -94,7 +94,7 @@ impl<
             ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
         >,
     > {
-        let code = get_request_operation_code(&request)?;
+        let code = get_request_operation_code(request)?;
         for executor in self.0.iter() {
             if executor.code() == code {
                 return Some(executor.as_ref());
@@ -104,16 +104,16 @@ impl<
     }
 }
 
-fn get_request_operation_code<'a>(request: &'a FHIRRequest) -> Option<&'a str> {
+fn get_request_operation_code(request: &FHIRRequest) -> Option<&str> {
     match request {
         FHIRRequest::Invocation(InvocationRequest::Instance(instance_request)) => {
-            Some(&instance_request.operation.name())
+            Some(instance_request.operation.name())
         }
         FHIRRequest::Invocation(InvocationRequest::Type(type_request)) => {
-            Some(&type_request.operation.name())
+            Some(type_request.operation.name())
         }
         FHIRRequest::Invocation(InvocationRequest::System(system_request)) => {
-            Some(&system_request.operation.name())
+            Some(system_request.operation.name())
         }
         _ => None,
     }
@@ -179,7 +179,7 @@ impl<
                                 },
                                 context.ctx.tenant.clone(),
                                 context.ctx.project.clone(),
-                                &invoke_request,
+                                invoke_request,
                             )
                             .await?;
 
@@ -202,7 +202,7 @@ impl<
                             .entry
                             .as_deref()
                             .unwrap_or_default()
-                            .into_iter()
+                            .iter()
                             .next()
                         && let Some(Resource::OperationDefinition(operation_definition)) =
                             entry.resource.as_deref()
@@ -212,7 +212,7 @@ impl<
                                 context.ctx.clone(),
                                 context.ctx.client.clone(),
                                 operation_definition,
-                                &invoke_request,
+                                invoke_request,
                             )
                             .await?;
 

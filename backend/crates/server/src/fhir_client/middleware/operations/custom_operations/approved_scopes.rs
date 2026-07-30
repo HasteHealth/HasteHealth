@@ -24,7 +24,8 @@ use sqlx::types::time::OffsetDateTime;
 use tower_sessions::cookie::time::format_description;
 
 fn format_datetime(datetime: &OffsetDateTime) -> Option<String> {
-    let res = datetime
+    
+    datetime
         .format(
             &format_description::parse_borrowed::<2>(
                 "[year]-[month]-[day]T[hour]:[minute]:[second][offset_hour \
@@ -32,8 +33,7 @@ fn format_datetime(datetime: &OffsetDateTime) -> Option<String> {
             )
             .expect("failed to create formatter"),
         )
-        .ok();
-    res
+        .ok()
 }
 
 pub fn approved_scopes_op<

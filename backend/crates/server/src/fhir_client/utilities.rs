@@ -4,7 +4,7 @@ use haste_fhir_client::request::{
 use haste_fhir_model::r4::generated::resources::ResourceType;
 
 /// Converts a FHIRRequest to its corresponding ResourceType if applicable.
-pub fn request_to_resource_type<'a>(request: &'a FHIRRequest) -> Option<&'a ResourceType> {
+pub fn request_to_resource_type(request: &FHIRRequest) -> Option<&ResourceType> {
     match request {
         FHIRRequest::Create(req) => Some(&req.resource_type),
         // Instance Operations

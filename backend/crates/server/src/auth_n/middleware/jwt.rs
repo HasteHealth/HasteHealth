@@ -43,13 +43,13 @@ fn validate_jwt(config: &ServerConfig, token: &str) -> Result<UserTokenClaims, S
     let cert_provider = certificates::get_certification_provider(config);
 
     let decoding_key = cert_provider
-        .decoding_key(&header.kid.unwrap_or_else(|| "".to_string()).as_str())
+        .decoding_key(header.kid.unwrap_or_else(|| "".to_string()).as_str())
         .map_err(|_| StatusCode::UNAUTHORIZED)?;
 
     let result = jsonwebtoken::decode::<UserTokenClaims>(
         token,
         &decoding_key.decoding_key,
-        &*VALIDATION_CONFIG,
+        &VALIDATION_CONFIG,
     )
     .map_err(|_| StatusCode::UNAUTHORIZED)?;
 
@@ -63,7 +63,7 @@ pub fn derive_well_known_openid_configuration_url(
 ) -> Result<Url, OperationOutcomeError> {
     let path = PathBuf::from("/.well-known/openid-configuration");
 
-    if let Ok(api_url) = Url::parse(&api_url) {
+    if let Ok(api_url) = Url::parse(api_url) {
         api_url
             .join(
                 path.join(project_path(tenant, project).strip_prefix("/").unwrap())
@@ -90,7 +90,7 @@ pub fn derive_protected_resource_metadata_url(
     api_url: &str,
 ) -> Result<Url, OperationOutcomeError> {
     let path = PathBuf::from("/.well-known/oauth-protected-resource");
-    if let Ok(api_url) = Url::parse(&api_url) {
+    if let Ok(api_url) = Url::parse(api_url) {
         let tenant_url = api_url
             .join(
                 path.join(resource_uri.path().strip_prefix("/").unwrap_or_default())
@@ -130,7 +130,7 @@ fn invalid_jwt_response(uri: &Uri, api_url: &str, status_code: StatusCode) -> Re
         axum::http::header::WWW_AUTHENTICATE,
         format!(
             r#"Bearer resource_metadata="{}""#,
-            protected_resource_metadata_url.to_string()
+            protected_resource_metadata_url
         )
         .parse()
         .unwrap(),

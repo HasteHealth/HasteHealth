@@ -21,7 +21,7 @@ pub fn scope_approval_html(
     client_application: &ClientApplication,
     authorization_info: &ScopeForm,
 ) -> Markup {
-    let project_id = project.id.clone().map(|id| ProjectId::new(id)).unwrap();
+    let project_id = project.id.clone().map(ProjectId::new).unwrap();
     let project_name = project
         .name
         .value

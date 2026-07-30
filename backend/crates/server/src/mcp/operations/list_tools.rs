@@ -68,7 +68,7 @@ fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
         .rest
         .as_ref()
         .unwrap_or(&default_)
-        .into_iter()
+        .iter()
         .filter_map(|r| r.resource.as_ref())
         .flatten()
         .collect::<Vec<_>>();
@@ -96,9 +96,7 @@ fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
 
     Tool {
         annotations: None,
-        description: Some(format!(
-            "Tool for FHIR Resource Search across supported types",
-        )),
+        description: Some("Tool for FHIR Resource Search across supported types".to_string()),
         execution: None,
         icons: vec![],
         input_schema,
@@ -117,7 +115,7 @@ fn generate_get_search_parameters_tool(capabilities: &CapabilityStatement) -> To
         .rest
         .as_ref()
         .unwrap_or(&default_)
-        .into_iter()
+        .iter()
         .filter_map(|r| r.resource.as_ref())
         .flatten()
         .collect::<Vec<_>>();
@@ -138,9 +136,7 @@ fn generate_get_search_parameters_tool(capabilities: &CapabilityStatement) -> To
 
     Tool {
         annotations: None,
-        description: Some(format!(
-            "Tool to get available search parameters for a given FHIR Resource Type",
-        )),
+        description: Some("Tool to get available search parameters for a given FHIR Resource Type".to_string()),
         execution: None,
         icons: vec![],
         input_schema,
