@@ -47,7 +47,7 @@ cargo run worker
 To run the frontend admin application:
 
 ```bash
-cd frontend/packages/admin-app
+cd <repo-root>/frontend/packages/admin-app
 pnpm dev
 ```
 
