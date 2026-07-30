@@ -53,8 +53,9 @@ pnpm dev
 
 Then go to http://my-health_system.localhost:3001
 and fill in the following credentials:
-username: `myuser@health.org`
-password: `testing_password`
+
+- username: `myuser@health.org`
+- password: `testing_password`
 
 This tenant and user are created automatically when you run the migration in the earlier docker-compose step.
 
