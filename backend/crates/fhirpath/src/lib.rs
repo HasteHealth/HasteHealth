@@ -793,10 +793,16 @@ async fn evaluate_operation<'a>(
         Operation::Modulo(_, _) => not_implemented("Modulo"),
         Operation::Polarity(_, _) => not_implemented("Polarity"),
         Operation::DivisionTruncated(_, _) => not_implemented("DivisionTruncated"),
-        Operation::LessThan(_, _) => not_implemented("LessThan"),
-        Operation::GreaterThan(_, _) => not_implemented("GreaterThan"),
-        Operation::LessThanEqual(_, _) => not_implemented("LessThanEqual"),
-        Operation::GreaterThanEqual(_, _) => not_implemented("GreaterThanEqual"),
+        Operation::LessThan(left, right) => evaluate_less_than(left, right, context, config).await,
+        Operation::GreaterThan(left, right) => {
+            evaluate_greater_than(left, right, context, config).await
+        }
+        Operation::LessThanEqual(left, right) => {
+            evaluate_less_than_equal(left, right, context, config).await
+        }
+        Operation::GreaterThanEqual(left, right) => {
+            evaluate_greater_than_equal(left, right, context, config).await
+        }
         Operation::Equivalent(_, _) => not_implemented("Equivalent"),
         Operation::NotEquivalent(_, _) => not_implemented("NotEquivalent"),
         Operation::In(_, _) => not_implemented("In"),
@@ -881,6 +887,32 @@ where
     .await
 }
 
+async fn evaluate_numerical_comparison<'a, F>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+    op: F,
+) -> Result<Context<'a>, FHIRPathError>
+where
+    F: FnOnce(f64, f64) -> bool + Copy + Send + 'static,
+{
+    operation_2(left, right, context, config, move |left, right| {
+        Box::pin(async move {
+            let left_value = downcast_number(left.values[0])?;
+            let right_value = downcast_number(right.values[0])?;
+
+            Ok(left.new_context_from(vec![
+                left.allocate_literal(FHIRBoolean {
+                    value: Some(op(left_value, right_value)),
+                    ..Default::default()
+                })
+                .await,
+            ]))
+        })
+    })
+    .await
+}
 async fn evaluate_subtraction<'a>(
     left: &Expression,
     right: &Expression,
@@ -906,6 +938,42 @@ async fn evaluate_division<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     evaluate_numeric_binary(left, right, context, config, |l, r| l / r).await
+}
+
+async fn evaluate_less_than<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_numerical_comparison(left, right, context, config, |l, r| l < r).await
+}
+
+async fn evaluate_less_than_equal<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_numerical_comparison(left, right, context, config, |l, r| l <= r).await
+}
+
+async fn evaluate_greater_than<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_numerical_comparison(left, right, context, config, |l, r| l > r).await
+}
+
+async fn evaluate_greater_than_equal<'a>(
+    left: &Expression,
+    right: &Expression,
+    context: Context<'a>,
+    config: Option<Arc<Config<'a>>>,
+) -> Result<Context<'a>, FHIRPathError> {
+    evaluate_numerical_comparison(left, right, context, config, |l, r| l >= r).await
 }
 
 async fn evaluate_boolean_binary<'a, F>(
@@ -2621,5 +2689,106 @@ mod tests {
         let result = engine.evaluate("$this.name.join()", vec![&patient]).await;
 
         assert_eq!(result.is_err(), true);
+    }
+
+    #[tokio::test]
+    async fn numerical_comparisons() {
+        let engine = FPEngine::new();
+
+        let result = engine
+            .evaluate("5 > 5", vec![])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(false));
+
+        let result = engine
+            .evaluate("5 > 4", vec![])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(true));
+
+        let result = engine
+            .evaluate("5 >= 5", vec![])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(true));
+
+        let result = engine
+            .evaluate("4 >= 5", vec![])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(false));
+
+        let result = engine
+            .evaluate("6 <= 5", vec![])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(false));
+
+        let result = engine
+            .evaluate("6 <= 6", vec![])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(true));
+
+        let result = engine
+            .evaluate("6 < 6", vec![])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(false));
+
+        let result = engine
+            .evaluate("6 < 7", vec![])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(true));
     }
 }

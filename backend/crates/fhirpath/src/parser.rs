@@ -285,7 +285,7 @@ parser! {
                 }
              }
              --
-            x:(@) _w() op:$("<=" / "<" / ">" / ">=") _w() y:@{
+            x:(@) _w() op:$("<=" / ">=" / "<" / ">" ) _w() y:@{
                 match op {
                     "<=" => Expression::Operation(Box::new(Operation::LessThanEqual(x, y))),
                     "<" => Expression::Operation(Box::new(Operation::LessThan(x, y))),
