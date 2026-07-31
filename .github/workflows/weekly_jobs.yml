@@ -18,5 +18,5 @@ jobs:
           components: miri
 
       - name: MIRI Unit tests
-        run: cargo +nightly miri test --locked --verbose --workspace
+        run: MIRIFLAGS=-Zmiri-disable-isolation cargo +nightly miri test --locked --verbose --workspace
         working-directory: ./backend
