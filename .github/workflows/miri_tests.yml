@@ -1,0 +1,22 @@
+name: Weekly Jobs
+
+on:
+  schedule:
+    # Runs every Sunday at 00:00 UTC
+    - cron: "0 0 * * 0"
+  push:
+    branches: ["miri-tests"]
+
+jobs:
+  miri-unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: miri
+
+      - name: MIRI Unit tests
+        run: cargo +nightly miri test --locked --verbose --workspace
+        working-directory: ./backend
