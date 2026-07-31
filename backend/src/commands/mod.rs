@@ -2,6 +2,7 @@ pub(crate) mod admin;
 pub(crate) mod api;
 pub(crate) mod codegen;
 pub(crate) mod config;
+pub(crate) mod doc;
 pub(crate) mod fhirpath;
 pub(crate) mod hl7v2;
 pub(crate) mod server;
