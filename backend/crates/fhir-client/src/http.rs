@@ -91,8 +91,6 @@ pub enum FHIRHTTPError {
     #[error(code = "invalid", diagnostic = "FHIR Deserialization Error '{arg0}'.")]
     DeserializeError(#[from] haste_fhir_serialization_json::errors::DeserializeError),
     #[error(code = "invalid", diagnostic = "FHIR Serialization Error.")]
-    SerializeError(#[from] haste_fhir_serialization_json::SerializeError),
-    #[error(code = "invalid", diagnostic = "FHIR Serialization Error.")]
     JSONSerializeError(#[from] serde_json::Error),
 }
 
