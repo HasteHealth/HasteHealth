@@ -323,12 +323,9 @@ fn from_rust_type_to_fhir_primitive(
         .as_ref()
         .map(|s| &s.element)
         .and_then(|element_definitions| {
-            element_definitions.iter().find(|e| {
-                e.path.value.as_ref().is_some_and(|p| {
-                    p.get(p.len().saturating_sub(6)..)
-                        .is_some_and(|suffix| suffix.eq_ignore_ascii_case(".value"))
-                })
-            })
+            element_definitions
+                .iter()
+                .find(|e| e.path.value.as_ref().is_some_and(|p| p.ends_with(".value")))
         });
 
     if let Some(value_element) = value_element
