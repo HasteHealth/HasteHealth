@@ -719,7 +719,7 @@ impl From<String> for FHIRUuid {
 pub struct FHIRXhtml {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
-    #[cardinality(max = 0usize)]
+    #[cardinality(max = 0u64)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Extension>>,
     #[doc = "Actual xhtml"]
@@ -2869,7 +2869,7 @@ pub struct Signature {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Extension>>,
     #[rename_field = "type"]
-    #[cardinality(min = 1usize)]
+    #[cardinality(min = 1u64)]
     #[doc = "An indication of the reason that the entity signed this document. This may be explicitly included as part of the signature information and can be used when determining accountability for various actions concerning the document."]
     pub type_: Vec<Coding>,
     #[primitive]

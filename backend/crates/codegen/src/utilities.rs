@@ -175,15 +175,33 @@ pub mod conversion {
     use proc_macro2::TokenStream;
     use quote::{format_ident, quote};
 
-    pub fn fhir_type_to_rust_type(
+    /// Converts a FHIR type to its corresponding Rust type.
+    ///
+    /// Returns a tuple where:
+    /// - The first element is the Rust type as a `TokenStream`.
+    /// - The second element indicates whether the returned type is a generated
+    ///   FHIR type (`true`) or a built-in Rust type (`false`).
+    ///
+    /// This function performs special handling for:
+    /// - `unsignedInt.value` and `positiveInt.value`, which map to `u64`.
+    /// - `instant.value`, which maps to the Rust `Instant` type.
+    /// - Primitive FHIR types with required bindings that have been inlined into
+    ///   generated terminology types.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the internal `RUST_PRIMITIVES` mapping does not contain the
+    /// `http://hl7.org/fhirpath/System.Instant` entry, or if any primitive type
+    /// mapping stored in `RUST_PRIMITIVES` is not a valid `TokenStream`.
+    pub fn fhir_type_to_rust_type<S: std::hash::BuildHasher>(
         element: &ElementDefinition,
         fhir_type: &str,
-        inlined_terminology: &HashMap<String, String>,
+        inlined_terminology: &HashMap<String, String, S>,
     ) -> (TokenStream, bool) {
-        let path = element.path.value.as_ref().map(|p| p.as_str());
+        let path = element.path.value.as_deref();
 
         match path {
-            Some("unsignedInt.value") | Some("positiveInt.value") => {
+            Some("unsignedInt.value" | "positiveInt.value") => {
                 let k = format_ident!("{}", "u64");
                 (
                     quote! {
@@ -195,9 +213,7 @@ pub mod conversion {
 
             _ => {
                 if let Some(rust_primitive) = RUST_PRIMITIVES.get(fhir_type) {
-                    // Special handling for instance which should use instant type,
-                    let path = path.unwrap();
-                    if path == "instant.value" {
+                    if matches!(path, Some("instant.value")) {
                         let k = RUST_PRIMITIVES
                             .get("http://hl7.org/fhirpath/System.Instant")
                             .unwrap()
@@ -231,7 +247,7 @@ pub mod conversion {
                             .as_ref()
                             .and_then(|b| b.valueSet.as_ref())
                             .and_then(|b| b.value.as_ref())
-                            .map(|u| u.as_str())
+                            .map(std::string::String::as_str)
                         && let Some(url) = canonical_string.split('|').next()
                         && let Some(inlined) = inlined_terminology.get(url)
                     {
@@ -268,24 +284,20 @@ pub mod conversion {
 pub mod extract {
     use haste_fhir_model::r4::generated::resources::StructureDefinition;
     use haste_fhir_model::r4::generated::types::ElementDefinition;
-    pub fn field_types<'a>(element: &ElementDefinition) -> Vec<&str> {
-        let codes = element
-            .type_
-            .as_ref()
-            .map(|types| {
-                types
-                    .iter()
-                    .filter_map(|t| t.code.value.as_ref().map(|v| v.as_str()))
-                    .collect()
-            })
-            .unwrap_or_else(|| vec![]);
-        codes
+    pub fn field_types(element: &ElementDefinition) -> Vec<&str> {
+        element.type_.as_ref().map_or_else(Vec::new, |types| {
+            types
+                .iter()
+                .filter_map(|t| t.code.value.as_deref())
+                .collect()
+        })
     }
 
+    #[must_use]
     pub fn field_name(path: &str) -> String {
         let field_name: String = path
             .split('.')
-            .last()
+            .next_back()
             .unwrap_or("")
             .chars()
             .enumerate()
@@ -297,13 +309,11 @@ pub mod extract {
                 }
             })
             .collect();
-        let removed_x = if field_name.ends_with("[x]") {
+        if field_name.ends_with("[x]") {
             field_name.replace("[x]", "")
         } else {
             field_name.clone()
-        };
-
-        removed_x
+        }
     }
 
     pub fn is_abstract(sd: &StructureDefinition) -> bool {
@@ -311,7 +321,7 @@ pub mod extract {
     }
 
     pub fn path(element: &ElementDefinition) -> String {
-        element.path.value.clone().unwrap_or_else(|| "".to_string())
+        element.path.value.clone().unwrap_or_default()
     }
     pub fn element_description(element: &ElementDefinition) -> String {
         element
@@ -328,6 +338,31 @@ pub mod extract {
             })
     }
 
+    /// Returns the FHIR type associated with an element.
+    ///
+    /// For the root element of a [`StructureDefinition`], the type is taken from
+    /// the structure definition itself (`StructureDefinition.type_`).
+    ///
+    /// For all other elements, this function expects exactly one declared FHIR type
+    /// in `ElementDefinition.type_` and returns its code.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if:
+    /// - The root element does not have a `StructureDefinition.type_`.
+    /// - A non-root element has no type code.
+    /// - A non-root element has multiple declared types, as the FHIR type would be
+    ///   ambiguous.
+    ///
+    /// # Arguments
+    ///
+    /// * `sd` - The [`StructureDefinition`] containing the element.
+    /// * `element` - The [`ElementDefinition`] whose FHIR type is to be determined.
+    ///
+    /// # Returns
+    ///
+    /// A `String` containing the FHIR type name (e.g. `"Patient"`, `"string"`,
+    /// `"CodeableConcept"`).
     pub fn fhir_type(sd: &StructureDefinition, element: &ElementDefinition) -> String {
         if crate::utilities::conditionals::is_root(sd, element) {
             sd.type_
@@ -351,29 +386,29 @@ pub mod extract {
         }
     }
 
-    #[derive(Clone)]
+    #[derive(Clone, Copy)]
     pub enum Max {
         Unlimited,
-        Fixed(usize),
+        Fixed(u64),
     }
 
-    pub fn cardinality(element: &ElementDefinition) -> (usize, Max) {
-        let min = element.min.as_ref().and_then(|m| m.value).map_or(0, |m| m) as usize;
+    pub fn cardinality(element: &ElementDefinition) -> (u64, Max) {
+        let min = element.min.as_ref().and_then(|m| m.value).map_or(0, |m| m);
 
         let max = element
             .max
             .as_ref()
             .and_then(|m| m.value.as_ref())
-            .map(|v| v.as_str())
+            .map(std::string::String::as_str)
             .and_then(|s| {
                 if s == "*" {
                     Some(Max::Unlimited)
                 } else {
-                    s.parse::<usize>().ok().and_then(|i| Some(Max::Fixed(i)))
+                    s.parse::<u64>().ok().map(Max::Fixed)
                 }
             });
 
-        (min, max.unwrap_or_else(|| Max::Fixed(1)))
+        (min, max.unwrap_or(Max::Fixed(1)))
     }
 }
 
@@ -389,6 +424,7 @@ pub mod generate {
     use crate::utilities::{FHIR_PRIMITIVES, conditionals, conversion, extract};
 
     /// Capitalize the first character in s.
+    #[must_use]
     pub fn capitalize(s: &str) -> String {
         let mut c = s.chars();
         match c.next() {
@@ -397,6 +433,32 @@ pub mod generate {
         }
     }
 
+    /// Returns the generated Rust struct name for a FHIR element.
+    ///
+    /// For the root element, the struct name is derived from the structure
+    /// definition's `id`. Primitive FHIR types are prefixed with `"FHIR"` to
+    /// distinguish them from Rust primitive types (e.g. `string` → `FHIRString`).
+    ///
+    /// For nested elements, the struct name is constructed by:
+    /// - Splitting the element id on `'.'`.
+    /// - Capitalizing each path segment.
+    /// - Concatenating the segments.
+    /// - Removing the FHIR choice-type marker (`[x]`), if present.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if:
+    /// - The root [`StructureDefinition`] does not have an `id`.
+    /// - A non-root [`ElementDefinition`] does not have an `id`.
+    ///
+    /// # Arguments
+    ///
+    /// * `sd` - The [`StructureDefinition`] containing the element.
+    /// * `element` - The [`ElementDefinition`] for which to generate a struct name.
+    ///
+    /// # Returns
+    ///
+    /// A `String` containing the generated Rust struct name.
     pub fn struct_name(sd: &StructureDefinition, element: &ElementDefinition) -> String {
         if conditionals::is_root(sd, element) {
             let mut interface_name: String = capitalize(sd.id.as_ref().unwrap());
@@ -408,8 +470,8 @@ pub mod generate {
             element
                 .id
                 .as_ref()
-                .map(|p| p.split("."))
-                .map(|p| p.map(capitalize).collect::<Vec<String>>().join(""))
+                .map(|p| p.split('.'))
+                .map(|p| p.map(capitalize).collect::<String>())
                 .unwrap()
                 .replace("[x]", "")
         }
@@ -439,12 +501,43 @@ pub mod generate {
             .collect()
     }
 
-    pub fn field_typename(
+    /// Returns the Rust type for a generated struct field.
+    ///
+    /// The returned type depends on the kind of FHIR element:
+    ///
+    /// - **Choice elements** (`[x]`) use the generated choice enum.
+    /// - **Nested complex elements** use the generated nested struct.
+    /// - **All other elements** are mapped from their FHIR type to the
+    ///   corresponding Rust type.
+    ///
+    /// The returned tuple contains:
+    /// - The Rust type as a [`TokenStream`].
+    /// - A boolean indicating whether the type is a primitive/value type, as
+    ///   determined by [`conversion::fhir_type_to_rust_type`].
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if a non-choice, non-nested element does not have
+    /// a declared FHIR type or if the type code is missing.
+    ///
+    /// # Arguments
+    ///
+    /// * `sd` - The [`StructureDefinition`] containing the element.
+    /// * `element` - The [`ElementDefinition`] whose field type is being generated.
+    /// * `inlined_terminology` - A mapping of FHIR terminology bindings to generated
+    ///   Rust types.
+    ///
+    /// # Returns
+    ///
+    /// A tuple `(TokenStream, bool)` where:
+    /// - `TokenStream` is the generated Rust type.
+    /// - `bool` indicates whether the type is a primitive/value type.
+    pub fn field_typename<S: ::std::hash::BuildHasher>(
         sd: &StructureDefinition,
         element: &ElementDefinition,
-        inlined_terminology: &HashMap<String, String>,
+        inlined_terminology: &HashMap<String, String, S>,
     ) -> (TokenStream, bool) {
-        let field_value_type_name = if conditionals::is_typechoice(element) {
+        if conditionals::is_typechoice(element) {
             let k = format_ident!("{}", type_choice_name(sd, element));
             (
                 quote! {
@@ -469,9 +562,7 @@ pub mod generate {
                 .unwrap();
 
             conversion::fhir_type_to_rust_type(element, fhir_type, inlined_terminology)
-        };
-
-        field_value_type_name
+        }
     }
 }
 
@@ -530,16 +621,73 @@ pub mod load {
 
     use crate::utilities::extract;
 
+    /// Loads a FHIR resource from a JSON file.
+    ///
+    /// The file is read as UTF-8 text and deserialized into a [`Resource`] using
+    /// `serde_json`.
+    ///
+    /// # Arguments
+    ///
+    /// * `file_path` - The path to the JSON file containing the FHIR resource.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    ///
+    /// * The file cannot be read from the provided path.
+    /// * The file contents cannot be parsed as valid JSON.
+    /// * The parsed JSON does not match the expected [`Resource`] structure.
+    ///
+    /// The returned error message includes the underlying cause of the failure.
     pub fn load_from_file(file_path: &Path) -> Result<Resource, String> {
-        let data = std::fs::read_to_string(file_path)
-            .map_err(|e| format!("Failed to read file: {}", e))?;
+        let data =
+            std::fs::read_to_string(file_path).map_err(|e| format!("Failed to read file: {e}"))?;
 
         let resource = serde_json::from_str::<Resource>(&data)
-            .map_err(|e| format!("Failed to parse JSON: {}", e))?;
+            .map_err(|e| format!("Failed to parse JSON: {e}"))?;
 
         Ok(resource)
     }
 
+    /// Retrieves [`StructureDefinition`] resources from a FHIR [`Resource`].
+    ///
+    /// This function supports extracting structure definitions from:
+    ///
+    /// - A [`Resource::Bundle`], by collecting all entries containing a
+    ///   [`Resource::StructureDefinition`].
+    /// - A standalone [`Resource::StructureDefinition`].
+    ///
+    /// The returned definitions can optionally be filtered by their kind using the
+    /// `level` parameter:
+    ///
+    /// - `"resource"` - Includes resource definitions.
+    /// - `"complex-type"` - Includes complex type definitions.
+    /// - `"primitive-type"` - Includes primitive type definitions.
+    ///
+    /// If no level filter is provided, all matching [`StructureDefinition`] values
+    /// are returned.
+    ///
+    /// # Arguments
+    ///
+    /// * `resource` - The FHIR resource containing one or more structure
+    ///   definitions.
+    /// * `level` - Optional filter specifying the structure definition category to
+    ///   return.
+    ///
+    /// # Returns
+    ///
+    /// Returns a vector of references to matching [`StructureDefinition`] values.
+    ///
+    /// # Errors
+    ///
+    /// This function currently does not return any errors during execution and
+    /// returns `Ok` in all cases. The `Result` return type is reserved for future
+    /// error handling.
+    ///
+    /// # Lifetimes
+    ///
+    /// The returned references borrow from the provided `resource` and are valid
+    /// for the same lifetime as the input resource.
     pub fn get_structure_definitions<'a>(
         resource: &'a Resource,
         level: Option<&'static str>,

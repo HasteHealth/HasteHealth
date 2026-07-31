@@ -29,14 +29,14 @@ fn flatten_concepts(contains: ValueSetExpansionContains) -> BTreeMap<String, Cod
         && let Some(code_string) = code.value.as_ref()
     {
         codes.insert(
-            code_string.to_string(),
+            code_string.clone(),
             Code {
                 description: contains.display.and_then(|d| d.value),
-                code: code_string.to_string(),
+                code: code_string.clone(),
             },
         );
     }
-    for contains in contains.contains.unwrap_or_default().into_iter() {
+    for contains in contains.contains.unwrap_or_default() {
         codes.extend(flatten_concepts(contains));
     }
 
@@ -62,43 +62,42 @@ fn camelcase_to_snake_case(s: &str) -> String {
 fn camelcase_with_split(identifier: &str, split: char, join: Option<&str>) -> String {
     identifier
         .split(split)
-        .map(|identifier| capitalize(identifier))
+        .map(capitalize)
         .collect::<Vec<_>>()
         .join(join.unwrap_or(""))
 }
 
 fn identifier_encode_special_characters(identifier: &str) -> String {
-    let safe_string = camelcase_with_split(&identifier, ':', Some("_"));
+    let safe_string = camelcase_with_split(identifier, ':', Some("_"));
     let safe_string = camelcase_with_split(&safe_string, '/', Some("_"));
 
     let safe_string = safe_string
         // Replacements
-        .replace(" ", "")
-        .replace("<", "Greater")
-        .replace(">", "Less")
-        .replace("=", "Equal")
-        .replace("[", "LeftSquareBracket")
-        .replace("]", "RightSquareBracket")
-        .replace("*", "Star")
-        .replace("%", "Percent")
-        .replace("!", "Not")
-        .replace(";", "Semicolon")
+        .replace(' ', "")
+        .replace('<', "Greater")
+        .replace('>', "Less")
+        .replace('=', "Equal")
+        .replace('[', "LeftSquareBracket")
+        .replace(']', "RightSquareBracket")
+        .replace('*', "Star")
+        .replace('%', "Percent")
+        .replace('!', "Not")
+        .replace(';', "Semicolon")
         .split('.')
-        .map(|id| capitalize(id))
-        .collect::<Vec<_>>()
-        .join("");
+        .map(capitalize)
+        .collect::<String>();
 
     if safe_string.is_empty() {
-        println!("Invalid '{}'", identifier);
+        println!("Invalid '{identifier}'");
         panic!();
     }
 
     if safe_string.as_bytes()[0].is_ascii_digit() {
-        format!("V{}", safe_string)
+        format!("V{safe_string}")
     } else if safe_string == "Self" {
-        format!("_Self")
+        "_Self".to_string()
     } else if safe_string == "Null" {
-        format!("_Null")
+        "_Null".to_string()
     } else {
         safe_string
     }
@@ -106,17 +105,13 @@ fn identifier_encode_special_characters(identifier: &str) -> String {
 
 fn format_term_struct_name(identifier: &str) -> String {
     let safe_string = identifier_encode_special_characters(identifier);
-    let safe_string = camelcase_with_split(&safe_string, '-', None);
-
-    safe_string
+    camelcase_with_split(&safe_string, '-', None)
 }
 
 fn format_const_code_name(identifier: &str) -> String {
-    let safe_string = identifier_encode_special_characters(&identifier);
+    let safe_string = identifier_encode_special_characters(identifier);
     let safe_string = camelcase_to_snake_case(&safe_string);
-    let safe_string = camelcase_with_split(&safe_string, '-', Some("_"));
-
-    safe_string
+    camelcase_with_split(&safe_string, '-', Some("_"))
 }
 
 fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
@@ -128,7 +123,6 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
         .url
         .as_ref()
         .and_then(|v| v.value.as_ref())
-        .clone()
         .expect("ValueSet must have a url");
 
     if let Some(expansion) = value_set.expansion {
@@ -137,7 +131,7 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
             .contains
             .unwrap_or_default()
             .into_iter()
-            .map(|concept| flatten_concepts(concept))
+            .map(flatten_concepts)
             .reduce(|mut codes, cur| {
                 codes.extend(cur);
                 codes
@@ -156,16 +150,12 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
             let re = Regex::new(r"_+").unwrap();
             variant_name_str = re.replace_all(&variant_name_str, "_").to_string();
             if RUST_KEYWORDS.contains(variant_name_str.as_str()) {
-                variant_name_str = format!("{}_", variant_name_str);
+                variant_name_str = format!("{variant_name_str}_");
             }
 
-            let variant = format_ident!("{}", variant_name_str);
-            let display = c
-                .description
-                .as_ref()
-                .map(|d| d.as_str())
-                .unwrap_or(c.code.as_str());
-            let index = i as u16;
+            let variant = format_ident!("{variant_name_str}");
+            let display = c.description.as_deref().unwrap_or(c.code.as_str());
+            let index = u16::try_from(i).expect("too many code variants");
 
             quote! {
                 #[inline]
@@ -177,7 +167,7 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
             }
         });
 
-        if codes.len() > 0 && codes.len() < 400 {
+        if !codes.is_empty() && codes.len() < 400 {
             return Some(quote! {
                 #[doc = #terminology_url]
                 pub struct #terminology_enum_name;
@@ -217,10 +207,10 @@ fn load_terminologies(
     for dir_path in file_paths {
         let walker = WalkDir::new(dir_path).sort_by_file_name().into_iter();
         for entry in walker
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
             .filter(|e| e.metadata().unwrap().is_file())
             // Filter for json only
-            .filter(|e| e.path().extension().map_or(false, |ext| ext == "json"))
+            .filter(|e| e.path().extension().is_some_and(|ext| ext == "json"))
         {
             let resource = load::load_from_file(entry.path())
                 .map_err(|f| OperationOutcomeError::error(IssueType::exception(), f))?;
@@ -321,7 +311,7 @@ impl CanonicalResolver for InlineResolver {
             } else {
                 Err(OperationOutcomeError::error(
                     IssueType::not_found(),
-                    format!("Could not resolve canonical url: {}", url),
+                    format!("Could not resolve canonical url: {url}"),
                 ))
             }
         })
@@ -335,24 +325,48 @@ pub struct GeneratedTerminologies {
 
 // Sets up the main datastructures to be used by generated inline terminologies
 fn prebuilt_code() -> TokenStream {
+    let imports = prebuilt_code_imports();
+    let structure = prebuilt_code_struct();
+    let implementation = prebuilt_code_impl();
+    let traits = prebuilt_code_traits();
+    let serde = prebuilt_code_serde();
+
+    quote! {
+        #imports
+        #structure
+        #implementation
+        #traits
+        #serde
+    }
+}
+
+fn prebuilt_code_imports() -> TokenStream {
     quote! {
         use crate::r4::generated::types::{Element, Extension};
         use haste_reflect::MetaValue;
         use serde::{Deserialize, Deserializer, Serialize, Serializer};
         use std::{any::Any, fmt, marker::PhantomData, sync::OnceLock};
+    }
+}
 
+fn prebuilt_code_struct() -> TokenStream {
+    quote! {
         pub trait ValueSetDef: 'static + Send + Sync {
             const URL: &'static str;
-            const CODES: &'static [&'static str]; // sorted; codegen enforces
+            const CODES: &'static [&'static str];
         }
 
         pub struct BoundCode<VS: ValueSetDef> {
-            code: Option<u16>, // index into VS::CODES; None = today's `Null` variant
+            code: Option<u16>,
             element: Option<Element>,
-            value_cache: OnceLock<String>, // lazily materializes CODES[i] as an owned String, so MetaValue::get_field("value") matches FHIRCode's Option<String> shape
+            value_cache: OnceLock<String>,
             _vs: PhantomData<VS>,
         }
+    }
+}
 
+fn prebuilt_code_impl() -> TokenStream {
+    quote! {
         impl<VS: ValueSetDef> BoundCode<VS> {
             pub const fn from_index(i: u16) -> Self {
                 Self {
@@ -362,6 +376,7 @@ fn prebuilt_code() -> TokenStream {
                     _vs: PhantomData,
                 }
             }
+
             pub const fn null() -> Self {
                 Self {
                     code: None,
@@ -377,18 +392,23 @@ fn prebuilt_code() -> TokenStream {
                     .ok()
                     .map(|i| Self::from_index(i as u16))
             }
+
             pub fn as_str(&self) -> Option<&'static str> {
                 self.code.map(|i| VS::CODES[i as usize])
             }
+
             pub fn element(&self) -> Option<&Element> {
                 self.element.as_ref()
             }
+
             pub fn element_mut(&mut self) -> &mut Element {
                 self.element.get_or_insert_with(Default::default)
             }
+
             pub fn extension_mut(&mut self) -> &mut Option<Vec<Extension>> {
                 &mut self.element_mut().extension
             }
+
             pub fn id_mut(&mut self) -> &mut Option<String> {
                 &mut self.element_mut().id
             }
@@ -422,8 +442,11 @@ fn prebuilt_code() -> TokenStream {
                 values: &[Self],
                 serializer: &mut M,
             ) -> Result<(), M::Error> {
-                let value_array: Vec<Option<&'static str>> = values.iter().map(|v| v.as_str()).collect();
-                let element_array: Vec<Option<_>> = values.iter().map(|v| v.element()).collect();
+                let value_array: Vec<Option<&'static str>> =
+                    values.iter().map(|v| v.as_str()).collect();
+
+                let element_array: Vec<Option<_>> =
+                    values.iter().map(|v| v.element()).collect();
 
                 if value_array.iter().any(|v| v.is_some()) {
                     serializer.serialize_entry(field_name, &value_array)?;
@@ -438,7 +461,11 @@ fn prebuilt_code() -> TokenStream {
                 Ok(())
             }
         }
+    }
+}
 
+fn prebuilt_code_traits() -> TokenStream {
+    quote! {
         impl<VS: ValueSetDef> Clone for BoundCode<VS> {
             fn clone(&self) -> Self {
                 Self {
@@ -464,6 +491,7 @@ fn prebuilt_code() -> TokenStream {
                 self.code == other.code
             }
         }
+
         impl<VS: ValueSetDef> Eq for BoundCode<VS> {}
 
         impl<VS: ValueSetDef> MetaValue for BoundCode<VS> {
@@ -474,13 +502,18 @@ fn prebuilt_code() -> TokenStream {
             fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
                 match field {
                     "value" => self.code.as_ref().map(|i| {
-                        self.value_cache.get_or_init(|| VS::CODES[*i as usize].to_string()) as &dyn MetaValue
+                        self.value_cache
+                            .get_or_init(|| VS::CODES[*i as usize].to_string())
+                            as &dyn MetaValue
                     }),
                     _ => self.element.as_ref().and_then(|e| e.get_field(field)),
                 }
             }
 
-            fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+            fn get_field_mut<'a>(
+                &'a mut self,
+                field: &str,
+            ) -> Option<&'a mut dyn MetaValue> {
                 match field {
                     "value" => None,
                     _ => self.element.as_mut().and_then(|e| e.get_field_mut(field)),
@@ -491,7 +524,10 @@ fn prebuilt_code() -> TokenStream {
                 None
             }
 
-            fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+            fn get_index_mut<'a>(
+                &'a mut self,
+                _index: usize,
+            ) -> Option<&'a mut dyn MetaValue> {
                 None
             }
 
@@ -511,7 +547,11 @@ fn prebuilt_code() -> TokenStream {
                 false
             }
         }
+    }
+}
 
+fn prebuilt_code_serde() -> TokenStream {
+    quote! {
         // Non-generic over VS — monomorphizes per Deserializer, i.e. ~once.
         fn parse_code<E: serde::de::Error>(
             codes: &'static [&'static str],
@@ -521,23 +561,38 @@ fn prebuilt_code() -> TokenStream {
             codes
                 .binary_search(&s)
                 .map(|i| i as u16)
-                .map_err(|_| E::custom(format_args!("'{s}' is not a valid code in ValueSet {url}")))
+                .map_err(|_| {
+                    E::custom(format_args!(
+                        "'{s}' is not a valid code in ValueSet {url}"
+                    ))
+                })
         }
 
         impl<'de, VS: ValueSetDef> Deserialize<'de> for BoundCode<VS> {
-            fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+            fn deserialize<D: Deserializer<'de>>(
+                d: D,
+            ) -> Result<Self, D::Error> {
                 // Element/_field handling stays at the parent-struct level,
                 // exactly as your current derive does it.
-                let s = <&str>::deserialize(d)?; // or Cow, matching current behavior
-                parse_code::<D::Error>(VS::CODES, VS::URL, s).map(Self::from_index)
+                let s = <&str>::deserialize(d)?;
+
+                parse_code::<D::Error>(
+                    VS::CODES,
+                    VS::URL,
+                    s,
+                )
+                .map(Self::from_index)
             }
         }
 
         impl<VS: ValueSetDef> Serialize for BoundCode<VS> {
-            fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+            fn serialize<S: Serializer>(
+                &self,
+                s: S,
+            ) -> Result<S::Ok, S::Error> {
                 match self.as_str() {
                     Some(c) => s.serialize_str(c),
-                    None => s.serialize_none(), // Null case; match current `_field`-only semantics
+                    None => s.serialize_none(),
                 }
             }
         }

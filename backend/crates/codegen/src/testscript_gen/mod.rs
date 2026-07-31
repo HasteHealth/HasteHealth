@@ -18,17 +18,18 @@ use haste_reflect::MetaValue;
 
 use crate::utilities::load;
 
-fn file_path_to_resources(file_path: &Path) -> Result<Vec<Box<Resource>>, String> {
+fn file_path_to_resources(file_path: &Path) -> Result<Vec<Resource>, String> {
     let resource = load::load_from_file(file_path)?;
 
     Ok(match resource {
         Resource::Bundle(bundle) => bundle
             .entry
-            .unwrap_or(vec![])
+            .unwrap_or_default()
             .into_iter()
             .filter_map(|entry| entry.resource)
+            .map(|resource| *resource)
             .collect::<Vec<_>>(),
-        _ => vec![Box::new(resource)],
+        _ => vec![resource],
     })
 }
 
@@ -134,7 +135,7 @@ fn generate_testcases_for_resource(
     }]
 }
 
-fn generate_fixtures_for_resource(testscript: &mut TestScript, resources: Vec<Box<Resource>>) {
+fn generate_fixtures_for_resource(testscript: &mut TestScript, resources: Vec<Resource>) {
     let mut contained = vec![];
     let mut fixtures = vec![];
 
@@ -152,7 +153,7 @@ fn generate_fixtures_for_resource(testscript: &mut TestScript, resources: Vec<Bo
             })),
             ..Default::default()
         });
-        contained.push(*resource);
+        contained.push(resource);
     }
 
     testscript.contained = Some(contained);
