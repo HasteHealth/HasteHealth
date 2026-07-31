@@ -6,6 +6,23 @@
 
 FHIR clinical data repository built for speed.
 
+## Running Locally
+
+The quickest way to get everything running is with the top-level [docker-compose.yml](./docker-compose.yml), which pulls the published images and starts PostgreSQL, Elasticsearch, the server, the worker, and the admin app:
+
+```bash
+docker-compose up
+```
+
+Once the containers are healthy, open http://my-health_system.localhost:3001 and log in with:
+
+- username: `myuser@health.org`
+- password: `testing_password`
+
+This tenant and user are created automatically by the migration step in the compose file.
+
+If you're actively developing on the backend or frontend instead of just running published images, see [Running for Development](#running-for-development) below.
+
 ## Running for Development
 
 ### Services
