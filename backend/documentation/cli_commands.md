@@ -2,11 +2,11 @@
 
 The same `haste-health` binary is used whether you built it from source (`cargo build --locked --release`), downloaded a [release binary](https://github.com/HasteHealth/HasteHealth/releases/latest), or are running the [Docker image](https://github.com/HasteHealth/HasteHealth/pkgs/container/hastehealth%2Fhastehealth). Only the invocation changes:
 
-| Context | Invocation                        |
-| ------- | ---------------------------------- |
-| Source  | `cargo run <command>`             |
-| Binary  | `./haste-health <command>`        |
-| Docker  | `docker run <image> <command>`    |
+| Context | Invocation                     |
+| ------- | ------------------------------ |
+| Source  | `cargo run <command>`          |
+| Binary  | `./haste-health <command>`     |
+| Docker  | `docker run <image> <command>` |
 
 Configuration (`haste.toml` / `HASTE_`-prefixed env vars) is documented separately for the [server](./server_configuration.md) and [worker](./worker_configuration.md); every command below reads the same config.
 
