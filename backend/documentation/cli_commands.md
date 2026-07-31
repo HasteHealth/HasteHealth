@@ -1,3 +1,11 @@
+
+| Context | Invocation                     |
+| ------- | ------------------------------ |
+| Source  | `cargo run <command>`          |
+| Binary  | `./haste-health <command>`     |
+| Docker  | `docker run <image> <command>` |
+
+
 # Command-Line Help for `haste-health`
 
 This document contains the help content for the `haste-health` command-line program.
