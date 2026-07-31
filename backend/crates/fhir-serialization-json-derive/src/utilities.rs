@@ -41,10 +41,6 @@ pub fn is_optional_field(field: &Field) -> bool {
     field_type == "Option"
 }
 
-pub fn is_type_choice_field(field: &Field) -> bool {
-    is_attribute_present(&field.attrs, "type_choice_variants")
-}
-
 pub fn is_attribute_present(attrs: &[Attribute], attribute: &str) -> bool {
     attrs.iter().any(|attr| attr.path().is_ident(attribute))
 }
@@ -217,15 +213,6 @@ pub fn get_cardinality_attributes(attrs: &[Attribute]) -> Option<CardinalityAttr
 pub struct TypeChoiceAttribute {
     pub complex_variants: Vec<String>,
     pub primitive_variants: Vec<String>,
-}
-impl TypeChoiceAttribute {
-    pub fn all(&self) -> Vec<String> {
-        let mut all_variants = self.complex_variants.clone();
-        all_variants.extend(self.primitive_variants.clone());
-        // Extension variant.
-        all_variants.extend(self.primitive_variants.iter().map(|v| format!("_{v}")));
-        all_variants
-    }
 }
 
 pub fn get_type_choice_attribute(attrs: &[Attribute]) -> Option<TypeChoiceAttribute> {
