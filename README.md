@@ -68,10 +68,18 @@ This tenant and user are created automatically when you run the migration in the
 - [Linux](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_linux)
 - [MacOS](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_macos)
 
+Configuration (`haste.toml` or environment variables) is documented [here for the server](./backend/documentation/server_configuration.md) and [here for the worker](./backend/documentation/worker_configuration.md).
+
+Available commands (`server start`, `worker`, `admin migrate`, `admin tenant create`, etc.) are documented [here](./backend/documentation/cli_commands.md).
+
 ## Docker Images
 
 - [Server](https://github.com/HasteHealth/HasteHealth/pkgs/container/hastehealth%2Fhastehealth)
 - [Admin App](https://github.com/HasteHealth/HasteHealth/pkgs/container/hastehealth%2Fadmin-app)
+
+Configuration (`haste.toml` or environment variables) is documented [here for the server](./backend/documentation/server_configuration.md) and [here for the worker](./backend/documentation/worker_configuration.md). See [docker-compose.yml](./docker-compose.yml) for a full working setup.
+
+Available commands (`server start`, `worker`, `admin migrate`, `admin tenant create`, etc.) are documented [here](./backend/documentation/cli_commands.md).
 
 ## RFCs (Request for Comments)
 
