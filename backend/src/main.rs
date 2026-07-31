@@ -31,7 +31,7 @@ mod commands;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)] // Read from `Cargo.toml`
-struct Cli {
+pub struct Cli {
     #[command(subcommand)]
     command: CLICommand,
 }
@@ -40,7 +40,7 @@ struct Cli {
 enum CLICommand {
     /// Data gets pulled from stdin.
     FHIRPath {
-        /// lists test values
+        /// FHIRPath expression to evaluate
         fhirpath: String,
     },
     Generate {
@@ -75,6 +75,11 @@ enum CLICommand {
     Hl7v2 {
         #[command(subcommand)]
         command: commands::hl7v2::HL7v2Commands,
+    },
+    Doc {
+        /// Output markdown file path
+        #[arg(short, long)]
+        output: String,
     },
 }
 
@@ -283,6 +288,7 @@ fn main() -> Result<(), OperationOutcomeError> {
         .block_on(async {
             let _otel_provider = setup_tracing(config.as_ref())?;
             match &cli.command {
+                CLICommand::Doc { output } => commands::doc::generate_cli_markdown(output).await,
                 CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath).await,
                 CLICommand::Generate { command } => commands::codegen::codegen(command).await,
                 CLICommand::Server { command } => commands::server::server(command).await,
