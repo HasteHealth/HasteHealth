@@ -41,7 +41,7 @@ where
             .bind(window_in_seconds)
             .fetch_one(executor)
             .await
-            .map_err(|_e| RateLimitError::Exceeded)?;
+            .map_err(|e| RateLimitError::Error(e.to_string()))?;
 
     Ok(result.0)
 }

@@ -487,10 +487,10 @@ where
     .await
     .map_err(StoreError::from)?;
 
-    if let Some((_, true)) = response {
-        Ok(None)
-    } else {
-        Ok(response.map(|(json, _)| json.0))
+    match response {
+        Some((_, true)) => Ok(None),
+        Some((json, _)) => Ok(Some(json.0)),
+        None => Ok(None),
     }
 }
 
@@ -502,7 +502,7 @@ fn process_history_parameters<'a>(
         match parameter {
             ParsedParameter::Result(result_param) => {
                 if result_param.name.as_str() == "_since" {
-                    if let Some(value) = &result_param.value.first() {
+                    if let Some(value) = result_param.value.first() {
                         let date_time = parse_datetime(value.as_str()).map_err(|e| {
                             OperationOutcomeError::fatal(
                                 IssueType::invalid(),
