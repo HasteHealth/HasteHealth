@@ -323,6 +323,7 @@ fn from_rust_type_to_fhir_primitive(
         .as_ref()
         .map(|s| &s.element)
         .and_then(|element_definitions| {
+            #[allow(clippy::case_sensitive_file_extension_comparisons)]
             element_definitions
                 .iter()
                 .find(|e| e.path.value.as_ref().is_some_and(|p| p.ends_with(".value")))
