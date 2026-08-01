@@ -68,7 +68,7 @@ where
         .push_bind_unseparated(project.as_ref())
         .push(" client = ")
         .push_bind_unseparated(model.client.as_ref())
-        .push(" user = ")
+        .push(" user_ = ")
         .push_bind_unseparated(model.user_.as_ref());
 
     query_builder.push(r" RETURNING client, user_, scope, created_at");
