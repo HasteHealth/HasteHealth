@@ -5,23 +5,21 @@ authors: [ralph-parkison]
 tags: [hastehealth, feature-update]
 ---
 
-July was an authentication and hardening month: multi-factor authentication landed end to end, CSRF protections were added across the interaction and OIDC flows, password hashing moved to argon2, and the frontend build pipeline was migrated to Vite. Auditing middleware and a public metadata endpoint also shipped, alongside a big pass on workspace dependency hygiene.
+July opened with authentication and session hardening — multi-factor authentication landed end to end, CSRF protections were added across the interaction and OIDC flows, and password hashing moved to argon2 — then pivoted toward workspace health for the back half of the month: a SMART configuration discovery endpoint, a full documentation reorganization, and a long crate-by-crate clippy remediation pass that touched nearly every corner of the backend.
 
-## Authentication and Security
+## Backend Changes
 
 ### Multi-factor authentication, end to end
 - A new `encryption` crate landed first, with pluggable encryptor providers (AWS, GCP, environment) behind a shared trait, later reorganized into an `encryption` submodule and extended with AES support.
 - A `user_mfa` table and repository layer (`backend/crates/repository/src/pg/mfa.rs`) were added, followed by MFA admin CRUD routes, an activation route, and a TOTP verification route wired into the login flow.
-- The login process now checks for and enforces MFA, with the frontend admin app growing MFA administration screens and a `otp_code.js` helper for code entry.
-- PRs: [#785](https://github.com/HasteHealth/HasteHealth/pull/785), [#786](https://github.com/HasteHealth/HasteHealth/pull/786), [#787](https://github.com/HasteHealth/HasteHealth/pull/787), [#788](https://github.com/HasteHealth/HasteHealth/pull/788), [#799](https://github.com/HasteHealth/HasteHealth/pull/799), [#804](https://github.com/HasteHealth/HasteHealth/pull/804), [#807](https://github.com/HasteHealth/HasteHealth/pull/807).
+- The login process now checks for and enforces MFA, and the admin app's Settings view gained links into MFA management that route to the new API endpoints.
+- PRs: [#785](https://github.com/HasteHealth/HasteHealth/pull/785), [#786](https://github.com/HasteHealth/HasteHealth/pull/786), [#787](https://github.com/HasteHealth/HasteHealth/pull/787), [#788](https://github.com/HasteHealth/HasteHealth/pull/788), [#799](https://github.com/HasteHealth/HasteHealth/pull/799), [#804](https://github.com/HasteHealth/HasteHealth/pull/804), [#807](https://github.com/HasteHealth/HasteHealth/pull/807), [#814](https://github.com/HasteHealth/HasteHealth/pull/814).
 
 ### CSRF and session hardening
 - A synchronizer token pattern was added across the global login, signup, and tenant-select routes via a new `csrf_token` extractor, then extended to the OIDC authorize, interaction login, password reset, and scope routes.
 - Authorization session state was reworked into explicit enums, tightening how the OIDC authorize, federated callback, interaction login/logout, and scope routes track session progress.
 - Password hashing was migrated from the previous scheme to argon2 in the user repository.
-- PRs: [#800](https://github.com/HasteHealth/HasteHealth/pull/800), [#801](https://github.com/HasteHealth/HasteHealth/pull/801), [#802](https://github.com/HasteHealth/HasteHealth/pull/802), [#775](https://github.com/HasteHealth/HasteHealth/pull/775).
-
-## Backend Changes
+- PRs: [#775](https://github.com/HasteHealth/HasteHealth/pull/775), [#800](https://github.com/HasteHealth/HasteHealth/pull/800), [#801](https://github.com/HasteHealth/HasteHealth/pull/801), [#802](https://github.com/HasteHealth/HasteHealth/pull/802).
 
 ### Auditing and public metadata
 - A new auditing middleware (`fhir_client/middleware/auditing.rs`) was added and wired into the FHIR client pipeline and MCP routes, disabled by default and gated by config, with a follow-up pass fixing storage/transaction interplay and re-enabling it.
@@ -29,40 +27,72 @@ July was an authentication and hardening month: multi-factor authentication land
 - The server capabilities/metadata endpoint gained a config flag to expose it publicly without authentication.
 - PRs: [#774](https://github.com/HasteHealth/HasteHealth/pull/774), [#783](https://github.com/HasteHealth/HasteHealth/pull/783), [#784](https://github.com/HasteHealth/HasteHealth/pull/784), [#812](https://github.com/HasteHealth/HasteHealth/pull/812).
 
-### Reliability and dependency hygiene
-- Panics in request handlers are now caught rather than taking down the server, via a new panic-catching layer in `server.rs`.
-- The workspace's Cargo dependencies were deduplicated and pulled up to shared workspace versions, trimming `Cargo.lock` substantially and removing an unused dependency.
-- License metadata was corrected across several backend crates and frontend packages.
-- Generated terminology structs were migrated to snake_case const codes, touching the codegen templates, generated FHIR terminology, and downstream consumers in `access-control`, `fhir-client`, and `fhir-profiling`.
-- Import ordering in generated code was fixed to conform to `rustfmt`, and the workspace was brought under a rustfmt CI check with a full formatting pass.
-- Sentry gained panic, backtrace, and transport features for better crash visibility.
-- PRs: [#776](https://github.com/HasteHealth/HasteHealth/pull/776), [#803](https://github.com/HasteHealth/HasteHealth/pull/803), [#806](https://github.com/HasteHealth/HasteHealth/pull/806), [#810](https://github.com/HasteHealth/HasteHealth/pull/810), [#813](https://github.com/HasteHealth/HasteHealth/pull/813), [#808](https://github.com/HasteHealth/HasteHealth/pull/808), [#809](https://github.com/HasteHealth/HasteHealth/pull/809).
-
 ## Product and UX
 
 ### ViewDefinition editor follow-ups
-- The Analytics ViewDefinition editor picked up an onchange-driven alteration flow and simplified `sql-on-fhir` component internals.
-- The editor's resource view was reworked into a dedicated `ViewDefinition` view with a read-only mode and improved field grouping.
-- PRs: [#773](https://github.com/HasteHealth/HasteHealth/pull/773), [#782](https://github.com/HasteHealth/HasteHealth/pull/782).
+- A batch of shared read-only components (`AddressReadOnly`, `CodeableConceptReadOnly`, `HumanNameReadOnly`, `ReferenceReadOnly`, and others) were reworked to prepare the Analytics ViewDefinition editor for a read-only mode.
+- The editor picked up an onchange-driven alteration flow and simplified `sql-on-fhir` component internals, and the resource view was reworked into a dedicated `ViewDefinition` view with that read-only mode and improved field grouping.
+- PRs: [#772](https://github.com/HasteHealth/HasteHealth/pull/772), [#773](https://github.com/HasteHealth/HasteHealth/pull/773), [#782](https://github.com/HasteHealth/HasteHealth/pull/782).
 
-## Platform and Tooling
+## Platform and Runtime
 
-### Frontend build migration
+### SMART configuration discovery
+- A SMART configuration discovery document was added at `/w/{tenant}/{project}/api/v1/.well-known/smart-configuration` per spec, wired into the OIDC middleware and server routes, then corrected to nest properly under the FHIR root.
+- PRs: [#833](https://github.com/HasteHealth/HasteHealth/pull/833).
+
+### FHIRPath and search engine fixes
+- FHIRPath gained its first custom function implementation alongside an `exists()` fix, followed by `join(separator)` support and, later in the month, numeric comparison operators (`>`, `<`, `>=`, `<=`).
+- Elasticsearch date search gained proper not-equals handling and correct range-overlap comparisons for dates, closing a long-standing search gap and landing with new base testscripts.
+- PRs: [#770](https://github.com/HasteHealth/HasteHealth/pull/770), [#771](https://github.com/HasteHealth/HasteHealth/pull/771), [#859](https://github.com/HasteHealth/HasteHealth/pull/859), [#861](https://github.com/HasteHealth/HasteHealth/pull/861).
+
+### Codegen and terminology: from consts to inline functions
+- Generated terminology structs were migrated to snake_case const codes, touching the codegen templates, generated FHIR terminology, and downstream consumers in `access-control`, `fhir-client`, and `fhir-profiling`.
+- That migration continued with generated inline functions for the various terminology struct variants, then a second pass removed the old const arrays in favor of those inline functions across `access-control` and the codegen crate.
+- File loading in codegen was made deterministic by sorting inputs, since `walkdir` traversal order can differ across platforms, and a further clippy pass cleaned up the generated FHIR model output.
+- The legacy hand-written serializer/deserializer implementations in `fhir-serialization-json` and `fhir-model`'s datetime handling were removed now that the generated equivalents cover the same ground.
+- The US Core profile load script gained a verification step confirming all profiles were actually indexed.
+- PRs: [#810](https://github.com/HasteHealth/HasteHealth/pull/810), [#813](https://github.com/HasteHealth/HasteHealth/pull/813), [#830](https://github.com/HasteHealth/HasteHealth/pull/830), [#832](https://github.com/HasteHealth/HasteHealth/pull/832), [#834](https://github.com/HasteHealth/HasteHealth/pull/834), [#840](https://github.com/HasteHealth/HasteHealth/pull/840), [#852](https://github.com/HasteHealth/HasteHealth/pull/852), [#853](https://github.com/HasteHealth/HasteHealth/pull/853), [#873](https://github.com/HasteHealth/HasteHealth/pull/873).
+
+### Reliability and dependency hygiene
+- Panics in request handlers are now caught rather than taking down the server, via a new panic-catching layer in `server.rs`, and Sentry gained panic, backtrace, and transport features for better crash visibility.
+- The workspace's Cargo dependencies were deduplicated and pulled up to shared workspace versions, trimming `Cargo.lock` substantially and removing an unused dependency.
+- License metadata was corrected across several backend crates and frontend packages.
+- Import ordering in generated code was fixed to conform to `rustfmt`, and the workspace was brought under a rustfmt CI check with a full formatting pass.
+- PRs: [#776](https://github.com/HasteHealth/HasteHealth/pull/776), [#803](https://github.com/HasteHealth/HasteHealth/pull/803), [#806](https://github.com/HasteHealth/HasteHealth/pull/806), [#808](https://github.com/HasteHealth/HasteHealth/pull/808), [#809](https://github.com/HasteHealth/HasteHealth/pull/809).
+
+## Artifacts, Tooling, and Maintenance
+
+### Frontend build migration and dependency maintenance
 - The admin app moved from its previous bundler to Vite, replacing the old public `index.html`/config setup with `vite.config.ts` and updating Docker/nginx wiring to match.
 - Storybook was upgraded across the components package, and a dedicated `frontend_build` CI workflow and `frontend_audit` workflow were added, alongside a TypeScript version bump and inquirer bump.
-- PRs: [#778](https://github.com/HasteHealth/HasteHealth/pull/778), [#777](https://github.com/HasteHealth/HasteHealth/pull/777), [#779](https://github.com/HasteHealth/HasteHealth/pull/779), [#780](https://github.com/HasteHealth/HasteHealth/pull/780), [#781](https://github.com/HasteHealth/HasteHealth/pull/781).
+- A later audit pass fixed vulnerable dependencies flagged in the website package, and a broader round of frontend dependency bumps followed, touching the admin app's resource editor, search modal, and several project views.
+- PRs: [#777](https://github.com/HasteHealth/HasteHealth/pull/777), [#778](https://github.com/HasteHealth/HasteHealth/pull/778), [#779](https://github.com/HasteHealth/HasteHealth/pull/779), [#780](https://github.com/HasteHealth/HasteHealth/pull/780), [#781](https://github.com/HasteHealth/HasteHealth/pull/781), [#824](https://github.com/HasteHealth/HasteHealth/pull/824), [#856](https://github.com/HasteHealth/HasteHealth/pull/856).
 
-### Local dev and deployment
+### CI, release, and local dev
 - The local `docker-compose` setup switched to a generic Elasticsearch image so it also runs on non-`arm64` hosts, and the Docker base image was bumped to 1.97.0.
-- The experimental `wal_worker` crate was pinned and then pulled back out of the backend build while it's still being hardened.
+- The experimental `wal_worker` crate was pinned and then pulled back out of the backend build while it's still being hardened, and a stray `deno` dependency was pinned to stop undefined-symbol errors during workspace builds.
 - Module functions in the binary crate were made private where they didn't need to be public, tightening the crate's API surface.
-- PRs: [#790](https://github.com/HasteHealth/HasteHealth/pull/790), [#793](https://github.com/HasteHealth/HasteHealth/pull/793), [#798](https://github.com/HasteHealth/HasteHealth/pull/798), [#792](https://github.com/HasteHealth/HasteHealth/pull/792), [#796](https://github.com/HasteHealth/HasteHealth/pull/796), [#795](https://github.com/HasteHealth/HasteHealth/pull/795).
+- Test and e2e CI workflows picked up build caching that only persists once a run lands on `main`, the release workflow got a similar cache-based speedup, and the Docker build gained its own caching pass.
+- PRs: [#790](https://github.com/HasteHealth/HasteHealth/pull/790), [#792](https://github.com/HasteHealth/HasteHealth/pull/792), [#793](https://github.com/HasteHealth/HasteHealth/pull/793), [#795](https://github.com/HasteHealth/HasteHealth/pull/795), [#796](https://github.com/HasteHealth/HasteHealth/pull/796), [#798](https://github.com/HasteHealth/HasteHealth/pull/798), [#829](https://github.com/HasteHealth/HasteHealth/pull/829), [#839](https://github.com/HasteHealth/HasteHealth/pull/839), [#843](https://github.com/HasteHealth/HasteHealth/pull/843), [#844](https://github.com/HasteHealth/HasteHealth/pull/844), [#860](https://github.com/HasteHealth/HasteHealth/pull/860), [#862](https://github.com/HasteHealth/HasteHealth/pull/862).
+
+### Documentation overhaul
+- The docs site was reorganized, splitting authentication and authorization into their own sections, and generated FHIR docs were refreshed to include the new `HL7V2` and `ViewDefinition` resources.
+- New guides were written for profile validation, SQL on FHIR, and HL7v2, plus a server configuration reference linked from both the root and backend READMEs.
+- CLI command documentation is now generated from the binary itself via `clap-markdown`, and the root README picked up a "Running Locally" section and other updates.
+- Repo `.gitattributes` were adjusted to mark generated TypeScript as generated, so GitHub's language detection reports this as a Rust repository.
+- PRs: [#815](https://github.com/HasteHealth/HasteHealth/pull/815), [#816](https://github.com/HasteHealth/HasteHealth/pull/816), [#817](https://github.com/HasteHealth/HasteHealth/pull/817), [#818](https://github.com/HasteHealth/HasteHealth/pull/818), [#819](https://github.com/HasteHealth/HasteHealth/pull/819), [#820](https://github.com/HasteHealth/HasteHealth/pull/820), [#821](https://github.com/HasteHealth/HasteHealth/pull/821), [#865](https://github.com/HasteHealth/HasteHealth/pull/865), [#866](https://github.com/HasteHealth/HasteHealth/pull/866), [#871](https://github.com/HasteHealth/HasteHealth/pull/871), [#872](https://github.com/HasteHealth/HasteHealth/pull/872).
+
+### A workspace-wide clippy pass
+- The last third of the month was dominated by a sequential, crate-by-crate clippy remediation effort covering `access-control`, `artifacts`, `codegen`, `config`, `fhir-client`, `fhir-operation`, `fhir-operation-error`, `fhir-ops`, `fhir-query`, `fhir-reflect`, `fhir-serialization`, `fhir-terminology`, `fhirpath`, `jwt`, `pointer`, `testscript-runner`, and the server crate itself, bringing the workspace much closer to a clean `cargo clippy` run.
+- PRs: [#825](https://github.com/HasteHealth/HasteHealth/pull/825), [#826](https://github.com/HasteHealth/HasteHealth/pull/826), [#827](https://github.com/HasteHealth/HasteHealth/pull/827), [#828](https://github.com/HasteHealth/HasteHealth/pull/828), [#835](https://github.com/HasteHealth/HasteHealth/pull/835), [#837](https://github.com/HasteHealth/HasteHealth/pull/837), [#846](https://github.com/HasteHealth/HasteHealth/pull/846), [#848](https://github.com/HasteHealth/HasteHealth/pull/848), [#849](https://github.com/HasteHealth/HasteHealth/pull/849), [#850](https://github.com/HasteHealth/HasteHealth/pull/850), [#851](https://github.com/HasteHealth/HasteHealth/pull/851), [#854](https://github.com/HasteHealth/HasteHealth/pull/854), [#855](https://github.com/HasteHealth/HasteHealth/pull/855), [#858](https://github.com/HasteHealth/HasteHealth/pull/858), [#863](https://github.com/HasteHealth/HasteHealth/pull/863), [#867](https://github.com/HasteHealth/HasteHealth/pull/867).
 
 ## Standalone Commits (No PR Link)
 
-- Worker/deployment wiring: wrangler configuration, directory, and Docker image fixes for the admin app, plus added logging and connectivity checks on the tracing worker.
-- Version bump: [`54aa1e5ed`](https://github.com/HasteHealth/HasteHealth/commit/54aa1e5ed).
+- Backend/config fixes: re-enabled TLS for the SendGrid client, enabled a request-blocking client on the OTLP transport, nested the SMART configuration document under the FHIR root, and an `ends_with` reversion.
+- Docs and repo hygiene: a broken link fix, a clarification that SQL on FHIR does not yet support EHR launch, removal of a stale repository-structure section from the README, and a Sonar workflow condition update.
+- CI/deploy: a `docker build-push-action` change, a wrangler version bump, forcing a CI cache rebuild, a release-binary credentials listing fix, and a repo-root specifier fix for release binaries.
+- Version bumps: [`54aa1e5ed`](https://github.com/HasteHealth/HasteHealth/commit/54aa1e5ed), [`a43920942`](https://github.com/HasteHealth/HasteHealth/commit/a43920942).
 
 ## Contributors
 
-Thanks to [Luni-4](https://github.com/Luni-4) for contributions this month, including fixing local project builds on non-`arm64` hosts and a stale `deno_core` pin ([#790](https://github.com/HasteHealth/HasteHealth/pull/790)), making `docker-compose` more portable ([#793](https://github.com/HasteHealth/HasteHealth/pull/793)), tightening module visibility in the binary crate ([#795](https://github.com/HasteHealth/HasteHealth/pull/795)), deduplicating the Cargo workspace's dependencies ([#803](https://github.com/HasteHealth/HasteHealth/pull/803)), and bringing the whole workspace under a consistent `rustfmt` style ([#808](https://github.com/HasteHealth/HasteHealth/pull/808)).
+Thanks to [Luni-4](https://github.com/Luni-4) for contributions all month long, starting with fixing local project builds on non-`arm64` hosts and a stale `deno_core` pin ([#790](https://github.com/HasteHealth/HasteHealth/pull/790)), making `docker-compose` more portable ([#793](https://github.com/HasteHealth/HasteHealth/pull/793)), tightening module visibility in the binary crate ([#795](https://github.com/HasteHealth/HasteHealth/pull/795)), deduplicating the Cargo workspace's dependencies ([#803](https://github.com/HasteHealth/HasteHealth/pull/803)), and bringing the whole workspace under a consistent `rustfmt` style ([#808](https://github.com/HasteHealth/HasteHealth/pull/808)). The back half of the month was carried almost entirely by their crate-by-crate clippy remediation effort, covering `fhir-reflect` and `fhir-serialization` ([#825](https://github.com/HasteHealth/HasteHealth/pull/825)), `fhir-query`, `pointer`, and `jwt` ([#826](https://github.com/HasteHealth/HasteHealth/pull/826)), `fhir-client`, `fhir-operation`, and `fhirpath` ([#827](https://github.com/HasteHealth/HasteHealth/pull/827)), `access-control` ([#828](https://github.com/HasteHealth/HasteHealth/pull/828), [#835](https://github.com/HasteHealth/HasteHealth/pull/835)), a pinned `deno` dependency fix ([#839](https://github.com/HasteHealth/HasteHealth/pull/839)), `artifacts` and `codegen` ([#846](https://github.com/HasteHealth/HasteHealth/pull/846), [#837](https://github.com/HasteHealth/HasteHealth/pull/837), [#867](https://github.com/HasteHealth/HasteHealth/pull/867)), `fhir-ops`, `config`, `fhir-terminology`, and `fhir-operation-error` ([#848](https://github.com/HasteHealth/HasteHealth/pull/848), [#849](https://github.com/HasteHealth/HasteHealth/pull/849), [#850](https://github.com/HasteHealth/HasteHealth/pull/850), [#851](https://github.com/HasteHealth/HasteHealth/pull/851)), `testscript-runner` ([#855](https://github.com/HasteHealth/HasteHealth/pull/855)), and `fhir-client` again ([#858](https://github.com/HasteHealth/HasteHealth/pull/858), [#854](https://github.com/HasteHealth/HasteHealth/pull/854)).
