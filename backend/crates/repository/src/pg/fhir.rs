@@ -595,19 +595,30 @@ where
         1000
     };
 
+    if limit < 0 {
+        return Err(OperationOutcomeError::fatal(
+            IssueType::invalid(),
+            "Invalid _count parameter value. Must be greater than 0.".to_string(),
+        ));
+    }
+
     query_builder
         .push(" ORDER BY sequence DESC LIMIT ")
         .push_bind(limit);
 
     if let Some(ParsedParameter::Result(offset_param)) = history_parameters.get("_offset") {
-        let offset = std::cmp::max(
-            offset_param
-                .value
-                .first()
-                .and_then(|v| v.parse::<i64>().ok())
-                .unwrap_or(0),
-            0,
-        );
+        let offset = offset_param
+            .value
+            .first()
+            .and_then(|v| v.parse::<i64>().ok())
+            .unwrap_or(0);
+
+        if offset < 0 {
+            return Err(OperationOutcomeError::fatal(
+                IssueType::invalid(),
+                "Invalid _offset parameter value. Must be greater than or equal to 0.".to_string(),
+            ));
+        }
 
         query_builder.push(" OFFSET ").push_bind(offset);
     }

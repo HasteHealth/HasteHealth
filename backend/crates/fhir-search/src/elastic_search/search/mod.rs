@@ -296,7 +296,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
     };
     let mut show_total = false;
     let mut sort: Vec<serde_json::Value> = Vec::new();
-    let mut offset: usize = 0;
+    let mut offset: u64 = 0;
 
     for parameter in parameters.parameters().iter() {
         match parameter {
@@ -312,24 +312,40 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
             }
             ParsedParameter::Result(result_param) => match result_param.name.as_str() {
                 "_count" => {
-                    max_count = std::cmp::min(
+                    let count_param = std::cmp::min(
                         result_param
                             .value
                             .get(0)
-                            .and_then(|v| v.parse::<usize>().ok())
+                            .and_then(|v| v.parse::<i64>().ok())
                             .unwrap_or(100),
-                        DEFAULT_MAX_COUNT,
+                        DEFAULT_MAX_COUNT as i64,
                     );
+
+                    if count_param < 0 {
+                        return Err(OperationOutcomeError::fatal(
+                            IssueType::invalid(),
+                            "Invalid _count parameter value. Must be greater than 0.".to_string(),
+                        ));
+                    }
+
+                    max_count = count_param as usize;
                 }
                 "_offset" => {
-                    offset = std::cmp::max(
-                        result_param
-                            .value
-                            .get(0)
-                            .and_then(|v| v.parse::<usize>().ok())
-                            .unwrap_or(0),
-                        0,
-                    );
+                    let offset_param = result_param
+                        .value
+                        .get(0)
+                        .and_then(|v| v.parse::<i64>().ok())
+                        .unwrap_or(0);
+
+                    if offset_param < 0 {
+                        return Err(OperationOutcomeError::fatal(
+                            IssueType::invalid(),
+                            "Invalid _offset parameter value. Must be greater than or equal to 0."
+                                .to_string(),
+                        ));
+                    }
+
+                    offset = offset_param as u64;
                 }
                 "_total" => {
                     match result_param
