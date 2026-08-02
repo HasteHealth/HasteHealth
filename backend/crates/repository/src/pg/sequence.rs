@@ -58,7 +58,7 @@ async fn get_sequence_helper(
     .await
     .map_err(StoreError::from)?;
 
-    let polling_values: Result<Vec<ResourcePollingValue>, OperationOutcomeError> = result
+    result
         .into_iter()
         .map(
             |(
@@ -90,9 +90,7 @@ async fn get_sequence_helper(
                 })
             },
         )
-        .collect();
-
-    polling_values
+        .collect()
 }
 
 // 2. Trait implementation matching your PGConnection enum
@@ -105,16 +103,15 @@ impl ResourceSequential for PGConnection {
     ) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
-                // Acquire an explicit connection from the pool to run multiple queries sequentially
+                // Acquire a dedicated connection from the pool so both queries execute
+                // sequentially on the same PgConnection, matching the transaction path.
                 let mut conn = pool.acquire().await.map_err(StoreError::from)?;
-                let res = get_sequence_helper(&mut conn, tenant_id, sequence_id, count).await?;
-                Ok(res)
+                get_sequence_helper(&mut conn, tenant_id, sequence_id, count).await
             }
             PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Pass the mutable reference to the underlying PgConnection handle
-                let res = get_sequence_helper(&mut conn, tenant_id, sequence_id, count).await?;
-                Ok(res)
+                get_sequence_helper(&mut conn, tenant_id, sequence_id, count).await
             }
         }
     }
