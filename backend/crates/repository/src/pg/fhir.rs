@@ -598,7 +598,7 @@ where
     if limit < 0 {
         return Err(OperationOutcomeError::fatal(
             IssueType::invalid(),
-            "Invalid _count parameter value. Must be greater than 0.".to_string(),
+            "Invalid _count parameter value. Must be greater than or equal to 0.".to_string(),
         ));
     }
 
