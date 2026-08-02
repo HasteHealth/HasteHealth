@@ -85,7 +85,7 @@ async fn get_sequence_helper(
                     version_id,
                     resource_type,
                     fhir_method,
-                    sequence, // Fixed: Left as i64 as expected by your model struct definition
+                    sequence,
                     resource,
                 })
             },
