@@ -581,23 +581,19 @@ where
         HistoryRequest::System(_request) => {}
     }
 
-    let count = if let Some(ParsedParameter::Result(count_param)) = history_parameters.get("_count")
+    let limit = if let Some(ParsedParameter::Result(count_param)) = history_parameters.get("_count")
     {
         std::cmp::min(
             1000,
             count_param
                 .value
                 .first()
-                .and_then(|v| v.parse::<usize>().ok())
+                .and_then(|v| v.parse::<i64>().ok())
                 .unwrap_or(100),
         )
     } else {
         1000
     };
-
-    let limit = i64::try_from(count).map_err(|_| {
-        OperationOutcomeError::error(IssueType::invalid(), "count exceeds i64::MAX".into())
-    })?;
 
     query_builder
         .push(" ORDER BY sequence DESC LIMIT ")
@@ -608,14 +604,10 @@ where
             offset_param
                 .value
                 .first()
-                .and_then(|v| v.parse::<usize>().ok())
+                .and_then(|v| v.parse::<i64>().ok())
                 .unwrap_or(0),
             0,
         );
-
-        let offset = i64::try_from(offset).map_err(|_| {
-            OperationOutcomeError::error(IssueType::invalid(), "offset exceeds i64::MAX".into())
-        })?;
 
         query_builder.push(" OFFSET ").push_bind(offset);
     }
