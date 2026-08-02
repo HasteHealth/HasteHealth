@@ -6,120 +6,136 @@ use crate::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::TenantId;
-use sqlx::{Acquire, Postgres, QueryBuilder};
+use sqlx::{PgExecutor, QueryBuilder};
 
-fn create_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn create_tenant<'a, 'e, E>(
+    executor: E,
     tenant: CreateTenant,
-) -> impl Future<Output = Result<Tenant, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let id = tenant.id.unwrap_or(TenantId::new(generate_id(None)));
-        validate_id(id.as_ref())?;
+) -> Result<Tenant, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let id = tenant
+        .id
+        .unwrap_or_else(|| TenantId::new(generate_id(None)));
+    validate_id(id.as_ref())?;
 
-        let result = sqlx::query_as!(
-            Tenant,
-            r#"INSERT INTO tenants (id, subscription_tier) VALUES ($1, $2) RETURNING id as "id: TenantId", subscription_tier"#,
-            id as TenantId,
-            tenant.subscription_tier.unwrap_or("free".to_string())
-        )
-        .fetch_one(&mut *conn)
-        .await;
+    let result = sqlx::query_as::<_, Tenant>(
+        r"
+            INSERT INTO tenants (id, subscription_tier)
+            VALUES ($1, $2)
+            RETURNING id, subscription_tier
+        ",
+    )
+    .bind(id)
+    .bind(
+        tenant
+            .subscription_tier
+            .unwrap_or_else(|| "free".to_string()),
+    )
+    .fetch_one(executor)
+    .await;
 
-        if let Err(res) = result.as_ref()
-            && let sqlx::Error::Database(db_error) = res
-            && db_error.code().as_deref() == Some("23505")
-        {
-            println!("Duplicate tenant ID detected");
-            Err(StoreError::Duplicate.into())
-        } else {
-            Ok(result.map_err(StoreError::SQLXError)?)
+    match result {
+        Ok(tenant) => Ok(tenant),
+        Err(e) => {
+            if let sqlx::Error::Database(db_error) = &e
+                && db_error.code().as_deref() == Some("23505")
+            {
+                println!("Duplicate tenant ID detected");
+                Err(StoreError::Duplicate.into())
+            } else {
+                Err(StoreError::SQLXError(e).into())
+            }
         }
     }
 }
 
-fn read_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn read_tenant<'a, 'e, E>(
+    executor: E,
     id: &'a str,
-) -> impl Future<Output = Result<Option<Tenant>, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let tenant = sqlx::query_as!(
-            Tenant,
-            r#"SELECT id as "id: TenantId", subscription_tier FROM tenants where id = $1"#,
-            id
-        )
-        .fetch_optional(&mut *conn)
-        .await
-        .map_err(StoreError::SQLXError)?;
+) -> Result<Option<Tenant>, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let tenant = sqlx::query_as::<_, Tenant>(
+        r"
+            SELECT id, subscription_tier
+            FROM tenants
+            WHERE id = $1
+        ",
+    )
+    .bind(id)
+    .fetch_optional(executor)
+    .await
+    .map_err(StoreError::SQLXError)?;
 
-        Ok(tenant)
-    }
+    Ok(tenant)
 }
 
-fn update_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn update_tenant<'a, 'e, E>(
+    executor: E,
     tenant: Tenant,
-) -> impl Future<Output = Result<Tenant, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let updated_tenant = sqlx::query_as!(
-            Tenant,
-            r#"UPDATE tenants SET subscription_tier = $1 WHERE id = $2 RETURNING id as "id: TenantId", subscription_tier"#,
-            tenant.subscription_tier,
-            tenant.id as TenantId,
-        )
-        .fetch_one(&mut *conn)
-        .await
-        .map_err(StoreError::SQLXError)?;
+) -> Result<Tenant, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let updated_tenant = sqlx::query_as::<_, Tenant>(
+        r"
+            UPDATE tenants
+            SET subscription_tier = $1
+            WHERE id = $2
+            RETURNING id, subscription_tier
+        ",
+    )
+    .bind(tenant.subscription_tier)
+    .bind(tenant.id)
+    .fetch_one(executor)
+    .await
+    .map_err(StoreError::SQLXError)?;
 
-        Ok(updated_tenant)
-    }
+    Ok(updated_tenant)
 }
 
-fn delete_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
-    id: &'a str,
-) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let _deleted_tenant = sqlx::query_as!(
-            Tenant,
-            r#"DELETE FROM tenants WHERE id = $1 RETURNING id as "id: TenantId", subscription_tier"#,
-            id
-        )
-        .fetch_optional(&mut *conn)
-        .await
-        .map_err(StoreError::SQLXError)?;
+async fn delete_tenant<'a, 'e, E>(executor: E, id: &'a str) -> Result<(), OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    sqlx::query(
+        r"
+            DELETE FROM tenants
+            WHERE id = $1
+        ",
+    )
+    .bind(id)
+    .execute(executor)
+    .await
+    .map_err(StoreError::SQLXError)?;
 
-        Ok(())
-    }
+    Ok(())
 }
 
-fn search_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn search_tenant<'a, 'e, E>(
+    executor: E,
     clauses: &'a TenantSearchClaims,
-) -> impl Future<Output = Result<Vec<Tenant>, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let mut query_builder: QueryBuilder<Postgres> =
-            QueryBuilder::new(r#"SELECT id, subscription_tier FROM tenants WHERE "#);
+) -> Result<Vec<Tenant>, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let mut query_builder: QueryBuilder<sqlx::Postgres> =
+        QueryBuilder::new(r"SELECT id, subscription_tier FROM tenants WHERE ");
 
-        if let Some(subscription_tier) = clauses.subscription_tier.as_ref() {
-            query_builder
-                .push(" subscription_tier = ")
-                .push_bind(subscription_tier);
-        }
-
-        let query = query_builder.build_query_as();
-
-        let tenants: Vec<Tenant> = query
-            .fetch_all(&mut *conn)
-            .await
-            .map_err(StoreError::from)?;
-
-        Ok(tenants)
+    if let Some(subscription_tier) = clauses.subscription_tier.as_ref() {
+        query_builder
+            .push(" subscription_tier = ")
+            .push_bind(subscription_tier);
     }
+
+    let query = query_builder.build_query_as::<Tenant>();
+
+    let tenants: Vec<Tenant> = query.fetch_all(executor).await.map_err(StoreError::from)?;
+
+    Ok(tenants)
 }
 
 impl<Key: AsRef<str> + Send + Sync>
@@ -131,14 +147,10 @@ impl<Key: AsRef<str> + Send + Sync>
         new_tenant: CreateTenant,
     ) -> Result<Tenant, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = create_tenant(pool, new_tenant).await?;
-                Ok(res)
-            }
+            PGConnection::Pool(pool, _) => create_tenant(pool, new_tenant).await,
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = create_tenant(&mut *tx, new_tenant).await?;
-                Ok(res)
+                create_tenant(&mut **tx, new_tenant).await
             }
         }
     }
@@ -149,14 +161,10 @@ impl<Key: AsRef<str> + Send + Sync>
         id: &Key,
     ) -> Result<Option<Tenant>, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = read_tenant(pool, id.as_ref()).await?;
-                Ok(res)
-            }
+            PGConnection::Pool(pool, _) => read_tenant(pool, id.as_ref()).await,
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = read_tenant(&mut *tx, id.as_ref()).await?;
-                Ok(res)
+                read_tenant(&mut **tx, id.as_ref()).await
             }
         }
     }
@@ -167,14 +175,10 @@ impl<Key: AsRef<str> + Send + Sync>
         model: Tenant,
     ) -> Result<Tenant, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = update_tenant(pool, model).await?;
-                Ok(res)
-            }
+            PGConnection::Pool(pool, _) => update_tenant(pool, model).await,
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = update_tenant(&mut *tx, model).await?;
-                Ok(res)
+                update_tenant(&mut **tx, model).await
             }
         }
     }
@@ -185,14 +189,10 @@ impl<Key: AsRef<str> + Send + Sync>
         id: &Key,
     ) -> Result<(), haste_fhir_operation_error::OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = delete_tenant(pool, id.as_ref()).await?;
-                Ok(res)
-            }
+            PGConnection::Pool(pool, _) => delete_tenant(pool, id.as_ref()).await,
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = delete_tenant(&mut *tx, id.as_ref()).await?;
-                Ok(res)
+                delete_tenant(&mut **tx, id.as_ref()).await
             }
         }
     }
@@ -203,14 +203,10 @@ impl<Key: AsRef<str> + Send + Sync>
         claims: &TenantSearchClaims,
     ) -> Result<Vec<Tenant>, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = search_tenant(pool, claims).await?;
-                Ok(res)
-            }
+            PGConnection::Pool(pool, _) => search_tenant(pool, claims).await,
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = search_tenant(&mut *tx, claims).await?;
-                Ok(res)
+                search_tenant(&mut **tx, claims).await
             }
         }
     }

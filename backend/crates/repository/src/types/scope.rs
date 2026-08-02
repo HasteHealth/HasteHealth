@@ -9,6 +9,7 @@ impl From<ClientId> for String {
     }
 }
 impl ClientId {
+    #[must_use]
     pub fn new(id: String) -> Self {
         ClientId(id)
     }
@@ -27,6 +28,7 @@ impl From<UserId> for String {
     }
 }
 impl UserId {
+    #[must_use]
     pub fn new(id: String) -> Self {
         UserId(id)
     }
@@ -64,6 +66,7 @@ pub struct CreateScope {
 
 pub struct ScopeKey(pub ClientId, pub UserId);
 impl ScopeKey {
+    #[must_use]
     pub fn new(client: ClientId, user_: UserId) -> Self {
         ScopeKey(client, user_)
     }

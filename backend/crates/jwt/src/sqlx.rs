@@ -14,12 +14,12 @@ where
     }
 }
 
-impl<'r> Encode<'r, Postgres> for TenantId {
+impl Encode<'_, Postgres> for TenantId {
     fn encode_by_ref(
         &self,
         buf: &mut PgArgumentBuffer,
     ) -> Result<sqlx::encode::IsNull, sqlx::error::BoxDynError> {
-        buf.write(self.as_ref().as_bytes())?;
+        buf.write_all(self.as_ref().as_bytes())?;
         Ok(sqlx::encode::IsNull::No)
     }
 }
@@ -41,12 +41,12 @@ where
         Ok(ProjectId::new(value.to_string()))
     }
 }
-impl<'r> Encode<'r, Postgres> for ProjectId {
+impl Encode<'_, Postgres> for ProjectId {
     fn encode_by_ref(
         &self,
         buf: &mut PgArgumentBuffer,
     ) -> Result<sqlx::encode::IsNull, sqlx::error::BoxDynError> {
-        buf.write(self.as_ref().as_bytes())?;
+        buf.write_all(self.as_ref().as_bytes())?;
         Ok(sqlx::encode::IsNull::No)
     }
 }
@@ -69,12 +69,12 @@ where
     }
 }
 
-impl<'r> Encode<'r, Postgres> for ResourceId {
+impl Encode<'_, Postgres> for ResourceId {
     fn encode_by_ref(
         &self,
         buf: &mut PgArgumentBuffer,
     ) -> Result<sqlx::encode::IsNull, sqlx::error::BoxDynError> {
-        buf.write(self.0.as_bytes())?;
+        buf.write_all(self.0.as_bytes())?;
         Ok(sqlx::encode::IsNull::No)
     }
 }
@@ -84,17 +84,17 @@ impl<'r> Encode<'r, Postgres> for VersionIdRef<'r> {
         &self,
         buf: &mut PgArgumentBuffer,
     ) -> Result<sqlx::encode::IsNull, sqlx::error::BoxDynError> {
-        buf.write(self.0.as_bytes())?;
+        buf.write_all(self.0.as_bytes())?;
         Ok(sqlx::encode::IsNull::No)
     }
 }
 
-impl<'r> Encode<'r, Postgres> for VersionId {
+impl Encode<'_, Postgres> for VersionId {
     fn encode_by_ref(
         &self,
         buf: &mut PgArgumentBuffer,
     ) -> Result<sqlx::encode::IsNull, sqlx::error::BoxDynError> {
-        buf.write(self.0.as_bytes())?;
+        buf.write_all(self.0.as_bytes())?;
         Ok(sqlx::encode::IsNull::No)
     }
 }
@@ -131,13 +131,13 @@ where
     }
 }
 
-impl<'r> Encode<'r, Postgres> for Scopes {
+impl Encode<'_, Postgres> for Scopes {
     fn encode_by_ref(
         &self,
         buf: &mut PgArgumentBuffer,
     ) -> Result<sqlx::encode::IsNull, sqlx::error::BoxDynError> {
         let scope_string = String::from(self.clone());
-        buf.write(scope_string.as_bytes())?;
+        buf.write_all(scope_string.as_bytes())?;
         Ok(sqlx::encode::IsNull::No)
     }
 }

@@ -1,189 +1,182 @@
 use crate::{
     admin::ProjectModelAdmin,
     pg::{PGConnection, StoreError},
-    types::membership::{CreateMembership, Membership, MembershipRole, MembershipSearchClaims},
+    types::membership::{CreateMembership, Membership, MembershipSearchClaims},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
-use sqlx::{Acquire, Postgres, QueryBuilder};
+use sqlx::{PgExecutor, QueryBuilder};
 
-fn create_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn create_membership<'a, 'e, E>(
+    executor: E,
     tenant: &'a TenantId,
     project: &'a ProjectId,
     membership: CreateMembership,
-) -> impl Future<Output = Result<Membership, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let mut query_builder = QueryBuilder::new(
-            r#"
-                INSERT INTO memberships(tenant, project, user_id, role, resource_id) VALUES (
-            "#,
-        );
+) -> Result<Membership, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let mut query_builder = QueryBuilder::new(
+        r"
+            INSERT INTO memberships(tenant, project, user_id, role, resource_id) VALUES (
+        ",
+    );
 
-        let mut seperator = query_builder.separated(", ");
+    let mut seperator = query_builder.separated(", ");
 
-        seperator
-            .push_bind(tenant.as_ref())
-            .push_bind(project.as_ref())
-            .push_bind(&membership.user_id)
-            .push_bind(membership.role as MembershipRole)
-            .push_bind(&membership.resource_id);
+    seperator
+        .push_bind(tenant.as_ref())
+        .push_bind(project.as_ref())
+        .push_bind(&membership.user_id)
+        .push_bind(membership.role)
+        .push_bind(&membership.resource_id);
 
-        query_builder.push(r#") RETURNING tenant, project, user_id, role, resource_id"#);
+    query_builder.push(r") RETURNING tenant, project, user_id, role, resource_id");
 
-        let query = query_builder.build_query_as();
+    let query = query_builder.build_query_as::<Membership>();
 
-        let membership = query
-            .fetch_one(&mut *conn)
-            .await
-            .map_err(StoreError::SQLXError)?;
-
-        Ok(membership)
-    }
-}
-
-fn read_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
-    tenant: &'a TenantId,
-    project: &'a ProjectId,
-    user_id: &'a str,
-) -> impl Future<Output = Result<Option<Membership>, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let membership = sqlx::query_as!(
-            Membership,
-            r#"
-                SELECT tenant as "tenant: TenantId", project as "project: ProjectId", user_id, role as "role: MembershipRole", resource_id
-                FROM memberships
-                WHERE tenant = $1 AND project = $2 AND user_id = $3
-            "#,
-            tenant.as_ref(),
-            project.as_ref(),
-            user_id
-        )
-        .fetch_optional(&mut *conn)
+    let membership = query
+        .fetch_one(executor)
         .await
         .map_err(StoreError::SQLXError)?;
 
-        Ok(membership)
-    }
+    Ok(membership)
 }
 
-fn update_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn read_membership<'a, 'e, E>(
+    executor: E,
+    tenant: &'a TenantId,
+    project: &'a ProjectId,
+    user_id: &'a str,
+) -> Result<Option<Membership>, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let membership = sqlx::query_as::<_, Membership>(
+        r"
+            SELECT tenant, project, user_id, role, resource_id
+            FROM memberships
+            WHERE tenant = $1 AND project = $2 AND user_id = $3
+        ",
+    )
+    .bind(tenant.as_ref())
+    .bind(project.as_ref())
+    .bind(user_id)
+    .fetch_optional(executor)
+    .await
+    .map_err(StoreError::SQLXError)?;
+
+    Ok(membership)
+}
+
+async fn update_membership<'a, 'e, E>(
+    executor: E,
     tenant: &'a TenantId,
     project: &'a ProjectId,
     model: Membership,
-) -> impl Future<Output = Result<Membership, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let mut query_builder = QueryBuilder::new(
-            r#"
-                INSERT INTO memberships(tenant, project, user_id, role, resource_id) VALUES (
-            "#,
-        );
+) -> Result<Membership, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let mut query_builder = QueryBuilder::new(
+        r"
+            INSERT INTO memberships(tenant, project, user_id, role, resource_id) VALUES (
+        ",
+    );
 
-        let mut seperator = query_builder.separated(", ");
+    let mut seperator = query_builder.separated(", ");
 
-        seperator
-            .push_bind(tenant.as_ref())
-            .push_bind(project.as_ref())
-            .push_bind(&model.user_id)
-            .push_bind(model.role.clone() as MembershipRole)
-            .push_bind(&model.resource_id);
+    seperator
+        .push_bind(tenant.as_ref())
+        .push_bind(project.as_ref())
+        .push_bind(&model.user_id)
+        .push_bind(model.role.clone())
+        .push_bind(&model.resource_id);
 
-        query_builder.push(r#") ON CONFLICT (tenant, project, user_id) DO UPDATE SET "#);
+    query_builder.push(r") ON CONFLICT (tenant, project, user_id) DO UPDATE SET ");
 
-        let mut set_statements = query_builder.separated(", ");
+    let mut set_statements = query_builder.separated(", ");
 
-        set_statements
-            .push(" role = ")
-            .push_bind_unseparated(model.role);
+    set_statements
+        .push(" role = ")
+        .push_bind_unseparated(model.role);
 
-        set_statements
-            .push(" resource_id = ")
-            .push_bind_unseparated(&model.resource_id);
+    set_statements
+        .push(" resource_id = ")
+        .push_bind_unseparated(&model.resource_id);
 
-        query_builder.push(r#" RETURNING tenant, project, user_id, role, resource_id"#);
+    query_builder.push(r" RETURNING tenant, project, user_id, role, resource_id");
 
-        let query = query_builder.build_query_as();
+    let query = query_builder.build_query_as::<Membership>();
 
-        let membership = query
-            .fetch_one(&mut *conn)
-            .await
-            .map_err(StoreError::SQLXError)?;
-
-        Ok(membership)
-    }
-}
-
-fn delete_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
-    tenant: &'a TenantId,
-    project: &'a ProjectId,
-    user_id: &'a str,
-) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let _membership = sqlx::query_as!(
-            Membership,
-            r#"
-                DELETE FROM memberships
-                WHERE tenant = $1 AND project = $2 AND user_id = $3
-                RETURNING user_id, tenant as "tenant: TenantId", project as "project: ProjectId", role as "role: MembershipRole", resource_id
-            "#,
-            tenant.as_ref(),
-            project.as_ref(),
-            user_id
-        )
-        .fetch_optional(&mut *conn)
+    let membership = query
+        .fetch_one(executor)
         .await
         .map_err(StoreError::SQLXError)?;
 
-        Ok(())
-    }
+    Ok(membership)
 }
 
-fn search_memberships<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
-    connection: Connection,
+async fn delete_membership<'a, 'e, E>(
+    executor: E,
+    tenant: &'a TenantId,
+    project: &'a ProjectId,
+    user_id: &'a str,
+) -> Result<(), OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    sqlx::query(
+        r"
+            DELETE FROM memberships
+            WHERE tenant = $1 AND project = $2 AND user_id = $3
+        ",
+    )
+    .bind(tenant.as_ref())
+    .bind(project.as_ref())
+    .bind(user_id)
+    .execute(executor)
+    .await
+    .map_err(StoreError::SQLXError)?;
+
+    Ok(())
+}
+
+async fn search_memberships<'a, 'e, E>(
+    executor: E,
     tenant: &'a TenantId,
     project: &'a ProjectId,
     clauses: &'a MembershipSearchClaims,
-) -> impl Future<Output = Result<Vec<Membership>, OperationOutcomeError>> + Send + 'a {
-    async move {
-        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+) -> Result<Vec<Membership>, OperationOutcomeError>
+where
+    E: PgExecutor<'e>,
+{
+    let mut query_builder: QueryBuilder<sqlx::Postgres> = QueryBuilder::new(
+        r"SELECT user_id, tenant, project, role, resource_id FROM memberships WHERE ",
+    );
 
-        let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
-            r#"SELECT user_id, tenant, project, role, resource_id FROM memberships WHERE  "#,
-        );
+    let mut seperator = query_builder.separated(" AND ");
+    seperator
+        .push(" tenant = ")
+        .push_bind_unseparated(tenant.as_ref())
+        .push(" project = ")
+        .push_bind_unseparated(project.as_ref());
 
-        let mut seperator = query_builder.separated(" AND ");
+    if let Some(user_id) = clauses.user_id.as_ref() {
         seperator
-            .push(" tenant = ")
-            .push_bind_unseparated(tenant.as_ref())
-            .push(" project = ")
-            .push_bind_unseparated(project.as_ref());
-
-        if let Some(user_id) = clauses.user_id.as_ref() {
-            seperator
-                .push(" user_id = ")
-                .push_bind_unseparated(user_id.as_ref());
-        }
-
-        if let Some(role) = clauses.role.as_ref() {
-            seperator.push(" role = ").push_bind_unseparated(role);
-        }
-
-        let query = query_builder.build_query_as();
-
-        let memberships: Vec<Membership> = query
-            .fetch_all(&mut *conn)
-            .await
-            .map_err(StoreError::from)?;
-
-        Ok(memberships)
+            .push(" user_id = ")
+            .push_bind_unseparated(user_id.as_ref());
     }
+
+    if let Some(role) = clauses.role.as_ref() {
+        seperator.push(" role = ").push_bind_unseparated(role);
+    }
+
+    let query = query_builder.build_query_as::<Membership>();
+
+    let memberships: Vec<Membership> = query.fetch_all(executor).await.map_err(StoreError::from)?;
+
+    Ok(memberships)
 }
 
 impl<Key: AsRef<str> + Send + Sync>
@@ -198,13 +191,11 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<Membership, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
-                let res = create_membership(pool, tenant, project, new_membership).await?;
-                Ok(res)
+                create_membership(pool, tenant, project, new_membership).await
             }
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = create_membership(&mut *tx, tenant, project, new_membership).await?;
-                Ok(res)
+                create_membership(&mut **tx, tenant, project, new_membership).await
             }
         }
     }
@@ -217,13 +208,11 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<Option<Membership>, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
-                let res = read_membership(pool, tenant, project, id.as_ref()).await?;
-                Ok(res)
+                read_membership(pool, tenant, project, id.as_ref()).await
             }
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = read_membership(&mut *tx, tenant, project, id.as_ref()).await?;
-                Ok(res)
+                read_membership(&mut **tx, tenant, project, id.as_ref()).await
             }
         }
     }
@@ -235,14 +224,10 @@ impl<Key: AsRef<str> + Send + Sync>
         model: Membership,
     ) -> Result<Membership, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = update_membership(pool, tenant, project, model).await?;
-                Ok(res)
-            }
+            PGConnection::Pool(pool, _) => update_membership(pool, tenant, project, model).await,
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = update_membership(&mut *tx, tenant, project, model).await?;
-                Ok(res)
+                update_membership(&mut **tx, tenant, project, model).await
             }
         }
     }
@@ -255,13 +240,11 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<(), OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
-                let res = delete_membership(pool, tenant, project, id.as_ref()).await?;
-                Ok(res)
+                delete_membership(pool, tenant, project, id.as_ref()).await
             }
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = delete_membership(&mut *tx, tenant, project, id.as_ref()).await?;
-                Ok(res)
+                delete_membership(&mut **tx, tenant, project, id.as_ref()).await
             }
         }
     }
@@ -273,14 +256,10 @@ impl<Key: AsRef<str> + Send + Sync>
         clauses: &MembershipSearchClaims,
     ) -> Result<Vec<Membership>, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = search_memberships(pool, tenant, project, clauses).await?;
-                Ok(res)
-            }
+            PGConnection::Pool(pool, _) => search_memberships(pool, tenant, project, clauses).await,
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                let res = search_memberships(&mut *tx, tenant, project, clauses).await?;
-                Ok(res)
+                search_memberships(&mut **tx, tenant, project, clauses).await
             }
         }
     }
