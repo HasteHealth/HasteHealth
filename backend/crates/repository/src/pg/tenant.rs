@@ -36,14 +36,18 @@ where
     .fetch_one(executor)
     .await;
 
-    if let Err(ref res) = result
-        && let sqlx::Error::Database(db_error) = res
-        && db_error.code().as_deref() == Some("23505")
-    {
-        println!("Duplicate tenant ID detected");
-        Err(StoreError::Duplicate.into())
-    } else {
-        Ok(result.map_err(StoreError::SQLXError)?)
+    match result {
+        Ok(tenant) => Ok(tenant),
+        Err(e) => {
+            if let sqlx::Error::Database(db_error) = &e
+                && db_error.code().as_deref() == Some("23505")
+            {
+                println!("Duplicate tenant ID detected");
+                Err(StoreError::Duplicate.into())
+            } else {
+                Err(StoreError::SQLXError(e).into())
+            }
+        }
     }
 }
 
