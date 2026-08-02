@@ -295,7 +295,7 @@
             ]
         },
         {
-            "id": "03-history-count-checks",
+            "id": "04-history-offset-checks",
             "name": "History Offset checks.",
             "action": [
                 {
