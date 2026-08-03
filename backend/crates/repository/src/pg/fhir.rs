@@ -488,9 +488,8 @@ where
     .map_err(StoreError::from)?;
 
     match response {
-        Some((_, true)) => Ok(None),
+        Some((_, true)) | None => Ok(None),
         Some((json, _)) => Ok(Some(json.0)),
-        None => Ok(None),
     }
 }
 

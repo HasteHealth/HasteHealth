@@ -38,7 +38,7 @@ pub struct SearchReturn {
 }
 
 pub struct SearchOptions {
-    pub count_limit: Option<usize>,
+    pub count_limit: Option<i64>,
 }
 
 #[derive(Clone, Debug)]

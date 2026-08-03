@@ -233,7 +233,8 @@ impl<
                             )
                             .await?;
 
-                        if search_results.entries.len() > delete_limit {
+                        // Because we incrase the count limit by 1, we can check if the number of entries exceeds the delete limit.
+                        if search_results.entries.len() > delete_limit.try_into().unwrap_or(0) {
                             return Err(OperationOutcomeError::error(
                                 IssueType::invalid(),
                                 format!(

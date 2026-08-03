@@ -255,8 +255,8 @@ fn parameter_to_elasticsearch_clauses(
 
 // Default value for Elasticsearch is 10k
 // see index.max_result_window
-static ABSOLUTE_MAX: usize = 10_000;
-static DEFAULT_MAX_COUNT: usize = 50;
+static ABSOLUTE_MAX: i64 = 10_000;
+static DEFAULT_MAX_COUNT: i64 = 50;
 
 fn get_resource_type<'a>(request: &'a SearchRequest) -> Option<&'a ResourceType> {
     match request {
@@ -318,7 +318,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
                             .get(0)
                             .and_then(|v| v.parse::<i64>().ok())
                             .unwrap_or(100),
-                        DEFAULT_MAX_COUNT as i64,
+                        DEFAULT_MAX_COUNT,
                     );
 
                     if count_param < 0 {
@@ -329,7 +329,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
                         ));
                     }
 
-                    max_count = count_param as usize;
+                    max_count = count_param;
                 }
                 "_offset" => {
                     let offset_param = result_param
