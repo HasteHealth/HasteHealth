@@ -6,10 +6,12 @@ use std::{future::Future, pin::Pin};
 pub struct Secret(Vec<u8>);
 
 impl Secret {
+    #[must_use]
     pub fn new(bytes: Vec<u8>) -> Self {
         Self(bytes)
     }
 
+    #[must_use]
     pub fn expose_bytes(&self) -> &[u8] {
         &self.0
     }
@@ -36,8 +38,26 @@ pub struct EncryptionResult {
     pub ciphertext: Vec<u8>,
 }
 
-/// Symmetric encryption/decryption of arbitrary byte payloads.
+/// Provides symmetric authenticated encryption and decryption of arbitrary
+/// byte payloads.
+///
+/// Implementations are expected to encrypt data in a way that ensures both
+/// confidentiality and integrity. A value returned by [`Self::encrypt`]
+/// should be decryptable only by the same implementation initialized with the
+/// same keying material.
 pub trait Encryptor: Sync + Send {
+    /// Encrypts the given plaintext.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`OperationOutcomeError`] if the plaintext cannot be
+    /// encrypted.
     fn encrypt(&self, plaintext: &[u8]) -> Result<EncryptionResult, OperationOutcomeError>;
+    /// Decrypts a previously encrypted payload.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`OperationOutcomeError`] if the ciphertext is invalid,
+    /// has been tampered with, or cannot be decrypted.
     fn decrypt(&self, ciphertext: &EncryptionResult) -> Result<Vec<u8>, OperationOutcomeError>;
 }

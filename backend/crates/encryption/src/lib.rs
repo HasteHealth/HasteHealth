@@ -23,6 +23,7 @@ pub enum SecretsProviderKind {
     },
 }
 
+#[must_use]
 pub fn get_secrets_provider(kind: SecretsProviderKind) -> Arc<dyn SecretsProvider> {
     match kind {
         SecretsProviderKind::Environment { prefix } => Arc::new(
