@@ -12,21 +12,20 @@ pub struct EncodingInformation {
     pub subcomponent_separator: String,
 }
 
-// component separator, repetition separator, escape character, and subcomponent separator.
-
+#[must_use]
 pub fn component_to_string(
     encoding_characters: &EncodingInformation,
     component: &HL7V2SegmentsFieldsValueValue,
 ) -> Option<String> {
     if let Some(subcomponents) = &component.subcomponents {
         let value = subcomponents
-            .into_iter()
+            .iter()
             .map(|s| &s.value)
             .map(|v| {
                 if let Some(s) = v {
                     s.clone()
                 } else {
-                    "".to_string()
+                    String::new()
                 }
             })
             .collect::<Vec<_>>()
@@ -37,20 +36,21 @@ pub fn component_to_string(
     }
 }
 
+#[must_use]
 pub fn segment_field_repititon_to_string(
     encoding_characters: &EncodingInformation,
     segment: &HL7V2SegmentsFieldsValue,
 ) -> String {
-    let mut result = "".to_string();
+    let mut result = String::new();
 
     if let Some(components) = &segment.components {
         result.push_str(
             &components
-                .into_iter()
+                .iter()
                 .map(|c| component_to_string(encoding_characters, c).unwrap_or_default())
                 .collect::<Vec<_>>()
                 .join(&encoding_characters.component_separator),
-        )
+        );
     } else if let Some(value) = &segment.value {
         result.push_str(&component_to_string(encoding_characters, value).unwrap_or_default());
     }
@@ -58,16 +58,17 @@ pub fn segment_field_repititon_to_string(
     result
 }
 
+#[must_use]
 pub fn segment_field_to_string(
     encoding_characters: &EncodingInformation,
     segment: &HL7V2SegmentsFields,
 ) -> String {
-    let mut result = "".to_string();
+    let mut result = String::new();
 
     if let Some(repititions) = &segment.repetitions {
         result.push_str(
             &repititions
-                .into_iter()
+                .iter()
                 .map(|r| segment_field_repititon_to_string(encoding_characters, r))
                 .collect::<Vec<_>>()
                 .join(&encoding_characters.repetition_separator),
@@ -82,27 +83,22 @@ pub fn segment_field_to_string(
     result
 }
 
+#[must_use]
 pub fn segment_to_string(
     encoding_characters: &EncodingInformation,
     segment: &HL7V2Segments,
 ) -> String {
-    let mut result = segment
-        .id
-        .value
-        .as_ref()
-        .map(|s| s.as_str())
-        .unwrap_or("")
-        .to_string();
+    let mut result = segment.id.value.as_deref().map_or("", |s| s).to_string();
 
     result.push_str(&encoding_characters.field_separator);
 
-    let default_fields = vec![];
+    let default_fields = Vec::new();
     result.push_str(
         &segment
             .fields
             .as_ref()
             .unwrap_or(&default_fields)
-            .into_iter()
+            .iter()
             .map(|s| segment_field_to_string(encoding_characters, s))
             .collect::<Vec<_>>()
             .join(&encoding_characters.field_separator),
@@ -112,29 +108,24 @@ pub fn segment_to_string(
 }
 
 fn get_encoding_characters(hl7v2_message: &HL7V2) -> Option<String> {
-    let Some(msh) = hl7v2_message.segments.as_ref().and_then(|segments| {
+    let msh = hl7v2_message.segments.as_ref().and_then(|segments| {
         segments
             .iter()
-            .find(|s| s.id.value.as_ref().map(|s| s.as_str()) == Some("MSH"))
-    }) else {
-        return None;
-    };
+            .find(|s| s.id.value.as_deref() == Some("MSH"))
+    })?;
 
-    let Some(encoding_characters_str) = msh
+    let encoding_characters_str = msh
         .fields
         .as_ref()
-        .and_then(|fields| fields.into_iter().next())
+        .and_then(|fields| fields.iter().next())
         .and_then(|field| {
             field.value.as_ref().and_then(|v| {
                 v.value
                     .as_ref()
                     .and_then(|s| s.value.as_ref())
-                    .and_then(|s| s.value.as_ref().map(|s| s.as_str()))
+                    .and_then(|s| s.value.as_deref())
             })
-        })
-    else {
-        return None;
-    };
+        })?;
 
     Some(encoding_characters_str.to_string())
 }
@@ -147,13 +138,12 @@ impl<'a> From<SerializeMessage<'a>> for String {
         let field_seperator = hl7v2_message
             .fieldSeparator
             .value
-            .as_ref()
-            .map(|s| s.as_str())
-            .unwrap_or("|");
+            .as_deref()
+            .map_or("|", |s| s);
         let encoding_characters_str =
-            get_encoding_characters(&hl7v2_message).unwrap_or("^~\\&".to_string());
+            get_encoding_characters(hl7v2_message).unwrap_or("^~\\&".to_string());
 
-        let mut result = "".to_string();
+        let mut result = String::new();
 
         let encoding_characters = EncodingInformation {
             field_separator: field_seperator.to_string(),
@@ -182,7 +172,7 @@ impl<'a> From<SerializeMessage<'a>> for String {
 
         if let Some(segments) = &hl7v2_message.segments {
             let k = segments
-                .into_iter()
+                .iter()
                 .map(|s| segment_to_string(&encoding_characters, s))
                 .collect::<Vec<_>>()
                 .join("\n");
