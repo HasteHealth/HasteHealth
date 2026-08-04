@@ -10,7 +10,7 @@ use minijinja::{
 #[allow(dead_code)]
 pub struct ObjectConverter<'a>(&'a dyn MetaValue);
 
-impl<'a> Object for ObjectConverter<'a> {
+impl Object for ObjectConverter<'_> {
     fn repr(self: &Arc<Self>) -> ObjectRepr {
         ObjectRepr::Plain
     }
@@ -34,9 +34,8 @@ impl<'a> Object for ObjectConverter<'a> {
             };
 
             return k;
-        } else {
-            None
         }
+        None
     }
 
     fn enumerate(self: &Arc<Self>) -> Enumerator {

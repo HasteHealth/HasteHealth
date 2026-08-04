@@ -11,11 +11,12 @@ use haste_reflect::MetaValue;
 use liquid::{Error, Object, model::KString};
 use liquid_core::Value;
 
-/// Convert a liquid `Value` to FHIR context entries.
+/// Convert a liquid [`Value`] to FHIR context entries.
 ///
 /// Scalars map to a single FHIR primitive. Arrays are flattened so each
-/// element becomes a separate context value, matching the FHIRPath collection
-/// model. Objects become a lazy `BackboneElement`-typed `MetaObject`. Nil
+/// element becomes a separate context value, matching the `FHIRPath` collection
+/// model.
+/// Objects become a lazy `BackboneElement`-typed `MetaObject`. Nil
 /// produces an empty context.
 pub fn liquid_to_metavalue(value: Value) -> Result<Vec<Box<dyn MetaValue + Send + Sync>>, Error> {
     match value {
@@ -48,16 +49,16 @@ pub fn liquid_to_metavalue(value: Value) -> Result<Vec<Box<dyn MetaValue + Send 
             .into_iter()
             .map(liquid_to_metavalue)
             .flat_map(|result| match result {
-                Ok(vec) => vec.into_iter().map(|item| Ok(item)).collect(),
+                Ok(vec) => vec.into_iter().map(Ok).collect(),
                 Err(er) => vec![Err(er)],
             })
             .collect::<Result<Vec<Box<dyn MetaValue + Send + Sync>>, Error>>(),
         Value::Object(obj) => {
             let k: Resource = serde_json::from_value(
-                serde_json::to_value(&obj).map_err(|e| Error::with_msg(format!("{}", e)))?,
+                serde_json::to_value(&obj).map_err(|e| Error::with_msg(format!("{e}")))?,
             )
             .map_err(|e| {
-                println!("{}", e);
+                println!("{e}");
                 Error::with_msg(
                     "Must be a valid resource type to use fhirpath filter on.".to_string(),
                 )
@@ -71,29 +72,31 @@ pub fn liquid_to_metavalue(value: Value) -> Result<Vec<Box<dyn MetaValue + Send 
     }
 }
 
-/// Convert a `MetaValue` to a liquid `Value`.
+/// Convert a [`MetaValue`] to a liquid [`Value`].
 ///
 /// Primitive FHIR types are dispatched via `fhir_type()` and converted to
 /// the matching liquid scalar. Complex types are recursively converted to
-/// `Value::Object` using the same `flatten()` traversal that the FHIRPath
+/// [`Value::Object`] using the same `flatten()` traversal that the `FHIRPath`
 /// engine uses, so field semantics are consistent.
 pub fn fhir_to_liquid(value: &dyn MetaValue) -> Value {
     let fhir_type = value.fhir_type();
 
-    if NUMBER_TYPES.contains(fhir_type) {
-        if let Ok(n) = downcast_number(value) {
-            return Value::scalar(n);
-        }
+    if NUMBER_TYPES.contains(fhir_type)
+        && let Ok(n) = downcast_number(value)
+    {
+        return Value::scalar(n);
     }
-    if BOOLEAN_TYPES.contains(fhir_type) {
-        if let Ok(b) = downcast_bool(value) {
-            return Value::scalar(b);
-        }
+
+    if BOOLEAN_TYPES.contains(fhir_type)
+        && let Ok(b) = downcast_bool(value)
+    {
+        return Value::scalar(b);
     }
-    if STRING_TYPES.contains(fhir_type) {
-        if let Ok(s) = downcast_string(value) {
-            return Value::scalar(s);
-        }
+
+    if STRING_TYPES.contains(fhir_type)
+        && let Ok(s) = downcast_string(value)
+    {
+        return Value::scalar(s);
     }
 
     // Complex type: build a liquid Object from the reflected fields.
@@ -103,7 +106,7 @@ pub fn fhir_to_liquid(value: &dyn MetaValue) -> Value {
     //   - collection fields     → flatten() yields each element
     let fields = value.fields();
     if fields.is_empty() {
-        return Value::scalar(format!("{:?}", value));
+        return Value::scalar(format!("{value:?}"));
     }
 
     let mut obj = Object::new();
