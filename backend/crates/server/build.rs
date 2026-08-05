@@ -22,9 +22,10 @@ fn main() {
         .wait()
         .expect("Failed to install node packages.");
 
-    if !npm_result.success() {
-        panic!("NPM INSTALL EXITED WITH: {:?}", npm_result);
-    }
+    assert!(
+        npm_result.success(),
+        "NPM INSTALL EXITED WITH: {npm_result:?}",
+    );
 
     let mut tailwindcss_process = std::process::Command::new(NPX)
         .arg("@tailwindcss/cli")
@@ -36,7 +37,5 @@ fn main() {
 
     let result = tailwindcss_process.wait().expect("TAILWIND FAILED");
 
-    if !result.success() {
-        panic!("TAILWIND EXITED WITH: {:?}", result);
-    }
+    assert!(result.success(), "TAILWIND EXITED WITH: {result:?}");
 }
