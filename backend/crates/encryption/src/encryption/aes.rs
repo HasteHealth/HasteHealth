@@ -17,6 +17,12 @@ pub struct AesGcmEncryptor {
 }
 
 impl AesGcmEncryptor {
+    /// Creates a new AES-256-GCM cipher from the provided key.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`OperationOutcomeError`] if `key` is not exactly `KEY_LEN` bytes
+    /// long.
     pub fn new(key: &[u8]) -> Result<Self, OperationOutcomeError> {
         let key_array = Key::<Aes256Gcm>::try_from(key)
             .map_err(|_| EncryptionError::InvalidKeyLength(KEY_LEN, key.len()))?;
