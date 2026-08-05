@@ -51,11 +51,11 @@ impl Filter for FHIRPathFilter {
                     .evaluate(fhirpath.as_str(), refs)
                     .await?;
 
-                let converted: Vec<Value> = ctx.iter().map(|value| fhir_to_liquid(value)).collect();
+                let converted: Vec<Value> = ctx.iter().map(fhir_to_liquid).collect();
                 Ok::<Vec<Value>, haste_fhirpath::FHIRPathError>(converted)
             })
         })
-        .map_err(|err| Error::with_msg(format!("FHIRPath evaluation error: {}", err)))?;
+        .map_err(|err| Error::with_msg(format!("FHIRPath evaluation error: {err}")))?;
 
         Ok(Value::Array(values))
     }

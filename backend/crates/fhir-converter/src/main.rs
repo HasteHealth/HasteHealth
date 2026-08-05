@@ -38,10 +38,11 @@ fn read_stdin() -> Result<String, std::io::Error> {
     Ok(input)
 }
 
-fn parse_input_value(input_type: &InputType, raw_input: String) -> Result<Input, String> {
+fn parse_input_value(input_type: InputType, raw_input: String) -> Result<Input, String> {
     match input_type {
         InputType::HL7V2 => Ok(Input::HL7V2(raw_input)),
         InputType::Fhir => serde_json::from_str::<Resource>(&raw_input)
+            .map(Box::new)
             .map(Input::FHIR)
             .map_err(|e| format!("failed to parse FHIR input: {e}")),
         InputType::Json => serde_json::from_str::<serde_json::Value>(&raw_input)
@@ -114,7 +115,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         None => read_stdin()?,
     };
 
-    let input = parse_input_value(input_type, raw_input)?;
+    let input = parse_input_value(*input_type, raw_input)?;
     let converted_input = convert_input(input).map_err(|e| e.to_string())?;
 
     let mut context = HashMap::<&str, Value>::new();
@@ -134,7 +135,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let env = create_environment(Some(template_directory));
     let template = env
-        .get_template(&main_template_id)
+        .get_template(main_template_id)
         .map_err(|e| e.to_string())?;
 
     let output = transform(&template, context, output_type).map_err(|e| e.to_string())?;

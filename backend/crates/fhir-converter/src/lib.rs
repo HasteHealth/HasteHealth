@@ -10,10 +10,20 @@ mod liquid_extensions;
 
 pub enum Input {
     HL7V2(String),
-    FHIR(Resource),
+    FHIR(Box<Resource>),
     JSON(serde_json::Value),
 }
 
+/// Converts an [`Input`] into a [`minijinja::Value`] suitable for template
+/// rendering.
+///
+/// HL7 v2 messages are parsed and wrapped in a Jinja-compatible object, while
+/// FHIR resources and JSON values are converted using Serde serialization.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] if the input is an HL7 v2 message that
+/// cannot be parsed.
 pub fn convert_input(input: Input) -> Result<minijinja::Value, OperationOutcomeError> {
     match input {
         Input::HL7V2(message) => {
@@ -36,7 +46,7 @@ pub enum OutputFormat {
 }
 
 pub enum Output {
-    FHIR(Resource),
+    FHIR(Box<Resource>),
     JSON(serde_json::Value),
     HL7V2(String),
 }
@@ -45,13 +55,13 @@ pub enum Output {
 fn derive_template_name(template_dir: &Path, path: &Path) -> Option<String> {
     let relative_path = path.strip_prefix(template_dir).unwrap_or(path);
     let Some(template_file_stem) = relative_path.file_stem().and_then(|s| s.to_str()) else {
-        eprintln!("Failed to get template name from path: {:?}", path);
+        eprintln!("Failed to get template name from path: {}", path.display());
         return None;
     };
     let Some(parent) = relative_path.parent() else {
         eprintln!(
-            "Failed to get parent directory for template: {:?}",
-            relative_path
+            "Failed to get parent directory for template: {}",
+            relative_path.display()
         );
         return None;
     };
@@ -60,8 +70,8 @@ fn derive_template_name(template_dir: &Path, path: &Path) -> Option<String> {
 
     let Some(template_name) = template_name_path.to_str() else {
         eprintln!(
-            "Failed to convert template name to string: {:?}",
-            template_name_path
+            "Failed to convert template name to string: {}",
+            template_name_path.display()
         );
         return None;
     };
@@ -71,19 +81,25 @@ fn derive_template_name(template_dir: &Path, path: &Path) -> Option<String> {
 
 fn add_template(env: &mut Environment<'_>, template_dir: &Path, path: &Path) -> Option<()> {
     let Ok(template_content) = std::fs::read_to_string(path) else {
-        eprintln!("Failed to read template file: {:?}", path);
+        eprintln!("Failed to read template file: {}", path.display());
         return None;
     };
 
     let Some(template_name) = derive_template_name(template_dir, path) else {
-        eprintln!("Failed to derive template name for file: {:?}", path);
+        eprintln!(
+            "Failed to derive template name for file: {}",
+            path.display()
+        );
         return None;
     };
 
-    println!("Adding template '{}' from file: {:?}", template_name, path);
+    println!(
+        "Adding template '{template_name}' from file: {}",
+        path.display()
+    );
 
-    if let Err(e) = env.add_template_owned(template_name.to_string(), template_content) {
-        eprintln!("Failed to add template '{}': {}", template_name, e);
+    if let Err(e) = env.add_template_owned(template_name.clone(), template_content) {
+        eprintln!("Failed to add template '{template_name}': {e}");
     }
 
     Some(())
@@ -100,12 +116,12 @@ pub fn create_environment<'a>(template_dir: Option<&str>) -> Environment<'a> {
         let template_dir = Path::new(template_dir);
         walkdir::WalkDir::new(template_dir)
             .into_iter()
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
             .filter(|e| {
                 e.file_type().is_file()
                     && e.path()
                         .extension()
-                        .map_or(false, |ext| ext == "jinja" || ext == "j2")
+                        .is_some_and(|ext| ext == "jinja" || ext == "j2")
             })
             .for_each(|entry| {
                 let path = entry.path();
@@ -116,6 +132,23 @@ pub fn create_environment<'a>(template_dir: Option<&str>) -> Environment<'a> {
     env
 }
 
+/// Renders a template into the requested output format.
+///
+/// The template is rendered using the provided serializable context and the
+/// resulting text is validated or parsed according to `output`.
+///
+/// - [`OutputFormat::FHIR`] parses the rendered output as a FHIR resource.
+/// - [`OutputFormat::JSON`] parses the rendered output as arbitrary JSON.
+/// - [`OutputFormat::HL7V2`] validates that the rendered output is a valid
+///   HL7 v2 message.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] if:
+///
+/// - template rendering fails,
+/// - the rendered output cannot be parsed as the requested format, or
+/// - HL7 v2 validation fails.
 pub fn transform<S>(
     template: &Template<'_, '_>,
     ctx: S,
@@ -138,7 +171,7 @@ where
         )),
         OutputFormat::HL7V2 => {
             // Verify that the output is a valid HL7v2 message by attempting to parse it.
-            ParsedHL7V2Message::try_from(output_data.as_str())?.0;
+            ParsedHL7V2Message::try_from(output_data.as_str())?;
 
             Ok(Output::HL7V2(output_data))
         }
