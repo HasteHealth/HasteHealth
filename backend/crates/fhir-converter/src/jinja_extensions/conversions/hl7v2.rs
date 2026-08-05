@@ -5,7 +5,7 @@ use haste_fhir_model::r4::generated::resources::{
     HL7V2SegmentsFieldsValueValue,
 };
 use haste_hl7v2::serialize::{
-    EncodingInformation, SerializeMessage, component_to_string, segment_field_repititon_to_string,
+    EncodingInformation, SerializeMessage, component_to_string, segment_field_repetition_to_string,
     segment_field_to_string, segment_to_string,
 };
 use minijinja::{
@@ -195,7 +195,7 @@ impl Object for JHL7V2SegmentsFieldsValue<'_> {
         write!(
             f,
             "{}",
-            segment_field_repititon_to_string(&DEFAULT_ENCODING, self.0)
+            segment_field_repetition_to_string(&DEFAULT_ENCODING, self.0)
         )
     }
 }
