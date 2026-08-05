@@ -103,7 +103,7 @@ pub(crate) async fn hl7v2(
 
                     tracing::info!("total transformation: {:?}", start.elapsed());
 
-                    match resource {
+                    match *resource {
                         Resource::Bundle(bundle) => match &bundle.type_ {
                             b if b == &BundleType::batch() => {
                                 match fhir_client.batch((), bundle).await {
@@ -147,7 +147,7 @@ pub(crate) async fn hl7v2(
                         },
                         _ => {
                             let resource_type = resource.resource_type();
-                            match fhir_client.create((), resource_type, resource).await {
+                            match fhir_client.create((), resource_type, *resource).await {
                                 Ok(_) => {
                                     if let Err(e) = stream.write_all(&MllpFormatter::ack()) {
                                         eprintln!("Failed to send ACK: {}", e);
