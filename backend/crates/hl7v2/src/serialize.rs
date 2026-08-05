@@ -37,7 +37,7 @@ pub fn component_to_string(
 }
 
 #[must_use]
-pub fn segment_field_repititon_to_string(
+pub fn segment_field_repetition_to_string(
     encoding_characters: &EncodingInformation,
     segment: &HL7V2SegmentsFieldsValue,
 ) -> String {
@@ -65,16 +65,16 @@ pub fn segment_field_to_string(
 ) -> String {
     let mut result = String::new();
 
-    if let Some(repititions) = &segment.repetitions {
+    if let Some(repetitions) = &segment.repetitions {
         result.push_str(
-            &repititions
+            &repetitions
                 .iter()
-                .map(|r| segment_field_repititon_to_string(encoding_characters, r))
+                .map(|r| segment_field_repetition_to_string(encoding_characters, r))
                 .collect::<Vec<_>>()
                 .join(&encoding_characters.repetition_separator),
         );
     } else if let Some(value) = &segment.value {
-        result.push_str(&segment_field_repititon_to_string(
+        result.push_str(&segment_field_repetition_to_string(
             encoding_characters,
             value,
         ));
