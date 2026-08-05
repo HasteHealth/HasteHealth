@@ -88,7 +88,7 @@ pub fn segment_to_string(
     encoding_characters: &EncodingInformation,
     segment: &HL7V2Segments,
 ) -> String {
-    let mut result = segment.id.value.as_deref().map_or("", |s| s).to_string();
+    let mut result = segment.id.value.as_deref().unwrap_or("").to_string();
 
     result.push_str(&encoding_characters.field_separator);
 
@@ -135,18 +135,14 @@ pub struct SerializeMessage<'a>(pub &'a HL7V2);
 impl<'a> From<SerializeMessage<'a>> for String {
     fn from(value: SerializeMessage<'a>) -> Self {
         let hl7v2_message = value.0;
-        let field_seperator = hl7v2_message
-            .fieldSeparator
-            .value
-            .as_deref()
-            .map_or("|", |s| s);
+        let field_separator = hl7v2_message.fieldSeparator.value.as_deref().unwrap_or("|");
         let encoding_characters_str =
             get_encoding_characters(hl7v2_message).unwrap_or("^~\\&".to_string());
 
         let mut result = String::new();
 
         let encoding_characters = EncodingInformation {
-            field_separator: field_seperator.to_string(),
+            field_separator: field_separator.to_string(),
             component_separator: encoding_characters_str
                 .chars()
                 .nth(0)
