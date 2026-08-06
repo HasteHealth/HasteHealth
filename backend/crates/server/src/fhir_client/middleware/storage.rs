@@ -146,7 +146,7 @@ impl<
                             &context.ctx.project,
                             &context.ctx.user.claims,
                             &context.ctx.fhir_version,
-                            &mut create_request.resource,
+                            create_request.resource.clone(),
                         )
                         .await?,
                     })))
@@ -174,7 +174,7 @@ impl<
                             &ResourceId::new(delete_request.id.to_string()),
                         )
                         .await?;
-                        if let Some(mut resource) = current_resource {
+                        if let Some(resource) = current_resource {
                             Ok(Some(FHIRResponse::Delete(DeleteResponse::Instance(
                                 Box::new(FHIRDeleteInstanceResponse {
                                     resource: FHIRRepository::delete(
@@ -183,7 +183,7 @@ impl<
                                         &context.ctx.project,
                                         &context.ctx.user.claims,
                                         &context.ctx.fhir_version,
-                                        &mut resource,
+                                        resource,
                                         &delete_request.id,
                                     )
                                     .await?,
@@ -249,7 +249,7 @@ impl<
                             .map(|v| &v.version_id)
                             .collect::<Vec<_>>();
 
-                        let mut resources = state
+                        let resources = state
                             .repo
                             .read_by_version_ids(
                                 &context.ctx.tenant,
@@ -259,7 +259,7 @@ impl<
                             )
                             .await?;
 
-                        for resource in resources.iter_mut() {
+                        for resource in resources.into_iter() {
                             let id = resource
                                 .get_field("id")
                                 .ok_or_else(|| {
@@ -446,7 +446,7 @@ impl<
                                     &context.ctx.project,
                                     &context.ctx.user.claims,
                                     &context.ctx.fhir_version,
-                                    &mut update_request.resource,
+                                    update_request.resource.clone(),
                                     &update_request.id,
                                 )
                                 .await?,
@@ -460,7 +460,7 @@ impl<
                                     &context.ctx.project,
                                     &context.ctx.user.claims,
                                     &context.ctx.fhir_version,
-                                    &mut update_request.resource,
+                                    update_request.resource.clone(),
                                     &update_request.id,
                                 )
                                 .await?,
@@ -533,7 +533,7 @@ impl<
                                             &context.ctx.project,
                                             &context.ctx.user.claims,
                                             &context.ctx.fhir_version,
-                                            &mut update_request.resource,
+                                            update_request.resource.clone(),
                                             &id,
                                         )
                                         .await?,
@@ -546,7 +546,7 @@ impl<
                                             &context.ctx.project,
                                             &context.ctx.user.claims,
                                             &context.ctx.fhir_version,
-                                            &mut update_request.resource,
+                                            update_request.resource.clone(),
                                         )
                                         .await?,
                                     })))
@@ -593,7 +593,7 @@ impl<
                                         &context.ctx.project,
                                         &context.ctx.user.claims,
                                         &context.ctx.fhir_version,
-                                        &mut update_request.resource,
+                                        update_request.resource.clone(),
                                         search_result.id.as_ref(),
                                     )
                                     .await?,
@@ -822,7 +822,7 @@ impl<
                         )
                     })?;
 
-                    let mut patched_resource =
+                    let patched_resource =
                         serde_json::from_value::<Resource>(json).map_err(|e| {
                             OperationOutcomeError::fatal(
                                 IssueType::exception(),
@@ -871,7 +871,7 @@ impl<
                             &context.ctx.project,
                             &context.ctx.user.claims,
                             &context.ctx.fhir_version,
-                            &mut patched_resource,
+                            patched_resource,
                             &fhir_patch_request.id,
                         )
                         .await?,

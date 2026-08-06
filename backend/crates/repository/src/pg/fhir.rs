@@ -62,21 +62,39 @@ impl FHIRRepository for PGConnection {
         project: &ProjectId,
         author: &UserTokenClaims,
         fhir_version: &SupportedFHIRVersions,
-        resource: &mut Resource,
+        mut resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
         match &self {
             PGConnection::Pool(_pool, _) => {
                 let tx = create_transaction(self, true).await?;
-                let res = {
+                {
                     let mut conn = tx.lock().await;
-                    create(&mut **conn, tenant, project, author, fhir_version, resource).await?
+                    create(
+                        &mut **conn,
+                        tenant,
+                        project,
+                        author,
+                        fhir_version,
+                        &mut resource,
+                    )
+                    .await?
                 };
                 commit_transaction(tx).await?;
-                Ok(res)
+                Ok(resource)
             }
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
-                create(&mut **tx, tenant, project, author, fhir_version, resource).await
+                create(
+                    &mut **tx,
+                    tenant,
+                    project,
+                    author,
+                    fhir_version,
+                    &mut resource,
+                )
+                .await?;
+
+                Ok(resource)
             }
         }
     }
@@ -87,13 +105,13 @@ impl FHIRRepository for PGConnection {
         project: &ProjectId,
         author: &UserTokenClaims,
         fhir_version: &SupportedFHIRVersions,
-        resource: &mut Resource,
+        mut resource: Resource,
         id: &str,
     ) -> Result<Resource, OperationOutcomeError> {
         match self {
             PGConnection::Pool(_pool, _) => {
                 let tx = create_transaction(self, true).await?;
-                let res = {
+                {
                     let mut conn = tx.lock().await;
                     delete(
                         &mut **conn,
@@ -101,13 +119,15 @@ impl FHIRRepository for PGConnection {
                         project,
                         author,
                         fhir_version,
-                        resource,
+                        &mut resource,
                         id,
                     )
                     .await?
                 };
+
                 commit_transaction(tx).await?;
-                Ok(res)
+
+                Ok(resource)
             }
             PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
@@ -118,10 +138,12 @@ impl FHIRRepository for PGConnection {
                     project,
                     author,
                     fhir_version,
-                    resource,
+                    &mut resource,
                     id,
                 )
-                .await
+                .await?;
+
+                Ok(resource)
             }
         }
     }
@@ -132,13 +154,13 @@ impl FHIRRepository for PGConnection {
         project: &ProjectId,
         author: &UserTokenClaims,
         fhir_version: &SupportedFHIRVersions,
-        resource: &mut Resource,
+        mut resource: Resource,
         id: &str,
     ) -> Result<Resource, OperationOutcomeError> {
         match self {
             PGConnection::Pool(_pool, _) => {
                 let tx = create_transaction(self, true).await?;
-                let res = {
+                {
                     let mut conn = tx.lock().await;
                     update(
                         &mut **conn,
@@ -146,14 +168,14 @@ impl FHIRRepository for PGConnection {
                         project,
                         author,
                         fhir_version,
-                        resource,
+                        &mut resource,
                         id,
                     )
                     .await?
                 };
 
                 commit_transaction(tx).await?;
-                Ok(res)
+                Ok(resource)
             }
             PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
@@ -164,10 +186,12 @@ impl FHIRRepository for PGConnection {
                     project,
                     author,
                     fhir_version,
-                    resource,
+                    &mut resource,
                     id,
                 )
-                .await
+                .await?;
+
+                Ok(resource)
             }
         }
     }
@@ -314,18 +338,17 @@ async fn create<'a, 'e, E>(
     author: &'a UserTokenClaims,
     fhir_version: &'a SupportedFHIRVersions,
     resource: &'a mut Resource,
-) -> Result<Resource, OperationOutcomeError>
+) -> Result<(), OperationOutcomeError>
 where
     E: PgExecutor<'e>,
 {
     utilities::set_resource_id(resource, None)?;
-    utilities::set_version_id(resource)?;
+    utilities::set_resource_meta(resource, &author.resource_type, &author.sub)?;
 
-    let result = sqlx::query_as::<_, (FHIRJson<Resource>,)>(
+    sqlx::query_as::<_, (FHIRJson<Resource>,)>(
         r"
             INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            RETURNING resource
         ",
     )
     .bind(tenant.as_ref())
@@ -337,11 +360,11 @@ where
     .bind("POST")
     .bind(author.resource_type.as_ref())
     .bind(FHIRMethod::Create)
-    .fetch_one(executor)
+    .fetch_optional(executor)
     .await
     .map_err(StoreError::from)?;
 
-    Ok(result.0.0)
+    Ok(())
 }
 
 async fn delete<'a, 'e, E>(
@@ -352,18 +375,18 @@ async fn delete<'a, 'e, E>(
     fhir_version: &'a SupportedFHIRVersions,
     resource: &'a mut Resource,
     id: &'a str,
-) -> Result<Resource, OperationOutcomeError>
+) -> Result<(), OperationOutcomeError>
 where
     E: PgExecutor<'e>,
 {
     utilities::set_resource_id(resource, Some(id.to_string()))?;
-    utilities::set_version_id(resource)?;
+    utilities::set_resource_meta(resource, &author.resource_type, &author.sub)?;
 
-    let result = sqlx::query_as::<_, (FHIRJson<Resource>,)>(
+    sqlx::query_as::<_, (FHIRJson<Resource>,)>(
         r"
             INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            RETURNING resource
+            
         ",
     )
     .bind(tenant.as_ref())
@@ -375,11 +398,11 @@ where
     .bind("DELETE")
     .bind(author.resource_type.as_ref())
     .bind(FHIRMethod::Delete)
-    .fetch_one(executor)
+    .fetch_optional(executor)
     .await
     .map_err(StoreError::from)?;
 
-    Ok(result.0.0)
+    Ok(())
 }
 
 async fn update<'a, 'e, E>(
@@ -390,18 +413,17 @@ async fn update<'a, 'e, E>(
     fhir_version: &'a SupportedFHIRVersions,
     resource: &'a mut Resource,
     id: &'a str,
-) -> Result<Resource, OperationOutcomeError>
+) -> Result<(), OperationOutcomeError>
 where
     E: PgExecutor<'e>,
 {
     utilities::set_resource_id(resource, Some(id.to_string()))?;
-    utilities::set_version_id(resource)?;
+    utilities::set_resource_meta(resource, &author.resource_type, &author.sub)?;
 
-    let result = sqlx::query_as::<_, (FHIRJson<Resource>,)>(
+    sqlx::query_as::<_, (FHIRJson<Resource>,)>(
         r"
             INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            RETURNING resource
         ",
     )
     .bind(tenant.as_ref())
@@ -413,11 +435,11 @@ where
     .bind("PUT")
     .bind(author.resource_type.as_ref())
     .bind(FHIRMethod::Update)
-    .fetch_one(executor)
+    .fetch_optional(executor)
     .await
     .map_err(StoreError::from)?;
 
-    Ok(result.0.0)
+    Ok(())
 }
 
 async fn read_by_version_ids<'a, 'e, E>(
