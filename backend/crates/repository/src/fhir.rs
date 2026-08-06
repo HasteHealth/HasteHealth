@@ -24,7 +24,7 @@ pub trait FHIRRepository: Sized {
         project: &ProjectId,
         user: &UserTokenClaims,
         fhir_version: &SupportedFHIRVersions,
-        resource: &mut Resource,
+        resource: Resource,
     ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
 
     fn update(
@@ -33,7 +33,7 @@ pub trait FHIRRepository: Sized {
         project: &ProjectId,
         user: &UserTokenClaims,
         fhir_version: &SupportedFHIRVersions,
-        resource: &mut Resource,
+        resource: Resource,
         id: &str,
     ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
 
@@ -43,7 +43,7 @@ pub trait FHIRRepository: Sized {
         project: &ProjectId,
         user: &UserTokenClaims,
         fhir_version: &SupportedFHIRVersions,
-        resource: &mut Resource,
+        resource: Resource,
         id: &str,
     ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
 
