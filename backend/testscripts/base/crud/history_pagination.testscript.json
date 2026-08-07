@@ -1,5 +1,5 @@
 {
-    "id": "history-tests",
+    "id": "history-pagination-ests",
     "resourceType": "TestScript",
     "url": "https://haste.health/fhir/TestScript/history-tests",
     "title": "History tests",
@@ -194,7 +194,7 @@
                         "operator": "equals",
                         "warningOnly": false
                     }
-                },
+                }
             ]
         }
     ],
