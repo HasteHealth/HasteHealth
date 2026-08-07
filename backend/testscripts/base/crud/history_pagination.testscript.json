@@ -1,7 +1,7 @@
 {
-    "id": "history-tests",
+    "id": "history-pagination-tests",
     "resourceType": "TestScript",
-    "url": "https://haste.health/fhir/TestScript/history-tests",
+    "url": "https://haste.health/fhir/TestScript/history-pagination-test",
     "title": "History tests",
     "name": "History Test",
     "status": "active",
@@ -13,7 +13,7 @@
             "meta": {
                 "tag": [
                     {
-                        "code": "history-test"
+                        "code": "history-pagination-test"
                     }
                 ]
             }
@@ -194,7 +194,7 @@
                         "operator": "equals",
                         "warningOnly": false
                     }
-                },
+                }
             ]
         }
     ],
@@ -206,7 +206,7 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "params": "_tag=history-test",
+                    "params": "_tag=history-pagination-test",
                     "encodeRequestUrl": false
                 }
             }
