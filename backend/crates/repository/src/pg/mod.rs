@@ -8,19 +8,11 @@ use tokio::sync::Mutex;
 
 use crate::Repository;
 
-mod authorization_code;
-mod fhir;
-mod membership;
-mod mfa;
 mod migrate;
-mod project;
+mod models;
 mod rate_limit;
-mod scope;
 mod sequence;
-mod system;
-mod tenant;
-mod user;
-mod utilities;
+mod transaction;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum StoreError {

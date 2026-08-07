@@ -2,7 +2,7 @@ use crate::{
     fhir::{CachePolicy, FHIRRepository, ResourceHistoryValue},
     pg::{
         PGConnection, StoreError,
-        utilities::{commit_transaction, create_transaction},
+        transaction::{commit_transaction, create_transaction},
     },
     types::{FHIRMethod, SupportedFHIRVersions},
     utilities,

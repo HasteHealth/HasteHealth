@@ -2,7 +2,7 @@ use std::{pin::Pin, sync::LazyLock};
 
 use crate::pg::{
     PGConnection,
-    utilities::{commit_transaction, create_transaction},
+    transaction::{commit_transaction, create_transaction},
 };
 use haste_rate_limit::{RateLimit, RateLimitError};
 use moka::future::{Cache, CacheBuilder};
