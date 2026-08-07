@@ -28,7 +28,7 @@ impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
         tenants: Vec<&TenantId>,
     ) -> Result<Vec<TenantLockIndex>, OperationOutcomeError> {
         match self {
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 let conn = (&mut (*tx))
                     .acquire()
@@ -66,7 +66,7 @@ impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
         model: TenantLockIndex,
     ) -> Result<(), OperationOutcomeError> {
         match self {
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 let conn = (&mut (*tx))
                     .acquire()

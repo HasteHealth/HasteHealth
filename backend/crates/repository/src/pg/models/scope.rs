@@ -186,7 +186,7 @@ impl ProjectModelAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, Scope
     ) -> Result<Scope, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => create_scope(pool, tenant, project, new_scope).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 create_scope(&mut **tx, tenant, project, new_scope).await
             }
@@ -201,7 +201,7 @@ impl ProjectModelAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, Scope
     ) -> Result<Option<Scope>, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => read_scope(pool, tenant, project, key).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 read_scope(&mut **tx, tenant, project, key).await
             }
@@ -216,7 +216,7 @@ impl ProjectModelAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, Scope
     ) -> Result<Scope, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => update_scope(pool, tenant, project, model).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 update_scope(&mut **tx, tenant, project, model).await
             }
@@ -231,7 +231,7 @@ impl ProjectModelAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, Scope
     ) -> Result<(), OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => delete_scope(pool, tenant, project, key).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 delete_scope(&mut **tx, tenant, project, key).await
             }
@@ -246,7 +246,7 @@ impl ProjectModelAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, Scope
     ) -> Result<Vec<Scope>, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => search_scopes(pool, tenant, project, clauses).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 search_scopes(&mut **tx, tenant, project, clauses).await
             }

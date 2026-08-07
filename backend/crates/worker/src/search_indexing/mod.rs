@@ -78,7 +78,7 @@ async fn get_tenants(
 
             Ok(result)
         }
-        PGConnection::Transaction(tx, _) => {
+        PGConnection::Transaction(tx, _, _) => {
             let mut connection = tx.lock().await;
             let conn = connection
                 .acquire()

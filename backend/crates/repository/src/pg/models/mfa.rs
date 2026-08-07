@@ -267,7 +267,7 @@ impl
             PGConnection::Pool(pool, _) => {
                 create_user_mfa_credential(pool, tenant, new_user_mfa_credential).await
             }
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
 
                 create_user_mfa_credential(&mut **tx, tenant, new_user_mfa_credential).await
@@ -282,7 +282,7 @@ impl
     ) -> Result<Option<UserMFACredential>, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => read_user_mfa(pool, tenant, id).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 read_user_mfa(&mut **tx, tenant, id).await
             }
@@ -296,7 +296,7 @@ impl
     ) -> Result<UserMFACredential, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => update_user_mfa(pool, tenant, model).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 update_user_mfa(&mut **tx, tenant, model).await
             }
@@ -310,7 +310,7 @@ impl
     ) -> Result<(), haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => delete_user_mfa(pool, tenant, id).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 delete_user_mfa(&mut **tx, tenant, id).await
             }
@@ -324,7 +324,7 @@ impl
     ) -> Result<Vec<UserMFACredential>, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => search_user_mfa(pool, tenant, claims).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 search_user_mfa(&mut **tx, tenant, claims).await
             }

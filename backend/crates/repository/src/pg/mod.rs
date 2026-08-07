@@ -1,12 +1,13 @@
 use haste_fhir_model::r4::generated::resources::Resource;
 use haste_fhir_operation_error::derive::OperationOutcomeError;
-use haste_jwt::VersionId;
+use haste_jwt::{AuthorId, AuthorKind, ProjectId, TenantId, VersionId};
 use moka::future::Cache;
 use sqlx::Postgres;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
 use crate::Repository;
+use crate::types::{FHIRMethod, SupportedFHIRVersions};
 
 mod migrate;
 mod models;
@@ -32,6 +33,22 @@ pub enum StoreError {
     PasswordHashError(argon2::password_hash::Error),
 }
 
+/// A single buffered `resources` row awaiting a batched multi-row INSERT.
+/// Produced by the pure Rust mutation step in `create`/`update`/`delete`
+/// (see `pg::models::fhir`), with no DB access involved.
+#[derive(Debug, Clone)]
+pub struct PendingResourceRow {
+    pub tenant: TenantId,
+    pub project: ProjectId,
+    pub author_id: AuthorId,
+    pub author_type: AuthorKind,
+    pub fhir_version: SupportedFHIRVersions,
+    pub resource: Resource,
+    pub deleted: bool,
+    pub request_method: &'static str,
+    pub fhir_method: FHIRMethod,
+}
+
 /// Connection types supported by the repository traits.
 #[derive(Debug, Clone)]
 pub enum PGConnection {
@@ -39,6 +56,7 @@ pub enum PGConnection {
     Transaction(
         Arc<Mutex<sqlx::Transaction<'static, Postgres>>>,
         Cache<VersionId, Resource>,
+        Arc<Mutex<Vec<PendingResourceRow>>>,
     ),
 }
 
@@ -53,7 +71,7 @@ impl PGConnection {
     #[must_use]
     pub fn cache(&self) -> &Cache<VersionId, Resource> {
         match self {
-            PGConnection::Pool(_, cache) | PGConnection::Transaction(_, cache) => cache,
+            PGConnection::Pool(_, cache) | PGConnection::Transaction(_, cache, _) => cache,
         }
     }
 }

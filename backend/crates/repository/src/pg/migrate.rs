@@ -16,7 +16,7 @@ impl Migrate for super::PGConnection {
                         format!("Failed to migrate repository schema: {e}"),
                     )
                 }),
-            super::PGConnection::Transaction(_, _) => Err(OperationOutcomeError::fatal(
+            super::PGConnection::Transaction(_, _, _) => Err(OperationOutcomeError::fatal(
                 IssueType::exception(),
                 "Cannot run migrations in a transaction.".to_string(),
             )),

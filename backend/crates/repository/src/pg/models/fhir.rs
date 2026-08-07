@@ -1,7 +1,7 @@
 use crate::{
     fhir::{CachePolicy, FHIRRepository, ResourceHistoryValue},
     pg::{
-        PGConnection, StoreError,
+        PGConnection, PendingResourceRow, StoreError,
         transaction::{commit_transaction, create_transaction},
     },
     types::{FHIRMethod, SupportedFHIRVersions},
@@ -64,39 +64,21 @@ impl FHIRRepository for PGConnection {
         fhir_version: &SupportedFHIRVersions,
         mut resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        match &self {
+        let row = build_create_row(tenant, project, author, fhir_version, &mut resource)?;
+        match self {
             PGConnection::Pool(_pool, _) => {
                 let tx = create_transaction(self, true).await?;
                 {
                     let mut conn = tx.lock().await;
-                    create(
-                        &mut **conn,
-                        tenant,
-                        project,
-                        author,
-                        fhir_version,
-                        &mut resource,
-                    )
-                    .await?
+                    insert_resource_rows(&mut **conn, std::slice::from_ref(&row)).await?;
                 };
                 commit_transaction(tx).await?;
-                Ok(resource)
             }
-            PGConnection::Transaction(tx, _) => {
-                let mut tx = tx.lock().await;
-                create(
-                    &mut **tx,
-                    tenant,
-                    project,
-                    author,
-                    fhir_version,
-                    &mut resource,
-                )
-                .await?;
-
-                Ok(resource)
+            PGConnection::Transaction(_tx, _, pending) => {
+                pending.lock().await.push(row);
             }
         }
+        Ok(resource)
     }
 
     async fn delete(
@@ -108,44 +90,22 @@ impl FHIRRepository for PGConnection {
         mut resource: Resource,
         id: &str,
     ) -> Result<Resource, OperationOutcomeError> {
+        let row = build_delete_row(tenant, project, author, fhir_version, &mut resource, id)?;
         match self {
             PGConnection::Pool(_pool, _) => {
                 let tx = create_transaction(self, true).await?;
                 {
                     let mut conn = tx.lock().await;
-                    delete(
-                        &mut **conn,
-                        tenant,
-                        project,
-                        author,
-                        fhir_version,
-                        &mut resource,
-                        id,
-                    )
-                    .await?
+                    insert_resource_rows(&mut **conn, std::slice::from_ref(&row)).await?;
                 };
 
                 commit_transaction(tx).await?;
-
-                Ok(resource)
             }
-            PGConnection::Transaction(tx, _) => {
-                let mut conn = tx.lock().await;
-                // Handle PgConnection connection
-                delete(
-                    &mut **conn,
-                    tenant,
-                    project,
-                    author,
-                    fhir_version,
-                    &mut resource,
-                    id,
-                )
-                .await?;
-
-                Ok(resource)
+            PGConnection::Transaction(_tx, _, pending) => {
+                pending.lock().await.push(row);
             }
         }
+        Ok(resource)
     }
 
     async fn update(
@@ -157,43 +117,22 @@ impl FHIRRepository for PGConnection {
         mut resource: Resource,
         id: &str,
     ) -> Result<Resource, OperationOutcomeError> {
+        let row = build_update_row(tenant, project, author, fhir_version, &mut resource, id)?;
         match self {
             PGConnection::Pool(_pool, _) => {
                 let tx = create_transaction(self, true).await?;
                 {
                     let mut conn = tx.lock().await;
-                    update(
-                        &mut **conn,
-                        tenant,
-                        project,
-                        author,
-                        fhir_version,
-                        &mut resource,
-                        id,
-                    )
-                    .await?
+                    insert_resource_rows(&mut **conn, std::slice::from_ref(&row)).await?;
                 };
 
                 commit_transaction(tx).await?;
-                Ok(resource)
             }
-            PGConnection::Transaction(tx, _) => {
-                let mut conn = tx.lock().await;
-                // Handle PgConnection connection
-                update(
-                    &mut **conn,
-                    tenant,
-                    project,
-                    author,
-                    fhir_version,
-                    &mut resource,
-                    id,
-                )
-                .await?;
-
-                Ok(resource)
+            PGConnection::Transaction(_tx, _, pending) => {
+                pending.lock().await.push(row);
             }
         }
+        Ok(resource)
     }
 
     async fn read_by_version_ids(
@@ -232,7 +171,8 @@ impl FHIRRepository for PGConnection {
                     .chain(res.into_iter().map(|r| r.resource.0))
                     .collect::<Vec<_>>())
             }
-            PGConnection::Transaction(tx, cache) => {
+            PGConnection::Transaction(tx, cache, pending) => {
+                flush_pending(tx, pending).await?;
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res =
@@ -268,7 +208,8 @@ impl FHIRRepository for PGConnection {
                     read_latest(pool, tenant_id, project_id, resource_type, resource_id).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, pending) => {
+                flush_pending(tx, pending).await?;
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 read_latest(
@@ -291,7 +232,8 @@ impl FHIRRepository for PGConnection {
     ) -> Result<Vec<ResourceHistoryValue>, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => history(pool, tenant_id, project_id, request).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, pending) => {
+                flush_pending(tx, pending).await?;
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 history(&mut **conn, tenant_id, project_id, request).await
@@ -300,25 +242,32 @@ impl FHIRRepository for PGConnection {
     }
 
     fn in_transaction(&self) -> bool {
-        matches!(self, PGConnection::Transaction(_tx, _))
+        matches!(self, PGConnection::Transaction(_tx, _, _))
     }
 
     async fn transaction(&self, is_updating_sequence: bool) -> Result<Self, OperationOutcomeError> {
         let tx = create_transaction(self, is_updating_sequence).await?;
-        Ok(PGConnection::Transaction(tx, self.cache().clone()))
+        let pending = match self {
+            PGConnection::Transaction(_, _, pending) => Arc::clone(pending),
+            PGConnection::Pool(_, _) => Arc::new(Mutex::new(Vec::new())),
+        };
+        Ok(PGConnection::Transaction(tx, self.cache().clone(), pending))
     }
 
     async fn commit(self) -> Result<(), OperationOutcomeError> {
         match self {
             PGConnection::Pool(_pool, _) => Err(StoreError::NotTransaction.into()),
-            PGConnection::Transaction(tx, _) => commit_transaction(tx).await,
+            PGConnection::Transaction(tx, _, pending) => {
+                flush_pending(&tx, &pending).await?;
+                commit_transaction(tx).await
+            }
         }
     }
 
     async fn rollback(self) -> Result<(), OperationOutcomeError> {
         match self {
             PGConnection::Pool(_pool, _) => Err(StoreError::NotTransaction.into()),
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _pending) => {
                 let conn = Mutex::into_inner(
                     Arc::try_unwrap(tx).map_err(|_e| StoreError::FailedCommitTransaction)?,
                 );
@@ -331,115 +280,137 @@ impl FHIRRepository for PGConnection {
     }
 }
 
-async fn create<'a, 'e, E>(
-    executor: E,
-    tenant: &'a TenantId,
-    project: &'a ProjectId,
-    author: &'a UserTokenClaims,
-    fhir_version: &'a SupportedFHIRVersions,
-    resource: &'a mut Resource,
-) -> Result<(), OperationOutcomeError>
-where
-    E: PgExecutor<'e>,
-{
+/// Builds a pending `resources` row for a create. Pure Rust mutation (`id`/`meta`
+/// are computed in-process) — no DB access, so this can be buffered ahead of a
+/// batched multi-row INSERT.
+fn build_create_row(
+    tenant: &TenantId,
+    project: &ProjectId,
+    author: &UserTokenClaims,
+    fhir_version: &SupportedFHIRVersions,
+    resource: &mut Resource,
+) -> Result<PendingResourceRow, OperationOutcomeError> {
     utilities::set_resource_id(resource, None)?;
     utilities::set_resource_meta(resource, &author.resource_type, &author.sub)?;
 
-    sqlx::query_as::<_, (FHIRJson<Resource>,)>(
-        r"
-            INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        ",
-    )
-    .bind(tenant.as_ref())
-    .bind(project.as_ref())
-    .bind(author.sub.as_ref())
-    .bind(fhir_version)
-    .bind(FHIRJsonRef(resource))
-    .bind(false)
-    .bind("POST")
-    .bind(author.resource_type.as_ref())
-    .bind(FHIRMethod::Create)
-    .fetch_optional(executor)
-    .await
-    .map_err(StoreError::from)?;
-
-    Ok(())
+    Ok(PendingResourceRow {
+        tenant: tenant.clone(),
+        project: project.clone(),
+        author_id: author.sub.clone(),
+        author_type: author.resource_type.clone(),
+        fhir_version: fhir_version.clone(),
+        resource: resource.clone(),
+        deleted: false,
+        request_method: "POST",
+        fhir_method: FHIRMethod::Create,
+    })
 }
 
-async fn delete<'a, 'e, E>(
+fn build_delete_row(
+    tenant: &TenantId,
+    project: &ProjectId,
+    author: &UserTokenClaims,
+    fhir_version: &SupportedFHIRVersions,
+    resource: &mut Resource,
+    id: &str,
+) -> Result<PendingResourceRow, OperationOutcomeError> {
+    utilities::set_resource_id(resource, Some(id.to_string()))?;
+    utilities::set_resource_meta(resource, &author.resource_type, &author.sub)?;
+
+    Ok(PendingResourceRow {
+        tenant: tenant.clone(),
+        project: project.clone(),
+        author_id: author.sub.clone(),
+        author_type: author.resource_type.clone(),
+        fhir_version: fhir_version.clone(),
+        resource: resource.clone(),
+        deleted: true,
+        request_method: "DELETE",
+        fhir_method: FHIRMethod::Delete,
+    })
+}
+
+fn build_update_row(
+    tenant: &TenantId,
+    project: &ProjectId,
+    author: &UserTokenClaims,
+    fhir_version: &SupportedFHIRVersions,
+    resource: &mut Resource,
+    id: &str,
+) -> Result<PendingResourceRow, OperationOutcomeError> {
+    utilities::set_resource_id(resource, Some(id.to_string()))?;
+    utilities::set_resource_meta(resource, &author.resource_type, &author.sub)?;
+
+    Ok(PendingResourceRow {
+        tenant: tenant.clone(),
+        project: project.clone(),
+        author_id: author.sub.clone(),
+        author_type: author.resource_type.clone(),
+        fhir_version: fhir_version.clone(),
+        resource: resource.clone(),
+        deleted: false,
+        request_method: "PUT",
+        fhir_method: FHIRMethod::Update,
+    })
+}
+
+/// Executes one multi-row INSERT for every buffered row. No-op on an empty slice
+/// (`QueryBuilder::push_values` panics if given zero tuples).
+async fn insert_resource_rows<'e, E>(
     executor: E,
-    tenant: &'a TenantId,
-    project: &'a ProjectId,
-    author: &'a UserTokenClaims,
-    fhir_version: &'a SupportedFHIRVersions,
-    resource: &'a mut Resource,
-    id: &'a str,
+    rows: &[PendingResourceRow],
 ) -> Result<(), OperationOutcomeError>
 where
     E: PgExecutor<'e>,
 {
-    utilities::set_resource_id(resource, Some(id.to_string()))?;
-    utilities::set_resource_meta(resource, &author.resource_type, &author.sub)?;
+    if rows.is_empty() {
+        return Ok(());
+    }
 
-    sqlx::query_as::<_, (FHIRJson<Resource>,)>(
-        r"
-            INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            
-        ",
-    )
-    .bind(tenant.as_ref())
-    .bind(project.as_ref())
-    .bind(author.sub.as_ref())
-    .bind(fhir_version)
-    .bind(FHIRJsonRef(resource))
-    .bind(true)
-    .bind("DELETE")
-    .bind(author.resource_type.as_ref())
-    .bind(FHIRMethod::Delete)
-    .fetch_optional(executor)
-    .await
-    .map_err(StoreError::from)?;
+    let mut query_builder: QueryBuilder<sqlx::Postgres> = QueryBuilder::new(
+        "INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) ",
+    );
+
+    query_builder.push_values(rows, |mut b, row| {
+        b.push_bind(row.tenant.as_ref())
+            .push_bind(row.project.as_ref())
+            .push_bind(row.author_id.as_ref())
+            .push_bind(&row.fhir_version)
+            .push_bind(FHIRJsonRef(&row.resource))
+            .push_bind(row.deleted)
+            .push_bind(row.request_method)
+            .push_bind(row.author_type.as_ref())
+            .push_bind(&row.fhir_method);
+    });
+
+    query_builder
+        .build()
+        .execute(executor)
+        .await
+        .map_err(StoreError::from)?;
 
     Ok(())
 }
 
-async fn update<'a, 'e, E>(
-    executor: E,
-    tenant: &'a TenantId,
-    project: &'a ProjectId,
-    author: &'a UserTokenClaims,
-    fhir_version: &'a SupportedFHIRVersions,
-    resource: &'a mut Resource,
-    id: &'a str,
-) -> Result<(), OperationOutcomeError>
-where
-    E: PgExecutor<'e>,
-{
-    utilities::set_resource_id(resource, Some(id.to_string()))?;
-    utilities::set_resource_meta(resource, &author.resource_type, &author.sub)?;
+/// Drains and inserts every row buffered on the transaction, so that any
+/// subsequent read on the same transaction observes prior writes that haven't
+/// yet been flushed to Postgres. The `pending` lock is released before the `tx`
+/// lock is acquired, so the two are never held simultaneously.
+async fn flush_pending(
+    tx: &Arc<Mutex<sqlx::Transaction<'static, Postgres>>>,
+    pending: &Arc<Mutex<Vec<PendingResourceRow>>>,
+) -> Result<(), OperationOutcomeError> {
+    let rows = {
+        let mut guard = pending.lock().await;
+        std::mem::take(&mut *guard)
+    };
 
-    sqlx::query_as::<_, (FHIRJson<Resource>,)>(
-        r"
-            INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        ",
-    )
-    .bind(tenant.as_ref())
-    .bind(project.as_ref())
-    .bind(author.sub.as_ref())
-    .bind(fhir_version)
-    .bind(FHIRJsonRef(resource))
-    .bind(false)
-    .bind("PUT")
-    .bind(author.resource_type.as_ref())
-    .bind(FHIRMethod::Update)
-    .fetch_optional(executor)
-    .await
-    .map_err(StoreError::from)?;
+    if rows.is_empty() {
+        return Ok(());
+    }
 
-    Ok(())
+    let mut conn = tx.lock().await;
+    insert_resource_rows(&mut **conn, &rows).await
 }
 
 async fn read_by_version_ids<'a, 'e, E>(
