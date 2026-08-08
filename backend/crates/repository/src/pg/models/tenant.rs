@@ -148,7 +148,7 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<Tenant, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => create_tenant(pool, new_tenant).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 create_tenant(&mut **tx, new_tenant).await
             }
@@ -162,7 +162,7 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<Option<Tenant>, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => read_tenant(pool, id.as_ref()).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 read_tenant(&mut **tx, id.as_ref()).await
             }
@@ -176,7 +176,7 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<Tenant, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => update_tenant(pool, model).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 update_tenant(&mut **tx, model).await
             }
@@ -190,7 +190,7 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<(), haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => delete_tenant(pool, id.as_ref()).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 delete_tenant(&mut **tx, id.as_ref()).await
             }
@@ -204,7 +204,7 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<Vec<Tenant>, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => search_tenant(pool, claims).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 search_tenant(&mut **tx, claims).await
             }

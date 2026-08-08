@@ -74,7 +74,7 @@ async fn check_rate_limit_remote(
                 .map_err(|e| RateLimitError::Error(e.to_string()))?;
             Ok(res)
         }
-        PGConnection::Transaction(tx, _) => {
+        PGConnection::Transaction(tx, _, _) => {
             let mut tx = tx.lock().await;
             check_rate_limit_remote_with_executor(
                 &mut **tx,

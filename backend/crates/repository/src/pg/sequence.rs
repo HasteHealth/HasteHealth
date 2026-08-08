@@ -108,7 +108,7 @@ impl ResourceSequential for PGConnection {
                 let mut conn = pool.acquire().await.map_err(StoreError::from)?;
                 get_sequence_helper(&mut conn, tenant_id, sequence_id, count).await
             }
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut conn = tx.lock().await;
                 // Pass the mutable reference to the underlying PgConnection handle
                 get_sequence_helper(&mut conn, tenant_id, sequence_id, count).await

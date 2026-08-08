@@ -193,7 +193,7 @@ impl<Key: AsRef<str> + Send + Sync>
             PGConnection::Pool(pool, _) => {
                 create_membership(pool, tenant, project, new_membership).await
             }
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 create_membership(&mut **tx, tenant, project, new_membership).await
             }
@@ -210,7 +210,7 @@ impl<Key: AsRef<str> + Send + Sync>
             PGConnection::Pool(pool, _) => {
                 read_membership(pool, tenant, project, id.as_ref()).await
             }
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 read_membership(&mut **tx, tenant, project, id.as_ref()).await
             }
@@ -225,7 +225,7 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<Membership, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => update_membership(pool, tenant, project, model).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 update_membership(&mut **tx, tenant, project, model).await
             }
@@ -242,7 +242,7 @@ impl<Key: AsRef<str> + Send + Sync>
             PGConnection::Pool(pool, _) => {
                 delete_membership(pool, tenant, project, id.as_ref()).await
             }
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 delete_membership(&mut **tx, tenant, project, id.as_ref()).await
             }
@@ -257,7 +257,7 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<Vec<Membership>, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => search_memberships(pool, tenant, project, clauses).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 search_memberships(&mut **tx, tenant, project, clauses).await
             }
