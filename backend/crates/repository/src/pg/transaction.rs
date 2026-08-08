@@ -10,7 +10,7 @@ pub async fn create_transaction(
 ) -> Result<Arc<Mutex<Transaction<'static, Postgres>>>, OperationOutcomeError> {
     match connection {
         PGConnection::Pool(pool, _cache) => {
-            let tx = if is_updating_sequence {
+            let tx: Transaction<'_, Postgres> = if is_updating_sequence {
                 pool.begin_with(
                     "BEGIN; SELECT register_sequence_transaction('resources_sequence_seq')",
                 )
@@ -22,7 +22,7 @@ pub async fn create_transaction(
 
             Ok(Arc::new(Mutex::new(tx)))
         }
-        PGConnection::Transaction(tx, _) => Ok(tx.clone()), // Transaction doesn't live long enough so cannot create.
+        PGConnection::Transaction(tx, _, _) => Ok(tx.clone()), // Transaction doesn't live long enough so cannot create.
     }
 }
 

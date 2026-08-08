@@ -107,7 +107,7 @@ impl Login for PGConnection {
                 let res = login(pool, tenant, method).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
 
                 let res = login(&mut **tx, tenant, method).await?;
@@ -326,7 +326,7 @@ impl<Key: AsRef<str> + Send + Sync>
                 let res = create_user(pool, tenant, new_user).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 let res = create_user(&mut **tx, tenant, new_user).await?;
                 Ok(res)
@@ -344,7 +344,7 @@ impl<Key: AsRef<str> + Send + Sync>
                 let res = read_user(pool, tenant, id.as_ref()).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 let res = read_user(&mut **tx, tenant, id.as_ref()).await?;
                 Ok(res)
@@ -359,7 +359,7 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<User, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => update_user(pool, tenant, user).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 update_user(&mut **tx, tenant, user).await
             }
@@ -369,7 +369,7 @@ impl<Key: AsRef<str> + Send + Sync>
     async fn delete(&self, tenant: &TenantId, id: &Key) -> Result<(), OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => delete_user(pool, tenant, id.as_ref()).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 delete_user(&mut **tx, tenant, id.as_ref()).await
             }
@@ -383,7 +383,7 @@ impl<Key: AsRef<str> + Send + Sync>
     ) -> Result<Vec<User>, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => search_user(pool, tenant, clauses).await,
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 search_user(&mut **tx, tenant, clauses).await
             }

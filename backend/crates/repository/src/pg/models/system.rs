@@ -47,7 +47,7 @@ impl SystemAdmin<User, UserSearchClauses> for PGConnection {
                 let res = search_system_user(pool, clauses).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 let res = search_system_user(&mut **tx, clauses).await?;
                 Ok(res)

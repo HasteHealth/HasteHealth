@@ -8,8 +8,11 @@ use tokio::sync::Mutex;
 
 use crate::Repository;
 
+pub use pending::PendingRows;
+
 mod migrate;
 mod models;
+mod pending;
 mod rate_limit;
 mod sequence;
 mod transaction;
@@ -39,6 +42,7 @@ pub enum PGConnection {
     Transaction(
         Arc<Mutex<sqlx::Transaction<'static, Postgres>>>,
         Cache<VersionId, Resource>,
+        PendingRows,
     ),
 }
 
@@ -53,7 +57,7 @@ impl PGConnection {
     #[must_use]
     pub fn cache(&self) -> &Cache<VersionId, Resource> {
         match self {
-            PGConnection::Pool(_, cache) | PGConnection::Transaction(_, cache) => cache,
+            PGConnection::Pool(_, cache) | PGConnection::Transaction(_, cache, _) => cache,
         }
     }
 }
