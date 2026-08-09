@@ -3,6 +3,10 @@ packages:
   - "artifacts/r4/*"
   - "artifacts/r4b/*"
   - "packages/*"
+overrides:
+  undici: '^7.29.0'
+  mocha>js-yaml: '^4.3.1'
+  nanoid: '^3.3.17'
 allowBuilds:
   core-js: true
   core-js-pure: true
@@ -27,6 +31,9 @@ auditConfig:
     - 'GHSA-r5fr-rjxr-66jc'
     # Brace expansion DoS not affecting us, but we are ignoring it to avoid noise
     - 'GHSA-mh99-v99m-4gvg'
+    # image-size not fixed yet.
+    - 'GHSA-w3rx-r6r6-pgpr'
+    - 'GHSA-5p2g-fcmc-qvqq'
 
 minimumReleaseAgeExclude:
   - brace-expansion@1.1.16 || 1.1.18 || 2.1.2 || 2.1.4 || 5.0.8 || 5.0.9
