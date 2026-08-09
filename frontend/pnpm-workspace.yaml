@@ -29,10 +29,10 @@ auditConfig:
     - 'GHSA-mh99-v99m-4gvg'
 
 minimumReleaseAgeExclude:
-  - brace-expansion@1.1.16 || 2.1.2 || 5.0.8
-  - js-yaml@4.1.1 || 4.1.2 || 4.3.0
+  - brace-expansion@1.1.16 || 1.1.18 || 2.1.2 || 2.1.4 || 5.0.8 || 5.0.9
+  - js-yaml@3.15.1 || 4.1.1 || 4.1.2 || 4.3.0 || 4.3.1
   - esbuild@0.24.3
-  - nanoid@3.3.8
+  - nanoid@3.3.8 || 3.3.16 || 3.3.17
   - diff@5.2.2
   - lodash-es@4.17.24
   - serialize-javascript@6.0.2 || 7.0.5
@@ -40,7 +40,11 @@ minimumReleaseAgeExclude:
   - webpack-dev-server@5.2.6
   - body-parser@1.20.6
   - svgo@2.8.3 || 3.3.4 || 4.0.2
-  - dompurify@3.4.12
+  - dompurify@3.4.12 || 3.4.13
   - react-router@8.3.0
   - miniflare@4.20260722.1
   - wrangler@4.115.0
+  - undici@7.29.0
+  - fast-uri@3.1.5
+  - mermaid@11.16.1
+  - image-size@2.0.3
