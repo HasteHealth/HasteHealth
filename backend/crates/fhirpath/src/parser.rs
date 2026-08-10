@@ -339,6 +339,10 @@ parser! {
      }
 }
 
+pub fn parse(input: &str) -> Result<Expression, FHIRPathError> {
+    parser::operations(input).map_err(FHIRPathError::ParseError)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -383,7 +387,7 @@ mod tests {
         insta::assert_debug_snapshot!(result);
 
         let failure = parser::operations("1 + 2 is $this");
-        assert_eq!(failure.is_err(), true);
+        assert!(failure.is_err());
     }
 
     #[test]
@@ -409,8 +413,4 @@ mod tests {
         let result = parser::operations("-$this.field[45 + 23]").unwrap();
         insta::assert_debug_snapshot!(result);
     }
-}
-
-pub fn parse(input: &str) -> Result<Expression, FHIRPathError> {
-    parser::operations(input).map_err(FHIRPathError::ParseError)
 }
