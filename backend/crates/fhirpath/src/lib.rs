@@ -1407,13 +1407,13 @@ mod tests {
     #[derive(Reflect, Debug)]
     #[fhir_type = "BackboneElement"]
     struct B {
-        b: Vec<Box<C>>,
+        b: Vec<C>,
     }
 
     #[derive(Reflect, Debug)]
     #[fhir_type = "BackboneElement"]
     struct A {
-        a: Vec<Box<B>>,
+        a: Vec<B>,
     }
 
     fn load_search_parameters() -> Vec<SearchParameter> {
@@ -1421,22 +1421,16 @@ mod tests {
             include_str!("../../artifacts/artifacts/r4/hl7/minified/search-parameters.min.json");
         let bundle = serde_json::from_str::<Bundle>(json).unwrap();
 
-        let search_parameters: Vec<SearchParameter> = bundle
+        bundle
             .entry
-            .unwrap_or_else(|| Vec::new())
+            .unwrap_or_default()
             .into_iter()
-            .map(|e| e.resource)
-            .filter(|e| e.is_some())
-            .filter_map(|e| match e {
-                Some(k) => match *k {
-                    Resource::SearchParameter(sp) => Some(sp),
-                    _ => None,
-                },
+            .filter_map(|e| e.resource)
+            .filter_map(|e| match *e {
+                Resource::SearchParameter(sp) => Some(sp),
                 _ => None,
             })
-            .collect();
-
-        search_parameters
+            .collect()
     }
 
     #[tokio::test]
@@ -1581,7 +1575,7 @@ mod tests {
     #[tokio::test]
     async fn test_all_parameters() {
         let search_parameters = load_search_parameters();
-        for param in search_parameters.iter() {
+        for param in &search_parameters {
             if let Some(expression) = &param.expression {
                 let engine = FPEngine::new();
                 let context = engine
@@ -1601,42 +1595,40 @@ mod tests {
 
     fn test_patient() -> Patient {
         let mut patient = Patient::default();
-        let mut name = HumanName::default();
-        name.given = Some(vec![FHIRString {
-            id: None,
-            extension: None,
-            value: Some("Bob".to_string()),
-        }]);
-
-        let mut mrn_identifier = Identifier::default();
-        mrn_identifier.value = Some(Box::new(FHIRString {
-            id: None,
-            extension: None,
-            value: Some("mrn-12345".to_string()),
-        }));
-        mrn_identifier.system = Some(Box::new(FHIRUri {
-            id: None,
-            extension: None,
-            value: Some("mrn".to_string()),
-        }));
-
-        let mut ssn_identifier = Identifier::default();
-        ssn_identifier.value = Some(Box::new(FHIRString {
-            id: None,
-            extension: None,
-            value: Some("ssn-12345".to_string()),
-        }));
-        ssn_identifier.system = Some(Box::new(FHIRUri {
-            id: None,
-            extension: None,
-            value: Some("ssn".to_string()),
-        }));
-
-        mrn_identifier.system = Some(Box::new(FHIRUri {
-            id: None,
-            extension: None,
-            value: Some("mrn".to_string()),
-        }));
+        let name = HumanName {
+            given: Some(vec![FHIRString {
+                id: None,
+                extension: None,
+                value: Some("Bob".to_string()),
+            }]),
+            ..Default::default()
+        };
+        let mrn_identifier = Identifier {
+            value: Some(Box::new(FHIRString {
+                id: None,
+                extension: None,
+                value: Some("mrn-12345".to_string()),
+            })),
+            system: Some(Box::new(FHIRUri {
+                id: None,
+                extension: None,
+                value: Some("mrn".to_string()),
+            })),
+            ..Default::default()
+        };
+        let ssn_identifier = Identifier {
+            value: Some(Box::new(FHIRString {
+                id: None,
+                extension: None,
+                value: Some("ssn-12345".to_string()),
+            })),
+            system: Some(Box::new(FHIRUri {
+                id: None,
+                extension: None,
+                value: Some("ssn".to_string()),
+            })),
+            ..Default::default()
+        };
 
         patient.identifier_ = Some(vec![mrn_identifier, ssn_identifier]);
         patient.name = Some(vec![name]);
@@ -1734,110 +1726,100 @@ mod tests {
 
         // String tests
         let string_equal = engine.evaluate("'test' = 'test'", vec![]).await.unwrap();
-        for r in string_equal.iter() {
-            let b: bool = r
+        for r in &string_equal {
+            let b = r
                 .as_any()
                 .downcast_ref::<FHIRBoolean>()
                 .unwrap()
                 .value
-                .unwrap()
-                .clone();
-            assert_eq!(b, true);
+                .unwrap();
+            assert!(b);
         }
         let string_unequal = engine.evaluate("'invalid' = 'test'", vec![]).await.unwrap();
-        for r in string_unequal.iter() {
-            let b: bool = r
+        for r in &string_unequal {
+            let b = r
                 .as_any()
                 .downcast_ref::<FHIRBoolean>()
                 .unwrap()
                 .value
-                .unwrap()
-                .clone();
-            assert_eq!(b, false);
+                .unwrap();
+            assert!(!b);
         }
 
         // Number tests
         let number_equal = engine.evaluate("12 = 12", vec![]).await.unwrap();
-        for r in number_equal.iter() {
-            let b: bool = r
+        for r in &number_equal {
+            let b = r
                 .as_any()
                 .downcast_ref::<FHIRBoolean>()
                 .unwrap()
                 .value
-                .unwrap()
-                .clone();
-            assert_eq!(b, true);
+                .unwrap();
+            assert!(b);
         }
         let number_unequal = engine.evaluate("13 = 12", vec![]).await.unwrap();
-        for r in number_unequal.iter() {
-            let b: bool = r
+        for r in &number_unequal {
+            let b = r
                 .as_any()
                 .downcast_ref::<FHIRBoolean>()
                 .unwrap()
                 .value
-                .unwrap()
-                .clone();
-            assert_eq!(b, false);
+                .unwrap();
+            assert!(!b);
         }
 
         // Boolean tests
         let bool_equal = engine.evaluate("false = false", vec![]).await.unwrap();
-        for r in bool_equal.iter() {
-            let b: bool = r
+        for r in &bool_equal {
+            let b = r
                 .as_any()
                 .downcast_ref::<FHIRBoolean>()
                 .unwrap()
                 .value
-                .unwrap()
-                .clone();
-            assert_eq!(b, true);
+                .unwrap();
+            assert!(b);
         }
         let bool_unequal = engine.evaluate("false = true", vec![]).await.unwrap();
-        for r in bool_unequal.iter() {
-            let b: bool = r
+        for r in &bool_unequal {
+            let b = r
                 .as_any()
                 .downcast_ref::<FHIRBoolean>()
                 .unwrap()
                 .value
-                .unwrap()
-                .clone();
-            assert_eq!(b, false);
+                .unwrap();
+            assert!(!b);
         }
 
         // Nested Equality tests
         let bool_equal = engine.evaluate("12 = 13 = false", vec![]).await.unwrap();
-        for r in bool_equal.iter() {
-            let b: bool = r
+        for r in &bool_equal {
+            let b = r
                 .as_any()
                 .downcast_ref::<FHIRBoolean>()
                 .unwrap()
                 .value
-                .unwrap()
-                .clone();
-            assert_eq!(b, true);
+                .unwrap();
+            assert!(b);
         }
         let bool_unequal = engine.evaluate("12 = 13 = true", vec![]).await.unwrap();
-        for r in bool_unequal.iter() {
-            let b: bool = r
+        for r in &bool_unequal {
+            let b = r
                 .as_any()
                 .downcast_ref::<FHIRBoolean>()
                 .unwrap()
                 .value
-                .unwrap()
-                .clone();
-            assert_eq!(b, false);
+                .unwrap();
+            assert!(!b);
         }
         let bool_unequal = engine.evaluate("12 = (13 - 1)", vec![]).await.unwrap();
-        for r in bool_unequal.iter() {
-            let b: bool = r
+        for r in &bool_unequal {
+            let b = r
                 .as_any()
                 .downcast_ref::<FHIRBoolean>()
                 .unwrap()
                 .value
-                .unwrap()
-                .clone();
-
-            assert_eq!(b, true);
+                .unwrap();
+            assert!(b);
         }
     }
 
@@ -1847,7 +1829,7 @@ mod tests {
         let patient = test_patient();
 
         let simple_result = engine.evaluate("'Hello' + ' World'", vec![]).await.unwrap();
-        for r in simple_result.iter() {
+        for r in &simple_result {
             let s = r.as_any().downcast_ref::<FHIRString>().unwrap().clone();
             assert_eq!(s.value, Some("Hello World".to_string()));
         }
@@ -1856,7 +1838,7 @@ mod tests {
             .evaluate("$this.name.given + ' Miller'", vec![&patient])
             .await
             .unwrap();
-        for r in simple_result.iter() {
+        for r in &simple_result {
             let s = r.as_any().downcast_ref::<FHIRString>().unwrap().clone();
             assert_eq!(s.value, Some("Bob Miller".to_string()));
         }
@@ -1865,11 +1847,11 @@ mod tests {
     #[tokio::test]
     async fn test_simple() {
         let root = A {
-            a: vec![Box::new(B {
-                b: vec![Box::new(C {
+            a: vec![B {
+                b: vec![C {
                     c: "whatever".to_string(),
-                })],
-            })],
+                }],
+            }],
         };
 
         let engine = FPEngine::new();
@@ -1888,7 +1870,7 @@ mod tests {
         let engine = FPEngine::new();
         let result = engine.evaluate("'asdf'", vec![]).await.unwrap();
 
-        for r in result.iter() {
+        for r in &result {
             let s = r.as_any().downcast_ref::<FHIRString>().unwrap().clone();
 
             assert_eq!(s.value, Some("asdf".to_string()));
@@ -1900,7 +1882,7 @@ mod tests {
         let engine = FPEngine::new();
         let result = engine.evaluate("45 + 2  * 3", vec![]).await.unwrap();
 
-        for r in result.iter() {
+        for r in &result {
             let s = r.as_any().downcast_ref::<FHIRDecimal>().unwrap().clone();
 
             assert_eq!(s.value, Some(51.0));
@@ -1912,16 +1894,15 @@ mod tests {
         let engine = FPEngine::new();
         let result = engine.evaluate("true xor true", vec![]).await.unwrap();
 
-        for r in result.iter() {
-            let b: bool = r
+        for r in &result {
+            let b = r
                 .as_any()
                 .downcast_ref::<FHIRBoolean>()
                 .unwrap()
                 .value
-                .unwrap()
-                .clone();
+                .unwrap();
 
-            assert_eq!(b, false);
+            assert!(!b);
         }
     }
 
@@ -2322,8 +2303,8 @@ mod tests {
         // An example for use in transaction processing where we have a reference to an object
         // but need to modify it in place.
         unsafe {
-            let r = value as *const Reference;
-            let mut_ptr = r as *mut Reference;
+            let r = std::ptr::from_ref::<Reference>(value);
+            let mut_ptr = r.cast_mut();
 
             (*mut_ptr).reference = Some(Box::new(FHIRString {
                 value: Some("Patient/456".to_string()),
@@ -2688,7 +2669,7 @@ mod tests {
 
         let result = engine.evaluate("$this.name.join()", vec![&patient]).await;
 
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
     }
 
     #[tokio::test]
