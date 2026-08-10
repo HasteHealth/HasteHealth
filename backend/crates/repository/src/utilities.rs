@@ -132,10 +132,10 @@ fn filter_and_set_haste_extensions(
     meta.extension = Some(
         meta.extension
             .take()
-            .unwrap_or_else(|| vec![])
+            .unwrap_or_default()
             .into_iter()
             .filter(|ext| !HASTE_EXTENSIONS.contains(&ext.url.as_str()))
-            .chain(haste_extensions.into_iter())
+            .chain(haste_extensions)
             .collect::<Vec<Extension>>(),
     );
 }
