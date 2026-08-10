@@ -46,7 +46,7 @@ fn parser_test_simple(c: &mut Criterion) {
     });
 }
 
-static SYNTHEA_PATIENT: &str = include_str!("../data/synthea_patient.json");
+static SYNTHEA_PATIENT: &str = include_str!("../test_data/synthea_patient.json");
 
 static PATIENT_PARAMETER_EXPRESSIONS: &[&str] = &[
     "Patient.active",
