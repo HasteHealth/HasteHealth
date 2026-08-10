@@ -18,7 +18,6 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_jwt::{ProjectId, TenantId};
-use haste_repository::types::SupportedFHIRVersions;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -141,11 +140,9 @@ fn sort_build(
                 }))
             }
         },
-        _ => {
-            return Err(QueryBuildError::UnsupportedSortParameter(
-                search_param.name.value.clone().unwrap_or_default(),
-            ));
-        }
+        _ => Err(QueryBuildError::UnsupportedSortParameter(
+            search_param.name.value.clone().unwrap_or_default(),
+        )),
     }
 }
 
@@ -158,12 +155,7 @@ fn simple_missing_modifier(
         return Err(QueryBuildError::UnsupportedModifier("missing".to_string()));
     }
 
-    let url = search_param
-        .url
-        .value
-        .as_ref()
-        .map(|v| v.as_str())
-        .unwrap_or_default();
+    let url = search_param.url.value.as_deref().unwrap_or_default();
 
     let field_name = match &search_param.type_ {
         param_type
@@ -198,11 +190,9 @@ fn simple_missing_modifier(
                 parsed_parameter.name.clone(),
             )),
         },
-        _ => {
-            return Err(QueryBuildError::InvalidParameterValue(
-                parsed_parameter.name.clone(),
-            ));
-        }
+        _ => Err(QueryBuildError::InvalidParameterValue(
+            parsed_parameter.name.clone(),
+        )),
     }
 }
 
@@ -258,14 +248,14 @@ fn parameter_to_elasticsearch_clauses(
 static ABSOLUTE_MAX: usize = 10_000;
 static DEFAULT_MAX_COUNT: usize = 50;
 
-fn get_resource_type<'a>(request: &'a SearchRequest) -> Option<&'a ResourceType> {
+fn get_resource_type(request: &SearchRequest) -> Option<&ResourceType> {
     match request {
         SearchRequest::Type(type_search_request) => Some(&type_search_request.resource_type),
-        _ => None,
+        SearchRequest::System(_) => None,
     }
 }
 
-fn get_parameters<'a>(request: &'a SearchRequest) -> &'a ParsedParameters {
+fn get_parameters(request: &SearchRequest) -> &ParsedParameters {
     match request {
         SearchRequest::Type(type_search_request) => &type_search_request.parameters,
         SearchRequest::System(system_search_request) => &system_search_request.parameters,
@@ -277,139 +267,205 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
     tenant: &TenantId,
     project: &ProjectId,
     request: &SearchRequest,
-    options: &Option<SearchOptions>,
+    options: Option<&SearchOptions>,
 ) -> Result<serde_json::Value, OperationOutcomeError> {
     let resource_type = get_resource_type(request);
     let parameters = get_parameters(request);
 
-    let mut clauses: Vec<serde_json::Value> = vec![];
-    let mut max_count = if let Some(count_limit) = options.as_ref().and_then(|o| o.count_limit) {
+    let mut clauses = Vec::new();
+    let mut state = ElasticSearchQueryState {
+        max_count: get_max_count(options)?,
+        offset: 0,
+        show_total: false,
+        sort: Vec::new(),
+    };
+
+    for parameter in parameters.parameters() {
+        match parameter {
+            ParsedParameter::Resource(resource_param) => {
+                let clause = build_resource_clause(
+                    &parameter_resolver,
+                    tenant,
+                    project,
+                    resource_type,
+                    resource_param,
+                )
+                .await?;
+
+                clauses.push(clause);
+            }
+            ParsedParameter::Result(result_param) => {
+                handle_result_parameter(
+                    &parameter_resolver,
+                    tenant,
+                    project,
+                    resource_type,
+                    result_param,
+                    &mut state,
+                )
+                .await?;
+            }
+        }
+    }
+
+    add_context_clauses(&mut clauses, resource_type, tenant, project);
+
+    Ok(build_elastic_query(
+        &clauses,
+        state.max_count,
+        state.show_total,
+        state.offset,
+        &state.sort,
+    ))
+}
+
+fn get_max_count(options: Option<&SearchOptions>) -> Result<usize, OperationOutcomeError> {
+    if let Some(count_limit) = options.as_ref().and_then(|o| o.count_limit) {
         if count_limit > ABSOLUTE_MAX {
             return Err(OperationOutcomeError::fatal(
                 IssueType::too_costly(),
                 "Count limit passed exceeds maxiumum allowed by ES".to_string(),
             ));
         }
-        count_limit
+
+        Ok(count_limit)
     } else {
-        DEFAULT_MAX_COUNT
-    };
-    let mut show_total = false;
-    let mut sort: Vec<serde_json::Value> = Vec::new();
-    let mut offset: u64 = 0;
+        Ok(DEFAULT_MAX_COUNT)
+    }
+}
 
-    for parameter in parameters.parameters().iter() {
-        match parameter {
-            ParsedParameter::Resource(resource_param) => {
-                let parameter = parameter_resolver
-                    .by_name(tenant, project, resource_type, &resource_param.name)
-                    .await?
-                    .ok_or_else(|| {
-                        QueryBuildError::MissingParameter(resource_param.name.to_string())
-                    })?;
-                let clause = parameter_to_elasticsearch_clauses(&parameter, &resource_param)?;
-                clauses.push(clause);
-            }
-            ParsedParameter::Result(result_param) => match result_param.name.as_str() {
-                "_count" => {
-                    let count_param = std::cmp::min(
-                        result_param
-                            .value
-                            .get(0)
-                            .and_then(|v| v.parse::<i64>().ok())
-                            .unwrap_or(100),
-                        DEFAULT_MAX_COUNT as i64,
-                    );
+async fn build_resource_clause<ParameterResolver: SearchParameterResolve>(
+    parameter_resolver: &Arc<ParameterResolver>,
+    tenant: &TenantId,
+    project: &ProjectId,
+    resource_type: Option<&ResourceType>,
+    resource_param: &Parameter,
+) -> Result<serde_json::Value, OperationOutcomeError> {
+    let parameter = parameter_resolver
+        .by_name(tenant, project, resource_type, &resource_param.name)
+        .await?
+        .ok_or_else(|| QueryBuildError::MissingParameter(resource_param.name.clone()))?;
 
-                    if count_param < 0 {
-                        return Err(OperationOutcomeError::fatal(
-                            IssueType::invalid(),
-                            "Invalid _count parameter value. Must be greater than or equal to 0."
-                                .to_string(),
-                        ));
-                    }
+    Ok(parameter_to_elasticsearch_clauses(
+        &parameter,
+        resource_param,
+    )?)
+}
 
-                    max_count = count_param as usize;
-                }
-                "_offset" => {
-                    let offset_param = result_param
-                        .value
-                        .get(0)
-                        .and_then(|v| v.parse::<i64>().ok())
-                        .unwrap_or(0);
+struct ElasticSearchQueryState {
+    max_count: usize,
+    offset: u64,
+    show_total: bool,
+    sort: Vec<serde_json::Value>,
+}
 
-                    if offset_param < 0 {
-                        return Err(OperationOutcomeError::fatal(
-                            IssueType::invalid(),
-                            "Invalid _offset parameter value. Must be greater than or equal to 0."
-                                .to_string(),
-                        ));
-                    }
-
-                    offset = offset_param as u64;
-                }
-                "_total" => {
-                    match result_param
-                        .value
-                        .iter()
-                        .map(|s| s.as_str())
-                        .collect::<Vec<_>>()
-                        .as_slice()
-                    {
-                        ["none"] => {
-                            show_total = false;
-                        }
-                        ["accurate"] => {
-                            show_total = true;
-                        }
-                        ["estimate"] => {
-                            show_total = true;
-                        }
-                        _ => {
-                            return Err(QueryBuildError::InvalidParameterValue(
-                                result_param.name.to_string(),
-                            )
-                            .into());
-                        }
-                    }
-                }
-                "_sort" => {
-                    for sort_param in result_param.value.iter() {
-                        let parameter_name = if sort_param.starts_with("-") {
-                            &sort_param[1..]
-                        } else {
-                            sort_param
-                        };
-
-                        let sort_direction = if sort_param.starts_with("-") {
-                            SortDirection::Desc
-                        } else {
-                            SortDirection::Asc
-                        };
-
-                        let parameter = parameter_resolver
-                            .by_name(tenant, project, resource_type, parameter_name)
-                            .await?
-                            .ok_or_else(|| {
-                                QueryBuildError::MissingParameter(parameter_name.to_string())
-                            })?;
-
-                        sort.push(sort_build(
-                            parameter.search_parameter.as_ref(),
-                            &sort_direction,
-                        )?);
-                    }
-                }
-                _ => {
-                    return Err(QueryBuildError::UnsupportedParameter(
-                        result_param.name.to_string(),
-                    )
-                    .into());
-                }
-            },
+async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
+    parameter_resolver: &Arc<ParameterResolver>,
+    tenant: &TenantId,
+    project: &ProjectId,
+    resource_type: Option<&ResourceType>,
+    result_param: &Parameter,
+    state: &mut ElasticSearchQueryState,
+) -> Result<(), OperationOutcomeError> {
+    match result_param.name.as_str() {
+        "_count" => {
+            state.max_count = parse_count_parameter(result_param);
+        }
+        "_offset" => {
+            state.offset = parse_offset_parameter(result_param);
+        }
+        "_total" => {
+            state.show_total = parse_total_parameter(result_param)?;
+        }
+        "_sort" => {
+            build_sort_parameters(
+                parameter_resolver,
+                tenant,
+                project,
+                resource_type,
+                result_param,
+                &mut state.sort,
+            )
+            .await?;
+        }
+        _ => {
+            return Err(QueryBuildError::UnsupportedParameter(result_param.name.clone()).into());
         }
     }
 
+    Ok(())
+}
+
+fn parse_count_parameter(result_param: &Parameter) -> usize {
+    std::cmp::min(
+        result_param
+            .value
+            .first()
+            .and_then(|v| v.parse::<usize>().ok())
+            .unwrap_or(100),
+        DEFAULT_MAX_COUNT,
+    )
+}
+
+fn parse_offset_parameter(result_param: &Parameter) -> u64 {
+    result_param
+        .value
+        .first()
+        .and_then(|v| v.parse::<u64>().ok())
+        .unwrap_or(0)
+}
+
+fn parse_total_parameter(result_param: &Parameter) -> Result<bool, OperationOutcomeError> {
+    match result_param
+        .value
+        .iter()
+        .map(std::string::String::as_str)
+        .collect::<Vec<_>>()
+        .as_slice()
+    {
+        ["none"] => Ok(false),
+        ["accurate" | "estimate"] => Ok(true),
+        _ => Err(QueryBuildError::InvalidParameterValue(result_param.name.clone()).into()),
+    }
+}
+
+async fn build_sort_parameters<ParameterResolver: SearchParameterResolve>(
+    parameter_resolver: &Arc<ParameterResolver>,
+    tenant: &TenantId,
+    project: &ProjectId,
+    resource_type: Option<&ResourceType>,
+    result_param: &Parameter,
+    sort: &mut Vec<serde_json::Value>,
+) -> Result<(), OperationOutcomeError> {
+    for sort_param in &result_param.value {
+        let parameter_name = sort_param.strip_prefix('-').unwrap_or(sort_param);
+
+        let sort_direction = if sort_param.starts_with('-') {
+            SortDirection::Desc
+        } else {
+            SortDirection::Asc
+        };
+
+        let parameter = parameter_resolver
+            .by_name(tenant, project, resource_type, parameter_name)
+            .await?
+            .ok_or_else(|| QueryBuildError::MissingParameter(parameter_name.to_string()))?;
+
+        sort.push(sort_build(
+            parameter.search_parameter.as_ref(),
+            &sort_direction,
+        )?);
+    }
+
+    Ok(())
+}
+
+fn add_context_clauses(
+    clauses: &mut Vec<serde_json::Value>,
+    resource_type: Option<&ResourceType>,
+    tenant: &TenantId,
+    project: &ProjectId,
+) {
     if let Some(resource_type) = resource_type {
         clauses.push(json!({
             "match": {
@@ -418,7 +474,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
         }));
     }
 
-    clauses.push(json! ({
+    clauses.push(json!({
         "match": {
             "tenant": tenant.as_ref()
         }
@@ -430,8 +486,16 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
             "project": project.as_ref()
         }
     }));
+}
 
-    let query = json!({
+fn build_elastic_query(
+    clauses: &[serde_json::Value],
+    max_count: usize,
+    show_total: bool,
+    offset: u64,
+    sort: &[serde_json::Value],
+) -> serde_json::Value {
+    json!({
         "fields": ["version_id", "id", "resource_type", "project"],
         "size": max_count,
         "track_total_hits": show_total,
@@ -443,33 +507,28 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
             }
         },
         "sort": sort,
-    });
-
-    // println!("{}", serde_json::to_string_pretty(&query).unwrap());
-
-    Ok(query)
+    })
 }
 
 pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
     es: Arc<Elasticsearch>,
     parameter_resolver: Arc<ParameterResolver>,
-    fhir_version: &SupportedFHIRVersions,
     tenant: &TenantId,
     project: &ProjectId,
     search_request: &SearchRequest,
-    options: &Option<SearchOptions>,
+    options: Option<&SearchOptions>,
 ) -> Result<SearchReturn, haste_fhir_operation_error::OperationOutcomeError> {
     let query = build_elastic_search_query(
         parameter_resolver.clone(),
         tenant,
         project,
-        &search_request,
+        search_request,
         options,
     )
     .await?;
 
     let search_response = es
-        .search(SearchParts::Index(&[get_index_name(&fhir_version)?]))
+        .search(SearchParts::Index(&[get_index_name()]))
         .body(query)
         .send()
         .await

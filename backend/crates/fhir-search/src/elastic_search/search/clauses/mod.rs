@@ -17,24 +17,15 @@ pub use token::*;
 pub use uri::*;
 
 pub fn namespace_parameter(namespace: Option<&str>, search_parameter: &SearchParameter) -> String {
-    namespace
-        .map(|ns| {
-            ns.to_string()
-                + "."
-                + search_parameter
-                    .url
-                    .value
-                    .as_ref()
-                    .map(|s| s.as_str())
-                    .unwrap_or("")
-        })
-        .unwrap_or_else(|| {
+    namespace.map_or_else(
+        || {
             search_parameter
                 .url
                 .value
-                .as_ref()
-                .map(|s| s.as_str())
-                .unwrap_or("")
+                .as_deref()
+                .map_or("", |s| s)
                 .to_string()
-        })
+        },
+        |ns| ns.to_string() + "." + search_parameter.url.value.as_deref().map_or("", |s| s),
+    )
 }

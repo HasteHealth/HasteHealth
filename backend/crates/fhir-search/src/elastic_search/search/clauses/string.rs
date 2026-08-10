@@ -12,7 +12,7 @@ pub fn string(
 ) -> Result<serde_json::Value, QueryBuildError> {
     let column_name = namespace_parameter(namespace, search_param);
 
-    match parsed_parameter.modifier.as_ref().map(|m| m.as_str()) {
+    match parsed_parameter.modifier.as_deref() {
         Some("missing") => simple_missing_modifier(search_param, parsed_parameter),
         Some("exact") => {
             let string_params = parsed_parameter

@@ -3,8 +3,8 @@ use haste_fhir_client::url::Parameter;
 use haste_fhir_model::r4::generated::resources::SearchParameter;
 use serde_json::json;
 
-fn matching_modifier(modifier: &Option<String>) -> Result<String, QueryBuildError> {
-    match modifier.as_ref().map(|s| s.as_str()) {
+fn matching_modifier(modifier: Option<&str>) -> Result<String, QueryBuildError> {
+    match modifier {
         Some("not") => Ok("must_not".to_string()),
         Some(modifier) => Err(QueryBuildError::ModifierNotSupported(modifier.into())),
         None => Ok("must".to_string()),
@@ -16,7 +16,7 @@ pub fn token(
     parameter: &Parameter,
     search_param: &SearchParameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
-    let matching_type = matching_modifier(&parameter.modifier)?;
+    let matching_type = matching_modifier(parameter.modifier.as_deref())?;
     let column_name = namespace_parameter(namespace, search_param);
 
     let params = parameter
@@ -33,7 +33,7 @@ pub fn token(
                                 &matching_type: [{
                                     "match": {
                                         format!("{}.code", column_name): {
-                                        "query": pieces.get(0)
+                                        "query": pieces.first()
                                     }
                                 }}]
                             }
@@ -58,7 +58,7 @@ pub fn token(
                                             {
                                                 "match": {
                                                     format!("{}.system", column_name): {
-                                                        "query": pieces.get(0)
+                                                        "query": pieces.first()
                                                     }
                                                 }
                                             }
@@ -69,7 +69,7 @@ pub fn token(
                         }
                     }
                 })),
-                _ => Err(QueryBuildError::InvalidParameterValue(value.to_string())),
+                _ => Err(QueryBuildError::InvalidParameterValue(value.clone())),
             }
         })
         .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;

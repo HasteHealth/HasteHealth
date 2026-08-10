@@ -13,7 +13,7 @@ pub enum ArtifactError {
     InvalidResource(String),
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 pub struct SearchParametersIndex {
     by_url: HashMap<String, ResolvedParameter>,
     by_resource_type: HashMap<String, HashMap<String, ResolvedParameter>>,
@@ -83,15 +83,6 @@ impl SearchParameterResolve for SearchParametersIndex {
     }
 }
 
-impl Default for SearchParametersIndex {
-    fn default() -> Self {
-        SearchParametersIndex {
-            by_url: HashMap::new(),
-            by_resource_type: HashMap::new(),
-        }
-    }
-}
-
 fn build_search_parameter_index_map(
     level: &ParameterLevel,
     index: &mut SearchParametersIndex,
@@ -103,7 +94,7 @@ fn build_search_parameter_index_map(
                 .entry
                 .unwrap_or(vec![])
                 .into_iter()
-                .flat_map(|e| e.resource)
+                .filter_map(|e| e.resource)
                 .filter_map(|resource| match *resource {
                     Resource::SearchParameter(search_param) => Some(Arc::new(search_param)),
                     _ => None,
@@ -122,7 +113,7 @@ fn build_search_parameter_index_map(
                             .entry(resource_type.to_string())
                             .or_default()
                             .insert(
-                                param.code.value.as_ref().unwrap().to_string(),
+                                param.code.value.as_ref().unwrap().clone(),
                                 ResolvedParameter::new(level.clone(), param.clone()),
                             );
                     }
@@ -145,7 +136,7 @@ fn build_search_parameter_index_map(
                         .entry(resource_type.to_string())
                         .or_default()
                         .insert(
-                            param.code.value.as_ref().unwrap().to_string(),
+                            param.code.value.as_ref().unwrap().clone(),
                             ResolvedParameter::new(level.clone(), param.clone()),
                         );
                 }
@@ -161,19 +152,23 @@ fn build_search_parameter_index_map(
 pub static R4_SEARCH_PARAMETERS_INDEX: LazyLock<Arc<SearchParametersIndex>> = LazyLock::new(|| {
     Arc::new(create_index_map(
         &ParameterLevel::System,
-        R4_SEARCH_PARAMETERS
-            .iter()
-            .map(|param| param.clone())
-            .collect(),
+        R4_SEARCH_PARAMETERS.iter().cloned().collect(),
     ))
 });
 
+/// Creates an index of search parameters for the specified parameter level.
+///
+/// # Panics
+///
+/// Panics if a search parameter cannot be added to the index.
+#[must_use]
 pub fn create_index_map(
     level: &ParameterLevel,
     search_parameters: Vec<SearchParameter>,
 ) -> SearchParametersIndex {
     let mut index = SearchParametersIndex::default();
-    for param in search_parameters.into_iter() {
+
+    for param in search_parameters {
         build_search_parameter_index_map(level, &mut index, Resource::SearchParameter(param))
             .expect("Failed to build search parameter index");
     }
