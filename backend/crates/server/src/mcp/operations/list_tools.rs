@@ -102,7 +102,7 @@ fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
         input_schema,
         meta: None,
         name: R4_SEARCH_TOOL_NAME.to_string(),
-        output_schema: Some(haste_sd_to_json_schema::bundle_of_resource(json!({
+        output_schema: Some(haste_sd_to_json_schema::bundle_of_resource(&json!({
             "type": "object"
         }))),
         title: Some(R4_SEARCH_TOOL_NAME.to_string()),
