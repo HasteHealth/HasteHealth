@@ -21,7 +21,7 @@ mod es_search_destination;
 
 static PIPELINE_ID: u64 = 1;
 
-pub enum ESSearchWorkerEnvironmentVariables {
+enum ESSearchWorkerEnvironmentVariables {
     ElasticSearchURL,
     ElasticSearchUsername,
     ElasticSearchPassword,
@@ -46,23 +46,25 @@ impl From<ESSearchWorkerEnvironmentVariables> for String {
 
 static POOL: OnceCell<Pool<Postgres>> = OnceCell::const_new();
 
-pub async fn get_pool(
+async fn get_pool(
     config: &dyn Config<ESSearchWorkerEnvironmentVariables>,
 ) -> &'static Pool<Postgres> {
     POOL.get_or_init(async || {
         let database_url = config
             .get(ESSearchWorkerEnvironmentVariables::DataBaseURL)
-            .expect(&format!(
-                "'{}' must be set",
-                String::from(ESSearchWorkerEnvironmentVariables::DataBaseURL)
-            ));
+            .unwrap_or_else(|_| {
+                panic!(
+                    "'{}' must be set",
+                    String::from(ESSearchWorkerEnvironmentVariables::DataBaseURL)
+                )
+            });
+
         info!("Connecting to postgres database");
-        let connection = PgPoolOptions::new()
+        PgPoolOptions::new()
             .max_connections(5)
             .connect(&database_url)
             .await
-            .expect("Failed to create database connection pool");
-        connection
+            .expect("Failed to create database connection pool")
     })
     .await
 }
@@ -74,22 +76,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let es_client = create_es_client(
         &config
             .get(ESSearchWorkerEnvironmentVariables::ElasticSearchURL)
-            .expect(&format!(
-                "'{}' variable not set",
-                String::from(ESSearchWorkerEnvironmentVariables::ElasticSearchURL)
-            )),
+            .unwrap_or_else(|_| {
+                panic!(
+                    "'{}' variable not set",
+                    String::from(ESSearchWorkerEnvironmentVariables::ElasticSearchURL)
+                )
+            }),
         config
             .get(ESSearchWorkerEnvironmentVariables::ElasticSearchUsername)
-            .expect(&format!(
-                "'{}' variable not set",
-                String::from(ESSearchWorkerEnvironmentVariables::ElasticSearchUsername)
-            )),
+            .unwrap_or_else(|_| {
+                panic!(
+                    "'{}' variable not set",
+                    String::from(ESSearchWorkerEnvironmentVariables::ElasticSearchUsername)
+                )
+            }),
         config
             .get(ESSearchWorkerEnvironmentVariables::ElasticSearchPassword)
-            .expect(&format!(
-                "'{}' variable not set",
-                String::from(ESSearchWorkerEnvironmentVariables::ElasticSearchPassword)
-            )),
+            .unwrap_or_else(|_| {
+                panic!(
+                    "'{}' variable not set",
+                    String::from(ESSearchWorkerEnvironmentVariables::ElasticSearchPassword)
+                )
+            }),
     )
     .expect("Failed to create Elasticsearch client");
 
@@ -128,8 +136,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let store = MemoryStore::new();
     // let store = PostgresStore::new(PIPELINE_ID, pg_config);
-    let destination = ESSearchDestination::new(search_engine)
-        .expect("Failed to create Elasticsearch destination");
+    let destination = ESSearchDestination::new(search_engine);
 
     println!("Starting pipeline...");
     let mut pipeline = Pipeline::new(config, store, destination);
