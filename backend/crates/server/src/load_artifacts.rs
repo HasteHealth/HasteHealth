@@ -6,11 +6,13 @@ use haste_artifacts::ARTIFACT_RESOURCES;
 use haste_fhir_client::{
     FHIRClient,
     request::{FHIRSearchTypeRequest, SearchRequest},
-    url::ParsedParameter,
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Resource, ResourceType, SearchParameter, StructureDefinition},
-    terminology::IssueType,
+    resources::{
+        Bundle, BundleEntry, BundleEntryRequest, Resource, ResourceType, SearchParameter,
+        StructureDefinition,
+    },
+    terminology::{BundleType, HttpVerb, IssueType},
     types::{Coding, FHIRCode, FHIRUri, Meta},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -160,8 +162,9 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
     ctx: Arc<ServerCTX<Client>>,
 ) -> Result<(), OperationOutcomeError> {
     let mut hashes = HashSet::new();
+    let mut artifact_transaction_bundle_entries: Vec<BundleEntry> = vec![];
+    let mut entry_meta: Vec<(ResourceType, String, String)> = vec![];
 
-    let mut total_loaded: usize = 0;
     for resource in ARTIFACT_RESOURCES.iter() {
         let sha_hash = generate_sha256_hash(resource);
         hashes.insert(sha_hash);
@@ -173,64 +176,29 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
             | Resource::StructureDefinition(_) => {
                 let mut resource = resource.clone();
                 let resource_type = get_resource_type(&resource);
+                let resource_type_str = resource_type.as_ref();
                 let id = get_id(&resource);
                 let sha_hash = generate_sha256_hash(&resource);
 
                 add_hash_tag(&mut resource, sha_hash.clone());
 
-                let res = ctx
-                    .client
-                    .conditional_update(
-                        ctx.clone(),
-                        resource_type.clone(),
-                        vec![
-                            ParsedParameter::from(("_id".to_string(), vec![id.clone()])),
-                            ParsedParameter::from((
-                                "_tag".to_string(),
-                                vec![HASH_TAG_SYSTEM.to_string() + "|" + sha_hash.as_str()],
-                                "not".to_string(),
-                            )),
-                        ]
-                        .into(),
-                        resource.clone(),
-                    )
-                    .await;
+                entry_meta.push((resource_type.clone(), id.clone(), sha_hash.clone()));
 
-                if let Ok(res) = res {
-                    total_loaded += 1;
-                    tracing::info!(
-                        "Updated '{}' with id '{}' and sha '{}'",
-                        resource_type.as_ref(),
-                        res.id().as_deref().unwrap_or("unknown"),
-                        sha_hash.as_str()
-                    );
-                } else if let Err(err) = res {
-                    let code = &err.outcome().issue[0].code;
-                    let diagnostic = err.outcome().issue[0]
-                        .diagnostics
-                        .as_deref()
-                        .and_then(|d| d.value.as_deref())
-                        .unwrap_or("unknown");
+                artifact_transaction_bundle_entries.push(BundleEntry {
+                    resource: Some(Box::new(resource.clone())),
+                    request: Some(BundleEntryRequest {
+                        method: HttpVerb::put(),
+                        url: Box::new(
+                            format!(
+                                "{resource_type_str}?_id={id}&_tag:not={HASH_TAG_SYSTEM}|{sha_hash}"
+                            )
+                            .into(),
+                        ),
+                        ..Default::default()
+                    }),
 
-                    match &err.outcome().issue[0].code {
-                        i if i == &IssueType::invalid() => {
-                            tracing::error!("{:#?}", err);
-                            panic!("INVALID");
-                        }
-                        i if i == &IssueType::conflict() => {
-                            // Ignore.
-                        }
-                        _ => {
-                            tracing::error!(
-                                "Failed to update '{}' with id '{}'. Issue code: '{:?}', diagnostic: '{}'",
-                                resource_type.as_ref(),
-                                id,
-                                code,
-                                diagnostic
-                            );
-                        }
-                    }
-                }
+                    ..Default::default()
+                });
             }
             _ => {
                 // println!("Skipping resource.");
@@ -238,10 +206,66 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
         }
     }
 
+    let batch_response = ctx
+        .client
+        .batch(
+            ctx.clone(),
+            Bundle {
+                type_: BundleType::batch(),
+                entry: Some(artifact_transaction_bundle_entries),
+                ..Default::default()
+            },
+        )
+        .await?;
+
+    let mut total_loaded = 0;
+    for ((resource_type, id, sha_hash), entry) in
+        entry_meta.iter().zip(batch_response.entry.iter().flatten())
+    {
+        match entry.response.as_ref().and_then(|r| r.outcome.as_deref()) {
+            Some(Resource::OperationOutcome(outcome)) if !outcome.issue.is_empty() => {
+                let issue = &outcome.issue[0];
+                let diagnostic = issue
+                    .diagnostics
+                    .as_deref()
+                    .and_then(|d| d.value.as_deref())
+                    .unwrap_or("unknown");
+
+                if issue.code == IssueType::invalid() {
+                    tracing::error!("{:#?}", outcome);
+                    panic!("INVALID");
+                } else if issue.code == IssueType::conflict() {
+                    // Ignore.
+                } else {
+                    tracing::error!(
+                        "Failed to update '{}' with id '{}'. Issue code: '{:?}', diagnostic: '{}'",
+                        resource_type.as_ref(),
+                        id,
+                        issue.code,
+                        diagnostic
+                    );
+                }
+            }
+            _ => {
+                total_loaded += 1;
+                tracing::info!(
+                    "Updated '{}' with id '{}' and sha '{}'",
+                    resource_type.as_ref(),
+                    entry
+                        .resource
+                        .as_deref()
+                        .and_then(|r| r.id().as_deref())
+                        .unwrap_or("unknown"),
+                    sha_hash.as_str()
+                );
+            }
+        }
+    }
+
     tracing::info!(
         "Loaded a total of '{}' artifacts with unique hashes '{}'",
         total_loaded,
-        hashes.len(),
+        hashes.len()
     );
 
     Ok(())
