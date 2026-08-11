@@ -334,7 +334,7 @@ fn search_resource_operation(
                     description: "Successful search operation".to_string(),
                     content: Some(HashMap::from([(
                         "application/json".to_string(),
-                        json!({ "schema": haste_sd_to_json_schema::bundle_of_resource(json!({
+                        json!({ "schema": haste_sd_to_json_schema::bundle_of_resource(&json!({
                             "$ref": format!("#/components/schemas/{}", resource_name)
                         })) }),
                     )])),
