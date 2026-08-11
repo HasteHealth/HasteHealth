@@ -242,7 +242,7 @@ fn process_complex(
     )
 }
 
-/// Generates an isolated JSON Schema from a FHIR `StructureDefinition`.
+/// Generates an isolated JSON Schema from a FHIR [`StructureDefinition`].
 ///
 /// Traverses the structure definition and converts leaf elements into
 /// primitive schemas and complex elements into nested schemas. Returns an
@@ -251,7 +251,7 @@ fn process_complex(
 /// # Arguments
 ///
 /// * `schema_loc` - The location used when generating the schema.
-/// * `sd` - The FHIR `StructureDefinition` to convert.
+/// * `sd` - The FHIR [`StructureDefinition`] to convert.
 ///
 /// # Errors
 ///
