@@ -242,7 +242,7 @@ async fn _load_artifacts<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOut
                         resource_type.as_ref(),
                         id,
                         issue.code,
-                        diagnostic,
+                        diagnostic
                     );
                 }
             }
