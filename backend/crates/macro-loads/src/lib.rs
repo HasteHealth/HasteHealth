@@ -5,10 +5,22 @@ use quote::quote;
 use syn::{Lit, parse_macro_input};
 use walkdir::WalkDir;
 
+/// Loads all JSON artifacts from the specified directory.
+///
+/// # Panics
+///
+/// Panics if:
+/// - the macro call site does not have a local source file.
+/// - the source file has no parent directory.
+/// - an input literal cannot be parsed as a literal.
+/// - an input literal is not a string literal.
+/// - a directory entry cannot be accessed.
+/// - a discovered JSON file path cannot be converted to UTF-8.
+/// - the call site's parent path cannot be converted to UTF-8.
 #[proc_macro]
 pub fn load_artifacts(input: TokenStream) -> TokenStream {
     let mut token_include_paths = Vec::new();
-    for token_tree in input.into_iter() {
+    for token_tree in input {
         let literal_stream: TokenStream = token_tree.into();
         let literal = parse_macro_input!(literal_stream as Lit);
 
@@ -28,7 +40,7 @@ pub fn load_artifacts(input: TokenStream) -> TokenStream {
 
                 for entry in WalkDir::new(location) {
                     let path = entry.as_ref().unwrap().path();
-                    if !path.is_dir() && path.extension().map_or(false, |ext| ext == "json") {
+                    if !path.is_dir() && path.extension().is_some_and(|ext| ext == "json") {
                         let entry_path = path.to_str().unwrap();
                         token_include_paths.push(entry_path.replace(
                             (parent_path.to_str().unwrap().to_string() + "/").as_str(),
@@ -43,9 +55,8 @@ pub fn load_artifacts(input: TokenStream) -> TokenStream {
         }
     }
 
-    let ret = quote! {
+    quote! {
         &[ #(include_str!(#token_include_paths)),* ]
-    };
-
-    ret.into()
+    }
+    .into()
 }
