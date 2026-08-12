@@ -57,7 +57,7 @@ struct TenantReturn {
 async fn get_tenants(
     repo: &PGConnection,
     cursor: &OffsetDateTime,
-    count: usize,
+    count: i64,
 ) -> Result<Vec<TenantReturn>, OperationOutcomeError> {
     match repo {
         PGConnection::Pool(pool, _) => {
@@ -70,7 +70,7 @@ async fn get_tenants(
                 TenantReturn,
                 r#"SELECT id as "id: TenantId", created_at FROM tenants WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
                 cursor,
-                count as i64
+                count
             )
             .fetch_all(&mut *conn)
             .await
@@ -88,7 +88,7 @@ async fn get_tenants(
                 TenantReturn,
                 r#"SELECT id as "id: TenantId", created_at FROM tenants WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
                 cursor,
-                count as i64
+                count
             )
             .fetch_all(&mut *conn)
             .await
@@ -131,7 +131,7 @@ async fn index_tenant_next_sequence<
     let resources = repo
         .get_sequence(
             tenant_id,
-            tenant_locks[0].index_sequence_position as u64,
+            tenant_locks[0].index_sequence_position.cast_unsigned(),
             Some(max_concurrent_limit),
         )
         .await?;
@@ -173,7 +173,7 @@ async fn index_tenant_next_sequence<
             let diff = (resource.sequence + 1) - start_sequence.unwrap_or(0);
             let total = resources_total;
 
-            if total != diff as usize {
+            if total as u64 != diff.unsigned_abs() {
                 tracing::event!(
                     tracing::Level::INFO,
                     // safe_seq = resource.max_safe_seq.unwrap_or(0),
@@ -191,10 +191,10 @@ async fn index_tenant_next_sequence<
             );
 
             repo.update_lock(
-                &tenant_id,
+                tenant_id,
                 TenantLockIndex {
                     id: tenant_id.clone(),
-                    index_sequence_position: resource.sequence as i64,
+                    index_sequence_position: resource.sequence,
                 },
             )
             .await?;
@@ -228,8 +228,7 @@ async fn index_for_tenant<
         .transaction(false)
         .await
         .map_err(IndexingWorkerError::from)?;
-    let res =
-        index_tenant_next_sequence(max_concurrent_limit, search_client, &tx, &tenant_id).await;
+    let res = index_tenant_next_sequence(max_concurrent_limit, search_client, &tx, tenant_id).await;
 
     match res {
         Ok(res) => {
@@ -356,9 +355,9 @@ async fn create_repo(config: &RepoConfig) -> Result<Arc<PGConnection>, Operation
     }
 }
 
-async fn create_search_engine(
+fn create_search_engine(
     config: &SearchConfig,
-    repo: Arc<PGConnection>,
+    repo: &Arc<PGConnection>,
 ) -> Result<
     Arc<ElasticSearchEngine<ElasticSearchParameterResolver<PGConnection>>>,
     OperationOutcomeError,
@@ -385,18 +384,41 @@ async fn create_search_engine(
 }
 
 impl IndexingWorker {
+    /// Creates and initializes a new worker.
+    ///
+    /// This initializes the repository and search engine using the provided
+    /// configuration, then waits for the search engine to become available.
+    /// The search engine connection is retried up to 5 times, with a 5-second
+    /// delay between attempts.
+    ///
+    /// # Arguments
+    ///
+    /// * `config` - Shared worker configuration containing the repository,
+    ///   search engine, and concurrency settings.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - creating the repository fails.
+    /// - creating the search engine fails.
+    /// - the search engine remains unavailable after 5 connection attempts.
+    ///
+    /// # Returns
+    ///
+    /// Returns an initialized [`Self`] with the repository and search engine
+    /// ready for use.
     pub async fn new(config: Arc<WorkerEnvironment>) -> Result<Self, OperationOutcomeError> {
         let repo = create_repo(&config.repo).await?;
-        let search_engine = create_search_engine(&config.search, repo.clone()).await?;
+        let search_engine = create_search_engine(&config.search, &repo.clone())?;
 
         let mut attempts = 0;
-        while !search_engine.is_connected().await.is_ok() && attempts < 5 {
+        while search_engine.is_connected().await.is_err() && attempts < 5 {
             tracing::error!("Elasticsearch is not connected, retrying in 5 seconds...");
             tokio::time::sleep(std::time::Duration::from_secs(5)).await;
             attempts += 1;
         }
 
-        if !search_engine.is_connected().await.is_ok() {
+        if search_engine.is_connected().await.is_err() {
             return Err(OperationOutcomeError::fatal(
                 haste_fhir_model::r4::generated::terminology::IssueType::exception(),
                 "Elasticsearch is not connected after 5 attempts".to_string(),
@@ -415,7 +437,7 @@ impl IndexingWorker {
 impl Worker for IndexingWorker {
     async fn run(&self) -> Result<JoinHandle<()>, OperationOutcomeError> {
         let mut cursor = OffsetDateTime::UNIX_EPOCH;
-        let tenants_limit: usize = 100;
+        let tenants_limit: u64 = 100;
 
         tracing::info!("Starting indexing worker...");
 
@@ -429,9 +451,12 @@ impl Worker for IndexingWorker {
 
         let spawned = tokio::spawn(async move {
             while *running.lock().await {
-                let tenants_to_check = get_tenants(repo.as_ref(), &cursor, tenants_limit).await;
+                let tenants_to_check =
+                    get_tenants(repo.as_ref(), &cursor, tenants_limit.cast_signed()).await;
                 if let Ok(tenants_to_check) = tenants_to_check {
-                    if tenants_to_check.is_empty() || tenants_to_check.len() < tenants_limit {
+                    if tenants_to_check.is_empty()
+                        || (tenants_to_check.len() as u64) < tenants_limit
+                    {
                         cursor = OffsetDateTime::UNIX_EPOCH; // Reset cursor if no tenants found
                     } else {
                         cursor = tenants_to_check[0].created_at;
@@ -448,11 +473,11 @@ impl Worker for IndexingWorker {
                         )
                         .await;
 
-                        if let Err(_error) = result {
+                        if let Err(error) = result {
                             tracing::error!(
                                 "Failed to index tenant: '{}' cause: '{:?}'",
                                 &tenant.id,
-                                _error
+                                error
                             );
                         }
                     }
