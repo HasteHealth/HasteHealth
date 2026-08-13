@@ -233,7 +233,7 @@ impl<
                             )
                             .await?;
 
-                        if search_results.entries.len() > delete_limit {
+                        if search_results.entries.len() > delete_limit as usize {
                             return Err(OperationOutcomeError::error(
                                 IssueType::invalid(),
                                 format!(

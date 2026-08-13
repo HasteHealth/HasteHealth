@@ -59,7 +59,7 @@ pub enum SecretProviderConfig {
 #[serde(default)]
 pub struct FHIRConfig {
     /// Max delete limit for type-delete and system-delete operations.
-    pub delete_limit: usize,
+    pub delete_limit: u64,
 }
 
 // Repo backend where the FHIR server stores its data/resources.

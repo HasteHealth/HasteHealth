@@ -245,8 +245,8 @@ fn parameter_to_elasticsearch_clauses(
 
 // Default value for Elasticsearch is 10k
 // see index.max_result_window
-static ABSOLUTE_MAX: usize = 10_000;
-static DEFAULT_MAX_COUNT: usize = 50;
+static ABSOLUTE_MAX: u64 = 10_000;
+static DEFAULT_MAX_COUNT: u64 = 50;
 
 fn get_resource_type(request: &SearchRequest) -> Option<&ResourceType> {
     match request {
@@ -319,7 +319,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
     ))
 }
 
-fn get_max_count(options: Option<&SearchOptions>) -> Result<usize, OperationOutcomeError> {
+fn get_max_count(options: Option<&SearchOptions>) -> Result<u64, OperationOutcomeError> {
     if let Some(count_limit) = options.as_ref().and_then(|o| o.count_limit) {
         if count_limit > ABSOLUTE_MAX {
             return Err(OperationOutcomeError::fatal(
@@ -353,7 +353,7 @@ async fn build_resource_clause<ParameterResolver: SearchParameterResolve>(
 }
 
 struct ElasticSearchQueryState {
-    max_count: usize,
+    max_count: u64,
     offset: u64,
     show_total: bool,
     sort: Vec<serde_json::Value>,
@@ -396,7 +396,7 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
     Ok(())
 }
 
-fn parse_count_parameter(result_param: &Parameter) -> Result<usize, OperationOutcomeError> {
+fn parse_count_parameter(result_param: &Parameter) -> Result<u64, OperationOutcomeError> {
     let count_parameter_string = result_param.value.first().ok_or_else(|| {
         OperationOutcomeError::error(
             IssueType::required(),
@@ -404,7 +404,7 @@ fn parse_count_parameter(result_param: &Parameter) -> Result<usize, OperationOut
         )
     })?;
 
-    count_parameter_string.parse::<usize>().map_err(|_| {
+    count_parameter_string.parse::<u64>().map_err(|_| {
         OperationOutcomeError::fatal(
             IssueType::invalid(),
             format!("Invalid _count value: '{count_parameter_string}'. Make sure it's a positive number."),
@@ -505,7 +505,7 @@ fn add_context_clauses(
 
 fn build_elastic_query(
     clauses: &[serde_json::Value],
-    max_count: usize,
+    max_count: u64,
     show_total: bool,
     offset: u64,
     sort: &[serde_json::Value],
