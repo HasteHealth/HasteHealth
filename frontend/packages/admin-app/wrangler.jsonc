@@ -15,11 +15,11 @@
   },
   "routes": [
     {
-      "pattern": "*.admin.haste.health/*",
-      "zone_name": "haste.health",
+      "pattern": "*.haste-admin.app/*",
+      "zone_name": "haste-admin.app",
     },
     {
-      "pattern": "admin.haste.health",
+      "pattern": "haste-admin.app",
       "custom_domain": true,
     },
   ],
