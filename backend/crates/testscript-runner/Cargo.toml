@@ -21,4 +21,4 @@ haste-reflect = { path = "../reflect", version = "0.*" }
 
 regex = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
-tracing = { workspace = true }
+tracing = { workspace = true, features = ["attributes"] }
