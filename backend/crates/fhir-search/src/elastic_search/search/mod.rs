@@ -245,8 +245,8 @@ fn parameter_to_elasticsearch_clauses(
 
 // Default value for Elasticsearch is 10k
 // see index.max_result_window
-static ABSOLUTE_MAX: usize = 10_000;
-static DEFAULT_MAX_COUNT: usize = 50;
+static ABSOLUTE_MAX: u64 = 10_000;
+static DEFAULT_MAX_COUNT: u64 = 50;
 
 fn get_resource_type(request: &SearchRequest) -> Option<&ResourceType> {
     match request {
@@ -319,7 +319,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
     ))
 }
 
-fn get_max_count(options: Option<&SearchOptions>) -> Result<usize, OperationOutcomeError> {
+fn get_max_count(options: Option<&SearchOptions>) -> Result<u64, OperationOutcomeError> {
     if let Some(count_limit) = options.as_ref().and_then(|o| o.count_limit) {
         if count_limit > ABSOLUTE_MAX {
             return Err(OperationOutcomeError::fatal(
@@ -353,7 +353,7 @@ async fn build_resource_clause<ParameterResolver: SearchParameterResolve>(
 }
 
 struct ElasticSearchQueryState {
-    max_count: usize,
+    max_count: u64,
     offset: u64,
     show_total: bool,
     sort: Vec<serde_json::Value>,
@@ -396,38 +396,38 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
     Ok(())
 }
 
-fn parse_count_parameter(result_param: &Parameter) -> Result<usize, OperationOutcomeError> {
-    let count_param = result_param
-        .value
-        .first()
-        .and_then(|v| v.parse::<i64>().ok())
-        .unwrap_or(100);
+fn parse_count_parameter(result_param: &Parameter) -> Result<u64, OperationOutcomeError> {
+    let count_parameter_string = result_param.value.first().ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::required(),
+            format!("Missing parameter value: {}", result_param.name),
+        )
+    })?;
 
-    if count_param < 0 {
-        return Err(OperationOutcomeError::fatal(
+    count_parameter_string.parse::<u64>().map_err(|_| {
+        OperationOutcomeError::fatal(
             IssueType::invalid(),
-            "Invalid _count parameter value. Must be greater than or equal to 0.".to_string(),
-        ));
-    }
-
-    Ok(std::cmp::min(count_param as usize, DEFAULT_MAX_COUNT))
+            format!("Invalid _count value: '{count_parameter_string}'. Make sure it's a positive number."),
+        )
+    })
 }
 
 fn parse_offset_parameter(result_param: &Parameter) -> Result<u64, OperationOutcomeError> {
-    let offset_param = result_param
-        .value
-        .first()
-        .and_then(|v| v.parse::<i64>().ok())
-        .unwrap_or(0);
+    let offset_param_string = result_param.value.first().ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::required(),
+            format!("Missing parameter value: {}", result_param.name),
+        )
+    })?;
 
-    if offset_param < 0 {
-        return Err(OperationOutcomeError::fatal(
+    offset_param_string.parse::<u64>().map_err(|_| {
+        OperationOutcomeError::fatal(
             IssueType::invalid(),
-            "Invalid _offset parameter value. Must be greater than or equal to 0.".to_string(),
-        ));
-    }
-
-    Ok(offset_param as u64)
+            format!(
+                "Invalid _offset value: '{offset_param_string}'. Make sure it's a positive number."
+            ),
+        )
+    })
 }
 
 fn parse_total_parameter(result_param: &Parameter) -> Result<bool, OperationOutcomeError> {
@@ -505,7 +505,7 @@ fn add_context_clauses(
 
 fn build_elastic_query(
     clauses: &[serde_json::Value],
-    max_count: usize,
+    max_count: u64,
     show_total: bool,
     offset: u64,
     sort: &[serde_json::Value],
