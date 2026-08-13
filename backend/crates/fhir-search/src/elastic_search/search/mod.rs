@@ -369,10 +369,10 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
 ) -> Result<(), OperationOutcomeError> {
     match result_param.name.as_str() {
         "_count" => {
-            state.max_count = parse_count_parameter(result_param);
+            state.max_count = parse_count_parameter(result_param)?;
         }
         "_offset" => {
-            state.offset = parse_offset_parameter(result_param);
+            state.offset = parse_offset_parameter(result_param)?;
         }
         "_total" => {
             state.show_total = parse_total_parameter(result_param)?;
@@ -396,23 +396,38 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
     Ok(())
 }
 
-fn parse_count_parameter(result_param: &Parameter) -> usize {
-    std::cmp::min(
-        result_param
-            .value
-            .first()
-            .and_then(|v| v.parse::<usize>().ok())
-            .unwrap_or(100),
-        DEFAULT_MAX_COUNT,
-    )
-}
-
-fn parse_offset_parameter(result_param: &Parameter) -> u64 {
-    result_param
+fn parse_count_parameter(result_param: &Parameter) -> Result<usize, OperationOutcomeError> {
+    let count_param = result_param
         .value
         .first()
-        .and_then(|v| v.parse::<u64>().ok())
-        .unwrap_or(0)
+        .and_then(|v| v.parse::<i64>().ok())
+        .unwrap_or(100);
+
+    if count_param < 0 {
+        return Err(OperationOutcomeError::fatal(
+            IssueType::invalid(),
+            "Invalid _count parameter value. Must be greater than or equal to 0.".to_string(),
+        ));
+    }
+
+    Ok(std::cmp::min(count_param as usize, DEFAULT_MAX_COUNT))
+}
+
+fn parse_offset_parameter(result_param: &Parameter) -> Result<u64, OperationOutcomeError> {
+    let offset_param = result_param
+        .value
+        .first()
+        .and_then(|v| v.parse::<i64>().ok())
+        .unwrap_or(0);
+
+    if offset_param < 0 {
+        return Err(OperationOutcomeError::fatal(
+            IssueType::invalid(),
+            "Invalid _offset parameter value. Must be greater than or equal to 0.".to_string(),
+        ));
+    }
+
+    Ok(offset_param as u64)
 }
 
 fn parse_total_parameter(result_param: &Parameter) -> Result<bool, OperationOutcomeError> {
