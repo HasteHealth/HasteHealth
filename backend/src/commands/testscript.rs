@@ -120,30 +120,43 @@ pub(crate) async fn testscript_commands(
                         );
 
                         let testscript_id = testscript_id.clone();
+                        let testscript_name = testscript
+                            .name
+                            .value
+                            .clone()
+                            .unwrap_or("<Unnamed TestScript>".to_string());
+                        let testscript_file = entry.path().to_string_lossy().to_string();
                         let testrunner_options = testrunner_options.clone();
                         let fhir_client = fhir_client.clone();
 
                         test_runs.spawn(async move {
-                            match haste_testscript_runner::run(
+                            let result = haste_testscript_runner::run(
                                 fhir_client.as_ref(),
                                 (),
                                 testscript,
                                 testrunner_options,
                             )
-                            .await
-                            {
-                                Ok(mut test_report) => {
-                                    test_report.id = Some(testscript_id);
-                                    Ok(test_report)
-                                }
-                                Err(e) => Err(e),
-                            }
+                            .await;
+
+                            (
+                                testscript_name,
+                                testscript_file,
+                                match result {
+                                    Ok(mut test_report) => {
+                                        test_report.id = Some(testscript_id);
+                                        Ok(test_report)
+                                    }
+                                    Err(e) => Err(e),
+                                },
+                            )
                         });
                     }
                 }
             }
 
-            while let Some(Ok(res)) = test_runs.join_next().await {
+            while let Some(Ok((testscript_name, testscript_file, res))) =
+                test_runs.join_next().await
+            {
                 match res {
                     Ok(test_report) => {
                         match &test_report.result {
@@ -151,7 +164,13 @@ pub(crate) async fn testscript_commands(
                             r if r == &ReportResultCodes::pass()
                                 || r == &ReportResultCodes::pending()
                                 || r == &ReportResultCodes::null() => {}
-                            r if r == &ReportResultCodes::fail() => status_code = 1,
+                            r if r == &ReportResultCodes::fail() => {
+                                status_code = 1;
+                                error!(
+                                    "TestScript '{testscript_name}' FAILED (file: {testscript_file}, TestReport id: {})",
+                                    test_report.id.as_deref().unwrap_or("<none>")
+                                );
+                            }
                             _ => status_code = 1,
                         }
 
@@ -173,7 +192,9 @@ pub(crate) async fn testscript_commands(
                     }
                     Err(e) => {
                         status_code = 1;
-                        error!("Error running TestScript '{:?}'", e);
+                        error!(
+                            "TestScript '{testscript_name}' ERRORED (file: {testscript_file}): {e:?}"
+                        );
                     }
                 }
             }
