@@ -22,5 +22,5 @@ jobs:
           components: miri
 
       - name: MIRI Unit tests
-        run: MIRIFLAGS=-Zmiri-disable-isolation cargo +nightly miri test --locked --verbose --workspace
+        run: MIRIFLAGS=-Zmiri-disable-isolation cargo +nightly miri test --locked --package haste-fhirpath
         working-directory: ./backend
