@@ -231,6 +231,40 @@
                         "resource": "OperationOutcome",
                         "warningOnly": false
                     }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=limit-count-test&_offset=abc",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=limit-count-test&_count=abc",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
                 }
             ]
         },

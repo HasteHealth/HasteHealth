@@ -397,37 +397,37 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
 }
 
 fn parse_count_parameter(result_param: &Parameter) -> Result<usize, OperationOutcomeError> {
-    let count_param = result_param
-        .value
-        .first()
-        .and_then(|v| v.parse::<i64>().ok())
-        .unwrap_or(100);
+    let count_parameter_string = result_param.value.first().ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::required(),
+            format!("Missing parameter value: {}", result_param.name),
+        )
+    })?;
 
-    if count_param < 0 {
-        return Err(OperationOutcomeError::fatal(
+    count_parameter_string.parse::<usize>().map_err(|_| {
+        OperationOutcomeError::fatal(
             IssueType::invalid(),
-            "Invalid _count parameter value. Must be greater than or equal to 0.".to_string(),
-        ));
-    }
-
-    Ok(std::cmp::min(count_param as usize, DEFAULT_MAX_COUNT))
+            format!("Invalid _count value: '{count_parameter_string}'. Make sure it's a positive number."),
+        )
+    })
 }
 
 fn parse_offset_parameter(result_param: &Parameter) -> Result<u64, OperationOutcomeError> {
-    let offset_param = result_param
-        .value
-        .first()
-        .and_then(|v| v.parse::<i64>().ok())
-        .unwrap_or(0);
+    let offset_param_string = result_param.value.first().ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::required(),
+            format!("Missing parameter value: {}", result_param.name),
+        )
+    })?;
 
-    if offset_param < 0 {
-        return Err(OperationOutcomeError::fatal(
+    offset_param_string.parse::<u64>().map_err(|_| {
+        OperationOutcomeError::fatal(
             IssueType::invalid(),
-            "Invalid _offset parameter value. Must be greater than or equal to 0.".to_string(),
-        ));
-    }
-
-    Ok(offset_param as u64)
+            format!(
+                "Invalid _offset value: '{offset_param_string}'. Make sure it's a positive number."
+            ),
+        )
+    })
 }
 
 fn parse_total_parameter(result_param: &Parameter) -> Result<bool, OperationOutcomeError> {
