@@ -409,7 +409,7 @@ impl IndexingWorker {
     /// ready for use.
     pub async fn new(config: Arc<WorkerEnvironment>) -> Result<Self, OperationOutcomeError> {
         let repo = create_repo(&config.repo).await?;
-        let search_engine = create_search_engine(&config.search, &repo.clone())?;
+        let search_engine = create_search_engine(&config.search, &repo)?;
 
         let mut attempts = 0;
         while search_engine.is_connected().await.is_err() && attempts < 5 {
