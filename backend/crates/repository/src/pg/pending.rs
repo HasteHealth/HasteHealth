@@ -166,6 +166,7 @@ where
 pub struct PendingRows(Arc<Mutex<Vec<PendingResourceRow>>>);
 
 impl PendingRows {
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
@@ -199,8 +200,13 @@ impl PendingRows {
 
     /// Drains and inserts every buffered row, so a subsequent read on the
     /// same transaction observes prior writes that haven't reached Postgres
-    /// yet. The internal lock is released before `tx` is locked, so the two
+    /// yet. The internal lock is released before tx is locked, so the two
     /// are never held simultaneously.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`OperationOutcomeError`] if inserting the buffered rows
+    /// into Postgres fails.
     pub async fn flush(
         &self,
         tx: &Arc<Mutex<sqlx::Transaction<'static, Postgres>>>,

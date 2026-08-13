@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-/// Reference of conversions found here https://www.hl7.org/fhir/R4/search.html#table
+/// Reference of conversions found here <https://www.hl7.org/fhir/R4/search.html#table>
 use haste_fhir_model::r4::{
     datetime::{Date, DateTime, Instant},
     generated::{
@@ -104,22 +104,19 @@ fn convert_fp_string(value: &FHIRString) -> Vec<String> {
     value
         .value
         .as_ref()
-        .map(|v| vec![v.to_string()])
-        .unwrap_or_else(|| vec![])
+        .map_or_else(Vec::new, |v| vec![v.clone()])
 }
 
-fn convert_optional_fp_string(value: &Option<Box<FHIRString>>) -> Vec<String> {
+fn convert_optional_fp_string(value: Option<&FHIRString>) -> Vec<String> {
     value
         .as_ref()
-        .map(|v| convert_fp_string(v))
-        .unwrap_or_else(|| vec![])
+        .map_or_else(Vec::new, |v| convert_fp_string(v))
 }
 
-fn convert_optional_fp_string_vec(value: &Option<Vec<FHIRString>>) -> Vec<String> {
+fn convert_optional_fp_string_vec(value: Option<&Vec<FHIRString>>) -> Vec<String> {
     value
         .as_ref()
-        .map(|v| v.iter().flat_map(|s| convert_fp_string(s)).collect())
-        .unwrap_or_else(|| vec![])
+        .map_or_else(Vec::new, |v| v.iter().flat_map(convert_fp_string).collect())
 }
 
 fn index_string(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError> {
@@ -131,8 +128,7 @@ fn index_string(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexErr
             Ok(fp_string
                 .value
                 .as_ref()
-                .map(|v| vec![v.to_string()])
-                .unwrap_or_else(|| vec![]))
+                .map_or_else(Vec::new, |v| vec![v.clone()]))
         }
         // Even though spec states won't encounter this it does. [ImplementationGuide.description]
         "markdown" => {
@@ -145,34 +141,33 @@ fn index_string(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexErr
             Ok(fp_markdown
                 .value
                 .as_ref()
-                .map(|v| vec![v.to_string()])
-                .unwrap_or_else(|| vec![]))
+                .map_or_else(Vec::new, |v| vec![v.clone()]))
         }
         "HumanName" => {
             let human_name = value.as_any().downcast_ref::<HumanName>().ok_or_else(|| {
                 InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
 
-            let mut string_index = vec![];
-            string_index.extend(convert_optional_fp_string(&human_name.text));
-            string_index.extend(convert_optional_fp_string(&human_name.family));
-            string_index.extend(convert_optional_fp_string_vec(&human_name.given));
-            string_index.extend(convert_optional_fp_string_vec(&human_name.prefix));
-            string_index.extend(convert_optional_fp_string_vec(&human_name.suffix));
+            let mut string_index = Vec::new();
+            string_index.extend(convert_optional_fp_string(human_name.text.as_deref()));
+            string_index.extend(convert_optional_fp_string(human_name.family.as_deref()));
+            string_index.extend(convert_optional_fp_string_vec(human_name.given.as_ref()));
+            string_index.extend(convert_optional_fp_string_vec(human_name.prefix.as_ref()));
+            string_index.extend(convert_optional_fp_string_vec(human_name.suffix.as_ref()));
             Ok(string_index)
         }
         "Address" => {
-            let mut string_index = vec![];
+            let mut string_index = Vec::new();
             let address = value.as_any().downcast_ref::<Address>().ok_or_else(|| {
                 InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
             })?;
-            string_index.extend(convert_optional_fp_string(&address.text));
-            string_index.extend(convert_optional_fp_string_vec(&address.line));
-            string_index.extend(convert_optional_fp_string(&address.city));
-            string_index.extend(convert_optional_fp_string(&address.district));
-            string_index.extend(convert_optional_fp_string(&address.state));
-            string_index.extend(convert_optional_fp_string(&address.postalCode));
-            string_index.extend(convert_optional_fp_string(&address.country));
+            string_index.extend(convert_optional_fp_string(address.text.as_deref()));
+            string_index.extend(convert_optional_fp_string_vec(address.line.as_ref()));
+            string_index.extend(convert_optional_fp_string(address.city.as_deref()));
+            string_index.extend(convert_optional_fp_string(address.district.as_deref()));
+            string_index.extend(convert_optional_fp_string(address.state.as_deref()));
+            string_index.extend(convert_optional_fp_string(address.postalCode.as_deref()));
+            string_index.extend(convert_optional_fp_string(address.country.as_deref()));
 
             Ok(string_index)
         }
@@ -190,11 +185,11 @@ fn index_number(value: &dyn MetaValue) -> Result<Vec<f64>, InsertableIndexError>
                 .ok_or_else(|| {
                     InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
+            #[allow(clippy::cast_precision_loss)]
             Ok(fp_integer
                 .value
                 .as_ref()
-                .map(|v| vec![*v as f64])
-                .unwrap_or_else(|| vec![]))
+                .map_or_else(Vec::new, |v| vec![*v as f64]))
         }
         "decimal" => {
             let fp_decimal = value
@@ -203,11 +198,11 @@ fn index_number(value: &dyn MetaValue) -> Result<Vec<f64>, InsertableIndexError>
                 .ok_or_else(|| {
                     InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
+            #[allow(clippy::cast_precision_loss)]
             Ok(fp_decimal
                 .value
                 .as_ref()
-                .map(|v| vec![*v as f64])
-                .unwrap_or_else(|| vec![]))
+                .map_or_else(Vec::new, |v| vec![*v]))
         }
         "positiveInt" => {
             let fp_positive_int = value
@@ -217,11 +212,11 @@ fn index_number(value: &dyn MetaValue) -> Result<Vec<f64>, InsertableIndexError>
                     InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
 
+            #[allow(clippy::cast_precision_loss)]
             Ok(fp_positive_int
                 .value
                 .as_ref()
-                .map(|v| vec![*v as f64])
-                .unwrap_or_else(|| vec![]))
+                .map_or_else(Vec::new, |v| vec![*v as f64]))
         }
         "unsignedInt" => {
             let fp_unsigned_int = value
@@ -231,11 +226,11 @@ fn index_number(value: &dyn MetaValue) -> Result<Vec<f64>, InsertableIndexError>
                     InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
 
+            #[allow(clippy::cast_precision_loss)]
             Ok(fp_unsigned_int
                 .value
                 .as_ref()
-                .map(|v| vec![*v as f64])
-                .unwrap_or_else(|| vec![]))
+                .map_or_else(Vec::new, |v| vec![*v as f64]))
         }
         type_name => Err(InsertableIndexError::FailedDowncast(type_name.to_string())),
     }
@@ -250,8 +245,7 @@ fn index_uri(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError>
             Ok(fp_uri
                 .value
                 .as_ref()
-                .map(|v| vec![v.to_string()])
-                .unwrap_or_else(|| vec![]))
+                .map_or_else(Vec::new, |v| vec![v.clone()]))
         }
         "uuid" => {
             let fp_uri = value.as_any().downcast_ref::<FHIRUuid>().ok_or_else(|| {
@@ -260,8 +254,7 @@ fn index_uri(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError>
             Ok(fp_uri
                 .value
                 .as_ref()
-                .map(|v| vec![v.to_string()])
-                .unwrap_or_else(|| vec![]))
+                .map_or_else(Vec::new, |v| vec![v.clone()]))
         }
         "canonical" => {
             let fp_uri = value
@@ -273,8 +266,7 @@ fn index_uri(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError>
             Ok(fp_uri
                 .value
                 .as_ref()
-                .map(|v| vec![v.to_string()])
-                .unwrap_or_else(|| vec![]))
+                .map_or_else(Vec::new, |v| vec![v.clone()]))
         }
         "uri" => {
             let fp_uri = value.as_any().downcast_ref::<FHIRUri>().ok_or_else(|| {
@@ -283,8 +275,7 @@ fn index_uri(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError>
             Ok(fp_uri
                 .value
                 .as_ref()
-                .map(|v| vec![v.to_string()])
-                .unwrap_or_else(|| vec![]))
+                .map_or_else(Vec::new, |v| vec![v.clone()]))
         }
         type_name => Err(InsertableIndexError::FailedDowncast(type_name.to_string())),
     }
@@ -292,124 +283,141 @@ fn index_uri(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError>
 
 fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndexError> {
     match value.fhir_type() {
-        "Coding" => {
-            let fp_coding = value.as_any().downcast_ref::<Coding>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
-            })?;
-
-            Ok(vec![TokenIndex {
-                system: fp_coding.system.as_ref().and_then(|s| s.value.clone()),
-                code: fp_coding.code.as_ref().and_then(|v| v.value.clone()),
-            }])
-        }
-        "CodeableConcept" => {
-            let fp_codeable_concept = value
-                .as_any()
-                .downcast_ref::<CodeableConcept>()
-                .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
-                })?;
-
-            Ok(fp_codeable_concept
-                .coding
-                .as_ref()
-                .and_then(|coding| {
-                    Some(
-                        coding
-                            .iter()
-                            .map(|c| TokenIndex {
-                                system: c.system.as_ref().and_then(|s| s.value.clone()),
-                                code: c.code.as_ref().and_then(|v| v.value.clone()),
-                            })
-                            .collect::<Vec<_>>(),
-                    )
-                })
-                .unwrap_or_else(|| vec![]))
-        }
-        "Identifier" => {
-            let fp_identifier = value.as_any().downcast_ref::<Identifier>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
-            })?;
-
-            Ok(vec![TokenIndex {
-                system: fp_identifier.system.as_ref().and_then(|s| s.value.clone()),
-                code: fp_identifier.value.as_ref().and_then(|v| v.value.clone()),
-            }])
-        }
-        "ContactPoint" => {
-            let fp_contact_point =
-                value
-                    .as_any()
-                    .downcast_ref::<ContactPoint>()
-                    .ok_or_else(|| {
-                        InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
-                    })?;
-
-            Ok(vec![TokenIndex {
-                system: None,
-                code: fp_contact_point
-                    .value
-                    .as_ref()
-                    .and_then(|v| v.value.clone()),
-            }])
-        }
-        "code" => {
-            let fp_code = value
-                .get_field("value")
-                .and_then(|v| v.as_any().downcast_ref::<String>());
-
-            Ok(vec![TokenIndex {
-                system: None,
-                code: fp_code.map(|v| v.to_string()),
-            }])
-        }
-        "boolean" => {
-            let fp_boolean = value
-                .as_any()
-                .downcast_ref::<FHIRBoolean>()
-                .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
-                })?;
-
-            Ok(vec![TokenIndex {
-                system: Some("http://hl7.org/fhir/special-values".to_string()),
-                code: fp_boolean.value.as_ref().map(|v| v.to_string()),
-            }])
-        }
-        "http://hl7.org/fhirpath/System.String" => {
-            let string = value.as_any().downcast_ref::<String>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
-            })?;
-
-            Ok(vec![TokenIndex {
-                system: None,
-                code: Some(string.clone()),
-            }])
-        }
-        "string" => {
-            let fp_string = value.as_any().downcast_ref::<FHIRString>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
-            })?;
-
-            Ok(vec![TokenIndex {
-                system: None,
-                code: fp_string.value.as_ref().map(|v| v.to_string()),
-            }])
-        }
-        "id" => {
-            let fp_id = value.as_any().downcast_ref::<FHIRId>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
-            })?;
-
-            Ok(vec![TokenIndex {
-                system: None,
-                code: fp_id.value.as_ref().map(|v| v.to_string()),
-            }])
-        }
+        "Coding" => index_token_coding(value),
+        "CodeableConcept" => index_token_codeable_concept(value),
+        "Identifier" => index_token_identifier(value),
+        "ContactPoint" => index_token_contact_point(value),
+        "code" => Ok(index_token_code(value)),
+        "boolean" => index_token_boolean(value),
+        "http://hl7.org/fhirpath/System.String" => index_token_system_string(value),
+        "string" => index_token_string(value),
+        "id" => index_token_id(value),
         _ => Err(InsertableIndexError::FailedDowncast(
             value.fhir_type().to_string(),
         )),
     }
+}
+
+fn index_token_coding(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndexError> {
+    let coding = value
+        .as_any()
+        .downcast_ref::<Coding>()
+        .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?;
+
+    Ok(vec![TokenIndex {
+        system: coding.system.as_ref().and_then(|s| s.value.clone()),
+        code: coding.code.as_ref().and_then(|v| v.value.clone()),
+    }])
+}
+
+fn index_token_codeable_concept(
+    value: &dyn MetaValue,
+) -> Result<Vec<TokenIndex>, InsertableIndexError> {
+    let codeable_concept = value
+        .as_any()
+        .downcast_ref::<CodeableConcept>()
+        .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?;
+
+    Ok(codeable_concept
+        .coding
+        .as_ref()
+        .map(|coding| {
+            coding
+                .iter()
+                .map(|c| TokenIndex {
+                    system: c.system.as_ref().and_then(|s| s.value.clone()),
+                    code: c.code.as_ref().and_then(|v| v.value.clone()),
+                })
+                .collect()
+        })
+        .unwrap_or_default())
+}
+
+fn index_token_identifier(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndexError> {
+    let identifier = value
+        .as_any()
+        .downcast_ref::<Identifier>()
+        .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?;
+
+    Ok(vec![TokenIndex {
+        system: identifier.system.as_ref().and_then(|s| s.value.clone()),
+        code: identifier.value.as_ref().and_then(|v| v.value.clone()),
+    }])
+}
+
+fn index_token_contact_point(
+    value: &dyn MetaValue,
+) -> Result<Vec<TokenIndex>, InsertableIndexError> {
+    let contact_point = value
+        .as_any()
+        .downcast_ref::<ContactPoint>()
+        .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?;
+
+    Ok(vec![TokenIndex {
+        system: None,
+        code: contact_point.value.as_ref().and_then(|v| v.value.clone()),
+    }])
+}
+
+fn index_token_code(value: &dyn MetaValue) -> Vec<TokenIndex> {
+    let code = value
+        .get_field("value")
+        .and_then(|v| v.as_any().downcast_ref::<String>());
+
+    vec![TokenIndex {
+        system: None,
+        code: code.cloned(),
+    }]
+}
+
+fn index_token_boolean(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndexError> {
+    let boolean = value
+        .as_any()
+        .downcast_ref::<FHIRBoolean>()
+        .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?;
+
+    Ok(vec![TokenIndex {
+        system: Some("http://hl7.org/fhir/special-values".to_string()),
+        code: boolean.value.as_ref().map(std::string::ToString::to_string),
+    }])
+}
+
+fn index_token_system_string(
+    value: &dyn MetaValue,
+) -> Result<Vec<TokenIndex>, InsertableIndexError> {
+    let string = value
+        .as_any()
+        .downcast_ref::<String>()
+        .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?;
+
+    Ok(vec![TokenIndex {
+        system: None,
+        code: Some(string.clone()),
+    }])
+}
+
+fn index_token_string(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndexError> {
+    let string = value
+        .as_any()
+        .downcast_ref::<FHIRString>()
+        .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?;
+
+    Ok(vec![TokenIndex {
+        system: None,
+        code: string.value.clone(),
+    }])
+}
+
+fn index_token_id(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndexError> {
+    let id = value
+        .as_any()
+        .downcast_ref::<FHIRId>()
+        .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?;
+
+    Ok(vec![TokenIndex {
+        system: None,
+        code: id.value.clone(),
+    }])
 }
 
 fn get_decimal_precision(value: &str) -> u32 {
@@ -429,158 +437,184 @@ pub struct DecimalRange {
     pub end: f64,
 }
 
-// Number and quantity dependent on the precision for indexing.
+/// Calculates the decimal range used for indexing a number or quantity,
+/// based on the precision of the input value.
+///
+/// # Errors
+///
+/// Returns [`InsertableIndexError::FailedDowncast`] if `value` cannot be
+/// parsed as an `f64`.
 pub fn get_decimal_range(value: &str) -> Result<DecimalRange, InsertableIndexError> {
     let decimal_precision = get_decimal_precision(value);
     let parsed_v = value
         .parse::<f64>()
         .map_err(|_e| InsertableIndexError::FailedDowncast(value.to_string()))?;
 
-    return Ok(DecimalRange {
-        start: parsed_v - 0.5 * 10f64.powi(-(decimal_precision as i32)),
-        end: parsed_v + 0.5 * 10f64.powi(-(decimal_precision as i32)),
-    });
+    Ok(DecimalRange {
+        start: parsed_v - 0.5 * 10f64.powi(-(decimal_precision.cast_signed())),
+        end: parsed_v + 0.5 * 10f64.powi(-(decimal_precision.cast_signed())),
+    })
 }
 
-fn fhirdecimal_to_quantity_range(value: &Option<Box<FHIRDecimal>>) -> Option<DecimalRange> {
-    let decimal_range = value.as_ref().and_then(|v| {
+fn fhirdecimal_to_quantity_range(value: Option<&FHIRDecimal>) -> Option<DecimalRange> {
+    value.as_ref().and_then(|v| {
         v.value
             .as_ref()
             .and_then(|v| get_decimal_range(&v.to_string()).ok())
-    });
-
-    decimal_range
+    })
 }
 
 fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, InsertableIndexError> {
     match value.fhir_type() {
-        "Range" => {
-            let fp_range = value.as_any().downcast_ref::<Range>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
-            })?;
-            if fp_range.low.is_some() || fp_range.high.is_some() {
-                let start_value = fp_range
-                    .low
-                    .as_ref()
-                    .and_then(|v| v.value.as_ref().and_then(|v| v.value));
-                let start_system = fp_range
-                    .low
-                    .as_ref()
-                    .and_then(|v| v.system.as_ref().and_then(|s| s.value.clone()));
-                let start_code = fp_range
-                    .low
-                    .as_ref()
-                    .and_then(|v| v.code.as_ref().and_then(|c| c.value.clone()));
-
-                let end_value = fp_range
-                    .high
-                    .as_ref()
-                    .and_then(|v| v.value.as_ref().and_then(|v| v.value));
-                let end_system = fp_range
-                    .high
-                    .as_ref()
-                    .and_then(|v| v.system.as_ref().and_then(|s| s.value.clone()));
-                let end_code = fp_range
-                    .high
-                    .as_ref()
-                    .and_then(|v| v.code.as_ref().and_then(|c| c.value.clone()));
-
-                return Ok(vec![QuantityRange {
-                    start_system: start_system,
-                    start_code: start_code,
-                    start_value: start_value
-                        .map_or(RangeValue::Infinity, |v| RangeValue::Number(v)),
-                    end_system: end_system,
-                    end_code: end_code,
-                    end_value: end_value.map_or(RangeValue::Infinity, |v| RangeValue::Number(v)),
-                }]);
-            }
-            return Ok(vec![]);
-        }
-        "Age" => {
-            let fp_age = value.as_any().downcast_ref::<Age>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
-            })?;
-
-            if let Some(decimal_range) = fhirdecimal_to_quantity_range(&fp_age.value) {
-                return Ok(vec![QuantityRange {
-                    start_system: fp_age.system.as_ref().and_then(|s| s.value.clone()),
-                    start_code: fp_age.code.as_ref().and_then(|c| c.value.clone()),
-                    start_value: RangeValue::Number(decimal_range.start),
-                    end_system: fp_age.system.as_ref().and_then(|s| s.value.clone()),
-                    end_code: fp_age.code.as_ref().and_then(|c| c.value.clone()),
-                    end_value: RangeValue::Number(decimal_range.end),
-                }]);
-            } else {
-                return Ok(vec![]);
-            }
-        }
-        "Money" => {
-            let fp_money = value.as_any().downcast_ref::<Money>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
-            })?;
-
-            if let Some(decimal_range) = fhirdecimal_to_quantity_range(&fp_money.value) {
-                return Ok(vec![QuantityRange {
-                    start_system: Some("urn:iso:std:iso:4217".to_string()),
-                    start_code: fp_money.currency.as_ref().and_then(|c| c.value.clone()),
-                    start_value: RangeValue::Number(decimal_range.start),
-                    end_system: Some("urn:iso:std:iso:4217".to_string()),
-                    end_code: fp_money.currency.as_ref().and_then(|c| c.value.clone()),
-                    end_value: RangeValue::Number(decimal_range.end),
-                }]);
-            } else {
-                return Ok(vec![]);
-            }
-        }
-        "Duration" => {
-            let fp_duration = value.as_any().downcast_ref::<Duration>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
-            })?;
-
-            if let Some(decimal_range) = fhirdecimal_to_quantity_range(&fp_duration.value) {
-                return Ok(vec![QuantityRange {
-                    start_system: fp_duration.system.as_ref().and_then(|s| s.value.clone()),
-                    start_code: fp_duration.code.as_ref().and_then(|c| c.value.clone()),
-                    start_value: RangeValue::Number(decimal_range.start),
-                    end_system: fp_duration.system.as_ref().and_then(|s| s.value.clone()),
-                    end_code: fp_duration.code.as_ref().and_then(|c| c.value.clone()),
-                    end_value: RangeValue::Number(decimal_range.end),
-                }]);
-            } else {
-                return Ok(vec![]);
-            }
-        }
-        "Quantity" => {
-            let fp_quantity = value.as_any().downcast_ref::<Quantity>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
-            })?;
-
-            if let Some(decimal_range) = fhirdecimal_to_quantity_range(&fp_quantity.value) {
-                return Ok(vec![QuantityRange {
-                    start_system: fp_quantity.system.as_ref().and_then(|s| s.value.clone()),
-                    start_code: fp_quantity.code.as_ref().and_then(|c| c.value.clone()),
-                    start_value: RangeValue::Number(decimal_range.start),
-                    end_system: fp_quantity.system.as_ref().and_then(|s| s.value.clone()),
-                    end_code: fp_quantity.code.as_ref().and_then(|c| c.value.clone()),
-                    end_value: RangeValue::Number(decimal_range.end),
-                }]);
-            } else {
-                return Ok(vec![]);
-            }
-        }
+        "Range" => index_range_quantity(value),
+        "Age" => index_age_quantity(value),
+        "Money" => index_money_quantity(value),
+        "Duration" => index_duration_quantity(value),
+        "Quantity" => index_fhir_quantity(value),
         _ => Err(InsertableIndexError::FailedDowncast(
             value.fhir_type().to_string(),
         )),
     }
 }
 
+fn index_range_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, InsertableIndexError> {
+    let fp_range = value
+        .as_any()
+        .downcast_ref::<Range>()
+        .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?;
+
+    if fp_range.low.is_some() || fp_range.high.is_some() {
+        let start_value = fp_range
+            .low
+            .as_ref()
+            .and_then(|v| v.value.as_ref().and_then(|v| v.value));
+
+        let start_system = fp_range
+            .low
+            .as_ref()
+            .and_then(|v| v.system.as_ref().and_then(|s| s.value.clone()));
+
+        let start_code = fp_range
+            .low
+            .as_ref()
+            .and_then(|v| v.code.as_ref().and_then(|c| c.value.clone()));
+
+        let end_value = fp_range
+            .high
+            .as_ref()
+            .and_then(|v| v.value.as_ref().and_then(|v| v.value));
+
+        let end_system = fp_range
+            .high
+            .as_ref()
+            .and_then(|v| v.system.as_ref().and_then(|s| s.value.clone()));
+
+        let end_code = fp_range
+            .high
+            .as_ref()
+            .and_then(|v| v.code.as_ref().and_then(|c| c.value.clone()));
+
+        return Ok(vec![QuantityRange {
+            start_system,
+            start_code,
+            start_value: start_value.map_or(RangeValue::Infinity, RangeValue::Number),
+            end_system,
+            end_code,
+            end_value: end_value.map_or(RangeValue::Infinity, RangeValue::Number),
+        }]);
+    }
+
+    Ok(Vec::new())
+}
+
+fn index_age_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, InsertableIndexError> {
+    let fp_age = value
+        .as_any()
+        .downcast_ref::<Age>()
+        .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?;
+
+    Ok(fhirdecimal_to_quantity_range(fp_age.value.as_deref())
+        .map(|decimal_range| {
+            vec![QuantityRange {
+                start_system: fp_age.system.as_ref().and_then(|s| s.value.clone()),
+                start_code: fp_age.code.as_ref().and_then(|c| c.value.clone()),
+                start_value: RangeValue::Number(decimal_range.start),
+                end_system: fp_age.system.as_ref().and_then(|s| s.value.clone()),
+                end_code: fp_age.code.as_ref().and_then(|c| c.value.clone()),
+                end_value: RangeValue::Number(decimal_range.end),
+            }]
+        })
+        .unwrap_or_default())
+}
+
+fn index_money_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, InsertableIndexError> {
+    let fp_money = value
+        .as_any()
+        .downcast_ref::<Money>()
+        .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?;
+
+    Ok(fhirdecimal_to_quantity_range(fp_money.value.as_deref())
+        .map(|decimal_range| {
+            vec![QuantityRange {
+                start_system: Some("urn:iso:std:iso:4217".to_string()),
+                start_code: fp_money.currency.as_ref().and_then(|c| c.value.clone()),
+                start_value: RangeValue::Number(decimal_range.start),
+                end_system: Some("urn:iso:std:iso:4217".to_string()),
+                end_code: fp_money.currency.as_ref().and_then(|c| c.value.clone()),
+                end_value: RangeValue::Number(decimal_range.end),
+            }]
+        })
+        .unwrap_or_default())
+}
+
+fn index_duration_quantity(
+    value: &dyn MetaValue,
+) -> Result<Vec<QuantityRange>, InsertableIndexError> {
+    let fp_duration = value
+        .as_any()
+        .downcast_ref::<Duration>()
+        .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?;
+
+    Ok(fhirdecimal_to_quantity_range(fp_duration.value.as_deref())
+        .map(|decimal_range| {
+            vec![QuantityRange {
+                start_system: fp_duration.system.as_ref().and_then(|s| s.value.clone()),
+                start_code: fp_duration.code.as_ref().and_then(|c| c.value.clone()),
+                start_value: RangeValue::Number(decimal_range.start),
+                end_system: fp_duration.system.as_ref().and_then(|s| s.value.clone()),
+                end_code: fp_duration.code.as_ref().and_then(|c| c.value.clone()),
+                end_value: RangeValue::Number(decimal_range.end),
+            }]
+        })
+        .unwrap_or_default())
+}
+
+fn index_fhir_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, InsertableIndexError> {
+    let fp_quantity = value
+        .as_any()
+        .downcast_ref::<Quantity>()
+        .ok_or_else(|| InsertableIndexError::FailedDowncast(value.fhir_type().to_string()))?;
+
+    Ok(fhirdecimal_to_quantity_range(fp_quantity.value.as_deref())
+        .map(|decimal_range| {
+            vec![QuantityRange {
+                start_system: fp_quantity.system.as_ref().and_then(|s| s.value.clone()),
+                start_code: fp_quantity.code.as_ref().and_then(|c| c.value.clone()),
+                start_value: RangeValue::Number(decimal_range.start),
+                end_system: fp_quantity.system.as_ref().and_then(|s| s.value.clone()),
+                end_code: fp_quantity.code.as_ref().and_then(|c| c.value.clone()),
+                end_value: RangeValue::Number(decimal_range.end),
+            }]
+        })
+        .unwrap_or_default())
+}
+
 fn year_to_daterange(year: u16) -> Result<DateRange, InsertableIndexError> {
-    let start_date = chrono::NaiveDate::from_ymd_opt(year as i32, 1, 1)
+    let start_date = chrono::NaiveDate::from_ymd_opt(i32::from(year), 1, 1)
         .and_then(|d| d.and_hms_opt(0, 0, 0))
         .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
 
-    let end_date = chrono::NaiveDate::from_ymd_opt(year as i32 + 1, 1, 1)
+    let end_date = chrono::NaiveDate::from_ymd_opt(i32::from(year) + 1, 1, 1)
         .and_then(|d| d.pred_opt())
         .and_then(|d| d.and_hms_milli_opt(23, 59, 59, 999))
         .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
@@ -594,16 +628,16 @@ fn year_to_daterange(year: u16) -> Result<DateRange, InsertableIndexError> {
 }
 
 fn year_month_to_daterange(year: u16, month: u8) -> Result<DateRange, InsertableIndexError> {
-    let start_date = chrono::NaiveDate::from_ymd_opt(year as i32, month as u32, 1)
+    let start_date = chrono::NaiveDate::from_ymd_opt(i32::from(year), u32::from(month), 1)
         .and_then(|d| d.and_hms_opt(0, 0, 0))
         .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
 
     let end_date = if month < 12 {
-        chrono::NaiveDate::from_ymd_opt(year as i32, (month + 1).into(), 1)
+        chrono::NaiveDate::from_ymd_opt(i32::from(year), (month + 1).into(), 1)
             .and_then(|d| d.pred_opt())
             .and_then(|d| d.and_hms_milli_opt(23, 59, 59, 999))
     } else {
-        chrono::NaiveDate::from_ymd_opt(year as i32 + 1, 1, 1)
+        chrono::NaiveDate::from_ymd_opt(i32::from(year) + 1, 1, 1)
             .and_then(|d| d.pred_opt())
             .and_then(|d| d.and_hms_milli_opt(23, 59, 59, 999))
     }
@@ -622,13 +656,15 @@ fn year_month_day_to_daterange(
     month: u8,
     day: u8,
 ) -> Result<DateRange, InsertableIndexError> {
-    let start_date = chrono::NaiveDate::from_ymd_opt(year as i32, month as u32, day as u32)
-        .and_then(|d| d.and_hms_opt(0, 0, 0))
-        .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
+    let start_date =
+        chrono::NaiveDate::from_ymd_opt(i32::from(year), u32::from(month), u32::from(day))
+            .and_then(|d| d.and_hms_opt(0, 0, 0))
+            .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
 
-    let end_date = chrono::NaiveDate::from_ymd_opt(year as i32, month as u32, day as u32)
-        .and_then(|d| d.and_hms_milli_opt(23, 59, 59, 999))
-        .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
+    let end_date =
+        chrono::NaiveDate::from_ymd_opt(i32::from(year), u32::from(month), u32::from(day))
+            .and_then(|d| d.and_hms_milli_opt(23, 59, 59, 999))
+            .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
 
     Ok(DateRange {
         start: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(start_date, chrono::Utc)
@@ -638,6 +674,13 @@ fn year_month_day_to_daterange(
     })
 }
 
+/// Converts a FHIR date/time value into a date range suitable for indexing.
+///
+///
+/// # Errors
+///
+/// Returns an [`InsertableIndexError`] if the supplied year, year/month, or
+/// year/month/day value cannot be converted into a valid date range.
 pub fn date_time_range(value: &DateTime) -> Result<DateRange, InsertableIndexError> {
     match value {
         DateTime::Year(year) => Ok(year_to_daterange(*year)?),
@@ -645,12 +688,10 @@ pub fn date_time_range(value: &DateTime) -> Result<DateRange, InsertableIndexErr
         DateTime::YearMonthDay(year, month, day) => {
             Ok(year_month_day_to_daterange(*year, *month, *day)?)
         }
-        DateTime::Iso8601(date_time) => {
-            return Ok(DateRange {
-                start: date_time.timestamp_millis(),
-                end: date_time.timestamp_millis(),
-            });
-        }
+        DateTime::Iso8601(date_time) => Ok(DateRange {
+            start: date_time.timestamp_millis(),
+            end: date_time.timestamp_millis(),
+        }),
     }
 }
 
@@ -668,7 +709,7 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
                     .collect::<Result<Vec<_>, _>>()?;
                 Ok(date_ranges.into_iter().flatten().collect())
             } else {
-                Ok(vec![])
+                Ok(Vec::new())
             }
         }
         "date" => {
@@ -687,7 +728,7 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
                 Some(Date::YearMonthDay(year, month, day)) => {
                     Ok(vec![year_month_day_to_daterange(*year, *month, *day)?])
                 }
-                None => Ok(vec![]),
+                None => Ok(Vec::new()),
             }
         }
         "dateTime" => {
@@ -700,9 +741,7 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
 
             match &fp_datetime {
                 Some(date_time) => date_time_range(date_time).map(|date_range| vec![date_range]),
-                None => {
-                    return Ok(vec![]);
-                }
+                None => Ok(Vec::new()),
             }
         }
         "instant" => {
@@ -716,14 +755,12 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
             match &fp_instant.value {
                 Some(Instant::Iso8601(instant)) => {
                     let timestamp = instant.timestamp_millis();
-                    return Ok(vec![DateRange {
+                    Ok(vec![DateRange {
                         start: timestamp,
                         end: timestamp,
-                    }]);
+                    }])
                 }
-                None => {
-                    return Ok(vec![]);
-                }
+                None => Ok(Vec::new()),
             }
         }
         "Period" => {
@@ -734,7 +771,7 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
                 let date = date.as_ref();
                 let date_range = index_date(date)?;
                 date_range
-                    .get(0)
+                    .first()
                     .ok_or_else(|| {
                         InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                     })?
@@ -747,7 +784,7 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
                 let date = date.as_ref();
                 let date_range = index_date(date)?;
                 date_range
-                    .get(0)
+                    .first()
                     .ok_or_else(|| {
                         InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                     })?
@@ -804,7 +841,7 @@ fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, Inserta
                 return Ok(vec![ReferenceIndex {
                     id: None,
                     resource_type: None,
-                    uri: Some(canonical.to_string()),
+                    uri: Some(canonical.clone()),
                 }]);
             }
             Ok(vec![])
@@ -817,7 +854,7 @@ fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, Inserta
                 return Ok(vec![ReferenceIndex {
                     id: None,
                     resource_type: None,
-                    uri: Some(uri.to_string()),
+                    uri: Some(uri.clone()),
                 }]);
             }
             Ok(vec![])
@@ -828,9 +865,18 @@ fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, Inserta
     }
 }
 
+/// Converts resolved search parameter values into an indexable representation.
+///
+/// Values that cannot be converted to the corresponding index type are
+/// skipped.
+///
+/// # Errors
+///
+/// Returns [`OperationOutcomeError`] if the search parameter has an
+/// unsupported or invalid type.
 pub fn to_insertable_index(
     parameter: &ResolvedParameter,
-    result: Vec<&dyn MetaValue>,
+    result: &[&dyn MetaValue],
 ) -> Result<InsertableIndex, OperationOutcomeError> {
     let search_parameter = &parameter.search_parameter;
     match &search_parameter.type_ {
@@ -900,9 +946,7 @@ pub fn to_insertable_index(
         _ => {
             let type_name = search_parameter.type_.as_str();
             Err(InsertableIndexError::InvalidType(
-                type_name
-                    .map(|s| s.to_string())
-                    .unwrap_or("unknown".to_string()),
+                type_name.map_or("unknown".to_string(), std::string::ToString::to_string),
             )
             .into())
         }
@@ -1011,7 +1055,7 @@ mod tests {
         };
 
         let range = index_date(&fhir_date).unwrap();
-        let date_range = range.get(0).unwrap();
+        let date_range = range.first().unwrap();
 
         assert_eq!(
             date_range.start,
@@ -1051,7 +1095,7 @@ mod tests {
         };
 
         let range = index_date(&period).unwrap();
-        let date_range = range.get(0).unwrap();
+        let date_range = range.first().unwrap();
 
         assert_eq!(
             date_range.start,
@@ -1089,7 +1133,7 @@ mod tests {
         };
 
         let range = index_date(&period).unwrap();
-        let date_range = range.get(0).unwrap();
+        let date_range = range.first().unwrap();
 
         assert_eq!(date_range.start, 0);
         assert_eq!(
@@ -1107,7 +1151,7 @@ mod tests {
         };
 
         let range = index_date(&period).unwrap();
-        let date_range = range.get(0).unwrap();
+        let date_range = range.first().unwrap();
 
         assert_eq!(
             date_range.start,
@@ -1158,19 +1202,21 @@ mod tests {
 
     #[test]
     fn test_timing() {
-        let mut timing = Timing::default();
-        timing.event = Some(vec![
-            FHIRDateTime {
-                id: None,
-                extension: None,
-                value: Some(DateTime::YearMonthDay(2023, 12, 31)),
-            },
-            FHIRDateTime {
-                id: None,
-                extension: None,
-                value: Some(DateTime::YearMonthDay(2024, 1, 1)),
-            },
-        ]);
+        let timing = Timing {
+            event: Some(vec![
+                FHIRDateTime {
+                    id: None,
+                    extension: None,
+                    value: Some(DateTime::YearMonthDay(2023, 12, 31)),
+                },
+                FHIRDateTime {
+                    id: None,
+                    extension: None,
+                    value: Some(DateTime::YearMonthDay(2024, 1, 1)),
+                },
+            ]),
+            ..Default::default()
+        };
 
         let date_ranges = index_date(&timing).unwrap();
         assert_eq!(date_ranges.len(), 2);
@@ -1239,7 +1285,7 @@ mod tests {
 
         let result = index_reference(&reference);
 
-        assert!(result.is_err())
+        assert!(result.is_err());
     }
 
     #[test]

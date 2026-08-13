@@ -22,7 +22,7 @@ pub fn reference(
                         "query": {
                             "match": {
                                 format!("{}.id", &column_name): {
-                                    "query": pieces.get(0)
+                                    "query": pieces.first()
                                 }
                             }
                         }
@@ -37,7 +37,7 @@ pub fn reference(
                                     {
                                         "match": {
                                             format!("{}.resource_type", &column_name): {
-                                                "query": pieces.get(0)
+                                                "query": pieces.first()
                                             }
                                         }
                                     },
@@ -53,7 +53,7 @@ pub fn reference(
                         }
                     }
                 })),
-                _ => Err(QueryBuildError::InvalidParameterValue(value.to_string())),
+                _ => Err(QueryBuildError::InvalidParameterValue(value.clone())),
             }
         })
         .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
