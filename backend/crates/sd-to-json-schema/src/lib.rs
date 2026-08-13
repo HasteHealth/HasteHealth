@@ -62,26 +62,6 @@ static PRIMITIVE_TYPES: &[&str] = &[
 
 fn fhir_primitive_type_to_json_schema_type(fhir_type: &str) -> JSONSchemaType {
     match fhir_type {
-        "http://hl7.org/fhirpath/System.String"
-        | "http://hl7.org/fhirpath/System.Time"
-        | "http://hl7.org/fhirpath/System.Date"
-        | "http://hl7.org/fhirpath/System.DateTime"
-        | "http://hl7.org/fhirpath/System.Instant"
-        | "markdown"
-        | "url"
-        | "canonical"
-        | "uuid"
-        | "string"
-        | "uri"
-        | "code"
-        | "id"
-        | "oid"
-        | "base64Binary"
-        | "xhtml"
-        | "instant"
-        | "time"
-        | "date"
-        | "dateTime" => JSONSchemaType::String,
         "http://hl7.org/fhirpath/System.Boolean" | "boolean" => JSONSchemaType::Boolean,
         "http://hl7.org/fhirpath/System.Integer"
         | "http://hl7.org/fhirpath/System.Decimal"
@@ -149,25 +129,20 @@ fn process_leaf(
             .as_ref()
             .unwrap_or(&vec![])
             .iter()
-            .map(|fhir_type| {
-                let type_code = fhir_type
-                    .code
-                    .value
-                    .as_ref()
-                    .map(|s| s.as_str())
-                    .unwrap_or_default();
+            .flat_map(|fhir_type| {
+                let type_code = fhir_type.code.value.as_deref().unwrap_or_default();
 
                 let field_name = utilities::generate::type_choice_variant_name(element, type_code);
 
                 if is_fhir_primitive_type(type_code) {
                     vec![
                         Processed {
-                            cardinality: (0, cardinality.1.clone()),
-                            field: format!("_{}", field_name),
+                            cardinality: (0, cardinality.1),
+                            field: format!("_{field_name}"),
                             schema: datatype_reference_schema(schema_loc, "Element"),
                         },
                         Processed {
-                            cardinality: (0, cardinality.1.clone()),
+                            cardinality: (0, cardinality.1),
                             field: field_name,
                             schema: json!({
                                 "type": fhir_primitive_type_to_json_schema_type(type_code)
@@ -176,13 +151,12 @@ fn process_leaf(
                     ]
                 } else {
                     vec![Processed {
-                        cardinality: (0, cardinality.1.clone()),
+                        cardinality: (0, cardinality.1),
                         field: field_name,
                         schema: datatype_reference_schema(schema_loc, type_code),
                     }]
                 }
             })
-            .flatten()
             .collect()
     } else {
         let type_code = element
@@ -191,22 +165,16 @@ fn process_leaf(
             .and_then(|t| t.first())
             .map(|t| t.code.as_ref())
             .and_then(|c| c.value.as_ref())
-            .map(|s| s.as_str())
+            .map(std::string::String::as_str)
             .unwrap_or_default();
-        let field_name = utilities::extract::field_name(
-            element
-                .path
-                .value
-                .as_ref()
-                .map(|s| s.as_str())
-                .unwrap_or(""),
-        );
+        let field_name =
+            utilities::extract::field_name(element.path.value.as_deref().map_or("", |s| s));
 
         if is_fhir_primitive_type(type_code) {
             vec![
                 Processed {
-                    cardinality: (0, cardinality.1.clone()),
-                    field: format!("_{}", field_name),
+                    cardinality: (0, cardinality.1),
+                    field: format!("_{field_name}"),
                     schema: datatype_reference_schema(schema_loc, "Element"),
                 },
                 Processed {
@@ -236,7 +204,6 @@ fn process_complex(
     sd: &StructureDefinition,
     element: &ElementDefinition,
     children: Vec<Processed>,
-    // nested_types: &mut Vec<StructureDefinition>,
 ) -> Processed {
     let mut required_properties = vec![];
     let mut properties: HashMap<String, serde_json::Value> = HashMap::new();
@@ -250,9 +217,9 @@ fn process_complex(
             }),
         );
         required_properties.push("resourceType".to_string());
-    };
+    }
 
-    for child in children.into_iter() {
+    for child in children {
         if child.cardinality.0 > 0 {
             required_properties.push(child.field.clone());
         }
@@ -264,14 +231,7 @@ fn process_complex(
         element,
         Processed {
             cardinality: utilities::extract::cardinality(element),
-            field: utilities::extract::field_name(
-                element
-                    .path
-                    .value
-                    .as_ref()
-                    .map(|s| s.as_str())
-                    .unwrap_or(""),
-            ),
+            field: utilities::extract::field_name(element.path.value.as_deref().map_or("", |s| s)),
             schema: json!({
                 "type": "object",
                 "properties": properties,
@@ -282,6 +242,21 @@ fn process_complex(
     )
 }
 
+/// Generates an isolated JSON Schema from a FHIR [`StructureDefinition`].
+///
+/// Traverses the structure definition and converts leaf elements into
+/// primitive schemas and complex elements into nested schemas. Returns an
+/// [`OperationOutcomeError`] if traversal fails or no schema can be generated.
+///
+/// # Arguments
+///
+/// * `schema_loc` - The location used when generating the schema.
+/// * `sd` - The FHIR [`StructureDefinition`] to convert.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] if the structure definition cannot
+/// be traversed or does not produce a schema.
 pub fn isolated_schema(
     schema_loc: &str,
     sd: &StructureDefinition,
@@ -290,11 +265,11 @@ pub fn isolated_schema(
                        children: Vec<Vec<Processed>>,
                        _index: usize|
      -> Vec<Processed> {
-        if children.len() == 0 {
-            process_leaf(schema_loc, &sd, element)
+        if children.is_empty() {
+            process_leaf(schema_loc, sd, element)
         } else {
             vec![process_complex(
-                &sd,
+                sd,
                 element,
                 children.into_iter().flatten().collect(),
             )]
@@ -304,7 +279,7 @@ pub fn isolated_schema(
     let mut result = traversal::traversal(sd, &mut visitor).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::exception(),
-            format!("Error traversing StructureDefinition: {}", e),
+            format!("Error traversing StructureDefinition: {e}"),
         )
     })?;
 
@@ -319,7 +294,8 @@ pub fn isolated_schema(
 }
 
 // Creates a type schema for a bundle of resources
-pub fn bundle_of_resource(resource_schema: serde_json::Value) -> serde_json::Value {
+#[must_use]
+pub fn bundle_of_resource(resource_schema: &serde_json::Value) -> serde_json::Value {
     json!({
         "type": "object",
         "properties": {
@@ -347,8 +323,22 @@ pub fn bundle_of_resource(resource_schema: serde_json::Value) -> serde_json::Val
     })
 }
 
-pub fn self_contained_schema(
-    defs: &HashMap<String, serde_json::Value>,
+/// Generates a self-contained JSON Schema from a FHIR [`StructureDefinition`].
+///
+/// The generated schema is based on the supplied structure definition and
+/// includes the provided definitions under the JSON Schema `$defs` keyword.
+///
+/// # Arguments
+///
+/// * `defs` - Definitions to include in the generated schema's `$defs` section.
+/// * `sd` - The FHIR [`StructureDefinition`] to convert.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] if the schema cannot be generated
+/// from the supplied structure definition.
+pub fn self_contained_schema<S: std::hash::BuildHasher>(
+    defs: &HashMap<String, serde_json::Value, S>,
     sd: &StructureDefinition,
 ) -> Result<serde_json::Value, OperationOutcomeError> {
     let mut schema = isolated_schema("#/$defs", sd)?;

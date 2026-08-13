@@ -23,7 +23,7 @@ static SEARCHPARAMETER_CACHE: LazyLock<Cache<(TenantId, ProjectId), Arc<SearchPa
     LazyLock::new(|| {
         CacheBuilder::new(50_000)
             // Duration for 2 hour for search parameters.
-            .time_to_idle(std::time::Duration::from_secs(2 * 60 * 60))
+            .time_to_idle(std::time::Duration::from_hours(2))
             .build()
     });
 
@@ -42,16 +42,16 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
     let result = search::execute_search(
         es,
         R4_SEARCH_PARAMETERS_INDEX.clone(),
-        &haste_repository::types::SupportedFHIRVersions::R4,
         tenant,
         project,
         &SearchRequest::Type(FHIRSearchTypeRequest {
             resource_type: ResourceType::SearchParameter,
             parameters: vec![("status".to_string(), vec!["active".to_string()])].into(),
         }),
-        &Some(SearchOptions {
+        Some(SearchOptions {
             count_limit: Some(10_000),
-        }),
+        })
+        .as_ref(),
     )
     .await?;
 
@@ -83,19 +83,18 @@ async fn get_or_create_sp_index_for_project<Repo: Repository + Send + Sync>(
     tenant: TenantId,
     project: ProjectId,
 ) -> Result<Option<Arc<SearchParametersIndex>>, OperationOutcomeError> {
-    match (&tenant, &project) {
-        (TenantId::System, ProjectId::System) => Ok(None),
-        _ => {
-            let index_key = (tenant, project);
-            if let Some(index) = SEARCHPARAMETER_CACHE.get(&index_key).await {
-                Ok(Some(index))
-            } else {
-                let index =
-                    Arc::new(create_project_sp_index(es, repo, &index_key.0, &index_key.1).await?);
-                SEARCHPARAMETER_CACHE.insert(index_key, index.clone()).await;
+    if let (TenantId::System, ProjectId::System) = (&tenant, &project) {
+        Ok(None)
+    } else {
+        let index_key = (tenant, project);
+        if let Some(index) = SEARCHPARAMETER_CACHE.get(&index_key).await {
+            Ok(Some(index))
+        } else {
+            let index =
+                Arc::new(create_project_sp_index(es, repo, &index_key.0, &index_key.1).await?);
+            SEARCHPARAMETER_CACHE.insert(index_key, index.clone()).await;
 
-                Ok(Some(index))
-            }
+            Ok(Some(index))
         }
     }
 }

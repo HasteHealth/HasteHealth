@@ -28,7 +28,7 @@ impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
         tenants: Vec<&TenantId>,
     ) -> Result<Vec<TenantLockIndex>, OperationOutcomeError> {
         match self {
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 let conn = (&mut (*tx))
                     .acquire()
@@ -41,7 +41,7 @@ impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
                 );
 
                 let mut separated = query_builder.separated(", ");
-                for tenant_id in tenants.iter() {
+                for tenant_id in &tenants {
                     separated.push_bind(tenant_id.as_ref());
                 }
 
@@ -56,7 +56,7 @@ impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
 
                 Ok(res)
             }
-            _ => Err(TenantLockIndexError::InvalidConnection.into()),
+            PGConnection::Pool(..) => Err(TenantLockIndexError::InvalidConnection.into()),
         }
     }
 
@@ -66,7 +66,7 @@ impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
         model: TenantLockIndex,
     ) -> Result<(), OperationOutcomeError> {
         match self {
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
                 let conn = (&mut (*tx))
                     .acquire()
@@ -84,7 +84,7 @@ impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
 
                 Ok(())
             }
-            _ => Err(TenantLockIndexError::InvalidConnection.into()),
+            PGConnection::Pool(..) => Err(TenantLockIndexError::InvalidConnection.into()),
         }
     }
 }

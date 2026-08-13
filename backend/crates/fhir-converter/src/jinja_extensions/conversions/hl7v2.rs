@@ -5,7 +5,7 @@ use haste_fhir_model::r4::generated::resources::{
     HL7V2SegmentsFieldsValueValue,
 };
 use haste_hl7v2::serialize::{
-    EncodingInformation, SerializeMessage, component_to_string, segment_field_repititon_to_string,
+    EncodingInformation, SerializeMessage, component_to_string, segment_field_repetition_to_string,
     segment_field_to_string, segment_to_string,
 };
 use minijinja::{
@@ -33,10 +33,10 @@ impl Object for JHL7V2 {
 
             let found_segments = segments
                 .iter()
-                .filter(|segment| segment.id.value.as_ref().map(|s| s.as_str()) == Some(key))
+                .filter(|segment| segment.id.value.as_deref() == Some(key))
                 .collect::<Vec<_>>();
 
-            if found_segments.len() == 0 {
+            if found_segments.is_empty() {
                 return None;
             }
 
@@ -68,7 +68,7 @@ impl Object for JHL7V2 {
         Self: Sized + 'static,
     {
         let hl7v2_string: String = SerializeMessage(&self.0).into();
-        write!(f, "{}", hl7v2_string)
+        write!(f, "{hl7v2_string}")
     }
 }
 
@@ -82,7 +82,7 @@ static DEFAULT_ENCODING: LazyLock<EncodingInformation> = LazyLock::new(|| Encodi
 
 #[derive(Debug)]
 pub struct JHL7V2Segment<'a>(&'a HL7V2Segments);
-impl<'a> Object for JHL7V2Segment<'a> {
+impl Object for JHL7V2Segment<'_> {
     fn repr(self: &Arc<Self>) -> ObjectRepr {
         ObjectRepr::Plain
     }
@@ -108,13 +108,13 @@ impl<'a> Object for JHL7V2Segment<'a> {
     where
         Self: Sized + 'static,
     {
-        write!(f, "{}", segment_to_string(&*DEFAULT_ENCODING, self.0))
+        write!(f, "{}", segment_to_string(&DEFAULT_ENCODING, self.0))
     }
 }
 
 #[derive(Debug)]
 pub struct JHL7V2SegmentsFields<'a>(&'a HL7V2SegmentsFields);
-impl<'a> Object for JHL7V2SegmentsFields<'a> {
+impl Object for JHL7V2SegmentsFields<'_> {
     fn repr(self: &Arc<Self>) -> ObjectRepr {
         ObjectRepr::Plain
     }
@@ -146,13 +146,13 @@ impl<'a> Object for JHL7V2SegmentsFields<'a> {
     where
         Self: Sized + 'static,
     {
-        write!(f, "{}", segment_field_to_string(&*DEFAULT_ENCODING, self.0))
+        write!(f, "{}", segment_field_to_string(&DEFAULT_ENCODING, self.0))
     }
 }
 
 #[derive(Debug)]
 pub struct JHL7V2SegmentsFieldsValue<'a>(&'a HL7V2SegmentsFieldsValue);
-impl<'a> Object for JHL7V2SegmentsFieldsValue<'a> {
+impl Object for JHL7V2SegmentsFieldsValue<'_> {
     fn repr(self: &Arc<Self>) -> ObjectRepr {
         ObjectRepr::Plain
     }
@@ -195,14 +195,14 @@ impl<'a> Object for JHL7V2SegmentsFieldsValue<'a> {
         write!(
             f,
             "{}",
-            segment_field_repititon_to_string(&*DEFAULT_ENCODING, self.0)
+            segment_field_repetition_to_string(&DEFAULT_ENCODING, self.0)
         )
     }
 }
 
 #[derive(Debug)]
 pub struct JHL7V2SegmentsFieldComponent<'a>(&'a HL7V2SegmentsFieldsValueValue);
-impl<'a> Object for JHL7V2SegmentsFieldComponent<'a> {
+impl Object for JHL7V2SegmentsFieldComponent<'_> {
     fn repr(self: &Arc<Self>) -> ObjectRepr {
         ObjectRepr::Plain
     }
@@ -212,12 +212,7 @@ impl<'a> Object for JHL7V2SegmentsFieldComponent<'a> {
             && let Some(value) = self.0.value.as_ref()
         {
             Some(Value::from_safe_string(
-                value
-                    .value
-                    .as_ref()
-                    .map(|s| s.as_str())
-                    .unwrap_or("")
-                    .to_string(),
+                value.value.as_deref().map_or("", |s| s).to_string(),
             ))
         } else {
             self.0
@@ -226,12 +221,7 @@ impl<'a> Object for JHL7V2SegmentsFieldComponent<'a> {
                 .get(index)
                 .map(|subcomponent| {
                     Value::from_safe_string(
-                        subcomponent
-                            .value
-                            .as_ref()
-                            .map(|s| s.as_str())
-                            .unwrap_or("")
-                            .to_string(),
+                        subcomponent.value.as_deref().map_or("", |s| s).to_string(),
                     )
                 })
         }
@@ -248,7 +238,7 @@ impl<'a> Object for JHL7V2SegmentsFieldComponent<'a> {
         write!(
             f,
             "{}",
-            component_to_string(&*DEFAULT_ENCODING, self.0).unwrap_or("".to_string())
+            component_to_string(&DEFAULT_ENCODING, self.0).unwrap_or_default()
         )
     }
 }

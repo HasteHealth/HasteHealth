@@ -819,7 +819,17 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
         }
         Err(op_error) => {
             let op_error = Arc::new(op_error);
-            tracing::warn!("Operation at '{}' failed: {}", pointer.path(), op_error);
+            tracing::warn!(
+                path = pointer.path(),
+                operation.label = operation
+                    .label
+                    .as_ref()
+                    .and_then(|l| l.value.as_deref())
+                    .unwrap_or("<no-label>"),
+                operation.operation_type = get_operation_type(operation).unwrap_or("<unknown>"),
+                error = %op_error,
+                "TestScript operation failed"
+            );
             associate_request_response_variables(
                 &mut state_guard,
                 operation,
@@ -982,12 +992,20 @@ async fn derive_comparison_to(
     }
 }
 
-fn get_id<T: MetaValue>(pointer: &TypedPointer<TestScript, T>) -> String {
-    pointer
-        .root()
-        .value()
-        .and_then(|t| t.id.clone())
-        .unwrap_or_default()
+/// Assertions carry a `label`/`description` intended by the FHIR spec for
+/// exactly this purpose: identifying an assertion in test engine output.
+fn assert_label(assertion: &TestScriptSetupActionAssert) -> &str {
+    assertion
+        .label
+        .as_ref()
+        .and_then(|l| l.value.as_deref())
+        .or_else(|| {
+            assertion
+                .description
+                .as_ref()
+                .and_then(|d| d.value.as_deref())
+        })
+        .unwrap_or("<no-label>")
 }
 
 /// Assertions are what determine the testreports ultimate pass/fail status.
@@ -1031,12 +1049,16 @@ async fn run_assertion(
             )],
         );
         if !operation_evaluation_result {
-            tracing::error!(
-                "{} Assertion at '{}' failed: resource type '{}' does not match '{}'.",
-                get_id(&pointer),
+            let message = format!(
+                "Assertion '{}' at '{}' failed: resource type '{resource_string}' does not match '{}'.",
+                assert_label(assertion),
                 pointer.path(),
-                resource_string,
                 source.fhir_type()
+            );
+            tracing::error!(
+                assert.label = assert_label(assertion),
+                path = pointer.path(),
+                "{message}"
             );
 
             state_guard.result = ReportResultCodes::fail();
@@ -1044,6 +1066,10 @@ async fn run_assertion(
                 state: state.clone(),
                 value: TestReportSetupActionAssert {
                     result: ReportActionResultCodes::fail(),
+                    message: Some(Box::new(FHIRMarkdown {
+                        value: Some(message),
+                        ..Default::default()
+                    })),
                     ..Default::default()
                 },
             });
@@ -1058,16 +1084,19 @@ async fn run_assertion(
             .await
         else {
             tracing::error!(
-                "{} Assertion at '{}' failed: FHIRPath expression '{}' failed to evaluate.",
-                get_id(&pointer),
-                expression,
-                pointer.path()
+                assert.label = assert_label(assertion),
+                path = pointer.path(),
+                expression = expression.as_str(),
+                "Assertion '{}' at '{}' failed: FHIRPath expression '{expression}' failed to evaluate.",
+                assert_label(assertion),
+                pointer.path(),
             );
 
             state_guard.result = ReportResultCodes::fail();
             return Err(TestScriptError::ExecutionError(format!(
-                "FHIRPath failed to evaluate at '{}' error.",
-                pointer.path()
+                "Assertion '{}' at '{}': FHIRPath expression '{expression}' failed to evaluate.",
+                assert_label(assertion),
+                pointer.path(),
             )));
         };
 
@@ -1080,10 +1109,15 @@ async fn run_assertion(
             evaluate_operator(operator, &converted_values, &comparison_to);
 
         if !operation_evaluation_result {
-            tracing::error!(
-                "{} Assertion at '{}' failed: '{converted_values:?}' {operator:?} '{comparison_to:?}'.",
-                get_id(&pointer),
+            let message = format!(
+                "Assertion '{}' at '{}' failed: '{converted_values:?}' {operator:?} '{comparison_to:?}'.",
+                assert_label(assertion),
                 pointer.path(),
+            );
+            tracing::error!(
+                assert.label = assert_label(assertion),
+                path = pointer.path(),
+                "{message}"
             );
 
             state_guard.result = ReportResultCodes::fail();
@@ -1091,6 +1125,10 @@ async fn run_assertion(
                 state: state.clone(),
                 value: TestReportSetupActionAssert {
                     result: ReportActionResultCodes::fail(),
+                    message: Some(Box::new(FHIRMarkdown {
+                        value: Some(message),
+                        ..Default::default()
+                    })),
                     ..Default::default()
                 },
             });
@@ -1559,14 +1597,22 @@ pub struct TestRunnerOptions {
 /// - test execution fails
 /// - teardown execution fails
 /// - an operation performed by the FHIR client fails
+#[tracing::instrument(
+    name = "testscript_run",
+    skip_all,
+    fields(
+        testscript.id = test_script.id.as_deref().unwrap_or("<no-id>"),
+        testscript.name = test_script.name.value.as_deref().unwrap_or("<unnamed>"),
+        testscript.url = test_script.url.value.as_deref().unwrap_or("<no-url>"),
+    )
+)]
 pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     client: &Client,
     ctx: CTX,
     test_script: Arc<TestScript>,
     options: Arc<TestRunnerOptions>,
 ) -> Result<TestReport, TestScriptError> {
-    // Placeholder implementation
-    tracing::info!("Running TestScript Runner with FHIR Client");
+    tracing::info!("Starting TestScript run");
 
     let mut test_report = TestReport {
         status: ReportStatusCodes::completed(),
@@ -1611,6 +1657,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
                 test_report.setup = Some(res.value);
             }
             Err(e) => {
+                tracing::error!(phase = "setup", error = ?e, "TestScript run failed during setup");
                 running_state = Err(e);
             }
         }
@@ -1638,6 +1685,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
             }
 
             Err(e) => {
+                tracing::error!(phase = "test", error = ?e, "TestScript run failed during test execution");
                 running_state = Err(e);
             }
         }
@@ -1671,6 +1719,12 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
             test_report.result = ReportResultCodes::pass();
         }
         status => test_report.result = status.clone(),
+    }
+
+    if test_report.result == ReportResultCodes::fail() {
+        tracing::error!(result = ?test_report.result, "TestScript run finished with failures");
+    } else {
+        tracing::info!(result = ?test_report.result, "TestScript run finished");
     }
 
     Ok(test_report)

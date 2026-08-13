@@ -20,7 +20,7 @@ fn fp_performance_simple(c: &mut Criterion) {
     let engine = FPEngine::new();
     c.bench_function("fp_performance_simple", |b| {
         b.to_async(Runtime::new().unwrap())
-            .iter(|| engine.evaluate("Patient.name.given", vec![&root]))
+            .iter(|| engine.evaluate("Patient.name.given", vec![&root]));
     });
 }
 
@@ -28,25 +28,25 @@ fn parser_test_performance(c: &mut Criterion) {
     let engine = FPEngine::new();
     c.bench_function("parser_test_performance", |b| {
         b.to_async(Runtime::new().unwrap())
-            .iter(|| engine.evaluate("1 + 2 * (3 - 4) / 5", vec![]))
+            .iter(|| engine.evaluate("1 + 2 * (3 - 4) / 5", Vec::new()));
     });
 }
 
 fn parser_test_complex(c: &mut Criterion) {
     let engine = FPEngine::new();
     c.bench_function("parser_test_complex",
-    |b|  b.to_async(Runtime::new().unwrap()).iter(|| engine.evaluate("$this.field + %test._asdf.test(45, $this.field) * 64 * $this.where($this.field = '23'.length())", vec![])));
+    |b|  b.to_async(Runtime::new().unwrap()).iter(|| engine.evaluate("$this.field + %test._asdf.test(45, $this.field) * 64 * $this.where($this.field = '23'.length())", Vec::new())));
 }
 
 fn parser_test_simple(c: &mut Criterion) {
     let engine = FPEngine::new();
     c.bench_function("parser_test_simple", |b| {
         b.to_async(Runtime::new().unwrap())
-            .iter(|| engine.evaluate("$this.field", vec![]))
+            .iter(|| engine.evaluate("$this.field", Vec::new()));
     });
 }
 
-static SYNTHEA_PATIENT: &str = include_str!("../data/synthea_patient.json");
+static SYNTHEA_PATIENT: &str = include_str!("../test_data/synthea_patient.json");
 
 static PATIENT_PARAMETER_EXPRESSIONS: &[&str] = &[
     "Patient.active",
@@ -95,7 +95,7 @@ fn index_synthea_patient(c: &mut Criterion) {
 
     c.bench_function("index_synthea_patient", |b| {
         b.to_async(Runtime::new().unwrap())
-            .iter(|| index_patient(&engine, &patient))
+            .iter(|| index_patient(&engine, &patient));
     });
 }
 

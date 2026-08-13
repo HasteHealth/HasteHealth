@@ -8,19 +8,14 @@ use tokio::sync::Mutex;
 
 use crate::Repository;
 
-mod authorization_code;
-mod fhir;
-mod membership;
-mod mfa;
+pub use pending::PendingRows;
+
 mod migrate;
-mod project;
+mod models;
+mod pending;
 mod rate_limit;
-mod scope;
 mod sequence;
-mod system;
-mod tenant;
-mod user;
-mod utilities;
+mod transaction;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum StoreError {
@@ -47,20 +42,22 @@ pub enum PGConnection {
     Transaction(
         Arc<Mutex<sqlx::Transaction<'static, Postgres>>>,
         Cache<VersionId, Resource>,
+        PendingRows,
     ),
 }
 
 static TOTAL_CACHE_SIZE: u64 = 1000 * 10;
 
 impl PGConnection {
+    #[must_use]
     pub fn pool(pool: sqlx::Pool<Postgres>) -> Self {
         PGConnection::Pool(pool, Cache::new(TOTAL_CACHE_SIZE))
     }
 
+    #[must_use]
     pub fn cache(&self) -> &Cache<VersionId, Resource> {
         match self {
-            PGConnection::Pool(_, cache) => cache,
-            PGConnection::Transaction(_, cache) => cache,
+            PGConnection::Pool(_, cache) | PGConnection::Transaction(_, cache, _) => cache,
         }
     }
 }

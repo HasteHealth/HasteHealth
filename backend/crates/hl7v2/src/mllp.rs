@@ -11,6 +11,7 @@ const COMMIT_NAK: u8 = 0x15;
 pub struct MllpFormatter;
 
 impl MllpFormatter {
+    #[must_use]
     pub fn encode(payload: &[u8]) -> Vec<u8> {
         let mut buf = Vec::with_capacity(payload.len() + 3);
         buf.push(START_BLOCK);
@@ -20,6 +21,13 @@ impl MllpFormatter {
         buf
     }
 
+    /// Decodes an MLLP-framed message and returns the enclosed payload.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`OperationOutcomeError`] if `framed` is not a valid MLLP frame,
+    /// that is, if it is shorter than the minimum frame length or does not start
+    /// with `<SB>` and end with `<EB><CR>`.
     pub fn decode(framed: &[u8]) -> Result<&[u8], OperationOutcomeError> {
         if framed.len() < 4
             || framed[0] != START_BLOCK
@@ -29,31 +37,42 @@ impl MllpFormatter {
             let k = String::from_utf8_lossy(framed);
             return Err(OperationOutcomeError::error(
                 IssueType::exception(),
-                format!("Expected MLLP frame <SB>...<EB><CR>, got: {:?}", k),
+                format!("Expected MLLP frame <SB>...<EB><CR>, got: {k:?}"),
             ));
         }
         Ok(&framed[1..framed.len() - 2])
     }
 
+    #[must_use]
     pub fn ack() -> [u8; 4] {
         [START_BLOCK, COMMIT_ACK, END_BLOCK, CARRIAGE_RETURN]
     }
 
+    #[must_use]
     pub fn nak() -> [u8; 4] {
         [START_BLOCK, COMMIT_NAK, END_BLOCK, CARRIAGE_RETURN]
     }
 
+    #[must_use]
     pub fn is_ack(bytes: &[u8]) -> bool {
         bytes == Self::ack()
     }
 
+    #[must_use]
     pub fn is_nak(bytes: &[u8]) -> bool {
         bytes == Self::nak()
     }
 
-    /// Reads a single MLLP frame from `reader`, returning the raw framed bytes
-    /// (including the START_BLOCK / END_BLOCK / CARRIAGE_RETURN wrappers).
-    /// Returns an error on EOF mid-frame or an I/O error.
+    /// Reads a single MLLP frame from `reader`, returning the raw framed bytes,
+    /// including the `START_BLOCK`, `END_BLOCK`, and `CARRIAGE_RETURN`
+    /// delimiters.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`OperationOutcomeError`] if:
+    /// - the stream ends before a complete MLLP frame is received,
+    /// - the frame does not begin with `START_BLOCK`, or
+    /// - an I/O error occurs while reading from the stream.
     pub fn read_frame<R: Read>(reader: &mut R) -> Result<Vec<u8>, OperationOutcomeError> {
         let mut buf = Vec::new();
         let mut byte = [0u8; 1];
@@ -83,7 +102,7 @@ impl MllpFormatter {
                 Err(e) => {
                     return Err(OperationOutcomeError::error(
                         IssueType::exception(),
-                        format!("Failed to read from stream: {}", e),
+                        format!("Failed to read from stream: {e}"),
                     ));
                 }
             }

@@ -10,7 +10,7 @@ pub async fn create_transaction(
 ) -> Result<Arc<Mutex<Transaction<'static, Postgres>>>, OperationOutcomeError> {
     match connection {
         PGConnection::Pool(pool, _cache) => {
-            let tx = if is_updating_sequence {
+            let tx: Transaction<'_, Postgres> = if is_updating_sequence {
                 pool.begin_with(
                     "BEGIN; SELECT register_sequence_transaction('resources_sequence_seq')",
                 )
@@ -22,7 +22,7 @@ pub async fn create_transaction(
 
             Ok(Arc::new(Mutex::new(tx)))
         }
-        PGConnection::Transaction(tx, _) => Ok(tx.clone()), // Transaction doesn't live long enough so cannot create.
+        PGConnection::Transaction(tx, _, _) => Ok(tx.clone()), // Transaction doesn't live long enough so cannot create.
     }
 }
 
@@ -30,13 +30,15 @@ pub async fn commit_transaction(
     tx: Arc<Mutex<Transaction<'static, Postgres>>>,
 ) -> Result<(), OperationOutcomeError> {
     let conn = Mutex::into_inner(Arc::try_unwrap(tx).map_err(|e| {
-        println!("Error during commit: {:?}", e);
+        println!("Error during commit: {e:?}");
         StoreError::FailedCommitTransaction
     })?);
 
     // Handle PgConnection connection
-    let res = conn.commit().await.map_err(StoreError::from)?;
-    Ok(res)
+    conn.commit()
+        .await
+        .map_err(StoreError::from)
+        .map_err(OperationOutcomeError::from)
 }
 
 #[allow(dead_code)]
@@ -44,11 +46,13 @@ pub async fn rollback_transaction(
     tx: Arc<Mutex<Transaction<'static, Postgres>>>,
 ) -> Result<(), OperationOutcomeError> {
     let conn = Mutex::into_inner(Arc::try_unwrap(tx).map_err(|e| {
-        println!("Error during rollback: {:?}", e);
+        println!("Error during rollback: {e:?}");
         StoreError::FailedCommitTransaction
     })?);
 
     // Handle PgConnection connection
-    let res = conn.rollback().await.map_err(StoreError::from)?;
-    Ok(res)
+    conn.rollback()
+        .await
+        .map_err(StoreError::from)
+        .map_err(OperationOutcomeError::from)
 }

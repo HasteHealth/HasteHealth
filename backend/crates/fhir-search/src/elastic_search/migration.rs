@@ -80,34 +80,32 @@ fn reference_index_mapping() -> serde_json::Value {
     })
 }
 
-pub async fn create_elasticsearch_searchparameter_mappings(
-    parameters: &Vec<ResolvedParameter>,
-) -> Result<Value, OperationOutcomeError> {
+pub fn create_elasticsearch_searchparameter_mappings(parameters: &[ResolvedParameter]) -> Value {
     let mut property_mapping: HashMap<String, Value> = HashMap::new();
-    for parameter in parameters.iter() {
+    for parameter in parameters {
         let search_parameter = &parameter.search_parameter;
         if let Some(parameter_url) = search_parameter.url.value.as_ref() {
             match &search_parameter.type_ {
                 param_type if param_type == &SearchParamType::number() => {
-                    property_mapping.insert(parameter_url.to_string(), number_index_mapping());
+                    property_mapping.insert(parameter_url.clone(), number_index_mapping());
                 }
                 param_type if param_type == &SearchParamType::string() => {
-                    property_mapping.insert(parameter_url.to_string(), string_index_mapping());
+                    property_mapping.insert(parameter_url.clone(), string_index_mapping());
                 }
                 param_type if param_type == &SearchParamType::uri() => {
-                    property_mapping.insert(parameter_url.to_string(), uri_index_mapping());
+                    property_mapping.insert(parameter_url.clone(), uri_index_mapping());
                 }
                 param_type if param_type == &SearchParamType::token() => {
-                    property_mapping.insert(parameter_url.to_string(), token_index_mapping());
+                    property_mapping.insert(parameter_url.clone(), token_index_mapping());
                 }
                 param_type if param_type == &SearchParamType::date() => {
-                    property_mapping.insert(parameter_url.to_string(), date_index_mapping());
+                    property_mapping.insert(parameter_url.clone(), date_index_mapping());
                 }
                 param_type if param_type == &SearchParamType::reference() => {
-                    property_mapping.insert(parameter_url.to_string(), reference_index_mapping());
+                    property_mapping.insert(parameter_url.clone(), reference_index_mapping());
                 }
                 param_type if param_type == &SearchParamType::quantity() => {
-                    property_mapping.insert(parameter_url.to_string(), quantity_index_mapping());
+                    property_mapping.insert(parameter_url.clone(), quantity_index_mapping());
                 }
                 // Not Supported yet
                 param_type
@@ -184,10 +182,10 @@ pub async fn create_elasticsearch_searchparameter_mappings(
         }),
     );
 
-    Ok(json!({
+    json!({
         "dynamic": true,
         "properties" : property_mapping
-    }))
+    })
 }
 
 pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
@@ -197,9 +195,7 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
 ) -> Result<(), OperationOutcomeError> {
     let exists_res = elastic_search
         .indices()
-        .exists(elasticsearch::indices::IndicesExistsParts::Index(&vec![
-            index,
-        ]))
+        .exists(elasticsearch::indices::IndicesExistsParts::Index(&[index]))
         .send()
         .await
         .unwrap();
@@ -208,9 +204,7 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
         &parameter_resolver
             .all(&TenantId::System, &ProjectId::System)
             .await?,
-    )
-    .await
-    .unwrap();
+    );
 
     let index_exists = exists_res.status_code().is_success();
 

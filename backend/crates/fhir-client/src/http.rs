@@ -8,10 +8,9 @@ use crate::{
         FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
         FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest, FHIRInvokeTypeRequest,
         FHIRPatchRequest, FHIRPatchResponse, FHIRReadRequest, FHIRReadResponse, FHIRRequest,
-        FHIRResponse, FHIRResponseRequest, FHIRSearchSystemRequest, FHIRSearchTypeRequest,
-        FHIRTransactionRequest, FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest,
-        HistoryResponse, InvocationRequest, InvokeResponse, Operation, SearchRequest,
-        SearchResponse, UpdateRequest,
+        FHIRResponse, FHIRSearchSystemRequest, FHIRSearchTypeRequest, FHIRTransactionRequest,
+        FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest, HistoryResponse,
+        InvocationRequest, InvokeResponse, Operation, SearchRequest, SearchResponse, UpdateRequest,
     },
     url::{ParsedParameter, ParsedParameters},
 };
@@ -90,8 +89,6 @@ pub enum FHIRHTTPError {
     UrlParseError(String),
     #[error(code = "invalid", diagnostic = "FHIR Deserialization Error '{arg0}'.")]
     DeserializeError(#[from] haste_fhir_serialization_json::errors::DeserializeError),
-    #[error(code = "invalid", diagnostic = "FHIR Serialization Error.")]
-    SerializeError(#[from] haste_fhir_serialization_json::SerializeError),
     #[error(code = "invalid", diagnostic = "FHIR Serialization Error.")]
     JSONSerializeError(#[from] serde_json::Error),
 }
@@ -174,29 +171,17 @@ fn fhir_request_to_http_request<'a>(
     Box::pin(async move {
         let request = match request {
             FHIRRequest::Read(request) => request_from_read(state, request),
-
             FHIRRequest::Compartment(request) => request_from_compartment(state, request).await,
-
             FHIRRequest::Create(request) => request_from_create(state, request),
-
             FHIRRequest::Patch(request) => request_from_patch(state, request),
-
             FHIRRequest::Transaction(request) => request_from_transaction(state, request),
-
             FHIRRequest::VersionRead(request) => request_from_version_read(state, request),
-
             FHIRRequest::Update(request) => request_from_update(state, request),
-
             FHIRRequest::Search(request) => request_from_search(state, request),
-
             FHIRRequest::Delete(request) => request_from_delete(state, request),
-
             FHIRRequest::Capabilities => request_from_capabilities(state),
-
             FHIRRequest::History(request) => request_from_history(state, request),
-
             FHIRRequest::Invocation(request) => request_from_invocation(state, request),
-
             FHIRRequest::Batch(request) => request_from_batch(state, request),
         };
 
@@ -591,12 +576,47 @@ fn request_from_invocation_system(
     build_post(state, request_url, body)
 }
 
+enum FHIRResponseRequest<'a> {
+    Read,
+    Create,
+    Patch,
+    Transaction,
+    VersionRead,
+    Update(&'a UpdateRequest),
+    Delete(&'a DeleteRequest),
+    Capabilities,
+    Search(&'a SearchRequest),
+    History(&'a HistoryRequest),
+    Invocation(&'a InvocationRequest),
+    Batch,
+}
+
+impl<'a> FHIRResponseRequest<'a> {
+    const fn response_request(request: &'a FHIRRequest) -> Self {
+        match request {
+            FHIRRequest::Compartment(request) => Self::response_request(&request.request),
+            FHIRRequest::Read(_) => Self::Read,
+            FHIRRequest::Create(_) => Self::Create,
+            FHIRRequest::Patch(_) => Self::Patch,
+            FHIRRequest::Transaction(_) => Self::Transaction,
+            FHIRRequest::VersionRead(_) => Self::VersionRead,
+            FHIRRequest::Update(request) => Self::Update(request),
+            FHIRRequest::Delete(request) => Self::Delete(request),
+            FHIRRequest::Capabilities => Self::Capabilities,
+            FHIRRequest::Search(request) => Self::Search(request),
+            FHIRRequest::History(request) => Self::History(request),
+            FHIRRequest::Invocation(request) => Self::Invocation(request),
+            FHIRRequest::Batch(_) => Self::Batch,
+        }
+    }
+}
+
 fn http_response_to_fhir_response<'a>(
     fhir_request: &'a FHIRRequest,
     response: reqwest::Response,
 ) -> Pin<Box<dyn Future<Output = Result<FHIRResponse, OperationOutcomeError>> + Send + 'a>> {
     Box::pin(async move {
-        let request = fhir_request.response_request();
+        let request = FHIRResponseRequest::response_request(fhir_request);
         let body = read_response(response).await?;
 
         build_response(request, &body)

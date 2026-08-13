@@ -13,13 +13,9 @@ pub fn number(
     parsed_parameter: &Parameter,
     search_param: &SearchParameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
-    match parsed_parameter.modifier.as_ref().map(|m| m.as_str()) {
-        Some("missing") => {
-            return simple_missing_modifier(search_param, parsed_parameter);
-        }
-        Some(modifier) => {
-            return Err(QueryBuildError::UnsupportedModifier(modifier.to_string()));
-        }
+    match parsed_parameter.modifier.as_deref() {
+        Some("missing") => simple_missing_modifier(search_param, parsed_parameter),
+        Some(modifier) => Err(QueryBuildError::UnsupportedModifier(modifier.to_string())),
         None => {
             let column_name = namespace_parameter(namespace, search_param);
             let params = parsed_parameter

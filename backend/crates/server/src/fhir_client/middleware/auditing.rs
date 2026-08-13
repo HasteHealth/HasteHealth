@@ -501,7 +501,6 @@ impl<
             if let Some(mut event) = audit_event {
                 add_response_outcome_to_audit_event(&mut event, &result);
 
-                let mut resource = Resource::AuditEvent(event);
                 tokio::spawn(async move {
                     if let Err(error) = FHIRRepository::create(
                         audit_repo.as_ref(),
@@ -509,7 +508,7 @@ impl<
                         &project,
                         &user,
                         &fhir_version,
-                        &mut resource,
+                        Resource::AuditEvent(event),
                     )
                     .await
                     {

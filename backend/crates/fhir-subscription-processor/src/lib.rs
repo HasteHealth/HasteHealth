@@ -174,7 +174,7 @@ async fn fits_subscription_parameter(
 
     let conversions = indexing_conversion::to_insertable_index(
         &subscription_parameter.parameter,
-        result.iter().collect::<Vec<_>>(),
+        &result.iter().collect::<Vec<_>>(),
     )?;
 
     match conversions {

@@ -179,8 +179,8 @@ const config: Config = {
           title: "Community",
           items: [
             {
-              label: "Team",
-              href: "/blog/team",
+              label: "Contact",
+              to: "/contact",
             },
             {
               label: "Report an Issue",

@@ -32,8 +32,8 @@ pub struct ESSearchDestination<Search: SearchEngine + Clone> {
 }
 
 impl<Search: SearchEngine + Clone> ESSearchDestination<Search> {
-    pub fn new(search_client: Search) -> EtlResult<Self> {
-        Ok(Self { search_client })
+    pub fn new(search_client: Search) -> Self {
+        Self { search_client }
     }
 }
 
@@ -42,18 +42,18 @@ impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
         "http"
     }
 
-    async fn truncate_table(&self, _table_id: TableId) -> EtlResult<()> {
+    async fn truncate_table(&self, table_id: TableId) -> EtlResult<()> {
         warn!(
             "truncate_table is not implemented for ESSearchDestination as it is not intended to be used for writing table rows directly. Received table_id: {:?}",
-            _table_id
+            table_id
         );
         Ok(())
     }
 
-    async fn write_table_rows(&self, _table_id: TableId, _rows: Vec<TableRow>) -> EtlResult<()> {
+    async fn write_table_rows(&self, table_id: TableId, rows: Vec<TableRow>) -> EtlResult<()> {
         warn!(
             "write_table_rows is not implemented for ESSearchDestination as it is not intended to be used for writing table rows directly. Received table_id: {:?} and rows: {:?}",
-            _table_id, _rows
+            table_id, rows
         );
         Ok(())
     }
@@ -96,12 +96,10 @@ impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
                         panic!("Unexpected cell type for project: {:?}", i[1]);
                     }
                 };
-                let resource_json = match resource {
-                    Cell::Json(json) => json,
-                    _ => {
-                        panic!("Unexpected cell type for resource: {:?}", i[5]);
-                    }
+                let Cell::Json(resource_json) = resource else {
+                    panic!("Unexpected cell type for resource: {:?}", i[5]);
                 };
+
                 // account for the 3 popped values
                 let fhir_method = match fhir_method {
                     Cell::String(fhir_method) => {

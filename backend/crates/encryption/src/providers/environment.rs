@@ -13,6 +13,7 @@ pub struct EnvironmentSecretsProvider {
 }
 
 impl EnvironmentSecretsProvider {
+    #[must_use]
     pub fn new(prefix: Option<String>) -> Self {
         Self { prefix }
     }

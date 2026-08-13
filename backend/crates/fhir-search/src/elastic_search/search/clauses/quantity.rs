@@ -18,7 +18,7 @@ pub fn quantity(
                 3 => {
                     let mut clauses = vec![];
 
-                    let value = pieces.get(0).unwrap_or(&"");
+                    let value = pieces.first().unwrap_or(&"");
                     let system = pieces.get(1).unwrap_or(&"");
                     let code = pieces.get(2).unwrap_or(&"");
 
@@ -91,10 +91,8 @@ pub fn quantity(
                         }
                     }))
                 }
-                4 => Err(QueryBuildError::UnsupportedParameterValue(
-                    value.to_string(),
-                )),
-                _ => Err(QueryBuildError::InvalidParameterValue(value.to_string())),
+                4 => Err(QueryBuildError::UnsupportedParameterValue(value.clone())),
+                _ => Err(QueryBuildError::InvalidParameterValue(value.clone())),
             }
         })
         .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;

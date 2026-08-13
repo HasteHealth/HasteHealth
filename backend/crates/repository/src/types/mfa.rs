@@ -66,13 +66,16 @@ pub struct MFAId(pub String);
 
 pub struct MFAKey(UserId, MFAId);
 impl MFAKey {
+    #[must_use]
     pub fn new(user_id: UserId, mfa_id: String) -> Self {
         MFAKey(user_id, MFAId(mfa_id))
     }
+    #[must_use]
     pub fn user_id(&self) -> &UserId {
         &self.0
     }
 
+    #[must_use]
     pub fn mfa_id(&self) -> &MFAId {
         &self.1
     }
