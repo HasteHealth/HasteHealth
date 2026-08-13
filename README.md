@@ -14,7 +14,7 @@ The quickest way to get everything running is with the top-level [docker-compose
 docker-compose up
 ```
 
-Once the containers are healthy, open http://my-health_system.localhost:3001 and log in with:
+Once the containers are healthy, open `http://my-health_system.localhost:3001` and log in with:
 
 - username: `myuser@health.org`
 - password: `testing_password`
@@ -25,7 +25,7 @@ If you're actively developing on the backend or frontend instead of just running
 
 ## Running for Development
 
-### Services
+### 1. Services
 
 ```bash
 docker-compose -f docker-services-compose.yml up
@@ -33,19 +33,16 @@ docker-compose -f docker-services-compose.yml up
 
 This starts a PostgreSQL database, Elasticsearch, and a migration job for PostgreSQL and Elasticsearch schema migrations.
 
-### Backend
+### 2. Server
 
-Once the services have finished starting, run the following two backend services in separate terminals.
-
-First from the repo go to the backend directory:
+Once the services have finished starting, open a **separate terminal** and go to
+the `backend` directory:
 
 ```bash
 cd ./backend
 ```
 
-#### Server
-
-Start the server with the following command:
+then run the server with the following command:
 
 ```bash
 cargo run server start
@@ -53,9 +50,18 @@ cargo run server start
 
 Configuration for the server can be found [here](./backend/documentation/server_configuration.md).
 
-#### Worker
+### 3. Worker
 
-The final service is the worker. It runs search indexing and FHIR subscription processing in the background.
+Finally, the worker is the last service to be launched. It handles search
+indexing and FHIR subscription processing in the background.
+
+Open a **separate terminal** and go to the `backend` directory:
+
+```bash
+cd ./backend
+```
+
+then run:
 
 ```bash
 cargo run worker
@@ -63,17 +69,16 @@ cargo run worker
 
 Configuration for the worker can be found [here](./backend/documentation/worker_configuration.md).
 
-### Frontend
+### 4. Frontend
 
-To run the frontend admin application:
+In a **separate terminal**, run the frontend admin application:
 
 ```bash
 cd <repo-root>/frontend/packages/admin-app
 pnpm dev
 ```
 
-Then go to http://my-health_system.localhost:3001
-and fill in the following credentials:
+Then go to `http://my-health_system.localhost:3001` and fill in the following credentials:
 
 - username: `myuser@health.org`
 - password: `testing_password`
