@@ -423,21 +423,21 @@ mod test {
     fn test_sd_to_json_schema() {
         let patient_sd = RESOURCE_SDS
             .iter()
-            .find(|v| v.type_.value.as_ref().map(|s| s.as_str()) == Some("Patient"))
+            .find(|v| v.type_.value.as_deref() == Some("Patient"))
             .unwrap();
 
         let schema = self_contained_schema(&*FHIR_COMPLEX_TYPE_DEFINITIONS, patient_sd).unwrap();
 
         println!("{}", serde_json::to_string_pretty(&schema).unwrap());
 
-        assert_eq!(true, !serde_json::to_string(&schema).unwrap().is_empty());
+        assert!(!serde_json::to_string(&schema).unwrap().is_empty());
     }
 
     #[test]
     fn patient_sd_test() {
         let patient_sd = RESOURCE_SDS
             .iter()
-            .find(|v| v.type_.value.as_ref().map(|s| s.as_str()) == Some("Patient"))
+            .find(|v| v.type_.value.as_deref() == Some("Patient"))
             .unwrap();
 
         let schema = self_contained_schema(&*FHIR_COMPLEX_TYPE_DEFINITIONS, patient_sd).unwrap();
@@ -462,20 +462,20 @@ mod test {
 
         let mut patient_json = serde_json::from_str(&patient_data).unwrap();
         let result = jsonschema::validate(&schema, &patient_json);
-        assert_eq!(result.is_ok(), true);
+        assert!(result.is_ok());
 
         patient_json["name"][0]["_given"] = json!("This is not a valid value");
         let result = jsonschema::validate(&schema, &patient_json);
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
 
         patient_json["name"][0]["_given"] = json!([{"id": "1"}]);
         let result = jsonschema::validate(&schema, &patient_json);
-        println!("{:?}", result);
-        assert_eq!(result.is_ok(), true);
+        println!("{result:?}");
+        assert!(result.is_ok());
 
         patient_json["name"] = json!("This is not a valid value");
         let result = jsonschema::validate(&schema, &patient_json);
 
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
     }
 }
