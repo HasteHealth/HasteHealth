@@ -576,6 +576,7 @@ fn request_from_invocation_system(
     build_post(state, request_url, body)
 }
 
+#[derive(Clone, Copy)]
 enum FHIRResponseRequest<'a> {
     Read,
     Create,
