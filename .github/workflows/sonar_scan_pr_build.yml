@@ -1,0 +1,47 @@
+name: Sonar-Scan-Build
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Prepare Sonar analysis for PR and PR Forks.
+    # Only for PRs from forks. Same-repo PRs already have secrets and are
+    # scanned directly by sonar_scan.yml.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Write PR metadata
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          mkdir -p pr-metadata
+          jq -n \
+            --arg number "$PR_NUMBER" \
+            --arg headSha "$PR_HEAD_SHA" \
+            --arg headRef "$PR_HEAD_REF" \
+            --arg baseRef "$PR_BASE_REF" \
+            '{number: ($number | tonumber), headSha: $headSha, headRef: $headRef, baseRef: $baseRef}' \
+            > pr-metadata/pr.json
+
+      - name: Upload source
+        uses: actions/upload-artifact@v7
+        with:
+          name: sonar-source
+          path: .
+          include-hidden-files: true
+          retention-days: 1
+
+      - name: Upload PR metadata
+        uses: actions/upload-artifact@v7
+        with:
+          name: pr-metadata
+          path: pr-metadata/pr.json
+          retention-days: 1
