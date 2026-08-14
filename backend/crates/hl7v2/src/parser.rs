@@ -199,7 +199,7 @@ mod tests {
 
         let message = result.unwrap();
         let json = serde_json::to_string_pretty(&message.0).unwrap();
-        println!("{}", json);
+        println!("{json}");
         let deserialized: HL7V2 = serde_json::from_str(&json).unwrap();
         let serialized: String = (SerializeMessage(&deserialized)).into();
 
