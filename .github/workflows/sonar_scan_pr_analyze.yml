@@ -1,0 +1,53 @@
+name: Sonar-Scan-Analyze
+
+on:
+  workflow_run:
+    workflows: ["Sonar-Scan-Build"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  analyze:
+    name: SonarQube
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download source
+        uses: actions/download-artifact@v8
+        with:
+          name: sonar-source
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: source
+
+      - name: Download PR metadata
+        uses: actions/download-artifact@v8
+        with:
+          name: pr-metadata
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: pr-metadata
+
+      # PR branch/base names come from the PR/fork and are only ever read out of
+      # the downloaded JSON file here, never interpolated into a shell command,
+      # so an attacker-controlled branch name can't inject into this script.
+      - name: Read PR metadata
+        id: pr
+        run: |
+          echo "number=$(jq -r .number pr-metadata/pr.json)" >> "$GITHUB_OUTPUT"
+          echo "head_ref=$(jq -r .headRef pr-metadata/pr.json)" >> "$GITHUB_OUTPUT"
+          echo "base_ref=$(jq -r .baseRef pr-metadata/pr.json)" >> "$GITHUB_OUTPUT"
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v8
+        with:
+          projectBaseDir: source
+          args: >
+            -Dsonar.pullrequest.key=${{ steps.pr.outputs.number }}
+            -Dsonar.pullrequest.branch=${{ steps.pr.outputs.head_ref }}
+            -Dsonar.pullrequest.base=${{ steps.pr.outputs.base_ref }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
