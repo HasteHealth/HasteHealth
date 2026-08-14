@@ -9,39 +9,38 @@ use crate::validators::utilities;
 pub fn is_equal(v1: &dyn MetaValue, v2: &dyn MetaValue) -> Result<bool, OperationOutcomeError> {
     if PRIMITIVE_TYPES.contains(v1.fhir_type()) {
         return Ok(utilities::primitive_conversion(v1)? == utilities::primitive_conversion(v2)?);
-    } else {
-        if v1.fhir_type() != v2.fhir_type() {
-            return Ok(false);
-        }
-        for key in v1.fields() {
-            let v1 = v1.get_field(key);
-            let v2 = v2.get_field(key);
+    }
+    if v1.fhir_type() != v2.fhir_type() {
+        return Ok(false);
+    }
+    for key in v1.fields() {
+        let v1 = v1.get_field(key);
+        let v2 = v2.get_field(key);
 
-            if let Some(v1) = v1
-                && let Some(v2) = v2
-            {
-                let v1_values = v1.flatten();
-                let v2_values = v2.flatten();
+        if let Some(v1) = v1
+            && let Some(v2) = v2
+        {
+            let v1_values = v1.flatten();
+            let v2_values = v2.flatten();
 
-                // Could be an array so flatten the values and confirm length than iterate over them.
-                if v1_values.len() != v2_values.len() {
-                    return Ok(false);
-                }
-                for (v1_value, v2_value) in v1_values.iter().zip(v2_values.iter()) {
-                    if !is_equal(*v1_value, *v2_value)? {
-                        return Ok(false);
-                    }
-                }
-            } else {
-                // If one of the values is none verify that both are none in this case.
-                if v1.is_some() != v2.is_some() {
+            // Could be an array so flatten the values and confirm length than iterate over them.
+            if v1_values.len() != v2_values.len() {
+                return Ok(false);
+            }
+            for (v1_value, v2_value) in v1_values.iter().zip(v2_values.iter()) {
+                if !is_equal(*v1_value, *v2_value)? {
                     return Ok(false);
                 }
             }
+        } else {
+            // If one of the values is none verify that both are none in this case.
+            if v1.is_some() != v2.is_some() {
+                return Ok(false);
+            }
         }
-
-        Ok(true)
     }
+
+    Ok(true)
 }
 
 #[cfg(test)]

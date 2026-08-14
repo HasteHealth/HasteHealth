@@ -5,11 +5,10 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 
 /// Various utilities for working with FHIR profiles.
-
 pub fn remove_type_on_path(path: &str) -> &str {
     let first_dot = path.find('.');
     // If first element this would be the entire path as no subfield.
-    &path[first_dot.map(|i| i + 1).unwrap_or(path.len())..]
+    &path[first_dot.map_or(path.len(), |i| i + 1)..]
 }
 
 // Removes the last element on the path, returning the parent path. If there is no parent, returns None.
@@ -40,10 +39,7 @@ pub fn convert_discriminator_to_path(
     {
         return Err(OperationOutcomeError::error(
             IssueType::not_supported(),
-            format!(
-                "Discriminator path '{}' is not supported",
-                discriminator_path
-            ),
+            format!("Discriminator path '{discriminator_path}' is not supported"),
         ));
     }
 
@@ -53,7 +49,7 @@ pub fn convert_discriminator_to_path(
     if path.is_empty() {
         Ok(parent_path.to_string())
     } else {
-        Ok(format!("{}.{}", parent_path, path))
+        Ok(format!("{parent_path}.{path}"))
     }
 }
 
@@ -63,6 +59,6 @@ pub fn join_paths(parent: &str, child: &str) -> String {
     } else if child.is_empty() {
         parent.to_string()
     } else {
-        format!("{}.{}", parent, child)
+        format!("{parent}.{child}")
     }
 }
