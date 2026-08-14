@@ -53,6 +53,28 @@ pub struct MemorySubscriptionFilter {
 }
 
 impl MemorySubscriptionFilter {
+    /// Creates a [`MemorySubscriptionFilter`] from a subscription.
+    ///
+    /// Resolves and validates the search parameters specified in the subscription
+    /// criteria and constructs the corresponding FHIRPath-based filter.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`OperationOutcomeError`] if:
+    /// - the subscription criteria has an invalid format;
+    /// - the criteria contains an invalid resource type;
+    /// - a search parameter cannot be resolved for the resource type;
+    /// - a chained search parameter is used;
+    /// - a resolved search parameter does not have a `FHIRPath` expression;
+    /// - an unsupported result parameter is present in the criteria; or
+    /// - the subscription does not contain criteria.
+    ///
+    /// # Arguments
+    ///
+    /// * `tenant_id` - The tenant owning the subscription.
+    /// * `project_id` - The project owning the subscription.
+    /// * `resolver` - Resolver used to look up search parameters.
+    /// * `value` - The subscription from which to construct the filter.
     pub async fn new<Resolver: SearchParameterResolve>(
         tenant_id: &TenantId,
         project_id: &ProjectId,
@@ -78,7 +100,7 @@ impl MemorySubscriptionFilter {
             let parsed_parameters = ParsedParameters::try_from(*parameters)?;
             let mut subscription_parsed_parameters = vec![];
 
-            for parameter in parsed_parameters.owned_parameters().into_iter() {
+            for parameter in parsed_parameters.owned_parameters() {
                 match parameter {
                     ParsedParameter::Resource(resource_param) => {
                         let Some(parameter) = resolver
@@ -235,7 +257,7 @@ impl traits::SubscriptionFilter for MemorySubscriptionFilter {
     async fn matches(&self, resource: &Resource) -> Result<bool, OperationOutcomeError> {
         let resource_resource_type = resource.resource_type();
 
-        for trigger in self.triggers.iter() {
+        if let Some(trigger) = self.triggers.first() {
             match trigger {
                 SubscriptionTrigger::QueryFilter {
                     resource_type,
@@ -257,7 +279,7 @@ impl traits::SubscriptionFilter for MemorySubscriptionFilter {
                     return Ok(true);
                 }
                 SubscriptionTrigger::FHIRPathFilter { .. } => {
-                    return Err(OperationOutcomeError::error(
+                    Err(OperationOutcomeError::error(
                         IssueType::exception(),
                         "FHIRPathFilter triggers are not yet supported".to_string(),
                     ))?;
@@ -313,8 +335,8 @@ mod tests {
                 assert_eq!(parameters[0].fp_extract_expression, "Patient.name");
                 assert_eq!(parameters[0].value, vec!["Smith".to_string()]);
             }
-            _ => panic!("Expected QueryFilter trigger"),
-        };
+            SubscriptionTrigger::FHIRPathFilter { .. } => panic!("Expected QueryFilter trigger"),
+        }
     }
 
     #[tokio::test]
@@ -349,8 +371,8 @@ mod tests {
                 assert_eq!(parameters[0].value, vec!["true".to_string()]);
                 assert_eq!(parameters[0].modifier, Some("missing".to_string()));
             }
-            _ => panic!("Expected QueryFilter trigger"),
-        };
+            SubscriptionTrigger::FHIRPathFilter { .. } => panic!("Expected QueryFilter trigger"),
+        }
     }
 
     #[tokio::test]
@@ -381,7 +403,7 @@ mod tests {
             ..Default::default()
         });
 
-        assert_eq!(sub_filter.matches(&patient).await.unwrap(), true);
+        assert!(sub_filter.matches(&patient).await.unwrap());
 
         let sub_filter_partial = MemorySubscriptionFilter::new(
             &TenantId::System,
@@ -398,7 +420,7 @@ mod tests {
         .await
         .unwrap();
 
-        assert_eq!(sub_filter_partial.matches(&patient).await.unwrap(), true);
+        assert!(sub_filter_partial.matches(&patient).await.unwrap());
 
         let sub_filter_casing = MemorySubscriptionFilter::new(
             &TenantId::System,
@@ -415,7 +437,7 @@ mod tests {
         .await
         .unwrap();
 
-        assert_eq!(sub_filter_casing.matches(&patient).await.unwrap(), true);
+        assert!(sub_filter_casing.matches(&patient).await.unwrap());
 
         let patient = Resource::Patient(Patient {
             name: Some(vec![HumanName {
@@ -428,6 +450,6 @@ mod tests {
             ..Default::default()
         });
 
-        assert_eq!(sub_filter.matches(&patient).await.unwrap(), false);
+        assert!(!sub_filter.matches(&patient).await.unwrap());
     }
 }
