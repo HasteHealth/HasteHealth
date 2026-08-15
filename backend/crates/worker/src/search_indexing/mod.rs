@@ -144,7 +144,7 @@ async fn index_tenant_next_sequence<
         return Ok(());
     }
 
-    tracing::info!(
+    tracing::trace!(
         "Acquired lock for tenant '{}', starting indexing from sequence {}.",
         tenant_id,
         tenant_locks[0].index_sequence_position
