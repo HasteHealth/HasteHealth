@@ -6,17 +6,16 @@ fn hl7_single_message_parse(c: &mut Criterion) {
 
     c.bench_function("simple message", |b| {
         b.iter(|| {
-            let _message = ParsedHL7V2Message::try_from(hl7v2_message);
-            _message.expect("Failed to parse HL7v2 message");
-        })
+            ParsedHL7V2Message::try_from(hl7v2_message).expect("Failed to parse HL7v2 message");
+        });
     });
 
     c.bench_function("simple message round trip", |b| {
         b.iter(|| {
             let message =
                 ParsedHL7V2Message::try_from(hl7v2_message).expect("Failed to parse HL7v2 message");
-            let _message: String = (SerializeMessage(&message.0)).into();
-        })
+            let _ = std::convert::Into::<SerializeMessage<'_>>::into(SerializeMessage(&message.0));
+        });
     });
 }
 
