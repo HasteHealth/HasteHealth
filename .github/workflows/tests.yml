@@ -26,6 +26,7 @@ jobs:
         working-directory: ./backend
 
       - name: Run clippy
+        working-directory: ./backend
         run: |
           cargo clippy --no-deps \
           -p haste-access-control \
