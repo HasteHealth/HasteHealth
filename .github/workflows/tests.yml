@@ -10,7 +10,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  rustfmt:
+  clippy_rustfmt:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,16 +19,36 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: rustfmt
+          components: clippy, rustfmt
 
       - name: Run rustfmt
         run: cargo fmt --all -- --check --verbose
         working-directory: ./backend
 
+      - name: Run clippy
+        run: |
+          cargo clippy --no-deps \
+          -p haste-access-control \
+          -p haste-artifacts \
+          -p haste-codegen \
+          -p haste-config \
+          -p haste-repository \
+          -p haste-fhir-search \
+          -p haste-encryption \
+          -p haste-fhir-client \
+          -p haste-fhir-converter \
+          -p haste-hl7v2 \
+          -p haste-jwt \
+          -p haste-macro-loads \
+          -p haste-pointer \
+          -p haste-sd-to-json-schema \
+          -p haste_wal_worker \
+          -p haste-worker \
+          -p haste-x-fhir-query \
+          -- -Dclippy::all -Dclippy::pedantic
+
   unit-tests:
     runs-on: ubuntu-latest
-
-    needs: rustfmt
 
     steps:
       - uses: actions/checkout@v7
