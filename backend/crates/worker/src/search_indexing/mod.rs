@@ -15,12 +15,14 @@ use haste_fhir_search::{
 use haste_fhirpath::FHIRPathError;
 use haste_jwt::{TenantId, VersionId};
 use haste_repository::{
-    fhir::FHIRRepository, pg::PGConnection, sequence::ResourceSequential,
+    fhir::FHIRRepository,
+    pg::PGConnection,
+    sequence::{ResourcePollingValue, ResourceSequential},
     types::SupportedFHIRVersions,
 };
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, query_as, types::time::OffsetDateTime};
-use std::sync::Arc;
+use std::{sync::Arc, time::Instant};
 use tokio::{sync::Mutex, task::JoinHandle};
 
 #[derive(OperationOutcomeError, Debug)]
@@ -100,7 +102,7 @@ async fn get_tenants(
     }
 }
 
-/// Records in FailedIndexingProvider if any resources failed to index. This is a no-op if the list is empty.
+/// Records in `FailedIndexingProvider` if any resources failed to index. This is a no-op if the list is empty.
 async fn record_failures(
     tenant: &TenantId,
     indexing_error_provider: &impl FailedIndexingProvider,
@@ -116,7 +118,59 @@ async fn record_failures(
         tenant
     );
 
-    indexing_error_provider.record_failures(&failures).await?;
+    indexing_error_provider.record_failures(failures).await?;
+
+    Ok(())
+}
+
+async fn update_lock_sequence_position<
+    Repo: ResourceSequential + IndexLockProvider<TenantId, TenantLockIndex>,
+>(
+    tenant_id: &TenantId,
+    repo: &Repo,
+    start_sequence: Option<i64>,
+    resources_total: usize,
+    start: Instant,
+    last_polling_value: ResourcePollingValue,
+) -> Result<(), OperationOutcomeError> {
+    let diff = (last_polling_value.sequence + 1) - start_sequence.unwrap_or(0);
+    let total = resources_total;
+
+    if total as u64 != diff.unsigned_abs() {
+        tracing::event!(
+            tracing::Level::WARN,
+            // safe_seq = resource.max_safe_seq.unwrap_or(0),
+            first_seq = start_sequence.unwrap_or(0),
+            last_seq = last_polling_value.sequence,
+            total = resources_total,
+            diff = (last_polling_value.sequence + 1) - start_sequence.unwrap_or(0),
+            "Sequence gap detected while indexing tenant '{}' - resources may have been skipped.",
+            tenant_id
+        );
+    }
+
+    tracing::trace!(
+        "Updating lock for tenant '{}' to sequence position {}.",
+        tenant_id,
+        last_polling_value.sequence
+    );
+
+    repo.update_lock(
+        tenant_id,
+        TenantLockIndex {
+            id: tenant_id.clone(),
+            index_sequence_position: last_polling_value.sequence,
+        },
+    )
+    .await?;
+
+    tracing::trace!(
+        "Indexed {} resources for tenant '{}' in {:.2?} (up to sequence {})",
+        resources_total,
+        tenant_id.as_ref(),
+        start.elapsed(),
+        last_polling_value.sequence
+    );
 
     Ok(())
 }
@@ -208,47 +262,16 @@ async fn index_tenant_next_sequence<
 
         record_failures(tenant_id, repo, &failures).await?;
 
-        if let Some(resource) = last_value {
-            let diff = (resource.sequence + 1) - start_sequence.unwrap_or(0);
-            let total = resources_total;
-
-            if total as u64 != diff.unsigned_abs() {
-                tracing::event!(
-                    tracing::Level::WARN,
-                    // safe_seq = resource.max_safe_seq.unwrap_or(0),
-                    first_seq = start_sequence.unwrap_or(0),
-                    last_seq = resource.sequence,
-                    total = resources_total,
-                    diff = (resource.sequence + 1) - start_sequence.unwrap_or(0),
-                    "Sequence gap detected while indexing tenant '{}' - resources may have been skipped.",
-                    tenant_id
-                );
-            }
-
-            tracing::trace!(
-                "Updating lock for tenant '{}' to sequence position {}.",
+        if let Some(last_polling_value) = last_value {
+            update_lock_sequence_position(
                 tenant_id,
-                resource.sequence
-            );
-
-            repo.update_lock(
-                tenant_id,
-                TenantLockIndex {
-                    id: tenant_id.clone(),
-                    index_sequence_position: resource.sequence,
-                },
+                repo,
+                start_sequence,
+                resources_total,
+                start,
+                last_polling_value,
             )
             .await?;
-
-            let elapsed = start.elapsed();
-
-            tracing::trace!(
-                "Indexed {} resources for tenant '{}' in {:.2?} (up to sequence {})",
-                outcome.succeeded,
-                tenant_id.as_ref(),
-                elapsed,
-                resource.sequence
-            );
         }
 
         *(TOTAL_INDEXED.lock().await) += outcome.succeeded;
