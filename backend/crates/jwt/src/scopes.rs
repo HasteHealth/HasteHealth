@@ -538,26 +538,17 @@ mod tests {
 
     #[test]
     fn invalid_order() {
-        assert_eq!(
-            Scopes::try_from("launch/encounter   system/Patient.duc").is_err(),
-            true
-        );
+        assert!(Scopes::try_from("launch/encounter   system/Patient.duc").is_err());
     }
 
     #[test]
     fn invalid_system() {
-        assert_eq!(
-            Scopes::try_from("launch/encounter   sytem/Patient.cud").is_err(),
-            true
-        );
+        assert!(Scopes::try_from("launch/encounter   sytem/Patient.cud").is_err());
     }
 
     #[test]
     fn unknown_scope() {
-        assert_eq!(
-            Scopes::try_from("badscope  sytem/Patient.cud").is_err(),
-            true
-        );
+        assert!(Scopes::try_from("badscope  sytem/Patient.cud").is_err());
     }
 
     #[test]
