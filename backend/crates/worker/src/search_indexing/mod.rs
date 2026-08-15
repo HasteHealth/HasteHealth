@@ -1,4 +1,5 @@
 use crate::{
+    failed_indexing::{FailedIndexRecord, FailedIndexingProvider},
     indexing_lock::{IndexLockProvider, postgres::TenantLockIndex},
     traits::Worker,
 };
@@ -99,11 +100,32 @@ async fn get_tenants(
     }
 }
 
+/// Records in FailedIndexingProvider if any resources failed to index. This is a no-op if the list is empty.
+async fn record_failures(
+    tenant: &TenantId,
+    indexing_error_provider: &impl FailedIndexingProvider,
+    failures: &[FailedIndexRecord],
+) -> Result<(), IndexingWorkerError> {
+    if failures.is_empty() {
+        return Ok(());
+    }
+
+    tracing::warn!(
+        "Parking {} resource(s) that failed indexing for tenant '{}'.",
+        failures.len(),
+        tenant
+    );
+
+    indexing_error_provider.record_failures(&failures).await?;
+
+    Ok(())
+}
+
 static TOTAL_INDEXED: std::sync::LazyLock<Mutex<usize>> =
     std::sync::LazyLock::new(|| Mutex::new(0));
 
 async fn index_tenant_next_sequence<
-    Repo: ResourceSequential + IndexLockProvider<TenantId, TenantLockIndex>,
+    Repo: ResourceSequential + IndexLockProvider<TenantId, TenantLockIndex> + FailedIndexingProvider,
     Engine: SearchEngine,
 >(
     max_concurrent_limit: u64,
@@ -142,7 +164,7 @@ async fn index_tenant_next_sequence<
 
     // Perform indexing if there are resources to index.
     if !resources.is_empty() {
-        let result = search_client
+        let outcome = search_client
             .index(
                 SupportedFHIRVersions::R4,
                 resources
@@ -159,15 +181,32 @@ async fn index_tenant_next_sequence<
                     .collect(),
             )
             .await?;
+        let resources_attempted_to_index_count = outcome.succeeded + outcome.failed.len();
 
-        if result.0 != resources_total {
+        if resources_attempted_to_index_count != resources_total {
             tracing::error!(
-                "Indexed resource count '{}' does not match retrieved resource count '{}'",
-                result.0,
-                resources_total
+                "Indexed+failed resource count '{}' does not match retrieved resource count '{}' for tenant '{}'",
+                resources_attempted_to_index_count,
+                resources_total,
+                tenant_id
             );
             return Err(IndexingWorkerError::Fatal);
         }
+
+        let failures = outcome
+            .failed
+            .into_iter()
+            .map(|failure| FailedIndexRecord {
+                tenant: failure.resource.tenant,
+                project: failure.resource.project,
+                version_id: failure.resource.version_id,
+                resource_type: failure.resource.resource_type.as_ref().to_string(),
+                fhir_method: failure.resource.fhir_method,
+                error_message: failure.error.to_string(),
+            })
+            .collect::<Vec<_>>();
+
+        record_failures(tenant_id, repo, &failures).await?;
 
         if let Some(resource) = last_value {
             let diff = (resource.sequence + 1) - start_sequence.unwrap_or(0);
@@ -175,12 +214,14 @@ async fn index_tenant_next_sequence<
 
             if total as u64 != diff.unsigned_abs() {
                 tracing::event!(
-                    tracing::Level::INFO,
+                    tracing::Level::WARN,
                     // safe_seq = resource.max_safe_seq.unwrap_or(0),
                     first_seq = start_sequence.unwrap_or(0),
                     last_seq = resource.sequence,
                     total = resources_total,
-                    diff = (resource.sequence + 1) - start_sequence.unwrap_or(0)
+                    diff = (resource.sequence + 1) - start_sequence.unwrap_or(0),
+                    "Sequence gap detected while indexing tenant '{}' - resources may have been skipped.",
+                    tenant_id
                 );
             }
 
@@ -200,16 +241,17 @@ async fn index_tenant_next_sequence<
             .await?;
 
             let elapsed = start.elapsed();
+
             tracing::trace!(
                 "Indexed {} resources for tenant '{}' in {:.2?} (up to sequence {})",
-                result.0,
+                outcome.succeeded,
                 tenant_id.as_ref(),
                 elapsed,
                 resource.sequence
             );
         }
 
-        *(TOTAL_INDEXED.lock().await) += result.0;
+        *(TOTAL_INDEXED.lock().await) += outcome.succeeded;
     }
 
     Ok(())
@@ -217,7 +259,10 @@ async fn index_tenant_next_sequence<
 
 async fn index_for_tenant<
     Search: SearchEngine,
-    Repository: FHIRRepository + ResourceSequential + IndexLockProvider<TenantId, TenantLockIndex>,
+    Repository: FHIRRepository
+        + ResourceSequential
+        + IndexLockProvider<TenantId, TenantLockIndex>
+        + FailedIndexingProvider,
 >(
     max_concurrent_limit: u64,
     repo: Arc<Repository>,
@@ -236,7 +281,15 @@ async fn index_for_tenant<
             Ok(res)
         }
         Err(e) => {
-            tx.rollback().await?;
+            if let Err(rollback_err) = tx.rollback().await {
+                tracing::error!(
+                    "Failed to roll back transaction for tenant '{}' (original error: '{:?}'): '{:?}'",
+                    tenant_id,
+                    e,
+                    rollback_err
+                );
+                return Err(rollback_err.into());
+            }
             Err(e)
         }
     }
@@ -453,41 +506,53 @@ impl Worker for IndexingWorker {
             while *running.lock().await {
                 let tenants_to_check =
                     get_tenants(repo.as_ref(), &cursor, tenants_limit.cast_signed()).await;
-                if let Ok(tenants_to_check) = tenants_to_check {
-                    if tenants_to_check.is_empty()
-                        || (tenants_to_check.len() as u64) < tenants_limit
-                    {
-                        cursor = OffsetDateTime::UNIX_EPOCH; // Reset cursor if no tenants found
-                    } else {
-                        cursor = tenants_to_check[0].created_at;
-                    }
 
-                    for tenant in tenants_to_check {
-                        tracing::info!("Indexing tenant: '{}'", &tenant.id);
-
-                        let result = index_for_tenant(
-                            max_concurrent_limit,
-                            repo.clone(),
-                            search_engine.clone(),
-                            &tenant.id,
-                        )
-                        .await;
-
-                        if let Err(error) = result {
-                            tracing::error!(
-                                "Failed to index tenant: '{}' cause: '{:?}'",
-                                &tenant.id,
-                                error
-                            );
+                // Nothing to do this iteration (no tenants, or the fetch itself
+                // failed) - back off instead of hammering Postgres in a tight spin.
+                let idle = match tenants_to_check {
+                    Ok(tenants_to_check) => {
+                        let idle = tenants_to_check.is_empty();
+                        if idle || (tenants_to_check.len() as u64) < tenants_limit {
+                            cursor = OffsetDateTime::UNIX_EPOCH; // Reset cursor if no tenants found
+                        } else {
+                            cursor = tenants_to_check[0].created_at;
                         }
+
+                        for tenant in tenants_to_check {
+                            tracing::trace!("Indexing tenant: '{}'", &tenant.id);
+
+                            let result = index_for_tenant(
+                                max_concurrent_limit,
+                                repo.clone(),
+                                search_engine.clone(),
+                                &tenant.id,
+                            )
+                            .await;
+
+                            if let Err(error) = result {
+                                tracing::error!(
+                                    "Failed to index tenant: '{}' cause: '{:?}'",
+                                    &tenant.id,
+                                    error
+                                );
+                            }
+                        }
+
+                        idle
                     }
-                } else if let Err(error) = tenants_to_check {
-                    tracing::error!("Failed to retrieve tenants: {:?}", error);
-                }
+                    Err(error) => {
+                        tracing::error!("Failed to retrieve tenants: {:?}", error);
+                        true
+                    }
+                };
 
                 if k != *TOTAL_INDEXED.lock().await {
                     k = *TOTAL_INDEXED.lock().await;
                     tracing::info!("TOTAL INDEXED SO FAR: {}", k);
+                }
+
+                if idle {
+                    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
                 }
             }
         });

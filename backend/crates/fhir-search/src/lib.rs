@@ -86,7 +86,15 @@ pub trait SearchParameterResolve: Send + Sync {
     ) -> impl Future<Output = Result<Vec<ResolvedParameter>, OperationOutcomeError>> + Send;
 }
 
-pub struct SuccessfullyIndexedCount(pub usize);
+pub struct IndexFailure {
+    pub resource: IndexResource,
+    pub error: OperationOutcomeError,
+}
+
+pub struct IndexOutcome {
+    pub succeeded: usize,
+    pub failed: Vec<IndexFailure>,
+}
 
 pub trait SearchEngine: Send + Sync {
     fn search(
@@ -102,7 +110,7 @@ pub trait SearchEngine: Send + Sync {
         &self,
         fhir_version: SupportedFHIRVersions,
         resource: Vec<IndexResource>,
-    ) -> impl Future<Output = Result<SuccessfullyIndexedCount, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<IndexOutcome, OperationOutcomeError>> + Send;
 
     fn migrate(
         &self,

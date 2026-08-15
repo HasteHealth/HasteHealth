@@ -1,6 +1,6 @@
 use crate::{
-    IndexResource, ParameterLevel, ResolvedParameter, SearchEngine, SearchOptions,
-    SearchParameterResolve, SearchReturn, SuccessfullyIndexedCount,
+    IndexFailure, IndexOutcome, IndexResource, ParameterLevel, ResolvedParameter, SearchEngine,
+    SearchOptions, SearchParameterResolve, SearchReturn,
     indexing_conversion::{self, InsertableIndex},
 };
 use elasticsearch::{
@@ -116,9 +116,97 @@ pub fn create_es_client(
     Ok(Arc::new(elasticsearch_client))
 }
 
-type Tasks = tokio::task::JoinHandle<
+type Tasks = tokio::task::JoinHandle<(
+    IndexResource,
     Result<BulkOperation<HashMap<String, InsertableIndex>>, OperationOutcomeError>,
->;
+)>;
+
+struct CollectedOperations {
+    bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>>,
+    /// Parallel to `bulk_ops` (same order) - the resource each bulk op was
+    /// built from, kept so a failed Elasticsearch bulk item can be attributed
+    /// back to the resource that produced it.
+    sent_resources: Vec<IndexResource>,
+    failed: Vec<IndexFailure>,
+}
+
+/// See https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-bulk
+#[derive(Deserialize, Debug)]
+struct BulkResponse {
+    /// The length of time, in milliseconds, it took to process the bulk request.
+    #[allow(dead_code)]
+    took: u64,
+    /// The result of each operation in the bulk request, in the order they were submitted.
+    items: Vec<serde_json::Value>,
+    /// If true, one or more of the operations in the bulk request did not complete successfully.
+    #[allow(dead_code)]
+    errors: bool,
+}
+
+/// Processes the Elasticsearch bulk response, attributing each per-item result
+/// back to the resource that produced it. Elasticsearch indexes bulk items
+/// independently, so one bad document does not prevent the rest of the batch
+/// from succeeding - only a request-level failure (unreachable cluster, malformed response) surfaces as `Err` here.
+fn process_bulk_response(
+    bulk_response: &BulkResponse,
+    sent_resources: Vec<IndexResource>,
+) -> Result<IndexOutcome, OperationOutcomeError> {
+    if bulk_response.items.len() != sent_resources.len() {
+        return Err(OperationOutcomeError::fatal(
+            IssueType::exception(),
+            format!(
+                "Elasticsearch bulk response item count '{}' did not match request count '{}'.",
+                bulk_response.items.len(),
+                sent_resources.len()
+            ),
+        ));
+    }
+
+    let mut succeeded = 0;
+    let mut failed = Vec::new();
+
+    // Per documentation: The result of each operation in the bulk request, in the order they were submitted.
+    // See https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-bulk.
+
+    for (item, resource) in bulk_response.items.iter().zip(sent_resources) {
+        // Each item is a single-key object, e.g. `{"index": {...}}` or `{"delete": {...}}`.
+        if let Some(op_result) = item.as_object().and_then(|o| o.values().next()) {
+            match op_result["status"].as_u64() {
+                Some(status) if (200..300).contains(&status) => succeeded += 1,
+                status => {
+                    let reason = op_result["error"]["reason"]
+                        .as_str()
+                        .unwrap_or("unknown error");
+                    failed.push(IndexFailure {
+                        error: OperationOutcomeError::fatal(
+                            IssueType::exception(),
+                            format!("Elasticsearch indexing failed (status {status:?}): {reason}"),
+                        ),
+                        resource,
+                    });
+                }
+            }
+        } else {
+            failed.push(IndexFailure {
+                error: OperationOutcomeError::fatal(
+                    IssueType::exception(),
+                    format!("Unexpected Elasticsearch bulk item shape: '{item}'"),
+                ),
+                resource,
+            });
+        }
+    }
+
+    if !failed.is_empty() {
+        tracing::error!(
+            "Elasticsearch bulk index reported {} failed item(s) out of {}.",
+            failed.len(),
+            bulk_response.items.len()
+        );
+    }
+
+    Ok(IndexOutcome { succeeded, failed })
+}
 
 impl<SearchParameterResolver: SearchParameterResolve + 'static>
     ElasticSearchEngine<SearchParameterResolver>
@@ -153,13 +241,22 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
         }
     }
 
+    /// Sends one Elasticsearch `_bulk` request and attributes each per-item
+    /// result back to the resource that produced it. Elasticsearch indexes
+    /// bulk items independently, so one bad document does not prevent the
+    /// rest of the batch from succeeding - only a request-level failure
+    /// (unreachable cluster, malformed response) surfaces as `Err` here.
     async fn send_bulk_operations(
         &self,
         search_index_name: &'static str,
         bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>>,
-    ) -> Result<SuccessfullyIndexedCount, OperationOutcomeError> {
+        sent_resources: Vec<IndexResource>,
+    ) -> Result<IndexOutcome, OperationOutcomeError> {
         if bulk_ops.is_empty() {
-            return Ok(SuccessfullyIndexedCount(0));
+            return Ok(IndexOutcome {
+                succeeded: 0,
+                failed: Vec::new(),
+            });
         }
 
         let res = self
@@ -170,21 +267,14 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
             .await
             .map_err(SearchError::from)?;
 
-        let response_body = res.json::<serde_json::Value>().await.map_err(|_e| {
+        let response_body = res.json::<BulkResponse>().await.map_err(|_e| {
             OperationOutcomeError::fatal(
                 IssueType::exception(),
                 "Failed to parse response body.".to_string(),
             )
         })?;
 
-        if response_body["errors"].as_bool().unwrap() {
-            tracing::error!("Failed to index resources. Response: '{:?}'", response_body);
-            return Err(SearchError::Fatal(500).into());
-        }
-
-        Ok(SuccessfullyIndexedCount(
-            response_body["items"].as_array().unwrap().len(),
-        ))
+        process_bulk_response(&response_body, sent_resources)
     }
 
     fn spawn_index_tasks(
@@ -194,12 +284,6 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
     ) -> Vec<Tasks> {
         resources
             .into_iter()
-            .filter(|r| {
-                matches!(
-                    r.fhir_method,
-                    FHIRMethod::Create | FHIRMethod::Update | FHIRMethod::Delete
-                )
-            })
             .map(|r| {
                 let engine = self.fp_engine.clone();
                 let parameter_resolver = self.parameter_resolver.clone();
@@ -212,24 +296,41 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
             .collect()
     }
 
+    /// Awaits every bulk-op-building task, separating resources that built
+    /// successfully from those that failed. A single resource's failure
+    /// (bad FHIRPath expression, unsupported method, etc.) is captured with
+    /// its identity rather than aborting the rest of the batch. A `JoinError`
+    /// (the task itself panicked) has no resource to attribute the failure
+    /// to, so it aborts the whole call.
     async fn collect_bulk_operations(
         &self,
         tasks: Vec<Tasks>,
-        resources_total: usize,
-    ) -> Result<Vec<BulkOperation<HashMap<String, InsertableIndex>>>, OperationOutcomeError> {
+    ) -> Result<CollectedOperations, OperationOutcomeError> {
         tracing::trace!("Awaiting {} indexing tasks.", tasks.len());
 
-        let mut bulk_ops = Vec::with_capacity(resources_total);
+        let mut bulk_ops = Vec::with_capacity(tasks.len());
+        let mut sent_resources = Vec::with_capacity(tasks.len());
+        let mut failed = Vec::new();
 
         for task in tasks {
-            let res = task.await.map_err(|e| {
-                OperationOutcomeError::fatal(IssueType::exception(), e.to_string())
-            })??;
+            let (resource, result) = task
+                .await
+                .map_err(|e| OperationOutcomeError::fatal(IssueType::exception(), e.to_string()))?;
 
-            bulk_ops.push(res);
+            match result {
+                Ok(bulk_op) => {
+                    sent_resources.push(resource);
+                    bulk_ops.push(bulk_op);
+                }
+                Err(error) => failed.push(IndexFailure { resource, error }),
+            }
         }
 
-        Ok(bulk_ops)
+        Ok(CollectedOperations {
+            bulk_ops,
+            sent_resources,
+            failed,
+        })
     }
 
     async fn build_bulk_operation<ParameterResolver: SearchParameterResolve>(
@@ -237,8 +338,11 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
         parameter_resolver: Arc<ParameterResolver>,
         resource: IndexResource,
         search_index_name: &'static str,
-    ) -> Result<BulkOperation<HashMap<String, InsertableIndex>>, OperationOutcomeError> {
-        match &resource.fhir_method {
+    ) -> (
+        IndexResource,
+        Result<BulkOperation<HashMap<String, InsertableIndex>>, OperationOutcomeError>,
+    ) {
+        let result = match &resource.fhir_method {
             FHIRMethod::Create | FHIRMethod::Update => {
                 Self::build_index_operation(
                     engine,
@@ -261,7 +365,9 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
             method @ FHIRMethod::Read => Err(OperationOutcomeError::from(
                 SearchError::UnsupportedFHIRMethod((*method).clone()),
             )),
-        }
+        };
+
+        (resource, result)
     }
 
     async fn build_index_operation<ParameterResolver: SearchParameterResolve>(
@@ -455,9 +561,7 @@ impl<SearchParameterResolver: SearchParameterResolve> SearchEngine
         &self,
         _fhir_version: SupportedFHIRVersions,
         resources: Vec<IndexResource>,
-    ) -> Result<SuccessfullyIndexedCount, OperationOutcomeError> {
-        // Iterator used to evaluate all of the search expressions for indexing.
-
+    ) -> Result<IndexOutcome, OperationOutcomeError> {
         let resources_total = resources.len();
         let search_index_name = get_index_name();
 
@@ -468,7 +572,11 @@ impl<SearchParameterResolver: SearchParameterResolve> SearchEngine
         );
 
         let tasks = self.spawn_index_tasks(resources, search_index_name);
-        let bulk_ops = self.collect_bulk_operations(tasks, resources_total).await?;
+        let CollectedOperations {
+            bulk_ops,
+            sent_resources,
+            mut failed,
+        } = self.collect_bulk_operations(tasks).await?;
 
         tracing::trace!(
             "Bulk indexing {} resources into index: '{}'",
@@ -476,7 +584,12 @@ impl<SearchParameterResolver: SearchParameterResolve> SearchEngine
             search_index_name
         );
 
-        self.send_bulk_operations(search_index_name, bulk_ops).await
+        let mut outcome = self
+            .send_bulk_operations(search_index_name, bulk_ops, sent_resources)
+            .await?;
+        outcome.failed.append(&mut failed);
+
+        Ok(outcome)
     }
 
     async fn migrate(

@@ -155,7 +155,7 @@ where
         fhir_method,
     };
 
-    insert_batch(executor, std::slice::from_ref(&row)).await
+    insert_resource_updates(executor, std::slice::from_ref(&row)).await
 }
 
 /// Rows queued on an open transaction for one batched multi-row INSERT at
@@ -221,13 +221,16 @@ impl PendingRows {
         }
 
         let mut conn = tx.lock().await;
-        insert_batch(&mut **conn, &rows).await
+        insert_resource_updates(&mut **conn, &rows).await
     }
 }
 
 /// Executes one multi-row INSERT for every row given. No-op on an empty
 /// slice (`QueryBuilder::push_values` panics if given zero tuples).
-async fn insert_batch<'e, E, R>(executor: E, rows: &[R]) -> Result<(), OperationOutcomeError>
+async fn insert_resource_updates<'e, E, R>(
+    executor: E,
+    rows: &[R],
+) -> Result<(), OperationOutcomeError>
 where
     E: PgExecutor<'e>,
     R: ResourceRowFields,
