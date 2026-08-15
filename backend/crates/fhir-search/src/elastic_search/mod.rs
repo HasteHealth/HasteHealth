@@ -130,7 +130,7 @@ struct CollectedOperations {
     failed: Vec<IndexFailure>,
 }
 
-/// See https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-bulk
+/// See <https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-bulk>
 #[derive(Deserialize, Debug)]
 struct BulkResponse {
     /// The length of time, in milliseconds, it took to process the bulk request.
@@ -298,7 +298,7 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
 
     /// Awaits every bulk-op-building task, separating resources that built
     /// successfully from those that failed. A single resource's failure
-    /// (bad FHIRPath expression, unsupported method, etc.) is captured with
+    /// (bad `FHIRPath` expression, unsupported method, etc.) is captured with
     /// its identity rather than aborting the rest of the batch. A `JoinError`
     /// (the task itself panicked) has no resource to attribute the failure
     /// to, so it aborts the whole call.
