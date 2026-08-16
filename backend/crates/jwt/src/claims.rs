@@ -1,6 +1,6 @@
 use crate::{AuthorId, AuthorKind, ProjectId, TenantId, UserRole, VersionId, scopes::Scopes};
 use derivative::Derivative;
-use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_model::r4::generated::{terminology::IssueType, types::FHIRUrl};
 use haste_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, Serialize};
 
@@ -55,6 +55,12 @@ pub struct UserTokenClaims {
     #[derivative(Debug = "ignore")]
     pub scope: Scopes,
 
+    /// Smart on fhir claims.
+    #[derivative(Debug = "ignore")]
+    #[serde(rename = "fhirUser")]
+    pub fhir_user: Option<FHIRUrl>,
+
+    // Haste Health claims.
     #[serde(rename = "https://haste.health/tenant")]
     #[derivative(Debug = "ignore")]
     pub tenant: TenantId,
