@@ -1,5 +1,4 @@
 use crate::{
-    failed_indexing::{FailedIndexRecord, FailedIndexingProvider},
     indexing_lock::{IndexLockProvider, postgres::TenantLockIndex},
     traits::Worker,
 };
@@ -15,6 +14,7 @@ use haste_fhir_search::{
 use haste_fhirpath::FHIRPathError;
 use haste_jwt::{TenantId, VersionId};
 use haste_repository::{
+    failed_indexing::{FailedIndexRecord, FailedIndexingProvider},
     fhir::FHIRRepository,
     pg::PGConnection,
     sequence::{ResourcePollingValue, ResourceSequential},

@@ -36,6 +36,7 @@ import { createAdminAppClient, getClient } from "./db/client";
 import BundleImport from "./views/Project/BundleImport";
 import Dashboard from "./views/Project/Dashboard";
 import EmptyWorkspace from "./views/Project/EmptyWorkspace";
+import IndexingErrors from "./views/Project/IndexingErrors";
 import ResourceEditor from "./views/ResourceEditor/index";
 import SystemHistory from "./views/Project/SystemHistory";
 import ResourceType from "./views/Project/ResourceType";
@@ -309,6 +310,11 @@ const router =
                           path: "bundle-import",
                           element: <BundleImport />,
                         },
+                        {
+                          id: "indexing-errors",
+                          path: "indexing-errors",
+                          element: <IndexingErrors />,
+                        },
                       ],
                     },
                   ],
@@ -533,6 +539,17 @@ function ProjectRoot() {
               }}
             >
               Event History
+            </SideBar.SideBarItem>
+            <SideBar.SideBarItem
+              active={
+                matches.find((match) => match.id === "indexing-errors") !==
+                undefined
+              }
+              onClick={() => {
+                navigate(generatePath("/indexing-errors", {}));
+              }}
+            >
+              Indexing Errors
             </SideBar.SideBarItem>
           </SideBar.SideBarItemGroup>
 

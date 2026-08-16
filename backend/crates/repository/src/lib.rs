@@ -1,5 +1,6 @@
 use crate::{
     admin::{Login, Migrate, ProjectModelAdmin, SystemAdmin, TenantModelAdmin},
+    failed_indexing::FailedIndexingProvider,
     fhir::FHIRRepository,
     sequence::ResourceSequential,
     types::{
@@ -19,6 +20,7 @@ use crate::{
 };
 
 pub mod admin;
+pub mod failed_indexing;
 pub mod fhir;
 pub mod pg;
 pub mod sequence;
@@ -52,6 +54,7 @@ pub trait Repository:
         String,
     > + ProjectModelAdmin<CreateMembership, Membership, MembershipSearchClaims, Membership, String>
     + ProjectModelAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeKey>
+    + FailedIndexingProvider
     + Login
     + ResourceSequential
     + Migrate

@@ -385,6 +385,7 @@ export namespace HasteHealthIndexingErrors {
   export type Input = { resolve?: fhirTypes.boolean };
   export type Output = {
     errors?: Array<{
+      id: fhirTypes.id;
       version_id: fhirTypes.id;
       resource_type: fhirTypes.code;
       fhir_method: fhirTypes.code;
@@ -429,6 +430,14 @@ export namespace HasteHealthIndexingErrors {
         max: "*",
         documentation: "The resources that failed search indexing.",
         part: [
+          {
+            name: "id",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation: "Version id of the resource that failed to index.",
+            type: "id",
+          },
           {
             name: "version_id",
             use: "out",
