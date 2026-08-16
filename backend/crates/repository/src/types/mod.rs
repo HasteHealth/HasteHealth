@@ -35,6 +35,18 @@ pub enum FHIRMethod {
     Delete,
 }
 
+impl FHIRMethod {
+    #[must_use]
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            FHIRMethod::Create => "create",
+            FHIRMethod::Read => "read",
+            FHIRMethod::Update => "update",
+            FHIRMethod::Delete => "delete",
+        }
+    }
+}
+
 impl TryFrom<&str> for FHIRMethod {
     type Error = String;
 
