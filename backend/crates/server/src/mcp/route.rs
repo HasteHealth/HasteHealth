@@ -6,7 +6,7 @@ use crate::{
         error::MCPError,
         operations,
         request::MCPRequest,
-        schemas::schema_2025_11_25::{RequestId, ServerResult},
+        schemas::types::{RequestId, ServerResult},
     },
     services::ServerState,
 };
@@ -25,11 +25,11 @@ use haste_repository::{Repository, types::SupportedFHIRVersions, utilities::gene
 use std::sync::Arc;
 
 #[derive(serde::Serialize, Debug)]
-pub struct JSONRPCResult<T> {
+pub struct JSONRPCResult {
     #[serde(skip_serializing_if = "Option::is_none")]
     id: Option<RequestId>,
     jsonrpc: String,
-    result: T,
+    result: ServerResult,
 }
 
 pub async fn mcp_handler<
@@ -57,26 +57,23 @@ pub async fn mcp_handler<
 
     match mcp_request {
         MCPRequest::Initialize(initialize_request) => {
-            let result = ServerResult {
-                subtype_1: Some(operations::initialize(ctx, &initialize_request).await?),
-                ..ServerResult::default()
-            };
+            let result = operations::initialize(ctx, &initialize_request).await?;
             Ok(Json(JSONRPCResult {
                 id: initialize_request.id.clone(),
-                result,
+                result: ServerResult::Initialize(result),
                 jsonrpc: "2.0".to_string(),
             })
             .into_response())
         }
-        MCPRequest::ListTools(list_tools_request) => Ok(Json(JSONRPCResult {
-            id: list_tools_request.id.clone(),
-            result: ServerResult {
-                subtype_7: Some(operations::list_tools(ctx, &list_tools_request).await?),
-                ..ServerResult::default()
-            },
-            jsonrpc: "2.0".to_string(),
-        })
-        .into_response()),
+        MCPRequest::ListTools(list_tools_request) => {
+            let result = operations::list_tools(ctx, &list_tools_request).await?;
+            Ok(Json(JSONRPCResult {
+                id: list_tools_request.id.clone(),
+                result: ServerResult::ListTools(result),
+                jsonrpc: "2.0".to_string(),
+            })
+            .into_response())
+        }
         MCPRequest::InitializedNotification(_initialized_notification) => {
             Ok(StatusCode::OK.into_response())
         }
@@ -86,10 +83,7 @@ pub async fn mcp_handler<
 
             Ok(Json(JSONRPCResult {
                 id,
-                result: ServerResult {
-                    subtype_8: Some(result),
-                    ..ServerResult::default()
-                },
+                result: ServerResult::CallTool(result),
                 jsonrpc: "2.0".to_string(),
             })
             .into_response())

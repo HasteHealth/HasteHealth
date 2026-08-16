@@ -3,7 +3,7 @@ use crate::{
     mcp::{
         error::MCPError,
         request::ListToolsRequest,
-        schemas::schema_2025_11_25::{ListToolsResult, Tool},
+        schemas::types::{ListToolsResult, Tool},
     },
 };
 use haste_fhir_client::FHIRClient;
@@ -97,8 +97,6 @@ fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
     Tool {
         annotations: None,
         description: Some("Tool for FHIR Resource Search across supported types".to_string()),
-        execution: None,
-        icons: vec![],
         input_schema,
         meta: None,
         name: R4_SEARCH_TOOL_NAME.to_string(),
@@ -139,8 +137,6 @@ fn generate_get_search_parameters_tool(capabilities: &CapabilityStatement) -> To
         description: Some(
             "Tool to get available search parameters for a given FHIR Resource Type".to_string(),
         ),
-        execution: None,
-        icons: vec![],
         input_schema,
         meta: None,
         name: GET_SEARCH_PARAMETERS_TOOL_NAME.to_string(),

@@ -1,6 +1,4 @@
-use crate::mcp::schemas::schema_2025_11_25::{
-    CallToolRequestParams, InitializeRequestParams, RequestId,
-};
+use crate::mcp::schemas::types::{CallToolRequestParams, InitializeRequestParams, RequestId};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct InitializeRequest {

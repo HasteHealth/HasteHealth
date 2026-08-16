@@ -1,4 +1,4 @@
-use crate::mcp::schemas::schema_2025_11_25::RequestId;
+use crate::mcp::schemas::types::RequestId;
 use axum::response::IntoResponse;
 use haste_fhir_operation_error::OperationOutcomeError;
 
