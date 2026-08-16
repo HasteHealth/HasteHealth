@@ -181,6 +181,12 @@ export default function IndexingErrors() {
           <Table
             columns={[
               {
+                id: "id",
+                content: "ID",
+                selectorType: "fhirpath",
+                selector: "$this.id",
+              },
+              {
                 id: "resource_type",
                 content: "Resource Type",
                 selectorType: "fhirpath",
