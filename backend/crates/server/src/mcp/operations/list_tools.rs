@@ -158,9 +158,8 @@ fn generate_get_search_parameters_tool(capabilities: &CapabilityStatement) -> To
     }
 }
 
-fn generate_read_tool(capabilities: &CapabilityStatement, api_uri: &str) -> Tool {
+fn generate_read_tool(capabilities: &CapabilityStatement) -> Tool {
     let resource_types = resource_type_enum(capabilities);
-    let base = schema_base_url(api_uri);
 
     Tool {
         annotations: None,
@@ -185,18 +184,15 @@ fn generate_read_tool(capabilities: &CapabilityStatement, api_uri: &str) -> Tool
         meta: None,
         name: R4_READ_TOOL_NAME.to_string(),
         output_schema: Some(json!({
-            "description": "The requested FHIR resource. Schema depends on the resourceType.",
-            "oneOf": resource_types.iter().map(|rt| json!({
-                "$ref": format!("{}/{}", base, rt)
-            })).collect::<Vec<_>>(),
+            "type": "object",
+            "description": "The requested FHIR resource. Shape depends on the resourceType.",
         })),
         title: Some("Read FHIR Resource".to_string()),
     }
 }
 
-fn generate_vread_tool(capabilities: &CapabilityStatement, api_uri: &str) -> Tool {
+fn generate_vread_tool(capabilities: &CapabilityStatement) -> Tool {
     let resource_types = resource_type_enum(capabilities);
-    let base = schema_base_url(api_uri);
 
     Tool {
         annotations: None,
@@ -226,18 +222,15 @@ fn generate_vread_tool(capabilities: &CapabilityStatement, api_uri: &str) -> Too
         meta: None,
         name: R4_VREAD_TOOL_NAME.to_string(),
         output_schema: Some(json!({
-            "description": "The requested version of the FHIR resource.",
-            "oneOf": resource_types.iter().map(|rt| json!({
-                "$ref": format!("{}/{}", base, rt)
-            })).collect::<Vec<_>>(),
+            "type": "object",
+            "description": "The requested version of the FHIR resource. Shape depends on the resourceType.",
         })),
         title: Some("Version Read FHIR Resource".to_string()),
     }
 }
 
-fn generate_create_tool(capabilities: &CapabilityStatement, api_uri: &str) -> Tool {
+fn generate_create_tool(capabilities: &CapabilityStatement) -> Tool {
     let resource_types = resource_type_enum(capabilities);
-    let base = schema_base_url(api_uri);
 
     Tool {
         annotations: None,
@@ -263,18 +256,15 @@ fn generate_create_tool(capabilities: &CapabilityStatement, api_uri: &str) -> To
         meta: None,
         name: R4_CREATE_TOOL_NAME.to_string(),
         output_schema: Some(json!({
-            "description": "The created FHIR resource with server-assigned ID.",
-            "oneOf": resource_types.iter().map(|rt| json!({
-                "$ref": format!("{}/{}", base, rt)
-            })).collect::<Vec<_>>(),
+            "type": "object",
+            "description": "The created FHIR resource with server-assigned ID. Shape depends on the resourceType.",
         })),
         title: Some("Create FHIR Resource".to_string()),
     }
 }
 
-fn generate_update_tool(capabilities: &CapabilityStatement, api_uri: &str) -> Tool {
+fn generate_update_tool(capabilities: &CapabilityStatement) -> Tool {
     let resource_types = resource_type_enum(capabilities);
-    let base = schema_base_url(api_uri);
 
     Tool {
         annotations: None,
@@ -304,18 +294,15 @@ fn generate_update_tool(capabilities: &CapabilityStatement, api_uri: &str) -> To
         meta: None,
         name: R4_UPDATE_TOOL_NAME.to_string(),
         output_schema: Some(json!({
-            "description": "The updated FHIR resource.",
-            "oneOf": resource_types.iter().map(|rt| json!({
-                "$ref": format!("{}/{}", base, rt)
-            })).collect::<Vec<_>>(),
+            "type": "object",
+            "description": "The updated FHIR resource. Shape depends on the resourceType.",
         })),
         title: Some("Update FHIR Resource".to_string()),
     }
 }
 
-fn generate_patch_tool(capabilities: &CapabilityStatement, api_uri: &str) -> Tool {
+fn generate_patch_tool(capabilities: &CapabilityStatement) -> Tool {
     let resource_types = resource_type_enum(capabilities);
-    let base = schema_base_url(api_uri);
 
     Tool {
         annotations: None,
@@ -366,10 +353,8 @@ fn generate_patch_tool(capabilities: &CapabilityStatement, api_uri: &str) -> Too
         meta: None,
         name: R4_PATCH_TOOL_NAME.to_string(),
         output_schema: Some(json!({
-            "description": "The patched FHIR resource.",
-            "oneOf": resource_types.iter().map(|rt| json!({
-                "$ref": format!("{}/{}", base, rt)
-            })).collect::<Vec<_>>(),
+            "type": "object",
+            "description": "The patched FHIR resource. Shape depends on the resourceType.",
         })),
         title: Some("Patch FHIR Resource".to_string()),
     }
@@ -530,6 +515,7 @@ fn generate_transaction_tool(api_uri: &str) -> Tool {
         meta: None,
         name: R4_TRANSACTION_TOOL_NAME.to_string(),
         output_schema: Some(json!({
+            "type": "object",
             "$ref": format!("{}/Bundle", base),
             "description": "Transaction response Bundle with one entry per request, containing status and resource outcomes.",
         })),
@@ -560,6 +546,7 @@ fn generate_batch_tool(api_uri: &str) -> Tool {
         meta: None,
         name: R4_BATCH_TOOL_NAME.to_string(),
         output_schema: Some(json!({
+            "type": "object",
             "$ref": format!("{}/Bundle", base),
             "description": "Batch response Bundle with one entry per request, containing individual status codes and outcomes.",
         })),
@@ -577,11 +564,11 @@ pub async fn list_tools<
     let capabilities = ctx.client.capabilities(ctx.clone()).await?;
     let search_tool = generate_search_schema(&capabilities);
     let get_search_parameters_tool = generate_get_search_parameters_tool(&capabilities);
-    let read_tool = generate_read_tool(&capabilities, api_uri);
-    let vread_tool = generate_vread_tool(&capabilities, api_uri);
-    let create_tool = generate_create_tool(&capabilities, api_uri);
-    let update_tool = generate_update_tool(&capabilities, api_uri);
-    let patch_tool = generate_patch_tool(&capabilities, api_uri);
+    let read_tool = generate_read_tool(&capabilities);
+    let vread_tool = generate_vread_tool(&capabilities);
+    let create_tool = generate_create_tool(&capabilities);
+    let update_tool = generate_update_tool(&capabilities);
+    let patch_tool = generate_patch_tool(&capabilities);
     let delete_tool = generate_delete_tool(&capabilities);
     let history_instance_tool = generate_history_instance_tool(&capabilities);
     let history_type_tool = generate_history_type_tool(&capabilities);
