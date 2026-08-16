@@ -187,16 +187,16 @@ export default function IndexingErrors() {
                 selector: "$this.id",
               },
               {
-                id: "resource_type",
-                content: "Resource Type",
-                selectorType: "fhirpath",
-                selector: "$this.resource_type",
-              },
-              {
                 id: "version_id",
                 content: "Version ID",
                 selectorType: "fhirpath",
                 selector: "$this.version_id",
+              },
+              {
+                id: "resource_type",
+                content: "Resource Type",
+                selectorType: "fhirpath",
+                selector: "$this.resource_type",
               },
               {
                 id: "fhir_method",
