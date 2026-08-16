@@ -6,7 +6,7 @@ use crate::{
             GET_SEARCH_PARAMETERS_TOOL_NAME, R4_SEARCH_TOOL_NAME, search_tool_parameters,
         },
         request::CallToolRequest,
-        schemas::schema_2025_11_25::{CallToolResult, ContentBlock, TextContent, TextContentMeta},
+        schemas::types::{CallToolResult, ContentBlock, TextContent},
     },
 };
 use haste_fhir_client::{FHIRClient, url::ParsedParameters};
@@ -87,12 +87,7 @@ pub async fn tools_call<
                         )
                     })?,
                 ),
-                content: vec![ContentBlock::TextContent(TextContent {
-                    annotations: None,
-                    meta: Some(TextContentMeta {}),
-                    text: result,
-                    type_: "text".to_string(),
-                })],
+                content: vec![ContentBlock::Text(TextContent::new(&result))],
                 is_error: Some(false),
                 meta: None,
             })
@@ -137,12 +132,9 @@ pub async fn tools_call<
             let parameters = search_tool_parameters(resource_capability_statment_params);
 
             Ok(CallToolResult {
-                content: vec![ContentBlock::TextContent(TextContent {
-                    annotations: None,
-                    meta: Some(TextContentMeta {}),
-                    text: serde_json::to_string(&parameters).unwrap_or_default(),
-                    type_: "text".to_string(),
-                })],
+                content: vec![ContentBlock::Text(TextContent::new(
+                    serde_json::to_string(&parameters).unwrap_or_default(),
+                ))],
                 structured_content: Some(parameters),
                 is_error: Some(false),
                 meta: None,
