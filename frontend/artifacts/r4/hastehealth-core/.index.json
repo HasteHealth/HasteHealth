@@ -34,6 +34,10 @@
       "resourceType": "OperationDefinition"
     },
     {
+      "filename": "definitions/haste-health/operation/indexing_errors.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
       "filename": "definitions/haste-health/operation/invite-user.json",
       "resourceType": "OperationDefinition"
     },
