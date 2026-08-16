@@ -373,7 +373,10 @@ pub mod HasteHealthIndexingErrors {
     use super::*;
     pub const CODE: &str = "indexing-errors";
     #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Input {}
+    pub struct Input {
+        #[doc = "If true, mark the indexing errors as resolved."]
+        pub resolve: Option<FHIRBoolean>,
+    }
     impl From<Input> for Resource {
         fn from(value: Input) -> Self {
             let parameters: Vec<ParametersParameter> = value.into();
