@@ -153,6 +153,7 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
                             ]),
                         },
                     ))]),
+                    fhir_user: None,
                     user_id: AuthorId::System,
                     resource_type: AuthorKind::System,
                     access_policy_version_ids: vec![],

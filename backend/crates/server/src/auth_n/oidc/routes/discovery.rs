@@ -359,7 +359,7 @@ pub async fn oauth_protected_resource<
 
     // Default to openid profile user/*.* scopes for FHIR access.
     let default_scopes =
-        Scopes::try_from("openid profile user/*.* offline_access").unwrap_or_default();
+        Scopes::try_from("openid profile user/*.* offline_access fhirUser").unwrap_or_default();
 
     let oauth_protected_resource = OAuthProtectedResourceDocument {
         resource: api_url
@@ -461,6 +461,7 @@ pub fn create_oidc_discovery_document(
             "profile".to_string(),
             "email".to_string(),
             "offline_access".to_string(),
+            "fhirUser".to_string(),
         ],
         response_types_supported: vec![
             "code".to_string(),
@@ -535,6 +536,7 @@ pub fn create_smart_configuration(
             "profile".to_string(),
             "email".to_string(),
             "offline_access".to_string(),
+            "fhirUser".to_string(),
             // SMART scopes supported TODO patient scopes.
             "user/*.cruds".to_string(),
             "system/*.cruds".to_string(),

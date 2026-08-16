@@ -19,17 +19,21 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use axum_extra::{TypedHeader, extract::Cached, headers::UserAgent, routing::TypedPath};
-use haste_fhir_client::request::{FHIRSearchTypeRequest, SearchRequest};
+use haste_fhir_client::{
+    FHIRClient,
+    request::{FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, SearchRequest},
+};
 use haste_fhir_model::r4::generated::{
-    resources::{ClientApplication, ResourceType},
+    resources::{ClientApplication, Resource, ResourceType},
     terminology::{BoundCode, ClientapplicationGrantType},
+    types::FHIRUrl,
 };
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{
     AuthorId, AuthorKind, ProjectId, TenantId, UserRole, VersionId,
     claims::{SubscriptionTier, UserTokenClaims},
-    scopes::{OIDCScope, Scope, Scopes},
+    scopes::{OIDCScope, Scope, Scopes, SmartScope},
 };
 use haste_repository::{
     Repository,
@@ -82,6 +86,7 @@ struct TokenResponseArguments {
     project: ProjectId,
     membership: Option<String>,
     access_policy_version_ids: Vec<VersionId>,
+    fhir_user: Option<FHIRUrl>,
 }
 
 async fn create_token_response<Repo: Repository>(
@@ -143,6 +148,7 @@ async fn create_token_response<Repo: Repository>(
             membership: args.membership.clone(),
             resource_type: args.user_kind,
             access_policy_version_ids: args.access_policy_version_ids,
+            fhir_user: args.fhir_user.clone(),
         },
         &encoding_key.encoding_key,
     )
@@ -388,6 +394,68 @@ async fn find_users_access_policy_version_ids<Search: SearchEngine>(
         .collect())
 }
 
+async fn get_fhir_user_from_membership_link<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
+    state: &ServerState<Repo, Search, Terminology>,
+    tenant: &TenantId,
+    project: &ProjectId,
+    membership_id: Option<&str>,
+    scopes: &Scopes,
+) -> Result<Option<FHIRUrl>, OIDCError> {
+    if !scopes.contains_scope(&Scope::SMART(SmartScope::FHIRUser)) {
+        return Ok(None);
+    }
+
+    let Some(membership_id) = membership_id else {
+        return Ok(None);
+    };
+
+    let response = state
+        .fhir_client
+        .request(
+            Arc::new(crate::fhir_client::ServerCTX::system(
+                tenant.clone(),
+                project.clone(),
+                state.fhir_client.clone(),
+                state.rate_limit.clone(),
+            )),
+            FHIRRequest::Read(FHIRReadRequest {
+                resource_type: ResourceType::Membership,
+                id: membership_id.to_string(),
+            }),
+        )
+        .await
+        .map_err(|_| {
+            OIDCError::new(
+                OIDCErrorCode::ServerError,
+                Some("Failed to retrieve membership resource for fhirUser claim.".to_string()),
+                None,
+            )
+        })?;
+
+    let membership_link_reference = match response {
+        FHIRResponse::Read(read_response) => {
+            read_response.resource.and_then(|resource| match resource {
+                Resource::Membership(membership) => membership
+                    .link
+                    .as_ref()
+                    .and_then(|reference| reference.reference.as_ref())
+                    .and_then(|reference| reference.value.clone()),
+                _ => None,
+            })
+        }
+        _ => None,
+    };
+
+    Ok(membership_link_reference.map(|reference| FHIRUrl {
+        value: Some(reference),
+        ..Default::default()
+    }))
+}
+
 #[derive(PartialEq, Eq)]
 pub enum ClientCredentialsMethod {
     BasicAuth,
@@ -463,6 +531,7 @@ pub async fn client_credentials_to_token_response<
             tenant: tenant.clone(),
             project: project.clone(),
             membership: None,
+            fhir_user: None,
             access_policy_version_ids: find_users_access_policy_version_ids(
                 state.search.as_ref(),
                 tenant,
@@ -595,6 +664,15 @@ pub async fn token<
                         )
                     })?;
 
+            let fhir_user = get_fhir_user_from_membership_link(
+                &state,
+                &tenant,
+                &project,
+                code.membership.as_deref(),
+                &approved_scopes,
+            )
+            .await?;
+
             let response = create_token_response(
                 state.config.as_ref(),
                 &user_agent,
@@ -627,7 +705,8 @@ pub async fn token<
                         }
                         None => vec![],
                     },
-                    membership: code.membership,
+                    membership: code.membership.clone(),
+                    fhir_user,
                 },
             )
             .await?;
@@ -743,6 +822,15 @@ pub async fn token<
                         )
                     })?;
 
+            let fhir_user = get_fhir_user_from_membership_link(
+                &state,
+                &tenant,
+                &project,
+                code.membership.as_deref(),
+                &approved_scopes,
+            )
+            .await?;
+
             let response = create_token_response(
                 state.config.as_ref(),
                 &user_agent,
@@ -775,7 +863,8 @@ pub async fn token<
                         }
                         None => vec![],
                     },
-                    membership: code.membership,
+                    membership: code.membership.clone(),
+                    fhir_user,
                 },
             )
             .await?;
