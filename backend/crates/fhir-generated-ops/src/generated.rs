@@ -368,6 +368,67 @@ pub mod HasteHealthIdpRegistrationInfo {
         }
     }
 }
+#[doc = "Show resources that failed search indexing for the current tenant and project."]
+pub mod HasteHealthIndexingErrors {
+    use super::*;
+    pub const CODE: &str = "indexing-errors";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct OutputErrors {
+        #[doc = "Version id of the resource that failed to index."]
+        pub version_id: FHIRId,
+        #[doc = "FHIR resource type of the resource that failed to index."]
+        pub resource_type: FHIRCode,
+        #[doc = "The operation (create, update or delete) that failed to index."]
+        pub fhir_method: FHIRCode,
+        #[doc = "Sequence position of the resource in the indexing stream."]
+        pub sequence: FHIRInteger,
+        #[doc = "Number of times indexing has been attempted for this resource."]
+        pub attempt_count: FHIRInteger,
+        #[doc = "The error that occurred while indexing."]
+        pub error_message: FHIRString,
+        #[doc = "When this resource first failed indexing."]
+        pub first_failed_at: FHIRDateTime,
+        #[doc = "When this resource most recently failed indexing."]
+        pub last_failed_at: FHIRDateTime,
+        #[doc = "When this failure was marked resolved, if it has been."]
+        pub resolved_at: Option<FHIRDateTime>,
+    }
+    impl From<OutputErrors> for Resource {
+        fn from(value: OutputErrors) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[doc = "The resources that failed search indexing."]
+        #[parameter_nested]
+        pub errors: Option<Vec<OutputErrors>>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
 #[doc = "Delete refresh token from the user for the client."]
 pub mod HasteHealthDeleteRefreshToken {
     use super::*;
