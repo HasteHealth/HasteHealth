@@ -16,7 +16,7 @@ where
 {
     let entries = sqlx::query_as::<_, FailedIndexEntry>(
         r"
-            SELECT f.id, f.version_id, f.resource_type, f.fhir_method, f.attempt_count,
+            SELECT r.id, f.version_id, f.resource_type, f.fhir_method, f.attempt_count,
                    f.error_message, f.first_failed_at, f.last_failed_at, f.resolved_at,
                    r.sequence
             FROM failed_search_indexing f
