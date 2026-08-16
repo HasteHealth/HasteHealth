@@ -1,18 +1,8 @@
 #![allow(dead_code)]
 //! MCP (Model Context Protocol) types aligned with the 2025-06-18 specification.
-//!
-//! These are hand-written structs based on the official MCP JSON Schema at:
-//! <https://github.com/modelcontextprotocol/modelcontextprotocol/tree/main/schema>
-//!
-//! Only types relevant to a server implementation are defined. Additional types
-//! can be added as the server's MCP surface area grows.
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-
-// ===========================================================================
-// JSON-RPC Primitives
-// ===========================================================================
 
 /// A uniquely identifying ID for a JSON-RPC request — either a string or integer.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -415,11 +405,7 @@ pub struct CallToolResult {
     pub content: Vec<ContentBlock>,
 
     /// Whether the tool call ended in an error.
-    #[serde(
-        rename = "isError",
-        default,
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "isError", default, skip_serializing_if = "Option::is_none")]
     pub is_error: Option<bool>,
 
     /// Optional structured (JSON) result of the tool call (2025-06-18+).
