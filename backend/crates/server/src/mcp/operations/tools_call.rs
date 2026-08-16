@@ -288,10 +288,7 @@ pub async fn tools_call<
                 jsonrpc: "2.0".to_string(),
                 error: MCPErrorDetail {
                     code: 502,
-                    message: format!(
-                        "Failed to fetch schema for '{}': {}",
-                        args.resource_type, e
-                    ),
+                    message: format!("Failed to fetch schema for '{}': {}", args.resource_type, e),
                     data: None,
                 },
             })?;
