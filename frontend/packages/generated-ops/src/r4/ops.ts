@@ -381,6 +381,136 @@ export namespace HasteHealthIdpRegistrationInfo {
     ],
   } as fhirTypes.OperationDefinition);
 }
+export namespace HasteHealthIndexingErrors {
+  export type Input = { resolve?: fhirTypes.boolean };
+  export type Output = {
+    errors?: Array<{
+      version_id: fhirTypes.id;
+      resource_type: fhirTypes.code;
+      fhir_method: fhirTypes.code;
+      sequence: fhirTypes.integer;
+      attempt_count: fhirTypes.integer;
+      error_message: fhirTypes.string;
+      first_failed_at: fhirTypes.dateTime;
+      last_failed_at: fhirTypes.dateTime;
+      resolved_at?: fhirTypes.dateTime;
+    }>;
+  };
+  export type IOp = IOperation<Input, Output>;
+  export const Op: IOp = new Operation<Input, Output>({
+    resourceType: "OperationDefinition",
+    id: "haste-health-indexing-errors",
+    url: "https://haste.health/OperationDefinition/indexing-errors",
+    version: "4.0.1",
+    name: "Show Indexing Errors",
+    status: "draft",
+    kind: "operation",
+    date: "2026-08-15T09:29:23+11:00",
+    publisher: "HasteHealth",
+    description:
+      "Show resources that failed search indexing for the current tenant and project.",
+    code: "indexing-errors",
+    system: true,
+    type: false,
+    instance: false,
+    parameter: [
+      {
+        name: "resolve",
+        use: "in",
+        min: 0,
+        max: "1",
+        documentation: "If true, mark the indexing errors as resolved.",
+        type: "boolean",
+      },
+      {
+        name: "errors",
+        use: "out",
+        min: 0,
+        max: "*",
+        documentation: "The resources that failed search indexing.",
+        part: [
+          {
+            name: "version_id",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation: "Version id of the resource that failed to index.",
+            type: "id",
+          },
+          {
+            name: "resource_type",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation:
+              "FHIR resource type of the resource that failed to index.",
+            type: "code",
+          },
+          {
+            name: "fhir_method",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation:
+              "The operation (create, update or delete) that failed to index.",
+            type: "code",
+          },
+          {
+            name: "sequence",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation:
+              "Sequence position of the resource in the indexing stream.",
+            type: "integer",
+          },
+          {
+            name: "attempt_count",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation:
+              "Number of times indexing has been attempted for this resource.",
+            type: "integer",
+          },
+          {
+            name: "error_message",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation: "The error that occurred while indexing.",
+            type: "string",
+          },
+          {
+            name: "first_failed_at",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation: "When this resource first failed indexing.",
+            type: "dateTime",
+          },
+          {
+            name: "last_failed_at",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation: "When this resource most recently failed indexing.",
+            type: "dateTime",
+          },
+          {
+            name: "resolved_at",
+            use: "out",
+            min: 0,
+            max: "1",
+            documentation:
+              "When this failure was marked resolved, if it has been.",
+            type: "dateTime",
+          },
+        ],
+      },
+    ],
+  } as fhirTypes.OperationDefinition);
+}
 export namespace HasteHealthInviteUser {
   export type Input = {
     email: fhirTypes.string;
