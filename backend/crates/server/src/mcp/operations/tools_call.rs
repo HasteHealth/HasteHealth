@@ -3,11 +3,11 @@ use crate::{
     mcp::{
         error::{MCPError, MCPErrorDetail},
         operations::{
-            GET_SEARCH_PARAMETERS_TOOL_NAME, R4_BATCH_TOOL_NAME, R4_CAPABILITIES_TOOL_NAME,
-            R4_CREATE_TOOL_NAME, R4_DELETE_TOOL_NAME, R4_HISTORY_INSTANCE_TOOL_NAME,
-            R4_HISTORY_TYPE_TOOL_NAME, R4_PATCH_TOOL_NAME, R4_READ_TOOL_NAME, R4_SEARCH_TOOL_NAME,
-            R4_TRANSACTION_TOOL_NAME, R4_UPDATE_TOOL_NAME, R4_VREAD_TOOL_NAME,
-            search_tool_parameters,
+            GET_RESOURCE_SCHEMA_TOOL_NAME, GET_SEARCH_PARAMETERS_TOOL_NAME, R4_BATCH_TOOL_NAME,
+            R4_CAPABILITIES_TOOL_NAME, R4_CREATE_TOOL_NAME, R4_DELETE_TOOL_NAME,
+            R4_HISTORY_INSTANCE_TOOL_NAME, R4_HISTORY_TYPE_TOOL_NAME, R4_PATCH_TOOL_NAME,
+            R4_READ_TOOL_NAME, R4_SEARCH_TOOL_NAME, R4_TRANSACTION_TOOL_NAME, R4_UPDATE_TOOL_NAME,
+            R4_VREAD_TOOL_NAME, schema_base_url, search_tool_parameters,
         },
         request::CallToolRequest,
         schemas::types::{CallToolResult, ContentBlock, TextContent},
@@ -27,6 +27,12 @@ struct FHIRSearchArguments {
     #[serde(rename = "resourceType")]
     resource_type: String,
     search_parameters: Option<HashMap<String, String>>,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+struct FHIRGetResourceSchemaArguments {
+    #[serde(rename = "resourceType")]
+    resource_type: String,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
@@ -197,6 +203,7 @@ pub async fn tools_call<
 >(
     ctx: Arc<ServerCTX<Client>>,
     request: CallToolRequest,
+    api_uri: &str,
 ) -> Result<CallToolResult, MCPError<serde_json::Value>> {
     match request.params.name.as_str() {
         R4_SEARCH_TOOL_NAME => {
@@ -268,6 +275,57 @@ pub async fn tools_call<
 
             let parameters = search_tool_parameters(resource_capability_statement_params);
             success_result(&parameters)
+        }
+        GET_RESOURCE_SCHEMA_TOOL_NAME => {
+            let args: FHIRGetResourceSchemaArguments = parse_arguments(request.params.arguments)?;
+            // Validate it's a real resource type before fetching.
+            parse_resource_type(&args.resource_type, &request.id)?;
+
+            let url = format!("{}/{}", schema_base_url(api_uri), args.resource_type);
+
+            let response = reqwest::get(&url).await.map_err(|e| MCPError {
+                id: request.id.clone(),
+                jsonrpc: "2.0".to_string(),
+                error: MCPErrorDetail {
+                    code: 502,
+                    message: format!(
+                        "Failed to fetch schema for '{}': {}",
+                        args.resource_type, e
+                    ),
+                    data: None,
+                },
+            })?;
+
+            if !response.status().is_success() {
+                return Err(MCPError {
+                    id: request.id.clone(),
+                    jsonrpc: "2.0".to_string(),
+                    error: MCPErrorDetail {
+                        code: 502,
+                        message: format!(
+                            "Schema endpoint returned status {} for resourceType '{}'",
+                            response.status(),
+                            args.resource_type
+                        ),
+                        data: None,
+                    },
+                });
+            }
+
+            let schema: serde_json::Value = response.json().await.map_err(|e| MCPError {
+                id: request.id.clone(),
+                jsonrpc: "2.0".to_string(),
+                error: MCPErrorDetail {
+                    code: 502,
+                    message: format!(
+                        "Invalid schema response for '{}': {}",
+                        args.resource_type, e
+                    ),
+                    data: None,
+                },
+            })?;
+
+            success_result(&schema)
         }
         R4_READ_TOOL_NAME => {
             let args: FHIRReadArguments = parse_arguments(request.params.arguments)?;

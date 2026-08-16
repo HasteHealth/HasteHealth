@@ -17,6 +17,7 @@ use std::sync::Arc;
 
 pub const R4_SEARCH_TOOL_NAME: &str = "fhir_r4_search";
 pub const GET_SEARCH_PARAMETERS_TOOL_NAME: &str = "fhir_r4_get_search_parameters";
+pub const GET_RESOURCE_SCHEMA_TOOL_NAME: &str = "fhir_r4_get_resource_schema";
 pub const R4_READ_TOOL_NAME: &str = "fhir_r4_read";
 pub const R4_VREAD_TOOL_NAME: &str = "fhir_r4_vread";
 pub const R4_CREATE_TOOL_NAME: &str = "fhir_r4_create";
@@ -32,7 +33,7 @@ pub const R4_BATCH_TOOL_NAME: &str = "fhir_r4_batch";
 /// Returns the base URL for external JSON Schema `$ref`s.
 /// Points to the `/schemas/fhir/{ResourceType}` endpoint so MCP tool
 /// input/output schemas use external refs instead of inlining definitions.
-fn schema_base_url(api_uri: &str) -> String {
+pub fn schema_base_url(api_uri: &str) -> String {
     format!("{}/schemas/fhir", api_uri)
 }
 
@@ -158,6 +159,40 @@ fn generate_get_search_parameters_tool(capabilities: &CapabilityStatement) -> To
     }
 }
 
+fn generate_get_resource_schema_tool(capabilities: &CapabilityStatement) -> Tool {
+    let resource_types = resource_type_enum(capabilities);
+
+    let input_schema = json!({
+      "type": "object",
+      "properties": {
+        "resourceType": {
+          "type": "string",
+          "enum": resource_types,
+        },
+      },
+      "required": ["resourceType"]
+    });
+
+    Tool {
+        annotations: None,
+        description: Some(
+            "Tool to get the exact JSON Schema (Draft 2020-12) for a given FHIR Resource Type. \
+             Use this to see the full field structure before creating or updating a resource, \
+             or to interpret the shape of a resource returned by another tool."
+                .to_string(),
+        ),
+
+        input_schema,
+        meta: None,
+        name: GET_RESOURCE_SCHEMA_TOOL_NAME.to_string(),
+        output_schema: Some(json!({
+            "type": "object",
+            "description": "JSON Schema describing the structure of the specified FHIR Resource Type",
+        })),
+        title: Some(GET_RESOURCE_SCHEMA_TOOL_NAME.to_string()),
+    }
+}
+
 fn generate_read_tool(capabilities: &CapabilityStatement) -> Tool {
     let resource_types = resource_type_enum(capabilities);
 
@@ -185,7 +220,10 @@ fn generate_read_tool(capabilities: &CapabilityStatement) -> Tool {
         name: R4_READ_TOOL_NAME.to_string(),
         output_schema: Some(json!({
             "type": "object",
-            "description": "The requested FHIR resource. Shape depends on the resourceType.",
+            "description": format!(
+                "The requested FHIR resource. Shape depends on the resourceType - use the '{}' tool to get its exact schema.",
+                GET_RESOURCE_SCHEMA_TOOL_NAME
+            ),
         })),
         title: Some("Read FHIR Resource".to_string()),
     }
@@ -223,7 +261,10 @@ fn generate_vread_tool(capabilities: &CapabilityStatement) -> Tool {
         name: R4_VREAD_TOOL_NAME.to_string(),
         output_schema: Some(json!({
             "type": "object",
-            "description": "The requested version of the FHIR resource. Shape depends on the resourceType.",
+            "description": format!(
+                "The requested version of the FHIR resource. Shape depends on the resourceType - use the '{}' tool to get its exact schema.",
+                GET_RESOURCE_SCHEMA_TOOL_NAME
+            ),
         })),
         title: Some("Version Read FHIR Resource".to_string()),
     }
@@ -257,7 +298,10 @@ fn generate_create_tool(capabilities: &CapabilityStatement) -> Tool {
         name: R4_CREATE_TOOL_NAME.to_string(),
         output_schema: Some(json!({
             "type": "object",
-            "description": "The created FHIR resource with server-assigned ID. Shape depends on the resourceType.",
+            "description": format!(
+                "The created FHIR resource with server-assigned ID. Shape depends on the resourceType - use the '{}' tool to get its exact schema.",
+                GET_RESOURCE_SCHEMA_TOOL_NAME
+            ),
         })),
         title: Some("Create FHIR Resource".to_string()),
     }
@@ -295,7 +339,10 @@ fn generate_update_tool(capabilities: &CapabilityStatement) -> Tool {
         name: R4_UPDATE_TOOL_NAME.to_string(),
         output_schema: Some(json!({
             "type": "object",
-            "description": "The updated FHIR resource. Shape depends on the resourceType.",
+            "description": format!(
+                "The updated FHIR resource. Shape depends on the resourceType - use the '{}' tool to get its exact schema.",
+                GET_RESOURCE_SCHEMA_TOOL_NAME
+            ),
         })),
         title: Some("Update FHIR Resource".to_string()),
     }
@@ -354,7 +401,10 @@ fn generate_patch_tool(capabilities: &CapabilityStatement) -> Tool {
         name: R4_PATCH_TOOL_NAME.to_string(),
         output_schema: Some(json!({
             "type": "object",
-            "description": "The patched FHIR resource. Shape depends on the resourceType.",
+            "description": format!(
+                "The patched FHIR resource. Shape depends on the resourceType - use the '{}' tool to get its exact schema.",
+                GET_RESOURCE_SCHEMA_TOOL_NAME
+            ),
         })),
         title: Some("Patch FHIR Resource".to_string()),
     }
@@ -564,6 +614,7 @@ pub async fn list_tools<
     let capabilities = ctx.client.capabilities(ctx.clone()).await?;
     let search_tool = generate_search_schema(&capabilities);
     let get_search_parameters_tool = generate_get_search_parameters_tool(&capabilities);
+    let get_resource_schema_tool = generate_get_resource_schema_tool(&capabilities);
     let read_tool = generate_read_tool(&capabilities);
     let vread_tool = generate_vread_tool(&capabilities);
     let create_tool = generate_create_tool(&capabilities);
@@ -580,6 +631,7 @@ pub async fn list_tools<
         tools: vec![
             search_tool,
             get_search_parameters_tool,
+            get_resource_schema_tool,
             read_tool,
             vread_tool,
             create_tool,

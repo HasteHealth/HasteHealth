@@ -81,7 +81,7 @@ pub async fn mcp_handler<
         }
         MCPRequest::ToolsCall(tools_call_request) => {
             let id = tools_call_request.id.clone();
-            let result = operations::tools_call(ctx, tools_call_request).await?;
+            let result = operations::tools_call(ctx, tools_call_request, api_uri).await?;
 
             Ok(Json(JSONRPCResult {
                 id,
