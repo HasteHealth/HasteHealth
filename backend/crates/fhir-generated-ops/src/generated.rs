@@ -389,6 +389,8 @@ pub mod HasteHealthIndexingErrors {
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct OutputErrors {
         #[doc = "Version id of the resource that failed to index."]
+        pub id: FHIRId,
+        #[doc = "Version id of the resource that failed to index."]
         pub version_id: FHIRId,
         #[doc = "FHIR resource type of the resource that failed to index."]
         pub resource_type: FHIRCode,

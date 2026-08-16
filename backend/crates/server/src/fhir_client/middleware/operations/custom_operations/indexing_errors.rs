@@ -71,6 +71,10 @@ pub fn indexing_errors_op<
                             failures
                                 .into_iter()
                                 .map(|entry| HasteHealthIndexingErrors::OutputErrors {
+                                    id: FHIRId {
+                                        value: Some(entry.id),
+                                        ..Default::default()
+                                    },
                                     version_id: FHIRId {
                                         value: Some(entry.version_id),
                                         ..Default::default()

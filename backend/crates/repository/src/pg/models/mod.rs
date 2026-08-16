@@ -1,5 +1,4 @@
 mod authorization_code;
-mod failed_indexing;
 mod fhir;
 mod membership;
 mod mfa;

@@ -21,6 +21,7 @@ pub struct FailedIndexRecord {
 /// exist once a `FailedIndexRecord` has actually been persisted.
 #[derive(sqlx::FromRow, Clone, Debug)]
 pub struct FailedIndexEntry {
+    pub id: String,
     pub version_id: String,
     pub resource_type: String,
     pub fhir_method: FHIRMethod,
