@@ -382,7 +382,7 @@ export namespace HasteHealthIdpRegistrationInfo {
   } as fhirTypes.OperationDefinition);
 }
 export namespace HasteHealthIndexingErrors {
-  export type Input = Record<string, never>;
+  export type Input = { resolve?: fhirTypes.boolean };
   export type Output = {
     errors?: Array<{
       version_id: fhirTypes.id;
@@ -414,6 +414,14 @@ export namespace HasteHealthIndexingErrors {
     type: false,
     instance: false,
     parameter: [
+      {
+        name: "resolve",
+        use: "in",
+        min: 0,
+        max: "1",
+        documentation: "If true, mark the indexing errors as resolved.",
+        type: "boolean",
+      },
       {
         name: "errors",
         use: "out",

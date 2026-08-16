@@ -15,6 +15,14 @@
     "instance": false,
     "parameter": [
         {
+            "name": "resolve",
+            "use": "in",
+            "min": 0,
+            "max": "1",
+            "documentation": "If true, mark the indexing errors as resolved.",
+            "type": "boolean"
+        },
+        {
             "name": "errors",
             "use": "out",
             "min": 0,
