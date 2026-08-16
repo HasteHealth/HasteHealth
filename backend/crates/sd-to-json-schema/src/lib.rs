@@ -323,30 +323,6 @@ pub fn bundle_of_resource(resource_schema: &serde_json::Value) -> serde_json::Va
     })
 }
 
-/// Generates a self-contained JSON Schema from a FHIR [`StructureDefinition`].
-///
-/// The generated schema is based on the supplied structure definition and
-/// includes the provided definitions under the JSON Schema `$defs` keyword.
-///
-/// # Arguments
-///
-/// * `defs` - Definitions to include in the generated schema's `$defs` section.
-/// * `sd` - The FHIR [`StructureDefinition`] to convert.
-///
-/// # Errors
-///
-/// Returns an [`OperationOutcomeError`] if the schema cannot be generated
-/// from the supplied structure definition.
-pub fn self_contained_schema<S: std::hash::BuildHasher>(
-    defs: &HashMap<String, serde_json::Value, S>,
-    sd: &StructureDefinition,
-) -> Result<serde_json::Value, OperationOutcomeError> {
-    let mut schema = isolated_schema("#/$defs", sd)?;
-    schema["$defs"] = json!(defs);
-
-    Ok(schema)
-}
-
 #[cfg(test)]
 mod test {
     use std::sync::LazyLock;
@@ -384,6 +360,13 @@ mod test {
             .collect()
     });
 
+    /// Test-only stand-in for the real `{schema_base_url}` complex types are
+    /// referenced against in production.
+    const TEST_SCHEMA_BASE_URL: &str = "https://example.com/schemas/fhir";
+
+    /// Complex type schemas, keyed by the full external URL they're
+    /// referenced by (matching what `isolated_schema` generates), so tests
+    /// can resolve them the same way production does - via `$ref`, not `$defs`.
     pub static FHIR_COMPLEX_TYPE_DEFINITIONS: LazyLock<HashMap<String, serde_json::Value>> =
         LazyLock::new(|| {
             let sd_str =
@@ -411,13 +394,30 @@ mod test {
                 sd.kind  == StructureDefinitionKind::complex_type()
             )
             .map(|sd| {
+                let type_name = sd.type_.value.clone().unwrap();
                 (
-                    sd.type_.value.clone().unwrap(),
-                    isolated_schema("#/$defs", &sd).unwrap(),
+                    format!("{TEST_SCHEMA_BASE_URL}/{type_name}"),
+                    isolated_schema(TEST_SCHEMA_BASE_URL, &sd).unwrap(),
                 )
             })
             .collect::<HashMap<String, _>>()
         });
+
+    /// Resolves the external `$ref`s complex types are generated with by
+    /// looking them up in an in-memory map instead of making real HTTP calls.
+    struct TestSchemaRetriever;
+
+    impl jsonschema::Retrieve for TestSchemaRetriever {
+        fn retrieve(
+            &self,
+            uri: &jsonschema::Uri<String>,
+        ) -> Result<serde_json::Value, Box<dyn std::error::Error + Send + Sync>> {
+            FHIR_COMPLEX_TYPE_DEFINITIONS
+                .get(uri.as_str())
+                .cloned()
+                .ok_or_else(|| format!("Unknown schema: {uri}").into())
+        }
+    }
 
     #[test]
     fn test_sd_to_json_schema() {
@@ -426,7 +426,7 @@ mod test {
             .find(|v| v.type_.value.as_deref() == Some("Patient"))
             .unwrap();
 
-        let schema = self_contained_schema(&*FHIR_COMPLEX_TYPE_DEFINITIONS, patient_sd).unwrap();
+        let schema = isolated_schema(TEST_SCHEMA_BASE_URL, patient_sd).unwrap();
 
         println!("{}", serde_json::to_string_pretty(&schema).unwrap());
 
@@ -440,9 +440,12 @@ mod test {
             .find(|v| v.type_.value.as_deref() == Some("Patient"))
             .unwrap();
 
-        let schema = self_contained_schema(&*FHIR_COMPLEX_TYPE_DEFINITIONS, patient_sd).unwrap();
+        let schema = isolated_schema(TEST_SCHEMA_BASE_URL, patient_sd).unwrap();
 
-        // println!("{}", serde_json::to_string_pretty(&schema).unwrap());
+        let validator = jsonschema::options()
+            .with_retriever(TestSchemaRetriever)
+            .build(&schema)
+            .unwrap();
 
         let patient_data = serde_json::to_string(&Patient {
             name: Some(vec![HumanName {
@@ -461,20 +464,20 @@ mod test {
         .unwrap();
 
         let mut patient_json = serde_json::from_str(&patient_data).unwrap();
-        let result = jsonschema::validate(&schema, &patient_json);
+        let result = validator.validate(&patient_json);
         assert!(result.is_ok());
 
         patient_json["name"][0]["_given"] = json!("This is not a valid value");
-        let result = jsonschema::validate(&schema, &patient_json);
+        let result = validator.validate(&patient_json);
         assert!(result.is_err());
 
         patient_json["name"][0]["_given"] = json!([{"id": "1"}]);
-        let result = jsonschema::validate(&schema, &patient_json);
+        let result = validator.validate(&patient_json);
         println!("{result:?}");
         assert!(result.is_ok());
 
         patient_json["name"] = json!("This is not a valid value");
-        let result = jsonschema::validate(&schema, &patient_json);
+        let result = validator.validate(&patient_json);
 
         assert!(result.is_err());
     }

@@ -287,6 +287,10 @@ pub async fn server(
             auth_n::global::routes::create_router(shared_state.clone()),
         )
         .route("/openapi.json", get(openapi::openapi_document_handler))
+        .route(
+            "/schemas/fhir/{resource_type}",
+            get(openapi::resource_schema_handler),
+        )
         .nest("/w/{tenant}", tenant_router)
         .layer(
             ServiceBuilder::new()
