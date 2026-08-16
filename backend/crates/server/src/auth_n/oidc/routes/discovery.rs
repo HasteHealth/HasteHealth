@@ -436,7 +436,14 @@ pub fn create_oidc_discovery_document(
         .join(jwks::JWKSPath.to_string().strip_prefix("/").unwrap());
 
     let oidc_response = WellKnownDiscoveryDocument {
-        issuer: api_url.to_string(),
+        // Must exactly match the authorization server identifier the client
+        // used to look this document up (RFC 8414 §3.3) - the same
+        // tenant/project-scoped URL `oauth_protected_resource` advertises
+        // via `authorization_servers`, not the bare root API URL.
+        issuer: api_url
+            .join(project_path(tenant, project).to_str().unwrap_or_default())
+            .unwrap_or(api_url.clone())
+            .to_string(),
         authorization_endpoint: api_url
             .join(authorize_path.to_str().unwrap_or_default())
             .unwrap()

@@ -56,10 +56,12 @@ pub fn verify_requested_scope_is_subset(
         if !allowed.0.contains(scope) {
             return Err(OIDCError::new(
                 OIDCErrorCode::InvalidScope,
-                Some("Requested scope '{}' is not allowed. Check client configuration for what scopes are allowed.".to_string()),
-                 None
-                )
-            );
+                Some(format!(
+                    "Requested scope '{}' is not allowed. Check client configuration for what scopes are allowed.",
+                    String::from(scope.clone())
+                )),
+                None,
+            ));
         }
     }
     Ok(())

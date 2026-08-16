@@ -55,6 +55,8 @@ pub async fn mcp_handler<
         .with_tracing_id(Some(format!("mcp-{}", generate_id(Some(8))))),
     );
 
+    let api_uri = &state.config.api_uri;
+
     match mcp_request {
         MCPRequest::Initialize(initialize_request) => {
             let result = operations::initialize(ctx, &initialize_request).await?;
@@ -66,7 +68,7 @@ pub async fn mcp_handler<
             .into_response())
         }
         MCPRequest::ListTools(list_tools_request) => {
-            let result = operations::list_tools(ctx, &list_tools_request).await?;
+            let result = operations::list_tools(ctx, &list_tools_request, api_uri).await?;
             Ok(Json(JSONRPCResult {
                 id: list_tools_request.id.clone(),
                 result: ServerResult::ListTools(result),
@@ -79,7 +81,7 @@ pub async fn mcp_handler<
         }
         MCPRequest::ToolsCall(tools_call_request) => {
             let id = tools_call_request.id.clone();
-            let result = operations::tools_call(ctx, tools_call_request).await?;
+            let result = operations::tools_call(ctx, tools_call_request, api_uri).await?;
 
             Ok(Json(JSONRPCResult {
                 id,

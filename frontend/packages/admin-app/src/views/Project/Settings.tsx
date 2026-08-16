@@ -260,6 +260,9 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
     if (endpointMetadata?.["oidc-authorize-endpoint"]) {
       configured += 1;
     }
+    if (endpointMetadata?.["mcp-endpoint"]) {
+      configured += 1;
+    }
 
     return configured;
   }, [endpointMetadata]);
@@ -372,6 +375,10 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
             <CopyField
               label="OIDC Authorization Endpoint"
               value={endpointMetadata?.["oidc-authorize-endpoint"]}
+            />
+            <CopyField
+              label="MCP URL"
+              value={endpointMetadata?.["mcp-endpoint"]}
             />
           </div>
         </SectionCard>
