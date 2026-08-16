@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use haste_fhir_model::r4::generated::{
     resources::{SearchParameter, StructureDefinition},
@@ -254,7 +254,7 @@ fn patch_resource_operation(resource_name: &str) -> OpenAPIOperation {
 
 fn resource_search_parameters_schema(
     resource_name: &str,
-    search_parameters: &Vec<SearchParameter>,
+    search_parameters: &[SearchParameter],
 ) -> Vec<serde_json::Value> {
     let mut params = vec![];
 
@@ -279,7 +279,7 @@ fn resource_search_parameters_schema(
             "schema": {
                 "type": search_type
             },
-            "description": sp.description.value.as_ref().map(|s| s.as_str()).unwrap_or("")
+            "description": sp.description.value.as_deref().unwrap_or("")
         }));
     }
 
@@ -381,11 +381,27 @@ fn delete_resource_operation(parameters: Vec<serde_json::Value>) -> OpenAPIOpera
     }
 }
 
+/// Generates an OpenAPI document filtered to only the supported resource types.
+///
+/// Resource and complex type schemas are both represented as external `$ref`s pointing to
+/// `{schema_base_url}/{TypeName}`, keeping the main document small - the schemas themselves
+/// are served on demand from a separate endpoint rather than embedded here.
+///
+/// # Arguments
+///
+/// * `server_root` - The root URL of the FHIR server.
+/// * `api_version` - The API version string.
+/// * `schema_base_url` - The base URL where individual resource schemas are served (e.g. `/schemas/fhir`).
+/// * `sds` - All available StructureDefinitions (resources + complex types).
+/// * `search_parameters` - All available SearchParameters.
+/// * `supported_resource_names` - The set of resource type names this server actually supports.
 pub fn open_api_schema_generator(
     server_root: &str,
     api_version: &str,
-    sds: &Vec<StructureDefinition>,
-    search_parameters: &Vec<SearchParameter>,
+    schema_base_url: &str,
+    sds: &[StructureDefinition],
+    search_parameters: &[SearchParameter],
+    supported_resource_names: &HashSet<String>,
 ) -> Result<OpenAPI, OperationOutcomeError> {
     let mut fhir_server_variables = HashMap::new();
     fhir_server_variables.insert(
@@ -430,33 +446,18 @@ pub fn open_api_schema_generator(
         paths: HashMap::new(),
     };
 
-    let complex_sds = sds
-        .iter()
-        .filter(|sd| sd.kind == StructureDefinitionKind::complex_type());
-
-    for sd in complex_sds {
-        let json_schema = haste_sd_to_json_schema::isolated_schema("#/components/schemas", sd)?;
-        let type_name = sd.type_.value.as_ref().ok_or_else(|| {
-            OperationOutcomeError::error(
-                IssueType::structure(),
-                format!(
-                    "StructureDefinition missing type for id {}",
-                    sd.id.as_ref().unwrap_or(&"unknown".to_string())
-                ),
-            )
-        })?;
-        openapi_schema
-            .components
-            .schemas
-            .insert(type_name.clone(), json_schema);
-    }
-
+    // Filter resource SDs to only supported resources
     let resource_sds = sds
         .iter()
-        .filter(|sd| sd.kind == StructureDefinitionKind::resource());
+        .filter(|sd| sd.kind == StructureDefinitionKind::resource())
+        .filter(|sd| {
+            sd.type_
+                .value
+                .as_ref()
+                .is_some_and(|name| supported_resource_names.contains(name))
+        });
 
     for sd in resource_sds {
-        let json_schema = haste_sd_to_json_schema::isolated_schema("#/components/schemas", sd)?;
         let resource_name = sd.type_.value.as_ref().ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::structure(),
@@ -467,60 +468,75 @@ pub fn open_api_schema_generator(
             )
         })?;
 
+        // Use external $ref for the resource schema — individual schemas are served
+        // from a separate endpoint to keep the main document small.
+        openapi_schema.components.schemas.insert(
+            resource_name.clone(),
+            json!({
+                "$ref": format!("{}/{}", schema_base_url, resource_name)
+            }),
+        );
+
         // Read Operation
         openapi_schema.paths.insert(
             format!("/{}/{{id}}", resource_name),
             OpenAPIPathItem {
-                get: Some(read_resource_operation(&resource_name)),
+                get: Some(read_resource_operation(resource_name)),
                 post: None,
-                patch: Some(patch_resource_operation(&resource_name)),
-                put: Some(put_resource_operation(&resource_name)),
-                delete: Some(delete_instance_operation(&resource_name)),
+                patch: Some(patch_resource_operation(resource_name)),
+                put: Some(put_resource_operation(resource_name)),
+                delete: Some(delete_instance_operation(resource_name)),
             },
         );
 
         let resource_search_parameters =
-            resource_search_parameters_schema(&resource_name, search_parameters);
+            resource_search_parameters_schema(resource_name, search_parameters);
 
         openapi_schema.paths.insert(
             format!("/{}", resource_name),
             OpenAPIPathItem {
                 get: Some(search_resource_operation(
-                    &resource_name,
+                    resource_name,
                     resource_search_parameters.clone(),
                 )),
                 patch: None,
                 put: None,
-                post: Some(create_resource_operation(&resource_name)),
+                post: Some(create_resource_operation(resource_name)),
                 delete: Some(delete_resource_operation(resource_search_parameters)),
             },
         );
-
-        openapi_schema
-            .components
-            .schemas
-            .insert(resource_name.clone(), json_schema);
     }
 
-    openapi_schema.components.schemas.insert(
-        "Element".to_string(),
-        json!({
-            "additionalProperties": false,
-            "properties": {
-                "extension": {
-                    "items": {
-                        "$ref": "#/components/schemas/Extension"
-                    },
-                    "type": "array"
-                },
-                "id": {
-                    "type": "string"
-                }
-            },
-            "required": [],
-            "type": "object"
-        }),
-    );
+    // Complex types (datatypes) get the same external-$ref treatment as
+    // resources — served on demand from `{schema_base_url}/{TypeName}` rather
+    // than tracked/inlined here, so there's no need to figure out in advance
+    // which ones are actually referenced. "Element" is matched by name too
+    // since it's FHIR's abstract base type and isn't always loaded with
+    // `kind: complex-type`.
+    for sd in sds.iter().filter(|sd| {
+        sd.kind == StructureDefinitionKind::complex_type()
+            || sd.name.value.as_deref() == Some("Element")
+    }) {
+        let Some(type_name) = sd.type_.value.as_ref() else {
+            continue;
+        };
+
+        openapi_schema.components.schemas.insert(
+            type_name.clone(),
+            json!({
+                "$ref": format!("{}/{}", schema_base_url, type_name)
+            }),
+        );
+    }
 
     Ok(openapi_schema)
+}
+
+/// Returns the set of resource type names from the given StructureDefinitions.
+/// Useful for getting the full unfiltered set when no CapabilityStatement filtering is desired.
+pub fn all_resource_names(sds: &[StructureDefinition]) -> HashSet<String> {
+    sds.iter()
+        .filter(|sd| sd.kind == StructureDefinitionKind::resource())
+        .filter_map(|sd| sd.type_.value.clone())
+        .collect()
 }
