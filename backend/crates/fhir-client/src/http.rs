@@ -192,7 +192,7 @@ fn fhir_request_to_http_request<'a>(
 
             request.headers_mut().insert(
                 "Authorization",
-                HeaderValue::from_str(&format!("Bearer {}", token)).map_err(|_| {
+                HeaderValue::from_str(&format!("Bearer {token}")).map_err(|_| {
                     OperationOutcomeError::error(
                         IssueType::invalid(),
                         "Failed to create Authorization header.".to_string(),
@@ -251,7 +251,7 @@ fn request_from_create(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let create_request_url = state
         .api_url
-        .join(&format!("{}", create_request.resource_type.as_ref(),))
+        .join(create_request.resource_type.as_ref())
         .map_err(|_| FHIRHTTPError::UrlParseError("Create request".to_string()))?;
 
     let body = serialize_json(&create_request.resource)?;
@@ -357,7 +357,7 @@ fn request_from_update_conditional(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let mut request_url = state
         .api_url
-        .join(&format!("{}", update_request.resource_type.as_ref(),))
+        .join(update_request.resource_type.as_ref())
         .map_err(|_| FHIRHTTPError::UrlParseError("ConditionalUpdate request".to_string()))?;
 
     fhir_parameter_to_query_parameters(&mut request_url, &update_request.parameters);
@@ -383,7 +383,7 @@ fn request_from_search_type(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let mut request_url = state
         .api_url
-        .join(&format!("{}", search_request.resource_type.as_ref(),))
+        .join(search_request.resource_type.as_ref())
         .map_err(|_| FHIRHTTPError::UrlParseError("SearchType request".to_string()))?;
 
     fhir_parameter_to_query_parameters(&mut request_url, &search_request.parameters);
@@ -435,7 +435,7 @@ fn request_from_delete_type(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let mut request_url = state
         .api_url
-        .join(&format!("{}", delete_request.resource_type.as_ref(),))
+        .join(delete_request.resource_type.as_ref())
         .map_err(|_| FHIRHTTPError::UrlParseError("DeleteType request".to_string()))?;
 
     fhir_parameter_to_query_parameters(&mut request_url, &delete_request.parameters);
@@ -506,7 +506,7 @@ fn request_from_history_system(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let mut request_url = state
         .api_url
-        .join(&format!("_history"))
+        .join("_history")
         .map_err(|_| FHIRHTTPError::UrlParseError("HistorySystem request".to_string()))?;
 
     fhir_parameter_to_query_parameters(&mut request_url, &history_request.parameters);
@@ -568,7 +568,7 @@ fn request_from_invocation_system(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let request_url = state
         .api_url
-        .join(&format!("${}", invocation_request.operation.name(),))
+        .join(invocation_request.operation.name())
         .map_err(|_| FHIRHTTPError::UrlParseError("InvokeSystem request".to_string()))?;
 
     let body = serialize_json(&invocation_request.parameters)?;
@@ -616,10 +616,10 @@ fn http_response_to_fhir_response<'a>(
     response: reqwest::Response,
 ) -> Pin<Box<dyn Future<Output = Result<FHIRResponse, OperationOutcomeError>> + Send + 'a>> {
     Box::pin(async move {
-        let request = FHIRResponseRequest::response_request(fhir_request);
+        let response_request = FHIRResponseRequest::response_request(fhir_request);
         let body = read_response(response).await?;
 
-        build_response(request, &body)
+        build_response(&response_request, &body)
     })
 }
 
@@ -656,7 +656,7 @@ async fn read_response(response: reqwest::Response) -> Result<bytes::Bytes, Oper
 }
 
 fn build_response(
-    request: FHIRResponseRequest<'_>,
+    request: &FHIRResponseRequest<'_>,
     body: &[u8],
 ) -> Result<FHIRResponse, OperationOutcomeError> {
     match request {
