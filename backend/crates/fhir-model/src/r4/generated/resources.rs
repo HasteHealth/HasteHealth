@@ -154,6 +154,47 @@ pub struct AccessPolicyV2 {
     #[doc = "Who the access policy applies to."]
     pub target: Option<Vec<AccessPolicyV2Target>>,
 }
+impl AccessPolicyV2 {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "name",
+                "description",
+                "engine",
+                "attribute",
+                "rule",
+                "target",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "AccessPolicyV2".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.name = self.name;
+        out.engine = self.engine;
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"attribute") {
+            out.attribute = self.attribute;
+        }
+        if fields.contains(&"rule") {
+            out.rule = self.rule;
+        }
+        if fields.contains(&"target") {
+            out.target = self.target;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -207,6 +248,69 @@ pub struct ClientApplication {
     #[primitive]
     #[doc = "ClientApplication.policyUri"]
     pub policyUri: Option<Box<FHIRUri>>,
+}
+impl ClientApplication {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "name",
+                "description",
+                "grantType",
+                "responseTypes",
+                "secret",
+                "redirectUri",
+                "uri",
+                "logoUri",
+                "scope",
+                "contact",
+                "tosUri",
+                "policyUri",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ClientApplication".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.name = self.name;
+        out.grantType = self.grantType;
+        out.responseTypes = self.responseTypes;
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"secret") {
+            out.secret = self.secret;
+        }
+        if fields.contains(&"redirectUri") {
+            out.redirectUri = self.redirectUri;
+        }
+        if fields.contains(&"uri") {
+            out.uri = self.uri;
+        }
+        if fields.contains(&"logoUri") {
+            out.logoUri = self.logoUri;
+        }
+        if fields.contains(&"scope") {
+            out.scope = self.scope;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"tosUri") {
+            out.tosUri = self.tosUri;
+        }
+        if fields.contains(&"policyUri") {
+            out.policyUri = self.policyUri;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -300,6 +404,26 @@ pub struct HL7V2 {
     pub fieldSeparator: Box<FHIRString>,
     #[doc = "Non-MSH segments in the HL7v2 message."]
     pub segments: Option<Vec<HL7V2Segments>>,
+}
+impl HL7V2 {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !(["id", "meta", "fieldSeparator", "segments"]).contains(field) {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "HL7V2".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.fieldSeparator = self.fieldSeparator;
+        if fields.contains(&"segments") {
+            out.segments = self.segments;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -400,6 +524,28 @@ pub struct IdentityProvider {
     #[doc = "OIDC connection configuration for the identity provider."]
     pub oidc: Option<IdentityProviderOidc>,
 }
+impl IdentityProvider {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !(["id", "meta", "name", "status", "accessType", "oidc"]).contains(field) {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "IdentityProvider".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.name = self.name;
+        out.status = self.status;
+        out.accessType = self.accessType;
+        if fields.contains(&"oidc") {
+            out.oidc = self.oidc;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -422,6 +568,26 @@ pub struct Membership {
     # [reference (targets = ["User"])]
     #[doc = "Membership.user"]
     pub user: Box<Reference>,
+}
+impl Membership {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !(["id", "meta", "link", "user"]).contains(field) {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Membership".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.user = self.user;
+        if fields.contains(&"link") {
+            out.link = self.link;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -449,6 +615,27 @@ pub struct Project {
     # [reference (targets = ["IdentityProvider"])]
     #[doc = "Project.identityProvider"]
     pub identityProvider: Option<Vec<Reference>>,
+}
+impl Project {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !(["id", "meta", "name", "fhirVersion", "identityProvider"]).contains(field) {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Project".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.name = self.name;
+        out.fhirVersion = self.fhirVersion;
+        if fields.contains(&"identityProvider") {
+            out.identityProvider = self.identityProvider;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -480,6 +667,45 @@ pub struct User {
     # [reference (targets = ["IdentityProvider"])]
     #[doc = "User.federated"]
     pub federated: Option<Box<Reference>>,
+}
+impl User {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "email",
+                "emailVerified",
+                "name",
+                "role",
+                "federated",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "User".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.role = self.role;
+        if fields.contains(&"email") {
+            out.email = self.email;
+        }
+        if fields.contains(&"emailVerified") {
+            out.emailVerified = self.emailVerified;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"federated") {
+            out.federated = self.federated;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -593,6 +819,93 @@ pub struct Account {
     # [reference (targets = ["Account"])]
     #[doc = "Reference to a parent Account."]
     pub partOf: Option<Box<Reference>>,
+}
+impl Account {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "type",
+                "name",
+                "subject",
+                "servicePeriod",
+                "coverage",
+                "owner",
+                "description",
+                "guarantor",
+                "partOf",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Account".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"servicePeriod") {
+            out.servicePeriod = self.servicePeriod;
+        }
+        if fields.contains(&"coverage") {
+            out.coverage = self.coverage;
+        }
+        if fields.contains(&"owner") {
+            out.owner = self.owner;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"guarantor") {
+            out.guarantor = self.guarantor;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -857,6 +1170,233 @@ pub struct ActivityDefinition {
     #[doc = "Dynamic values that will be evaluated to produce values for elements of the resulting resource. For example, if the dosage of a medication must be computed based on the patient's weight, a dynamic value would be used to specify an expression that calculated the weight, and the path on the request resource that would contain the result."]
     pub dynamicValue: Option<Vec<ActivityDefinitionDynamicValue>>,
 }
+impl ActivityDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "subtitle",
+                "status",
+                "experimental",
+                "subject",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "usage",
+                "copyright",
+                "approvalDate",
+                "lastReviewDate",
+                "effectivePeriod",
+                "topic",
+                "author",
+                "editor",
+                "reviewer",
+                "endorser",
+                "relatedArtifact",
+                "library",
+                "kind",
+                "profile",
+                "code",
+                "intent",
+                "priority",
+                "doNotPerform",
+                "timing",
+                "location",
+                "participant",
+                "product",
+                "quantity",
+                "dosage",
+                "bodySite",
+                "specimenRequirement",
+                "observationRequirement",
+                "observationResultRequirement",
+                "transform",
+                "dynamicValue",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ActivityDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"subtitle") {
+            out.subtitle = self.subtitle;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"usage") {
+            out.usage = self.usage;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"approvalDate") {
+            out.approvalDate = self.approvalDate;
+        }
+        if fields.contains(&"lastReviewDate") {
+            out.lastReviewDate = self.lastReviewDate;
+        }
+        if fields.contains(&"effectivePeriod") {
+            out.effectivePeriod = self.effectivePeriod;
+        }
+        if fields.contains(&"topic") {
+            out.topic = self.topic;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"editor") {
+            out.editor = self.editor;
+        }
+        if fields.contains(&"reviewer") {
+            out.reviewer = self.reviewer;
+        }
+        if fields.contains(&"endorser") {
+            out.endorser = self.endorser;
+        }
+        if fields.contains(&"relatedArtifact") {
+            out.relatedArtifact = self.relatedArtifact;
+        }
+        if fields.contains(&"library") {
+            out.library = self.library;
+        }
+        if fields.contains(&"kind") {
+            out.kind = self.kind;
+        }
+        if fields.contains(&"profile") {
+            out.profile = self.profile;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"intent") {
+            out.intent = self.intent;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"doNotPerform") {
+            out.doNotPerform = self.doNotPerform;
+        }
+        if fields.contains(&"timing") {
+            out.timing = self.timing;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"participant") {
+            out.participant = self.participant;
+        }
+        if fields.contains(&"product") {
+            out.product = self.product;
+        }
+        if fields.contains(&"quantity") {
+            out.quantity = self.quantity;
+        }
+        if fields.contains(&"dosage") {
+            out.dosage = self.dosage;
+        }
+        if fields.contains(&"bodySite") {
+            out.bodySite = self.bodySite;
+        }
+        if fields.contains(&"specimenRequirement") {
+            out.specimenRequirement = self.specimenRequirement;
+        }
+        if fields.contains(&"observationRequirement") {
+            out.observationRequirement = self.observationRequirement;
+        }
+        if fields.contains(&"observationResultRequirement") {
+            out.observationResultRequirement = self.observationResultRequirement;
+        }
+        if fields.contains(&"transform") {
+            out.transform = self.transform;
+        }
+        if fields.contains(&"dynamicValue") {
+            out.dynamicValue = self.dynamicValue;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -995,6 +1535,127 @@ pub struct AdverseEvent {
     #[doc = "AdverseEvent.study."]
     pub study: Option<Vec<Reference>>,
 }
+impl AdverseEvent {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "actuality",
+                "category",
+                "event",
+                "subject",
+                "encounter",
+                "date",
+                "detected",
+                "recordedDate",
+                "resultingCondition",
+                "location",
+                "seriousness",
+                "severity",
+                "outcome",
+                "recorder",
+                "contributor",
+                "suspectEntity",
+                "subjectMedicalHistory",
+                "referenceDocument",
+                "study",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "AdverseEvent".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.actuality = self.actuality;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"event") {
+            out.event = self.event;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"detected") {
+            out.detected = self.detected;
+        }
+        if fields.contains(&"recordedDate") {
+            out.recordedDate = self.recordedDate;
+        }
+        if fields.contains(&"resultingCondition") {
+            out.resultingCondition = self.resultingCondition;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"seriousness") {
+            out.seriousness = self.seriousness;
+        }
+        if fields.contains(&"severity") {
+            out.severity = self.severity;
+        }
+        if fields.contains(&"outcome") {
+            out.outcome = self.outcome;
+        }
+        if fields.contains(&"recorder") {
+            out.recorder = self.recorder;
+        }
+        if fields.contains(&"contributor") {
+            out.contributor = self.contributor;
+        }
+        if fields.contains(&"suspectEntity") {
+            out.suspectEntity = self.suspectEntity;
+        }
+        if fields.contains(&"subjectMedicalHistory") {
+            out.subjectMedicalHistory = self.subjectMedicalHistory;
+        }
+        if fields.contains(&"referenceDocument") {
+            out.referenceDocument = self.referenceDocument;
+        }
+        if fields.contains(&"study") {
+            out.study = self.study;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -1130,6 +1791,113 @@ pub struct AllergyIntolerance {
     #[doc = "Details about each adverse reaction event linked to exposure to the identified substance."]
     pub reaction: Option<Vec<AllergyIntoleranceReaction>>,
 }
+impl AllergyIntolerance {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "clinicalStatus",
+                "verificationStatus",
+                "type",
+                "category",
+                "criticality",
+                "code",
+                "patient",
+                "encounter",
+                "onset",
+                "recordedDate",
+                "recorder",
+                "asserter",
+                "lastOccurrence",
+                "note",
+                "reaction",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "AllergyIntolerance".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.patient = self.patient;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"clinicalStatus") {
+            out.clinicalStatus = self.clinicalStatus;
+        }
+        if fields.contains(&"verificationStatus") {
+            out.verificationStatus = self.verificationStatus;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"criticality") {
+            out.criticality = self.criticality;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"onset") {
+            out.onset = self.onset;
+        }
+        if fields.contains(&"recordedDate") {
+            out.recordedDate = self.recordedDate;
+        }
+        if fields.contains(&"recorder") {
+            out.recorder = self.recorder;
+        }
+        if fields.contains(&"asserter") {
+            out.asserter = self.asserter;
+        }
+        if fields.contains(&"lastOccurrence") {
+            out.lastOccurrence = self.lastOccurrence;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"reaction") {
+            out.reaction = self.reaction;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -1253,6 +2021,135 @@ pub struct Appointment {
     #[doc = "A set of date ranges (potentially including times) that the appointment is preferred to be scheduled within.\n\nThe duration (usually in minutes) could also be provided to indicate the length of the appointment to fill and populate the start/end times for the actual allocated time. However, in other situations the duration may be calculated by the scheduling system."]
     pub requestedPeriod: Option<Vec<Period>>,
 }
+impl Appointment {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "cancelationReason",
+                "serviceCategory",
+                "serviceType",
+                "specialty",
+                "appointmentType",
+                "reasonCode",
+                "reasonReference",
+                "priority",
+                "description",
+                "supportingInformation",
+                "start",
+                "end",
+                "minutesDuration",
+                "slot",
+                "created",
+                "comment",
+                "patientInstruction",
+                "basedOn",
+                "participant",
+                "requestedPeriod",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Appointment".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.participant = self.participant;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"cancelationReason") {
+            out.cancelationReason = self.cancelationReason;
+        }
+        if fields.contains(&"serviceCategory") {
+            out.serviceCategory = self.serviceCategory;
+        }
+        if fields.contains(&"serviceType") {
+            out.serviceType = self.serviceType;
+        }
+        if fields.contains(&"specialty") {
+            out.specialty = self.specialty;
+        }
+        if fields.contains(&"appointmentType") {
+            out.appointmentType = self.appointmentType;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"supportingInformation") {
+            out.supportingInformation = self.supportingInformation;
+        }
+        if fields.contains(&"start") {
+            out.start = self.start;
+        }
+        if fields.contains(&"end") {
+            out.end = self.end;
+        }
+        if fields.contains(&"minutesDuration") {
+            out.minutesDuration = self.minutesDuration;
+        }
+        if fields.contains(&"slot") {
+            out.slot = self.slot;
+        }
+        if fields.contains(&"created") {
+            out.created = self.created;
+        }
+        if fields.contains(&"comment") {
+            out.comment = self.comment;
+        }
+        if fields.contains(&"patientInstruction") {
+            out.patientInstruction = self.patientInstruction;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"requestedPeriod") {
+            out.requestedPeriod = self.requestedPeriod;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -1306,6 +2203,79 @@ pub struct AppointmentResponse {
     #[primitive]
     #[doc = "Additional comments about the appointment."]
     pub comment: Option<Box<FHIRString>>,
+}
+impl AppointmentResponse {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "appointment",
+                "start",
+                "end",
+                "participantType",
+                "actor",
+                "participantStatus",
+                "comment",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "AppointmentResponse".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.appointment = self.appointment;
+        out.participantStatus = self.participantStatus;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"start") {
+            out.start = self.start;
+        }
+        if fields.contains(&"end") {
+            out.end = self.end;
+        }
+        if fields.contains(&"participantType") {
+            out.participantType = self.participantType;
+        }
+        if fields.contains(&"actor") {
+            out.actor = self.actor;
+        }
+        if fields.contains(&"comment") {
+            out.comment = self.comment;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -1556,6 +2526,87 @@ pub struct AuditEvent {
     #[doc = "Specific instances of data or objects that have been accessed."]
     pub entity: Option<Vec<AuditEventEntity>>,
 }
+impl AuditEvent {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "type",
+                "subtype",
+                "action",
+                "period",
+                "recorded",
+                "outcome",
+                "outcomeDesc",
+                "purposeOfEvent",
+                "agent",
+                "source",
+                "entity",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "AuditEvent".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.type_ = self.type_;
+        out.recorded = self.recorded;
+        out.agent = self.agent;
+        out.source = self.source;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"subtype") {
+            out.subtype = self.subtype;
+        }
+        if fields.contains(&"action") {
+            out.action = self.action;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"outcome") {
+            out.outcome = self.outcome;
+        }
+        if fields.contains(&"outcomeDesc") {
+            out.outcomeDesc = self.outcomeDesc;
+        }
+        if fields.contains(&"purposeOfEvent") {
+            out.purposeOfEvent = self.purposeOfEvent;
+        }
+        if fields.contains(&"entity") {
+            out.entity = self.entity;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -1601,6 +2652,69 @@ pub struct Basic {
     #[doc = "Indicates who was responsible for creating the resource instance."]
     pub author: Option<Box<Reference>>,
 }
+impl Basic {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "code",
+                "subject",
+                "created",
+                "author",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Basic".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.code = self.code;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"created") {
+            out.created = self.created;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -1632,6 +2746,45 @@ pub struct Binary {
     #[primitive]
     #[doc = "The actual content, base64 encoded."]
     pub data: Option<Box<FHIRBase64Binary>>,
+}
+impl Binary {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "contentType",
+                "securityContext",
+                "data",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Binary".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.contentType = self.contentType;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"securityContext") {
+            out.securityContext = self.securityContext;
+        }
+        if fields.contains(&"data") {
+            out.data = self.data;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -1862,6 +3015,95 @@ pub struct BiologicallyDerivedProduct {
     #[doc = "Product storage."]
     pub storage: Option<Vec<BiologicallyDerivedProductStorage>>,
 }
+impl BiologicallyDerivedProduct {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "productCategory",
+                "productCode",
+                "status",
+                "request",
+                "quantity",
+                "parent",
+                "collection",
+                "processing",
+                "manipulation",
+                "storage",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "BiologicallyDerivedProduct".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"productCategory") {
+            out.productCategory = self.productCategory;
+        }
+        if fields.contains(&"productCode") {
+            out.productCode = self.productCode;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"request") {
+            out.request = self.request;
+        }
+        if fields.contains(&"quantity") {
+            out.quantity = self.quantity;
+        }
+        if fields.contains(&"parent") {
+            out.parent = self.parent;
+        }
+        if fields.contains(&"collection") {
+            out.collection = self.collection;
+        }
+        if fields.contains(&"processing") {
+            out.processing = self.processing;
+        }
+        if fields.contains(&"manipulation") {
+            out.manipulation = self.manipulation;
+        }
+        if fields.contains(&"storage") {
+            out.storage = self.storage;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -1912,6 +3154,81 @@ pub struct BodyStructure {
     # [reference (targets = ["Patient"])]
     #[doc = "The person to which the body site belongs."]
     pub patient: Box<Reference>,
+}
+impl BodyStructure {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "active",
+                "morphology",
+                "location",
+                "locationQualifier",
+                "description",
+                "image",
+                "patient",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "BodyStructure".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.patient = self.patient;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"active") {
+            out.active = self.active;
+        }
+        if fields.contains(&"morphology") {
+            out.morphology = self.morphology;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"locationQualifier") {
+            out.locationQualifier = self.locationQualifier;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"image") {
+            out.image = self.image;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -2106,6 +3423,61 @@ pub struct Bundle {
     pub entry: Option<Vec<BundleEntry>>,
     #[doc = "Digital Signature - base64 encoded. XML-DSig or a JWT."]
     pub signature: Option<Box<Signature>>,
+}
+impl Bundle {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "identifier",
+                "type",
+                "timestamp",
+                "total",
+                "link",
+                "entry",
+                "signature",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Bundle".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.type_ = self.type_;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"timestamp") {
+            out.timestamp = self.timestamp;
+        }
+        if fields.contains(&"total") {
+            out.total = self.total;
+        }
+        if fields.contains(&"link") {
+            out.link = self.link;
+        }
+        if fields.contains(&"entry") {
+            out.entry = self.entry;
+        }
+        if fields.contains(&"signature") {
+            out.signature = self.signature;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -2614,6 +3986,145 @@ pub struct CapabilityStatement {
     #[doc = "A document definition."]
     pub document: Option<Vec<CapabilityStatementDocument>>,
 }
+impl CapabilityStatement {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "version",
+                "name",
+                "title",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "copyright",
+                "kind",
+                "instantiates",
+                "imports",
+                "software",
+                "implementation",
+                "fhirVersion",
+                "format",
+                "patchFormat",
+                "implementationGuide",
+                "rest",
+                "messaging",
+                "document",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "CapabilityStatement".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.date = self.date;
+        out.kind = self.kind;
+        out.fhirVersion = self.fhirVersion;
+        out.format = self.format;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"instantiates") {
+            out.instantiates = self.instantiates;
+        }
+        if fields.contains(&"imports") {
+            out.imports = self.imports;
+        }
+        if fields.contains(&"software") {
+            out.software = self.software;
+        }
+        if fields.contains(&"implementation") {
+            out.implementation = self.implementation;
+        }
+        if fields.contains(&"patchFormat") {
+            out.patchFormat = self.patchFormat;
+        }
+        if fields.contains(&"implementationGuide") {
+            out.implementationGuide = self.implementationGuide;
+        }
+        if fields.contains(&"rest") {
+            out.rest = self.rest;
+        }
+        if fields.contains(&"messaging") {
+            out.messaging = self.messaging;
+        }
+        if fields.contains(&"document") {
+            out.document = self.document;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -2845,6 +4356,137 @@ pub struct CarePlan {
     #[doc = "General notes about the care plan not covered elsewhere."]
     pub note: Option<Vec<Annotation>>,
 }
+impl CarePlan {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "instantiatesCanonical",
+                "instantiatesUri",
+                "basedOn",
+                "replaces",
+                "partOf",
+                "status",
+                "intent",
+                "category",
+                "title",
+                "description",
+                "subject",
+                "encounter",
+                "period",
+                "created",
+                "author",
+                "contributor",
+                "careTeam",
+                "addresses",
+                "supportingInfo",
+                "goal",
+                "activity",
+                "note",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "CarePlan".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.intent = self.intent;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"instantiatesCanonical") {
+            out.instantiatesCanonical = self.instantiatesCanonical;
+        }
+        if fields.contains(&"instantiatesUri") {
+            out.instantiatesUri = self.instantiatesUri;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"replaces") {
+            out.replaces = self.replaces;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"created") {
+            out.created = self.created;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"contributor") {
+            out.contributor = self.contributor;
+        }
+        if fields.contains(&"careTeam") {
+            out.careTeam = self.careTeam;
+        }
+        if fields.contains(&"addresses") {
+            out.addresses = self.addresses;
+        }
+        if fields.contains(&"supportingInfo") {
+            out.supportingInfo = self.supportingInfo;
+        }
+        if fields.contains(&"goal") {
+            out.goal = self.goal;
+        }
+        if fields.contains(&"activity") {
+            out.activity = self.activity;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -2938,6 +4580,103 @@ pub struct CareTeam {
     #[doc = "Comments made about the CareTeam."]
     pub note: Option<Vec<Annotation>>,
 }
+impl CareTeam {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "category",
+                "name",
+                "subject",
+                "encounter",
+                "period",
+                "participant",
+                "reasonCode",
+                "reasonReference",
+                "managingOrganization",
+                "telecom",
+                "note",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "CareTeam".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"participant") {
+            out.participant = self.participant;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"managingOrganization") {
+            out.managingOrganization = self.managingOrganization;
+        }
+        if fields.contains(&"telecom") {
+            out.telecom = self.telecom;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -3026,6 +4765,99 @@ pub struct CatalogEntry {
     pub additionalClassification: Option<Vec<CodeableConcept>>,
     #[doc = "Used for example, to point to a substance, or to a device used to administer a medication."]
     pub relatedEntry: Option<Vec<CatalogEntryRelatedEntry>>,
+}
+impl CatalogEntry {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "type",
+                "orderable",
+                "referencedItem",
+                "additionalIdentifier",
+                "classification",
+                "status",
+                "validityPeriod",
+                "validTo",
+                "lastUpdated",
+                "additionalCharacteristic",
+                "additionalClassification",
+                "relatedEntry",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "CatalogEntry".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.orderable = self.orderable;
+        out.referencedItem = self.referencedItem;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"additionalIdentifier") {
+            out.additionalIdentifier = self.additionalIdentifier;
+        }
+        if fields.contains(&"classification") {
+            out.classification = self.classification;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"validityPeriod") {
+            out.validityPeriod = self.validityPeriod;
+        }
+        if fields.contains(&"validTo") {
+            out.validTo = self.validTo;
+        }
+        if fields.contains(&"lastUpdated") {
+            out.lastUpdated = self.lastUpdated;
+        }
+        if fields.contains(&"additionalCharacteristic") {
+            out.additionalCharacteristic = self.additionalCharacteristic;
+        }
+        if fields.contains(&"additionalClassification") {
+            out.additionalClassification = self.additionalClassification;
+        }
+        if fields.contains(&"relatedEntry") {
+            out.relatedEntry = self.relatedEntry;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -3191,6 +5023,149 @@ pub struct ChargeItem {
     # [reference (targets = ["Resource"])]
     #[doc = "Further information supporting this charge."]
     pub supportingInformation: Option<Vec<Reference>>,
+}
+impl ChargeItem {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "definitionUri",
+                "definitionCanonical",
+                "status",
+                "partOf",
+                "code",
+                "subject",
+                "context",
+                "occurrence",
+                "performer",
+                "performingOrganization",
+                "requestingOrganization",
+                "costCenter",
+                "quantity",
+                "bodysite",
+                "factorOverride",
+                "priceOverride",
+                "overrideReason",
+                "enterer",
+                "enteredDate",
+                "reason",
+                "service",
+                "product",
+                "account",
+                "note",
+                "supportingInformation",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ChargeItem".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.code = self.code;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"definitionUri") {
+            out.definitionUri = self.definitionUri;
+        }
+        if fields.contains(&"definitionCanonical") {
+            out.definitionCanonical = self.definitionCanonical;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"context") {
+            out.context = self.context;
+        }
+        if fields.contains(&"occurrence") {
+            out.occurrence = self.occurrence;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"performingOrganization") {
+            out.performingOrganization = self.performingOrganization;
+        }
+        if fields.contains(&"requestingOrganization") {
+            out.requestingOrganization = self.requestingOrganization;
+        }
+        if fields.contains(&"costCenter") {
+            out.costCenter = self.costCenter;
+        }
+        if fields.contains(&"quantity") {
+            out.quantity = self.quantity;
+        }
+        if fields.contains(&"bodysite") {
+            out.bodysite = self.bodysite;
+        }
+        if fields.contains(&"factorOverride") {
+            out.factorOverride = self.factorOverride;
+        }
+        if fields.contains(&"priceOverride") {
+            out.priceOverride = self.priceOverride;
+        }
+        if fields.contains(&"overrideReason") {
+            out.overrideReason = self.overrideReason;
+        }
+        if fields.contains(&"enterer") {
+            out.enterer = self.enterer;
+        }
+        if fields.contains(&"enteredDate") {
+            out.enteredDate = self.enteredDate;
+        }
+        if fields.contains(&"reason") {
+            out.reason = self.reason;
+        }
+        if fields.contains(&"service") {
+            out.service = self.service;
+        }
+        if fields.contains(&"product") {
+            out.product = self.product;
+        }
+        if fields.contains(&"account") {
+            out.account = self.account;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"supportingInformation") {
+            out.supportingInformation = self.supportingInformation;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -3365,6 +5340,139 @@ pub struct ChargeItemDefinition {
     pub applicability: Option<Vec<ChargeItemDefinitionApplicability>>,
     #[doc = "Group of properties which are applicable under the same conditions. If no applicability rules are established for the group, then all properties always apply."]
     pub propertyGroup: Option<Vec<ChargeItemDefinitionPropertyGroup>>,
+}
+impl ChargeItemDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "title",
+                "derivedFromUri",
+                "partOf",
+                "replaces",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "copyright",
+                "approvalDate",
+                "lastReviewDate",
+                "effectivePeriod",
+                "code",
+                "instance",
+                "applicability",
+                "propertyGroup",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ChargeItemDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.url = self.url;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"derivedFromUri") {
+            out.derivedFromUri = self.derivedFromUri;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"replaces") {
+            out.replaces = self.replaces;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"approvalDate") {
+            out.approvalDate = self.approvalDate;
+        }
+        if fields.contains(&"lastReviewDate") {
+            out.lastReviewDate = self.lastReviewDate;
+        }
+        if fields.contains(&"effectivePeriod") {
+            out.effectivePeriod = self.effectivePeriod;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"instance") {
+            out.instance = self.instance;
+        }
+        if fields.contains(&"applicability") {
+            out.applicability = self.applicability;
+        }
+        if fields.contains(&"propertyGroup") {
+            out.propertyGroup = self.propertyGroup;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -4017,6 +6125,143 @@ pub struct Claim {
     #[doc = "The total value of the all the items in the claim."]
     pub total: Option<Box<Money>>,
 }
+impl Claim {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "type",
+                "subType",
+                "use",
+                "patient",
+                "billablePeriod",
+                "created",
+                "enterer",
+                "insurer",
+                "provider",
+                "priority",
+                "fundsReserve",
+                "related",
+                "prescription",
+                "originalPrescription",
+                "payee",
+                "referral",
+                "facility",
+                "careTeam",
+                "supportingInfo",
+                "diagnosis",
+                "procedure",
+                "insurance",
+                "accident",
+                "item",
+                "total",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Claim".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.type_ = self.type_;
+        out.use_ = self.use_;
+        out.patient = self.patient;
+        out.created = self.created;
+        out.provider = self.provider;
+        out.priority = self.priority;
+        out.insurance = self.insurance;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"subType") {
+            out.subType = self.subType;
+        }
+        if fields.contains(&"billablePeriod") {
+            out.billablePeriod = self.billablePeriod;
+        }
+        if fields.contains(&"enterer") {
+            out.enterer = self.enterer;
+        }
+        if fields.contains(&"insurer") {
+            out.insurer = self.insurer;
+        }
+        if fields.contains(&"fundsReserve") {
+            out.fundsReserve = self.fundsReserve;
+        }
+        if fields.contains(&"related") {
+            out.related = self.related;
+        }
+        if fields.contains(&"prescription") {
+            out.prescription = self.prescription;
+        }
+        if fields.contains(&"originalPrescription") {
+            out.originalPrescription = self.originalPrescription;
+        }
+        if fields.contains(&"payee") {
+            out.payee = self.payee;
+        }
+        if fields.contains(&"referral") {
+            out.referral = self.referral;
+        }
+        if fields.contains(&"facility") {
+            out.facility = self.facility;
+        }
+        if fields.contains(&"careTeam") {
+            out.careTeam = self.careTeam;
+        }
+        if fields.contains(&"supportingInfo") {
+            out.supportingInfo = self.supportingInfo;
+        }
+        if fields.contains(&"diagnosis") {
+            out.diagnosis = self.diagnosis;
+        }
+        if fields.contains(&"procedure") {
+            out.procedure = self.procedure;
+        }
+        if fields.contains(&"accident") {
+            out.accident = self.accident;
+        }
+        if fields.contains(&"item") {
+            out.item = self.item;
+        }
+        if fields.contains(&"total") {
+            out.total = self.total;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -4564,6 +6809,145 @@ pub struct ClaimResponse {
     #[doc = "Errors encountered during the processing of the adjudication."]
     pub error: Option<Vec<ClaimResponseError>>,
 }
+impl ClaimResponse {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "type",
+                "subType",
+                "use",
+                "patient",
+                "created",
+                "insurer",
+                "requestor",
+                "request",
+                "outcome",
+                "disposition",
+                "preAuthRef",
+                "preAuthPeriod",
+                "payeeType",
+                "item",
+                "addItem",
+                "adjudication",
+                "total",
+                "payment",
+                "fundsReserve",
+                "formCode",
+                "form",
+                "processNote",
+                "communicationRequest",
+                "insurance",
+                "error",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ClaimResponse".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.type_ = self.type_;
+        out.use_ = self.use_;
+        out.patient = self.patient;
+        out.created = self.created;
+        out.insurer = self.insurer;
+        out.outcome = self.outcome;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"subType") {
+            out.subType = self.subType;
+        }
+        if fields.contains(&"requestor") {
+            out.requestor = self.requestor;
+        }
+        if fields.contains(&"request") {
+            out.request = self.request;
+        }
+        if fields.contains(&"disposition") {
+            out.disposition = self.disposition;
+        }
+        if fields.contains(&"preAuthRef") {
+            out.preAuthRef = self.preAuthRef;
+        }
+        if fields.contains(&"preAuthPeriod") {
+            out.preAuthPeriod = self.preAuthPeriod;
+        }
+        if fields.contains(&"payeeType") {
+            out.payeeType = self.payeeType;
+        }
+        if fields.contains(&"item") {
+            out.item = self.item;
+        }
+        if fields.contains(&"addItem") {
+            out.addItem = self.addItem;
+        }
+        if fields.contains(&"adjudication") {
+            out.adjudication = self.adjudication;
+        }
+        if fields.contains(&"total") {
+            out.total = self.total;
+        }
+        if fields.contains(&"payment") {
+            out.payment = self.payment;
+        }
+        if fields.contains(&"fundsReserve") {
+            out.fundsReserve = self.fundsReserve;
+        }
+        if fields.contains(&"formCode") {
+            out.formCode = self.formCode;
+        }
+        if fields.contains(&"form") {
+            out.form = self.form;
+        }
+        if fields.contains(&"processNote") {
+            out.processNote = self.processNote;
+        }
+        if fields.contains(&"communicationRequest") {
+            out.communicationRequest = self.communicationRequest;
+        }
+        if fields.contains(&"insurance") {
+            out.insurance = self.insurance;
+        }
+        if fields.contains(&"error") {
+            out.error = self.error;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -4718,6 +7102,127 @@ pub struct ClinicalImpression {
     pub supportingInfo: Option<Vec<Reference>>,
     #[doc = "Commentary about the impression, typically recorded after the impression itself was made, though supplemental notes by the original author could also appear."]
     pub note: Option<Vec<Annotation>>,
+}
+impl ClinicalImpression {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "statusReason",
+                "code",
+                "description",
+                "subject",
+                "encounter",
+                "effective",
+                "date",
+                "assessor",
+                "previous",
+                "problem",
+                "investigation",
+                "protocol",
+                "summary",
+                "finding",
+                "prognosisCodeableConcept",
+                "prognosisReference",
+                "supportingInfo",
+                "note",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ClinicalImpression".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"statusReason") {
+            out.statusReason = self.statusReason;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"effective") {
+            out.effective = self.effective;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"assessor") {
+            out.assessor = self.assessor;
+        }
+        if fields.contains(&"previous") {
+            out.previous = self.previous;
+        }
+        if fields.contains(&"problem") {
+            out.problem = self.problem;
+        }
+        if fields.contains(&"investigation") {
+            out.investigation = self.investigation;
+        }
+        if fields.contains(&"protocol") {
+            out.protocol = self.protocol;
+        }
+        if fields.contains(&"summary") {
+            out.summary = self.summary;
+        }
+        if fields.contains(&"finding") {
+            out.finding = self.finding;
+        }
+        if fields.contains(&"prognosisCodeableConcept") {
+            out.prognosisCodeableConcept = self.prognosisCodeableConcept;
+        }
+        if fields.contains(&"prognosisReference") {
+            out.prognosisReference = self.prognosisReference;
+        }
+        if fields.contains(&"supportingInfo") {
+            out.supportingInfo = self.supportingInfo;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -5002,6 +7507,151 @@ pub struct CodeSystem {
     #[doc = "Concepts that are in the code system. The concept definitions are inherently hierarchical, but the definitions must be consulted to determine what the meanings of the hierarchical relationships are."]
     pub concept: Option<Vec<CodeSystemConcept>>,
 }
+impl CodeSystem {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "copyright",
+                "caseSensitive",
+                "valueSet",
+                "hierarchyMeaning",
+                "compositional",
+                "versionNeeded",
+                "content",
+                "supplements",
+                "count",
+                "filter",
+                "property",
+                "concept",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "CodeSystem".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.content = self.content;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"caseSensitive") {
+            out.caseSensitive = self.caseSensitive;
+        }
+        if fields.contains(&"valueSet") {
+            out.valueSet = self.valueSet;
+        }
+        if fields.contains(&"hierarchyMeaning") {
+            out.hierarchyMeaning = self.hierarchyMeaning;
+        }
+        if fields.contains(&"compositional") {
+            out.compositional = self.compositional;
+        }
+        if fields.contains(&"versionNeeded") {
+            out.versionNeeded = self.versionNeeded;
+        }
+        if fields.contains(&"supplements") {
+            out.supplements = self.supplements;
+        }
+        if fields.contains(&"count") {
+            out.count = self.count;
+        }
+        if fields.contains(&"filter") {
+            out.filter = self.filter;
+        }
+        if fields.contains(&"property") {
+            out.property = self.property;
+        }
+        if fields.contains(&"concept") {
+            out.concept = self.concept;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -5137,6 +7787,141 @@ pub struct Communication {
     pub payload: Option<Vec<CommunicationPayload>>,
     #[doc = "Additional notes or commentary about the communication by the sender, receiver or other interested parties."]
     pub note: Option<Vec<Annotation>>,
+}
+impl Communication {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "instantiatesCanonical",
+                "instantiatesUri",
+                "basedOn",
+                "partOf",
+                "inResponseTo",
+                "status",
+                "statusReason",
+                "category",
+                "priority",
+                "medium",
+                "subject",
+                "topic",
+                "about",
+                "encounter",
+                "sent",
+                "received",
+                "recipient",
+                "sender",
+                "reasonCode",
+                "reasonReference",
+                "payload",
+                "note",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Communication".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"instantiatesCanonical") {
+            out.instantiatesCanonical = self.instantiatesCanonical;
+        }
+        if fields.contains(&"instantiatesUri") {
+            out.instantiatesUri = self.instantiatesUri;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"inResponseTo") {
+            out.inResponseTo = self.inResponseTo;
+        }
+        if fields.contains(&"statusReason") {
+            out.statusReason = self.statusReason;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"medium") {
+            out.medium = self.medium;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"topic") {
+            out.topic = self.topic;
+        }
+        if fields.contains(&"about") {
+            out.about = self.about;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"sent") {
+            out.sent = self.sent;
+        }
+        if fields.contains(&"received") {
+            out.received = self.received;
+        }
+        if fields.contains(&"recipient") {
+            out.recipient = self.recipient;
+        }
+        if fields.contains(&"sender") {
+            out.sender = self.sender;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"payload") {
+            out.payload = self.payload;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -5290,6 +8075,137 @@ pub struct CommunicationRequest {
     #[doc = "Comments made about the request by the requester, sender, recipient, subject or other participants."]
     pub note: Option<Vec<Annotation>>,
 }
+impl CommunicationRequest {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "basedOn",
+                "replaces",
+                "groupIdentifier",
+                "status",
+                "statusReason",
+                "category",
+                "priority",
+                "doNotPerform",
+                "medium",
+                "subject",
+                "about",
+                "encounter",
+                "payload",
+                "occurrence",
+                "authoredOn",
+                "requester",
+                "recipient",
+                "sender",
+                "reasonCode",
+                "reasonReference",
+                "note",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "CommunicationRequest".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"replaces") {
+            out.replaces = self.replaces;
+        }
+        if fields.contains(&"groupIdentifier") {
+            out.groupIdentifier = self.groupIdentifier;
+        }
+        if fields.contains(&"statusReason") {
+            out.statusReason = self.statusReason;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"doNotPerform") {
+            out.doNotPerform = self.doNotPerform;
+        }
+        if fields.contains(&"medium") {
+            out.medium = self.medium;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"about") {
+            out.about = self.about;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"payload") {
+            out.payload = self.payload;
+        }
+        if fields.contains(&"occurrence") {
+            out.occurrence = self.occurrence;
+        }
+        if fields.contains(&"authoredOn") {
+            out.authoredOn = self.authoredOn;
+        }
+        if fields.contains(&"requester") {
+            out.requester = self.requester;
+        }
+        if fields.contains(&"recipient") {
+            out.recipient = self.recipient;
+        }
+        if fields.contains(&"sender") {
+            out.sender = self.sender;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -5387,6 +8303,97 @@ pub struct CompartmentDefinition {
     pub search: Box<FHIRBoolean>,
     #[doc = "Information about how a resource is related to the compartment."]
     pub resource: Option<Vec<CompartmentDefinitionResource>>,
+}
+impl CompartmentDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "version",
+                "name",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "purpose",
+                "code",
+                "search",
+                "resource",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "CompartmentDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.url = self.url;
+        out.name = self.name;
+        out.status = self.status;
+        out.code = self.code;
+        out.search = self.search;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"resource") {
+            out.resource = self.resource;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -5602,6 +8609,101 @@ pub struct Composition {
     pub event: Option<Vec<CompositionEvent>>,
     #[doc = "The root of the sections that make up the composition."]
     pub section: Option<Vec<CompositionSection>>,
+}
+impl Composition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "type",
+                "category",
+                "subject",
+                "encounter",
+                "date",
+                "author",
+                "title",
+                "confidentiality",
+                "attester",
+                "custodian",
+                "relatesTo",
+                "event",
+                "section",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Composition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.type_ = self.type_;
+        out.date = self.date;
+        out.author = self.author;
+        out.title = self.title;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"confidentiality") {
+            out.confidentiality = self.confidentiality;
+        }
+        if fields.contains(&"attester") {
+            out.attester = self.attester;
+        }
+        if fields.contains(&"custodian") {
+            out.custodian = self.custodian;
+        }
+        if fields.contains(&"relatesTo") {
+            out.relatesTo = self.relatesTo;
+        }
+        if fields.contains(&"event") {
+            out.event = self.event;
+        }
+        if fields.contains(&"section") {
+            out.section = self.section;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -5884,6 +8986,121 @@ pub struct ConceptMap {
     #[doc = "A group of mappings that all have the same source and target system."]
     pub group: Option<Vec<ConceptMapGroup>>,
 }
+impl ConceptMap {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "copyright",
+                "source",
+                "target",
+                "group",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ConceptMap".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"source") {
+            out.source = self.source;
+        }
+        if fields.contains(&"target") {
+            out.target = self.target;
+        }
+        if fields.contains(&"group") {
+            out.group = self.group;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -6053,6 +9270,117 @@ pub struct Condition {
     pub evidence: Option<Vec<ConditionEvidence>>,
     #[doc = "Additional information about the Condition. This is a general notes/comments entry  for description of the Condition, its diagnosis and prognosis."]
     pub note: Option<Vec<Annotation>>,
+}
+impl Condition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "clinicalStatus",
+                "verificationStatus",
+                "category",
+                "severity",
+                "code",
+                "bodySite",
+                "subject",
+                "encounter",
+                "onset",
+                "abatement",
+                "recordedDate",
+                "recorder",
+                "asserter",
+                "stage",
+                "evidence",
+                "note",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Condition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"clinicalStatus") {
+            out.clinicalStatus = self.clinicalStatus;
+        }
+        if fields.contains(&"verificationStatus") {
+            out.verificationStatus = self.verificationStatus;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"severity") {
+            out.severity = self.severity;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"bodySite") {
+            out.bodySite = self.bodySite;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"onset") {
+            out.onset = self.onset;
+        }
+        if fields.contains(&"abatement") {
+            out.abatement = self.abatement;
+        }
+        if fields.contains(&"recordedDate") {
+            out.recordedDate = self.recordedDate;
+        }
+        if fields.contains(&"recorder") {
+            out.recorder = self.recorder;
+        }
+        if fields.contains(&"asserter") {
+            out.asserter = self.asserter;
+        }
+        if fields.contains(&"stage") {
+            out.stage = self.stage;
+        }
+        if fields.contains(&"evidence") {
+            out.evidence = self.evidence;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -6282,6 +9610,97 @@ pub struct Consent {
     pub verification: Option<Vec<ConsentVerification>>,
     #[doc = "An exception to the base policy of this consent. An exception can be an addition or removal of access permissions."]
     pub provision: Option<ConsentProvision>,
+}
+impl Consent {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "scope",
+                "category",
+                "patient",
+                "dateTime",
+                "performer",
+                "organization",
+                "source",
+                "policy",
+                "policyRule",
+                "verification",
+                "provision",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Consent".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.scope = self.scope;
+        out.category = self.category;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"patient") {
+            out.patient = self.patient;
+        }
+        if fields.contains(&"dateTime") {
+            out.dateTime = self.dateTime;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"organization") {
+            out.organization = self.organization;
+        }
+        if fields.contains(&"source") {
+            out.source = self.source;
+        }
+        if fields.contains(&"policy") {
+            out.policy = self.policy;
+        }
+        if fields.contains(&"policyRule") {
+            out.policyRule = self.policyRule;
+        }
+        if fields.contains(&"verification") {
+            out.verification = self.verification;
+        }
+        if fields.contains(&"provision") {
+            out.provision = self.provision;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -7129,6 +10548,183 @@ pub struct Contract {
     #[doc = "Legally binding Contract: This is the signed and legally recognized representation of the Contract, which is considered the \"source of truth\" and which would be the basis for legal action related to enforcement of this Contract."]
     pub legallyBinding: Option<ContractLegallyBindingTypeChoice>,
 }
+impl Contract {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "url",
+                "version",
+                "status",
+                "legalState",
+                "instantiatesCanonical",
+                "instantiatesUri",
+                "contentDerivative",
+                "issued",
+                "applies",
+                "expirationType",
+                "subject",
+                "authority",
+                "domain",
+                "site",
+                "name",
+                "title",
+                "subtitle",
+                "alias",
+                "author",
+                "scope",
+                "topic",
+                "type",
+                "subType",
+                "contentDefinition",
+                "term",
+                "supportingInfo",
+                "relevantHistory",
+                "signer",
+                "friendly",
+                "legal",
+                "rule",
+                "legallyBinding",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Contract".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"legalState") {
+            out.legalState = self.legalState;
+        }
+        if fields.contains(&"instantiatesCanonical") {
+            out.instantiatesCanonical = self.instantiatesCanonical;
+        }
+        if fields.contains(&"instantiatesUri") {
+            out.instantiatesUri = self.instantiatesUri;
+        }
+        if fields.contains(&"contentDerivative") {
+            out.contentDerivative = self.contentDerivative;
+        }
+        if fields.contains(&"issued") {
+            out.issued = self.issued;
+        }
+        if fields.contains(&"applies") {
+            out.applies = self.applies;
+        }
+        if fields.contains(&"expirationType") {
+            out.expirationType = self.expirationType;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"authority") {
+            out.authority = self.authority;
+        }
+        if fields.contains(&"domain") {
+            out.domain = self.domain;
+        }
+        if fields.contains(&"site") {
+            out.site = self.site;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"subtitle") {
+            out.subtitle = self.subtitle;
+        }
+        if fields.contains(&"alias") {
+            out.alias = self.alias;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"scope") {
+            out.scope = self.scope;
+        }
+        if fields.contains(&"topic") {
+            out.topic = self.topic;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"subType") {
+            out.subType = self.subType;
+        }
+        if fields.contains(&"contentDefinition") {
+            out.contentDefinition = self.contentDefinition;
+        }
+        if fields.contains(&"term") {
+            out.term = self.term;
+        }
+        if fields.contains(&"supportingInfo") {
+            out.supportingInfo = self.supportingInfo;
+        }
+        if fields.contains(&"relevantHistory") {
+            out.relevantHistory = self.relevantHistory;
+        }
+        if fields.contains(&"signer") {
+            out.signer = self.signer;
+        }
+        if fields.contains(&"friendly") {
+            out.friendly = self.friendly;
+        }
+        if fields.contains(&"legal") {
+            out.legal = self.legal;
+        }
+        if fields.contains(&"rule") {
+            out.rule = self.rule;
+        }
+        if fields.contains(&"legallyBinding") {
+            out.legallyBinding = self.legallyBinding;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -7304,6 +10900,113 @@ pub struct Coverage {
     # [reference (targets = ["Contract"])]
     #[doc = "The policy(s) which constitute this insurance coverage."]
     pub contract: Option<Vec<Reference>>,
+}
+impl Coverage {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "type",
+                "policyHolder",
+                "subscriber",
+                "subscriberId",
+                "beneficiary",
+                "dependent",
+                "relationship",
+                "period",
+                "payor",
+                "class",
+                "order",
+                "network",
+                "costToBeneficiary",
+                "subrogation",
+                "contract",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Coverage".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.beneficiary = self.beneficiary;
+        out.payor = self.payor;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"policyHolder") {
+            out.policyHolder = self.policyHolder;
+        }
+        if fields.contains(&"subscriber") {
+            out.subscriber = self.subscriber;
+        }
+        if fields.contains(&"subscriberId") {
+            out.subscriberId = self.subscriberId;
+        }
+        if fields.contains(&"dependent") {
+            out.dependent = self.dependent;
+        }
+        if fields.contains(&"relationship") {
+            out.relationship = self.relationship;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"class") {
+            out.class = self.class;
+        }
+        if fields.contains(&"order") {
+            out.order = self.order;
+        }
+        if fields.contains(&"network") {
+            out.network = self.network;
+        }
+        if fields.contains(&"costToBeneficiary") {
+            out.costToBeneficiary = self.costToBeneficiary;
+        }
+        if fields.contains(&"subrogation") {
+            out.subrogation = self.subrogation;
+        }
+        if fields.contains(&"contract") {
+            out.contract = self.contract;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -7533,6 +11236,97 @@ pub struct CoverageEligibilityRequest {
     pub insurance: Option<Vec<CoverageEligibilityRequestInsurance>>,
     #[doc = "Service categories or billable services for which benefit details and/or an authorization prior to service delivery may be required by the payor."]
     pub item: Option<Vec<CoverageEligibilityRequestItem>>,
+}
+impl CoverageEligibilityRequest {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "priority",
+                "purpose",
+                "patient",
+                "serviced",
+                "created",
+                "enterer",
+                "provider",
+                "insurer",
+                "facility",
+                "supportingInfo",
+                "insurance",
+                "item",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "CoverageEligibilityRequest".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.purpose = self.purpose;
+        out.patient = self.patient;
+        out.created = self.created;
+        out.insurer = self.insurer;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"serviced") {
+            out.serviced = self.serviced;
+        }
+        if fields.contains(&"enterer") {
+            out.enterer = self.enterer;
+        }
+        if fields.contains(&"provider") {
+            out.provider = self.provider;
+        }
+        if fields.contains(&"facility") {
+            out.facility = self.facility;
+        }
+        if fields.contains(&"supportingInfo") {
+            out.supportingInfo = self.supportingInfo;
+        }
+        if fields.contains(&"insurance") {
+            out.insurance = self.insurance;
+        }
+        if fields.contains(&"item") {
+            out.item = self.item;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -7800,6 +11594,97 @@ pub struct CoverageEligibilityResponse {
     #[doc = "Errors encountered during the processing of the request."]
     pub error: Option<Vec<CoverageEligibilityResponseError>>,
 }
+impl CoverageEligibilityResponse {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "purpose",
+                "patient",
+                "serviced",
+                "created",
+                "requestor",
+                "request",
+                "outcome",
+                "disposition",
+                "insurer",
+                "insurance",
+                "preAuthRef",
+                "form",
+                "error",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "CoverageEligibilityResponse".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.purpose = self.purpose;
+        out.patient = self.patient;
+        out.created = self.created;
+        out.request = self.request;
+        out.outcome = self.outcome;
+        out.insurer = self.insurer;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"serviced") {
+            out.serviced = self.serviced;
+        }
+        if fields.contains(&"requestor") {
+            out.requestor = self.requestor;
+        }
+        if fields.contains(&"disposition") {
+            out.disposition = self.disposition;
+        }
+        if fields.contains(&"insurance") {
+            out.insurance = self.insurance;
+        }
+        if fields.contains(&"preAuthRef") {
+            out.preAuthRef = self.preAuthRef;
+        }
+        if fields.contains(&"form") {
+            out.form = self.form;
+        }
+        if fields.contains(&"error") {
+            out.error = self.error;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -7933,6 +11818,97 @@ pub struct DetectedIssue {
     pub reference: Option<Box<FHIRUri>>,
     #[doc = "Indicates an action that has been taken or is committed to reduce or eliminate the likelihood of the risk identified by the detected issue from manifesting.  Can also reflect an observation of known mitigating factors that may reduce/eliminate the need for any action."]
     pub mitigation: Option<Vec<DetectedIssueMitigation>>,
+}
+impl DetectedIssue {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "code",
+                "severity",
+                "patient",
+                "identified",
+                "author",
+                "implicated",
+                "evidence",
+                "detail",
+                "reference",
+                "mitigation",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "DetectedIssue".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"severity") {
+            out.severity = self.severity;
+        }
+        if fields.contains(&"patient") {
+            out.patient = self.patient;
+        }
+        if fields.contains(&"identified") {
+            out.identified = self.identified;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"implicated") {
+            out.implicated = self.implicated;
+        }
+        if fields.contains(&"evidence") {
+            out.evidence = self.evidence;
+        }
+        if fields.contains(&"detail") {
+            out.detail = self.detail;
+        }
+        if fields.contains(&"reference") {
+            out.reference = self.reference;
+        }
+        if fields.contains(&"mitigation") {
+            out.mitigation = self.mitigation;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -8173,6 +12149,155 @@ pub struct Device {
     # [reference (targets = ["Device"])]
     #[doc = "The parent device."]
     pub parent: Option<Box<Reference>>,
+}
+impl Device {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "definition",
+                "udiCarrier",
+                "status",
+                "statusReason",
+                "distinctIdentifier",
+                "manufacturer",
+                "manufactureDate",
+                "expirationDate",
+                "lotNumber",
+                "serialNumber",
+                "deviceName",
+                "modelNumber",
+                "partNumber",
+                "type",
+                "specialization",
+                "version",
+                "property",
+                "patient",
+                "owner",
+                "contact",
+                "location",
+                "url",
+                "note",
+                "safety",
+                "parent",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Device".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"definition") {
+            out.definition = self.definition;
+        }
+        if fields.contains(&"udiCarrier") {
+            out.udiCarrier = self.udiCarrier;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"statusReason") {
+            out.statusReason = self.statusReason;
+        }
+        if fields.contains(&"distinctIdentifier") {
+            out.distinctIdentifier = self.distinctIdentifier;
+        }
+        if fields.contains(&"manufacturer") {
+            out.manufacturer = self.manufacturer;
+        }
+        if fields.contains(&"manufactureDate") {
+            out.manufactureDate = self.manufactureDate;
+        }
+        if fields.contains(&"expirationDate") {
+            out.expirationDate = self.expirationDate;
+        }
+        if fields.contains(&"lotNumber") {
+            out.lotNumber = self.lotNumber;
+        }
+        if fields.contains(&"serialNumber") {
+            out.serialNumber = self.serialNumber;
+        }
+        if fields.contains(&"deviceName") {
+            out.deviceName = self.deviceName;
+        }
+        if fields.contains(&"modelNumber") {
+            out.modelNumber = self.modelNumber;
+        }
+        if fields.contains(&"partNumber") {
+            out.partNumber = self.partNumber;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"specialization") {
+            out.specialization = self.specialization;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"property") {
+            out.property = self.property;
+        }
+        if fields.contains(&"patient") {
+            out.patient = self.patient;
+        }
+        if fields.contains(&"owner") {
+            out.owner = self.owner;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"safety") {
+            out.safety = self.safety;
+        }
+        if fields.contains(&"parent") {
+            out.parent = self.parent;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -8434,6 +12559,139 @@ pub struct DeviceDefinition {
     #[doc = "A substance used to create the material(s) of which the device is made."]
     pub material: Option<Vec<DeviceDefinitionMaterial>>,
 }
+impl DeviceDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "udiDeviceIdentifier",
+                "manufacturer",
+                "deviceName",
+                "modelNumber",
+                "type",
+                "specialization",
+                "version",
+                "safety",
+                "shelfLifeStorage",
+                "physicalCharacteristics",
+                "languageCode",
+                "capability",
+                "property",
+                "owner",
+                "contact",
+                "url",
+                "onlineInformation",
+                "note",
+                "quantity",
+                "parentDevice",
+                "material",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "DeviceDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"udiDeviceIdentifier") {
+            out.udiDeviceIdentifier = self.udiDeviceIdentifier;
+        }
+        if fields.contains(&"manufacturer") {
+            out.manufacturer = self.manufacturer;
+        }
+        if fields.contains(&"deviceName") {
+            out.deviceName = self.deviceName;
+        }
+        if fields.contains(&"modelNumber") {
+            out.modelNumber = self.modelNumber;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"specialization") {
+            out.specialization = self.specialization;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"safety") {
+            out.safety = self.safety;
+        }
+        if fields.contains(&"shelfLifeStorage") {
+            out.shelfLifeStorage = self.shelfLifeStorage;
+        }
+        if fields.contains(&"physicalCharacteristics") {
+            out.physicalCharacteristics = self.physicalCharacteristics;
+        }
+        if fields.contains(&"languageCode") {
+            out.languageCode = self.languageCode;
+        }
+        if fields.contains(&"capability") {
+            out.capability = self.capability;
+        }
+        if fields.contains(&"property") {
+            out.property = self.property;
+        }
+        if fields.contains(&"owner") {
+            out.owner = self.owner;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"onlineInformation") {
+            out.onlineInformation = self.onlineInformation;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"quantity") {
+            out.quantity = self.quantity;
+        }
+        if fields.contains(&"parentDevice") {
+            out.parentDevice = self.parentDevice;
+        }
+        if fields.contains(&"material") {
+            out.material = self.material;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -8520,6 +12778,87 @@ pub struct DeviceMetric {
     pub measurementPeriod: Option<Box<Timing>>,
     #[doc = "Describes the calibrations that have been performed or that are required to be performed."]
     pub calibration: Option<Vec<DeviceMetricCalibration>>,
+}
+impl DeviceMetric {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "type",
+                "unit",
+                "source",
+                "parent",
+                "operationalStatus",
+                "color",
+                "category",
+                "measurementPeriod",
+                "calibration",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "DeviceMetric".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.type_ = self.type_;
+        out.category = self.category;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"unit") {
+            out.unit = self.unit;
+        }
+        if fields.contains(&"source") {
+            out.source = self.source;
+        }
+        if fields.contains(&"parent") {
+            out.parent = self.parent;
+        }
+        if fields.contains(&"operationalStatus") {
+            out.operationalStatus = self.operationalStatus;
+        }
+        if fields.contains(&"color") {
+            out.color = self.color;
+        }
+        if fields.contains(&"measurementPeriod") {
+            out.measurementPeriod = self.measurementPeriod;
+        }
+        if fields.contains(&"calibration") {
+            out.calibration = self.calibration;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -8703,6 +13042,141 @@ pub struct DeviceRequest {
     #[doc = "Key events in the history of the request."]
     pub relevantHistory: Option<Vec<Reference>>,
 }
+impl DeviceRequest {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "instantiatesCanonical",
+                "instantiatesUri",
+                "basedOn",
+                "priorRequest",
+                "groupIdentifier",
+                "status",
+                "intent",
+                "priority",
+                "code",
+                "parameter",
+                "subject",
+                "encounter",
+                "occurrence",
+                "authoredOn",
+                "requester",
+                "performerType",
+                "performer",
+                "reasonCode",
+                "reasonReference",
+                "insurance",
+                "supportingInfo",
+                "note",
+                "relevantHistory",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "DeviceRequest".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.intent = self.intent;
+        out.code = self.code;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"instantiatesCanonical") {
+            out.instantiatesCanonical = self.instantiatesCanonical;
+        }
+        if fields.contains(&"instantiatesUri") {
+            out.instantiatesUri = self.instantiatesUri;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"priorRequest") {
+            out.priorRequest = self.priorRequest;
+        }
+        if fields.contains(&"groupIdentifier") {
+            out.groupIdentifier = self.groupIdentifier;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"parameter") {
+            out.parameter = self.parameter;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"occurrence") {
+            out.occurrence = self.occurrence;
+        }
+        if fields.contains(&"authoredOn") {
+            out.authoredOn = self.authoredOn;
+        }
+        if fields.contains(&"requester") {
+            out.requester = self.requester;
+        }
+        if fields.contains(&"performerType") {
+            out.performerType = self.performerType;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"insurance") {
+            out.insurance = self.insurance;
+        }
+        if fields.contains(&"supportingInfo") {
+            out.supportingInfo = self.supportingInfo;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"relevantHistory") {
+            out.relevantHistory = self.relevantHistory;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -8789,6 +13263,97 @@ pub struct DeviceUseStatement {
     pub bodySite: Option<Box<CodeableConcept>>,
     #[doc = "Details about the device statement that were not represented at all or sufficiently in one of the attributes provided in a class. These may include for example a comment, an instruction, or a note associated with the statement."]
     pub note: Option<Vec<Annotation>>,
+}
+impl DeviceUseStatement {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "basedOn",
+                "status",
+                "subject",
+                "derivedFrom",
+                "timing",
+                "recordedOn",
+                "source",
+                "device",
+                "reasonCode",
+                "reasonReference",
+                "bodySite",
+                "note",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "DeviceUseStatement".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.subject = self.subject;
+        out.device = self.device;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"derivedFrom") {
+            out.derivedFrom = self.derivedFrom;
+        }
+        if fields.contains(&"timing") {
+            out.timing = self.timing;
+        }
+        if fields.contains(&"recordedOn") {
+            out.recordedOn = self.recordedOn;
+        }
+        if fields.contains(&"source") {
+            out.source = self.source;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"bodySite") {
+            out.bodySite = self.bodySite;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -8914,6 +13479,119 @@ pub struct DiagnosticReport {
     #[doc = "Rich text representation of the entire result as issued by the diagnostic service. Multiple formats are allowed but they SHALL be semantically equivalent."]
     pub presentedForm: Option<Vec<Attachment>>,
 }
+impl DiagnosticReport {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "basedOn",
+                "status",
+                "category",
+                "code",
+                "subject",
+                "encounter",
+                "effective",
+                "issued",
+                "performer",
+                "resultsInterpreter",
+                "specimen",
+                "result",
+                "imagingStudy",
+                "media",
+                "conclusion",
+                "conclusionCode",
+                "presentedForm",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "DiagnosticReport".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.code = self.code;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"effective") {
+            out.effective = self.effective;
+        }
+        if fields.contains(&"issued") {
+            out.issued = self.issued;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"resultsInterpreter") {
+            out.resultsInterpreter = self.resultsInterpreter;
+        }
+        if fields.contains(&"specimen") {
+            out.specimen = self.specimen;
+        }
+        if fields.contains(&"result") {
+            out.result = self.result;
+        }
+        if fields.contains(&"imagingStudy") {
+            out.imagingStudy = self.imagingStudy;
+        }
+        if fields.contains(&"media") {
+            out.media = self.media;
+        }
+        if fields.contains(&"conclusion") {
+            out.conclusion = self.conclusion;
+        }
+        if fields.contains(&"conclusionCode") {
+            out.conclusionCode = self.conclusionCode;
+        }
+        if fields.contains(&"presentedForm") {
+            out.presentedForm = self.presentedForm;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -9005,6 +13683,95 @@ pub struct DocumentManifest {
     pub content: Vec<Reference>,
     #[doc = "Related identifiers or resources associated with the DocumentManifest."]
     pub related: Option<Vec<DocumentManifestRelated>>,
+}
+impl DocumentManifest {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "masterIdentifier",
+                "identifier",
+                "status",
+                "type",
+                "subject",
+                "created",
+                "author",
+                "recipient",
+                "source",
+                "description",
+                "content",
+                "related",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "DocumentManifest".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.content = self.content;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"masterIdentifier") {
+            out.masterIdentifier = self.masterIdentifier;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"created") {
+            out.created = self.created;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"recipient") {
+            out.recipient = self.recipient;
+        }
+        if fields.contains(&"source") {
+            out.source = self.source;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"related") {
+            out.related = self.related;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -9163,6 +13930,111 @@ pub struct DocumentReference {
     pub content: Vec<DocumentReferenceContent>,
     #[doc = "The clinical context in which the document was prepared."]
     pub context: Option<DocumentReferenceContext>,
+}
+impl DocumentReference {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "masterIdentifier",
+                "identifier",
+                "status",
+                "docStatus",
+                "type",
+                "category",
+                "subject",
+                "date",
+                "author",
+                "authenticator",
+                "custodian",
+                "relatesTo",
+                "description",
+                "securityLabel",
+                "content",
+                "context",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "DocumentReference".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.content = self.content;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"masterIdentifier") {
+            out.masterIdentifier = self.masterIdentifier;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"docStatus") {
+            out.docStatus = self.docStatus;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"authenticator") {
+            out.authenticator = self.authenticator;
+        }
+        if fields.contains(&"custodian") {
+            out.custodian = self.custodian;
+        }
+        if fields.contains(&"relatesTo") {
+            out.relatesTo = self.relatesTo;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"securityLabel") {
+            out.securityLabel = self.securityLabel;
+        }
+        if fields.contains(&"context") {
+            out.context = self.context;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -9451,6 +14323,173 @@ pub struct EffectEvidenceSynthesis {
     #[doc = "A description of the certainty of the effect estimate."]
     pub certainty: Option<Vec<EffectEvidenceSynthesisCertainty>>,
 }
+impl EffectEvidenceSynthesis {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "status",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "note",
+                "useContext",
+                "jurisdiction",
+                "copyright",
+                "approvalDate",
+                "lastReviewDate",
+                "effectivePeriod",
+                "topic",
+                "author",
+                "editor",
+                "reviewer",
+                "endorser",
+                "relatedArtifact",
+                "synthesisType",
+                "studyType",
+                "population",
+                "exposure",
+                "exposureAlternative",
+                "outcome",
+                "sampleSize",
+                "resultsByExposure",
+                "effectEstimate",
+                "certainty",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "EffectEvidenceSynthesis".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.population = self.population;
+        out.exposure = self.exposure;
+        out.exposureAlternative = self.exposureAlternative;
+        out.outcome = self.outcome;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"approvalDate") {
+            out.approvalDate = self.approvalDate;
+        }
+        if fields.contains(&"lastReviewDate") {
+            out.lastReviewDate = self.lastReviewDate;
+        }
+        if fields.contains(&"effectivePeriod") {
+            out.effectivePeriod = self.effectivePeriod;
+        }
+        if fields.contains(&"topic") {
+            out.topic = self.topic;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"editor") {
+            out.editor = self.editor;
+        }
+        if fields.contains(&"reviewer") {
+            out.reviewer = self.reviewer;
+        }
+        if fields.contains(&"endorser") {
+            out.endorser = self.endorser;
+        }
+        if fields.contains(&"relatedArtifact") {
+            out.relatedArtifact = self.relatedArtifact;
+        }
+        if fields.contains(&"synthesisType") {
+            out.synthesisType = self.synthesisType;
+        }
+        if fields.contains(&"studyType") {
+            out.studyType = self.studyType;
+        }
+        if fields.contains(&"sampleSize") {
+            out.sampleSize = self.sampleSize;
+        }
+        if fields.contains(&"resultsByExposure") {
+            out.resultsByExposure = self.resultsByExposure;
+        }
+        if fields.contains(&"effectEstimate") {
+            out.effectEstimate = self.effectEstimate;
+        }
+        if fields.contains(&"certainty") {
+            out.certainty = self.certainty;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -9709,6 +14748,139 @@ pub struct Encounter {
     #[doc = "Another Encounter of which this encounter is a part of (administratively or in time)."]
     pub partOf: Option<Box<Reference>>,
 }
+impl Encounter {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "statusHistory",
+                "class",
+                "classHistory",
+                "type",
+                "serviceType",
+                "priority",
+                "subject",
+                "episodeOfCare",
+                "basedOn",
+                "participant",
+                "appointment",
+                "period",
+                "length",
+                "reasonCode",
+                "reasonReference",
+                "diagnosis",
+                "account",
+                "hospitalization",
+                "location",
+                "serviceProvider",
+                "partOf",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Encounter".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.class = self.class;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"statusHistory") {
+            out.statusHistory = self.statusHistory;
+        }
+        if fields.contains(&"classHistory") {
+            out.classHistory = self.classHistory;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"serviceType") {
+            out.serviceType = self.serviceType;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"episodeOfCare") {
+            out.episodeOfCare = self.episodeOfCare;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"participant") {
+            out.participant = self.participant;
+        }
+        if fields.contains(&"appointment") {
+            out.appointment = self.appointment;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"length") {
+            out.length = self.length;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"diagnosis") {
+            out.diagnosis = self.diagnosis;
+        }
+        if fields.contains(&"account") {
+            out.account = self.account;
+        }
+        if fields.contains(&"hospitalization") {
+            out.hospitalization = self.hospitalization;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"serviceProvider") {
+            out.serviceProvider = self.serviceProvider;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -9770,6 +14942,87 @@ pub struct Endpoint {
     #[doc = "Additional headers / information to send as part of the notification."]
     pub header: Option<Vec<FHIRString>>,
 }
+impl Endpoint {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "connectionType",
+                "name",
+                "managingOrganization",
+                "contact",
+                "period",
+                "payloadType",
+                "payloadMimeType",
+                "address",
+                "header",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Endpoint".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.connectionType = self.connectionType;
+        out.payloadType = self.payloadType;
+        out.address = self.address;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"managingOrganization") {
+            out.managingOrganization = self.managingOrganization;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"payloadMimeType") {
+            out.payloadMimeType = self.payloadMimeType;
+        }
+        if fields.contains(&"header") {
+            out.header = self.header;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -9821,6 +15074,79 @@ pub struct EnrollmentRequest {
     # [reference (targets = ["Coverage"])]
     #[doc = "Reference to the program or plan identification, underwriter or payor."]
     pub coverage: Option<Box<Reference>>,
+}
+impl EnrollmentRequest {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "created",
+                "insurer",
+                "provider",
+                "candidate",
+                "coverage",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "EnrollmentRequest".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"created") {
+            out.created = self.created;
+        }
+        if fields.contains(&"insurer") {
+            out.insurer = self.insurer;
+        }
+        if fields.contains(&"provider") {
+            out.provider = self.provider;
+        }
+        if fields.contains(&"candidate") {
+            out.candidate = self.candidate;
+        }
+        if fields.contains(&"coverage") {
+            out.coverage = self.coverage;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -9876,6 +15202,83 @@ pub struct EnrollmentResponse {
     # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The practitioner who is responsible for the services rendered to the patient."]
     pub requestProvider: Option<Box<Reference>>,
+}
+impl EnrollmentResponse {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "request",
+                "outcome",
+                "disposition",
+                "created",
+                "organization",
+                "requestProvider",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "EnrollmentResponse".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"request") {
+            out.request = self.request;
+        }
+        if fields.contains(&"outcome") {
+            out.outcome = self.outcome;
+        }
+        if fields.contains(&"disposition") {
+            out.disposition = self.disposition;
+        }
+        if fields.contains(&"created") {
+            out.created = self.created;
+        }
+        if fields.contains(&"organization") {
+            out.organization = self.organization;
+        }
+        if fields.contains(&"requestProvider") {
+            out.requestProvider = self.requestProvider;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -9991,6 +15394,95 @@ pub struct EpisodeOfCare {
     # [reference (targets = ["Account"])]
     #[doc = "The set of accounts that may be used for billing for this EpisodeOfCare."]
     pub account: Option<Vec<Reference>>,
+}
+impl EpisodeOfCare {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "statusHistory",
+                "type",
+                "diagnosis",
+                "patient",
+                "managingOrganization",
+                "period",
+                "referralRequest",
+                "careManager",
+                "team",
+                "account",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "EpisodeOfCare".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.patient = self.patient;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"statusHistory") {
+            out.statusHistory = self.statusHistory;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"diagnosis") {
+            out.diagnosis = self.diagnosis;
+        }
+        if fields.contains(&"managingOrganization") {
+            out.managingOrganization = self.managingOrganization;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"referralRequest") {
+            out.referralRequest = self.referralRequest;
+        }
+        if fields.contains(&"careManager") {
+            out.careManager = self.careManager;
+        }
+        if fields.contains(&"team") {
+            out.team = self.team;
+        }
+        if fields.contains(&"account") {
+            out.account = self.account;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -10116,6 +15608,159 @@ pub struct EventDefinition {
     #[doc = "The trigger element defines when the event occurs. If more than one trigger condition is specified, the event fires whenever any one of the trigger conditions is met."]
     pub trigger: Vec<TriggerDefinition>,
 }
+impl EventDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "subtitle",
+                "status",
+                "experimental",
+                "subject",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "usage",
+                "copyright",
+                "approvalDate",
+                "lastReviewDate",
+                "effectivePeriod",
+                "topic",
+                "author",
+                "editor",
+                "reviewer",
+                "endorser",
+                "relatedArtifact",
+                "trigger",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "EventDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.trigger = self.trigger;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"subtitle") {
+            out.subtitle = self.subtitle;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"usage") {
+            out.usage = self.usage;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"approvalDate") {
+            out.approvalDate = self.approvalDate;
+        }
+        if fields.contains(&"lastReviewDate") {
+            out.lastReviewDate = self.lastReviewDate;
+        }
+        if fields.contains(&"effectivePeriod") {
+            out.effectivePeriod = self.effectivePeriod;
+        }
+        if fields.contains(&"topic") {
+            out.topic = self.topic;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"editor") {
+            out.editor = self.editor;
+        }
+        if fields.contains(&"reviewer") {
+            out.reviewer = self.reviewer;
+        }
+        if fields.contains(&"endorser") {
+            out.endorser = self.endorser;
+        }
+        if fields.contains(&"relatedArtifact") {
+            out.relatedArtifact = self.relatedArtifact;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -10219,6 +15864,159 @@ pub struct Evidence {
     # [reference (targets = ["EvidenceVariable"])]
     #[doc = "A reference to a EvidenceVariable resomece that defines the outcome for the research."]
     pub outcome: Option<Vec<Reference>>,
+}
+impl Evidence {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "shortTitle",
+                "subtitle",
+                "status",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "note",
+                "useContext",
+                "jurisdiction",
+                "copyright",
+                "approvalDate",
+                "lastReviewDate",
+                "effectivePeriod",
+                "topic",
+                "author",
+                "editor",
+                "reviewer",
+                "endorser",
+                "relatedArtifact",
+                "exposureBackground",
+                "exposureVariant",
+                "outcome",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Evidence".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.exposureBackground = self.exposureBackground;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"shortTitle") {
+            out.shortTitle = self.shortTitle;
+        }
+        if fields.contains(&"subtitle") {
+            out.subtitle = self.subtitle;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"approvalDate") {
+            out.approvalDate = self.approvalDate;
+        }
+        if fields.contains(&"lastReviewDate") {
+            out.lastReviewDate = self.lastReviewDate;
+        }
+        if fields.contains(&"effectivePeriod") {
+            out.effectivePeriod = self.effectivePeriod;
+        }
+        if fields.contains(&"topic") {
+            out.topic = self.topic;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"editor") {
+            out.editor = self.editor;
+        }
+        if fields.contains(&"reviewer") {
+            out.reviewer = self.reviewer;
+        }
+        if fields.contains(&"endorser") {
+            out.endorser = self.endorser;
+        }
+        if fields.contains(&"relatedArtifact") {
+            out.relatedArtifact = self.relatedArtifact;
+        }
+        if fields.contains(&"exposureVariant") {
+            out.exposureVariant = self.exposureVariant;
+        }
+        if fields.contains(&"outcome") {
+            out.outcome = self.outcome;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -10404,6 +16202,155 @@ pub struct EvidenceVariable {
     #[cardinality(min = 1u64)]
     #[doc = "A characteristic that defines the members of the evidence element. Multiple characteristics are applied with \"and\" semantics."]
     pub characteristic: Vec<EvidenceVariableCharacteristic>,
+}
+impl EvidenceVariable {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "shortTitle",
+                "subtitle",
+                "status",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "note",
+                "useContext",
+                "jurisdiction",
+                "copyright",
+                "approvalDate",
+                "lastReviewDate",
+                "effectivePeriod",
+                "topic",
+                "author",
+                "editor",
+                "reviewer",
+                "endorser",
+                "relatedArtifact",
+                "type",
+                "characteristic",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "EvidenceVariable".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.characteristic = self.characteristic;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"shortTitle") {
+            out.shortTitle = self.shortTitle;
+        }
+        if fields.contains(&"subtitle") {
+            out.subtitle = self.subtitle;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"approvalDate") {
+            out.approvalDate = self.approvalDate;
+        }
+        if fields.contains(&"lastReviewDate") {
+            out.lastReviewDate = self.lastReviewDate;
+        }
+        if fields.contains(&"effectivePeriod") {
+            out.effectivePeriod = self.effectivePeriod;
+        }
+        if fields.contains(&"topic") {
+            out.topic = self.topic;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"editor") {
+            out.editor = self.editor;
+        }
+        if fields.contains(&"reviewer") {
+            out.reviewer = self.reviewer;
+        }
+        if fields.contains(&"endorser") {
+            out.endorser = self.endorser;
+        }
+        if fields.contains(&"relatedArtifact") {
+            out.relatedArtifact = self.relatedArtifact;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -10733,6 +16680,117 @@ pub struct ExampleScenario {
     #[primitive]
     #[doc = "Another nested workflow."]
     pub workflow: Option<Vec<FHIRCanonical>>,
+}
+impl ExampleScenario {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "useContext",
+                "jurisdiction",
+                "copyright",
+                "purpose",
+                "actor",
+                "instance",
+                "process",
+                "workflow",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ExampleScenario".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"actor") {
+            out.actor = self.actor;
+        }
+        if fields.contains(&"instance") {
+            out.instance = self.instance;
+        }
+        if fields.contains(&"process") {
+            out.process = self.process;
+        }
+        if fields.contains(&"workflow") {
+            out.workflow = self.workflow;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -11826,6 +17884,205 @@ pub struct ExplanationOfBenefit {
     #[doc = "Balance by Benefit Category."]
     pub benefitBalance: Option<Vec<ExplanationOfBenefitBenefitBalance>>,
 }
+impl ExplanationOfBenefit {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "type",
+                "subType",
+                "use",
+                "patient",
+                "billablePeriod",
+                "created",
+                "enterer",
+                "insurer",
+                "provider",
+                "priority",
+                "fundsReserveRequested",
+                "fundsReserve",
+                "related",
+                "prescription",
+                "originalPrescription",
+                "payee",
+                "referral",
+                "facility",
+                "claim",
+                "claimResponse",
+                "outcome",
+                "disposition",
+                "preAuthRef",
+                "preAuthRefPeriod",
+                "careTeam",
+                "supportingInfo",
+                "diagnosis",
+                "procedure",
+                "precedence",
+                "insurance",
+                "accident",
+                "item",
+                "addItem",
+                "adjudication",
+                "total",
+                "payment",
+                "formCode",
+                "form",
+                "processNote",
+                "benefitPeriod",
+                "benefitBalance",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ExplanationOfBenefit".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.type_ = self.type_;
+        out.use_ = self.use_;
+        out.patient = self.patient;
+        out.created = self.created;
+        out.insurer = self.insurer;
+        out.provider = self.provider;
+        out.outcome = self.outcome;
+        out.insurance = self.insurance;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"subType") {
+            out.subType = self.subType;
+        }
+        if fields.contains(&"billablePeriod") {
+            out.billablePeriod = self.billablePeriod;
+        }
+        if fields.contains(&"enterer") {
+            out.enterer = self.enterer;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"fundsReserveRequested") {
+            out.fundsReserveRequested = self.fundsReserveRequested;
+        }
+        if fields.contains(&"fundsReserve") {
+            out.fundsReserve = self.fundsReserve;
+        }
+        if fields.contains(&"related") {
+            out.related = self.related;
+        }
+        if fields.contains(&"prescription") {
+            out.prescription = self.prescription;
+        }
+        if fields.contains(&"originalPrescription") {
+            out.originalPrescription = self.originalPrescription;
+        }
+        if fields.contains(&"payee") {
+            out.payee = self.payee;
+        }
+        if fields.contains(&"referral") {
+            out.referral = self.referral;
+        }
+        if fields.contains(&"facility") {
+            out.facility = self.facility;
+        }
+        if fields.contains(&"claim") {
+            out.claim = self.claim;
+        }
+        if fields.contains(&"claimResponse") {
+            out.claimResponse = self.claimResponse;
+        }
+        if fields.contains(&"disposition") {
+            out.disposition = self.disposition;
+        }
+        if fields.contains(&"preAuthRef") {
+            out.preAuthRef = self.preAuthRef;
+        }
+        if fields.contains(&"preAuthRefPeriod") {
+            out.preAuthRefPeriod = self.preAuthRefPeriod;
+        }
+        if fields.contains(&"careTeam") {
+            out.careTeam = self.careTeam;
+        }
+        if fields.contains(&"supportingInfo") {
+            out.supportingInfo = self.supportingInfo;
+        }
+        if fields.contains(&"diagnosis") {
+            out.diagnosis = self.diagnosis;
+        }
+        if fields.contains(&"procedure") {
+            out.procedure = self.procedure;
+        }
+        if fields.contains(&"precedence") {
+            out.precedence = self.precedence;
+        }
+        if fields.contains(&"accident") {
+            out.accident = self.accident;
+        }
+        if fields.contains(&"item") {
+            out.item = self.item;
+        }
+        if fields.contains(&"addItem") {
+            out.addItem = self.addItem;
+        }
+        if fields.contains(&"adjudication") {
+            out.adjudication = self.adjudication;
+        }
+        if fields.contains(&"total") {
+            out.total = self.total;
+        }
+        if fields.contains(&"payment") {
+            out.payment = self.payment;
+        }
+        if fields.contains(&"formCode") {
+            out.formCode = self.formCode;
+        }
+        if fields.contains(&"form") {
+            out.form = self.form;
+        }
+        if fields.contains(&"processNote") {
+            out.processNote = self.processNote;
+        }
+        if fields.contains(&"benefitPeriod") {
+            out.benefitPeriod = self.benefitPeriod;
+        }
+        if fields.contains(&"benefitBalance") {
+            out.benefitBalance = self.benefitBalance;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -12022,6 +18279,117 @@ pub struct FamilyMemberHistory {
     #[doc = "The significant Conditions (or condition) that the family member had. This is a repeating section to allow a system to represent more than one condition per resource, though there is nothing stopping multiple resources - one per condition."]
     pub condition: Option<Vec<FamilyMemberHistoryCondition>>,
 }
+impl FamilyMemberHistory {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "instantiatesCanonical",
+                "instantiatesUri",
+                "status",
+                "dataAbsentReason",
+                "patient",
+                "date",
+                "name",
+                "relationship",
+                "sex",
+                "born",
+                "age",
+                "estimatedAge",
+                "deceased",
+                "reasonCode",
+                "reasonReference",
+                "note",
+                "condition",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "FamilyMemberHistory".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.patient = self.patient;
+        out.relationship = self.relationship;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"instantiatesCanonical") {
+            out.instantiatesCanonical = self.instantiatesCanonical;
+        }
+        if fields.contains(&"instantiatesUri") {
+            out.instantiatesUri = self.instantiatesUri;
+        }
+        if fields.contains(&"dataAbsentReason") {
+            out.dataAbsentReason = self.dataAbsentReason;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"sex") {
+            out.sex = self.sex;
+        }
+        if fields.contains(&"born") {
+            out.born = self.born;
+        }
+        if fields.contains(&"age") {
+            out.age = self.age;
+        }
+        if fields.contains(&"estimatedAge") {
+            out.estimatedAge = self.estimatedAge;
+        }
+        if fields.contains(&"deceased") {
+            out.deceased = self.deceased;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"condition") {
+            out.condition = self.condition;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -12073,6 +18441,77 @@ pub struct Flag {
     # [reference (targets = ["Device" , "Organization" , "Patient" , "Practitioner" , "PractitionerRole"])]
     #[doc = "The person, organization or device that created the flag."]
     pub author: Option<Box<Reference>>,
+}
+impl Flag {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "category",
+                "code",
+                "subject",
+                "period",
+                "encounter",
+                "author",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Flag".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.code = self.code;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -12236,6 +18675,109 @@ pub struct Goal {
     # [reference (targets = ["Observation"])]
     #[doc = "Details of what's changed (or not changed)."]
     pub outcomeReference: Option<Vec<Reference>>,
+}
+impl Goal {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "lifecycleStatus",
+                "achievementStatus",
+                "category",
+                "priority",
+                "description",
+                "subject",
+                "start",
+                "target",
+                "statusDate",
+                "statusReason",
+                "expressedBy",
+                "addresses",
+                "note",
+                "outcomeCode",
+                "outcomeReference",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Goal".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.lifecycleStatus = self.lifecycleStatus;
+        out.description = self.description;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"achievementStatus") {
+            out.achievementStatus = self.achievementStatus;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"start") {
+            out.start = self.start;
+        }
+        if fields.contains(&"target") {
+            out.target = self.target;
+        }
+        if fields.contains(&"statusDate") {
+            out.statusDate = self.statusDate;
+        }
+        if fields.contains(&"statusReason") {
+            out.statusReason = self.statusReason;
+        }
+        if fields.contains(&"expressedBy") {
+            out.expressedBy = self.expressedBy;
+        }
+        if fields.contains(&"addresses") {
+            out.addresses = self.addresses;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"outcomeCode") {
+            out.outcomeCode = self.outcomeCode;
+        }
+        if fields.contains(&"outcomeReference") {
+            out.outcomeReference = self.outcomeReference;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -12413,6 +18955,105 @@ pub struct GraphDefinition {
     #[doc = "Links this graph makes rules about."]
     pub link: Option<Vec<GraphDefinitionLink>>,
 }
+impl GraphDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "version",
+                "name",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "start",
+                "profile",
+                "link",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "GraphDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.name = self.name;
+        out.status = self.status;
+        out.start = self.start;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"profile") {
+            out.profile = self.profile;
+        }
+        if fields.contains(&"link") {
+            out.link = self.link;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -12550,6 +19191,87 @@ pub struct Group {
     #[doc = "Identifies the resource instances that are members of the group."]
     pub member: Option<Vec<GroupMember>>,
 }
+impl Group {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "active",
+                "type",
+                "actual",
+                "code",
+                "name",
+                "quantity",
+                "managingEntity",
+                "characteristic",
+                "member",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Group".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.type_ = self.type_;
+        out.actual = self.actual;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"active") {
+            out.active = self.active;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"quantity") {
+            out.quantity = self.quantity;
+        }
+        if fields.contains(&"managingEntity") {
+            out.managingEntity = self.managingEntity;
+        }
+        if fields.contains(&"characteristic") {
+            out.characteristic = self.characteristic;
+        }
+        if fields.contains(&"member") {
+            out.member = self.member;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -12642,6 +19364,107 @@ pub struct GuidanceResponse {
     pub result: Option<Box<Reference>>,
     #[doc = "If the evaluation could not be completed due to lack of information, or additional information would potentially result in a more accurate response, this element will a description of the data required in order to proceed with the evaluation. A subsequent request to the service should include this data."]
     pub dataRequirement: Option<Vec<DataRequirement>>,
+}
+impl GuidanceResponse {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "requestIdentifier",
+                "identifier",
+                "module",
+                "status",
+                "subject",
+                "encounter",
+                "occurrenceDateTime",
+                "performer",
+                "reasonCode",
+                "reasonReference",
+                "note",
+                "evaluationMessage",
+                "outputParameters",
+                "result",
+                "dataRequirement",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "GuidanceResponse".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.module = self.module;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"requestIdentifier") {
+            out.requestIdentifier = self.requestIdentifier;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"occurrenceDateTime") {
+            out.occurrenceDateTime = self.occurrenceDateTime;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"evaluationMessage") {
+            out.evaluationMessage = self.evaluationMessage;
+        }
+        if fields.contains(&"outputParameters") {
+            out.outputParameters = self.outputParameters;
+        }
+        if fields.contains(&"result") {
+            out.result = self.result;
+        }
+        if fields.contains(&"dataRequirement") {
+            out.dataRequirement = self.dataRequirement;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -12812,6 +19635,147 @@ pub struct HealthcareService {
     # [reference (targets = ["Endpoint"])]
     #[doc = "Technical endpoints providing access to services operated for the specific healthcare services defined at this resource."]
     pub endpoint: Option<Vec<Reference>>,
+}
+impl HealthcareService {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "active",
+                "providedBy",
+                "category",
+                "type",
+                "specialty",
+                "location",
+                "name",
+                "comment",
+                "extraDetails",
+                "photo",
+                "telecom",
+                "coverageArea",
+                "serviceProvisionCode",
+                "eligibility",
+                "program",
+                "characteristic",
+                "communication",
+                "referralMethod",
+                "appointmentRequired",
+                "availableTime",
+                "notAvailable",
+                "availabilityExceptions",
+                "endpoint",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "HealthcareService".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"active") {
+            out.active = self.active;
+        }
+        if fields.contains(&"providedBy") {
+            out.providedBy = self.providedBy;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"specialty") {
+            out.specialty = self.specialty;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"comment") {
+            out.comment = self.comment;
+        }
+        if fields.contains(&"extraDetails") {
+            out.extraDetails = self.extraDetails;
+        }
+        if fields.contains(&"photo") {
+            out.photo = self.photo;
+        }
+        if fields.contains(&"telecom") {
+            out.telecom = self.telecom;
+        }
+        if fields.contains(&"coverageArea") {
+            out.coverageArea = self.coverageArea;
+        }
+        if fields.contains(&"serviceProvisionCode") {
+            out.serviceProvisionCode = self.serviceProvisionCode;
+        }
+        if fields.contains(&"eligibility") {
+            out.eligibility = self.eligibility;
+        }
+        if fields.contains(&"program") {
+            out.program = self.program;
+        }
+        if fields.contains(&"characteristic") {
+            out.characteristic = self.characteristic;
+        }
+        if fields.contains(&"communication") {
+            out.communication = self.communication;
+        }
+        if fields.contains(&"referralMethod") {
+            out.referralMethod = self.referralMethod;
+        }
+        if fields.contains(&"appointmentRequired") {
+            out.appointmentRequired = self.appointmentRequired;
+        }
+        if fields.contains(&"availableTime") {
+            out.availableTime = self.availableTime;
+        }
+        if fields.contains(&"notAvailable") {
+            out.notAvailable = self.notAvailable;
+        }
+        if fields.contains(&"availabilityExceptions") {
+            out.availabilityExceptions = self.availabilityExceptions;
+        }
+        if fields.contains(&"endpoint") {
+            out.endpoint = self.endpoint;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -13002,6 +19966,127 @@ pub struct ImagingStudy {
     pub description: Option<Box<FHIRString>>,
     #[doc = "Each study has one or more series of images or other content."]
     pub series: Option<Vec<ImagingStudySeries>>,
+}
+impl ImagingStudy {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "modality",
+                "subject",
+                "encounter",
+                "started",
+                "basedOn",
+                "referrer",
+                "interpreter",
+                "endpoint",
+                "numberOfSeries",
+                "numberOfInstances",
+                "procedureReference",
+                "procedureCode",
+                "location",
+                "reasonCode",
+                "reasonReference",
+                "note",
+                "description",
+                "series",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ImagingStudy".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"modality") {
+            out.modality = self.modality;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"started") {
+            out.started = self.started;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"referrer") {
+            out.referrer = self.referrer;
+        }
+        if fields.contains(&"interpreter") {
+            out.interpreter = self.interpreter;
+        }
+        if fields.contains(&"endpoint") {
+            out.endpoint = self.endpoint;
+        }
+        if fields.contains(&"numberOfSeries") {
+            out.numberOfSeries = self.numberOfSeries;
+        }
+        if fields.contains(&"numberOfInstances") {
+            out.numberOfInstances = self.numberOfInstances;
+        }
+        if fields.contains(&"procedureReference") {
+            out.procedureReference = self.procedureReference;
+        }
+        if fields.contains(&"procedureCode") {
+            out.procedureCode = self.procedureCode;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"series") {
+            out.series = self.series;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -13279,6 +20364,155 @@ pub struct Immunization {
     #[doc = "The protocol (set of recommendations) being followed by the provider who administered the dose."]
     pub protocolApplied: Option<Vec<ImmunizationProtocolApplied>>,
 }
+impl Immunization {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "statusReason",
+                "vaccineCode",
+                "patient",
+                "encounter",
+                "occurrence",
+                "recorded",
+                "primarySource",
+                "reportOrigin",
+                "location",
+                "manufacturer",
+                "lotNumber",
+                "expirationDate",
+                "site",
+                "route",
+                "doseQuantity",
+                "performer",
+                "note",
+                "reasonCode",
+                "reasonReference",
+                "isSubpotent",
+                "subpotentReason",
+                "education",
+                "programEligibility",
+                "fundingSource",
+                "reaction",
+                "protocolApplied",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Immunization".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.vaccineCode = self.vaccineCode;
+        out.patient = self.patient;
+        out.occurrence = self.occurrence;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"statusReason") {
+            out.statusReason = self.statusReason;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"recorded") {
+            out.recorded = self.recorded;
+        }
+        if fields.contains(&"primarySource") {
+            out.primarySource = self.primarySource;
+        }
+        if fields.contains(&"reportOrigin") {
+            out.reportOrigin = self.reportOrigin;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"manufacturer") {
+            out.manufacturer = self.manufacturer;
+        }
+        if fields.contains(&"lotNumber") {
+            out.lotNumber = self.lotNumber;
+        }
+        if fields.contains(&"expirationDate") {
+            out.expirationDate = self.expirationDate;
+        }
+        if fields.contains(&"site") {
+            out.site = self.site;
+        }
+        if fields.contains(&"route") {
+            out.route = self.route;
+        }
+        if fields.contains(&"doseQuantity") {
+            out.doseQuantity = self.doseQuantity;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"isSubpotent") {
+            out.isSubpotent = self.isSubpotent;
+        }
+        if fields.contains(&"subpotentReason") {
+            out.subpotentReason = self.subpotentReason;
+        }
+        if fields.contains(&"education") {
+            out.education = self.education;
+        }
+        if fields.contains(&"programEligibility") {
+            out.programEligibility = self.programEligibility;
+        }
+        if fields.contains(&"fundingSource") {
+            out.fundingSource = self.fundingSource;
+        }
+        if fields.contains(&"reaction") {
+            out.reaction = self.reaction;
+        }
+        if fields.contains(&"protocolApplied") {
+            out.protocolApplied = self.protocolApplied;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -13385,6 +20619,93 @@ pub struct ImmunizationEvaluation {
     # [type_choice_variants (complex = [] , primitive = ["seriesDosesPositiveInt" , "seriesDosesString"])]
     #[doc = "The recommended number of doses to achieve immunity."]
     pub seriesDoses: Option<ImmunizationEvaluationSeriesDosesTypeChoice>,
+}
+impl ImmunizationEvaluation {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "patient",
+                "date",
+                "authority",
+                "targetDisease",
+                "immunizationEvent",
+                "doseStatus",
+                "doseStatusReason",
+                "description",
+                "series",
+                "doseNumber",
+                "seriesDoses",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ImmunizationEvaluation".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.patient = self.patient;
+        out.targetDisease = self.targetDisease;
+        out.immunizationEvent = self.immunizationEvent;
+        out.doseStatus = self.doseStatus;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"authority") {
+            out.authority = self.authority;
+        }
+        if fields.contains(&"doseStatusReason") {
+            out.doseStatusReason = self.doseStatusReason;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"series") {
+            out.series = self.series;
+        }
+        if fields.contains(&"doseNumber") {
+            out.doseNumber = self.doseNumber;
+        }
+        if fields.contains(&"seriesDoses") {
+            out.seriesDoses = self.seriesDoses;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -13544,6 +20865,65 @@ pub struct ImmunizationRecommendation {
     #[cardinality(min = 1u64)]
     #[doc = "Vaccine administration recommendations."]
     pub recommendation: Vec<ImmunizationRecommendationRecommendation>,
+}
+impl ImmunizationRecommendation {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "patient",
+                "date",
+                "authority",
+                "recommendation",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ImmunizationRecommendation".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.patient = self.patient;
+        out.date = self.date;
+        out.recommendation = self.recommendation;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"authority") {
+            out.authority = self.authority;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -14008,6 +21388,121 @@ pub struct ImplementationGuide {
     #[doc = "Information about an assembled implementation guide, created by the publication tooling."]
     pub manifest: Option<ImplementationGuideManifest>,
 }
+impl ImplementationGuide {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "version",
+                "name",
+                "title",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "copyright",
+                "packageId",
+                "license",
+                "fhirVersion",
+                "dependsOn",
+                "global",
+                "definition",
+                "manifest",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ImplementationGuide".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.url = self.url;
+        out.name = self.name;
+        out.status = self.status;
+        out.packageId = self.packageId;
+        out.fhirVersion = self.fhirVersion;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"license") {
+            out.license = self.license;
+        }
+        if fields.contains(&"dependsOn") {
+            out.dependsOn = self.dependsOn;
+        }
+        if fields.contains(&"global") {
+            out.global = self.global;
+        }
+        if fields.contains(&"definition") {
+            out.definition = self.definition;
+        }
+        if fields.contains(&"manifest") {
+            out.manifest = self.manifest;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -14322,6 +21817,107 @@ pub struct InsurancePlan {
     #[doc = "Details about an insurance plan."]
     pub plan: Option<Vec<InsurancePlanPlan>>,
 }
+impl InsurancePlan {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "type",
+                "name",
+                "alias",
+                "period",
+                "ownedBy",
+                "administeredBy",
+                "coverageArea",
+                "contact",
+                "endpoint",
+                "network",
+                "coverage",
+                "plan",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "InsurancePlan".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"alias") {
+            out.alias = self.alias;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"ownedBy") {
+            out.ownedBy = self.ownedBy;
+        }
+        if fields.contains(&"administeredBy") {
+            out.administeredBy = self.administeredBy;
+        }
+        if fields.contains(&"coverageArea") {
+            out.coverageArea = self.coverageArea;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"endpoint") {
+            out.endpoint = self.endpoint;
+        }
+        if fields.contains(&"network") {
+            out.network = self.network;
+        }
+        if fields.contains(&"coverage") {
+            out.coverage = self.coverage;
+        }
+        if fields.contains(&"plan") {
+            out.plan = self.plan;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -14495,6 +22091,113 @@ pub struct Invoice {
     #[doc = "Comments made about the invoice by the issuer, subject, or other participants."]
     pub note: Option<Vec<Annotation>>,
 }
+impl Invoice {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "cancelledReason",
+                "type",
+                "subject",
+                "recipient",
+                "date",
+                "participant",
+                "issuer",
+                "account",
+                "lineItem",
+                "totalPriceComponent",
+                "totalNet",
+                "totalGross",
+                "paymentTerms",
+                "note",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Invoice".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"cancelledReason") {
+            out.cancelledReason = self.cancelledReason;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"recipient") {
+            out.recipient = self.recipient;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"participant") {
+            out.participant = self.participant;
+        }
+        if fields.contains(&"issuer") {
+            out.issuer = self.issuer;
+        }
+        if fields.contains(&"account") {
+            out.account = self.account;
+        }
+        if fields.contains(&"lineItem") {
+            out.lineItem = self.lineItem;
+        }
+        if fields.contains(&"totalPriceComponent") {
+            out.totalPriceComponent = self.totalPriceComponent;
+        }
+        if fields.contains(&"totalNet") {
+            out.totalNet = self.totalNet;
+        }
+        if fields.contains(&"totalGross") {
+            out.totalGross = self.totalGross;
+        }
+        if fields.contains(&"paymentTerms") {
+            out.paymentTerms = self.paymentTerms;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -14625,6 +22328,171 @@ pub struct Library {
     #[doc = "The content of the library as an Attachment. The content may be a reference to a url, or may be directly embedded as a base-64 string. Either way, the contentType of the attachment determines how to interpret the content."]
     pub content: Option<Vec<Attachment>>,
 }
+impl Library {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "subtitle",
+                "status",
+                "experimental",
+                "type",
+                "subject",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "usage",
+                "copyright",
+                "approvalDate",
+                "lastReviewDate",
+                "effectivePeriod",
+                "topic",
+                "author",
+                "editor",
+                "reviewer",
+                "endorser",
+                "relatedArtifact",
+                "parameter",
+                "dataRequirement",
+                "content",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Library".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.type_ = self.type_;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"subtitle") {
+            out.subtitle = self.subtitle;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"usage") {
+            out.usage = self.usage;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"approvalDate") {
+            out.approvalDate = self.approvalDate;
+        }
+        if fields.contains(&"lastReviewDate") {
+            out.lastReviewDate = self.lastReviewDate;
+        }
+        if fields.contains(&"effectivePeriod") {
+            out.effectivePeriod = self.effectivePeriod;
+        }
+        if fields.contains(&"topic") {
+            out.topic = self.topic;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"editor") {
+            out.editor = self.editor;
+        }
+        if fields.contains(&"reviewer") {
+            out.reviewer = self.reviewer;
+        }
+        if fields.contains(&"endorser") {
+            out.endorser = self.endorser;
+        }
+        if fields.contains(&"relatedArtifact") {
+            out.relatedArtifact = self.relatedArtifact;
+        }
+        if fields.contains(&"parameter") {
+            out.parameter = self.parameter;
+        }
+        if fields.contains(&"dataRequirement") {
+            out.dataRequirement = self.dataRequirement;
+        }
+        if fields.contains(&"content") {
+            out.content = self.content;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -14690,6 +22558,61 @@ pub struct Linkage {
     #[cardinality(min = 1u64)]
     #[doc = "Identifies which record considered as the reference to the same real-world occurrence as well as how the items should be evaluated within the collection of linked items."]
     pub item: Vec<LinkageItem>,
+}
+impl Linkage {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "active",
+                "author",
+                "item",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Linkage".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.item = self.item;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"active") {
+            out.active = self.active;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -14785,6 +22708,99 @@ pub struct List {
     pub entry: Option<Vec<ListEntry>>,
     #[doc = "If the list is empty, why the list is empty."]
     pub emptyReason: Option<Box<CodeableConcept>>,
+}
+impl List {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "mode",
+                "title",
+                "code",
+                "subject",
+                "encounter",
+                "date",
+                "source",
+                "orderedBy",
+                "note",
+                "entry",
+                "emptyReason",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "List".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.mode = self.mode;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"source") {
+            out.source = self.source;
+        }
+        if fields.contains(&"orderedBy") {
+            out.orderedBy = self.orderedBy;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"entry") {
+            out.entry = self.entry;
+        }
+        if fields.contains(&"emptyReason") {
+            out.emptyReason = self.emptyReason;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -14920,6 +22936,119 @@ pub struct Location {
     # [reference (targets = ["Endpoint"])]
     #[doc = "Technical endpoints providing access to services operated for the location."]
     pub endpoint: Option<Vec<Reference>>,
+}
+impl Location {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "operationalStatus",
+                "name",
+                "alias",
+                "description",
+                "mode",
+                "type",
+                "telecom",
+                "address",
+                "physicalType",
+                "position",
+                "managingOrganization",
+                "partOf",
+                "hoursOfOperation",
+                "availabilityExceptions",
+                "endpoint",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Location".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"operationalStatus") {
+            out.operationalStatus = self.operationalStatus;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"alias") {
+            out.alias = self.alias;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"mode") {
+            out.mode = self.mode;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"telecom") {
+            out.telecom = self.telecom;
+        }
+        if fields.contains(&"address") {
+            out.address = self.address;
+        }
+        if fields.contains(&"physicalType") {
+            out.physicalType = self.physicalType;
+        }
+        if fields.contains(&"position") {
+            out.position = self.position;
+        }
+        if fields.contains(&"managingOrganization") {
+            out.managingOrganization = self.managingOrganization;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"hoursOfOperation") {
+            out.hoursOfOperation = self.hoursOfOperation;
+        }
+        if fields.contains(&"availabilityExceptions") {
+            out.availabilityExceptions = self.availabilityExceptions;
+        }
+        if fields.contains(&"endpoint") {
+            out.endpoint = self.endpoint;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -15215,6 +23344,213 @@ pub struct Measure {
     #[doc = "The supplemental data criteria for the measure report, specified as either the name of a valid CQL expression within a referenced library, or a valid FHIR Resource Path."]
     pub supplementalData: Option<Vec<MeasureSupplementalData>>,
 }
+impl Measure {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "subtitle",
+                "status",
+                "experimental",
+                "subject",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "usage",
+                "copyright",
+                "approvalDate",
+                "lastReviewDate",
+                "effectivePeriod",
+                "topic",
+                "author",
+                "editor",
+                "reviewer",
+                "endorser",
+                "relatedArtifact",
+                "library",
+                "disclaimer",
+                "scoring",
+                "compositeScoring",
+                "type",
+                "riskAdjustment",
+                "rateAggregation",
+                "rationale",
+                "clinicalRecommendationStatement",
+                "improvementNotation",
+                "definition",
+                "guidance",
+                "group",
+                "supplementalData",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Measure".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"subtitle") {
+            out.subtitle = self.subtitle;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"usage") {
+            out.usage = self.usage;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"approvalDate") {
+            out.approvalDate = self.approvalDate;
+        }
+        if fields.contains(&"lastReviewDate") {
+            out.lastReviewDate = self.lastReviewDate;
+        }
+        if fields.contains(&"effectivePeriod") {
+            out.effectivePeriod = self.effectivePeriod;
+        }
+        if fields.contains(&"topic") {
+            out.topic = self.topic;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"editor") {
+            out.editor = self.editor;
+        }
+        if fields.contains(&"reviewer") {
+            out.reviewer = self.reviewer;
+        }
+        if fields.contains(&"endorser") {
+            out.endorser = self.endorser;
+        }
+        if fields.contains(&"relatedArtifact") {
+            out.relatedArtifact = self.relatedArtifact;
+        }
+        if fields.contains(&"library") {
+            out.library = self.library;
+        }
+        if fields.contains(&"disclaimer") {
+            out.disclaimer = self.disclaimer;
+        }
+        if fields.contains(&"scoring") {
+            out.scoring = self.scoring;
+        }
+        if fields.contains(&"compositeScoring") {
+            out.compositeScoring = self.compositeScoring;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"riskAdjustment") {
+            out.riskAdjustment = self.riskAdjustment;
+        }
+        if fields.contains(&"rateAggregation") {
+            out.rateAggregation = self.rateAggregation;
+        }
+        if fields.contains(&"rationale") {
+            out.rationale = self.rationale;
+        }
+        if fields.contains(&"clinicalRecommendationStatement") {
+            out.clinicalRecommendationStatement = self.clinicalRecommendationStatement;
+        }
+        if fields.contains(&"improvementNotation") {
+            out.improvementNotation = self.improvementNotation;
+        }
+        if fields.contains(&"definition") {
+            out.definition = self.definition;
+        }
+        if fields.contains(&"guidance") {
+            out.guidance = self.guidance;
+        }
+        if fields.contains(&"group") {
+            out.group = self.group;
+        }
+        if fields.contains(&"supplementalData") {
+            out.supplementalData = self.supplementalData;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -15431,6 +23767,87 @@ pub struct MeasureReport {
     #[doc = "A reference to a Bundle containing the Resources that were used in the calculation of this measure."]
     pub evaluatedResource: Option<Vec<Reference>>,
 }
+impl MeasureReport {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "type",
+                "measure",
+                "subject",
+                "date",
+                "reporter",
+                "period",
+                "improvementNotation",
+                "group",
+                "evaluatedResource",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MeasureReport".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.type_ = self.type_;
+        out.measure = self.measure;
+        out.period = self.period;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"reporter") {
+            out.reporter = self.reporter;
+        }
+        if fields.contains(&"improvementNotation") {
+            out.improvementNotation = self.improvementNotation;
+        }
+        if fields.contains(&"group") {
+            out.group = self.group;
+        }
+        if fields.contains(&"evaluatedResource") {
+            out.evaluatedResource = self.evaluatedResource;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -15540,6 +23957,135 @@ pub struct Media {
     pub content: Box<Attachment>,
     #[doc = "Comments made about the media by the performer, subject or other participants."]
     pub note: Option<Vec<Annotation>>,
+}
+impl Media {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "basedOn",
+                "partOf",
+                "status",
+                "type",
+                "modality",
+                "view",
+                "subject",
+                "encounter",
+                "created",
+                "issued",
+                "operator",
+                "reasonCode",
+                "bodySite",
+                "deviceName",
+                "device",
+                "height",
+                "width",
+                "frames",
+                "duration",
+                "content",
+                "note",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Media".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.content = self.content;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"modality") {
+            out.modality = self.modality;
+        }
+        if fields.contains(&"view") {
+            out.view = self.view;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"created") {
+            out.created = self.created;
+        }
+        if fields.contains(&"issued") {
+            out.issued = self.issued;
+        }
+        if fields.contains(&"operator") {
+            out.operator = self.operator;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"bodySite") {
+            out.bodySite = self.bodySite;
+        }
+        if fields.contains(&"deviceName") {
+            out.deviceName = self.deviceName;
+        }
+        if fields.contains(&"device") {
+            out.device = self.device;
+        }
+        if fields.contains(&"height") {
+            out.height = self.height;
+        }
+        if fields.contains(&"width") {
+            out.width = self.width;
+        }
+        if fields.contains(&"frames") {
+            out.frames = self.frames;
+        }
+        if fields.contains(&"duration") {
+            out.duration = self.duration;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -15661,6 +24207,83 @@ pub struct Medication {
     pub ingredient: Option<Vec<MedicationIngredient>>,
     #[doc = "Information that only applies to packages (not products)."]
     pub batch: Option<MedicationBatch>,
+}
+impl Medication {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "code",
+                "status",
+                "manufacturer",
+                "form",
+                "amount",
+                "ingredient",
+                "batch",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Medication".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"manufacturer") {
+            out.manufacturer = self.manufacturer;
+        }
+        if fields.contains(&"form") {
+            out.form = self.form;
+        }
+        if fields.contains(&"amount") {
+            out.amount = self.amount;
+        }
+        if fields.contains(&"ingredient") {
+            out.ingredient = self.ingredient;
+        }
+        if fields.contains(&"batch") {
+            out.batch = self.batch;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -15857,6 +24480,119 @@ pub struct MedicationAdministration {
     #[doc = "A summary of the events of interest that have occurred, such as when the administration was verified."]
     pub eventHistory: Option<Vec<Reference>>,
 }
+impl MedicationAdministration {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "instantiates",
+                "partOf",
+                "status",
+                "statusReason",
+                "category",
+                "medication",
+                "subject",
+                "context",
+                "supportingInformation",
+                "effective",
+                "performer",
+                "reasonCode",
+                "reasonReference",
+                "request",
+                "device",
+                "note",
+                "dosage",
+                "eventHistory",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicationAdministration".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.medication = self.medication;
+        out.subject = self.subject;
+        out.effective = self.effective;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"instantiates") {
+            out.instantiates = self.instantiates;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"statusReason") {
+            out.statusReason = self.statusReason;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"context") {
+            out.context = self.context;
+        }
+        if fields.contains(&"supportingInformation") {
+            out.supportingInformation = self.supportingInformation;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"request") {
+            out.request = self.request;
+        }
+        if fields.contains(&"device") {
+            out.device = self.device;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"dosage") {
+            out.dosage = self.dosage;
+        }
+        if fields.contains(&"eventHistory") {
+            out.eventHistory = self.eventHistory;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -16044,6 +24780,143 @@ pub struct MedicationDispense {
     # [reference (targets = ["Provenance"])]
     #[doc = "A summary of the events of interest that have occurred, such as when the dispense was verified."]
     pub eventHistory: Option<Vec<Reference>>,
+}
+impl MedicationDispense {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "partOf",
+                "status",
+                "statusReason",
+                "category",
+                "medication",
+                "subject",
+                "context",
+                "supportingInformation",
+                "performer",
+                "location",
+                "authorizingPrescription",
+                "type",
+                "quantity",
+                "daysSupply",
+                "whenPrepared",
+                "whenHandedOver",
+                "destination",
+                "receiver",
+                "note",
+                "dosageInstruction",
+                "substitution",
+                "detectedIssue",
+                "eventHistory",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicationDispense".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.medication = self.medication;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"statusReason") {
+            out.statusReason = self.statusReason;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"context") {
+            out.context = self.context;
+        }
+        if fields.contains(&"supportingInformation") {
+            out.supportingInformation = self.supportingInformation;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"authorizingPrescription") {
+            out.authorizingPrescription = self.authorizingPrescription;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"quantity") {
+            out.quantity = self.quantity;
+        }
+        if fields.contains(&"daysSupply") {
+            out.daysSupply = self.daysSupply;
+        }
+        if fields.contains(&"whenPrepared") {
+            out.whenPrepared = self.whenPrepared;
+        }
+        if fields.contains(&"whenHandedOver") {
+            out.whenHandedOver = self.whenHandedOver;
+        }
+        if fields.contains(&"destination") {
+            out.destination = self.destination;
+        }
+        if fields.contains(&"receiver") {
+            out.receiver = self.receiver;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"dosageInstruction") {
+            out.dosageInstruction = self.dosageInstruction;
+        }
+        if fields.contains(&"substitution") {
+            out.substitution = self.substitution;
+        }
+        if fields.contains(&"detectedIssue") {
+            out.detectedIssue = self.detectedIssue;
+        }
+        if fields.contains(&"eventHistory") {
+            out.eventHistory = self.eventHistory;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -16611,6 +25484,139 @@ pub struct MedicationKnowledge {
     #[doc = "The time course of drug absorption, distribution, metabolism and excretion of a medication from the body."]
     pub kinetics: Option<Vec<MedicationKnowledgeKinetics>>,
 }
+impl MedicationKnowledge {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "code",
+                "status",
+                "manufacturer",
+                "doseForm",
+                "amount",
+                "synonym",
+                "relatedMedicationKnowledge",
+                "associatedMedication",
+                "productType",
+                "monograph",
+                "ingredient",
+                "preparationInstruction",
+                "intendedRoute",
+                "cost",
+                "monitoringProgram",
+                "administrationGuidelines",
+                "medicineClassification",
+                "packaging",
+                "drugCharacteristic",
+                "contraindication",
+                "regulatory",
+                "kinetics",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicationKnowledge".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"manufacturer") {
+            out.manufacturer = self.manufacturer;
+        }
+        if fields.contains(&"doseForm") {
+            out.doseForm = self.doseForm;
+        }
+        if fields.contains(&"amount") {
+            out.amount = self.amount;
+        }
+        if fields.contains(&"synonym") {
+            out.synonym = self.synonym;
+        }
+        if fields.contains(&"relatedMedicationKnowledge") {
+            out.relatedMedicationKnowledge = self.relatedMedicationKnowledge;
+        }
+        if fields.contains(&"associatedMedication") {
+            out.associatedMedication = self.associatedMedication;
+        }
+        if fields.contains(&"productType") {
+            out.productType = self.productType;
+        }
+        if fields.contains(&"monograph") {
+            out.monograph = self.monograph;
+        }
+        if fields.contains(&"ingredient") {
+            out.ingredient = self.ingredient;
+        }
+        if fields.contains(&"preparationInstruction") {
+            out.preparationInstruction = self.preparationInstruction;
+        }
+        if fields.contains(&"intendedRoute") {
+            out.intendedRoute = self.intendedRoute;
+        }
+        if fields.contains(&"cost") {
+            out.cost = self.cost;
+        }
+        if fields.contains(&"monitoringProgram") {
+            out.monitoringProgram = self.monitoringProgram;
+        }
+        if fields.contains(&"administrationGuidelines") {
+            out.administrationGuidelines = self.administrationGuidelines;
+        }
+        if fields.contains(&"medicineClassification") {
+            out.medicineClassification = self.medicineClassification;
+        }
+        if fields.contains(&"packaging") {
+            out.packaging = self.packaging;
+        }
+        if fields.contains(&"drugCharacteristic") {
+            out.drugCharacteristic = self.drugCharacteristic;
+        }
+        if fields.contains(&"contraindication") {
+            out.contraindication = self.contraindication;
+        }
+        if fields.contains(&"regulatory") {
+            out.regulatory = self.regulatory;
+        }
+        if fields.contains(&"kinetics") {
+            out.kinetics = self.kinetics;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -16868,6 +25874,171 @@ pub struct MedicationRequest {
     #[doc = "Links to Provenance records for past versions of this resource or fulfilling request or event resources that identify key state transitions or updates that are likely to be relevant to a user looking at the current version of the resource."]
     pub eventHistory: Option<Vec<Reference>>,
 }
+impl MedicationRequest {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "statusReason",
+                "intent",
+                "category",
+                "priority",
+                "doNotPerform",
+                "reported",
+                "medication",
+                "subject",
+                "encounter",
+                "supportingInformation",
+                "authoredOn",
+                "requester",
+                "performer",
+                "performerType",
+                "recorder",
+                "reasonCode",
+                "reasonReference",
+                "instantiatesCanonical",
+                "instantiatesUri",
+                "basedOn",
+                "groupIdentifier",
+                "courseOfTherapyType",
+                "insurance",
+                "note",
+                "dosageInstruction",
+                "dispenseRequest",
+                "substitution",
+                "priorPrescription",
+                "detectedIssue",
+                "eventHistory",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicationRequest".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.intent = self.intent;
+        out.medication = self.medication;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"statusReason") {
+            out.statusReason = self.statusReason;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"doNotPerform") {
+            out.doNotPerform = self.doNotPerform;
+        }
+        if fields.contains(&"reported") {
+            out.reported = self.reported;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"supportingInformation") {
+            out.supportingInformation = self.supportingInformation;
+        }
+        if fields.contains(&"authoredOn") {
+            out.authoredOn = self.authoredOn;
+        }
+        if fields.contains(&"requester") {
+            out.requester = self.requester;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"performerType") {
+            out.performerType = self.performerType;
+        }
+        if fields.contains(&"recorder") {
+            out.recorder = self.recorder;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"instantiatesCanonical") {
+            out.instantiatesCanonical = self.instantiatesCanonical;
+        }
+        if fields.contains(&"instantiatesUri") {
+            out.instantiatesUri = self.instantiatesUri;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"groupIdentifier") {
+            out.groupIdentifier = self.groupIdentifier;
+        }
+        if fields.contains(&"courseOfTherapyType") {
+            out.courseOfTherapyType = self.courseOfTherapyType;
+        }
+        if fields.contains(&"insurance") {
+            out.insurance = self.insurance;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"dosageInstruction") {
+            out.dosageInstruction = self.dosageInstruction;
+        }
+        if fields.contains(&"dispenseRequest") {
+            out.dispenseRequest = self.dispenseRequest;
+        }
+        if fields.contains(&"substitution") {
+            out.substitution = self.substitution;
+        }
+        if fields.contains(&"priorPrescription") {
+            out.priorPrescription = self.priorPrescription;
+        }
+        if fields.contains(&"detectedIssue") {
+            out.detectedIssue = self.detectedIssue;
+        }
+        if fields.contains(&"eventHistory") {
+            out.eventHistory = self.eventHistory;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -16982,6 +26153,113 @@ pub struct MedicationStatement {
     pub note: Option<Vec<Annotation>>,
     #[doc = "Indicates how the medication is/was or should be taken by the patient."]
     pub dosage: Option<Vec<Dosage>>,
+}
+impl MedicationStatement {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "basedOn",
+                "partOf",
+                "status",
+                "statusReason",
+                "category",
+                "medication",
+                "subject",
+                "context",
+                "effective",
+                "dateAsserted",
+                "informationSource",
+                "derivedFrom",
+                "reasonCode",
+                "reasonReference",
+                "note",
+                "dosage",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicationStatement".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.medication = self.medication;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"statusReason") {
+            out.statusReason = self.statusReason;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"context") {
+            out.context = self.context;
+        }
+        if fields.contains(&"effective") {
+            out.effective = self.effective;
+        }
+        if fields.contains(&"dateAsserted") {
+            out.dateAsserted = self.dateAsserted;
+        }
+        if fields.contains(&"informationSource") {
+            out.informationSource = self.informationSource;
+        }
+        if fields.contains(&"derivedFrom") {
+            out.derivedFrom = self.derivedFrom;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"dosage") {
+            out.dosage = self.dosage;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -17230,6 +26508,129 @@ pub struct MedicinalProduct {
     #[doc = "Indicates if the medicinal product has an orphan designation for the treatment of a rare disease."]
     pub specialDesignation: Option<Vec<MedicinalProductSpecialDesignation>>,
 }
+impl MedicinalProduct {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "type",
+                "domain",
+                "combinedPharmaceuticalDoseForm",
+                "legalStatusOfSupply",
+                "additionalMonitoringIndicator",
+                "specialMeasures",
+                "paediatricUseIndicator",
+                "productClassification",
+                "marketingStatus",
+                "pharmaceuticalProduct",
+                "packagedMedicinalProduct",
+                "attachedDocument",
+                "masterFile",
+                "contact",
+                "clinicalTrial",
+                "name",
+                "crossReference",
+                "manufacturingBusinessOperation",
+                "specialDesignation",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicinalProduct".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.name = self.name;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"domain") {
+            out.domain = self.domain;
+        }
+        if fields.contains(&"combinedPharmaceuticalDoseForm") {
+            out.combinedPharmaceuticalDoseForm = self.combinedPharmaceuticalDoseForm;
+        }
+        if fields.contains(&"legalStatusOfSupply") {
+            out.legalStatusOfSupply = self.legalStatusOfSupply;
+        }
+        if fields.contains(&"additionalMonitoringIndicator") {
+            out.additionalMonitoringIndicator = self.additionalMonitoringIndicator;
+        }
+        if fields.contains(&"specialMeasures") {
+            out.specialMeasures = self.specialMeasures;
+        }
+        if fields.contains(&"paediatricUseIndicator") {
+            out.paediatricUseIndicator = self.paediatricUseIndicator;
+        }
+        if fields.contains(&"productClassification") {
+            out.productClassification = self.productClassification;
+        }
+        if fields.contains(&"marketingStatus") {
+            out.marketingStatus = self.marketingStatus;
+        }
+        if fields.contains(&"pharmaceuticalProduct") {
+            out.pharmaceuticalProduct = self.pharmaceuticalProduct;
+        }
+        if fields.contains(&"packagedMedicinalProduct") {
+            out.packagedMedicinalProduct = self.packagedMedicinalProduct;
+        }
+        if fields.contains(&"attachedDocument") {
+            out.attachedDocument = self.attachedDocument;
+        }
+        if fields.contains(&"masterFile") {
+            out.masterFile = self.masterFile;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"clinicalTrial") {
+            out.clinicalTrial = self.clinicalTrial;
+        }
+        if fields.contains(&"crossReference") {
+            out.crossReference = self.crossReference;
+        }
+        if fields.contains(&"manufacturingBusinessOperation") {
+            out.manufacturingBusinessOperation = self.manufacturingBusinessOperation;
+        }
+        if fields.contains(&"specialDesignation") {
+            out.specialDesignation = self.specialDesignation;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -17381,6 +26782,115 @@ pub struct MedicinalProductAuthorization {
     #[doc = "The regulatory procedure for granting or amending a marketing authorization."]
     pub procedure: Option<MedicinalProductAuthorizationProcedure>,
 }
+impl MedicinalProductAuthorization {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "subject",
+                "country",
+                "jurisdiction",
+                "status",
+                "statusDate",
+                "restoreDate",
+                "validityPeriod",
+                "dataExclusivityPeriod",
+                "dateOfFirstAuthorization",
+                "internationalBirthDate",
+                "legalBasis",
+                "jurisdictionalAuthorization",
+                "holder",
+                "regulator",
+                "procedure",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicinalProductAuthorization".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"country") {
+            out.country = self.country;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"statusDate") {
+            out.statusDate = self.statusDate;
+        }
+        if fields.contains(&"restoreDate") {
+            out.restoreDate = self.restoreDate;
+        }
+        if fields.contains(&"validityPeriod") {
+            out.validityPeriod = self.validityPeriod;
+        }
+        if fields.contains(&"dataExclusivityPeriod") {
+            out.dataExclusivityPeriod = self.dataExclusivityPeriod;
+        }
+        if fields.contains(&"dateOfFirstAuthorization") {
+            out.dateOfFirstAuthorization = self.dateOfFirstAuthorization;
+        }
+        if fields.contains(&"internationalBirthDate") {
+            out.internationalBirthDate = self.internationalBirthDate;
+        }
+        if fields.contains(&"legalBasis") {
+            out.legalBasis = self.legalBasis;
+        }
+        if fields.contains(&"jurisdictionalAuthorization") {
+            out.jurisdictionalAuthorization = self.jurisdictionalAuthorization;
+        }
+        if fields.contains(&"holder") {
+            out.holder = self.holder;
+        }
+        if fields.contains(&"regulator") {
+            out.regulator = self.regulator;
+        }
+        if fields.contains(&"procedure") {
+            out.procedure = self.procedure;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -17472,6 +26982,79 @@ pub struct MedicinalProductContraindication {
     pub otherTherapy: Option<Vec<MedicinalProductContraindicationOtherTherapy>>,
     #[doc = "The population group to which this applies."]
     pub population: Option<Vec<Population>>,
+}
+impl MedicinalProductContraindication {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "subject",
+                "disease",
+                "diseaseStatus",
+                "comorbidity",
+                "therapeuticIndication",
+                "otherTherapy",
+                "population",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicinalProductContraindication".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"disease") {
+            out.disease = self.disease;
+        }
+        if fields.contains(&"diseaseStatus") {
+            out.diseaseStatus = self.diseaseStatus;
+        }
+        if fields.contains(&"comorbidity") {
+            out.comorbidity = self.comorbidity;
+        }
+        if fields.contains(&"therapeuticIndication") {
+            out.therapeuticIndication = self.therapeuticIndication;
+        }
+        if fields.contains(&"otherTherapy") {
+            out.otherTherapy = self.otherTherapy;
+        }
+        if fields.contains(&"population") {
+            out.population = self.population;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -17566,6 +27149,87 @@ pub struct MedicinalProductIndication {
     pub undesirableEffect: Option<Vec<Reference>>,
     #[doc = "The population group to which this applies."]
     pub population: Option<Vec<Population>>,
+}
+impl MedicinalProductIndication {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "subject",
+                "diseaseSymptomProcedure",
+                "diseaseStatus",
+                "comorbidity",
+                "intendedEffect",
+                "duration",
+                "otherTherapy",
+                "undesirableEffect",
+                "population",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicinalProductIndication".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"diseaseSymptomProcedure") {
+            out.diseaseSymptomProcedure = self.diseaseSymptomProcedure;
+        }
+        if fields.contains(&"diseaseStatus") {
+            out.diseaseStatus = self.diseaseStatus;
+        }
+        if fields.contains(&"comorbidity") {
+            out.comorbidity = self.comorbidity;
+        }
+        if fields.contains(&"intendedEffect") {
+            out.intendedEffect = self.intendedEffect;
+        }
+        if fields.contains(&"duration") {
+            out.duration = self.duration;
+        }
+        if fields.contains(&"otherTherapy") {
+            out.otherTherapy = self.otherTherapy;
+        }
+        if fields.contains(&"undesirableEffect") {
+            out.undesirableEffect = self.undesirableEffect;
+        }
+        if fields.contains(&"population") {
+            out.population = self.population;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -17728,6 +27392,73 @@ pub struct MedicinalProductIngredient {
     #[doc = "The ingredient substance."]
     pub substance: Option<MedicinalProductIngredientSubstance>,
 }
+impl MedicinalProductIngredient {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "role",
+                "allergenicIndicator",
+                "manufacturer",
+                "specifiedSubstance",
+                "substance",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicinalProductIngredient".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.role = self.role;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"allergenicIndicator") {
+            out.allergenicIndicator = self.allergenicIndicator;
+        }
+        if fields.contains(&"manufacturer") {
+            out.manufacturer = self.manufacturer;
+        }
+        if fields.contains(&"specifiedSubstance") {
+            out.specifiedSubstance = self.specifiedSubstance;
+        }
+        if fields.contains(&"substance") {
+            out.substance = self.substance;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -17817,6 +27548,79 @@ pub struct MedicinalProductInteraction {
     #[doc = "Actions for managing the interaction."]
     pub management: Option<Box<CodeableConcept>>,
 }
+impl MedicinalProductInteraction {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "subject",
+                "description",
+                "interactant",
+                "type",
+                "effect",
+                "incidence",
+                "management",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicinalProductInteraction".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"interactant") {
+            out.interactant = self.interactant;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"effect") {
+            out.effect = self.effect;
+        }
+        if fields.contains(&"incidence") {
+            out.incidence = self.incidence;
+        }
+        if fields.contains(&"management") {
+            out.management = self.management;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -17863,6 +27667,75 @@ pub struct MedicinalProductManufactured {
     pub physicalCharacteristics: Option<Box<ProdCharacteristic>>,
     #[doc = "Other codeable characteristics."]
     pub otherCharacteristics: Option<Vec<CodeableConcept>>,
+}
+impl MedicinalProductManufactured {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "manufacturedDoseForm",
+                "unitOfPresentation",
+                "quantity",
+                "manufacturer",
+                "ingredient",
+                "physicalCharacteristics",
+                "otherCharacteristics",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicinalProductManufactured".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.manufacturedDoseForm = self.manufacturedDoseForm;
+        out.quantity = self.quantity;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"unitOfPresentation") {
+            out.unitOfPresentation = self.unitOfPresentation;
+        }
+        if fields.contains(&"manufacturer") {
+            out.manufacturer = self.manufacturer;
+        }
+        if fields.contains(&"ingredient") {
+            out.ingredient = self.ingredient;
+        }
+        if fields.contains(&"physicalCharacteristics") {
+            out.physicalCharacteristics = self.physicalCharacteristics;
+        }
+        if fields.contains(&"otherCharacteristics") {
+            out.otherCharacteristics = self.otherCharacteristics;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -17989,6 +27862,85 @@ pub struct MedicinalProductPackaged {
     #[cardinality(min = 1u64)]
     #[doc = "A packaging item, as a contained for medicine, possibly with other packaging items within."]
     pub packageItem: Vec<MedicinalProductPackagedPackageItem>,
+}
+impl MedicinalProductPackaged {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "subject",
+                "description",
+                "legalStatusOfSupply",
+                "marketingStatus",
+                "marketingAuthorization",
+                "manufacturer",
+                "batchIdentifier",
+                "packageItem",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicinalProductPackaged".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.packageItem = self.packageItem;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"legalStatusOfSupply") {
+            out.legalStatusOfSupply = self.legalStatusOfSupply;
+        }
+        if fields.contains(&"marketingStatus") {
+            out.marketingStatus = self.marketingStatus;
+        }
+        if fields.contains(&"marketingAuthorization") {
+            out.marketingAuthorization = self.marketingAuthorization;
+        }
+        if fields.contains(&"manufacturer") {
+            out.manufacturer = self.manufacturer;
+        }
+        if fields.contains(&"batchIdentifier") {
+            out.batchIdentifier = self.batchIdentifier;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -18147,6 +28099,75 @@ pub struct MedicinalProductPharmaceutical {
     #[doc = "The path by which the pharmaceutical product is taken into or makes contact with the body."]
     pub routeOfAdministration: Vec<MedicinalProductPharmaceuticalRouteOfAdministration>,
 }
+impl MedicinalProductPharmaceutical {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "administrableDoseForm",
+                "unitOfPresentation",
+                "ingredient",
+                "device",
+                "characteristics",
+                "routeOfAdministration",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicinalProductPharmaceutical".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.administrableDoseForm = self.administrableDoseForm;
+        out.routeOfAdministration = self.routeOfAdministration;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"unitOfPresentation") {
+            out.unitOfPresentation = self.unitOfPresentation;
+        }
+        if fields.contains(&"ingredient") {
+            out.ingredient = self.ingredient;
+        }
+        if fields.contains(&"device") {
+            out.device = self.device;
+        }
+        if fields.contains(&"characteristics") {
+            out.characteristics = self.characteristics;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -18188,6 +28209,71 @@ pub struct MedicinalProductUndesirableEffect {
     pub frequencyOfOccurrence: Option<Box<CodeableConcept>>,
     #[doc = "The population group to which this applies."]
     pub population: Option<Vec<Population>>,
+}
+impl MedicinalProductUndesirableEffect {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "subject",
+                "symptomConditionEffect",
+                "classification",
+                "frequencyOfOccurrence",
+                "population",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MedicinalProductUndesirableEffect".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"symptomConditionEffect") {
+            out.symptomConditionEffect = self.symptomConditionEffect;
+        }
+        if fields.contains(&"classification") {
+            out.classification = self.classification;
+        }
+        if fields.contains(&"frequencyOfOccurrence") {
+            out.frequencyOfOccurrence = self.frequencyOfOccurrence;
+        }
+        if fields.contains(&"population") {
+            out.population = self.population;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -18362,6 +28448,141 @@ pub struct MessageDefinition {
     #[doc = "Canonical reference to a GraphDefinition. If a URL is provided, it is the canonical reference to a [GraphDefinition](graphdefinition.html) that it controls what resources are to be added to the bundle when building the document. The GraphDefinition can also specify profiles that apply to the various resources."]
     pub graph: Option<Vec<FHIRCanonical>>,
 }
+impl MessageDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "replaces",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "copyright",
+                "base",
+                "parent",
+                "event",
+                "category",
+                "focus",
+                "responseRequired",
+                "allowedResponse",
+                "graph",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MessageDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.date = self.date;
+        out.event = self.event;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"replaces") {
+            out.replaces = self.replaces;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"base") {
+            out.base = self.base;
+        }
+        if fields.contains(&"parent") {
+            out.parent = self.parent;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"focus") {
+            out.focus = self.focus;
+        }
+        if fields.contains(&"responseRequired") {
+            out.responseRequired = self.responseRequired;
+        }
+        if fields.contains(&"allowedResponse") {
+            out.allowedResponse = self.allowedResponse;
+        }
+        if fields.contains(&"graph") {
+            out.graph = self.graph;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -18533,6 +28754,91 @@ pub struct MessageHeader {
     #[primitive]
     #[doc = "Permanent link to the MessageDefinition for this message."]
     pub definition: Option<Box<FHIRCanonical>>,
+}
+impl MessageHeader {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "event",
+                "destination",
+                "sender",
+                "enterer",
+                "author",
+                "source",
+                "responsible",
+                "reason",
+                "response",
+                "focus",
+                "definition",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MessageHeader".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.event = self.event;
+        out.source = self.source;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"destination") {
+            out.destination = self.destination;
+        }
+        if fields.contains(&"sender") {
+            out.sender = self.sender;
+        }
+        if fields.contains(&"enterer") {
+            out.enterer = self.enterer;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"responsible") {
+            out.responsible = self.responsible;
+        }
+        if fields.contains(&"reason") {
+            out.reason = self.reason;
+        }
+        if fields.contains(&"response") {
+            out.response = self.response;
+        }
+        if fields.contains(&"focus") {
+            out.focus = self.focus;
+        }
+        if fields.contains(&"definition") {
+            out.definition = self.definition;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -18909,6 +29215,113 @@ pub struct MolecularSequence {
     #[doc = "Information about chromosome structure variation."]
     pub structureVariant: Option<Vec<MolecularSequenceStructureVariant>>,
 }
+impl MolecularSequence {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "type",
+                "coordinateSystem",
+                "patient",
+                "specimen",
+                "device",
+                "performer",
+                "quantity",
+                "referenceSeq",
+                "variant",
+                "observedSeq",
+                "quality",
+                "readCoverage",
+                "repository",
+                "pointer",
+                "structureVariant",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "MolecularSequence".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.coordinateSystem = self.coordinateSystem;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"patient") {
+            out.patient = self.patient;
+        }
+        if fields.contains(&"specimen") {
+            out.specimen = self.specimen;
+        }
+        if fields.contains(&"device") {
+            out.device = self.device;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"quantity") {
+            out.quantity = self.quantity;
+        }
+        if fields.contains(&"referenceSeq") {
+            out.referenceSeq = self.referenceSeq;
+        }
+        if fields.contains(&"variant") {
+            out.variant = self.variant;
+        }
+        if fields.contains(&"observedSeq") {
+            out.observedSeq = self.observedSeq;
+        }
+        if fields.contains(&"quality") {
+            out.quality = self.quality;
+        }
+        if fields.contains(&"readCoverage") {
+            out.readCoverage = self.readCoverage;
+        }
+        if fields.contains(&"repository") {
+            out.repository = self.repository;
+        }
+        if fields.contains(&"pointer") {
+            out.pointer = self.pointer;
+        }
+        if fields.contains(&"structureVariant") {
+            out.structureVariant = self.structureVariant;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -19009,6 +29422,93 @@ pub struct NamingSystem {
     #[cardinality(min = 1u64)]
     #[doc = "Indicates how the system may be identified when referenced in electronic exchange."]
     pub uniqueId: Vec<NamingSystemUniqueId>,
+}
+impl NamingSystem {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "name",
+                "status",
+                "kind",
+                "date",
+                "publisher",
+                "contact",
+                "responsible",
+                "type",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "usage",
+                "uniqueId",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "NamingSystem".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.name = self.name;
+        out.status = self.status;
+        out.kind = self.kind;
+        out.date = self.date;
+        out.uniqueId = self.uniqueId;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"responsible") {
+            out.responsible = self.responsible;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"usage") {
+            out.usage = self.usage;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -19281,6 +29781,111 @@ pub struct NutritionOrder {
     #[doc = "Comments made about the {{title}} by the requester, performer, subject or other participants."]
     pub note: Option<Vec<Annotation>>,
 }
+impl NutritionOrder {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "instantiatesCanonical",
+                "instantiatesUri",
+                "instantiates",
+                "status",
+                "intent",
+                "patient",
+                "encounter",
+                "dateTime",
+                "orderer",
+                "allergyIntolerance",
+                "foodPreferenceModifier",
+                "excludeFoodModifier",
+                "oralDiet",
+                "supplement",
+                "enteralFormula",
+                "note",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "NutritionOrder".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.intent = self.intent;
+        out.patient = self.patient;
+        out.dateTime = self.dateTime;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"instantiatesCanonical") {
+            out.instantiatesCanonical = self.instantiatesCanonical;
+        }
+        if fields.contains(&"instantiatesUri") {
+            out.instantiatesUri = self.instantiatesUri;
+        }
+        if fields.contains(&"instantiates") {
+            out.instantiates = self.instantiates;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"orderer") {
+            out.orderer = self.orderer;
+        }
+        if fields.contains(&"allergyIntolerance") {
+            out.allergyIntolerance = self.allergyIntolerance;
+        }
+        if fields.contains(&"foodPreferenceModifier") {
+            out.foodPreferenceModifier = self.foodPreferenceModifier;
+        }
+        if fields.contains(&"excludeFoodModifier") {
+            out.excludeFoodModifier = self.excludeFoodModifier;
+        }
+        if fields.contains(&"oralDiet") {
+            out.oralDiet = self.oralDiet;
+        }
+        if fields.contains(&"supplement") {
+            out.supplement = self.supplement;
+        }
+        if fields.contains(&"enteralFormula") {
+            out.enteralFormula = self.enteralFormula;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -19524,6 +30129,143 @@ pub struct Observation {
     #[doc = "Some observations have multiple component observations.  These component observations are expressed as separate code value pairs that share the same attributes.  Examples include systolic and diastolic component observations for blood pressure measurement and multiple component observations for genetics observations."]
     pub component: Option<Vec<ObservationComponent>>,
 }
+impl Observation {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "basedOn",
+                "partOf",
+                "status",
+                "category",
+                "code",
+                "subject",
+                "focus",
+                "encounter",
+                "effective",
+                "issued",
+                "performer",
+                "value",
+                "dataAbsentReason",
+                "interpretation",
+                "note",
+                "bodySite",
+                "method",
+                "specimen",
+                "device",
+                "referenceRange",
+                "hasMember",
+                "derivedFrom",
+                "component",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Observation".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.code = self.code;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"focus") {
+            out.focus = self.focus;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"effective") {
+            out.effective = self.effective;
+        }
+        if fields.contains(&"issued") {
+            out.issued = self.issued;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"value") {
+            out.value = self.value;
+        }
+        if fields.contains(&"dataAbsentReason") {
+            out.dataAbsentReason = self.dataAbsentReason;
+        }
+        if fields.contains(&"interpretation") {
+            out.interpretation = self.interpretation;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"bodySite") {
+            out.bodySite = self.bodySite;
+        }
+        if fields.contains(&"method") {
+            out.method = self.method;
+        }
+        if fields.contains(&"specimen") {
+            out.specimen = self.specimen;
+        }
+        if fields.contains(&"device") {
+            out.device = self.device;
+        }
+        if fields.contains(&"referenceRange") {
+            out.referenceRange = self.referenceRange;
+        }
+        if fields.contains(&"hasMember") {
+            out.hasMember = self.hasMember;
+        }
+        if fields.contains(&"derivedFrom") {
+            out.derivedFrom = self.derivedFrom;
+        }
+        if fields.contains(&"component") {
+            out.component = self.component;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -19655,6 +30397,101 @@ pub struct ObservationDefinition {
     # [reference (targets = ["ValueSet"])]
     #[doc = "The set of critical coded results for the observation conforming to this ObservationDefinition."]
     pub criticalCodedValueSet: Option<Box<Reference>>,
+}
+impl ObservationDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "category",
+                "code",
+                "identifier",
+                "permittedDataType",
+                "multipleResultsAllowed",
+                "method",
+                "preferredReportName",
+                "quantitativeDetails",
+                "qualifiedInterval",
+                "validCodedValueSet",
+                "normalCodedValueSet",
+                "abnormalCodedValueSet",
+                "criticalCodedValueSet",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ObservationDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.code = self.code;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"permittedDataType") {
+            out.permittedDataType = self.permittedDataType;
+        }
+        if fields.contains(&"multipleResultsAllowed") {
+            out.multipleResultsAllowed = self.multipleResultsAllowed;
+        }
+        if fields.contains(&"method") {
+            out.method = self.method;
+        }
+        if fields.contains(&"preferredReportName") {
+            out.preferredReportName = self.preferredReportName;
+        }
+        if fields.contains(&"quantitativeDetails") {
+            out.quantitativeDetails = self.quantitativeDetails;
+        }
+        if fields.contains(&"qualifiedInterval") {
+            out.qualifiedInterval = self.qualifiedInterval;
+        }
+        if fields.contains(&"validCodedValueSet") {
+            out.validCodedValueSet = self.validCodedValueSet;
+        }
+        if fields.contains(&"normalCodedValueSet") {
+            out.normalCodedValueSet = self.normalCodedValueSet;
+        }
+        if fields.contains(&"abnormalCodedValueSet") {
+            out.abnormalCodedValueSet = self.abnormalCodedValueSet;
+        }
+        if fields.contains(&"criticalCodedValueSet") {
+            out.criticalCodedValueSet = self.criticalCodedValueSet;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -19887,6 +30724,141 @@ pub struct OperationDefinition {
     #[doc = "Defines an appropriate combination of parameters to use when invoking this operation, to help code generators when generating overloaded parameter sets for this operation."]
     pub overload: Option<Vec<OperationDefinitionOverload>>,
 }
+impl OperationDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "version",
+                "name",
+                "title",
+                "status",
+                "kind",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "affectsState",
+                "code",
+                "comment",
+                "base",
+                "resource",
+                "system",
+                "type",
+                "instance",
+                "inputProfile",
+                "outputProfile",
+                "parameter",
+                "overload",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "OperationDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.name = self.name;
+        out.status = self.status;
+        out.kind = self.kind;
+        out.code = self.code;
+        out.system = self.system;
+        out.type_ = self.type_;
+        out.instance = self.instance;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"affectsState") {
+            out.affectsState = self.affectsState;
+        }
+        if fields.contains(&"comment") {
+            out.comment = self.comment;
+        }
+        if fields.contains(&"base") {
+            out.base = self.base;
+        }
+        if fields.contains(&"resource") {
+            out.resource = self.resource;
+        }
+        if fields.contains(&"inputProfile") {
+            out.inputProfile = self.inputProfile;
+        }
+        if fields.contains(&"outputProfile") {
+            out.outputProfile = self.outputProfile;
+        }
+        if fields.contains(&"parameter") {
+            out.parameter = self.parameter;
+        }
+        if fields.contains(&"overload") {
+            out.overload = self.overload;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -19956,6 +30928,53 @@ pub struct OperationOutcome {
     #[cardinality(min = 1u64)]
     #[doc = "An error, warning, or information message that results from a system action."]
     pub issue: Vec<OperationOutcomeIssue>,
+}
+impl OperationOutcome {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "issue",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "OperationOutcome".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.issue = self.issue;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -20042,6 +31061,91 @@ pub struct Organization {
     #[doc = "Technical endpoints providing access to services operated for the organization."]
     pub endpoint: Option<Vec<Reference>>,
 }
+impl Organization {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "active",
+                "type",
+                "name",
+                "alias",
+                "telecom",
+                "address",
+                "partOf",
+                "contact",
+                "endpoint",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Organization".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"active") {
+            out.active = self.active;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"alias") {
+            out.alias = self.alias;
+        }
+        if fields.contains(&"telecom") {
+            out.telecom = self.telecom;
+        }
+        if fields.contains(&"address") {
+            out.address = self.address;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"endpoint") {
+            out.endpoint = self.endpoint;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -20104,6 +31208,99 @@ pub struct OrganizationAffiliation {
     # [reference (targets = ["Endpoint"])]
     #[doc = "Technical endpoints providing access to services operated for this role."]
     pub endpoint: Option<Vec<Reference>>,
+}
+impl OrganizationAffiliation {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "active",
+                "period",
+                "organization",
+                "participatingOrganization",
+                "network",
+                "code",
+                "specialty",
+                "location",
+                "healthcareService",
+                "telecom",
+                "endpoint",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "OrganizationAffiliation".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"active") {
+            out.active = self.active;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"organization") {
+            out.organization = self.organization;
+        }
+        if fields.contains(&"participatingOrganization") {
+            out.participatingOrganization = self.participatingOrganization;
+        }
+        if fields.contains(&"network") {
+            out.network = self.network;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"specialty") {
+            out.specialty = self.specialty;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"healthcareService") {
+            out.healthcareService = self.healthcareService;
+        }
+        if fields.contains(&"telecom") {
+            out.telecom = self.telecom;
+        }
+        if fields.contains(&"endpoint") {
+            out.endpoint = self.endpoint;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -20243,6 +31440,31 @@ pub struct Parameters {
     pub language: Option<Box<FHIRCode>>,
     #[doc = "A parameter passed to or received from the operation."]
     pub parameter: Option<Vec<ParametersParameter>>,
+}
+impl Parameters {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !(["id", "meta", "implicitRules", "language", "parameter"]).contains(field) {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Parameters".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"parameter") {
+            out.parameter = self.parameter;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -20440,6 +31662,115 @@ pub struct Patient {
     #[doc = "Link to another patient resource that concerns the same actual patient."]
     pub link: Option<Vec<PatientLink>>,
 }
+impl Patient {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "active",
+                "name",
+                "telecom",
+                "gender",
+                "birthDate",
+                "deceased",
+                "address",
+                "maritalStatus",
+                "multipleBirth",
+                "photo",
+                "contact",
+                "communication",
+                "generalPractitioner",
+                "managingOrganization",
+                "link",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Patient".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"active") {
+            out.active = self.active;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"telecom") {
+            out.telecom = self.telecom;
+        }
+        if fields.contains(&"gender") {
+            out.gender = self.gender;
+        }
+        if fields.contains(&"birthDate") {
+            out.birthDate = self.birthDate;
+        }
+        if fields.contains(&"deceased") {
+            out.deceased = self.deceased;
+        }
+        if fields.contains(&"address") {
+            out.address = self.address;
+        }
+        if fields.contains(&"maritalStatus") {
+            out.maritalStatus = self.maritalStatus;
+        }
+        if fields.contains(&"multipleBirth") {
+            out.multipleBirth = self.multipleBirth;
+        }
+        if fields.contains(&"photo") {
+            out.photo = self.photo;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"communication") {
+            out.communication = self.communication;
+        }
+        if fields.contains(&"generalPractitioner") {
+            out.generalPractitioner = self.generalPractitioner;
+        }
+        if fields.contains(&"managingOrganization") {
+            out.managingOrganization = self.managingOrganization;
+        }
+        if fields.contains(&"link") {
+            out.link = self.link;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -20504,6 +31835,89 @@ pub struct PaymentNotice {
     pub amount: Box<Money>,
     #[doc = "A code indicating whether payment has been sent or cleared."]
     pub paymentStatus: Option<Box<CodeableConcept>>,
+}
+impl PaymentNotice {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "request",
+                "response",
+                "created",
+                "provider",
+                "payment",
+                "paymentDate",
+                "payee",
+                "recipient",
+                "amount",
+                "paymentStatus",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "PaymentNotice".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.created = self.created;
+        out.payment = self.payment;
+        out.recipient = self.recipient;
+        out.amount = self.amount;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"request") {
+            out.request = self.request;
+        }
+        if fields.contains(&"response") {
+            out.response = self.response;
+        }
+        if fields.contains(&"provider") {
+            out.provider = self.provider;
+        }
+        if fields.contains(&"paymentDate") {
+            out.paymentDate = self.paymentDate;
+        }
+        if fields.contains(&"payee") {
+            out.payee = self.payee;
+        }
+        if fields.contains(&"paymentStatus") {
+            out.paymentStatus = self.paymentStatus;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -20648,6 +32062,103 @@ pub struct PaymentReconciliation {
     #[doc = "A note that describes or explains the processing in a human readable form."]
     pub processNote: Option<Vec<PaymentReconciliationProcessNote>>,
 }
+impl PaymentReconciliation {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "period",
+                "created",
+                "paymentIssuer",
+                "request",
+                "requestor",
+                "outcome",
+                "disposition",
+                "paymentDate",
+                "paymentAmount",
+                "paymentIdentifier",
+                "detail",
+                "formCode",
+                "processNote",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "PaymentReconciliation".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.created = self.created;
+        out.paymentDate = self.paymentDate;
+        out.paymentAmount = self.paymentAmount;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"paymentIssuer") {
+            out.paymentIssuer = self.paymentIssuer;
+        }
+        if fields.contains(&"request") {
+            out.request = self.request;
+        }
+        if fields.contains(&"requestor") {
+            out.requestor = self.requestor;
+        }
+        if fields.contains(&"outcome") {
+            out.outcome = self.outcome;
+        }
+        if fields.contains(&"disposition") {
+            out.disposition = self.disposition;
+        }
+        if fields.contains(&"paymentIdentifier") {
+            out.paymentIdentifier = self.paymentIdentifier;
+        }
+        if fields.contains(&"detail") {
+            out.detail = self.detail;
+        }
+        if fields.contains(&"formCode") {
+            out.formCode = self.formCode;
+        }
+        if fields.contains(&"processNote") {
+            out.processNote = self.processNote;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -20728,6 +32239,91 @@ pub struct Person {
     pub active: Option<Box<FHIRBoolean>>,
     #[doc = "Link to a resource that concerns the same actual person."]
     pub link: Option<Vec<PersonLink>>,
+}
+impl Person {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "name",
+                "telecom",
+                "gender",
+                "birthDate",
+                "address",
+                "photo",
+                "managingOrganization",
+                "active",
+                "link",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Person".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"telecom") {
+            out.telecom = self.telecom;
+        }
+        if fields.contains(&"gender") {
+            out.gender = self.gender;
+        }
+        if fields.contains(&"birthDate") {
+            out.birthDate = self.birthDate;
+        }
+        if fields.contains(&"address") {
+            out.address = self.address;
+        }
+        if fields.contains(&"photo") {
+            out.photo = self.photo;
+        }
+        if fields.contains(&"managingOrganization") {
+            out.managingOrganization = self.managingOrganization;
+        }
+        if fields.contains(&"active") {
+            out.active = self.active;
+        }
+        if fields.contains(&"link") {
+            out.link = self.link;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -21208,6 +32804,173 @@ pub struct PlanDefinition {
     #[doc = "An action or group of actions to be taken as part of the plan."]
     pub action: Option<Vec<PlanDefinitionAction>>,
 }
+impl PlanDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "subtitle",
+                "type",
+                "status",
+                "experimental",
+                "subject",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "usage",
+                "copyright",
+                "approvalDate",
+                "lastReviewDate",
+                "effectivePeriod",
+                "topic",
+                "author",
+                "editor",
+                "reviewer",
+                "endorser",
+                "relatedArtifact",
+                "library",
+                "goal",
+                "action",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "PlanDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"subtitle") {
+            out.subtitle = self.subtitle;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"usage") {
+            out.usage = self.usage;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"approvalDate") {
+            out.approvalDate = self.approvalDate;
+        }
+        if fields.contains(&"lastReviewDate") {
+            out.lastReviewDate = self.lastReviewDate;
+        }
+        if fields.contains(&"effectivePeriod") {
+            out.effectivePeriod = self.effectivePeriod;
+        }
+        if fields.contains(&"topic") {
+            out.topic = self.topic;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"editor") {
+            out.editor = self.editor;
+        }
+        if fields.contains(&"reviewer") {
+            out.reviewer = self.reviewer;
+        }
+        if fields.contains(&"endorser") {
+            out.endorser = self.endorser;
+        }
+        if fields.contains(&"relatedArtifact") {
+            out.relatedArtifact = self.relatedArtifact;
+        }
+        if fields.contains(&"library") {
+            out.library = self.library;
+        }
+        if fields.contains(&"goal") {
+            out.goal = self.goal;
+        }
+        if fields.contains(&"action") {
+            out.action = self.action;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -21291,6 +33054,91 @@ pub struct Practitioner {
     pub qualification: Option<Vec<PractitionerQualification>>,
     #[doc = "A language the practitioner can use in patient communication."]
     pub communication: Option<Vec<CodeableConcept>>,
+}
+impl Practitioner {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "active",
+                "name",
+                "telecom",
+                "address",
+                "gender",
+                "birthDate",
+                "photo",
+                "qualification",
+                "communication",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Practitioner".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"active") {
+            out.active = self.active;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"telecom") {
+            out.telecom = self.telecom;
+        }
+        if fields.contains(&"address") {
+            out.address = self.address;
+        }
+        if fields.contains(&"gender") {
+            out.gender = self.gender;
+        }
+        if fields.contains(&"birthDate") {
+            out.birthDate = self.birthDate;
+        }
+        if fields.contains(&"photo") {
+            out.photo = self.photo;
+        }
+        if fields.contains(&"qualification") {
+            out.qualification = self.qualification;
+        }
+        if fields.contains(&"communication") {
+            out.communication = self.communication;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -21413,6 +33261,107 @@ pub struct PractitionerRole {
     # [reference (targets = ["Endpoint"])]
     #[doc = "Technical endpoints providing access to services operated for the practitioner with this role."]
     pub endpoint: Option<Vec<Reference>>,
+}
+impl PractitionerRole {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "active",
+                "period",
+                "practitioner",
+                "organization",
+                "code",
+                "specialty",
+                "location",
+                "healthcareService",
+                "telecom",
+                "availableTime",
+                "notAvailable",
+                "availabilityExceptions",
+                "endpoint",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "PractitionerRole".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"active") {
+            out.active = self.active;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"practitioner") {
+            out.practitioner = self.practitioner;
+        }
+        if fields.contains(&"organization") {
+            out.organization = self.organization;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"specialty") {
+            out.specialty = self.specialty;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"healthcareService") {
+            out.healthcareService = self.healthcareService;
+        }
+        if fields.contains(&"telecom") {
+            out.telecom = self.telecom;
+        }
+        if fields.contains(&"availableTime") {
+            out.availableTime = self.availableTime;
+        }
+        if fields.contains(&"notAvailable") {
+            out.notAvailable = self.notAvailable;
+        }
+        if fields.contains(&"availabilityExceptions") {
+            out.availabilityExceptions = self.availabilityExceptions;
+        }
+        if fields.contains(&"endpoint") {
+            out.endpoint = self.endpoint;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -21591,6 +33540,159 @@ pub struct Procedure {
     #[doc = "Identifies coded items that were used as part of the procedure."]
     pub usedCode: Option<Vec<CodeableConcept>>,
 }
+impl Procedure {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "instantiatesCanonical",
+                "instantiatesUri",
+                "basedOn",
+                "partOf",
+                "status",
+                "statusReason",
+                "category",
+                "code",
+                "subject",
+                "encounter",
+                "performed",
+                "recorder",
+                "asserter",
+                "performer",
+                "location",
+                "reasonCode",
+                "reasonReference",
+                "bodySite",
+                "outcome",
+                "report",
+                "complication",
+                "complicationDetail",
+                "followUp",
+                "note",
+                "focalDevice",
+                "usedReference",
+                "usedCode",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Procedure".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"instantiatesCanonical") {
+            out.instantiatesCanonical = self.instantiatesCanonical;
+        }
+        if fields.contains(&"instantiatesUri") {
+            out.instantiatesUri = self.instantiatesUri;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"statusReason") {
+            out.statusReason = self.statusReason;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"performed") {
+            out.performed = self.performed;
+        }
+        if fields.contains(&"recorder") {
+            out.recorder = self.recorder;
+        }
+        if fields.contains(&"asserter") {
+            out.asserter = self.asserter;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"bodySite") {
+            out.bodySite = self.bodySite;
+        }
+        if fields.contains(&"outcome") {
+            out.outcome = self.outcome;
+        }
+        if fields.contains(&"report") {
+            out.report = self.report;
+        }
+        if fields.contains(&"complication") {
+            out.complication = self.complication;
+        }
+        if fields.contains(&"complicationDetail") {
+            out.complicationDetail = self.complicationDetail;
+        }
+        if fields.contains(&"followUp") {
+            out.followUp = self.followUp;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"focalDevice") {
+            out.focalDevice = self.focalDevice;
+        }
+        if fields.contains(&"usedReference") {
+            out.usedReference = self.usedReference;
+        }
+        if fields.contains(&"usedCode") {
+            out.usedCode = self.usedCode;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -21724,6 +33826,85 @@ pub struct Provenance {
     pub entity: Option<Vec<ProvenanceEntity>>,
     #[doc = "A digital signature on the target Reference(s). The signer should match a Provenance.agent. The purpose of the signature is indicated."]
     pub signature: Option<Vec<Signature>>,
+}
+impl Provenance {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "target",
+                "occurred",
+                "recorded",
+                "policy",
+                "location",
+                "reason",
+                "activity",
+                "agent",
+                "entity",
+                "signature",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Provenance".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.target = self.target;
+        out.recorded = self.recorded;
+        out.agent = self.agent;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"occurred") {
+            out.occurred = self.occurred;
+        }
+        if fields.contains(&"policy") {
+            out.policy = self.policy;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"reason") {
+            out.reason = self.reason;
+        }
+        if fields.contains(&"activity") {
+            out.activity = self.activity;
+        }
+        if fields.contains(&"entity") {
+            out.entity = self.entity;
+        }
+        if fields.contains(&"signature") {
+            out.signature = self.signature;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -22052,6 +34233,137 @@ pub struct Questionnaire {
     #[doc = "A particular question, question grouping or display text that is part of the questionnaire."]
     pub item: Option<Vec<QuestionnaireItem>>,
 }
+impl Questionnaire {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "derivedFrom",
+                "status",
+                "experimental",
+                "subjectType",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "copyright",
+                "approvalDate",
+                "lastReviewDate",
+                "effectivePeriod",
+                "code",
+                "item",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Questionnaire".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"derivedFrom") {
+            out.derivedFrom = self.derivedFrom;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"subjectType") {
+            out.subjectType = self.subjectType;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"approvalDate") {
+            out.approvalDate = self.approvalDate;
+        }
+        if fields.contains(&"lastReviewDate") {
+            out.lastReviewDate = self.lastReviewDate;
+        }
+        if fields.contains(&"effectivePeriod") {
+            out.effectivePeriod = self.effectivePeriod;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"item") {
+            out.item = self.item;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -22208,6 +34520,93 @@ pub struct QuestionnaireResponse {
     #[doc = "A group or question item from the original questionnaire for which answers are provided."]
     pub item: Option<Vec<QuestionnaireResponseItem>>,
 }
+impl QuestionnaireResponse {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "basedOn",
+                "partOf",
+                "questionnaire",
+                "status",
+                "subject",
+                "encounter",
+                "authored",
+                "author",
+                "source",
+                "item",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "QuestionnaireResponse".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"questionnaire") {
+            out.questionnaire = self.questionnaire;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"authored") {
+            out.authored = self.authored;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"source") {
+            out.source = self.source;
+        }
+        if fields.contains(&"item") {
+            out.item = self.item;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -22291,6 +34690,97 @@ pub struct RelatedPerson {
     pub period: Option<Box<Period>>,
     #[doc = "A language which may be used to communicate with about the patient's health."]
     pub communication: Option<Vec<RelatedPersonCommunication>>,
+}
+impl RelatedPerson {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "active",
+                "patient",
+                "relationship",
+                "name",
+                "telecom",
+                "gender",
+                "birthDate",
+                "address",
+                "photo",
+                "period",
+                "communication",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "RelatedPerson".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.patient = self.patient;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"active") {
+            out.active = self.active;
+        }
+        if fields.contains(&"relationship") {
+            out.relationship = self.relationship;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"telecom") {
+            out.telecom = self.telecom;
+        }
+        if fields.contains(&"gender") {
+            out.gender = self.gender;
+        }
+        if fields.contains(&"birthDate") {
+            out.birthDate = self.birthDate;
+        }
+        if fields.contains(&"address") {
+            out.address = self.address;
+        }
+        if fields.contains(&"photo") {
+            out.photo = self.photo;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"communication") {
+            out.communication = self.communication;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -22536,6 +35026,119 @@ pub struct RequestGroup {
     #[doc = "The actions, if any, produced by the evaluation of the artifact."]
     pub action: Option<Vec<RequestGroupAction>>,
 }
+impl RequestGroup {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "instantiatesCanonical",
+                "instantiatesUri",
+                "basedOn",
+                "replaces",
+                "groupIdentifier",
+                "status",
+                "intent",
+                "priority",
+                "code",
+                "subject",
+                "encounter",
+                "authoredOn",
+                "author",
+                "reasonCode",
+                "reasonReference",
+                "note",
+                "action",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "RequestGroup".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.intent = self.intent;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"instantiatesCanonical") {
+            out.instantiatesCanonical = self.instantiatesCanonical;
+        }
+        if fields.contains(&"instantiatesUri") {
+            out.instantiatesUri = self.instantiatesUri;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"replaces") {
+            out.replaces = self.replaces;
+        }
+        if fields.contains(&"groupIdentifier") {
+            out.groupIdentifier = self.groupIdentifier;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"authoredOn") {
+            out.authoredOn = self.authoredOn;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"action") {
+            out.action = self.action;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -22677,6 +35280,183 @@ pub struct ResearchDefinition {
     # [reference (targets = ["ResearchElementDefinition"])]
     #[doc = "A reference to a ResearchElementDefinition resomece that defines the outcome for the research."]
     pub outcome: Option<Box<Reference>>,
+}
+impl ResearchDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "shortTitle",
+                "subtitle",
+                "status",
+                "experimental",
+                "subject",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "comment",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "usage",
+                "copyright",
+                "approvalDate",
+                "lastReviewDate",
+                "effectivePeriod",
+                "topic",
+                "author",
+                "editor",
+                "reviewer",
+                "endorser",
+                "relatedArtifact",
+                "library",
+                "population",
+                "exposure",
+                "exposureAlternative",
+                "outcome",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ResearchDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.population = self.population;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"shortTitle") {
+            out.shortTitle = self.shortTitle;
+        }
+        if fields.contains(&"subtitle") {
+            out.subtitle = self.subtitle;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"comment") {
+            out.comment = self.comment;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"usage") {
+            out.usage = self.usage;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"approvalDate") {
+            out.approvalDate = self.approvalDate;
+        }
+        if fields.contains(&"lastReviewDate") {
+            out.lastReviewDate = self.lastReviewDate;
+        }
+        if fields.contains(&"effectivePeriod") {
+            out.effectivePeriod = self.effectivePeriod;
+        }
+        if fields.contains(&"topic") {
+            out.topic = self.topic;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"editor") {
+            out.editor = self.editor;
+        }
+        if fields.contains(&"reviewer") {
+            out.reviewer = self.reviewer;
+        }
+        if fields.contains(&"endorser") {
+            out.endorser = self.endorser;
+        }
+        if fields.contains(&"relatedArtifact") {
+            out.relatedArtifact = self.relatedArtifact;
+        }
+        if fields.contains(&"library") {
+            out.library = self.library;
+        }
+        if fields.contains(&"exposure") {
+            out.exposure = self.exposure;
+        }
+        if fields.contains(&"exposureAlternative") {
+            out.exposureAlternative = self.exposureAlternative;
+        }
+        if fields.contains(&"outcome") {
+            out.outcome = self.outcome;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -22935,6 +35715,177 @@ pub struct ResearchElementDefinition {
     #[doc = "A characteristic that defines the members of the research element. Multiple characteristics are applied with \"and\" semantics."]
     pub characteristic: Vec<ResearchElementDefinitionCharacteristic>,
 }
+impl ResearchElementDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "shortTitle",
+                "subtitle",
+                "status",
+                "experimental",
+                "subject",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "comment",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "usage",
+                "copyright",
+                "approvalDate",
+                "lastReviewDate",
+                "effectivePeriod",
+                "topic",
+                "author",
+                "editor",
+                "reviewer",
+                "endorser",
+                "relatedArtifact",
+                "library",
+                "type",
+                "variableType",
+                "characteristic",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ResearchElementDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.type_ = self.type_;
+        out.characteristic = self.characteristic;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"shortTitle") {
+            out.shortTitle = self.shortTitle;
+        }
+        if fields.contains(&"subtitle") {
+            out.subtitle = self.subtitle;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"comment") {
+            out.comment = self.comment;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"usage") {
+            out.usage = self.usage;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"approvalDate") {
+            out.approvalDate = self.approvalDate;
+        }
+        if fields.contains(&"lastReviewDate") {
+            out.lastReviewDate = self.lastReviewDate;
+        }
+        if fields.contains(&"effectivePeriod") {
+            out.effectivePeriod = self.effectivePeriod;
+        }
+        if fields.contains(&"topic") {
+            out.topic = self.topic;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"editor") {
+            out.editor = self.editor;
+        }
+        if fields.contains(&"reviewer") {
+            out.reviewer = self.reviewer;
+        }
+        if fields.contains(&"endorser") {
+            out.endorser = self.endorser;
+        }
+        if fields.contains(&"relatedArtifact") {
+            out.relatedArtifact = self.relatedArtifact;
+        }
+        if fields.contains(&"library") {
+            out.library = self.library;
+        }
+        if fields.contains(&"variableType") {
+            out.variableType = self.variableType;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -23077,6 +36028,145 @@ pub struct ResearchStudy {
     #[doc = "A goal that the study is aiming to achieve in terms of a scientific question to be answered by the analysis of data collected during the study."]
     pub objective: Option<Vec<ResearchStudyObjective>>,
 }
+impl ResearchStudy {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "title",
+                "protocol",
+                "partOf",
+                "status",
+                "primaryPurposeType",
+                "phase",
+                "category",
+                "focus",
+                "condition",
+                "contact",
+                "relatedArtifact",
+                "keyword",
+                "location",
+                "description",
+                "enrollment",
+                "period",
+                "sponsor",
+                "principalInvestigator",
+                "site",
+                "reasonStopped",
+                "note",
+                "arm",
+                "objective",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ResearchStudy".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"protocol") {
+            out.protocol = self.protocol;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"primaryPurposeType") {
+            out.primaryPurposeType = self.primaryPurposeType;
+        }
+        if fields.contains(&"phase") {
+            out.phase = self.phase;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"focus") {
+            out.focus = self.focus;
+        }
+        if fields.contains(&"condition") {
+            out.condition = self.condition;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"relatedArtifact") {
+            out.relatedArtifact = self.relatedArtifact;
+        }
+        if fields.contains(&"keyword") {
+            out.keyword = self.keyword;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"enrollment") {
+            out.enrollment = self.enrollment;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"sponsor") {
+            out.sponsor = self.sponsor;
+        }
+        if fields.contains(&"principalInvestigator") {
+            out.principalInvestigator = self.principalInvestigator;
+        }
+        if fields.contains(&"site") {
+            out.site = self.site;
+        }
+        if fields.contains(&"reasonStopped") {
+            out.reasonStopped = self.reasonStopped;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"arm") {
+            out.arm = self.arm;
+        }
+        if fields.contains(&"objective") {
+            out.objective = self.objective;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -23130,6 +36220,77 @@ pub struct ResearchSubject {
     # [reference (targets = ["Consent"])]
     #[doc = "A record of the patient's informed agreement to participate in the study."]
     pub consent: Option<Box<Reference>>,
+}
+impl ResearchSubject {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "period",
+                "study",
+                "individual",
+                "assignedArm",
+                "actualArm",
+                "consent",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ResearchSubject".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.study = self.study;
+        out.individual = self.individual;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"period") {
+            out.period = self.period;
+        }
+        if fields.contains(&"assignedArm") {
+            out.assignedArm = self.assignedArm;
+        }
+        if fields.contains(&"actualArm") {
+            out.actualArm = self.actualArm;
+        }
+        if fields.contains(&"consent") {
+            out.consent = self.consent;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -23298,6 +36459,115 @@ pub struct RiskAssessment {
     pub mitigation: Option<Box<FHIRString>>,
     #[doc = "Additional comments about the risk assessment."]
     pub note: Option<Vec<Annotation>>,
+}
+impl RiskAssessment {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "basedOn",
+                "parent",
+                "status",
+                "method",
+                "code",
+                "subject",
+                "encounter",
+                "occurrence",
+                "condition",
+                "performer",
+                "reasonCode",
+                "reasonReference",
+                "basis",
+                "prediction",
+                "mitigation",
+                "note",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "RiskAssessment".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"parent") {
+            out.parent = self.parent;
+        }
+        if fields.contains(&"method") {
+            out.method = self.method;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"occurrence") {
+            out.occurrence = self.occurrence;
+        }
+        if fields.contains(&"condition") {
+            out.condition = self.condition;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"basis") {
+            out.basis = self.basis;
+        }
+        if fields.contains(&"prediction") {
+            out.prediction = self.prediction;
+        }
+        if fields.contains(&"mitigation") {
+            out.mitigation = self.mitigation;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -23555,6 +36825,169 @@ pub struct RiskEvidenceSynthesis {
     #[doc = "A description of the certainty of the risk estimate."]
     pub certainty: Option<Vec<RiskEvidenceSynthesisCertainty>>,
 }
+impl RiskEvidenceSynthesis {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "status",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "note",
+                "useContext",
+                "jurisdiction",
+                "copyright",
+                "approvalDate",
+                "lastReviewDate",
+                "effectivePeriod",
+                "topic",
+                "author",
+                "editor",
+                "reviewer",
+                "endorser",
+                "relatedArtifact",
+                "synthesisType",
+                "studyType",
+                "population",
+                "exposure",
+                "outcome",
+                "sampleSize",
+                "riskEstimate",
+                "certainty",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "RiskEvidenceSynthesis".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.population = self.population;
+        out.outcome = self.outcome;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"approvalDate") {
+            out.approvalDate = self.approvalDate;
+        }
+        if fields.contains(&"lastReviewDate") {
+            out.lastReviewDate = self.lastReviewDate;
+        }
+        if fields.contains(&"effectivePeriod") {
+            out.effectivePeriod = self.effectivePeriod;
+        }
+        if fields.contains(&"topic") {
+            out.topic = self.topic;
+        }
+        if fields.contains(&"author") {
+            out.author = self.author;
+        }
+        if fields.contains(&"editor") {
+            out.editor = self.editor;
+        }
+        if fields.contains(&"reviewer") {
+            out.reviewer = self.reviewer;
+        }
+        if fields.contains(&"endorser") {
+            out.endorser = self.endorser;
+        }
+        if fields.contains(&"relatedArtifact") {
+            out.relatedArtifact = self.relatedArtifact;
+        }
+        if fields.contains(&"synthesisType") {
+            out.synthesisType = self.synthesisType;
+        }
+        if fields.contains(&"studyType") {
+            out.studyType = self.studyType;
+        }
+        if fields.contains(&"exposure") {
+            out.exposure = self.exposure;
+        }
+        if fields.contains(&"sampleSize") {
+            out.sampleSize = self.sampleSize;
+        }
+        if fields.contains(&"riskEstimate") {
+            out.riskEstimate = self.riskEstimate;
+        }
+        if fields.contains(&"certainty") {
+            out.certainty = self.certainty;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -23606,6 +37039,81 @@ pub struct Schedule {
     #[primitive]
     #[doc = "Comments on the availability to describe any extended information. Such as custom constraints on the slots that may be associated."]
     pub comment: Option<Box<FHIRString>>,
+}
+impl Schedule {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "active",
+                "serviceCategory",
+                "serviceType",
+                "specialty",
+                "actor",
+                "planningHorizon",
+                "comment",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Schedule".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.actor = self.actor;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"active") {
+            out.active = self.active;
+        }
+        if fields.contains(&"serviceCategory") {
+            out.serviceCategory = self.serviceCategory;
+        }
+        if fields.contains(&"serviceType") {
+            out.serviceType = self.serviceType;
+        }
+        if fields.contains(&"specialty") {
+            out.specialty = self.specialty;
+        }
+        if fields.contains(&"planningHorizon") {
+            out.planningHorizon = self.planningHorizon;
+        }
+        if fields.contains(&"comment") {
+            out.comment = self.comment;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -23738,6 +37246,141 @@ pub struct SearchParameter {
     pub chain: Option<Vec<FHIRString>>,
     #[doc = "Used to define the parts of a composite search parameter."]
     pub component: Option<Vec<SearchParameterComponent>>,
+}
+impl SearchParameter {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "version",
+                "name",
+                "derivedFrom",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "code",
+                "base",
+                "type",
+                "expression",
+                "xpath",
+                "xpathUsage",
+                "target",
+                "multipleOr",
+                "multipleAnd",
+                "comparator",
+                "modifier",
+                "chain",
+                "component",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "SearchParameter".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.url = self.url;
+        out.name = self.name;
+        out.status = self.status;
+        out.description = self.description;
+        out.code = self.code;
+        out.base = self.base;
+        out.type_ = self.type_;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"derivedFrom") {
+            out.derivedFrom = self.derivedFrom;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"expression") {
+            out.expression = self.expression;
+        }
+        if fields.contains(&"xpath") {
+            out.xpath = self.xpath;
+        }
+        if fields.contains(&"xpathUsage") {
+            out.xpathUsage = self.xpathUsage;
+        }
+        if fields.contains(&"target") {
+            out.target = self.target;
+        }
+        if fields.contains(&"multipleOr") {
+            out.multipleOr = self.multipleOr;
+        }
+        if fields.contains(&"multipleAnd") {
+            out.multipleAnd = self.multipleAnd;
+        }
+        if fields.contains(&"comparator") {
+            out.comparator = self.comparator;
+        }
+        if fields.contains(&"modifier") {
+            out.modifier = self.modifier;
+        }
+        if fields.contains(&"chain") {
+            out.chain = self.chain;
+        }
+        if fields.contains(&"component") {
+            out.component = self.component;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -23918,6 +37561,177 @@ pub struct ServiceRequest {
     #[doc = "Key events in the history of the request."]
     pub relevantHistory: Option<Vec<Reference>>,
 }
+impl ServiceRequest {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "instantiatesCanonical",
+                "instantiatesUri",
+                "basedOn",
+                "replaces",
+                "requisition",
+                "status",
+                "intent",
+                "category",
+                "priority",
+                "doNotPerform",
+                "code",
+                "orderDetail",
+                "quantity",
+                "subject",
+                "encounter",
+                "occurrence",
+                "asNeeded",
+                "authoredOn",
+                "requester",
+                "performerType",
+                "performer",
+                "locationCode",
+                "locationReference",
+                "reasonCode",
+                "reasonReference",
+                "insurance",
+                "supportingInfo",
+                "specimen",
+                "bodySite",
+                "note",
+                "patientInstruction",
+                "relevantHistory",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ServiceRequest".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.intent = self.intent;
+        out.subject = self.subject;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"instantiatesCanonical") {
+            out.instantiatesCanonical = self.instantiatesCanonical;
+        }
+        if fields.contains(&"instantiatesUri") {
+            out.instantiatesUri = self.instantiatesUri;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"replaces") {
+            out.replaces = self.replaces;
+        }
+        if fields.contains(&"requisition") {
+            out.requisition = self.requisition;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"doNotPerform") {
+            out.doNotPerform = self.doNotPerform;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"orderDetail") {
+            out.orderDetail = self.orderDetail;
+        }
+        if fields.contains(&"quantity") {
+            out.quantity = self.quantity;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"occurrence") {
+            out.occurrence = self.occurrence;
+        }
+        if fields.contains(&"asNeeded") {
+            out.asNeeded = self.asNeeded;
+        }
+        if fields.contains(&"authoredOn") {
+            out.authoredOn = self.authoredOn;
+        }
+        if fields.contains(&"requester") {
+            out.requester = self.requester;
+        }
+        if fields.contains(&"performerType") {
+            out.performerType = self.performerType;
+        }
+        if fields.contains(&"performer") {
+            out.performer = self.performer;
+        }
+        if fields.contains(&"locationCode") {
+            out.locationCode = self.locationCode;
+        }
+        if fields.contains(&"locationReference") {
+            out.locationReference = self.locationReference;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"insurance") {
+            out.insurance = self.insurance;
+        }
+        if fields.contains(&"supportingInfo") {
+            out.supportingInfo = self.supportingInfo;
+        }
+        if fields.contains(&"specimen") {
+            out.specimen = self.specimen;
+        }
+        if fields.contains(&"bodySite") {
+            out.bodySite = self.bodySite;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"patientInstruction") {
+            out.patientInstruction = self.patientInstruction;
+        }
+        if fields.contains(&"relevantHistory") {
+            out.relevantHistory = self.relevantHistory;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -23977,6 +37791,87 @@ pub struct Slot {
     #[primitive]
     #[doc = "Comments on the slot to describe any extended information. Such as custom constraints on the slot."]
     pub comment: Option<Box<FHIRString>>,
+}
+impl Slot {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "serviceCategory",
+                "serviceType",
+                "specialty",
+                "appointmentType",
+                "schedule",
+                "status",
+                "start",
+                "end",
+                "overbooked",
+                "comment",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Slot".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.schedule = self.schedule;
+        out.status = self.status;
+        out.start = self.start;
+        out.end = self.end;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"serviceCategory") {
+            out.serviceCategory = self.serviceCategory;
+        }
+        if fields.contains(&"serviceType") {
+            out.serviceType = self.serviceType;
+        }
+        if fields.contains(&"specialty") {
+            out.specialty = self.specialty;
+        }
+        if fields.contains(&"appointmentType") {
+            out.appointmentType = self.appointmentType;
+        }
+        if fields.contains(&"overbooked") {
+            out.overbooked = self.overbooked;
+        }
+        if fields.contains(&"comment") {
+            out.comment = self.comment;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -24218,6 +38113,103 @@ pub struct Specimen {
     #[doc = "To communicate any details or issues about the specimen or during the specimen collection. (for example: broken vial, sent with patient, frozen)."]
     pub note: Option<Vec<Annotation>>,
 }
+impl Specimen {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "accessionIdentifier",
+                "status",
+                "type",
+                "subject",
+                "receivedTime",
+                "parent",
+                "request",
+                "collection",
+                "processing",
+                "container",
+                "condition",
+                "note",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Specimen".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"accessionIdentifier") {
+            out.accessionIdentifier = self.accessionIdentifier;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"subject") {
+            out.subject = self.subject;
+        }
+        if fields.contains(&"receivedTime") {
+            out.receivedTime = self.receivedTime;
+        }
+        if fields.contains(&"parent") {
+            out.parent = self.parent;
+        }
+        if fields.contains(&"request") {
+            out.request = self.request;
+        }
+        if fields.contains(&"collection") {
+            out.collection = self.collection;
+        }
+        if fields.contains(&"processing") {
+            out.processing = self.processing;
+        }
+        if fields.contains(&"container") {
+            out.container = self.container;
+        }
+        if fields.contains(&"condition") {
+            out.condition = self.condition;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -24431,6 +38423,75 @@ pub struct SpecimenDefinition {
     #[doc = "Specimen conditioned in a container as expected by the testing laboratory."]
     pub typeTested: Option<Vec<SpecimenDefinitionTypeTested>>,
 }
+impl SpecimenDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "typeCollected",
+                "patientPreparation",
+                "timeAspect",
+                "collection",
+                "typeTested",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "SpecimenDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"typeCollected") {
+            out.typeCollected = self.typeCollected;
+        }
+        if fields.contains(&"patientPreparation") {
+            out.patientPreparation = self.patientPreparation;
+        }
+        if fields.contains(&"timeAspect") {
+            out.timeAspect = self.timeAspect;
+        }
+        if fields.contains(&"collection") {
+            out.collection = self.collection;
+        }
+        if fields.contains(&"typeTested") {
+            out.typeTested = self.typeTested;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -24637,6 +38698,147 @@ pub struct StructureDefinition {
     pub snapshot: Option<StructureDefinitionSnapshot>,
     #[doc = "A differential view is expressed relative to the base StructureDefinition - a statement of differences that it applies."]
     pub differential: Option<StructureDefinitionDifferential>,
+}
+impl StructureDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "copyright",
+                "keyword",
+                "fhirVersion",
+                "mapping",
+                "kind",
+                "abstract",
+                "context",
+                "contextInvariant",
+                "type",
+                "baseDefinition",
+                "derivation",
+                "snapshot",
+                "differential",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "StructureDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.url = self.url;
+        out.name = self.name;
+        out.status = self.status;
+        out.kind = self.kind;
+        out.abstract_ = self.abstract_;
+        out.type_ = self.type_;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"keyword") {
+            out.keyword = self.keyword;
+        }
+        if fields.contains(&"fhirVersion") {
+            out.fhirVersion = self.fhirVersion;
+        }
+        if fields.contains(&"mapping") {
+            out.mapping = self.mapping;
+        }
+        if fields.contains(&"context") {
+            out.context = self.context;
+        }
+        if fields.contains(&"contextInvariant") {
+            out.contextInvariant = self.contextInvariant;
+        }
+        if fields.contains(&"baseDefinition") {
+            out.baseDefinition = self.baseDefinition;
+        }
+        if fields.contains(&"derivation") {
+            out.derivation = self.derivation;
+        }
+        if fields.contains(&"snapshot") {
+            out.snapshot = self.snapshot;
+        }
+        if fields.contains(&"differential") {
+            out.differential = self.differential;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -25107,6 +39309,115 @@ pub struct StructureMap {
     #[doc = "Organizes the mapping into manageable chunks for human review/ease of maintenance."]
     pub group: Vec<StructureMapGroup>,
 }
+impl StructureMap {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "copyright",
+                "structure",
+                "import",
+                "group",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "StructureMap".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.url = self.url;
+        out.name = self.name;
+        out.status = self.status;
+        out.group = self.group;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"structure") {
+            out.structure = self.structure;
+        }
+        if fields.contains(&"import") {
+            out.import = self.import;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -25188,6 +39499,71 @@ pub struct Subscription {
     pub error: Option<Box<FHIRString>>,
     #[doc = "Details where to send notifications when resources are received that meet the criteria."]
     pub channel: SubscriptionChannel,
+}
+impl Subscription {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "status",
+                "contact",
+                "end",
+                "reason",
+                "criteria",
+                "error",
+                "channel",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Subscription".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.reason = self.reason;
+        out.criteria = self.criteria;
+        out.channel = self.channel;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"end") {
+            out.end = self.end;
+        }
+        if fields.contains(&"error") {
+            out.error = self.error;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -25306,6 +39682,77 @@ pub struct Substance {
     pub instance: Option<Vec<SubstanceInstance>>,
     #[doc = "A substance can be composed of other substances."]
     pub ingredient: Option<Vec<SubstanceIngredient>>,
+}
+impl Substance {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "category",
+                "code",
+                "description",
+                "instance",
+                "ingredient",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Substance".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.code = self.code;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"instance") {
+            out.instance = self.instance;
+        }
+        if fields.contains(&"ingredient") {
+            out.ingredient = self.ingredient;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -25446,6 +39893,71 @@ pub struct SubstanceNucleicAcid {
     pub oligoNucleotideType: Option<Box<CodeableConcept>>,
     #[doc = "Subunits are listed in order of decreasing length; sequences of the same length will be ordered by molecular weight; subunits that have identical sequences will be repeated multiple times."]
     pub subunit: Option<Vec<SubstanceNucleicAcidSubunit>>,
+}
+impl SubstanceNucleicAcid {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "sequenceType",
+                "numberOfSubunits",
+                "areaOfHybridisation",
+                "oligoNucleotideType",
+                "subunit",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "SubstanceNucleicAcid".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"sequenceType") {
+            out.sequenceType = self.sequenceType;
+        }
+        if fields.contains(&"numberOfSubunits") {
+            out.numberOfSubunits = self.numberOfSubunits;
+        }
+        if fields.contains(&"areaOfHybridisation") {
+            out.areaOfHybridisation = self.areaOfHybridisation;
+        }
+        if fields.contains(&"oligoNucleotideType") {
+            out.oligoNucleotideType = self.oligoNucleotideType;
+        }
+        if fields.contains(&"subunit") {
+            out.subunit = self.subunit;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -25653,6 +40165,75 @@ pub struct SubstancePolymer {
     #[doc = "Todo."]
     pub repeat: Option<Vec<SubstancePolymerRepeat>>,
 }
+impl SubstancePolymer {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "class",
+                "geometry",
+                "copolymerConnectivity",
+                "modification",
+                "monomerSet",
+                "repeat",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "SubstancePolymer".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"class") {
+            out.class = self.class;
+        }
+        if fields.contains(&"geometry") {
+            out.geometry = self.geometry;
+        }
+        if fields.contains(&"copolymerConnectivity") {
+            out.copolymerConnectivity = self.copolymerConnectivity;
+        }
+        if fields.contains(&"modification") {
+            out.modification = self.modification;
+        }
+        if fields.contains(&"monomerSet") {
+            out.monomerSet = self.monomerSet;
+        }
+        if fields.contains(&"repeat") {
+            out.repeat = self.repeat;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -25733,6 +40314,67 @@ pub struct SubstanceProtein {
     pub disulfideLinkage: Option<Vec<FHIRString>>,
     #[doc = "This subclause refers to the description of each subunit constituting the SubstanceProtein. A subunit is a linear sequence of amino acids linked through peptide bonds. The Subunit information shall be provided when the finished SubstanceProtein is a complex of multiple sequences; subunits are not used to delineate domains within a single sequence. Subunits are listed in order of decreasing length; sequences of the same length will be ordered by decreasing molecular weight; subunits that have identical sequences will be repeated multiple times."]
     pub subunit: Option<Vec<SubstanceProteinSubunit>>,
+}
+impl SubstanceProtein {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "sequenceType",
+                "numberOfSubunits",
+                "disulfideLinkage",
+                "subunit",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "SubstanceProtein".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"sequenceType") {
+            out.sequenceType = self.sequenceType;
+        }
+        if fields.contains(&"numberOfSubunits") {
+            out.numberOfSubunits = self.numberOfSubunits;
+        }
+        if fields.contains(&"disulfideLinkage") {
+            out.disulfideLinkage = self.disulfideLinkage;
+        }
+        if fields.contains(&"subunit") {
+            out.subunit = self.subunit;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -25914,6 +40556,71 @@ pub struct SubstanceReferenceInformation {
     pub classification: Option<Vec<SubstanceReferenceInformationClassification>>,
     #[doc = "Todo."]
     pub target: Option<Vec<SubstanceReferenceInformationTarget>>,
+}
+impl SubstanceReferenceInformation {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "comment",
+                "gene",
+                "geneElement",
+                "classification",
+                "target",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "SubstanceReferenceInformation".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"comment") {
+            out.comment = self.comment;
+        }
+        if fields.contains(&"gene") {
+            out.gene = self.gene;
+        }
+        if fields.contains(&"geneElement") {
+            out.geneElement = self.geneElement;
+        }
+        if fields.contains(&"classification") {
+            out.classification = self.classification;
+        }
+        if fields.contains(&"target") {
+            out.target = self.target;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -26141,6 +40848,103 @@ pub struct SubstanceSourceMaterial {
     pub organism: Option<SubstanceSourceMaterialOrganism>,
     #[doc = "To do."]
     pub partDescription: Option<Vec<SubstanceSourceMaterialPartDescription>>,
+}
+impl SubstanceSourceMaterial {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "sourceMaterialClass",
+                "sourceMaterialType",
+                "sourceMaterialState",
+                "organismId",
+                "organismName",
+                "parentSubstanceId",
+                "parentSubstanceName",
+                "countryOfOrigin",
+                "geographicalLocation",
+                "developmentStage",
+                "fractionDescription",
+                "organism",
+                "partDescription",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "SubstanceSourceMaterial".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"sourceMaterialClass") {
+            out.sourceMaterialClass = self.sourceMaterialClass;
+        }
+        if fields.contains(&"sourceMaterialType") {
+            out.sourceMaterialType = self.sourceMaterialType;
+        }
+        if fields.contains(&"sourceMaterialState") {
+            out.sourceMaterialState = self.sourceMaterialState;
+        }
+        if fields.contains(&"organismId") {
+            out.organismId = self.organismId;
+        }
+        if fields.contains(&"organismName") {
+            out.organismName = self.organismName;
+        }
+        if fields.contains(&"parentSubstanceId") {
+            out.parentSubstanceId = self.parentSubstanceId;
+        }
+        if fields.contains(&"parentSubstanceName") {
+            out.parentSubstanceName = self.parentSubstanceName;
+        }
+        if fields.contains(&"countryOfOrigin") {
+            out.countryOfOrigin = self.countryOfOrigin;
+        }
+        if fields.contains(&"geographicalLocation") {
+            out.geographicalLocation = self.geographicalLocation;
+        }
+        if fields.contains(&"developmentStage") {
+            out.developmentStage = self.developmentStage;
+        }
+        if fields.contains(&"fractionDescription") {
+            out.fractionDescription = self.fractionDescription;
+        }
+        if fields.contains(&"organism") {
+            out.organism = self.organism;
+        }
+        if fields.contains(&"partDescription") {
+            out.partDescription = self.partDescription;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -26648,6 +41452,127 @@ pub struct SubstanceSpecification {
     #[doc = "Material or taxonomic/anatomical source for the substance."]
     pub sourceMaterial: Option<Box<Reference>>,
 }
+impl SubstanceSpecification {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "type",
+                "status",
+                "domain",
+                "description",
+                "source",
+                "comment",
+                "moiety",
+                "property",
+                "referenceInformation",
+                "structure",
+                "code",
+                "name",
+                "molecularWeight",
+                "relationship",
+                "nucleicAcid",
+                "polymer",
+                "protein",
+                "sourceMaterial",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "SubstanceSpecification".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"domain") {
+            out.domain = self.domain;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"source") {
+            out.source = self.source;
+        }
+        if fields.contains(&"comment") {
+            out.comment = self.comment;
+        }
+        if fields.contains(&"moiety") {
+            out.moiety = self.moiety;
+        }
+        if fields.contains(&"property") {
+            out.property = self.property;
+        }
+        if fields.contains(&"referenceInformation") {
+            out.referenceInformation = self.referenceInformation;
+        }
+        if fields.contains(&"structure") {
+            out.structure = self.structure;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"molecularWeight") {
+            out.molecularWeight = self.molecularWeight;
+        }
+        if fields.contains(&"relationship") {
+            out.relationship = self.relationship;
+        }
+        if fields.contains(&"nucleicAcid") {
+            out.nucleicAcid = self.nucleicAcid;
+        }
+        if fields.contains(&"polymer") {
+            out.polymer = self.polymer;
+        }
+        if fields.contains(&"protein") {
+            out.protein = self.protein;
+        }
+        if fields.contains(&"sourceMaterial") {
+            out.sourceMaterial = self.sourceMaterial;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -26773,6 +41698,95 @@ pub struct SupplyDelivery {
     # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "Identifies the person who picked up the Supply."]
     pub receiver: Option<Vec<Reference>>,
+}
+impl SupplyDelivery {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "basedOn",
+                "partOf",
+                "status",
+                "patient",
+                "type",
+                "suppliedItem",
+                "occurrence",
+                "supplier",
+                "destination",
+                "receiver",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "SupplyDelivery".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"patient") {
+            out.patient = self.patient;
+        }
+        if fields.contains(&"type") {
+            out.type_ = self.type_;
+        }
+        if fields.contains(&"suppliedItem") {
+            out.suppliedItem = self.suppliedItem;
+        }
+        if fields.contains(&"occurrence") {
+            out.occurrence = self.occurrence;
+        }
+        if fields.contains(&"supplier") {
+            out.supplier = self.supplier;
+        }
+        if fields.contains(&"destination") {
+            out.destination = self.destination;
+        }
+        if fields.contains(&"receiver") {
+            out.receiver = self.receiver;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -26929,6 +41943,107 @@ pub struct SupplyRequest {
     # [reference (targets = ["Organization" , "Location" , "Patient"])]
     #[doc = "Where the supply is destined to go."]
     pub deliverTo: Option<Box<Reference>>,
+}
+impl SupplyRequest {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "category",
+                "priority",
+                "item",
+                "quantity",
+                "parameter",
+                "occurrence",
+                "authoredOn",
+                "requester",
+                "supplier",
+                "reasonCode",
+                "reasonReference",
+                "deliverFrom",
+                "deliverTo",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "SupplyRequest".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.item = self.item;
+        out.quantity = self.quantity;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"status") {
+            out.status = self.status;
+        }
+        if fields.contains(&"category") {
+            out.category = self.category;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"parameter") {
+            out.parameter = self.parameter;
+        }
+        if fields.contains(&"occurrence") {
+            out.occurrence = self.occurrence;
+        }
+        if fields.contains(&"authoredOn") {
+            out.authoredOn = self.authoredOn;
+        }
+        if fields.contains(&"requester") {
+            out.requester = self.requester;
+        }
+        if fields.contains(&"supplier") {
+            out.supplier = self.supplier;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"deliverFrom") {
+            out.deliverFrom = self.deliverFrom;
+        }
+        if fields.contains(&"deliverTo") {
+            out.deliverTo = self.deliverTo;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -27291,6 +42406,171 @@ pub struct Task {
     #[doc = "Outputs produced by the Task."]
     pub output: Option<Vec<TaskOutput>>,
 }
+impl Task {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "instantiatesCanonical",
+                "instantiatesUri",
+                "basedOn",
+                "groupIdentifier",
+                "partOf",
+                "status",
+                "statusReason",
+                "businessStatus",
+                "intent",
+                "priority",
+                "code",
+                "description",
+                "focus",
+                "for",
+                "encounter",
+                "executionPeriod",
+                "authoredOn",
+                "lastModified",
+                "requester",
+                "performerType",
+                "owner",
+                "location",
+                "reasonCode",
+                "reasonReference",
+                "insurance",
+                "note",
+                "relevantHistory",
+                "restriction",
+                "input",
+                "output",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "Task".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.intent = self.intent;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"instantiatesCanonical") {
+            out.instantiatesCanonical = self.instantiatesCanonical;
+        }
+        if fields.contains(&"instantiatesUri") {
+            out.instantiatesUri = self.instantiatesUri;
+        }
+        if fields.contains(&"basedOn") {
+            out.basedOn = self.basedOn;
+        }
+        if fields.contains(&"groupIdentifier") {
+            out.groupIdentifier = self.groupIdentifier;
+        }
+        if fields.contains(&"partOf") {
+            out.partOf = self.partOf;
+        }
+        if fields.contains(&"statusReason") {
+            out.statusReason = self.statusReason;
+        }
+        if fields.contains(&"businessStatus") {
+            out.businessStatus = self.businessStatus;
+        }
+        if fields.contains(&"priority") {
+            out.priority = self.priority;
+        }
+        if fields.contains(&"code") {
+            out.code = self.code;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"focus") {
+            out.focus = self.focus;
+        }
+        if fields.contains(&"for") {
+            out.for_ = self.for_;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        if fields.contains(&"executionPeriod") {
+            out.executionPeriod = self.executionPeriod;
+        }
+        if fields.contains(&"authoredOn") {
+            out.authoredOn = self.authoredOn;
+        }
+        if fields.contains(&"lastModified") {
+            out.lastModified = self.lastModified;
+        }
+        if fields.contains(&"requester") {
+            out.requester = self.requester;
+        }
+        if fields.contains(&"performerType") {
+            out.performerType = self.performerType;
+        }
+        if fields.contains(&"owner") {
+            out.owner = self.owner;
+        }
+        if fields.contains(&"location") {
+            out.location = self.location;
+        }
+        if fields.contains(&"reasonCode") {
+            out.reasonCode = self.reasonCode;
+        }
+        if fields.contains(&"reasonReference") {
+            out.reasonReference = self.reasonReference;
+        }
+        if fields.contains(&"insurance") {
+            out.insurance = self.insurance;
+        }
+        if fields.contains(&"note") {
+            out.note = self.note;
+        }
+        if fields.contains(&"relevantHistory") {
+            out.relevantHistory = self.relevantHistory;
+        }
+        if fields.contains(&"restriction") {
+            out.restriction = self.restriction;
+        }
+        if fields.contains(&"input") {
+            out.input = self.input;
+        }
+        if fields.contains(&"output") {
+            out.output = self.output;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -27647,6 +42927,141 @@ pub struct TerminologyCapabilities {
     #[doc = "Whether the $closure operation is supported."]
     pub closure: Option<TerminologyCapabilitiesClosure>,
 }
+impl TerminologyCapabilities {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "version",
+                "name",
+                "title",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "copyright",
+                "kind",
+                "software",
+                "implementation",
+                "lockedDate",
+                "codeSystem",
+                "expansion",
+                "codeSearch",
+                "validateCode",
+                "translation",
+                "closure",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "TerminologyCapabilities".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.date = self.date;
+        out.kind = self.kind;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"software") {
+            out.software = self.software;
+        }
+        if fields.contains(&"implementation") {
+            out.implementation = self.implementation;
+        }
+        if fields.contains(&"lockedDate") {
+            out.lockedDate = self.lockedDate;
+        }
+        if fields.contains(&"codeSystem") {
+            out.codeSystem = self.codeSystem;
+        }
+        if fields.contains(&"expansion") {
+            out.expansion = self.expansion;
+        }
+        if fields.contains(&"codeSearch") {
+            out.codeSearch = self.codeSearch;
+        }
+        if fields.contains(&"validateCode") {
+            out.validateCode = self.validateCode;
+        }
+        if fields.contains(&"translation") {
+            out.translation = self.translation;
+        }
+        if fields.contains(&"closure") {
+            out.closure = self.closure;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -27933,6 +43348,93 @@ pub struct TestReport {
     pub test: Option<Vec<TestReportTest>>,
     #[doc = "The results of the series of operations required to clean up after all the tests were executed (successfully or otherwise)."]
     pub teardown: Option<TestReportTeardown>,
+}
+impl TestReport {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "name",
+                "status",
+                "testScript",
+                "result",
+                "score",
+                "tester",
+                "issued",
+                "participant",
+                "setup",
+                "test",
+                "teardown",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "TestReport".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.testScript = self.testScript;
+        out.result = self.result;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"score") {
+            out.score = self.score;
+        }
+        if fields.contains(&"tester") {
+            out.tester = self.tester;
+        }
+        if fields.contains(&"issued") {
+            out.issued = self.issued;
+        }
+        if fields.contains(&"participant") {
+            out.participant = self.participant;
+        }
+        if fields.contains(&"setup") {
+            out.setup = self.setup;
+        }
+        if fields.contains(&"test") {
+            out.test = self.test;
+        }
+        if fields.contains(&"teardown") {
+            out.teardown = self.teardown;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -28552,6 +44054,141 @@ pub struct TestScript {
     #[doc = "A series of operations required to clean up after all the tests are executed (successfully or otherwise)."]
     pub teardown: Option<TestScriptTeardown>,
 }
+impl TestScript {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "copyright",
+                "origin",
+                "destination",
+                "metadata",
+                "fixture",
+                "profile",
+                "variable",
+                "setup",
+                "test",
+                "teardown",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "TestScript".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.url = self.url;
+        out.name = self.name;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"origin") {
+            out.origin = self.origin;
+        }
+        if fields.contains(&"destination") {
+            out.destination = self.destination;
+        }
+        if fields.contains(&"metadata") {
+            out.metadata = self.metadata;
+        }
+        if fields.contains(&"fixture") {
+            out.fixture = self.fixture;
+        }
+        if fields.contains(&"profile") {
+            out.profile = self.profile;
+        }
+        if fields.contains(&"variable") {
+            out.variable = self.variable;
+        }
+        if fields.contains(&"setup") {
+            out.setup = self.setup;
+        }
+        if fields.contains(&"test") {
+            out.test = self.test;
+        }
+        if fields.contains(&"teardown") {
+            out.teardown = self.teardown;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -28910,6 +44547,121 @@ pub struct ValueSet {
     #[doc = "A value set can also be \"expanded\", where the value set is turned into a simple collection of enumerated codes. This element holds the expansion, if it has been performed."]
     pub expansion: Option<ValueSetExpansion>,
 }
+impl ValueSet {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "name",
+                "title",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "immutable",
+                "purpose",
+                "copyright",
+                "compose",
+                "expansion",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ValueSet".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"immutable") {
+            out.immutable = self.immutable;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"compose") {
+            out.compose = self.compose;
+        }
+        if fields.contains(&"expansion") {
+            out.expansion = self.expansion;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -29078,6 +44830,105 @@ pub struct VerificationResult {
     #[doc = "Information about the entity validating information."]
     pub validator: Option<Vec<VerificationResultValidator>>,
 }
+impl VerificationResult {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "target",
+                "targetLocation",
+                "need",
+                "status",
+                "statusDate",
+                "validationType",
+                "validationProcess",
+                "frequency",
+                "lastPerformed",
+                "nextScheduled",
+                "failureAction",
+                "primarySource",
+                "attestation",
+                "validator",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "VerificationResult".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"target") {
+            out.target = self.target;
+        }
+        if fields.contains(&"targetLocation") {
+            out.targetLocation = self.targetLocation;
+        }
+        if fields.contains(&"need") {
+            out.need = self.need;
+        }
+        if fields.contains(&"statusDate") {
+            out.statusDate = self.statusDate;
+        }
+        if fields.contains(&"validationType") {
+            out.validationType = self.validationType;
+        }
+        if fields.contains(&"validationProcess") {
+            out.validationProcess = self.validationProcess;
+        }
+        if fields.contains(&"frequency") {
+            out.frequency = self.frequency;
+        }
+        if fields.contains(&"lastPerformed") {
+            out.lastPerformed = self.lastPerformed;
+        }
+        if fields.contains(&"nextScheduled") {
+            out.nextScheduled = self.nextScheduled;
+        }
+        if fields.contains(&"failureAction") {
+            out.failureAction = self.failureAction;
+        }
+        if fields.contains(&"primarySource") {
+            out.primarySource = self.primarySource;
+        }
+        if fields.contains(&"attestation") {
+            out.attestation = self.attestation;
+        }
+        if fields.contains(&"validator") {
+            out.validator = self.validator;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -29214,6 +45065,71 @@ pub struct VisionPrescription {
     #[cardinality(min = 1u64)]
     #[doc = "Contain the details of  the individual lens specifications and serves as the authorization for the fullfillment by certified professionals."]
     pub lensSpecification: Vec<VisionPrescriptionLensSpecification>,
+}
+impl VisionPrescription {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "identifier",
+                "status",
+                "created",
+                "patient",
+                "encounter",
+                "dateWritten",
+                "prescriber",
+                "lensSpecification",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "VisionPrescription".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.created = self.created;
+        out.patient = self.patient;
+        out.dateWritten = self.dateWritten;
+        out.prescriber = self.prescriber;
+        out.lensSpecification = self.lensSpecification;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"encounter") {
+            out.encounter = self.encounter;
+        }
+        Ok(out)
+    }
 }
 #[derive(
     Clone,
@@ -29528,6 +45444,137 @@ pub struct ViewDefinition {
     #[doc = "A series of zero or more FHIRPath constraints to filter resources for the view. Every constraint\nmust evaluate to true for the resource to be included in the view."]
     pub where_: Option<Vec<ViewDefinitionWhere>>,
 }
+impl ViewDefinition {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !([
+                "id",
+                "meta",
+                "implicitRules",
+                "language",
+                "text",
+                "contained",
+                "extension",
+                "modifierExtension",
+                "url",
+                "identifier",
+                "version",
+                "versionAlgorithm",
+                "name",
+                "title",
+                "status",
+                "experimental",
+                "date",
+                "publisher",
+                "contact",
+                "description",
+                "useContext",
+                "jurisdiction",
+                "purpose",
+                "copyright",
+                "copyrightLabel",
+                "resource",
+                "profile",
+                "fhirVersion",
+                "constant",
+                "select",
+                "where",
+            ])
+            .contains(field)
+            {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "ViewDefinition".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.status = self.status;
+        out.resource = self.resource;
+        out.select = self.select;
+        if fields.contains(&"implicitRules") {
+            out.implicitRules = self.implicitRules;
+        }
+        if fields.contains(&"language") {
+            out.language = self.language;
+        }
+        if fields.contains(&"text") {
+            out.text = self.text;
+        }
+        if fields.contains(&"contained") {
+            out.contained = self.contained;
+        }
+        if fields.contains(&"extension") {
+            out.extension = self.extension;
+        }
+        if fields.contains(&"modifierExtension") {
+            out.modifierExtension = self.modifierExtension;
+        }
+        if fields.contains(&"url") {
+            out.url = self.url;
+        }
+        if fields.contains(&"identifier") {
+            out.identifier_ = self.identifier_;
+        }
+        if fields.contains(&"version") {
+            out.version = self.version;
+        }
+        if fields.contains(&"versionAlgorithm") {
+            out.versionAlgorithm = self.versionAlgorithm;
+        }
+        if fields.contains(&"name") {
+            out.name = self.name;
+        }
+        if fields.contains(&"title") {
+            out.title = self.title;
+        }
+        if fields.contains(&"experimental") {
+            out.experimental = self.experimental;
+        }
+        if fields.contains(&"date") {
+            out.date = self.date;
+        }
+        if fields.contains(&"publisher") {
+            out.publisher = self.publisher;
+        }
+        if fields.contains(&"contact") {
+            out.contact = self.contact;
+        }
+        if fields.contains(&"description") {
+            out.description = self.description;
+        }
+        if fields.contains(&"useContext") {
+            out.useContext = self.useContext;
+        }
+        if fields.contains(&"jurisdiction") {
+            out.jurisdiction = self.jurisdiction;
+        }
+        if fields.contains(&"purpose") {
+            out.purpose = self.purpose;
+        }
+        if fields.contains(&"copyright") {
+            out.copyright = self.copyright;
+        }
+        if fields.contains(&"copyrightLabel") {
+            out.copyrightLabel = self.copyrightLabel;
+        }
+        if fields.contains(&"profile") {
+            out.profile = self.profile;
+        }
+        if fields.contains(&"fhirVersion") {
+            out.fhirVersion = self.fhirVersion;
+        }
+        if fields.contains(&"constant") {
+            out.constant = self.constant;
+        }
+        if fields.contains(&"where") {
+            out.where_ = self.where_;
+        }
+        Ok(out)
+    }
+}
 #[derive(
     Clone,
     Reflect,
@@ -29697,6 +45744,242 @@ impl Resource {
     #[doc = "Returns true if the resource is empty, false otherwise."]
     pub fn empty(&self) -> bool {
         false
+    }
+    pub fn filter(self, fields: &[&str]) -> Result<Resource, FilterFieldsError> {
+        match self {
+            Resource::AccessPolicyV2(r) => Ok(Resource::AccessPolicyV2(r.filter(fields)?)),
+            Resource::ClientApplication(r) => Ok(Resource::ClientApplication(r.filter(fields)?)),
+            Resource::HL7V2(r) => Ok(Resource::HL7V2(r.filter(fields)?)),
+            Resource::IdentityProvider(r) => Ok(Resource::IdentityProvider(r.filter(fields)?)),
+            Resource::Membership(r) => Ok(Resource::Membership(r.filter(fields)?)),
+            Resource::Project(r) => Ok(Resource::Project(r.filter(fields)?)),
+            Resource::User(r) => Ok(Resource::User(r.filter(fields)?)),
+            Resource::Account(r) => Ok(Resource::Account(r.filter(fields)?)),
+            Resource::ActivityDefinition(r) => Ok(Resource::ActivityDefinition(r.filter(fields)?)),
+            Resource::AdverseEvent(r) => Ok(Resource::AdverseEvent(r.filter(fields)?)),
+            Resource::AllergyIntolerance(r) => Ok(Resource::AllergyIntolerance(r.filter(fields)?)),
+            Resource::Appointment(r) => Ok(Resource::Appointment(r.filter(fields)?)),
+            Resource::AppointmentResponse(r) => {
+                Ok(Resource::AppointmentResponse(r.filter(fields)?))
+            }
+            Resource::AuditEvent(r) => Ok(Resource::AuditEvent(r.filter(fields)?)),
+            Resource::Basic(r) => Ok(Resource::Basic(r.filter(fields)?)),
+            Resource::Binary(r) => Ok(Resource::Binary(r.filter(fields)?)),
+            Resource::BiologicallyDerivedProduct(r) => {
+                Ok(Resource::BiologicallyDerivedProduct(r.filter(fields)?))
+            }
+            Resource::BodyStructure(r) => Ok(Resource::BodyStructure(r.filter(fields)?)),
+            Resource::Bundle(r) => Ok(Resource::Bundle(r.filter(fields)?)),
+            Resource::CapabilityStatement(r) => {
+                Ok(Resource::CapabilityStatement(r.filter(fields)?))
+            }
+            Resource::CarePlan(r) => Ok(Resource::CarePlan(r.filter(fields)?)),
+            Resource::CareTeam(r) => Ok(Resource::CareTeam(r.filter(fields)?)),
+            Resource::CatalogEntry(r) => Ok(Resource::CatalogEntry(r.filter(fields)?)),
+            Resource::ChargeItem(r) => Ok(Resource::ChargeItem(r.filter(fields)?)),
+            Resource::ChargeItemDefinition(r) => {
+                Ok(Resource::ChargeItemDefinition(r.filter(fields)?))
+            }
+            Resource::Claim(r) => Ok(Resource::Claim(r.filter(fields)?)),
+            Resource::ClaimResponse(r) => Ok(Resource::ClaimResponse(r.filter(fields)?)),
+            Resource::ClinicalImpression(r) => Ok(Resource::ClinicalImpression(r.filter(fields)?)),
+            Resource::CodeSystem(r) => Ok(Resource::CodeSystem(r.filter(fields)?)),
+            Resource::Communication(r) => Ok(Resource::Communication(r.filter(fields)?)),
+            Resource::CommunicationRequest(r) => {
+                Ok(Resource::CommunicationRequest(r.filter(fields)?))
+            }
+            Resource::CompartmentDefinition(r) => {
+                Ok(Resource::CompartmentDefinition(r.filter(fields)?))
+            }
+            Resource::Composition(r) => Ok(Resource::Composition(r.filter(fields)?)),
+            Resource::ConceptMap(r) => Ok(Resource::ConceptMap(r.filter(fields)?)),
+            Resource::Condition(r) => Ok(Resource::Condition(r.filter(fields)?)),
+            Resource::Consent(r) => Ok(Resource::Consent(r.filter(fields)?)),
+            Resource::Contract(r) => Ok(Resource::Contract(r.filter(fields)?)),
+            Resource::Coverage(r) => Ok(Resource::Coverage(r.filter(fields)?)),
+            Resource::CoverageEligibilityRequest(r) => {
+                Ok(Resource::CoverageEligibilityRequest(r.filter(fields)?))
+            }
+            Resource::CoverageEligibilityResponse(r) => {
+                Ok(Resource::CoverageEligibilityResponse(r.filter(fields)?))
+            }
+            Resource::DetectedIssue(r) => Ok(Resource::DetectedIssue(r.filter(fields)?)),
+            Resource::Device(r) => Ok(Resource::Device(r.filter(fields)?)),
+            Resource::DeviceDefinition(r) => Ok(Resource::DeviceDefinition(r.filter(fields)?)),
+            Resource::DeviceMetric(r) => Ok(Resource::DeviceMetric(r.filter(fields)?)),
+            Resource::DeviceRequest(r) => Ok(Resource::DeviceRequest(r.filter(fields)?)),
+            Resource::DeviceUseStatement(r) => Ok(Resource::DeviceUseStatement(r.filter(fields)?)),
+            Resource::DiagnosticReport(r) => Ok(Resource::DiagnosticReport(r.filter(fields)?)),
+            Resource::DocumentManifest(r) => Ok(Resource::DocumentManifest(r.filter(fields)?)),
+            Resource::DocumentReference(r) => Ok(Resource::DocumentReference(r.filter(fields)?)),
+            Resource::EffectEvidenceSynthesis(r) => {
+                Ok(Resource::EffectEvidenceSynthesis(r.filter(fields)?))
+            }
+            Resource::Encounter(r) => Ok(Resource::Encounter(r.filter(fields)?)),
+            Resource::Endpoint(r) => Ok(Resource::Endpoint(r.filter(fields)?)),
+            Resource::EnrollmentRequest(r) => Ok(Resource::EnrollmentRequest(r.filter(fields)?)),
+            Resource::EnrollmentResponse(r) => Ok(Resource::EnrollmentResponse(r.filter(fields)?)),
+            Resource::EpisodeOfCare(r) => Ok(Resource::EpisodeOfCare(r.filter(fields)?)),
+            Resource::EventDefinition(r) => Ok(Resource::EventDefinition(r.filter(fields)?)),
+            Resource::Evidence(r) => Ok(Resource::Evidence(r.filter(fields)?)),
+            Resource::EvidenceVariable(r) => Ok(Resource::EvidenceVariable(r.filter(fields)?)),
+            Resource::ExampleScenario(r) => Ok(Resource::ExampleScenario(r.filter(fields)?)),
+            Resource::ExplanationOfBenefit(r) => {
+                Ok(Resource::ExplanationOfBenefit(r.filter(fields)?))
+            }
+            Resource::FamilyMemberHistory(r) => {
+                Ok(Resource::FamilyMemberHistory(r.filter(fields)?))
+            }
+            Resource::Flag(r) => Ok(Resource::Flag(r.filter(fields)?)),
+            Resource::Goal(r) => Ok(Resource::Goal(r.filter(fields)?)),
+            Resource::GraphDefinition(r) => Ok(Resource::GraphDefinition(r.filter(fields)?)),
+            Resource::Group(r) => Ok(Resource::Group(r.filter(fields)?)),
+            Resource::GuidanceResponse(r) => Ok(Resource::GuidanceResponse(r.filter(fields)?)),
+            Resource::HealthcareService(r) => Ok(Resource::HealthcareService(r.filter(fields)?)),
+            Resource::ImagingStudy(r) => Ok(Resource::ImagingStudy(r.filter(fields)?)),
+            Resource::Immunization(r) => Ok(Resource::Immunization(r.filter(fields)?)),
+            Resource::ImmunizationEvaluation(r) => {
+                Ok(Resource::ImmunizationEvaluation(r.filter(fields)?))
+            }
+            Resource::ImmunizationRecommendation(r) => {
+                Ok(Resource::ImmunizationRecommendation(r.filter(fields)?))
+            }
+            Resource::ImplementationGuide(r) => {
+                Ok(Resource::ImplementationGuide(r.filter(fields)?))
+            }
+            Resource::InsurancePlan(r) => Ok(Resource::InsurancePlan(r.filter(fields)?)),
+            Resource::Invoice(r) => Ok(Resource::Invoice(r.filter(fields)?)),
+            Resource::Library(r) => Ok(Resource::Library(r.filter(fields)?)),
+            Resource::Linkage(r) => Ok(Resource::Linkage(r.filter(fields)?)),
+            Resource::List(r) => Ok(Resource::List(r.filter(fields)?)),
+            Resource::Location(r) => Ok(Resource::Location(r.filter(fields)?)),
+            Resource::Measure(r) => Ok(Resource::Measure(r.filter(fields)?)),
+            Resource::MeasureReport(r) => Ok(Resource::MeasureReport(r.filter(fields)?)),
+            Resource::Media(r) => Ok(Resource::Media(r.filter(fields)?)),
+            Resource::Medication(r) => Ok(Resource::Medication(r.filter(fields)?)),
+            Resource::MedicationAdministration(r) => {
+                Ok(Resource::MedicationAdministration(r.filter(fields)?))
+            }
+            Resource::MedicationDispense(r) => Ok(Resource::MedicationDispense(r.filter(fields)?)),
+            Resource::MedicationKnowledge(r) => {
+                Ok(Resource::MedicationKnowledge(r.filter(fields)?))
+            }
+            Resource::MedicationRequest(r) => Ok(Resource::MedicationRequest(r.filter(fields)?)),
+            Resource::MedicationStatement(r) => {
+                Ok(Resource::MedicationStatement(r.filter(fields)?))
+            }
+            Resource::MedicinalProduct(r) => Ok(Resource::MedicinalProduct(r.filter(fields)?)),
+            Resource::MedicinalProductAuthorization(r) => {
+                Ok(Resource::MedicinalProductAuthorization(r.filter(fields)?))
+            }
+            Resource::MedicinalProductContraindication(r) => Ok(
+                Resource::MedicinalProductContraindication(r.filter(fields)?),
+            ),
+            Resource::MedicinalProductIndication(r) => {
+                Ok(Resource::MedicinalProductIndication(r.filter(fields)?))
+            }
+            Resource::MedicinalProductIngredient(r) => {
+                Ok(Resource::MedicinalProductIngredient(r.filter(fields)?))
+            }
+            Resource::MedicinalProductInteraction(r) => {
+                Ok(Resource::MedicinalProductInteraction(r.filter(fields)?))
+            }
+            Resource::MedicinalProductManufactured(r) => {
+                Ok(Resource::MedicinalProductManufactured(r.filter(fields)?))
+            }
+            Resource::MedicinalProductPackaged(r) => {
+                Ok(Resource::MedicinalProductPackaged(r.filter(fields)?))
+            }
+            Resource::MedicinalProductPharmaceutical(r) => {
+                Ok(Resource::MedicinalProductPharmaceutical(r.filter(fields)?))
+            }
+            Resource::MedicinalProductUndesirableEffect(r) => Ok(
+                Resource::MedicinalProductUndesirableEffect(r.filter(fields)?),
+            ),
+            Resource::MessageDefinition(r) => Ok(Resource::MessageDefinition(r.filter(fields)?)),
+            Resource::MessageHeader(r) => Ok(Resource::MessageHeader(r.filter(fields)?)),
+            Resource::MolecularSequence(r) => Ok(Resource::MolecularSequence(r.filter(fields)?)),
+            Resource::NamingSystem(r) => Ok(Resource::NamingSystem(r.filter(fields)?)),
+            Resource::NutritionOrder(r) => Ok(Resource::NutritionOrder(r.filter(fields)?)),
+            Resource::Observation(r) => Ok(Resource::Observation(r.filter(fields)?)),
+            Resource::ObservationDefinition(r) => {
+                Ok(Resource::ObservationDefinition(r.filter(fields)?))
+            }
+            Resource::OperationDefinition(r) => {
+                Ok(Resource::OperationDefinition(r.filter(fields)?))
+            }
+            Resource::OperationOutcome(r) => Ok(Resource::OperationOutcome(r.filter(fields)?)),
+            Resource::Organization(r) => Ok(Resource::Organization(r.filter(fields)?)),
+            Resource::OrganizationAffiliation(r) => {
+                Ok(Resource::OrganizationAffiliation(r.filter(fields)?))
+            }
+            Resource::Parameters(r) => Ok(Resource::Parameters(r.filter(fields)?)),
+            Resource::Patient(r) => Ok(Resource::Patient(r.filter(fields)?)),
+            Resource::PaymentNotice(r) => Ok(Resource::PaymentNotice(r.filter(fields)?)),
+            Resource::PaymentReconciliation(r) => {
+                Ok(Resource::PaymentReconciliation(r.filter(fields)?))
+            }
+            Resource::Person(r) => Ok(Resource::Person(r.filter(fields)?)),
+            Resource::PlanDefinition(r) => Ok(Resource::PlanDefinition(r.filter(fields)?)),
+            Resource::Practitioner(r) => Ok(Resource::Practitioner(r.filter(fields)?)),
+            Resource::PractitionerRole(r) => Ok(Resource::PractitionerRole(r.filter(fields)?)),
+            Resource::Procedure(r) => Ok(Resource::Procedure(r.filter(fields)?)),
+            Resource::Provenance(r) => Ok(Resource::Provenance(r.filter(fields)?)),
+            Resource::Questionnaire(r) => Ok(Resource::Questionnaire(r.filter(fields)?)),
+            Resource::QuestionnaireResponse(r) => {
+                Ok(Resource::QuestionnaireResponse(r.filter(fields)?))
+            }
+            Resource::RelatedPerson(r) => Ok(Resource::RelatedPerson(r.filter(fields)?)),
+            Resource::RequestGroup(r) => Ok(Resource::RequestGroup(r.filter(fields)?)),
+            Resource::ResearchDefinition(r) => Ok(Resource::ResearchDefinition(r.filter(fields)?)),
+            Resource::ResearchElementDefinition(r) => {
+                Ok(Resource::ResearchElementDefinition(r.filter(fields)?))
+            }
+            Resource::ResearchStudy(r) => Ok(Resource::ResearchStudy(r.filter(fields)?)),
+            Resource::ResearchSubject(r) => Ok(Resource::ResearchSubject(r.filter(fields)?)),
+            Resource::RiskAssessment(r) => Ok(Resource::RiskAssessment(r.filter(fields)?)),
+            Resource::RiskEvidenceSynthesis(r) => {
+                Ok(Resource::RiskEvidenceSynthesis(r.filter(fields)?))
+            }
+            Resource::Schedule(r) => Ok(Resource::Schedule(r.filter(fields)?)),
+            Resource::SearchParameter(r) => Ok(Resource::SearchParameter(r.filter(fields)?)),
+            Resource::ServiceRequest(r) => Ok(Resource::ServiceRequest(r.filter(fields)?)),
+            Resource::Slot(r) => Ok(Resource::Slot(r.filter(fields)?)),
+            Resource::Specimen(r) => Ok(Resource::Specimen(r.filter(fields)?)),
+            Resource::SpecimenDefinition(r) => Ok(Resource::SpecimenDefinition(r.filter(fields)?)),
+            Resource::StructureDefinition(r) => {
+                Ok(Resource::StructureDefinition(r.filter(fields)?))
+            }
+            Resource::StructureMap(r) => Ok(Resource::StructureMap(r.filter(fields)?)),
+            Resource::Subscription(r) => Ok(Resource::Subscription(r.filter(fields)?)),
+            Resource::Substance(r) => Ok(Resource::Substance(r.filter(fields)?)),
+            Resource::SubstanceNucleicAcid(r) => {
+                Ok(Resource::SubstanceNucleicAcid(r.filter(fields)?))
+            }
+            Resource::SubstancePolymer(r) => Ok(Resource::SubstancePolymer(r.filter(fields)?)),
+            Resource::SubstanceProtein(r) => Ok(Resource::SubstanceProtein(r.filter(fields)?)),
+            Resource::SubstanceReferenceInformation(r) => {
+                Ok(Resource::SubstanceReferenceInformation(r.filter(fields)?))
+            }
+            Resource::SubstanceSourceMaterial(r) => {
+                Ok(Resource::SubstanceSourceMaterial(r.filter(fields)?))
+            }
+            Resource::SubstanceSpecification(r) => {
+                Ok(Resource::SubstanceSpecification(r.filter(fields)?))
+            }
+            Resource::SupplyDelivery(r) => Ok(Resource::SupplyDelivery(r.filter(fields)?)),
+            Resource::SupplyRequest(r) => Ok(Resource::SupplyRequest(r.filter(fields)?)),
+            Resource::Task(r) => Ok(Resource::Task(r.filter(fields)?)),
+            Resource::TerminologyCapabilities(r) => {
+                Ok(Resource::TerminologyCapabilities(r.filter(fields)?))
+            }
+            Resource::TestReport(r) => Ok(Resource::TestReport(r.filter(fields)?)),
+            Resource::TestScript(r) => Ok(Resource::TestScript(r.filter(fields)?)),
+            Resource::ValueSet(r) => Ok(Resource::ValueSet(r.filter(fields)?)),
+            Resource::VerificationResult(r) => Ok(Resource::VerificationResult(r.filter(fields)?)),
+            Resource::VisionPrescription(r) => Ok(Resource::VisionPrescription(r.filter(fields)?)),
+            Resource::ViewDefinition(r) => Ok(Resource::ViewDefinition(r.filter(fields)?)),
+        }
     }
     pub fn resource_type(&self) -> ResourceType {
         match self {
@@ -31225,4 +47508,9 @@ impl TryFrom<&str> for ResourceType {
             _ => Err(ResourceTypeError::Invalid(s.to_string())),
         }
     }
+}
+#[derive(Error, Debug)]
+pub enum FilterFieldsError {
+    #[error("Unknown or unsupported _elements field '{0}' for resource type '{1}'")]
+    UnknownField(String, String),
 }

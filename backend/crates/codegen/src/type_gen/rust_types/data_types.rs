@@ -50,6 +50,127 @@ fn min_max_attribute(element: &ElementDefinition) -> TokenStream {
     }
 }
 
+/// Elements directly under the resource root (e.g. "Patient.status") count as
+/// top-level; deeper elements (e.g. "Patient.name.given") are part of a complex
+/// element and are kept or dropped as a whole along with it.
+fn get_top_level_elements(sd: &StructureDefinition) -> Vec<&ElementDefinition> {
+    let Some(resource_type) = sd.type_.value.as_ref() else {
+        return vec![];
+    };
+    let prefix = format!("{resource_type}.");
+
+    sd.snapshot
+        .as_ref()
+        .map(|snapshot| {
+            snapshot
+                .element
+                .iter()
+                .filter(|element| {
+                    element
+                        .path
+                        .value
+                        .as_ref()
+                        .and_then(|p| p.strip_prefix(prefix.as_str()))
+                        .is_some_and(|rest| !rest.contains('.'))
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+fn get_top_level_required_fields(sd: &StructureDefinition) -> Vec<String> {
+    get_top_level_elements(sd)
+        .into_iter()
+        .filter(|element| {
+            element
+                .min
+                .as_ref()
+                .is_some_and(|min| min.value.unwrap_or(0) > 0)
+        })
+        .map(|element| extract::field_name(&extract::path(element)))
+        .collect()
+}
+
+fn get_top_level_fields(sd: &StructureDefinition) -> Vec<String> {
+    get_top_level_elements(sd)
+        .into_iter()
+        .map(|element| extract::field_name(&extract::path(element)))
+        .collect()
+}
+
+/// `id`, `meta`, and any element with `min >= 1` are always returned regardless
+/// of what a client asked to subset down to, per the `_elements`/`_summary`
+/// rules. `id`/`meta` are forced in explicitly since they're min=0 in the base
+/// resource but still mandatory under those rules.
+fn get_mandatory_fields(sd: &StructureDefinition, all_fields: &[String]) -> Vec<String> {
+    let mut mandatory: Vec<String> = vec!["id".to_string(), "meta".to_string()];
+    for field in get_top_level_required_fields(sd) {
+        if !mandatory.contains(&field) {
+            mandatory.push(field);
+        }
+    }
+    mandatory.retain(|field| all_fields.contains(field));
+    mandatory
+}
+
+fn field_ident(field_name: &str) -> Ident {
+    if RUST_KEYWORDS.contains(&field_name) {
+        format_ident!("{}_", field_name)
+    } else {
+        format_ident!("{}", field_name)
+    }
+}
+
+/// Generates the `impl <Resource>::filter` used to implement `_elements`
+/// (https://hl7.org/fhir/R4/search.html#elements): a fresh `Self::default()` is
+/// built and only `id`/`meta`, any element with `min >= 1`, and any element the
+/// caller explicitly requested are moved over from the original resource.
+/// `_elements` only addresses top-level elements, so this never recurses into
+/// complex-type substructure. Unknown field names are rejected.
+fn generate_filter_impl(sd: &StructureDefinition, struct_ident: &Ident) -> TokenStream {
+    let resource_type = sd.type_.value.clone().unwrap_or_default();
+
+    let all_fields = get_top_level_fields(sd);
+    let required_fields = get_mandatory_fields(sd, &all_fields);
+
+    let required_moves = required_fields.iter().map(|field| {
+        let ident = field_ident(field);
+        quote! { out.#ident = self.#ident; }
+    });
+
+    let optional_moves = all_fields
+        .iter()
+        .filter(|field| !required_fields.contains(field))
+        .map(|field| {
+            let ident = field_ident(field);
+            quote! {
+                if fields.contains(&#field) {
+                    out.#ident = self.#ident;
+                }
+            }
+        });
+
+    quote! {
+        impl #struct_ident {
+            pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+                for field in fields {
+                    if !([#(#all_fields),*]).contains(field) {
+                        return Err(FilterFieldsError::UnknownField(
+                            field.to_string(),
+                            #resource_type.to_string(),
+                        ));
+                    }
+                }
+
+                let mut out = Self::default();
+                #(#required_moves)*
+                #(#optional_moves)*
+                Ok(out)
+            }
+        }
+    }
+}
+
 fn wrap_if_vec(
     element: &ElementDefinition,
     field_value: &TokenStream,
@@ -414,6 +535,13 @@ fn create_complex_struct(
             }
         };
 
+        let filter_impl = generate_filter_impl(sd, &struct_ident);
+
+        additional_impls = quote! {
+            #additional_impls
+            #filter_impl
+        };
+
         quote! {
             #[derive(
                 Clone,
@@ -667,6 +795,16 @@ fn generate_resource_type(resource_types: &[ResourceTypeInfo]) -> TokenStream {
     }
 }
 
+fn generate_filter_fields_error() -> TokenStream {
+    quote! {
+        #[derive(Error, Debug)]
+        pub enum FilterFieldsError {
+            #[error("Unknown or unsupported _elements field '{0}' for resource type '{1}'")]
+            UnknownField(String, String),
+        }
+    }
+}
+
 pub struct GeneratedCode {
     pub resources: TokenStream,
     pub types: TokenStream,
@@ -718,10 +856,13 @@ pub fn generate(
 
     let resource_type_type = generate_resource_type(&resource_types);
 
+    let filter_fields_error = generate_filter_fields_error();
+
     resource_code = quote! {
         #resource_code
         #resource_enum
         #resource_type_type
+        #filter_fields_error
     };
 
     Ok(GeneratedCode {
@@ -833,6 +974,14 @@ fn generate_resource_enum(resource_types: &[ResourceTypeInfo]) -> TokenStream {
         }
     });
 
+    let filter_fields = resource_types.iter().map(|resource_type_info| {
+        let resource_type_ident = format_ident!("{}", &resource_type_info.rust_type_name);
+
+        quote! {
+            Resource::#resource_type_ident(r) => Ok(Resource::#resource_type_ident(r.filter(fields)?))
+        }
+    });
+
     quote! {
         #[derive(
             Clone,
@@ -851,6 +1000,12 @@ fn generate_resource_enum(resource_types: &[ResourceTypeInfo]) -> TokenStream {
             #[doc = "Returns true if the resource is empty, false otherwise."]
             pub fn empty(&self) -> bool {
                 false
+            }
+
+            pub fn filter(self, fields: &[&str]) -> Result<Resource, FilterFieldsError> {
+                match self {
+                    #(#filter_fields),*
+                }
             }
 
             pub fn resource_type(&self) -> ResourceType {
