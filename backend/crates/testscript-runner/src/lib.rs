@@ -1035,56 +1035,52 @@ async fn run_assertion(
 
     // Keep all uses of `source` inside this scope so the immutable borrow
     // of `state_guard` ends before we mutate `state_guard`.
-    let failure_message = {
-        if let Some(message) =
-            evaluate_resource_assertion(assertion, pointer.path(), source, operator)
-        {
-            Some(message)
-        } else if let Some(expression) =
-            assertion.expression.as_ref().and_then(|e| e.value.as_ref())
-        {
-            evaluate_expression_assertion(
-                &state_guard,
-                assertion,
-                pointer.path(),
-                source,
-                operator,
-                expression,
-            )
-            .await?
-        } else {
-            None
-        }
+    let failure_message = if let Some(message) =
+        evaluate_resource_assertion(assertion, pointer.path(), source, operator)
+    {
+        Some(message)
+    } else if let Some(expression) = assertion.expression.as_ref().and_then(|e| e.value.as_ref()) {
+        evaluate_expression_assertion(
+            &state_guard,
+            assertion,
+            pointer.path(),
+            source,
+            operator,
+            expression,
+        )
+        .await?
+    } else {
+        None
     };
 
-    Ok(if let Some(message) = failure_message {
-        tracing::error!(
-            assert.label = assert_label(assertion),
-            path = pointer.path(),
-            "{message}"
-        );
+    let (result, message) = match failure_message {
+        Some(message) => {
+            tracing::error!(
+                assert.label = assert_label(assertion),
+                path = pointer.path(),
+                "{message}"
+            );
 
-        state_guard.result = ReportResultCodes::fail();
+            state_guard.result = ReportResultCodes::fail();
 
-        TestResult {
-            state: state.clone(),
-            value: TestReportSetupActionAssert {
-                result: ReportActionResultCodes::fail(),
-                message: Some(Box::new(FHIRMarkdown {
+            (
+                ReportActionResultCodes::fail(),
+                Some(Box::new(FHIRMarkdown {
                     value: Some(message),
                     ..Default::default()
                 })),
-                ..Default::default()
-            },
+            )
         }
-    } else {
-        TestResult {
-            state: state.clone(),
-            value: TestReportSetupActionAssert {
-                result: ReportActionResultCodes::pass(),
-                ..Default::default()
-            },
-        }
+        None => (ReportActionResultCodes::pass(), None),
+    };
+
+    Ok(TestResult {
+        state: state.clone(),
+        value: TestReportSetupActionAssert {
+            result,
+            message,
+            ..Default::default()
+        },
     })
 }
 
