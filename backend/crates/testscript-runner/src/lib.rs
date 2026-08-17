@@ -1094,9 +1094,7 @@ fn evaluate_resource_assertion(
     source: &dyn MetaValue,
     operator: &BoundCode<AssertOperatorCodes>,
 ) -> Option<String> {
-    let resource = assertion.resource.as_ref()?;
-
-    let resource_string = resource.as_str().unwrap_or("");
+    let resource_string = assertion.resource.as_ref()?.as_str()?;
 
     let operation_evaluation_result = evaluate_operator(
         operator,
