@@ -388,6 +388,12 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
             )
             .await?;
         }
+        "_elements" => {
+            // _elements is handled in middleware, not in the ES query.
+        }
+        "_summary" => {
+            // _summary is handled in middleware, not in the ES query.
+        }
         _ => {
             return Err(QueryBuildError::UnsupportedParameter(result_param.name.clone()).into());
         }
