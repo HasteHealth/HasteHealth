@@ -1,5 +1,5 @@
 [package]
-name = "fhir_subscription_processor"
+name = "haste-fhir-subscription-processor"
 publish = false
 description = "Haste Health FHIR subscription processor."
 version.workspace = true

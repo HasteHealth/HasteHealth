@@ -33,15 +33,27 @@ jobs:
           -p haste-artifacts \
           -p haste-codegen \
           -p haste-config \
-          -p haste-repository \
-          -p haste-fhir-search \
           -p haste-encryption \
           -p haste-fhir-client \
           -p haste-fhir-converter \
+          -p haste-fhir-operation-error \
+          -p haste-fhir-operation-error-derive \
+          -p haste-fhir-ops \
+          -p haste-fhir-ops-derive \
+          -p haste-fhir-search \
+          -p haste-fhir-serialization-json \
+          -p haste-fhir-serialization-json-derive \
+          -p haste-fhir-subscription-processor \
+          -p haste-fhir-terminology \
+          -p haste-fhirpath \
           -p haste-hl7v2 \
           -p haste-jwt \
           -p haste-macro-loads \
           -p haste-pointer \
+          -p haste-rate-limit \
+          -p haste-reflect \
+          -p haste-reflect-derive \
+          -p haste-repository \
           -p haste-sd-to-json-schema \
           -p haste_wal_worker \
           -p haste-worker \
