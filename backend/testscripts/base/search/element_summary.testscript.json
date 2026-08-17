@@ -1,0 +1,420 @@
+{
+    "id": "element-summary-test",
+    "url": "https://haste.health/fhir/TestScript/element-summary-test",
+    "title": "_elements and _summary checks",
+    "name": "Element and Summary tests",
+    "status": "active",
+    "description": "Validate the _elements and _summary search result parameters (https://hl7.org/fhir/R4/search.html#elements and https://hl7.org/fhir/R4/search.html#summary). _summary=data is not yet implemented and is intentionally not exercised here.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "patient-element-summary",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "element-summary-test"
+                    }
+                ]
+            },
+            "active": true,
+            "name": [
+                {
+                    "family": "Subsetted",
+                    "given": [
+                        "Elements"
+                    ]
+                }
+            ],
+            "gender": "male",
+            "birthDate": "1990-05-17",
+            "telecom": [
+                {
+                    "system": "phone",
+                    "value": "555-0100"
+                }
+            ],
+            "address": [
+                {
+                    "city": "Testville"
+                }
+            ],
+            "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Element Summary Test Patient</div>"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-patient-create",
+            "resource": {
+                "reference": "#patient-element-summary"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-elements-single-field",
+            "name": "_elements with a single requested field.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-create",
+                        "responseId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=element-summary-test&_elements=name",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.id.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.meta.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.name.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.telecom.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.gender.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.birthDate.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.address.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-elements-multiple-fields",
+            "name": "_elements with a comma-separated list of requested fields.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=element-summary-test&_elements=name,birthDate",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.name.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.birthDate.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.telecom.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.gender.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-elements-invalid-field",
+            "name": "_elements with a field name that does not exist on the resource.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=element-summary-test&_elements=notARealField",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-summary-true",
+            "name": "_summary=true (mandatory fields only in the current implementation).",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=element-summary-test&_summary=true",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.id.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.meta.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.name.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.telecom.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.text.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-summary-text",
+            "name": "_summary=text.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=element-summary-test&_summary=text",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.id.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.text.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.text.div",
+                        "operator": "contains",
+                        "value": "Element Summary Test Patient",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.name.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.telecom.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-summary-false",
+            "name": "_summary=false returns the full resource, same as omitting it.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=element-summary-test&_summary=false",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.name.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.telecom.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-elements-precedence-over-summary",
+            "name": "_elements takes precedence when both _elements and _summary are supplied.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=element-summary-test&_elements=name&_summary=text",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.name.exists()",
+                        "operator": "equals",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry[0].resource.text.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "params": "_tag=element-summary-test",
+                    "resource": "Patient",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}
