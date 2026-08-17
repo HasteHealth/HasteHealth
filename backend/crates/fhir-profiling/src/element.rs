@@ -18,7 +18,7 @@ use crate::{
 
 fn conformant_to_type(type_to_check: Option<&str>, type_: Option<&str>) -> bool {
     match type_to_check {
-        Some("Resource") | Some("DomainResource") => true,
+        Some("Resource" | "DomainResource") => true,
         _ => type_ == type_to_check,
     }
 }
@@ -28,11 +28,11 @@ fn conformant_to_type(type_to_check: Option<&str>, type_: Option<&str>) -> bool 
 ///
 /// # Arguments
 ///
-/// * `ctx` - The FHIRProfileCTX containing the profile and root data.
-/// * `element` - ElementDefinition to check
+/// * `ctx` - The [`FHIRProfileCTX`] containing the profile and root data.
+/// * `element` - [`ElementDefinition`] to check
 /// * `type_` - The type found on the element
-async fn validate_types_and_profiles_if_present<'a>(
-    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+async fn validate_types_and_profiles_if_present(
+    ctx: Arc<FHIRProfileCTX<'_, impl CanonicalResolver>>,
     element: &ElementDefinition,
     value_pointer: &Path,
     type_: Option<&str>,
@@ -46,32 +46,31 @@ async fn validate_types_and_profiles_if_present<'a>(
         // As you could end up treating FHIRString for a primitive string type as a complex type with all the extra fields that FHIRString has compared to a primitive string.
         return Ok(vec![]);
     }
-    let Some(types) = &element.type_ else {
+    let Some(element_types) = &element.type_ else {
         return Ok(vec![]);
     };
 
-    if let Some(profile_type) = types
+    if let Some(profile_type) = element_types
         .iter()
-        .find(|t| conformant_to_type(t.code.value.as_ref().map(|s| s.as_str()), type_))
+        .find(|t| conformant_to_type(t.code.value.as_deref(), type_))
     {
         let mut issues = vec![];
 
         if let Some(profiles_to_check) = profile_type.profile.as_ref() {
-            for profile_canonical in profiles_to_check.iter() {
+            for profile_canonical in profiles_to_check {
                 if let Some(profile_canonical) = profile_canonical.value.as_ref() {
-                    let resolved_resource = ctx
-                        .resolver
-                        .resolve(ResourceType::StructureDefinition, profile_canonical)
-                        .await?
-                        .ok_or_else(|| {
-                            OperationOutcomeError::error(
-                                IssueType::exception(),
-                                format!(
-                                    "Failed to resolve profile canonical: {}",
-                                    profile_canonical
-                                ),
-                            )
-                        })?;
+                    let resolved_resource =
+                        ctx.resolver
+                            .resolve(ResourceType::StructureDefinition, profile_canonical)
+                            .await?
+                            .ok_or_else(|| {
+                                OperationOutcomeError::error(
+                                    IssueType::exception(),
+                                    format!(
+                                        "Failed to resolve profile canonical: {profile_canonical}",
+                                    ),
+                                )
+                            })?;
 
                     issues.extend(
                         validate_element(
@@ -101,7 +100,7 @@ async fn validate_types_and_profiles_if_present<'a>(
             format!(
                 "Type '{}' is not allowed for element '{}'",
                 type_.unwrap_or("unknown"),
-                element.id.as_ref().map(|s| s.as_str()).unwrap_or("unknown")
+                element.id.as_deref().unwrap_or("unknown")
             ),
         )])
     }
@@ -114,22 +113,22 @@ pub fn outcome_issue(
     diagnostic: String,
 ) -> OperationOutcomeIssue {
     OperationOutcomeIssue {
-        severity: severity,
-        code: code,
+        severity,
+        code,
         diagnostics: Some(Box::new(FHIRString {
             value: Some(diagnostic),
             ..Default::default()
         })),
         location: Some(vec![FHIRString {
-            value: Some(format!("{}", value_location)),
+            value: Some(value_location.to_string()),
             ..Default::default()
         }]),
         ..Default::default()
     }
 }
 
-pub async fn validate_singular_element<'a>(
-    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+pub async fn validate_singular_element(
+    ctx: Arc<FHIRProfileCTX<'_, impl CanonicalResolver>>,
     element_path: &Path,
     value_path: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
@@ -138,21 +137,21 @@ pub async fn validate_singular_element<'a>(
         .ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::exception(),
-                format!("Invalid elements path: {}", element_path),
+                format!("Invalid elements path: {element_path}"),
             )
         })?;
 
     let Some(value) = value_path.get(ctx.root) else {
         return Err(OperationOutcomeError::error(
             IssueType::exception(),
-            format!("Invalid value path: {}", value_path),
+            format!("Invalid value path: {value_path}"),
         ));
     };
-    let mut issues = vec![];
+    let mut issues = Vec::new();
     let Some((elements_pointer, Key::Index(index))) = element_path.ascend() else {
         return Err(OperationOutcomeError::error(
             IssueType::exception(),
-            format!("Invalid element path: {}", element_path),
+            format!("Invalid element path: {element_path}"),
         ));
     };
 
@@ -161,7 +160,7 @@ pub async fn validate_singular_element<'a>(
         .ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::exception(),
-                format!("Invalid elements path: {}", elements_pointer),
+                format!("Invalid elements path: {elements_pointer}"),
             )
         })?;
 
@@ -170,7 +169,7 @@ pub async fn validate_singular_element<'a>(
 
     // Includes all of slice descriptors which is how to split (the descriptor)
     // and the slices that belong to that descriptor (the slices).
-    let slice_descriptors = get_slice_descriptors(elements, &children)?;
+    let slice_descriptors = get_slice_descriptors(elements, &children);
 
     let slice_indices_set = slice_descriptors
         .iter()
@@ -183,7 +182,7 @@ pub async fn validate_singular_element<'a>(
         .copied()
         .collect::<std::collections::HashSet<usize>>();
 
-    for descriptor in slice_descriptors.iter() {
+    for descriptor in &slice_descriptors {
         issues.extend(
             Box::pin(validate_slicing_descriptor(
                 ctx.clone(),
@@ -198,7 +197,7 @@ pub async fn validate_singular_element<'a>(
         validate_types_and_profiles_if_present(
             ctx.clone(),
             element,
-            &value_path,
+            value_path,
             Some(value.fhir_type()),
         )
         .await?,
@@ -211,7 +210,7 @@ pub async fn validate_singular_element<'a>(
             value_path,
             IssueSeverity::error(),
             IssueType::value(),
-            format!("Value does not match pattern: {:?}", pattern),
+            format!("Value does not match pattern: {pattern:?}"),
         ));
     }
 
@@ -222,7 +221,7 @@ pub async fn validate_singular_element<'a>(
             value_path,
             IssueSeverity::error(),
             IssueType::value(),
-            format!("Value does not match fixed value: {:?}", fixed_value),
+            format!("Value does not match fixed value: {fixed_value:?}"),
         ));
     }
 
@@ -232,15 +231,8 @@ pub async fn validate_singular_element<'a>(
         .filter(|child_index| !slice_indices_set.contains(child_index))
     {
         let child_element = &elements[*child];
-        let field_name = extract::field_name(
-            child_element
-                .path
-                .value
-                .as_ref()
-                .map(|s| s.as_str())
-                .unwrap_or(""),
-        );
-        let child_element_pointer = elements_pointer.descend(&format!("{}", child));
+        let field_name = extract::field_name(child_element.path.value.as_deref().unwrap_or(""));
+        let child_element_pointer = elements_pointer.descend(&child.to_string());
         let child_value_pointer = value_path.descend(&field_name);
         let child_issues = Box::pin(validate_element(
             ctx.clone(),
@@ -254,8 +246,8 @@ pub async fn validate_singular_element<'a>(
     Ok(issues)
 }
 
-pub async fn validate_element<'a>(
-    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+pub async fn validate_element(
+    ctx: Arc<FHIRProfileCTX<'_, impl CanonicalResolver>>,
     element_pointer: &Path,
     value_pointer: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
@@ -263,7 +255,7 @@ pub async fn validate_element<'a>(
     let Some(element) = element_pointer.get_typed::<ElementDefinition>(ctx.profile()) else {
         return Err(OperationOutcomeError::error(
             IssueType::exception(),
-            format!("Invalid element path: {}", element_pointer),
+            format!("Invalid element path: {element_pointer}"),
         ));
     };
 
@@ -271,9 +263,9 @@ pub async fn validate_element<'a>(
 
     issues.extend(validate_cardinality(
         ctx.clone(),
-        &value_pointer,
+        value_pointer,
         element,
-        &value,
+        value,
     )?);
 
     if let Some(value) = value {
@@ -283,7 +275,7 @@ pub async fn validate_element<'a>(
                     Box::pin(validate_singular_element(
                         ctx.clone(),
                         element_pointer,
-                        &value_pointer.descend(&format!("{}", i)),
+                        &value_pointer.descend(&i.to_string()),
                     ))
                     .await?,
                 );

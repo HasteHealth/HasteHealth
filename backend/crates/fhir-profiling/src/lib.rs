@@ -33,6 +33,12 @@ pub struct FHIRProfileCTX<'a, Resolver: CanonicalResolver> {
 }
 
 impl<'a, Resolver: CanonicalResolver> FHIRProfileCTX<'a, Resolver> {
+    /// Creates a new FHIR profile context.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`OperationOutcomeError`] if `profile` is not a
+    /// [`StructureDefinition`] resource.
     pub fn new(
         resolver: Arc<Resolver>,
         profile: Arc<Resource>,
@@ -51,6 +57,12 @@ impl<'a, Resolver: CanonicalResolver> FHIRProfileCTX<'a, Resolver> {
         }
     }
 
+    /// Returns the [`StructureDefinition`] associated with this profile context.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the profile is not a [`Resource::StructureDefinition`].
+    #[must_use]
     pub fn profile(&'a self) -> &'a StructureDefinition {
         match self.profile.as_ref() {
             Resource::StructureDefinition(sd) => sd,
@@ -61,8 +73,15 @@ impl<'a, Resolver: CanonicalResolver> FHIRProfileCTX<'a, Resolver> {
     }
 }
 
-pub async fn validate_profile<'a>(
-    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+/// Validates the profile represented by the given context.
+///
+/// # Errors
+///
+/// Returns [`OperationOutcomeError`] if:
+/// - validating an element fails; or
+/// - the profile does not have a derivation of `constraint`.
+pub async fn validate_profile(
+    ctx: Arc<FHIRProfileCTX<'_, impl CanonicalResolver>>,
 ) -> Result<OperationOutcome, OperationOutcomeError> {
     let mut outcome = OperationOutcome::default();
     match ctx.profile().derivation.as_ref() {
@@ -88,17 +107,23 @@ pub async fn validate_profile<'a>(
     Ok(outcome)
 }
 
-pub async fn validate_profile_by_url<'a>(
+/// Validates a value against the profile identified by its canonical URL.
+///
+/// # Errors
+///
+/// Returns [`OperationOutcomeError`] if resolving the profile fails, if the
+/// resolved resource is not a supported profile, or if profile validation fails.
+pub async fn validate_profile_by_url(
     args: FHIRProfileArguments<impl CanonicalResolver>,
     canonical_url: &str,
-    value: &'a dyn MetaValue,
+    value: &dyn MetaValue,
 ) -> Result<OperationOutcome, OperationOutcomeError> {
     let Some(profile) = args
         .resolver
         .resolve(ResourceType::StructureDefinition, canonical_url)
         .await?
     else {
-        tracing::warn!("Profile with url '{}' not found", canonical_url);
+        tracing::warn!("Profile with url '{canonical_url}' not found");
         return Ok(OperationOutcome::default());
     };
 

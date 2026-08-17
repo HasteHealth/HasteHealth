@@ -13,10 +13,10 @@ pub fn validate_pattern(
 
     let pattern_fields = pattern.fields();
 
-    if pattern_fields.len() == 0 {
+    if pattern_fields.is_empty() {
         utilities::check_bare_primitive_pattern(value, pattern)
     } else {
-        for key in pattern_fields.iter() {
+        for key in &pattern_fields {
             if let Some(pattern_value) = pattern.get_field(key) {
                 let Some(data_value) = value.get_field(key) else {
                     return Ok(false);
@@ -29,7 +29,7 @@ pub fn validate_pattern(
                     return Ok(false);
                 }
 
-                for pattern_value in pattern_values.iter() {
+                for pattern_value in &pattern_values {
                     let found = values
                         .iter()
                         .find(|v| validate_pattern(**v, *pattern_value).unwrap_or(false));
