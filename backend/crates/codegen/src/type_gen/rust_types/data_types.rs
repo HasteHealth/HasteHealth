@@ -122,7 +122,7 @@ fn field_ident(field_name: &str) -> Ident {
 }
 
 /// Generates the `impl <Resource>::filter` used to implement `_elements`
-/// (https://hl7.org/fhir/R4/search.html#elements): a fresh `Self::default()` is
+/// <https://hl7.org/fhir/R4/search.html#elements)> a fresh `Self::default()` is
 /// built and only `id`/`meta`, any element with `min >= 1`, and any element the
 /// caller explicitly requested are moved over from the original resource.
 /// `_elements` only addresses top-level elements, so this never recurses into
