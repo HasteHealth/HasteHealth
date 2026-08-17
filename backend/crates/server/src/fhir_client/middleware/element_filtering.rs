@@ -127,6 +127,8 @@ fn filter_resource(
 ) -> Result<Resource, OperationOutcomeError> {
     let fields: &[&str] = match subsetting {
         Subsetting::Elements(fields) => fields,
+        // Do not have access yet to fields outside of minimum required yet.
+        // Will need to mark fields in generated structs with #[summary] or something else.
         Subsetting::Summary(SummaryMode::True) => &[],
         Subsetting::Summary(SummaryMode::Text) => &["text"],
         // Count is handled at the bundle level (no entries at all); Data
