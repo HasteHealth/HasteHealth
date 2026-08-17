@@ -75,13 +75,81 @@ fn requested_elements<'a>(parameters: &'a [&ParsedParameter]) -> Vec<&'a str> {
         .collect()
 }
 
-fn filter_resource(resource: Resource, fields: &[&str]) -> Result<Resource, OperationOutcomeError> {
+/// See <https://hl7.org/fhir/R4/search.html#summary>. `Data` is not yet
+/// implemented: unlike `True`/`Text`, "everything except `text`" is a
+/// denylist rather than an allowlist. Treated as a no-op for now, same as `False`.
+enum SummaryMode {
+    True,
+    Text,
+    Data,
+    Count,
+    False,
+}
+
+impl From<&str> for SummaryMode {
+    fn from(value: &str) -> Self {
+        match value {
+            "true" => SummaryMode::True,
+            "text" => SummaryMode::Text,
+            "data" => SummaryMode::Data,
+            "count" => SummaryMode::Count,
+            _ => SummaryMode::False,
+        }
+    }
+}
+
+enum Subsetting<'a> {
+    Elements(Vec<&'a str>),
+    Summary(SummaryMode),
+}
+
+/// `_elements` takes precedence over `_summary` when both are present; the
+/// spec doesn't define combined semantics for using both at once.
+fn subsetting<'a>(parameters: &'a [&ParsedParameter]) -> Option<Subsetting<'a>> {
+    let elements = requested_elements(parameters);
+
+    if !elements.is_empty() {
+        return Some(Subsetting::Elements(elements));
+    }
+
+    parameters.iter().find_map(|p| match p {
+        ParsedParameter::Result(param) if param.name == "_summary" => param
+            .value
+            .first()
+            .map(|value| Subsetting::Summary(SummaryMode::from(value.as_str()))),
+        _ => None,
+    })
+}
+
+fn filter_resource(
+    resource: Resource,
+    subsetting: &Subsetting,
+) -> Result<Resource, OperationOutcomeError> {
+    let fields: &[&str] = match subsetting {
+        Subsetting::Elements(fields) => fields,
+        Subsetting::Summary(SummaryMode::True) => &[],
+        Subsetting::Summary(SummaryMode::Text) => &["text"],
+        // Count is handled at the bundle level (no entries at all); Data
+        // isn't implemented yet. Both pass the resource through unchanged.
+        Subsetting::Summary(SummaryMode::Data | SummaryMode::Count | SummaryMode::False) => {
+            return Ok(resource);
+        }
+    };
+
     resource
         .filter(fields)
         .map_err(|e| OperationOutcomeError::error(IssueType::invalid(), e.to_string()))
 }
 
-fn filter_bundle(mut bundle: Bundle, fields: &[&str]) -> Result<Bundle, OperationOutcomeError> {
+fn filter_bundle(
+    mut bundle: Bundle,
+    subsetting: &Subsetting,
+) -> Result<Bundle, OperationOutcomeError> {
+    if matches!(subsetting, Subsetting::Summary(SummaryMode::Count)) {
+        bundle.entry = None;
+        return Ok(bundle);
+    }
+
     let Some(entries) = bundle.entry.take() else {
         return Ok(bundle);
     };
@@ -90,7 +158,7 @@ fn filter_bundle(mut bundle: Bundle, fields: &[&str]) -> Result<Bundle, Operatio
         .into_iter()
         .map(|mut entry| {
             if let Some(resource) = entry.resource.take() {
-                entry.resource = Some(Box::new(filter_resource(*resource, fields)?));
+                entry.resource = Some(Box::new(filter_resource(*resource, subsetting)?));
             }
             Ok(entry)
         })
@@ -102,15 +170,15 @@ fn filter_bundle(mut bundle: Bundle, fields: &[&str]) -> Result<Bundle, Operatio
 
 fn filter_response(
     response: FHIRResponse,
-    fields: &[&str],
+    subsetting: &Subsetting,
 ) -> Result<FHIRResponse, OperationOutcomeError> {
     match response {
         FHIRResponse::Search(SearchResponse::Type(mut type_response)) => {
-            type_response.bundle = filter_bundle(type_response.bundle, fields)?;
+            type_response.bundle = filter_bundle(type_response.bundle, subsetting)?;
             Ok(FHIRResponse::Search(SearchResponse::Type(type_response)))
         }
         FHIRResponse::Search(SearchResponse::System(mut system_response)) => {
-            system_response.bundle = filter_bundle(system_response.bundle, fields)?;
+            system_response.bundle = filter_bundle(system_response.bundle, subsetting)?;
             Ok(FHIRResponse::Search(SearchResponse::System(
                 system_response,
             )))
@@ -156,13 +224,12 @@ impl<
                 return Ok(context);
             };
 
-            let fields = requested_elements(&elements_summary_parameter);
-            if fields.is_empty() {
+            let Some(subsetting) = subsetting(&elements_summary_parameter) else {
                 return Ok(context);
-            }
+            };
 
             if let Some(response) = context.response.take() {
-                context.response = Some(filter_response(response, &fields)?);
+                context.response = Some(filter_response(response, &subsetting)?);
             }
 
             Ok(context)
