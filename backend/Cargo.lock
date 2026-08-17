@@ -1936,21 +1936,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fhir_subscription_processor"
-version = "0.21.0"
-dependencies = [
- "criterion",
- "haste-artifacts",
- "haste-fhir-client",
- "haste-fhir-model",
- "haste-fhir-operation-error",
- "haste-fhir-search",
- "haste-fhirpath",
- "haste-jwt",
- "tokio",
-]
-
-[[package]]
 name = "fiat-crypto"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2624,6 +2609,21 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.119",
+]
+
+[[package]]
+name = "haste-fhir-subscription-processor"
+version = "0.21.0"
+dependencies = [
+ "criterion",
+ "haste-artifacts",
+ "haste-fhir-client",
+ "haste-fhir-model",
+ "haste-fhir-operation-error",
+ "haste-fhir-search",
+ "haste-fhirpath",
+ "haste-jwt",
+ "tokio",
 ]
 
 [[package]]
