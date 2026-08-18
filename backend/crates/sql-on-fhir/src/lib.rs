@@ -6,7 +6,7 @@ use haste_fhir_generated_ops::generated::ViewDefinitionRun;
 use haste_fhir_model::r4::{
     self,
     generated::{
-        resources::{Binary, Resource, ResourceType, ViewDefinition},
+        resources::{Binary, Resource, ResourceType, ViewDefinition, ViewDefinitionSelect},
         terminology::{BoundCode, IssueType, OutputFormatCodes},
         types::{FHIRBase64Binary, FHIRBoolean},
     },
@@ -212,169 +212,18 @@ async fn process_resource<
                 .with_resource_id(input.id().clone().unwrap_or_default()),
         );
 
-        let mut iterable_context = None;
-        let mut set_null = false;
+        let (iterable_context, set_null) =
+            build_iterable_context(&fp_engine, fp_config.clone(), select_statement, &input).await?;
 
-        if let Some(for_each_fp) = select_statement
-            .forEach
-            .as_ref()
-            .and_then(|f| f.value.as_ref())
-        {
-            iterable_context = Some(vec![
-                fp_engine
-                    .evaluate_with_config(for_each_fp, vec![&input], fp_config.clone())
-                    .await
-                    .map_err(|e| {
-                        OperationOutcomeError::error(
-                            IssueType::exception(),
-                            format!("Error evaluating forEach expression: {e}"),
-                        )
-                    })?,
-            ]);
-        } else if let Some(for_each_or_null_fp) = select_statement
-            .forEachOrNull
-            .as_ref()
-            .and_then(|f| f.value.as_ref())
-        {
-            iterable_context = Some(vec![
-                fp_engine
-                    .evaluate_with_config(for_each_or_null_fp, vec![&input], fp_config.clone())
-                    .await
-                    .map_err(|e| {
-                        OperationOutcomeError::error(
-                            IssueType::exception(),
-                            format!("Error evaluating forEachOrNull expression: {e}"),
-                        )
-                    })?,
-            ]);
-            set_null = true;
-        } else if let Some(repeat) = select_statement
-            .repeat
-            .as_ref()
-            .map(|r| r.iter().filter_map(|r| r.value.as_ref()))
-        {
-            let mut repeat_fps = vec![];
-            for repeat_fp in repeat {
-                let repeat = format!("$this.repeat({repeat_fp})");
-                repeat_fps.push(
-                    fp_engine
-                        .evaluate_with_config(&repeat, vec![&input], fp_config.clone())
-                        .await
-                        .map_err(|e| {
-                            OperationOutcomeError::error(
-                                IssueType::exception(),
-                                format!("Error evaluating repeat expression: {e}"),
-                            )
-                        })?,
-                );
-            }
-
-            iterable_context = Some(repeat_fps);
-        }
-
-        let select_context: Vec<&dyn MetaValue> = if let Some(iterable) = iterable_context.as_ref()
-        {
-            iterable
-                .iter()
-                .flat_map(haste_fhirpath::Context::iter)
-                .collect::<Vec<&dyn MetaValue>>()
-        } else {
-            vec![&input]
-        };
-
-        let mut select_results = Vec::with_capacity(select_context.len());
-
-        if set_null && select_context.is_empty() {
-            let mut output_result = OrderMap::new();
-            for column in select_statement.column.as_ref().into_iter().flatten() {
-                let Some(name) = column.name.value.as_deref() else {
-                    return Err(OperationOutcomeError::error(
-                        IssueType::invalid(),
-                        "Column name is required".to_string(),
-                    ));
-                };
-                output_result.insert(name.to_string(), OutputResults::Scalar(None));
-            }
-            select_results.push(output_result);
-        }
-
-        for context in select_context {
-            let mut output_result = OrderMap::new();
-            for column in select_statement.column.as_ref().into_iter().flatten() {
-                let Some(path) = column.path.value.as_deref() else {
-                    return Err(OperationOutcomeError::error(
-                        IssueType::invalid(),
-                        "Column path is required".to_string(),
-                    ));
-                };
-
-                let Some(name) = column.name.value.as_deref() else {
-                    return Err(OperationOutcomeError::error(
-                        IssueType::invalid(),
-                        "Column name is required".to_string(),
-                    ));
-                };
-
-                let result = fp_engine
-                    .evaluate_with_config(path, vec![context; 1], fp_config.clone())
-                    .await
-                    .map_err(|e| {
-                        OperationOutcomeError::error(
-                            IssueType::exception(),
-                            format!("Error evaluating expression: {e}"),
-                        )
-                    })?;
-
-                let column_type = column
-                    .type_
-                    .as_ref()
-                    .and_then(|t| t.value.as_deref())
-                    // Default to string.
-                    .unwrap_or(
-                        // If column type is not set than assume it's the first values fhir_type
-                        // or default to string if there are no values.
-                        result
-                            .iter()
-                            .peekable()
-                            .next()
-                            .map_or("string", haste_reflect::MetaValue::fhir_type),
-                    );
-
-                let mut column_result = result
-                    .iter()
-                    .map(|value| conversions::primitives::convert_meta_value(column_type, value))
-                    .collect::<Result<Vec<Option<PrimitiveValue>>, OperationOutcomeError>>()?;
-
-                let is_collection = column
-                    .collection
-                    .as_ref()
-                    .and_then(|c| c.value)
-                    .unwrap_or(false);
-
-                let insert_value = if is_collection {
-                    OutputResults::Collection(column_result)
-                } else {
-                    if column_result.len() > 1 {
-                        return Err(OperationOutcomeError::error(
-                            IssueType::invalid(),
-                            "Column result is a collection but the column is not marked as a collection"
-                                .to_string(),
-                        ));
-                    }
-
-                    let mut singular_value = None;
-
-                    if let Some(first_value) = column_result.get_mut(0) {
-                        std::mem::swap(&mut singular_value, first_value);
-                    }
-
-                    OutputResults::Scalar(singular_value)
-                };
-
-                output_result.insert(name.to_string(), insert_value);
-            }
-            select_results.push(output_result);
-        }
+        let select_results = process_select_statement(
+            &fp_engine,
+            fp_config,
+            select_statement,
+            &input,
+            iterable_context,
+            set_null,
+        )
+        .await?;
 
         select_statement_results.push(select_results);
     }
@@ -382,6 +231,212 @@ async fn process_resource<
     let output_results = cartesian_product(select_statement_results);
 
     Ok(output_results)
+}
+
+async fn build_iterable_context<'a>(
+    fp_engine: &FPEngine,
+    fp_config: Arc<Config<'a>>,
+    select_statement: &'a ViewDefinitionSelect,
+    input: &'a Resource,
+) -> Result<(Option<Vec<haste_fhirpath::Context<'a>>>, bool), OperationOutcomeError> {
+    let mut iterable_context = None;
+    let mut set_null = false;
+
+    if let Some(for_each_fp) = select_statement
+        .forEach
+        .as_ref()
+        .and_then(|f| f.value.as_ref())
+    {
+        iterable_context = Some(vec![
+            fp_engine
+                .evaluate_with_config(for_each_fp, vec![input], fp_config.clone())
+                .await
+                .map_err(|e| {
+                    OperationOutcomeError::error(
+                        IssueType::exception(),
+                        format!("Error evaluating forEach expression: {e}"),
+                    )
+                })?,
+        ]);
+    } else if let Some(for_each_or_null_fp) = select_statement
+        .forEachOrNull
+        .as_ref()
+        .and_then(|f| f.value.as_ref())
+    {
+        iterable_context = Some(vec![
+            fp_engine
+                .evaluate_with_config(for_each_or_null_fp, vec![input], fp_config.clone())
+                .await
+                .map_err(|e| {
+                    OperationOutcomeError::error(
+                        IssueType::exception(),
+                        format!("Error evaluating forEachOrNull expression: {e}"),
+                    )
+                })?,
+        ]);
+
+        set_null = true;
+    } else if let Some(repeat) = select_statement
+        .repeat
+        .as_ref()
+        .map(|r| r.iter().filter_map(|r| r.value.as_ref()))
+    {
+        let mut repeat_fps = vec![];
+
+        for repeat_fp in repeat {
+            let repeat = format!("$this.repeat({repeat_fp})");
+
+            repeat_fps.push(
+                fp_engine
+                    .evaluate_with_config(&repeat, vec![input], fp_config.clone())
+                    .await
+                    .map_err(|e| {
+                        OperationOutcomeError::error(
+                            IssueType::exception(),
+                            format!("Error evaluating repeat expression: {e}"),
+                        )
+                    })?,
+            );
+        }
+
+        iterable_context = Some(repeat_fps);
+    }
+
+    Ok((iterable_context, set_null))
+}
+
+async fn process_select_statement<'a>(
+    fp_engine: &FPEngine,
+    fp_config: Arc<Config<'a>>,
+    select_statement: &'a ViewDefinitionSelect,
+    input: &'a Resource,
+    iterable_context: Option<Vec<haste_fhirpath::Context<'a>>>,
+    set_null: bool,
+) -> Result<Vec<OrderMap<String, OutputResults>>, OperationOutcomeError> {
+    let select_context: Vec<&dyn MetaValue> = if let Some(iterable) = iterable_context.as_ref() {
+        iterable
+            .iter()
+            .flat_map(haste_fhirpath::Context::iter)
+            .collect()
+    } else {
+        vec![input]
+    };
+
+    let mut select_results = Vec::with_capacity(select_context.len());
+
+    if set_null && select_context.is_empty() {
+        let output_result = build_null_result(select_statement)?;
+        select_results.push(output_result);
+    }
+
+    for context in select_context {
+        let output_result =
+            process_select_context(fp_engine, fp_config.clone(), select_statement, context).await?;
+
+        select_results.push(output_result);
+    }
+
+    Ok(select_results)
+}
+
+fn build_null_result(
+    select_statement: &ViewDefinitionSelect,
+) -> Result<OrderMap<String, OutputResults>, OperationOutcomeError> {
+    let mut output_result = OrderMap::new();
+
+    for column in select_statement.column.as_ref().into_iter().flatten() {
+        let Some(name) = column.name.value.as_deref() else {
+            return Err(OperationOutcomeError::error(
+                IssueType::invalid(),
+                "Column name is required".to_string(),
+            ));
+        };
+
+        output_result.insert(name.to_string(), OutputResults::Scalar(None));
+    }
+
+    Ok(output_result)
+}
+
+async fn process_select_context<'a>(
+    fp_engine: &FPEngine,
+    fp_config: Arc<Config<'a>>,
+    select_statement: &'a ViewDefinitionSelect,
+    context: &'a dyn MetaValue,
+) -> Result<OrderMap<String, OutputResults>, OperationOutcomeError> {
+    let mut output_result = OrderMap::new();
+
+    for column in select_statement.column.as_ref().into_iter().flatten() {
+        let Some(path) = column.path.value.as_deref() else {
+            return Err(OperationOutcomeError::error(
+                IssueType::invalid(),
+                "Column path is required".to_string(),
+            ));
+        };
+
+        let Some(name) = column.name.value.as_deref() else {
+            return Err(OperationOutcomeError::error(
+                IssueType::invalid(),
+                "Column name is required".to_string(),
+            ));
+        };
+
+        let result = fp_engine
+            .evaluate_with_config(path, vec![context], fp_config.clone())
+            .await
+            .map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::exception(),
+                    format!("Error evaluating expression: {e}"),
+                )
+            })?;
+
+        let column_type = column
+            .type_
+            .as_ref()
+            .and_then(|t| t.value.as_deref())
+            .unwrap_or_else(|| {
+                result
+                    .iter()
+                    .next()
+                    .map_or("string", haste_reflect::MetaValue::fhir_type)
+            });
+
+        let mut column_result = result
+            .iter()
+            .map(|value| conversions::primitives::convert_meta_value(column_type, value))
+            .collect::<Result<Vec<Option<PrimitiveValue>>, OperationOutcomeError>>()?;
+
+        let is_collection = column
+            .collection
+            .as_ref()
+            .and_then(|c| c.value)
+            .unwrap_or(false);
+
+        let insert_value = if is_collection {
+            OutputResults::Collection(column_result)
+        } else {
+            if column_result.len() > 1 {
+                return Err(OperationOutcomeError::error(
+                    IssueType::invalid(),
+                    "Column result is a collection but the column is not marked as a collection"
+                        .to_string(),
+                ));
+            }
+
+            let mut singular_value = None;
+
+            if let Some(first_value) = column_result.get_mut(0) {
+                std::mem::swap(&mut singular_value, first_value);
+            }
+
+            OutputResults::Scalar(singular_value)
+        };
+
+        output_result.insert(name.to_string(), insert_value);
+    }
+
+    Ok(output_result)
 }
 
 fn flatten_results(resource: Vec<Resource>) -> Vec<Resource> {
