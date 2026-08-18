@@ -19,16 +19,14 @@ fn append_primitive_value(buffer: &mut String, value: &PrimitiveValue) {
     }
 }
 
-pub fn csv(
-    results: Vec<OrderMap<String, OutputResults>>,
-) -> Result<Vec<u8>, OperationOutcomeError> {
+pub fn csv(results: &[OrderMap<String, OutputResults>]) -> Result<Vec<u8>, OperationOutcomeError> {
     let mut byte_vector = Vec::new();
     let mut writer = csv::WriterBuilder::new()
         .has_headers(false)
         .from_writer(&mut byte_vector);
     let mut column_names = Vec::new();
 
-    if let Some(header_col) = results.get(0) {
+    if let Some(header_col) = results.first() {
         column_names = header_col.keys().cloned().collect();
 
         writer.write_record(column_names.iter()).map_err(|_e| {
@@ -42,10 +40,10 @@ pub fn csv(
     let mut row = csv::StringRecord::new();
     let mut cell_buffer = String::new();
 
-    for result in &results {
+    for result in results {
         row.clear();
 
-        for key in column_names.iter() {
+        for key in &column_names {
             cell_buffer.clear();
 
             if let Some(value) = result.get(key) {

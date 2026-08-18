@@ -22,12 +22,12 @@ pub enum PrimitiveValue {
 }
 
 #[allow(dead_code)]
-fn downcast_meta_value<'a, T: 'static>(value: &'a dyn MetaValue) -> Option<&'a T> {
+fn downcast_meta_value<T: 'static>(value: &dyn MetaValue) -> Option<&T> {
     value.as_any().downcast_ref::<T>().or_else(|| {
         value
             .as_any()
             .downcast_ref::<Box<T>>()
-            .map(|boxed| boxed.as_ref())
+            .map(std::convert::AsRef::as_ref)
     })
 }
 
@@ -101,26 +101,14 @@ pub fn convert_meta_value(
                 .map(|number| PrimitiveValue::Number(number as f64))
         }),
         "string" => convert_with::<FHIRString, _, _>(value, "string", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "uri" => convert_with::<FHIRUri, _, _>(value, "uri", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "base64Binary" => {
             convert_with::<FHIRBase64Binary, _, _>(value, "base64Binary", |primitive| {
-                primitive
-                    .value
-                    .as_ref()
-                    .cloned()
-                    .map(PrimitiveValue::String)
+                primitive.value.clone().map(PrimitiveValue::String)
             })
         }
         "code" => {
@@ -132,18 +120,10 @@ pub fn convert_meta_value(
                 .map(PrimitiveValue::String))
         }
         "id" => convert_with::<FHIRId, _, _>(value, "id", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "oid" => convert_with::<FHIROid, _, _>(value, "oid", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "unsignedInt" => convert_with::<FHIRUnsignedInt, _, _>(value, "unsignedInt", |primitive| {
             primitive
@@ -156,32 +136,16 @@ pub fn convert_meta_value(
                 .map(|number| PrimitiveValue::Number(number as f64))
         }),
         "markdown" => convert_with::<FHIRMarkdown, _, _>(value, "markdown", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "url" => convert_with::<FHIRUrl, _, _>(value, "url", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "canonical" => convert_with::<FHIRCanonical, _, _>(value, "canonical", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "uuid" => convert_with::<FHIRUuid, _, _>(value, "uuid", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "http://hl7.org/fhirpath/System.String" => Ok(value
             .as_any()
@@ -190,7 +154,7 @@ pub fn convert_meta_value(
                 value
                     .as_any()
                     .downcast_ref::<Box<String>>()
-                    .map(|boxed| boxed.as_ref())
+                    .map(std::convert::AsRef::as_ref)
             })
             .cloned()
             .map(PrimitiveValue::String)),
