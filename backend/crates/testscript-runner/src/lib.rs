@@ -1029,32 +1029,32 @@ async fn run_assertion(
             pointer.path()
         )));
     };
+
     let default = AssertOperatorCodes::equals();
     let operator = assertion.operator.as_ref().unwrap_or(&default);
 
-    if assertion.resource.is_some() {
-        let resource_string = assertion
-            .resource
-            .as_ref()
-            .and_then(haste_fhir_model::r4::generated::terminology::BoundCode::as_str)
-            .unwrap_or("");
-
-        let operation_evaluation_result = evaluate_operator(
+    // Keep all uses of `source` inside this scope so the immutable borrow
+    // of `state_guard` ends before we mutate `state_guard`.
+    let failure_message = if let Some(message) =
+        evaluate_resource_assertion(assertion, pointer.path(), source, operator)
+    {
+        Some(message)
+    } else if let Some(expression) = assertion.expression.as_ref().and_then(|e| e.value.as_ref()) {
+        evaluate_expression_assertion(
+            &state_guard,
+            assertion,
+            pointer.path(),
+            source,
             operator,
-            &vec![conversion::ConvertedValue::String(
-                resource_string.to_string(),
-            )],
-            &vec![conversion::ConvertedValue::String(
-                source.fhir_type().to_string(),
-            )],
-        );
-        if !operation_evaluation_result {
-            let message = format!(
-                "Assertion '{}' at '{}' failed: resource type '{resource_string}' does not match '{}'.",
-                assert_label(assertion),
-                pointer.path(),
-                source.fhir_type()
-            );
+            expression,
+        )
+        .await?
+    } else {
+        None
+    };
+
+    let (result, message) = match failure_message {
+        Some(message) => {
             tracing::error!(
                 assert.label = assert_label(assertion),
                 path = pointer.path(),
@@ -1062,86 +1062,106 @@ async fn run_assertion(
             );
 
             state_guard.result = ReportResultCodes::fail();
-            return Ok(TestResult {
-                state: state.clone(),
-                value: TestReportSetupActionAssert {
-                    result: ReportActionResultCodes::fail(),
-                    message: Some(Box::new(FHIRMarkdown {
-                        value: Some(message),
-                        ..Default::default()
-                    })),
+
+            (
+                ReportActionResultCodes::fail(),
+                Some(Box::new(FHIRMarkdown {
+                    value: Some(message),
                     ..Default::default()
-                },
-            });
+                })),
+            )
         }
-    }
-    if let Some(expression) = assertion.expression.as_ref().and_then(|e| e.value.as_ref()) {
-        let comparison_to = derive_comparison_to(&state_guard, assertion).await?;
-
-        let Ok(result) = state_guard
-            .fp_engine
-            .evaluate(expression, vec![source])
-            .await
-        else {
-            tracing::error!(
-                assert.label = assert_label(assertion),
-                path = pointer.path(),
-                expression = expression.as_str(),
-                "Assertion '{}' at '{}' failed: FHIRPath expression '{expression}' failed to evaluate.",
-                assert_label(assertion),
-                pointer.path(),
-            );
-
-            state_guard.result = ReportResultCodes::fail();
-            return Err(TestScriptError::ExecutionError(format!(
-                "Assertion '{}' at '{}': FHIRPath expression '{expression}' failed to evaluate.",
-                assert_label(assertion),
-                pointer.path(),
-            )));
-        };
-
-        let converted_values = result
-            .iter()
-            .map(conversion::convert_meta_value)
-            .collect::<Vec<_>>();
-
-        let operation_evaluation_result =
-            evaluate_operator(operator, &converted_values, &comparison_to);
-
-        if !operation_evaluation_result {
-            let message = format!(
-                "Assertion '{}' at '{}' failed: '{converted_values:?}' {operator:?} '{comparison_to:?}'.",
-                assert_label(assertion),
-                pointer.path(),
-            );
-            tracing::error!(
-                assert.label = assert_label(assertion),
-                path = pointer.path(),
-                "{message}"
-            );
-
-            state_guard.result = ReportResultCodes::fail();
-            return Ok(TestResult {
-                state: state.clone(),
-                value: TestReportSetupActionAssert {
-                    result: ReportActionResultCodes::fail(),
-                    message: Some(Box::new(FHIRMarkdown {
-                        value: Some(message),
-                        ..Default::default()
-                    })),
-                    ..Default::default()
-                },
-            });
-        }
-    }
+        None => (ReportActionResultCodes::pass(), None),
+    };
 
     Ok(TestResult {
         state: state.clone(),
         value: TestReportSetupActionAssert {
-            result: ReportActionResultCodes::pass(),
+            result,
+            message,
             ..Default::default()
         },
     })
+}
+
+fn evaluate_resource_assertion(
+    assertion: &TestScriptSetupActionAssert,
+    path: &str,
+    source: &dyn MetaValue,
+    operator: &BoundCode<AssertOperatorCodes>,
+) -> Option<String> {
+    let resource_string = assertion.resource.as_ref()?.as_str()?;
+
+    let operation_evaluation_result = evaluate_operator(
+        operator,
+        &vec![conversion::ConvertedValue::String(
+            resource_string.to_string(),
+        )],
+        &vec![conversion::ConvertedValue::String(
+            source.fhir_type().to_string(),
+        )],
+    );
+
+    if operation_evaluation_result {
+        return None;
+    }
+
+    Some(format!(
+        "Assertion '{}' at '{}' failed: resource type '{resource_string}' does not match '{}'.",
+        assert_label(assertion),
+        path,
+        source.fhir_type()
+    ))
+}
+
+async fn evaluate_expression_assertion(
+    state_guard: &TestState,
+    assertion: &TestScriptSetupActionAssert,
+    path: &str,
+    source: &dyn MetaValue,
+    operator: &BoundCode<AssertOperatorCodes>,
+    expression: &str,
+) -> Result<Option<String>, TestScriptError> {
+    let comparison_to = derive_comparison_to(state_guard, assertion).await?;
+
+    let Ok(result) = state_guard
+        .fp_engine
+        .evaluate(expression, vec![source])
+        .await
+    else {
+        tracing::error!(
+            assert.label = assert_label(assertion),
+            path = path,
+            expression = expression,
+            "Assertion '{}' at '{}' failed: FHIRPath expression '{expression}' failed to evaluate.",
+            assert_label(assertion),
+            path,
+        );
+
+        return Err(TestScriptError::ExecutionError(format!(
+            "Assertion '{}' at '{}': FHIRPath expression '{expression}' failed to evaluate.",
+            assert_label(assertion),
+            path,
+        )));
+    };
+
+    let converted_values = result
+        .iter()
+        .map(conversion::convert_meta_value)
+        .collect::<Vec<_>>();
+
+    let operation_evaluation_result =
+        evaluate_operator(operator, &converted_values, &comparison_to);
+
+    if operation_evaluation_result {
+        return Ok(None);
+    }
+
+    Ok(Some(format!(
+        "Assertion '{}' at '{}' failed: '{converted_values:?}' {operator:?} '{comparison_to:?}'.",
+        assert_label(assertion),
+        path,
+    )))
 }
 
 async fn run_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
