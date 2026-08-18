@@ -37,7 +37,7 @@ members = [
     "crates/jwt",
     "crates/macro-loads",
     "crates/openapi-schema-generator",
-    "crates/operation_executor",
+    "crates/operation-executor",
     "crates/pointer",
     "crates/rate-limit",
     "crates/reflect",
@@ -47,7 +47,7 @@ members = [
     "crates/server",
     "crates/sql-on-fhir",
     "crates/testscript-runner",
-    "crates/wal_worker",
+    "crates/wal-worker",
     "crates/worker",
     "crates/x-fhir-query",
 ]
