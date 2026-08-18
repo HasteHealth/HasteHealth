@@ -59,7 +59,7 @@ jobs:
           -p haste-repository \
           -p haste-sd-to-json-schema \
           -p haste-testscript-runner \
-          -p haste_wal_worker \
+          -p haste-wal-worker \
           -p haste-worker \
           -p haste-x-fhir-query \
           -- -Dclippy::all -Dclippy::pedantic
