@@ -32,7 +32,7 @@ haste-fhirpath = { path = "../fhirpath", version = "0.*" }
 haste-hl7v2 = { path = "../hl7v2", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*" }
 haste-openapi-schema-generator = { path = "../openapi-schema-generator", version = "0.*" }
-haste-operation-executor = { path = "../operation_executor", version = "0.*" }
+haste-operation-executor = { path = "../operation-executor", version = "0.*" }
 haste-rate-limit = { path = "../rate-limit", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
 haste-repository = { path = "../repository", version = "0.*", features = [

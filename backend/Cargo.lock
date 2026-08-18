@@ -2925,6 +2925,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "haste-wal-worker"
+version = "0.21.0"
+dependencies = [
+ "elasticsearch",
+ "etl",
+ "haste-artifacts",
+ "haste-config",
+ "haste-fhir-model",
+ "haste-fhir-operation-error",
+ "haste-fhir-search",
+ "haste-fhir-serialization-json",
+ "haste-fhirpath",
+ "haste-jwt",
+ "haste-repository",
+ "serde_json",
+ "sqlx",
+ "sqlx-postgres",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "haste-worker"
 version = "0.21.0"
 dependencies = [
@@ -2952,28 +2974,6 @@ dependencies = [
  "haste-reflect",
  "regex",
  "tokio",
-]
-
-[[package]]
-name = "haste_wal_worker"
-version = "0.21.0"
-dependencies = [
- "elasticsearch",
- "etl",
- "haste-artifacts",
- "haste-config",
- "haste-fhir-model",
- "haste-fhir-operation-error",
- "haste-fhir-search",
- "haste-fhir-serialization-json",
- "haste-fhirpath",
- "haste-jwt",
- "haste-repository",
- "serde_json",
- "sqlx",
- "sqlx-postgres",
- "tokio",
- "tracing",
 ]
 
 [[package]]
