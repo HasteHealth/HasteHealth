@@ -123,13 +123,6 @@ Using `wrk` for performance testing.
 wrk --latency -s crates/server/benchmarks/transaction.lua -t10 -c10 -d10s http://localhost:3000/w/ohio-health/zb154qm9/api/v1/fhir/r4/
 ```
 
-#### M3 Macbook Air Local 10 threads Postgres 16
-
-| Latency (percentile:time)       | Requests per Second                                         | Concurrent connections | Benchmark                                        |
-| ------------------------------- | ----------------------------------------------------------- | ---------------------- | ------------------------------------------------ |
-| 50%:1.2ms, 90%:1.8ms, 99%:3.38  | 8058.15                                                     | 10                     | backend/crates/server/benchmarks/observation.lua |
-| 50%:60ms, 90%:73ms, 99%:288.6ms | 167 (100 resources per transaction) (16,700 total requests) | 10                     | backend/crates/server/benchmarks/transaction.lua |
-
 #### M3 Macbook Air Local 10 threads Postgres 18
 
 | Latency (percentile:time)                           | Requests per Second                                      | Concurrent connections | Benchmark                                                   |
