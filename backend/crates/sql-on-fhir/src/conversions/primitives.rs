@@ -100,97 +100,78 @@ fn convert_fhir_primitive(
                 .as_ref()
                 .map(|instant| PrimitiveValue::String(instant.to_string()))
         }),
-
         "time" => convert_with::<FHIRTime, _, _>(value, "time", |primitive| {
             primitive
                 .value
                 .as_ref()
                 .map(|time| PrimitiveValue::String(time.to_string()))
         }),
-
         "date" => convert_with::<FHIRDate, _, _>(value, "date", |primitive| {
             primitive
                 .value
                 .as_ref()
                 .map(|date| PrimitiveValue::String(date.to_string()))
         }),
-
         "dateTime" => convert_with::<FHIRDateTime, _, _>(value, "dateTime", |primitive| {
             primitive
                 .value
                 .as_ref()
                 .map(|date_time| PrimitiveValue::String(date_time.to_string()))
         }),
-
         "decimal" => convert_with::<FHIRDecimal, _, _>(value, "decimal", |primitive| {
             primitive.value.map(PrimitiveValue::Number)
         }),
-
         "boolean" => convert_with::<FHIRBoolean, _, _>(value, "boolean", |primitive| {
             primitive.value.map(PrimitiveValue::Boolean)
         }),
-
         "integer" => convert_with::<FHIRInteger, _, _>(value, "integer", |primitive| {
             primitive
                 .value
                 .map(|number| PrimitiveValue::Number(number as f64))
         }),
-
         "string" => convert_with::<FHIRString, _, _>(value, "string", |primitive| {
             primitive.value.clone().map(PrimitiveValue::String)
         }),
-
         "uri" => convert_with::<FHIRUri, _, _>(value, "uri", |primitive| {
             primitive.value.clone().map(PrimitiveValue::String)
         }),
-
         "base64Binary" => {
             convert_with::<FHIRBase64Binary, _, _>(value, "base64Binary", |primitive| {
                 primitive.value.clone().map(PrimitiveValue::String)
             })
         }
-
         "code" => Ok(value
             .get_field("value")
             .and_then(|v| v.as_any().downcast_ref::<String>().cloned())
             .map(PrimitiveValue::String)),
-
         "id" => convert_with::<FHIRId, _, _>(value, "id", |primitive| {
             primitive.value.clone().map(PrimitiveValue::String)
         }),
-
         "oid" => convert_with::<FHIROid, _, _>(value, "oid", |primitive| {
             primitive.value.clone().map(PrimitiveValue::String)
         }),
-
         "unsignedInt" => convert_with::<FHIRUnsignedInt, _, _>(value, "unsignedInt", |primitive| {
             primitive
                 .value
                 .map(|number| PrimitiveValue::Number(number as f64))
         }),
-
         "positiveInt" => convert_with::<FHIRPositiveInt, _, _>(value, "positiveInt", |primitive| {
             primitive
                 .value
                 .map(|number| PrimitiveValue::Number(number as f64))
         }),
-
         "markdown" => convert_with::<FHIRMarkdown, _, _>(value, "markdown", |primitive| {
             primitive.value.clone().map(PrimitiveValue::String)
         }),
-
         "url" => convert_with::<FHIRUrl, _, _>(value, "url", |primitive| {
             primitive.value.clone().map(PrimitiveValue::String)
         }),
-
         "canonical" => convert_with::<FHIRCanonical, _, _>(value, "canonical", |primitive| {
             primitive.value.clone().map(PrimitiveValue::String)
         }),
-
         "uuid" => convert_with::<FHIRUuid, _, _>(value, "uuid", |primitive| {
             primitive.value.clone().map(PrimitiveValue::String)
         }),
-
         type_name => Err(unsupported_type_error(type_name)),
     }
 }
@@ -211,45 +192,37 @@ fn convert_fhirpath_system_type(
             })
             .cloned()
             .map(PrimitiveValue::String)),
-
         "http://hl7.org/fhirpath/System.Boolean" => Ok(value
             .as_any()
             .downcast_ref::<bool>()
             .copied()
             .map(PrimitiveValue::Boolean)),
-
         "http://hl7.org/fhirpath/System.Integer" => Ok(value
             .as_any()
             .downcast_ref::<i64>()
             .copied()
             .map(|number| PrimitiveValue::Number(number as f64))),
-
         "http://hl7.org/fhirpath/System.Decimal" => Ok(value
             .as_any()
             .downcast_ref::<f64>()
             .copied()
             .map(PrimitiveValue::Number)),
-
         "http://hl7.org/fhirpath/System.Date" => Ok(value
             .as_any()
             .downcast_ref::<Date>()
             .map(|date| PrimitiveValue::String(date.to_string()))),
-
         "http://hl7.org/fhirpath/System.DateTime" => Ok(value
             .as_any()
             .downcast_ref::<DateTime>()
             .map(|date_time| PrimitiveValue::String(date_time.to_string()))),
-
         "http://hl7.org/fhirpath/System.Instant" => Ok(value
             .as_any()
             .downcast_ref::<Instant>()
             .map(|instant| PrimitiveValue::String(instant.to_string()))),
-
         "http://hl7.org/fhirpath/System.Time" => Ok(value
             .as_any()
             .downcast_ref::<Time>()
             .map(|time| PrimitiveValue::String(time.to_string()))),
-
         type_name => Err(unsupported_type_error(type_name)),
     }
 }
