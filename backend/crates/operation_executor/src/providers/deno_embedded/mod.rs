@@ -5,7 +5,7 @@ pub mod pool;
 
 use deno_core::{
     Extension, GarbageCollected, ModuleLoadOptions, ModuleLoadReferrer, ModuleLoader, ModuleSource,
-    ModuleType, OpState, op2, resolve_import, serde_json, v8,
+    ModuleType, OpState, PollEventLoopOptions, op2, resolve_import, serde_json, v8,
 };
 // main.rs
 use deno_core::error::AnyError;
@@ -46,8 +46,8 @@ fn transpile_code_to_js(
 ) -> Result<(ModuleType, String), JsErrorBox> {
     let (module_type, should_transpile) = match media_type {
         MediaType::JavaScript | MediaType::Mjs | MediaType::Cjs => (ModuleType::JavaScript, false),
-        MediaType::Jsx => (ModuleType::JavaScript, true),
-        MediaType::TypeScript
+        MediaType::Jsx
+        | MediaType::TypeScript
         | MediaType::Mts
         | MediaType::Cts
         | MediaType::Dts
@@ -57,8 +57,7 @@ fn transpile_code_to_js(
         MediaType::Json => (ModuleType::Json, false),
         _ => {
             return Err(JsErrorBox::generic(format!(
-                "Unknown extension {:?}",
-                media_type
+                "Unknown extension {media_type:?}",
             )));
         }
     };
@@ -116,12 +115,12 @@ impl ModuleLoader for TsModuleLoader {
         fn load(module_specifier: &ModuleSpecifier) -> Result<ModuleSource, ModuleLoaderError> {
             let path = module_specifier
                 .to_file_path()
-                .map_err(|_| JsErrorBox::generic("Only file:// URLs are supported."))?;
+                .map_err(|()| JsErrorBox::generic("Only file:// URLs are supported."))?;
 
             let code = std::fs::read_to_string(&path).map_err(JsErrorBox::from_err)?;
             let path = module_specifier
                 .to_file_path()
-                .map_err(|_| JsErrorBox::generic("Only file:// URLs are supported."))?;
+                .map_err(|()| JsErrorBox::generic("Only file:// URLs are supported."))?;
             let media_type = MediaType::from_path(&path);
             let (module_type, code) = transpile_code_to_js(module_specifier, media_type, &code)?;
 
@@ -221,7 +220,7 @@ pub async fn fhir_read_resource<
         )
         .await
         .map_err(|e| {
-            println!("Error reading resource: {:?}", e);
+            println!("Error reading resource: {e:?}");
             deno_error::JsErrorBox::type_error("Failed to read resource")
         })?;
 
@@ -324,7 +323,7 @@ async fn run_code<
     let user_module_specifier = ModuleSpecifier::parse("memo://user.ts").unwrap();
 
     let (_module_type, js_code) =
-        transpile_code_to_js(&user_module_specifier, media_type.into(), &code).unwrap();
+        transpile_code_to_js(&user_module_specifier, media_type.into(), code).unwrap();
 
     let user_mod_id = deno_runtime
         .load_side_es_module_from_code(&user_module_specifier, js_code)
@@ -342,7 +341,9 @@ async fn run_code<
     let user_module_load = deno_runtime.mod_evaluate(user_mod_id);
     let main_module_load = deno_runtime.mod_evaluate(main_mod_id);
 
-    deno_runtime.run_event_loop(Default::default()).await?;
+    deno_runtime
+        .run_event_loop(PollEventLoopOptions::default())
+        .await?;
 
     user_module_load.await?;
     main_module_load.await?;

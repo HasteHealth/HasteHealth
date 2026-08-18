@@ -51,6 +51,7 @@ jobs:
           -p haste-jwt \
           -p haste-macro-loads \
           -p haste-openapi-schema-generator \
+          -p haste-operation-executor \
           -p haste-pointer \
           -p haste-rate-limit \
           -p haste-reflect \

@@ -21,14 +21,39 @@ fn create_issue(
     diagnostics: String,
 ) -> OperationOutcomeIssue {
     OperationOutcomeIssue {
-        severity: severity,
+        severity,
         code: type_,
         diagnostics: Some(Box::new(diagnostics.into())),
         ..Default::default()
     }
 }
 
-/// Validate Parameters against the corresponding OperationDefinitionParameter definitions for the specified direction.
+/// Validates supplied [`Parameters`] against the [`OperationDefinitionParameter`] definitions
+/// for the specified operation direction.
+///
+/// The validation checks parameter cardinality, validates the type of supplied values or
+/// resources against the expected parameter type, recursively validates nested parts, and
+/// reports parameters that are not defined for the specified direction.
+///
+/// # Arguments
+///
+/// * `parameters` - The parameters supplied for the operation.
+/// * `operation_params` - The parameter definitions from the operation's
+///   [`OperationDefinitionParameter`].
+/// * `direction` - The operation parameter direction to validate, such as `in` or `out`.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] containing one or more issues if:
+///
+/// * A parameter has fewer occurrences than its minimum cardinality.
+/// * A parameter exceeds its maximum cardinality.
+/// * A supplied parameter has a different type than the type defined by the operation.
+/// * A nested parameter part does not satisfy its corresponding definition.
+/// * A supplied parameter is not defined for the specified operation direction.
+///
+/// Multiple validation failures are collected and returned together in a single
+/// [`OperationOutcomeError`].
 pub fn validate_parameters(
     parameters: &Parameters,
     operation_params: &[OperationDefinitionParameter],
@@ -46,9 +71,8 @@ pub fn validate_parameters(
 
     // --- Check each definition against what was supplied ---
     for parameter_definition in &parameter_definitions {
-        let name = match parameter_definition.name.value.as_deref() {
-            Some(n) => n,
-            None => continue,
+        let Some(name) = parameter_definition.name.value.as_deref() else {
+            continue;
         };
 
         let found_parameters: Vec<&ParametersParameter> = parameters_to_validate
@@ -56,34 +80,30 @@ pub fn validate_parameters(
             .filter(|p| p.name.value.as_deref() == Some(name))
             .collect();
 
-        let count = found_parameters.len() as i64;
+        let count = found_parameters.len() as u64;
 
         // Minimum cardinality
-        let min = parameter_definition.min.value.unwrap_or(0);
+        let min = parameter_definition.min.value.unwrap_or(0).cast_unsigned();
         if count < min {
             issues.push(create_issue(
                 IssueSeverity::error(),
                 IssueType::invariant(),
                 format!(
-                    "Parameter '{}' requires at least {} occurrence(s) but only {} were supplied.",
-                    name, min, count
+                    "Parameter '{name}' requires at least {min} occurrence(s) but only {count} were supplied."
                 ),
             ));
         }
 
         // Maximum cardinality ("*" means unbounded)
-        if let Some(max_str) = parameter_definition.max.value.as_deref() {
-            if max_str != "*" {
-                if let Ok(max) = max_str.parse::<i64>() {
-                    if count > max {
-                        issues.push(create_issue(IssueSeverity::error(), IssueType::invariant(),
+        if let Some(max_str) = parameter_definition.max.value.as_deref()
+            && max_str != "*"
+            && let Ok(max) = max_str.parse::<u64>()
+            && count > max
+        {
+            issues.push(create_issue(IssueSeverity::error(), IssueType::invariant(),
                         format!(
-                                "Parameter '{}' allows a maximum of {} occurrence(s) but {} were supplied.",
-                                name, max, count
+                                "Parameter '{name}' allows a maximum of {max} occurrence(s) but {count} were supplied."
                             )));
-                    }
-                }
-            }
         }
 
         // Validate type if specified. The type of a supplied parameter is determined by:
@@ -91,22 +111,20 @@ pub fn validate_parameters(
         // 2. Otherwise, use the type of the `value` field.
         if let Some(parameter_def_type) = &parameter_definition.type_ {
             let type_name = parameter_def_type.as_str();
-            for found_parameter in found_parameters.iter() {
+            for found_parameter in &found_parameters {
                 let type_ = if let Some(resource) = found_parameter.resource.as_ref() {
                     resource.fhir_type()
                 } else {
                     found_parameter.value.fhir_type()
                 };
 
-                if type_ != type_name.as_deref().unwrap_or_default() {
+                if type_ != type_name.unwrap_or_default() {
                     issues.push(create_issue(
                         IssueSeverity::error(),
                         IssueType::invalid(),
                         format!(
-                            "Parameter '{}' expects type '{}' but found '{}'.",
-                            name,
-                            type_name.as_deref().unwrap_or("<unknown>"),
-                            type_
+                            "Parameter '{name}' expects type '{}' but found '{type_}'.",
+                            type_name.unwrap_or("<unknown>"),
                         ),
                     ));
                 }
@@ -122,7 +140,7 @@ pub fn validate_parameters(
                         parameter: Some(supplied_parts.clone()),
                         ..Default::default()
                     };
-                    validate_parameters(&parts_as_parameters, part_defs, &direction)?;
+                    validate_parameters(&parts_as_parameters, part_defs, direction)?;
                 }
             }
         }
@@ -142,7 +160,7 @@ pub fn validate_parameters(
                 format!(
                     "Parameter '{}' is not defined for the '{}' direction.",
                     name,
-                    display_direction.as_deref().unwrap_or("<unknown>")
+                    display_direction.unwrap_or("<unknown>")
                 ),
             ));
         }
@@ -194,7 +212,7 @@ mod tests {
                 value: Some(max.to_string()),
                 ..Default::default()
             }),
-            type_: type_,
+            type_,
             ..Default::default()
         }
     }

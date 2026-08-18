@@ -26,6 +26,25 @@ pub struct DenoPool {
 }
 
 impl DenoPool {
+    /// Creates a new [`DenoPool`] with the specified number of worker threads.
+    ///
+    /// Each worker is spawned during construction. If any worker fails to start, all workers
+    /// that were successfully spawned up to that point are shut down before the error is
+    /// returned.
+    ///
+    /// # Arguments
+    ///
+    /// * `thread_count` - The number of worker threads to create. Must be greater than zero.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    ///
+    /// * `thread_count` is zero.
+    /// * A worker thread fails to spawn.
+    ///
+    /// If worker creation fails partway through initialization, all previously spawned workers
+    /// are shut down before the error is returned.
     pub fn new(thread_count: usize) -> Result<Self, AnyError> {
         if thread_count == 0 {
             return Err(io::Error::other("DenoPool requires at least one worker thread").into());
@@ -98,7 +117,7 @@ impl Drop for DenoPool {
     }
 }
 
-fn get_parameters<'a>(input: &'a InvocationRequest) -> &'a Parameters {
+fn get_parameters(input: &InvocationRequest) -> &Parameters {
     match input {
         InvocationRequest::Instance(instance_request) => &instance_request.parameters,
         InvocationRequest::Type(type_request) => &type_request.parameters,
@@ -145,7 +164,7 @@ impl OperationExecutor for DenoPool {
     ) -> Result<Parameters, OperationOutcomeError> {
         validate_parameters(
             get_parameters(input),
-            &operation.parameter.as_deref().unwrap_or_default(),
+            operation.parameter.as_deref().unwrap_or_default(),
             &OperationParameterUse::in_(),
         )?;
 
@@ -154,8 +173,7 @@ impl OperationExecutor for DenoPool {
                 OperationOutcomeError::error(
                     IssueType::invalid(),
                     format!(
-                        "OperationDefinition missing custom code extension metadata '{}'",
-                        CUSTOM_CODE_EXTENSION_URL
+                        "OperationDefinition missing custom code extension metadata '{CUSTOM_CODE_EXTENSION_URL}'"
                     ),
                 )
             })?;
@@ -193,7 +211,7 @@ impl OperationExecutor for DenoPool {
 
         validate_parameters(
             &output,
-            &operation.parameter.as_deref().unwrap_or_default(),
+            operation.parameter.as_deref().unwrap_or_default(),
             &OperationParameterUse::out(),
         )?;
 
