@@ -4,12 +4,169 @@ title: Endpoint
 
 # Model Context Protocol Endpoint
 
-:::info
-Documentation for the Model Context Protocol endpoint is coming soon.
-:::
+The Model Context Protocol (MCP) endpoint lets AI agents and LLMs interact with Haste Health's FHIR API through a structured, tool-based interface instead of raw REST calls.
 
-The Model Context Protocol (MCP) enables AI agents and LLMs to interact with Haste Health's FHIR API in a structured way.
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Endpoint
+
+```
+POST https://api.haste.health/w/[tenant]/[project]/api/v1/mcp
+```
+
+Replace `[tenant]` with your tenant name and `[project]` with your project ID — the same path convention used by the [FHIR REST API](/docs/category/endpoints), just with `mcp` in place of `fhir/r4`.
+
+## Transport
+
+The endpoint is a single JSON-RPC 2.0 POST endpoint — every request is one HTTP `POST` with a JSON-RPC body, and every response is one JSON body (`Content-Type: application/json`). There is no Server-Sent Events stream and no chunked/Streamable HTTP framing; each MCP method call is a normal request/response cycle.
+
+## Authentication
+
+Every request needs an `Authorization` header. **OAuth 2.0 is the recommended path** — it's the same mechanism used in the [Claude integration guide](/docs/integration/ai/claude): register a `ClientApplication`, then exchange credentials for a short-lived bearer token. HTTP Basic Auth also works, but it can only ever authenticate as the client application itself (never a specific user), so treat it as a shortcut for local development, not production.
+
+
+## Supported methods
+
+| Method                     | Description                                                              |
+| --------------------------- | ------------------------------------------------------------------------ |
+| `initialize`                 | Negotiates protocol version and returns server capabilities/info.       |
+| `notifications/initialized`  | Client acknowledgement after `initialize`. Returns a bare `200 OK` with no body. |
+| `tools/list`                 | Returns the full list of available tools (see [MCP Tools](/docs/api/rest_api/model_context_protocol/tools)). |
+| `tools/call`                 | Invokes a named tool with arguments and returns its result.             |
+
+Any other JSON-RPC method (`ping`, `resources/*`, `prompts/*`, `completion/*`, etc.) currently returns a `not-supported` error — the server implements the tool-calling subset of MCP, not the full spec.
+
+## Initialize
+
+```bash
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/mcp" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer $ACCESS_TOKEN" \
+     -d '{
+       "jsonrpc": "2.0",
+       "id": 1,
+       "method": "initialize",
+       "params": { "protocolVersion": "2025-03-26", "capabilities": {}, "clientInfo": { "name": "my-agent", "version": "1.0.0" } }
+     }'
+```
+
+```json
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "protocolVersion": "2025-03-26",
+    "capabilities": { "tools": { "listChanged": false } },
+    "serverInfo": { "name": "Haste Health MCP Server", "title": "Haste Health MCP Server", "version": "0.0.1" }
+  }
+}
+```
+
+## Listing tools
+
+```bash
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/mcp" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer $ACCESS_TOKEN" \
+     -d '{ "jsonrpc": "2.0", "id": 2, "method": "tools/list" }'
+```
+
+Returns `{ "result": { "tools": [...], "nextCursor": null } }` — see [MCP Tools](/docs/api/rest_api/model_context_protocol/tools) for the live, generated list. Every tool's `inputSchema.resourceType` enum is populated from your server's live `CapabilityStatement`, so it only lists resource types your deployment actually supports.
+
+## Calling a tool
+
+```bash
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/mcp" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer $ACCESS_TOKEN" \
+     -d '{
+       "jsonrpc": "2.0",
+       "id": 3,
+       "method": "tools/call",
+       "params": {
+         "name": "fhir_r4_read",
+         "arguments": { "resourceType": "Patient", "id": "12345" }
+       }
+     }'
+```
+
+A successful call returns both a text content block and a `structuredContent` field with the same value already parsed as JSON, so agents can use whichever is more convenient:
+
+```json
+{
+  "id": 3,
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      { "type": "text", "text": "{\"resourceType\":\"Patient\",\"id\":\"12345\", ...}" }
+    ],
+    "isError": false,
+    "structuredContent": { "resourceType": "Patient", "id": "12345" }
+  }
+}
+```
+
+## Error Handling
+
+Errors show up at three different layers, and each has its own shape.
+
+### Authentication errors
+
+A missing, malformed, or expired bearer token never reaches JSON-RPC handling at all — the JWT verification middleware rejects it with a bare `401 Unauthorized` and **no response body**, carrying the `WWW-Authenticate` discovery header described above:
+
+```
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Bearer resource_metadata="https://api.haste.health/.well-known/oauth-protected-resource/w/[tenant]/[project]/api/v1/mcp"
+```
+
+Errors from the OAuth token endpoint itself (bad `client_id`/`client_secret`, invalid grant, unauthorized scope) come back as JSON with a `code`/`description` pair, not a JSON-RPC envelope:
+
+```json
+{
+  "code": "access_denied",
+  "description": "Invalid credentials"
+}
+```
+
+| `code` | HTTP status | Meaning |
+| --- | --- | --- |
+| `invalid_request` | 400 | Missing or malformed parameter |
+| `invalid_client` | 400 | Unknown `client_id`, or client not authorized for the grant type used |
+| `invalid_grant` | 400 | The code/refresh token is invalid, expired, or was issued to a different client |
+| `invalid_scope` | 400 | Requested scope is invalid or not authorized for this client |
+| `unauthorized_client` | 401 | Client isn't allowed to use this grant type |
+| `access_denied` | 403 | Credentials are well-formed but incorrect |
+| `unsupported_response_type` | 422 | Unsupported `response_type` in an authorize request |
+| `server_error` | 500 | Unexpected server-side failure |
+| `temporarily_unavailable` | 503 | Server temporarily can't process auth requests |
+
+### MCP / JSON-RPC errors
+
+Once a request is authenticated, `tools/call` and other MCP-method errors reuse the same numeric code for both the HTTP status and the JSON-RPC `error.code` field — a `404` from a failed read comes back as HTTP `404` with `error.code: 404`, not the negative JSON-RPC-spec codes like `-32600`. Most errors also carry the underlying FHIR `OperationOutcome` in `error.data`.
+
+```json
+{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": 400,
+    "message": "Unknown tool name: 'not_a_real_tool'"
+  }
+}
+```
+
+```json
+{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": 400,
+    "message": "Invalid resource type: 'NotAResource'"
+  }
+}
+```
 
 **Related Documentation**:
 - **[MCP Tools](/docs/api/rest_api/model_context_protocol/tools)**: Available MCP tools
+- **[Integrating Claude](/docs/integration/ai/claude)**: End-to-end OAuth setup for an interactive MCP client
+- **[Client Registration](/docs/auth/authentication/client_registration)**: `ClientApplication` resource reference
 - **[FHIR API](/docs/category/endpoints)**: Core FHIR API documentation
