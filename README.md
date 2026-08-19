@@ -4,7 +4,8 @@
 
 ## Overview
 
-FHIR clinical data repository built for speed.
+Haste Health is a headless EHR — store clinical data as FHIR R4 and serve it to your applications, analytics, and AI agents. MCP-native, multi-tenant, and fast.
+Self-host or use a managed cloud.
 
 ## Running Locally
 
