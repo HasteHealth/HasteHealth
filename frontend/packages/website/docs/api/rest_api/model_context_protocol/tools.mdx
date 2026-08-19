@@ -4,11 +4,12 @@ title: Tools
 
 # Model Context Protocol Tools
 
-:::info
-Documentation for available MCP tools is coming soon.
-:::
+MCP tools provide structured interfaces for AI agents to perform operations on FHIR resources, execute searches, and interact with the Haste Health platform. Every tool below is returned by a live `tools/list` call — the `resourceType` enums in each input schema reflect exactly what your server's [CapabilityStatement](/docs/api/rest_api/model_context_protocol/endpoint) supports.
 
-MCP tools provide structured interfaces for AI agents to perform operations on FHIR resources, execute searches, and interact with the Haste Health platform.
+import BrowserOnly from '@docusaurus/BrowserOnly';
+import McpToolsDisplay from '@site/src/components/McpToolsDisplay';
+
+<BrowserOnly>{() => <McpToolsDisplay />}</BrowserOnly>
 
 **Related Documentation**:
 - **[MCP Endpoint](/docs/api/rest_api/model_context_protocol/endpoint)**: MCP endpoint configuration

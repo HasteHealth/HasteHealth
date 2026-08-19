@@ -1,21 +1,73 @@
 import fs from "node:fs";
-import { fileURLToPath } from "url";
 
-import { loadArtifacts } from "@haste-health/artifacts";
-import { R4 } from "@haste-health/fhir-types/versions";
 import { sdTraversal } from "@haste-health/codegen";
 
-const r4Artifacts = ["StructureDefinition", "SearchParameter"]
-  .map((resourceType) =>
-    loadArtifacts({
-      loadDevelopmentPackages: true,
-      resourceType: resourceType,
-      silence: false,
-      fhirVersion: R4,
-      currentDirectory: fileURLToPath(import.meta.url),
-    }),
-  )
-  .flat();
+const HASTE_HEALTH_URL = process.env.HASTE_HEALTH_URL ?? "http://localhost:3000";
+const HASTE_HEALTH_TENANT = process.env.HASTE_HEALTH_TENANT ?? "my-health";
+const HASTE_HEALTH_PROJECT = process.env.HASTE_HEALTH_PROJECT ?? "system";
+const HASTE_HEALTH_USERNAME = process.env.HASTE_HEALTH_USERNAME;
+const HASTE_HEALTH_PASSWORD = process.env.HASTE_HEALTH_PASSWORD;
+
+if (!HASTE_HEALTH_USERNAME || !HASTE_HEALTH_PASSWORD) {
+  throw new Error(
+    "HASTE_HEALTH_USERNAME and HASTE_HEALTH_PASSWORD must be set (see .env.example). " +
+      "Run with `pnpm node --env-file-if-exists=.env generate.mjs fhir`.",
+  );
+}
+
+const fhirBaseUrl = `${HASTE_HEALTH_URL}/w/${HASTE_HEALTH_TENANT}/${HASTE_HEALTH_PROJECT}/api/v1/fhir/r4`;
+const credentials = `${HASTE_HEALTH_USERNAME}:${HASTE_HEALTH_PASSWORD}`;
+const authHeader = `Basic ${Buffer.from(credentials).toString("base64")}`;
+
+async function fetchAllResources(resourceType) {
+  const resources = [];
+  let url = `${fhirBaseUrl}/${resourceType}?_count=1000`;
+
+  while (url) {
+    const response = await fetch(url, {
+      headers: { Authorization: authHeader },
+    });
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch ${resourceType} from ${url}: ${response.status} ${response.statusText}`,
+      );
+    }
+    const bundle = await response.json();
+    resources.push(...(bundle.entry ?? []).map((entry) => entry.resource));
+    url = bundle.link?.find((link) => link.relation === "next")?.url;
+  }
+
+  return resources;
+}
+
+const mcpUrl = `${HASTE_HEALTH_URL}/w/${HASTE_HEALTH_TENANT}/${HASTE_HEALTH_PROJECT}/api/v1/mcp`;
+
+async function fetchMcpTools() {
+  const response = await fetch(mcpUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: authHeader,
+    },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
+  });
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch MCP tools from ${mcpUrl}: ${response.status} ${response.statusText}`,
+    );
+  }
+  const body = await response.json();
+  if (body.error) {
+    throw new Error(`MCP tools/list returned an error: ${body.error.message}`);
+  }
+  return body.result.tools;
+}
+
+async function generateMcpDocumentation() {
+  const tools = await fetchMcpTools();
+  fs.mkdirSync("./static/mcp", { recursive: true });
+  fs.writeFileSync("./static/mcp/tools.json", JSON.stringify(tools, null, 2));
+}
 
 function generateProperties(sd) {
   return sdTraversal.traversalBottomUp(sd, (element, nestedElements) => {
@@ -148,6 +200,12 @@ ${escapeLinks(structureDefinition.snapshot?.element[0]?.definition ?? "")}
 }
 
 async function generateFHIRDocumentation() {
+  const r4Artifacts = (
+    await Promise.all(
+      ["StructureDefinition", "SearchParameter"].map(fetchAllResources),
+    )
+  ).flat();
+
   const r4StructureDefinitions = r4Artifacts
     .filter((r) => r.resourceType === "StructureDefinition")
     .filter((sd) => sd.derivation !== "constraint")
@@ -190,9 +248,13 @@ switch (process.argv[2]) {
     await generateFHIRDocumentation();
     break;
   }
+  case "mcp": {
+    await generateMcpDocumentation();
+    break;
+  }
   default: {
     throw new Error(
-      "Invalid argument. Please provide either 'npm' or 'fhir' as an argument.",
+      "Invalid argument. Please provide either 'fhir' or 'mcp' as an argument.",
     );
   }
 }
