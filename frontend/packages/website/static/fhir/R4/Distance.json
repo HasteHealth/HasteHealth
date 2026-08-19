@@ -1,15 +1,33 @@
 {
-  "id": "Distance",
   "resourceType": "StructureDefinition",
-  "name": "Distance",
-  "abstract": false,
+  "id": "Distance",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "g7dzxxid9chpxi7folmokygb0-",
+    "lastUpdated": "2026-08-15T04:25:51.065196+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "vZyIL_6XAurVd8Z4IZrSAcNwcXk"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Distance",
   "version": "4.0.1",
+  "name": "Distance",
+  "status": "draft",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "Distance",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Quantity",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

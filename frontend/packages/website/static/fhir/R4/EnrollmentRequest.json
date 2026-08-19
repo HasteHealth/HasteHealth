@@ -1,15 +1,33 @@
 {
-  "id": "EnrollmentRequest",
   "resourceType": "StructureDefinition",
-  "name": "EnrollmentRequest",
-  "abstract": false,
+  "id": "EnrollmentRequest",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "6ywsqem9oax51973-8a1pwtbf0",
+    "lastUpdated": "2026-08-15T04:25:31.699431+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "WZpgSkksh8y3epaE5sPp2XhFE6s"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/EnrollmentRequest",
   "version": "4.0.1",
+  "name": "EnrollmentRequest",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "EnrollmentRequest",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

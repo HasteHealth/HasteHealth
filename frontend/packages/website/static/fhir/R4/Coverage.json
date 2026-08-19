@@ -1,15 +1,33 @@
 {
-  "id": "Coverage",
   "resourceType": "StructureDefinition",
-  "name": "Coverage",
-  "abstract": false,
+  "id": "Coverage",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "qhhxj5v6rs3zvmwxbquds2pw1o",
+    "lastUpdated": "2026-08-15T04:25:40.242006+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "IABODPreyJNXO4AZxnHBWhXV-u0"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Coverage",
   "version": "4.0.1",
+  "name": "Coverage",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Coverage",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

@@ -45,79 +45,11 @@ This resource provides the details including amount of a payment and allocates t
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
             <span class="font-semibold">_id</span> <span> (token)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
         <div class="line-clamp-3 truncate">
               <code>Resource.id</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.lastUpdated</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
             </div>
     </div>
     
@@ -135,11 +67,11 @@ This resource provides the details including amount of a payment and allocates t
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
+            <span class="font-semibold">requestor</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The reference to the provider who submitted the claim</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
+              <code>PaymentReconciliation.requestor</code>
             </div>
     </div>
     
@@ -147,36 +79,10 @@ This resource provides the details including amount of a payment and allocates t
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_source</span> <span> (uri)</span>
+            <span class="font-semibold">_content</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.source</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_tag</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.tag</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">created</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The creation date</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>PaymentReconciliation.created</code>
-            </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
     </div>
     
 
@@ -188,6 +94,30 @@ This resource provides the details including amount of a payment and allocates t
         <div class="text-brand-900 line-clamp-3 truncate"> <span>The contents of the disposition message</span></div>
         <div class="line-clamp-3 truncate">
               <code>PaymentReconciliation.disposition</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">status</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The status of the payment reconciliation</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>PaymentReconciliation.status</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">payment-issuer</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The organization which generated this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>PaymentReconciliation.paymentIssuer</code>
             </div>
     </div>
     
@@ -219,11 +149,47 @@ This resource provides the details including amount of a payment and allocates t
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">payment-issuer</span> <span> (reference)</span>
+            <span class="font-semibold">_tag</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The organization which generated this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>PaymentReconciliation.paymentIssuer</code>
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
             </div>
     </div>
     
@@ -243,11 +209,11 @@ This resource provides the details including amount of a payment and allocates t
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">requestor</span> <span> (reference)</span>
+            <span class="font-semibold">created</span> <span> (date)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The reference to the provider who submitted the claim</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The creation date</span></div>
         <div class="line-clamp-3 truncate">
-              <code>PaymentReconciliation.requestor</code>
+              <code>PaymentReconciliation.created</code>
             </div>
     </div>
     
@@ -255,11 +221,45 @@ This resource provides the details including amount of a payment and allocates t
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">status</span> <span> (token)</span>
+            <span class="font-semibold">_text</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The status of the payment reconciliation</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>PaymentReconciliation.status</code>
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_source</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.source</code>
             </div>
     </div>
     

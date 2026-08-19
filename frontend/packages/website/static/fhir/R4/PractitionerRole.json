@@ -1,15 +1,33 @@
 {
-  "id": "PractitionerRole",
   "resourceType": "StructureDefinition",
-  "name": "PractitionerRole",
-  "abstract": false,
+  "id": "PractitionerRole",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "m7e2ld9uanbq72uukrjbm6su5m",
+    "lastUpdated": "2026-08-15T04:25:16.087748+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "z6zg7DBSp1ZR0L1CZ0eoNjHD6A8"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/PractitionerRole",
   "version": "4.0.1",
+  "name": "PractitionerRole",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "PractitionerRole",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

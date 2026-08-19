@@ -1,15 +1,33 @@
 {
-  "id": "EvidenceVariable",
   "resourceType": "StructureDefinition",
-  "name": "EvidenceVariable",
-  "abstract": false,
+  "id": "EvidenceVariable",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "ixt6z2louxrooc78yhdy92ad1x",
+    "lastUpdated": "2026-08-15T04:25:08.227983+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "e9YpDxZIHcda46BHDmYbairHOwM"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/EvidenceVariable",
   "version": "4.0.1",
+  "name": "EvidenceVariable",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "EvidenceVariable",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

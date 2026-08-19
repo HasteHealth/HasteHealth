@@ -1,15 +1,33 @@
 {
-  "id": "MedicationKnowledge",
   "resourceType": "StructureDefinition",
-  "name": "MedicationKnowledge",
-  "abstract": false,
+  "id": "MedicationKnowledge",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "szazajosoke9i4fff3pdbi2d1n",
+    "lastUpdated": "2026-08-15T04:24:59.373596+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "DYUsaYkridILjj80Da4snWgBJNA"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/MedicationKnowledge",
   "version": "4.0.1",
+  "name": "MedicationKnowledge",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "MedicationKnowledge",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

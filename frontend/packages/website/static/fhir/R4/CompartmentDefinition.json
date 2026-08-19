@@ -1,15 +1,33 @@
 {
-  "id": "CompartmentDefinition",
   "resourceType": "StructureDefinition",
-  "name": "CompartmentDefinition",
-  "abstract": false,
+  "id": "CompartmentDefinition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "teofuui7sgtgm1os6ivd-hcsaa",
+    "lastUpdated": "2026-08-15T04:24:55.597460+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "x8d7txWpec2G6eAKzPhZhYyao4U"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/CompartmentDefinition",
   "version": "4.0.1",
+  "name": "CompartmentDefinition",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "CompartmentDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

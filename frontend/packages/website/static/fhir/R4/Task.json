@@ -1,15 +1,33 @@
 {
-  "id": "Task",
   "resourceType": "StructureDefinition",
-  "name": "Task",
-  "abstract": false,
+  "id": "Task",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "hvj39cry6t15n1wldc10tt7ra1",
+    "lastUpdated": "2026-08-15T04:24:58.761468+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "7JC5xxhMHxQIoeDJE1Rrm6Dc1ac"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Task",
   "version": "4.0.1",
+  "name": "Task",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Task",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

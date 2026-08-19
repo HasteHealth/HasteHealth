@@ -1,15 +1,33 @@
 {
-  "id": "ClinicalImpression",
   "resourceType": "StructureDefinition",
-  "name": "ClinicalImpression",
-  "abstract": false,
+  "id": "ClinicalImpression",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "mhhvynoufw-kdho8ascniu31km",
+    "lastUpdated": "2026-08-15T04:25:46.770376+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "31hUMMsBVburkKkaOH6G1PaWh3w"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ClinicalImpression",
   "version": "4.0.1",
+  "name": "ClinicalImpression",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "ClinicalImpression",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

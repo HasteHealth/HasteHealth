@@ -1,15 +1,33 @@
 {
-  "id": "RequestGroup",
   "resourceType": "StructureDefinition",
-  "name": "RequestGroup",
-  "abstract": false,
+  "id": "RequestGroup",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "w7bq5apj0y97-40yg9uqmcn79q",
+    "lastUpdated": "2026-08-15T04:24:55.238858+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "3GSyXUb-ChQt8jl_cYc9v1oQIIs"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/RequestGroup",
   "version": "4.0.1",
+  "name": "RequestGroup",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "RequestGroup",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

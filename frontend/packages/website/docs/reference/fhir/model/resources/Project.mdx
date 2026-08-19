@@ -45,11 +45,43 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+            <span class="font-semibold">_id</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
             </div>
     </div>
     
@@ -69,31 +101,11 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_id</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.id</code>
+              <code>Resource.meta.profile</code>
             </div>
     </div>
     
@@ -113,22 +125,22 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
+            <span class="font-semibold">_text</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
-            </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
     </div>
     
 
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_query</span> <span> (token)</span>
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
-        
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
     </div>
     
 
@@ -152,18 +164,6 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
         <div class="line-clamp-3 truncate">
               <code>Resource.meta.source</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_tag</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.tag</code>
             </div>
     </div>
     

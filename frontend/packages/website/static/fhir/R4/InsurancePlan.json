@@ -1,15 +1,33 @@
 {
-  "id": "InsurancePlan",
   "resourceType": "StructureDefinition",
-  "name": "InsurancePlan",
-  "abstract": false,
+  "id": "InsurancePlan",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "hdmpgu7k6i7hc254xuq4ulawlk",
+    "lastUpdated": "2026-08-15T04:25:05.127041+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "rTKRAI7rVjh2CYxVkEb2A0JtqrI"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/InsurancePlan",
   "version": "4.0.1",
+  "name": "InsurancePlan",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "InsurancePlan",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

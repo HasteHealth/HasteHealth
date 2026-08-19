@@ -1,15 +1,33 @@
 {
-  "id": "Age",
   "resourceType": "StructureDefinition",
-  "name": "Age",
-  "abstract": false,
+  "id": "Age",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "bet4zzyez4ghiv2tgbwnqao13t",
+    "lastUpdated": "2026-08-15T04:25:10.860272+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "UXNzbnW2VOaXkUG2_d9f6fBkidg"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Age",
   "version": "4.0.1",
+  "name": "Age",
+  "status": "draft",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "Age",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Quantity",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

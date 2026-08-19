@@ -1,15 +1,33 @@
 {
-  "id": "MarketingStatus",
   "resourceType": "StructureDefinition",
-  "name": "MarketingStatus",
-  "abstract": false,
+  "id": "MarketingStatus",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "p9q3o1wqtyeajycg234xrt2kc-",
+    "lastUpdated": "2026-08-15T04:25:11.754484+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "JBhNt-iKLsPiDRdlVCTJNWHYO4A"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/MarketingStatus",
   "version": "4.0.1",
+  "name": "MarketingStatus",
+  "status": "draft",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "MarketingStatus",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/BackboneElement",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

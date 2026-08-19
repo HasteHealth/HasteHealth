@@ -1,15 +1,33 @@
 {
-  "id": "AuditEvent",
   "resourceType": "StructureDefinition",
-  "name": "AuditEvent",
-  "abstract": false,
+  "id": "AuditEvent",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "jfk7i1wq9mhndj6kaz5-3lbgq9",
+    "lastUpdated": "2026-08-15T04:25:47.215123+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "Xv9NkRtkzW7TFCEB6D4wQa43KUw"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/AuditEvent",
   "version": "4.0.1",
+  "name": "AuditEvent",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "AuditEvent",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

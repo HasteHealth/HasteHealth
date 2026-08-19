@@ -1,15 +1,33 @@
 {
-  "id": "ChargeItem",
   "resourceType": "StructureDefinition",
-  "name": "ChargeItem",
-  "abstract": false,
+  "id": "ChargeItem",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "vdto32rv9rosqfpokwc1w3-t78",
+    "lastUpdated": "2026-08-15T04:25:06.568636+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "hTTzUlsCVzOS550gdCX9g5vrU24"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ChargeItem",
   "version": "4.0.1",
+  "name": "ChargeItem",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "ChargeItem",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

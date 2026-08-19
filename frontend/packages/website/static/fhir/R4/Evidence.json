@@ -1,15 +1,33 @@
 {
-  "id": "Evidence",
   "resourceType": "StructureDefinition",
-  "name": "Evidence",
-  "abstract": false,
+  "id": "Evidence",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "yzuzri1i78o5iphxr84-28-y25",
+    "lastUpdated": "2026-08-15T04:25:29.013488+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "R9jaWA9CeC7jpBOqlBN1-xMT8lw"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Evidence",
   "version": "4.0.1",
+  "name": "Evidence",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Evidence",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

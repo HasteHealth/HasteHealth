@@ -1,15 +1,33 @@
 {
-  "id": "GuidanceResponse",
   "resourceType": "StructureDefinition",
-  "name": "GuidanceResponse",
-  "abstract": false,
+  "id": "GuidanceResponse",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "m1xs5l6yg2k5vdbp2u3yy40tfn",
+    "lastUpdated": "2026-08-15T04:25:19.483589+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "CNplHo4jw5-3BYEKI8xNLuJDsNM"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/GuidanceResponse",
   "version": "4.0.1",
+  "name": "GuidanceResponse",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "GuidanceResponse",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

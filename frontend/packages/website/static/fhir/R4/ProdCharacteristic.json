@@ -1,15 +1,33 @@
 {
-  "id": "ProdCharacteristic",
   "resourceType": "StructureDefinition",
-  "name": "ProdCharacteristic",
-  "abstract": false,
+  "id": "ProdCharacteristic",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "gi909ehspaxx4ou495v165onl3",
+    "lastUpdated": "2026-08-15T04:25:07.497492+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "PX_z2MFkXm_qNyYDYpPgSAxrO3g"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ProdCharacteristic",
   "version": "4.0.1",
+  "name": "ProdCharacteristic",
+  "status": "draft",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "ProdCharacteristic",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/BackboneElement",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

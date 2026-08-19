@@ -1,15 +1,33 @@
 {
-  "id": "MedicinalProductManufactured",
   "resourceType": "StructureDefinition",
-  "name": "MedicinalProductManufactured",
-  "abstract": false,
+  "id": "MedicinalProductManufactured",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "ehce2bpwsi2xpmdho4-ebnneki",
+    "lastUpdated": "2026-08-15T04:24:49.738907+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "1i6nhoOZ5Lqvzcea_sG1KLDH5Ho"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/MedicinalProductManufactured",
   "version": "4.0.1",
+  "name": "MedicinalProductManufactured",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "MedicinalProductManufactured",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

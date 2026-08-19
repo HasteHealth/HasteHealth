@@ -1,17 +1,35 @@
 {
   "resourceType": "StructureDefinition",
   "id": "Project",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "tmyr9boxkyqneimkp0eall6lac",
+    "lastUpdated": "2026-08-15T04:24:42.004638+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "aRlcdEWwnJKCE63OAjSd553Hcyw"
+      }
+    ]
+  },
   "url": "https://haste-health.com/StructureDefinition/Project",
   "version": "4.0.1",
   "name": "Project",
   "status": "active",
   "publisher": "haste-health",
+  "description": "A FHIR project is used to represent a collection of resources and users.",
   "fhirVersion": "4.0.1",
   "kind": "resource",
   "abstract": false,
   "type": "Project",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
-  "description": "A FHIR project is used to represent a collection of resources and users.",
   "derivation": "specialization",
   "snapshot": {
     "element": [
@@ -89,18 +107,20 @@
         "id": "Project.name",
         "path": "Project.name",
         "short": "Projects name",
+        "min": 1,
+        "max": "1",
         "type": [
           {
             "code": "string"
           }
-        ],
-        "min": 1,
-        "max": "1"
+        ]
       },
       {
         "id": "Project.fhirVersion",
         "path": "Project.fhirVersion",
         "short": "A Given projects fhir version.",
+        "min": 1,
+        "max": "1",
         "type": [
           {
             "code": "code"
@@ -109,14 +129,14 @@
         "binding": {
           "strength": "required",
           "valueSet": "https://haste.health/fhir/ValueSet/SupportedFHIRVersion|4.0.1"
-        },
-        "min": 1,
-        "max": "1"
+        }
       },
       {
         "id": "Project.identityProvider",
         "path": "Project.identityProvider",
         "short": "A Given projects identity providers.",
+        "min": 0,
+        "max": "3",
         "type": [
           {
             "code": "Reference",
@@ -124,9 +144,7 @@
               "https://haste-health.com/StructureDefinition/IdentityProvider"
             ]
           }
-        ],
-        "min": 0,
-        "max": "3"
+        ]
       }
     ]
   }

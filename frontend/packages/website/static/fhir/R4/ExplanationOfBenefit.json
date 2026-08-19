@@ -1,15 +1,33 @@
 {
-  "id": "ExplanationOfBenefit",
   "resourceType": "StructureDefinition",
-  "name": "ExplanationOfBenefit",
-  "abstract": false,
+  "id": "ExplanationOfBenefit",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "m2caq878kitgdjoz9nsgegg5i7",
+    "lastUpdated": "2026-08-15T04:24:52.067040+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "aNvh0Ia3PE4N62UzqYo89V6lKNk"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ExplanationOfBenefit",
   "version": "4.0.1",
+  "name": "ExplanationOfBenefit",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "ExplanationOfBenefit",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

@@ -1,15 +1,33 @@
 {
-  "id": "StructureDefinition",
   "resourceType": "StructureDefinition",
-  "name": "StructureDefinition",
-  "abstract": false,
+  "id": "StructureDefinition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "ufmfsrdul9l6mfw8y4vmnbj9ok",
+    "lastUpdated": "2026-08-15T04:24:47.761434+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "3WEha1jDYeWpnb6FXqR6ZCzcs_8"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/StructureDefinition",
   "version": "4.0.1",
+  "name": "StructureDefinition",
+  "status": "active",
+  "kind": "resource",
+  "abstract": false,
   "type": "StructureDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

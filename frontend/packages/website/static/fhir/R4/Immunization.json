@@ -1,15 +1,33 @@
 {
-  "id": "Immunization",
   "resourceType": "StructureDefinition",
-  "name": "Immunization",
-  "abstract": false,
+  "id": "Immunization",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "eplcrahekjkegbcq0dj-wewfn3",
+    "lastUpdated": "2026-08-15T04:25:07.474525+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "eccw4_SgslIova0xuLc1RyonzZo"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Immunization",
   "version": "4.0.1",
+  "name": "Immunization",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Immunization",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

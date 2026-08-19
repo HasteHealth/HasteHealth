@@ -1,15 +1,33 @@
 {
-  "id": "EpisodeOfCare",
   "resourceType": "StructureDefinition",
-  "name": "EpisodeOfCare",
-  "abstract": false,
+  "id": "EpisodeOfCare",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "cuw08lgs0vkt05piugmrogps3r",
+    "lastUpdated": "2026-08-15T04:25:48.453534+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "FYqrXcS2_HQlNu5X_9Pmby-lLHY"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/EpisodeOfCare",
   "version": "4.0.1",
+  "name": "EpisodeOfCare",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "EpisodeOfCare",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

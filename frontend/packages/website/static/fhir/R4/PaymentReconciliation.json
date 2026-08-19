@@ -1,15 +1,33 @@
 {
-  "id": "PaymentReconciliation",
   "resourceType": "StructureDefinition",
-  "name": "PaymentReconciliation",
-  "abstract": false,
+  "id": "PaymentReconciliation",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "b9c-m1dsqlto7nlwfjpsqlqug3",
+    "lastUpdated": "2026-08-15T04:25:08.143136+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "O_M-FLWwD1U8S3d4ISgVQNe-UwY"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/PaymentReconciliation",
   "version": "4.0.1",
+  "name": "PaymentReconciliation",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "PaymentReconciliation",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

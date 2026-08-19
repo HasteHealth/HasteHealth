@@ -45,79 +45,11 @@ This resource provides: the claim details; adjudication details from the process
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
             <span class="font-semibold">_id</span> <span> (token)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
         <div class="line-clamp-3 truncate">
               <code>Resource.id</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.lastUpdated</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
             </div>
     </div>
     
@@ -135,11 +67,11 @@ This resource provides: the claim details; adjudication details from the process
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
+            <span class="font-semibold">detail-udi</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>UDI associated with a line item detail product or service</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
+              <code>ExplanationOfBenefit.item.detail.udi</code>
             </div>
     </div>
     
@@ -147,11 +79,57 @@ This resource provides: the claim details; adjudication details from the process
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_source</span> <span> (uri)</span>
+            <span class="font-semibold">patient</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The reference to the patient</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.source</code>
+              <code>ExplanationOfBenefit.patient</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">procedure-udi</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>UDI associated with a procedure</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ExplanationOfBenefit.procedure.udi</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">facility</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Facility responsible for the goods and services</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ExplanationOfBenefit.facility</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">item-udi</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>UDI associated with a line item product or service</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ExplanationOfBenefit.item.udi</code>
             </div>
     </div>
     
@@ -183,11 +161,11 @@ This resource provides: the claim details; adjudication details from the process
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">claim</span> <span> (reference)</span>
+            <span class="font-semibold">_type</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The reference to the claim</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ExplanationOfBenefit.claim</code>
+              <code>$this.type().name</code>
             </div>
     </div>
     
@@ -195,11 +173,11 @@ This resource provides: the claim details; adjudication details from the process
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">coverage</span> <span> (reference)</span>
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The plan under which the claim was adjudicated</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ExplanationOfBenefit.insurance.coverage</code>
+              <code>Resource.meta.profile</code>
             </div>
     </div>
     
@@ -219,131 +197,11 @@ This resource provides: the claim details; adjudication details from the process
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">detail-udi</span> <span> (reference)</span>
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>UDI associated with a line item detail product or service</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ExplanationOfBenefit.item.detail.udi</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">disposition</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The contents of the disposition message</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ExplanationOfBenefit.disposition</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">encounter</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Encounters associated with a billed line item</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ExplanationOfBenefit.item.encounter</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">enterer</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The party responsible for the entry of the Claim</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ExplanationOfBenefit.enterer</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">facility</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Facility responsible for the goods and services</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ExplanationOfBenefit.facility</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">identifier</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The business identifier of the Explanation of Benefit</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ExplanationOfBenefit.identifier</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">item-udi</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>UDI associated with a line item product or service</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ExplanationOfBenefit.item.udi</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">patient</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The reference to the patient</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ExplanationOfBenefit.patient</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">payee</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The party receiving any payment for the Claim</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ExplanationOfBenefit.payee.party</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">procedure-udi</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>UDI associated with a procedure</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ExplanationOfBenefit.procedure.udi</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">provider</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The reference to the provider</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ExplanationOfBenefit.provider</code>
+              <code>Resource.meta.lastUpdated</code>
             </div>
     </div>
     
@@ -363,11 +221,153 @@ This resource provides: the claim details; adjudication details from the process
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
+            <span class="font-semibold">provider</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The reference to the provider</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ExplanationOfBenefit.provider</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">encounter</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Encounters associated with a billed line item</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ExplanationOfBenefit.item.encounter</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The business identifier of the Explanation of Benefit</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ExplanationOfBenefit.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
             <span class="font-semibold">subdetail-udi</span> <span> (reference)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>UDI associated with a line item detail subdetail product or service</span></div>
         <div class="line-clamp-3 truncate">
               <code>ExplanationOfBenefit.item.detail.subDetail.udi</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">claim</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The reference to the claim</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ExplanationOfBenefit.claim</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">disposition</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The contents of the disposition message</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ExplanationOfBenefit.disposition</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">coverage</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The plan under which the claim was adjudicated</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ExplanationOfBenefit.insurance.coverage</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">enterer</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The party responsible for the entry of the Claim</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ExplanationOfBenefit.enterer</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">payee</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The party receiving any payment for the Claim</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ExplanationOfBenefit.payee.party</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_source</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.source</code>
             </div>
     </div>
     

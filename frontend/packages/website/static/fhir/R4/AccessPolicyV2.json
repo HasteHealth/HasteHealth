@@ -1,16 +1,34 @@
 {
   "resourceType": "StructureDefinition",
   "id": "AccessPolicyV2",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "c7q0lxg0ykm057cnvmi670xpyj",
+    "lastUpdated": "2026-08-15T04:25:40.385787+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "MkTmuK4wjy0QAMNbpchHhx8XO2Y"
+      }
+    ]
+  },
   "url": "https://haste-health.com/StructureDefinition/AccessPolicyV2",
   "version": "4.0.1",
   "name": "AccessPolicyV2",
   "status": "active",
   "publisher": "haste-health",
+  "description": "A set of rules that govern how a system resource is accessed and used. This access policy is based around XACML https://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html#_Toc325047092",
   "fhirVersion": "4.0.1",
   "kind": "resource",
   "abstract": false,
   "type": "AccessPolicyV2",
-  "description": "A set of rules that govern how a system resource is accessed and used. This access policy is based around XACML https://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html#_Toc325047092",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
   "derivation": "specialization",
   "snapshot": {
@@ -18,8 +36,8 @@
       {
         "id": "AccessPolicyV2",
         "path": "AccessPolicyV2",
-        "min": 0,
         "definition": "A set of rules that govern how a system resource is accessed and used.",
+        "min": 0,
         "max": "*",
         "base": {
           "path": "AccessPolicyV2",
@@ -89,41 +107,41 @@
       {
         "id": "AccessPolicyV2.name",
         "path": "AccessPolicyV2.name",
-        "definition": "The name of the access policy.",
         "short": "The name of the access policy.",
+        "definition": "The name of the access policy.",
+        "min": 1,
+        "max": "1",
         "type": [
           {
             "code": "string"
           }
-        ],
-        "min": 1,
-        "max": "1"
+        ]
       },
       {
         "id": "AccessPolicyV2.description",
         "path": "AccessPolicyV2.description",
-        "definition": "Description of the access policy.",
         "short": "Description of the access policy.",
+        "definition": "Description of the access policy.",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "string"
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       },
       {
         "id": "AccessPolicyV2.engine",
         "path": "AccessPolicyV2.engine",
-        "definition": "The type of evaluation that is performed to determine if access is granted or denied.",
         "short": "The type of evaluation that is performed to determine if access is granted or denied.",
+        "definition": "The type of evaluation that is performed to determine if access is granted or denied.",
+        "min": 1,
+        "max": "1",
         "type": [
           {
             "code": "code"
           }
         ],
-        "min": 1,
-        "max": "1",
         "binding": {
           "strength": "required",
           "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyEngineV2|4.0.1"
@@ -132,34 +150,34 @@
       {
         "id": "AccessPolicyV2.attribute",
         "path": "AccessPolicyV2.attribute",
-        "definition": "Attributes to use for the policy evaluation.",
         "short": "Attributes to use for the policy evaluation.",
+        "definition": "Attributes to use for the policy evaluation.",
+        "min": 0,
+        "max": "15",
         "type": [
           {
             "code": "BackboneElement"
           }
-        ],
-        "min": 0,
-        "max": "15"
+        ]
       },
       {
         "id": "AccessPolicyV2.attribute.attributeId",
         "path": "AccessPolicyV2.attribute.attributeId",
-        "definition": "The id of the attribute referenced using %attributeId in expressions.",
         "short": "The id of the attribute referenced using %attributeId in expressions.",
+        "definition": "The id of the attribute referenced using %attributeId in expressions.",
+        "min": 1,
+        "max": "1",
         "type": [
           {
             "code": "id"
           }
-        ],
-        "min": 1,
-        "max": "1"
+        ]
       },
       {
         "id": "AccessPolicyV2.attribute.operation",
         "path": "AccessPolicyV2.attribute.operation",
-        "definition": "The operation to retrieve the attribute.",
         "short": "The operation to retrieve the attribute.",
+        "definition": "The operation to retrieve the attribute.",
         "min": 0,
         "max": "1",
         "type": [
@@ -171,8 +189,8 @@
       {
         "id": "AccessPolicyV2.attribute.operation.type",
         "path": "AccessPolicyV2.attribute.operation.type",
-        "definition": "The operation to retrieve the attribute.",
         "short": "The operation to retrieve the attribute.",
+        "definition": "The operation to retrieve the attribute.",
         "min": 1,
         "max": "1",
         "type": [
@@ -189,8 +207,8 @@
       {
         "id": "AccessPolicyV2.attribute.operation.path",
         "path": "AccessPolicyV2.attribute.operation.path",
-        "definition": "The operation to retrieve the attribute.",
         "short": "The operation to retrieve the attribute.",
+        "definition": "The operation to retrieve the attribute.",
         "min": 0,
         "max": "1",
         "type": [
@@ -202,8 +220,8 @@
       {
         "id": "AccessPolicyV2.attribute.operation.params",
         "path": "AccessPolicyV2.attribute.operation.params",
-        "definition": "The operation to retrieve the attribute.",
         "short": "The operation to retrieve the attribute.",
+        "definition": "The operation to retrieve the attribute.",
         "min": 0,
         "max": "1",
         "type": [
@@ -215,21 +233,21 @@
       {
         "id": "AccessPolicyV2.rule",
         "path": "AccessPolicyV2.rule",
-        "definition": "The rules that govern how the access policy is applied.",
         "short": "The rules that govern how the access policy is applied.",
+        "definition": "The rules that govern how the access policy is applied.",
+        "min": 0,
+        "max": "*",
         "type": [
           {
             "code": "BackboneElement"
           }
-        ],
-        "min": 0,
-        "max": "*"
+        ]
       },
       {
         "id": "AccessPolicyV2.rule.name",
         "path": "AccessPolicyV2.rule.name",
-        "definition": "Rule identifier",
         "short": "Access Policy rule identifier.",
+        "definition": "Rule identifier",
         "min": 1,
         "max": "1",
         "type": [
@@ -241,8 +259,8 @@
       {
         "id": "AccessPolicyV2.rule.description",
         "path": "AccessPolicyV2.rule.description",
-        "definition": "Rule description",
         "short": "Rule description",
+        "definition": "Rule description",
         "min": 0,
         "max": "1",
         "type": [
@@ -254,8 +272,8 @@
       {
         "id": "AccessPolicyV2.rule.combineBehavior",
         "path": "AccessPolicyV2.rule.combineBehavior",
-        "definition": "Rule combination behavior for children elements.",
         "short": "Determine wether to use and/or to combine rules.",
+        "definition": "Rule combination behavior for children elements.",
         "min": 0,
         "max": "1",
         "type": [
@@ -335,8 +353,8 @@
       {
         "id": "AccessPolicyV2.rule.rule",
         "path": "AccessPolicyV2.rule.rule",
-        "definition": "Nested rules to evaluate.",
         "short": "Nested rules",
+        "definition": "Nested rules to evaluate.",
         "min": 0,
         "max": "*",
         "contentReference": "#AccessPolicyV2.rule"
@@ -344,21 +362,23 @@
       {
         "id": "AccessPolicyV2.target",
         "path": "AccessPolicyV2.target",
-        "definition": "Who the access policy applies to.",
         "short": "Who the access policy applies to.",
+        "definition": "Who the access policy applies to.",
+        "min": 0,
+        "max": "*",
         "type": [
           {
             "code": "BackboneElement"
           }
-        ],
-        "min": 0,
-        "max": "*"
+        ]
       },
       {
         "id": "AccessPolicyV2.target.link",
         "path": "AccessPolicyV2.target.link",
-        "definition": "Who the access policy applies to.",
         "short": "The target reference of the access policy applies to.",
+        "definition": "Who the access policy applies to.",
+        "min": 1,
+        "max": "1",
         "type": [
           {
             "code": "Reference",
@@ -368,9 +388,7 @@
               "http://hl7.org/fhir/StructureDefinition/OperationDefinition"
             ]
           }
-        ],
-        "min": 1,
-        "max": "1"
+        ]
       }
     ]
   }

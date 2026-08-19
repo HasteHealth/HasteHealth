@@ -1,15 +1,33 @@
 {
-  "id": "Attachment",
   "resourceType": "StructureDefinition",
-  "name": "Attachment",
-  "abstract": false,
+  "id": "Attachment",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "3ry6z7-4c6kv-cts456-yz8nas",
+    "lastUpdated": "2026-08-15T04:25:22.117033+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "khbFvLrAFBJ-mpXKiP8kmyj6oRM"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Attachment",
   "version": "4.0.1",
+  "name": "Attachment",
+  "status": "active",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "Attachment",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

@@ -45,50 +45,6 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
             <span class="font-semibold">_id</span> <span> (token)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
@@ -101,11 +57,11 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+            <span class="font-semibold">status</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The current status of the research element definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.lastUpdated</code>
+              <code>ResearchElementDefinition.status</code>
             </div>
     </div>
     
@@ -113,11 +69,11 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
+            <span class="font-semibold">version</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The business version of the research element definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
+              <code>ResearchElementDefinition.version</code>
             </div>
     </div>
     
@@ -135,11 +91,11 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
+            <span class="font-semibold">title</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The human-friendly name of the research element definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
+              <code>ResearchElementDefinition.title</code>
             </div>
     </div>
     
@@ -147,11 +103,11 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_source</span> <span> (uri)</span>
+            <span class="font-semibold">url</span> <span> (uri)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The uri that identifies the research element definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.source</code>
+              <code>ResearchElementDefinition.url</code>
             </div>
     </div>
     
@@ -159,11 +115,11 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_tag</span> <span> (token)</span>
+            <span class="font-semibold">publisher</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Name of the publisher of the research element definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.tag</code>
+              <code>ResearchElementDefinition.publisher</code>
             </div>
     </div>
     
@@ -171,23 +127,11 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">composed-of</span> <span> (reference)</span>
+            <span class="font-semibold">predecessor</span> <span> (reference)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.relatedArtifact.where(type='composed-of').resource</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">context</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context assigned to the research element definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>(ResearchElementDefinition.useContext.value.ofType(CodeableConcept))</code>
+              <code>ResearchElementDefinition.relatedArtifact.where(type='predecessor').resource</code>
             </div>
     </div>
     
@@ -207,6 +151,16 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
             <span class="font-semibold">context-type</span> <span> (token)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>A type of use context assigned to the research element definition</span></div>
@@ -219,11 +173,11 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">date</span> <span> (date)</span>
+            <span class="font-semibold">name</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The research element definition publication date</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Computationally friendly name of the research element definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.date</code>
+              <code>ResearchElementDefinition.name</code>
             </div>
     </div>
     
@@ -231,11 +185,11 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">depends-on</span> <span> (reference)</span>
+            <span class="font-semibold">description</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The description of the research element definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.relatedArtifact.where(type='depends-on').resource / ResearchElementDefinition.library</code>
+              <code>ResearchElementDefinition.description</code>
             </div>
     </div>
     
@@ -255,11 +209,155 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">description</span> <span> (string)</span>
+            <span class="font-semibold">context-type-quantity</span> <span> (composite)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The description of the research element definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context type and quantity- or range-based value assigned to the research element definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.description</code>
+              <code>ResearchElementDefinition.useContext</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">date</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The research element definition publication date</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchElementDefinition.date</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context-type-value</span> <span> (composite)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context type and value assigned to the research element definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchElementDefinition.useContext</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">composed-of</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchElementDefinition.relatedArtifact.where(type='composed-of').resource</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">depends-on</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchElementDefinition.relatedArtifact.where(type='depends-on').resource / ResearchElementDefinition.library</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">successor</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchElementDefinition.relatedArtifact.where(type='successor').resource</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context assigned to the research element definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>(ResearchElementDefinition.useContext.value.ofType(CodeableConcept))</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">jurisdiction</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Intended jurisdiction for the research element definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchElementDefinition.jurisdiction</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">topic</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Topics associated with the ResearchElementDefinition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchElementDefinition.topic</code>
             </div>
     </div>
     
@@ -291,11 +389,21 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">jurisdiction</span> <span> (token)</span>
+            <span class="font-semibold">_text</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Intended jurisdiction for the research element definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.jurisdiction</code>
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
             </div>
     </div>
     
@@ -303,11 +411,11 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">name</span> <span> (string)</span>
+            <span class="font-semibold">_security</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Computationally friendly name of the research element definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.name</code>
+              <code>Resource.meta.security</code>
             </div>
     </div>
     
@@ -315,119 +423,11 @@ The ResearchElementDefinition resource describes a "PICO" element that knowledge
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">predecessor</span> <span> (reference)</span>
+            <span class="font-semibold">_source</span> <span> (uri)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.relatedArtifact.where(type='predecessor').resource</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">publisher</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Name of the publisher of the research element definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.publisher</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">status</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The current status of the research element definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.status</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">successor</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.relatedArtifact.where(type='successor').resource</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">title</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The human-friendly name of the research element definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.title</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">topic</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Topics associated with the ResearchElementDefinition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.topic</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">url</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The uri that identifies the research element definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.url</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">version</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The business version of the research element definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.version</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">context-type-quantity</span> <span> (composite)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context type and quantity- or range-based value assigned to the research element definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.useContext</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">context-type-value</span> <span> (composite)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context type and value assigned to the research element definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchElementDefinition.useContext</code>
+              <code>Resource.meta.source</code>
             </div>
     </div>
     

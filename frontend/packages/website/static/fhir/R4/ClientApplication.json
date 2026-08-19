@@ -1,13 +1,31 @@
 {
   "resourceType": "StructureDefinition",
   "id": "ClientApplication",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "5rb95tbfovtqwczlvm3ekfg-ov",
+    "lastUpdated": "2026-08-15T04:25:53.703511+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "3IrKZCw6hzUCQejsVIwySu36r54"
+      }
+    ]
+  },
   "url": "https://haste-health.com/StructureDefinition/ClientApplication",
   "version": "4.0.1",
   "name": "ClientApplication",
   "status": "active",
   "publisher": "haste-health",
-  "fhirVersion": "4.0.1",
   "description": "FHIR Implementation of Client Metadata from https://datatracker.ietf.org/doc/html/rfc7591#section-2",
+  "fhirVersion": "4.0.1",
   "kind": "resource",
   "abstract": false,
   "type": "ClientApplication",
@@ -89,31 +107,33 @@
         "id": "ClientApplication.name",
         "path": "ClientApplication.name",
         "short": "The name of the client to be presented to the end-user.",
+        "min": 1,
+        "max": "1",
         "type": [
           {
             "code": "string"
           }
-        ],
-        "min": 1,
-        "max": "1"
+        ]
       },
       {
         "id": "ClientApplication.description",
         "path": "ClientApplication.description",
         "short": "The description of the client to be presented to the end-user.",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "string"
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       },
       {
         "id": "ClientApplication.grantType",
         "path": "ClientApplication.grantType",
         "short": "Auth 2.0 grant type strings that the client can use at the token endpoint.",
         "definition": "The grant type for this client application.",
+        "min": 1,
+        "max": "*",
         "type": [
           {
             "code": "code"
@@ -122,14 +142,14 @@
         "binding": {
           "strength": "required",
           "valueSet": "https://haste.health/fhir/ValueSet/ClientApplicationGrantType|4.0.1"
-        },
-        "min": 1,
-        "max": "*"
+        }
       },
       {
         "id": "ClientApplication.responseTypes",
         "path": "ClientApplication.responseTypes",
         "short": "OAuth 2.0 response type strings that the client can use at the authorization endpoint.",
+        "min": 1,
+        "max": "1",
         "type": [
           {
             "code": "code"
@@ -138,107 +158,105 @@
         "binding": {
           "strength": "required",
           "valueSet": "https://haste.health/fhir/ValueSet/ClientApplicationResponseTypes|4.0.1"
-        },
-        "min": 1,
-        "max": "1"
+        }
       },
       {
         "id": "ClientApplication.secret",
         "path": "ClientApplication.secret",
         "short": "This value is used by confidential clients to authenticate to the token endpoint, as described in OAuth 2.0 [RFC6749], Section 2.3.1.",
         "definition": "For client credentials (or other confidential authentication methods), the client secret.",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "string"
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       },
       {
         "id": "ClientApplication.redirectUri",
         "path": "ClientApplication.redirectUri",
-        "definition": "Array of redirection URI strings for use in redirect-based flows such as the authorization code and implicit flows.  As required by Section 2 of OAuth 2.0 [RFC6749], clients using flows with redirection MUST register their redirection URI values. Authorization servers that support dynamic registration for redirect-based flows MUST implement support for this metadata value.",
         "short": "Array of redirection URI strings for use in redirect-based flows such as the authorization code and implicit flows.  As required by Section 2 of OAuth 2.0 [RFC6749], clients using flows with redirection MUST register their redirection URI values. Authorization servers that support dynamic registration for redirect-based flows MUST implement support for this metadata value.",
+        "definition": "Array of redirection URI strings for use in redirect-based flows such as the authorization code and implicit flows.  As required by Section 2 of OAuth 2.0 [RFC6749], clients using flows with redirection MUST register their redirection URI values. Authorization servers that support dynamic registration for redirect-based flows MUST implement support for this metadata value.",
+        "min": 0,
+        "max": "5",
         "type": [
           {
             "code": "string"
           }
-        ],
-        "min": 0,
-        "max": "5"
+        ]
       },
       {
         "id": "ClientApplication.uri",
         "path": "ClientApplication.uri",
         "short": "URL string of a web page providing information about the client.",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "uri"
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       },
       {
         "id": "ClientApplication.logoUri",
         "path": "ClientApplication.logoUri",
         "short": "URL string that references a logo for the client.",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "uri"
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       },
       {
         "id": "ClientApplication.scope",
         "path": "ClientApplication.scope",
         "short": "String containing a space-separated list of scope values (as described in Section 3.3 of OAuth 2.0 [RFC6749]) that the client can use when requesting access tokens.",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "string"
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       },
       {
         "id": "ClientApplication.contact",
         "path": "ClientApplication.contact",
         "short": "Array of strings representing ways to contact people responsible for this client, typically email addresses.",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "ContactPoint"
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       },
       {
         "id": "ClientApplication.tosUri",
         "path": "ClientApplication.tosUri",
         "short": "URL string that points to a human-readable terms of service document for the client that describes a contractual relationship between the end-user and the client that the end-user accepts when authorizing the client.",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "uri"
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       },
       {
         "id": "ClientApplication.policyUri",
         "path": "ClientApplication.policyUri",
         "short": "URL string that points to a human-readable privacy policy document that describes how the deployment organization collects, uses, retains, and discloses personal data.",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "uri"
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       }
     ]
   }

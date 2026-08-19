@@ -1,15 +1,33 @@
 {
-  "id": "Linkage",
   "resourceType": "StructureDefinition",
-  "name": "Linkage",
-  "abstract": false,
+  "id": "Linkage",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "tuwc44h477t11v4j2in2867yx0",
+    "lastUpdated": "2026-08-15T04:25:12.382270+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "iqDYlW8lEiRxfLZkYv2zwEqbwFQ"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Linkage",
   "version": "4.0.1",
+  "name": "Linkage",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Linkage",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

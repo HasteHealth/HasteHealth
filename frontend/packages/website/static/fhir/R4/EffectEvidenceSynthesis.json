@@ -1,15 +1,33 @@
 {
-  "id": "EffectEvidenceSynthesis",
   "resourceType": "StructureDefinition",
-  "name": "EffectEvidenceSynthesis",
-  "abstract": false,
+  "id": "EffectEvidenceSynthesis",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "wm53k0zoxrpp-w3i46xmc0z3r8",
+    "lastUpdated": "2026-08-15T04:24:52.187040+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "ojsV_lbw2Qyh7JRGTHrxdjOGogs"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/EffectEvidenceSynthesis",
   "version": "4.0.1",
+  "name": "EffectEvidenceSynthesis",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "EffectEvidenceSynthesis",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

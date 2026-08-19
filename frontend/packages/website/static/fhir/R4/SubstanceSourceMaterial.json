@@ -1,15 +1,33 @@
 {
-  "id": "SubstanceSourceMaterial",
   "resourceType": "StructureDefinition",
-  "name": "SubstanceSourceMaterial",
-  "abstract": false,
+  "id": "SubstanceSourceMaterial",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "jbftdu2r4qtbbk-y64z47p3vx9",
+    "lastUpdated": "2026-08-15T04:25:17.191267+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "HGSOdFBuq2AUKzo_MfrrsSJt6gQ"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/SubstanceSourceMaterial",
   "version": "4.0.1",
+  "name": "SubstanceSourceMaterial",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "SubstanceSourceMaterial",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

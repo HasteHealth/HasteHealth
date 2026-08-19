@@ -1,15 +1,33 @@
 {
-  "id": "Communication",
   "resourceType": "StructureDefinition",
-  "name": "Communication",
-  "abstract": false,
+  "id": "Communication",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "h1zbtwuylnn0g2rs9-ycrbwjiq",
+    "lastUpdated": "2026-08-15T04:25:26.250433+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "iNkDs3txFd5wNUoZbac1EB8RDRE"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Communication",
   "version": "4.0.1",
+  "name": "Communication",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Communication",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

@@ -1,15 +1,33 @@
 {
-  "id": "ParameterDefinition",
   "resourceType": "StructureDefinition",
-  "name": "ParameterDefinition",
-  "abstract": false,
+  "id": "ParameterDefinition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "u9dzvu7nkd641-mggf7u9-6i1p",
+    "lastUpdated": "2026-08-15T04:25:30.048961+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "WQZmQ8feVnvmpQM1jEsW56F6r0s"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ParameterDefinition",
   "version": "4.0.1",
+  "name": "ParameterDefinition",
+  "status": "draft",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "ParameterDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

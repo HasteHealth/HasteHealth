@@ -1,15 +1,33 @@
 {
-  "id": "Claim",
   "resourceType": "StructureDefinition",
-  "name": "Claim",
-  "abstract": false,
+  "id": "Claim",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "1nvcos43ylghil2jhmxs3upee-",
+    "lastUpdated": "2026-08-15T04:25:58.205905+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "rTtqSzWtUZ1Qho--HZ3ELYejuIA"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Claim",
   "version": "4.0.1",
+  "name": "Claim",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Claim",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

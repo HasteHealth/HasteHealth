@@ -45,11 +45,11 @@ Details and position information for a physical place where services are provide
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+            <span class="font-semibold">address-state</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A state specified in an address</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+              <code>Location.address.state</code>
             </div>
     </div>
     
@@ -57,32 +57,12 @@ Details and position information for a physical place where services are provide
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
+            <span class="font-semibold">operational-status</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Searches for locations %28typically bed/room%29 that have an operational status %28e.g. contaminated, housekeeping%29</span></div>
         <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
+              <code>Location.operationalStatus</code>
             </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
     </div>
     
 
@@ -101,30 +81,6 @@ Details and position information for a physical place where services are provide
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.lastUpdated</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
             <span class="font-semibold">_query</span> <span> (token)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
@@ -135,11 +91,21 @@ Details and position information for a physical place where services are provide
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
+            <span class="font-semibold">_content</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">address-postalcode</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A postal code specified in an address</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
+              <code>Location.address.postalCode</code>
             </div>
     </div>
     
@@ -147,11 +113,59 @@ Details and position information for a physical place where services are provide
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_source</span> <span> (uri)</span>
+            <span class="font-semibold">near</span> <span> (special)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search for locations where the location.position is near to, or within a specified distance of, the provided coordinates expressed as %5Blatitude%5D/%5Blongitude%5D/%5Bdistance%5D/%5Bunits%5D %28using the WGS84 datum, see notes%29.If the units are omitted, then kms should be assumed. If the distance is omitted, then the server can use its own discretion as to what distances should be considered near %28and units are irrelevant%29Servers may search using various techniques that might have differing accuracies, depending on implementation efficiency.Requires the near-distance parameter to be provided also</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.source</code>
+              <code>Location.position</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">partof</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A location of which this location is a part</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.partOf</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A code for the type of location</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.type</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">status</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Searches for locations with a specific kind of status</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.status</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">address</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A %28part of the%29 address of the location</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.address</code>
             </div>
     </div>
     
@@ -171,11 +185,59 @@ Details and position information for a physical place where services are provide
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">address</span> <span> (string)</span>
+            <span class="font-semibold">organization</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A %28part of the%29 address of the location</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Searches for locations that are managed by the provided organization</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Location.address</code>
+              <code>Location.managingOrganization</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>An identifier for the location</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.identifier</code>
             </div>
     </div>
     
@@ -207,23 +269,11 @@ Details and position information for a physical place where services are provide
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">address-postalcode</span> <span> (string)</span>
+            <span class="font-semibold">endpoint</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A postal code specified in an address</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Technical endpoints providing access to services operated for the location</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Location.address.postalCode</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">address-state</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A state specified in an address</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Location.address.state</code>
+              <code>Location.endpoint</code>
             </div>
     </div>
     
@@ -243,11 +293,21 @@ Details and position information for a physical place where services are provide
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">endpoint</span> <span> (reference)</span>
+            <span class="font-semibold">_text</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Technical endpoints providing access to services operated for the location</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Location.endpoint</code>
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
             </div>
     </div>
     
@@ -255,11 +315,11 @@ Details and position information for a physical place where services are provide
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">identifier</span> <span> (token)</span>
+            <span class="font-semibold">_security</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>An identifier for the location</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Location.identifier</code>
+              <code>Resource.meta.security</code>
             </div>
     </div>
     
@@ -279,71 +339,11 @@ Details and position information for a physical place where services are provide
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">near</span> <span> (special)</span>
+            <span class="font-semibold">_source</span> <span> (uri)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search for locations where the location.position is near to, or within a specified distance of, the provided coordinates expressed as %5Blatitude%5D/%5Blongitude%5D/%5Bdistance%5D/%5Bunits%5D %28using the WGS84 datum, see notes%29.If the units are omitted, then kms should be assumed. If the distance is omitted, then the server can use its own discretion as to what distances should be considered near %28and units are irrelevant%29Servers may search using various techniques that might have differing accuracies, depending on implementation efficiency.Requires the near-distance parameter to be provided also</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Location.position</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">operational-status</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Searches for locations %28typically bed/room%29 that have an operational status %28e.g. contaminated, housekeeping%29</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Location.operationalStatus</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">organization</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Searches for locations that are managed by the provided organization</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Location.managingOrganization</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">partof</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A location of which this location is a part</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Location.partOf</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">status</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Searches for locations with a specific kind of status</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Location.status</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">type</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A code for the type of location</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Location.type</code>
+              <code>Resource.meta.source</code>
             </div>
     </div>
     

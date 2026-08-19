@@ -1,15 +1,33 @@
 {
-  "id": "PlanDefinition",
   "resourceType": "StructureDefinition",
-  "name": "PlanDefinition",
-  "abstract": false,
+  "id": "PlanDefinition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "z46f8ceft4g5u7o1l4avk8to49",
+    "lastUpdated": "2026-08-15T04:25:16.723736+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "jREqCZiuwAQq17O1kAGU92_ATEw"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/PlanDefinition",
   "version": "4.0.1",
+  "name": "PlanDefinition",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "PlanDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

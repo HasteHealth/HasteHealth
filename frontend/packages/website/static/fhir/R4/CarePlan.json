@@ -1,15 +1,33 @@
 {
-  "id": "CarePlan",
   "resourceType": "StructureDefinition",
-  "name": "CarePlan",
-  "abstract": false,
+  "id": "CarePlan",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "ki7r8nmihemaqjx5fxwcf8srvi",
+    "lastUpdated": "2026-08-15T04:25:29.981809+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "JwaYT8ba9-tFYZIbVKIbdCU_wzQ"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/CarePlan",
   "version": "4.0.1",
+  "name": "CarePlan",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "CarePlan",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

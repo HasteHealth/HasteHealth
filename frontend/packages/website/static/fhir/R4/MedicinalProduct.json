@@ -1,15 +1,33 @@
 {
-  "id": "MedicinalProduct",
   "resourceType": "StructureDefinition",
-  "name": "MedicinalProduct",
-  "abstract": false,
+  "id": "MedicinalProduct",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "h6grtg2i-mszimjwlcxebh4khq",
+    "lastUpdated": "2026-08-15T04:25:12.362342+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "gVMQ5mC-nOpvHH23VCBlfHJM6Kk"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/MedicinalProduct",
   "version": "4.0.1",
+  "name": "MedicinalProduct",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "MedicinalProduct",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

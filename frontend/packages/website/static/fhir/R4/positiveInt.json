@@ -1,15 +1,33 @@
 {
-  "id": "positiveInt",
   "resourceType": "StructureDefinition",
-  "name": "positiveInt",
-  "abstract": false,
+  "id": "positiveInt",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "r320-0v2cwpuuid45bbs-90odz",
+    "lastUpdated": "2026-08-15T04:25:10.172856+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "CidB6R5vdT7inuvufd7Kzh-dQWA"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/positiveInt",
   "version": "4.0.1",
+  "name": "positiveInt",
+  "status": "active",
+  "kind": "primitive-type",
+  "abstract": false,
   "type": "positiveInt",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/integer",
-  "kind": "primitive-type",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

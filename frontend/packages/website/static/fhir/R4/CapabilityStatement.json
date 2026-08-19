@@ -1,15 +1,33 @@
 {
-  "id": "CapabilityStatement",
   "resourceType": "StructureDefinition",
-  "name": "CapabilityStatement",
-  "abstract": false,
+  "id": "CapabilityStatement",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "cbk85a9orbynm612ohxdq2381s",
+    "lastUpdated": "2026-08-15T04:25:51.524416+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "CG63WVN1zMvG6w7N3mlJd2yovx4"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/CapabilityStatement",
   "version": "4.0.1",
+  "name": "CapabilityStatement",
+  "status": "active",
+  "kind": "resource",
+  "abstract": false,
   "type": "CapabilityStatement",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

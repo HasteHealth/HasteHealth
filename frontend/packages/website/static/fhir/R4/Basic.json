@@ -1,15 +1,33 @@
 {
-  "id": "Basic",
   "resourceType": "StructureDefinition",
-  "name": "Basic",
-  "abstract": false,
+  "id": "Basic",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "llxl5kmhycaon6jdsgbh2pp9p9",
+    "lastUpdated": "2026-08-15T04:24:53.960615+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "hxup2VE-u6Ta-v_HJiBsXKZ-Rck"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Basic",
   "version": "4.0.1",
+  "name": "Basic",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Basic",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

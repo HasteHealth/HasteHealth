@@ -1,15 +1,33 @@
 {
-  "id": "Consent",
   "resourceType": "StructureDefinition",
-  "name": "Consent",
-  "abstract": false,
+  "id": "Consent",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "g2ssad2wwyjijud0ouq1lic0c8",
+    "lastUpdated": "2026-08-15T04:25:15.441504+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "OqCAV1zFl4qmGRtfRnJPPYTHhKo"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Consent",
   "version": "4.0.1",
+  "name": "Consent",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Consent",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

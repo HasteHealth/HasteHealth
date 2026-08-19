@@ -1,15 +1,33 @@
 {
-  "id": "Coding",
   "resourceType": "StructureDefinition",
-  "name": "Coding",
-  "abstract": false,
+  "id": "Coding",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "1ir45vbdmb90bdai15le6jv571",
+    "lastUpdated": "2026-08-15T04:25:39.127696+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "GK2QQAj7yItuq9cMcHkdPgQrEhc"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Coding",
   "version": "4.0.1",
+  "name": "Coding",
+  "status": "active",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "Coding",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

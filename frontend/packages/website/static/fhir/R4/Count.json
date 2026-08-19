@@ -1,15 +1,33 @@
 {
-  "id": "Count",
   "resourceType": "StructureDefinition",
-  "name": "Count",
-  "abstract": false,
+  "id": "Count",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "wlkl1nccrlr-pg9zfe9vgzostl",
+    "lastUpdated": "2026-08-15T04:25:21.391487+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "Aow9VIbFUwTmpGEHSVpP3yXYn1E"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Count",
   "version": "4.0.1",
+  "name": "Count",
+  "status": "draft",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "Count",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Quantity",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

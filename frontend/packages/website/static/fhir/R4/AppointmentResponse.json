@@ -1,15 +1,33 @@
 {
-  "id": "AppointmentResponse",
   "resourceType": "StructureDefinition",
-  "name": "AppointmentResponse",
-  "abstract": false,
+  "id": "AppointmentResponse",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "4ts7ofxe31x8sk2etyrly9wuv6",
+    "lastUpdated": "2026-08-15T04:25:13.024710+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "Acxf5chi__hxjWKG1e9QzJCdVRY"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/AppointmentResponse",
   "version": "4.0.1",
+  "name": "AppointmentResponse",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "AppointmentResponse",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

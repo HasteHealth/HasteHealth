@@ -1,15 +1,33 @@
 {
-  "id": "MedicinalProductUndesirableEffect",
   "resourceType": "StructureDefinition",
-  "name": "MedicinalProductUndesirableEffect",
-  "abstract": false,
+  "id": "MedicinalProductUndesirableEffect",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "6swvu6gswr7xup827h36l-uzv1",
+    "lastUpdated": "2026-08-15T04:24:49.681938+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "vJIdhk9j9V1gL6-TECrubXrIRE8"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/MedicinalProductUndesirableEffect",
   "version": "4.0.1",
+  "name": "MedicinalProductUndesirableEffect",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "MedicinalProductUndesirableEffect",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

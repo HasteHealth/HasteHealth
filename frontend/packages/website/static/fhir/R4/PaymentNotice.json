@@ -1,15 +1,33 @@
 {
-  "id": "PaymentNotice",
   "resourceType": "StructureDefinition",
-  "name": "PaymentNotice",
-  "abstract": false,
+  "id": "PaymentNotice",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "d6orjxhmq2-basuc6klljqtkum",
+    "lastUpdated": "2026-08-15T04:24:48.034478+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "huUHPkpdGZ24rbr7GJ-Y75B58wE"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/PaymentNotice",
   "version": "4.0.1",
+  "name": "PaymentNotice",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "PaymentNotice",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

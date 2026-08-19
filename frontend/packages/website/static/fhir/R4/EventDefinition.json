@@ -1,15 +1,33 @@
 {
-  "id": "EventDefinition",
   "resourceType": "StructureDefinition",
-  "name": "EventDefinition",
-  "abstract": false,
+  "id": "EventDefinition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "1b3am7ynk96p1c2tgjit6b036g",
+    "lastUpdated": "2026-08-15T04:25:34.344564+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "F7i1FWodR_rRZE6IRoAMKQtSQDw"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/EventDefinition",
   "version": "4.0.1",
+  "name": "EventDefinition",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "EventDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

@@ -1,15 +1,33 @@
 {
-  "id": "DetectedIssue",
   "resourceType": "StructureDefinition",
-  "name": "DetectedIssue",
-  "abstract": false,
+  "id": "DetectedIssue",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "hcqwg-drwfsu1haoeiykcy3-ze",
+    "lastUpdated": "2026-08-15T04:25:20.280569+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "M8YZvgkIPdcZOK8RsFFLTow8BAg"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/DetectedIssue",
   "version": "4.0.1",
+  "name": "DetectedIssue",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "DetectedIssue",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

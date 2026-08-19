@@ -2,7 +2,8 @@ import fs from "node:fs";
 
 import { sdTraversal } from "@haste-health/codegen";
 
-const HASTE_HEALTH_URL = process.env.HASTE_HEALTH_URL ?? "http://localhost:3000";
+const HASTE_HEALTH_URL =
+  process.env.HASTE_HEALTH_URL ?? "http://localhost:3000";
 const HASTE_HEALTH_TENANT = process.env.HASTE_HEALTH_TENANT ?? "my-health";
 const HASTE_HEALTH_PROJECT = process.env.HASTE_HEALTH_PROJECT ?? "system";
 const HASTE_HEALTH_USERNAME = process.env.HASTE_HEALTH_USERNAME;
@@ -21,7 +22,7 @@ const authHeader = `Basic ${Buffer.from(credentials).toString("base64")}`;
 
 async function fetchAllResources(resourceType) {
   const resources = [];
-  let url = `${fhirBaseUrl}/${resourceType}?_count=1000`;
+  let url = `${fhirBaseUrl}/${resourceType}?_count=10000`;
 
   while (url) {
     const response = await fetch(url, {

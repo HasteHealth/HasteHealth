@@ -1,15 +1,33 @@
 {
-  "id": "Flag",
   "resourceType": "StructureDefinition",
-  "name": "Flag",
-  "abstract": false,
+  "id": "Flag",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "pqy8vqw9brvnue-h2aa87b1zgx",
+    "lastUpdated": "2026-08-15T04:24:59.652354+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "7SnSy4zhAfLMtldcanEhV_byI44"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Flag",
   "version": "4.0.1",
+  "name": "Flag",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Flag",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

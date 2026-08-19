@@ -45,11 +45,103 @@ A type of a manufactured item that is used in the provision of healthcare withou
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+            <span class="font-semibold">udi-carrier</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>UDI Barcode %28RFID or other technology%29 string in *HRF* format.</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+              <code>Device.udiCarrier.carrierHRF</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">patient</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Patient information, if the resource is affixed to a person</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.patient</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The type of the device</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.type</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">device-name</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A server defined search that may match any of the string fields in Device.deviceName or Device.type.</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.deviceName.name / Device.type.coding.display / Device.type.text</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">manufacturer</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The manufacturer of the device</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.manufacturer</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
             </div>
     </div>
     
@@ -69,31 +161,11 @@ A type of a manufactured item that is used in the provision of healthcare withou
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_id</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.id</code>
+              <code>Resource.meta.profile</code>
             </div>
     </div>
     
@@ -113,11 +185,11 @@ A type of a manufactured item that is used in the provision of healthcare withou
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
+            <span class="font-semibold">organization</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The organization responsible for the device</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
+              <code>Device.owner</code>
             </div>
     </div>
     
@@ -125,10 +197,94 @@ A type of a manufactured item that is used in the provision of healthcare withou
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_query</span> <span> (token)</span>
+            <span class="font-semibold">location</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A location, where the resource is found</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.location</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">udi-di</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The udi Device Identifier %28DI%29</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.udiCarrier.deviceIdentifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Instance id from manufacturer, owner, and others</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">model</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The model of the device</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.modelNumber</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">status</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>active / inactive / entered-in-error / unknown</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.status</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">url</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Network address to contact device</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.url</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
         
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
     </div>
     
 
@@ -152,162 +308,6 @@ A type of a manufactured item that is used in the provision of healthcare withou
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
         <div class="line-clamp-3 truncate">
               <code>Resource.meta.source</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_tag</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.tag</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">device-name</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A server defined search that may match any of the string fields in Device.deviceName or Device.type.</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Device.deviceName.name / Device.type.coding.display / Device.type.text</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">identifier</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Instance id from manufacturer, owner, and others</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Device.identifier</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">location</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A location, where the resource is found</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Device.location</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">manufacturer</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The manufacturer of the device</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Device.manufacturer</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">model</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The model of the device</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Device.modelNumber</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">organization</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The organization responsible for the device</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Device.owner</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">patient</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Patient information, if the resource is affixed to a person</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Device.patient</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">status</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>active / inactive / entered-in-error / unknown</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Device.status</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">type</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The type of the device</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Device.type</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">udi-carrier</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>UDI Barcode %28RFID or other technology%29 string in *HRF* format.</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Device.udiCarrier.carrierHRF</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">udi-di</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The udi Device Identifier %28DI%29</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Device.udiCarrier.deviceIdentifier</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">url</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Network address to contact device</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Device.url</code>
             </div>
     </div>
     

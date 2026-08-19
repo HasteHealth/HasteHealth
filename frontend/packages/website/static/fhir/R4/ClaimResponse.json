@@ -1,15 +1,33 @@
 {
-  "id": "ClaimResponse",
   "resourceType": "StructureDefinition",
-  "name": "ClaimResponse",
-  "abstract": false,
+  "id": "ClaimResponse",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "r2evd6da2biuehot3uw53m6fhm",
+    "lastUpdated": "2026-08-15T04:25:42.421121+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "0sKLV7ooyhWLyfotsuhCOQ7-Fjs"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ClaimResponse",
   "version": "4.0.1",
+  "name": "ClaimResponse",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "ClaimResponse",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

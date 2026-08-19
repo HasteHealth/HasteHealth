@@ -1,15 +1,33 @@
 {
-  "id": "Dosage",
   "resourceType": "StructureDefinition",
-  "name": "Dosage",
-  "abstract": false,
+  "id": "Dosage",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "n-z-vjluexwyf6tcd8s2q4zb4a",
+    "lastUpdated": "2026-08-15T04:24:45.310828+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "i2PVhL9yxcJYoO7EXDY2AuVwQhI"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Dosage",
   "version": "4.0.1",
+  "name": "Dosage",
+  "status": "draft",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "Dosage",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/BackboneElement",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

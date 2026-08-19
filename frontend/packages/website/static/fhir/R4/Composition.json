@@ -1,15 +1,33 @@
 {
-  "id": "Composition",
   "resourceType": "StructureDefinition",
-  "name": "Composition",
-  "abstract": false,
+  "id": "Composition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "4ceud1060g-y-1bo2-37hxfuzj",
+    "lastUpdated": "2026-08-15T04:25:03.966961+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "3K9yDYXzt1aBxv7CXvy4QRZkwuQ"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Composition",
   "version": "4.0.1",
+  "name": "Composition",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Composition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

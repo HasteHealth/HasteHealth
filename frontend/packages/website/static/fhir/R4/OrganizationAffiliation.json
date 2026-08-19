@@ -1,15 +1,33 @@
 {
-  "id": "OrganizationAffiliation",
   "resourceType": "StructureDefinition",
-  "name": "OrganizationAffiliation",
-  "abstract": false,
+  "id": "OrganizationAffiliation",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "nb0fx62upkk8crsyjirm5va0py",
+    "lastUpdated": "2026-08-15T04:25:05.633158+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "ARJTFYI5slk45DBy0f4QoKdH43I"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/OrganizationAffiliation",
   "version": "4.0.1",
+  "name": "OrganizationAffiliation",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "OrganizationAffiliation",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

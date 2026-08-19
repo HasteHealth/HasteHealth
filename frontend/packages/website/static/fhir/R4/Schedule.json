@@ -1,15 +1,33 @@
 {
-  "id": "Schedule",
   "resourceType": "StructureDefinition",
-  "name": "Schedule",
-  "abstract": false,
+  "id": "Schedule",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "sg1u4legft-mxv6lyc6tbi6bwd",
+    "lastUpdated": "2026-08-15T04:25:45.673604+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "Jolk9-veW8Q7fhUdoAX5XR1lB3I"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Schedule",
   "version": "4.0.1",
+  "name": "Schedule",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Schedule",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

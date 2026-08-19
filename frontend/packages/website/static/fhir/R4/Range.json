@@ -1,15 +1,33 @@
 {
-  "id": "Range",
   "resourceType": "StructureDefinition",
-  "name": "Range",
-  "abstract": false,
+  "id": "Range",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "2aq22a9db59sqh-mtpaa9346q6",
+    "lastUpdated": "2026-08-15T04:24:54.043937+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "xDHePYQ7ngKK2_QN8tdCHa3SYi0"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Range",
   "version": "4.0.1",
+  "name": "Range",
+  "status": "active",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "Range",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

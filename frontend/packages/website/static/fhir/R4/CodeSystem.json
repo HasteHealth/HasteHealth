@@ -1,15 +1,33 @@
 {
-  "id": "CodeSystem",
   "resourceType": "StructureDefinition",
-  "name": "CodeSystem",
-  "abstract": false,
+  "id": "CodeSystem",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "hr11kl8-6mcrl6ot8ci9kh73-l",
+    "lastUpdated": "2026-08-15T04:25:30.309554+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "KgNIe4_IAATs6o7ZudCPR9UIRPM"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/CodeSystem",
   "version": "4.0.1",
+  "name": "CodeSystem",
+  "status": "active",
+  "kind": "resource",
+  "abstract": false,
   "type": "CodeSystem",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

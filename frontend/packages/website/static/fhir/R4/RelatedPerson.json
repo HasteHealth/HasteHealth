@@ -1,15 +1,33 @@
 {
-  "id": "RelatedPerson",
   "resourceType": "StructureDefinition",
-  "name": "RelatedPerson",
-  "abstract": false,
+  "id": "RelatedPerson",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "ckkl5yff6ukdk-6ynoqqigdhdr",
+    "lastUpdated": "2026-08-15T04:25:30.875207+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "VyaYQ72GwcWJebdQ8IDbm7wrld0"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/RelatedPerson",
   "version": "4.0.1",
+  "name": "RelatedPerson",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "RelatedPerson",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

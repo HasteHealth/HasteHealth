@@ -1,15 +1,33 @@
 {
-  "id": "Person",
   "resourceType": "StructureDefinition",
-  "name": "Person",
-  "abstract": false,
+  "id": "Person",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "f4eaw42mnisshyj4uwzjc478ki",
+    "lastUpdated": "2026-08-15T04:25:46.260868+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "qb3CYPV_3oc4NOWhrfXurc48vuQ"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Person",
   "version": "4.0.1",
+  "name": "Person",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Person",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

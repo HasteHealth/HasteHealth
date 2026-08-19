@@ -1,15 +1,33 @@
 {
-  "id": "ProductShelfLife",
   "resourceType": "StructureDefinition",
-  "name": "ProductShelfLife",
-  "abstract": false,
+  "id": "ProductShelfLife",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "fvls9hot41mmjjkvi9lxk2f0yr",
+    "lastUpdated": "2026-08-15T04:25:20.729036+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "DQmEKZarADjlyPT1ljjVfoQqYtI"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ProductShelfLife",
   "version": "4.0.1",
+  "name": "ProductShelfLife",
+  "status": "draft",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "ProductShelfLife",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/BackboneElement",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

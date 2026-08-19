@@ -1,15 +1,33 @@
 {
-  "id": "MedicationRequest",
   "resourceType": "StructureDefinition",
-  "name": "MedicationRequest",
-  "abstract": false,
+  "id": "MedicationRequest",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "wh7pq4a-8jh79ycu1z3guzx9rj",
+    "lastUpdated": "2026-08-15T04:25:24.234585+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "lqVGWEwmDPHaJF-OfDQtMIYy89s"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/MedicationRequest",
   "version": "4.0.1",
+  "name": "MedicationRequest",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "MedicationRequest",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

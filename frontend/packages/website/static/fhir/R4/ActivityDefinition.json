@@ -1,15 +1,33 @@
 {
-  "id": "ActivityDefinition",
   "resourceType": "StructureDefinition",
-  "name": "ActivityDefinition",
-  "abstract": false,
+  "id": "ActivityDefinition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "dyzc8fcljfq5r5gk41bgyfb-l4",
+    "lastUpdated": "2026-08-15T04:25:50.532457+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "PYjcc2ebXpJFo7edNqVaYA1fa8Y"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ActivityDefinition",
   "version": "4.0.1",
+  "name": "ActivityDefinition",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "ActivityDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

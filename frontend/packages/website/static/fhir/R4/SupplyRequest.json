@@ -1,15 +1,33 @@
 {
-  "id": "SupplyRequest",
   "resourceType": "StructureDefinition",
-  "name": "SupplyRequest",
-  "abstract": false,
+  "id": "SupplyRequest",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "vxl9u-aq17by2fkj46iw9nsm-f",
+    "lastUpdated": "2026-08-15T04:25:32.065269+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "YYr0WGNmNRK3etaf4-KV-qUE7XU"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/SupplyRequest",
   "version": "4.0.1",
+  "name": "SupplyRequest",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "SupplyRequest",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

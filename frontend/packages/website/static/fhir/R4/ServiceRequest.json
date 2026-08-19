@@ -1,15 +1,33 @@
 {
-  "id": "ServiceRequest",
   "resourceType": "StructureDefinition",
-  "name": "ServiceRequest",
-  "abstract": false,
+  "id": "ServiceRequest",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "gj8c5oi0nw1bpt5822ybr5-3ud",
+    "lastUpdated": "2026-08-15T04:24:42.866347+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "yF_5ToWMkC_WP9YeYQkxVB34aGM"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ServiceRequest",
   "version": "4.0.1",
+  "name": "ServiceRequest",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "ServiceRequest",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

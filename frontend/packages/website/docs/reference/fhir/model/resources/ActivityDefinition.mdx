@@ -45,50 +45,6 @@ This resource allows for the definition of some activity to be performed, indepe
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
             <span class="font-semibold">_id</span> <span> (token)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
@@ -101,23 +57,11 @@ This resource allows for the definition of some activity to be performed, indepe
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+            <span class="font-semibold">description</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The description of the activity definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.lastUpdated</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
+              <code>ActivityDefinition.description</code>
             </div>
     </div>
     
@@ -129,54 +73,6 @@ This resource allows for the definition of some activity to be performed, indepe
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
         
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_source</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.source</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_tag</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.tag</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">composed-of</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.relatedArtifact.where(type='composed-of').resource</code>
-            </div>
     </div>
     
 
@@ -195,11 +91,57 @@ This resource allows for the definition of some activity to be performed, indepe
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">context-quantity</span> <span> (quantity)</span>
+            <span class="font-semibold">identifier</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A quantity- or range-valued use context assigned to the activity definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>External identifier for the activity definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>(ActivityDefinition.useContext.value.ofType(Quantity)) / (ActivityDefinition.useContext.value.ofType(Range))</code>
+              <code>ActivityDefinition.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">composed-of</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ActivityDefinition.relatedArtifact.where(type='composed-of').resource</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">predecessor</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ActivityDefinition.relatedArtifact.where(type='predecessor').resource</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">successor</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ActivityDefinition.relatedArtifact.where(type='successor').resource</code>
             </div>
     </div>
     
@@ -231,11 +173,11 @@ This resource allows for the definition of some activity to be performed, indepe
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">depends-on</span> <span> (reference)</span>
+            <span class="font-semibold">_tag</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.relatedArtifact.where(type='depends-on').resource / ActivityDefinition.library</code>
+              <code>Resource.meta.tag</code>
             </div>
     </div>
     
@@ -243,11 +185,11 @@ This resource allows for the definition of some activity to be performed, indepe
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">derived-from</span> <span> (reference)</span>
+            <span class="font-semibold">context-quantity</span> <span> (quantity)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A quantity- or range-valued use context assigned to the activity definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.relatedArtifact.where(type='derived-from').resource</code>
+              <code>(ActivityDefinition.useContext.value.ofType(Quantity)) / (ActivityDefinition.useContext.value.ofType(Range))</code>
             </div>
     </div>
     
@@ -255,11 +197,23 @@ This resource allows for the definition of some activity to be performed, indepe
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">description</span> <span> (string)</span>
+            <span class="font-semibold">_type</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The description of the activity definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.description</code>
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
             </div>
     </div>
     
@@ -279,11 +233,23 @@ This resource allows for the definition of some activity to be performed, indepe
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">identifier</span> <span> (token)</span>
+            <span class="font-semibold">publisher</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>External identifier for the activity definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Name of the publisher of the activity definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.identifier</code>
+              <code>ActivityDefinition.publisher</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
             </div>
     </div>
     
@@ -303,11 +269,11 @@ This resource allows for the definition of some activity to be performed, indepe
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">name</span> <span> (string)</span>
+            <span class="font-semibold">version</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Computationally friendly name of the activity definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The business version of the activity definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.name</code>
+              <code>ActivityDefinition.version</code>
             </div>
     </div>
     
@@ -315,59 +281,11 @@ This resource allows for the definition of some activity to be performed, indepe
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">predecessor</span> <span> (reference)</span>
+            <span class="font-semibold">context-type-value</span> <span> (composite)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context type and value assigned to the activity definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.relatedArtifact.where(type='predecessor').resource</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">publisher</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Name of the publisher of the activity definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.publisher</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">status</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The current status of the activity definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.status</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">successor</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.relatedArtifact.where(type='successor').resource</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">title</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The human-friendly name of the activity definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.title</code>
+              <code>ActivityDefinition.useContext</code>
             </div>
     </div>
     
@@ -387,11 +305,11 @@ This resource allows for the definition of some activity to be performed, indepe
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">url</span> <span> (uri)</span>
+            <span class="font-semibold">derived-from</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The uri that identifies the activity definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.url</code>
+              <code>ActivityDefinition.relatedArtifact.where(type='derived-from').resource</code>
             </div>
     </div>
     
@@ -399,11 +317,81 @@ This resource allows for the definition of some activity to be performed, indepe
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">version</span> <span> (token)</span>
+            <span class="font-semibold">status</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The business version of the activity definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The current status of the activity definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.version</code>
+              <code>ActivityDefinition.status</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">name</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Computationally friendly name of the activity definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ActivityDefinition.name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">depends-on</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ActivityDefinition.relatedArtifact.where(type='depends-on').resource / ActivityDefinition.library</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">url</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The uri that identifies the activity definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ActivityDefinition.url</code>
             </div>
     </div>
     
@@ -423,11 +411,23 @@ This resource allows for the definition of some activity to be performed, indepe
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">context-type-value</span> <span> (composite)</span>
+            <span class="font-semibold">_source</span> <span> (uri)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context type and value assigned to the activity definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ActivityDefinition.useContext</code>
+              <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">title</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The human-friendly name of the activity definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ActivityDefinition.title</code>
             </div>
     </div>
     

@@ -1,15 +1,33 @@
 {
-  "id": "markdown",
   "resourceType": "StructureDefinition",
-  "name": "markdown",
-  "abstract": false,
+  "id": "markdown",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "gmwlpo2a5h40lonxwlmg1icu77",
+    "lastUpdated": "2026-08-15T04:25:02.474751+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "bsMc-iaEAGISOyhVWL_xGk7gl74"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/markdown",
   "version": "4.0.1",
+  "name": "markdown",
+  "status": "active",
+  "kind": "primitive-type",
+  "abstract": false,
   "type": "markdown",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/string",
-  "kind": "primitive-type",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

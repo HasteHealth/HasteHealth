@@ -1,15 +1,33 @@
 {
-  "id": "DiagnosticReport",
   "resourceType": "StructureDefinition",
-  "name": "DiagnosticReport",
-  "abstract": false,
+  "id": "DiagnosticReport",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "ogxtw86vz0bmyo69rk7h44s-q4",
+    "lastUpdated": "2026-08-15T04:25:20.939430+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "HmPABomGPGlnbE_3jNXhblikKmk"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/DiagnosticReport",
   "version": "4.0.1",
+  "name": "DiagnosticReport",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "DiagnosticReport",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

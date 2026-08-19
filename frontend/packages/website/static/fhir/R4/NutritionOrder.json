@@ -1,15 +1,33 @@
 {
-  "id": "NutritionOrder",
   "resourceType": "StructureDefinition",
-  "name": "NutritionOrder",
-  "abstract": false,
+  "id": "NutritionOrder",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "l3hinjzojxyp77xwkkj4a12gb2",
+    "lastUpdated": "2026-08-15T04:25:20.617104+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "m1Ac_KGay2qH02FM1y3Dds8R4Pc"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/NutritionOrder",
   "version": "4.0.1",
+  "name": "NutritionOrder",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "NutritionOrder",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

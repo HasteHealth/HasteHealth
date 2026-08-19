@@ -1,15 +1,33 @@
 {
-  "id": "BiologicallyDerivedProduct",
   "resourceType": "StructureDefinition",
-  "name": "BiologicallyDerivedProduct",
-  "abstract": false,
+  "id": "BiologicallyDerivedProduct",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "whmr9q3p9wnvyx1ct7lmi-1qjf",
+    "lastUpdated": "2026-08-15T04:25:36.412199+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "-Hz4L5pA5BS_M9-HebBItoVm0zI"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/BiologicallyDerivedProduct",
   "version": "4.0.1",
+  "name": "BiologicallyDerivedProduct",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "BiologicallyDerivedProduct",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

@@ -1,15 +1,33 @@
 {
-  "id": "SubstanceNucleicAcid",
   "resourceType": "StructureDefinition",
-  "name": "SubstanceNucleicAcid",
-  "abstract": false,
+  "id": "SubstanceNucleicAcid",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "0h8kmia3j7k7wgn4-frszp3w0a",
+    "lastUpdated": "2026-08-15T04:25:41.067053+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "QpaV7UhxupJMFOms6z-3ApmrlPM"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/SubstanceNucleicAcid",
   "version": "4.0.1",
+  "name": "SubstanceNucleicAcid",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "SubstanceNucleicAcid",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {
