@@ -1,15 +1,33 @@
 {
-  "id": "CatalogEntry",
   "resourceType": "StructureDefinition",
-  "name": "CatalogEntry",
-  "abstract": false,
+  "id": "CatalogEntry",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "k0nrw184rsa3s7oq6znhwtj4s4",
+    "lastUpdated": "2026-08-15T04:24:55.717701+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "vI14UNNPNw6i9oDx_d0QDOG_kJA"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/CatalogEntry",
   "version": "4.0.1",
+  "name": "CatalogEntry",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "CatalogEntry",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

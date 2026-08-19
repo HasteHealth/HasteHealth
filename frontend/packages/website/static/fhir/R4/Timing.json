@@ -1,15 +1,33 @@
 {
-  "id": "Timing",
   "resourceType": "StructureDefinition",
-  "name": "Timing",
-  "abstract": false,
+  "id": "Timing",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "3n0cj7rdf9-4e8ycdesndtl4uj",
+    "lastUpdated": "2026-08-15T04:25:19.746194+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "1nBLLgGqDpblJVuosIXzA4kktWg"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Timing",
   "version": "4.0.1",
+  "name": "Timing",
+  "status": "active",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "Timing",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/BackboneElement",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

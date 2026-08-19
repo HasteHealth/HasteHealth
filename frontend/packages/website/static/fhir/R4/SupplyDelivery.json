@@ -1,15 +1,33 @@
 {
-  "id": "SupplyDelivery",
   "resourceType": "StructureDefinition",
-  "name": "SupplyDelivery",
-  "abstract": false,
+  "id": "SupplyDelivery",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "g2yucd8u2u3uiwssi-uqnxka8x",
+    "lastUpdated": "2026-08-15T04:25:21.856120+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "tD3n02SJBiyFBNJsif5hXJNT7gU"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/SupplyDelivery",
   "version": "4.0.1",
+  "name": "SupplyDelivery",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "SupplyDelivery",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

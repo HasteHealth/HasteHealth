@@ -1,15 +1,33 @@
 {
-  "id": "MedicationDispense",
   "resourceType": "StructureDefinition",
-  "name": "MedicationDispense",
-  "abstract": false,
+  "id": "MedicationDispense",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "tffw39mzjv3pmwt4w7grc5d9xs",
+    "lastUpdated": "2026-08-15T04:24:40.492192+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "2FvvVy_Vq3PhknVELoD2LJ6tpBc"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/MedicationDispense",
   "version": "4.0.1",
+  "name": "MedicationDispense",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "MedicationDispense",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

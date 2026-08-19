@@ -1,15 +1,33 @@
 {
-  "id": "SubstancePolymer",
   "resourceType": "StructureDefinition",
-  "name": "SubstancePolymer",
-  "abstract": false,
+  "id": "SubstancePolymer",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "d1d5s-qyawxri-k3-kqwu-eozt",
+    "lastUpdated": "2026-08-15T04:24:44.978683+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "9txzn4_me_2f-o_EWBQTZy1gDqA"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/SubstancePolymer",
   "version": "4.0.1",
+  "name": "SubstancePolymer",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "SubstancePolymer",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

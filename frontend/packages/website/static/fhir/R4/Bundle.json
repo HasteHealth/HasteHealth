@@ -1,15 +1,33 @@
 {
-  "id": "Bundle",
   "resourceType": "StructureDefinition",
-  "name": "Bundle",
-  "abstract": false,
+  "id": "Bundle",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "lipevg277q8nnjxgvefpt-d10j",
+    "lastUpdated": "2026-08-15T04:25:50.041034+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "pqXANGhYRhuMPs3J1XweZtSfW10"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Bundle",
   "version": "4.0.1",
+  "name": "Bundle",
+  "status": "active",
+  "kind": "resource",
+  "abstract": false,
   "type": "Bundle",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

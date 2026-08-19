@@ -1,15 +1,33 @@
 {
-  "id": "Invoice",
   "resourceType": "StructureDefinition",
-  "name": "Invoice",
-  "abstract": false,
+  "id": "Invoice",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "mei643yuzmwhxrpoqr0-zguc-e",
+    "lastUpdated": "2026-08-15T04:25:01.707772+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "v3WPmgfk4UlPN-bRRWGnorb3gtw"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Invoice",
   "version": "4.0.1",
+  "name": "Invoice",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Invoice",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

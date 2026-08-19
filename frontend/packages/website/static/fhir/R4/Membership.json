@@ -1,17 +1,35 @@
 {
   "resourceType": "StructureDefinition",
   "id": "Membership",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "5p76t-8wdmvc1sqq7dughxng6u",
+    "lastUpdated": "2026-08-15T04:24:52.113868+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "WGzysWYvlqg0eOqVN9KiHy7ejQM"
+      }
+    ]
+  },
   "url": "https://haste-health.com/StructureDefinition/Membership",
   "version": "4.0.1",
   "name": "Membership",
   "status": "active",
   "publisher": "haste-health",
+  "description": "A Membership resource is used to represent a user's membership in a project. This resource can link to an AccessPolicy resource to define the user's access rights within a project.",
   "fhirVersion": "4.0.1",
   "kind": "resource",
   "abstract": false,
   "type": "Membership",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
-  "description": "A Membership resource is used to represent a user's membership in a project. This resource can link to an AccessPolicy resource to define the user's access rights within a project.",
   "derivation": "specialization",
   "snapshot": {
     "element": [
@@ -89,6 +107,8 @@
         "id": "Membership.link",
         "path": "Membership.link",
         "short": "The clinical resource linked to this Membership.",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "Reference",
@@ -99,14 +119,14 @@
               "http://hl7.org/fhir/StructureDefinition/Person"
             ]
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       },
       {
         "id": "Membership.user",
         "path": "Membership.user",
         "short": "The user associated with this Membership.",
+        "min": 1,
+        "max": "1",
         "type": [
           {
             "code": "Reference",
@@ -114,9 +134,7 @@
               "https://haste-health.com/StructureDefinition/User"
             ]
           }
-        ],
-        "min": 1,
-        "max": "1"
+        ]
       }
     ]
   }

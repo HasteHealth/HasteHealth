@@ -1,15 +1,33 @@
 {
-  "id": "Population",
   "resourceType": "StructureDefinition",
-  "name": "Population",
-  "abstract": false,
+  "id": "Population",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "mcccmygrwxn3m402q30mispi32",
+    "lastUpdated": "2026-08-15T04:25:46.419205+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "PN4kIieonEYFu7DG1s-1k8NjQVI"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Population",
   "version": "4.0.1",
+  "name": "Population",
+  "status": "draft",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "Population",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/BackboneElement",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

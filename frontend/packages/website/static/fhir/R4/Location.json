@@ -1,15 +1,33 @@
 {
-  "id": "Location",
   "resourceType": "StructureDefinition",
-  "name": "Location",
-  "abstract": false,
+  "id": "Location",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "xv8rl482f1hl-pq0c115kk03r0",
+    "lastUpdated": "2026-08-15T04:24:39.702547+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "SUWFjO_tcgXXruqPpfACuH7TVow"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Location",
   "version": "4.0.1",
+  "name": "Location",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Location",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

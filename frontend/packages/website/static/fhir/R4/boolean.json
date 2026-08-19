@@ -1,15 +1,33 @@
 {
-  "id": "boolean",
   "resourceType": "StructureDefinition",
-  "name": "boolean",
-  "abstract": false,
+  "id": "boolean",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "m8dngvxb6wpf79vd0qx6n1b48a",
+    "lastUpdated": "2026-08-15T04:24:54.252973+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "n3JDID0k37TMiOkL6nJ-cgW6X08"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/boolean",
   "version": "4.0.1",
+  "name": "boolean",
+  "status": "active",
+  "kind": "primitive-type",
+  "abstract": false,
   "type": "boolean",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "primitive-type",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

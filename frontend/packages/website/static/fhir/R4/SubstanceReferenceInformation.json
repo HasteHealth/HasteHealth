@@ -1,15 +1,33 @@
 {
-  "id": "SubstanceReferenceInformation",
   "resourceType": "StructureDefinition",
-  "name": "SubstanceReferenceInformation",
-  "abstract": false,
+  "id": "SubstanceReferenceInformation",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "y90--2z57mfe8nl67fgdkc-9ee",
+    "lastUpdated": "2026-08-15T04:25:05.581550+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "0a41IaieB_rMUdGqaYI51-oVUhM"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/SubstanceReferenceInformation",
   "version": "4.0.1",
+  "name": "SubstanceReferenceInformation",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "SubstanceReferenceInformation",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

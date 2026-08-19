@@ -1,15 +1,33 @@
 {
-  "id": "OperationDefinition",
   "resourceType": "StructureDefinition",
-  "name": "OperationDefinition",
-  "abstract": false,
+  "id": "OperationDefinition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "5zujqxa2c6p-pu19hawkw780ww",
+    "lastUpdated": "2026-08-15T04:24:51.570847+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "5dlP_SzH8Wy62Ko4EGWcb1bYgak"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/OperationDefinition",
   "version": "4.0.1",
+  "name": "OperationDefinition",
+  "status": "active",
+  "kind": "resource",
+  "abstract": false,
   "type": "OperationDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

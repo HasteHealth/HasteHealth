@@ -1,15 +1,33 @@
 {
-  "id": "Goal",
   "resourceType": "StructureDefinition",
-  "name": "Goal",
-  "abstract": false,
+  "id": "Goal",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "ru9bjq91u0eynt0jcgvh7o-8s5",
+    "lastUpdated": "2026-08-15T04:24:54.819227+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "gZ8Hb3qdLW8DyCK7t9Zr9QSk5Jg"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Goal",
   "version": "4.0.1",
+  "name": "Goal",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Goal",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

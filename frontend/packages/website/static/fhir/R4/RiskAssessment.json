@@ -1,15 +1,33 @@
 {
-  "id": "RiskAssessment",
   "resourceType": "StructureDefinition",
-  "name": "RiskAssessment",
-  "abstract": false,
+  "id": "RiskAssessment",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "e318hk3xb3w1hc847we02au3by",
+    "lastUpdated": "2026-08-15T04:25:57.118432+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "VDwfT0SNTg7uUvXz_8Fvhw-zzek"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/RiskAssessment",
   "version": "4.0.1",
+  "name": "RiskAssessment",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "RiskAssessment",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

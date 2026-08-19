@@ -1,15 +1,33 @@
 {
-  "id": "EnrollmentResponse",
   "resourceType": "StructureDefinition",
-  "name": "EnrollmentResponse",
-  "abstract": false,
+  "id": "EnrollmentResponse",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "2a8mjjfsq25yoa0u8qlnjwm5kw",
+    "lastUpdated": "2026-08-15T04:25:11.166906+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "FypnkWEdTsI-y5oi8G8wQXYRp3w"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/EnrollmentResponse",
   "version": "4.0.1",
+  "name": "EnrollmentResponse",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "EnrollmentResponse",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

@@ -1,15 +1,33 @@
 {
-  "id": "SpecimenDefinition",
   "resourceType": "StructureDefinition",
-  "name": "SpecimenDefinition",
-  "abstract": false,
+  "id": "SpecimenDefinition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "4b8aum5v5ktezxmgf70czdvk9e",
+    "lastUpdated": "2026-08-15T04:25:58.443533+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "-gZTaUcWb266lFMkpyzeSBP1LAk"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/SpecimenDefinition",
   "version": "4.0.1",
+  "name": "SpecimenDefinition",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "SpecimenDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

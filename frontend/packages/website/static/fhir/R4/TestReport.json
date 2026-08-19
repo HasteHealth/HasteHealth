@@ -1,15 +1,33 @@
 {
-  "id": "TestReport",
   "resourceType": "StructureDefinition",
-  "name": "TestReport",
-  "abstract": false,
+  "id": "TestReport",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "usvcz0w1ttj4cl7svuwuyeaa76",
+    "lastUpdated": "2026-08-15T04:25:04.126800+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "jSvAgERpUUsujo87XKuP9o-KENc"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/TestReport",
   "version": "4.0.1",
+  "name": "TestReport",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "TestReport",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

@@ -1,15 +1,33 @@
 {
-  "id": "Account",
   "resourceType": "StructureDefinition",
-  "name": "Account",
-  "abstract": false,
+  "id": "Account",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "jmqlykmst7kk7q0p9wnxeak00o",
+    "lastUpdated": "2026-08-15T04:25:33.185084+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "SCWSz3W4FqBifgGLk1HRd1skcFE"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Account",
   "version": "4.0.1",
+  "name": "Account",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Account",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

@@ -1,15 +1,33 @@
 {
-  "id": "HealthcareService",
   "resourceType": "StructureDefinition",
-  "name": "HealthcareService",
-  "abstract": false,
+  "id": "HealthcareService",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "opzst7k64x5vib64g1ifb3iy4v",
+    "lastUpdated": "2026-08-15T04:24:44.899901+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "JpguG8mebtkUxOGzb6jatFQc8JA"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/HealthcareService",
   "version": "4.0.1",
+  "name": "HealthcareService",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "HealthcareService",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

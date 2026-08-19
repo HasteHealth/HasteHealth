@@ -1,15 +1,33 @@
 {
-  "id": "MedicinalProductIndication",
   "resourceType": "StructureDefinition",
-  "name": "MedicinalProductIndication",
-  "abstract": false,
+  "id": "MedicinalProductIndication",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "ei9rk4xvlg5npyz37yw1fl6wq3",
+    "lastUpdated": "2026-08-15T04:25:20.785822+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "1VGvWCHqmra6sfNoKZm7SOJT1KM"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/MedicinalProductIndication",
   "version": "4.0.1",
+  "name": "MedicinalProductIndication",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "MedicinalProductIndication",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

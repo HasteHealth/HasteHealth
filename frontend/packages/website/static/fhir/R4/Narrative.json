@@ -1,15 +1,33 @@
 {
-  "id": "Narrative",
   "resourceType": "StructureDefinition",
-  "name": "Narrative",
-  "abstract": false,
+  "id": "Narrative",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "oaf4o8ftifuz44ixpra4bak1f2",
+    "lastUpdated": "2026-08-15T04:25:20.879530+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "DU6G9DmOH_sEmJMRCuBjBugr_q8"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Narrative",
   "version": "4.0.1",
+  "name": "Narrative",
+  "status": "active",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "Narrative",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

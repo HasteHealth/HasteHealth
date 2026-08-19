@@ -1,15 +1,33 @@
 {
-  "id": "ConceptMap",
   "resourceType": "StructureDefinition",
-  "name": "ConceptMap",
-  "abstract": false,
+  "id": "ConceptMap",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "1aspqzgyoi8cem34l8rhjdzoq9",
+    "lastUpdated": "2026-08-15T04:25:40.301487+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "QLSBiopoks_C1msIFsOp3W8dQnU"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ConceptMap",
   "version": "4.0.1",
+  "name": "ConceptMap",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "ConceptMap",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

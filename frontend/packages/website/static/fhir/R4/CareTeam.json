@@ -1,15 +1,33 @@
 {
-  "id": "CareTeam",
   "resourceType": "StructureDefinition",
-  "name": "CareTeam",
-  "abstract": false,
+  "id": "CareTeam",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "eaux7196mqw11kgkactu1y9ohy",
+    "lastUpdated": "2026-08-15T04:24:39.823374+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "mX7O72Uops8GRku2ykbxBuZ4Uws"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/CareTeam",
   "version": "4.0.1",
+  "name": "CareTeam",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "CareTeam",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

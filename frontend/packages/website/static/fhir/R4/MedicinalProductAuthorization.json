@@ -1,15 +1,33 @@
 {
-  "id": "MedicinalProductAuthorization",
   "resourceType": "StructureDefinition",
-  "name": "MedicinalProductAuthorization",
-  "abstract": false,
+  "id": "MedicinalProductAuthorization",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "aznpzdj6h8c3fwprsa6qu86ydt",
+    "lastUpdated": "2026-08-15T04:24:59.094039+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "64Zbkxcb74KB7qtpVia8Xx8GbaM"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/MedicinalProductAuthorization",
   "version": "4.0.1",
+  "name": "MedicinalProductAuthorization",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "MedicinalProductAuthorization",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

@@ -1,17 +1,35 @@
 {
   "resourceType": "StructureDefinition",
   "id": "User",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "t-p28-wpfqg-rus4qgk575v4d5",
+    "lastUpdated": "2026-08-15T04:25:06.066562+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "GLhWvtnd4vRil0elwsAO4c09dBs"
+      }
+    ]
+  },
   "url": "https://haste-health.com/StructureDefinition/User",
   "version": "4.0.1",
   "name": "User",
   "status": "active",
   "publisher": "haste-health",
+  "description": "A User resource is used to represent a user in a tenant. The resource contains information about the user's role in the organization, the user's email address, and whether the user's email address has been verified.",
   "fhirVersion": "4.0.1",
   "kind": "resource",
   "abstract": false,
   "type": "User",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
-  "description": "A User resource is used to represent a user in a tenant. The resource contains information about the user's role in the organization, the user's email address, and whether the user's email address has been verified.",
   "derivation": "specialization",
   "snapshot": {
     "element": [
@@ -89,42 +107,44 @@
         "id": "User.email",
         "path": "User.email",
         "short": "Users email address.",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "string"
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       },
       {
         "id": "User.emailVerified",
         "path": "User.emailVerified",
         "short": "Is Users email address verified.",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "boolean"
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       },
       {
         "id": "User.name",
         "path": "User.name",
         "short": "Users name",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "HumanName"
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       },
       {
         "id": "User.role",
         "path": "User.role",
         "short": "The Users role. Note that owner and superadmin roles are granted full access.",
+        "min": 1,
+        "max": "1",
         "type": [
           {
             "code": "code"
@@ -133,14 +153,14 @@
         "binding": {
           "strength": "required",
           "valueSet": "https://haste.health/fhir/ValueSet/UserRole|4.0.1"
-        },
-        "min": 1,
-        "max": "1"
+        }
       },
       {
         "id": "User.federated",
         "path": "User.federated",
         "short": "Is Users email address verified.",
+        "min": 0,
+        "max": "1",
         "type": [
           {
             "code": "Reference",
@@ -148,9 +168,7 @@
               "https://haste-health.com/StructureDefinition/IdentityProvider"
             ]
           }
-        ],
-        "min": 0,
-        "max": "1"
+        ]
       }
     ]
   }

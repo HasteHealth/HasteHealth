@@ -1,15 +1,33 @@
 {
-  "id": "MedicinalProductInteraction",
   "resourceType": "StructureDefinition",
-  "name": "MedicinalProductInteraction",
-  "abstract": false,
+  "id": "MedicinalProductInteraction",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "ehr3uz5y76ggyvxdxx8-t4wbrw",
+    "lastUpdated": "2026-08-15T04:25:32.343477+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "70Exz2eqsHny5f2YeHVV7mfZIEs"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/MedicinalProductInteraction",
   "version": "4.0.1",
+  "name": "MedicinalProductInteraction",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "MedicinalProductInteraction",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

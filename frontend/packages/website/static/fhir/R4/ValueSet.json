@@ -1,15 +1,33 @@
 {
-  "id": "ValueSet",
   "resourceType": "StructureDefinition",
-  "name": "ValueSet",
-  "abstract": false,
+  "id": "ValueSet",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "6ycn6m8g7a7m84q8z81-n1p8d5",
+    "lastUpdated": "2026-08-15T04:24:40.623647+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "0cXJFrWcwZNP0rBlBqEmeGmyfOc"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ValueSet",
   "version": "4.0.1",
+  "name": "ValueSet",
+  "status": "active",
+  "kind": "resource",
+  "abstract": false,
   "type": "ValueSet",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

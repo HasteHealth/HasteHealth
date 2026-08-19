@@ -1,15 +1,33 @@
 {
-  "id": "MolecularSequence",
   "resourceType": "StructureDefinition",
-  "name": "MolecularSequence",
-  "abstract": false,
+  "id": "MolecularSequence",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "kgp74ffvgmlaz3bpyd15eatgmk",
+    "lastUpdated": "2026-08-15T04:24:57.967973+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "HV4dc7H0sJeYMkxGSFGWVvwn7_4"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/MolecularSequence",
   "version": "4.0.1",
+  "name": "MolecularSequence",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "MolecularSequence",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

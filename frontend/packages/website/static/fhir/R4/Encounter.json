@@ -1,15 +1,33 @@
 {
-  "id": "Encounter",
   "resourceType": "StructureDefinition",
-  "name": "Encounter",
-  "abstract": false,
+  "id": "Encounter",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "13lnj32c22274o1fe71o8rhuco",
+    "lastUpdated": "2026-08-15T04:24:51.445147+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "nALtUNw1hwT0lw-Q8RWp9y-cfDk"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Encounter",
   "version": "4.0.1",
+  "name": "Encounter",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Encounter",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

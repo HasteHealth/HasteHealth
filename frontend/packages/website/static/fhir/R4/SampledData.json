@@ -1,15 +1,33 @@
 {
-  "id": "SampledData",
   "resourceType": "StructureDefinition",
-  "name": "SampledData",
-  "abstract": false,
+  "id": "SampledData",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "hktpzy1pda0l4txwuh3sjj4vuz",
+    "lastUpdated": "2026-08-15T04:25:04.903507+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "EWnE__Aokoin2gAnaDzv6M6tHD8"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/SampledData",
   "version": "4.0.1",
+  "name": "SampledData",
+  "status": "draft",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "SampledData",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

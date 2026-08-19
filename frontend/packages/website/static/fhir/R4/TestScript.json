@@ -1,15 +1,33 @@
 {
-  "id": "TestScript",
   "resourceType": "StructureDefinition",
-  "name": "TestScript",
-  "abstract": false,
+  "id": "TestScript",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "tiz3atqb3jne0oabb51lr9jhlo",
+    "lastUpdated": "2026-08-15T04:25:06.586318+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "s3PJKNX-LvxRW1L3gj8v95eglwU"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/TestScript",
   "version": "4.0.1",
+  "name": "TestScript",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "TestScript",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

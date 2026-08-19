@@ -1,15 +1,33 @@
 {
-  "id": "SubstanceAmount",
   "resourceType": "StructureDefinition",
-  "name": "SubstanceAmount",
-  "abstract": false,
+  "id": "SubstanceAmount",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "zoss0cfyqtzkk7g4xvnfiaeuue",
+    "lastUpdated": "2026-08-15T04:25:05.253595+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "k0GQ27_yIXsVT5ZjCVzigvxkYSg"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/SubstanceAmount",
   "version": "4.0.1",
+  "name": "SubstanceAmount",
+  "status": "draft",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "SubstanceAmount",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/BackboneElement",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

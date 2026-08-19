@@ -1,15 +1,33 @@
 {
-  "id": "Condition",
   "resourceType": "StructureDefinition",
-  "name": "Condition",
-  "abstract": false,
+  "id": "Condition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "xj77w2smjv6tb3qojbwdyds3ud",
+    "lastUpdated": "2026-08-15T04:25:21.993393+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "AeKvQu6xhwk_ZVFcEBfEdKWj2LM"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Condition",
   "version": "4.0.1",
+  "name": "Condition",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Condition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

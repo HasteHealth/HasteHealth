@@ -1,15 +1,33 @@
 {
-  "id": "MedicationAdministration",
   "resourceType": "StructureDefinition",
-  "name": "MedicationAdministration",
-  "abstract": false,
+  "id": "MedicationAdministration",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "u9atktaaafnqjntsxn6ax-t4in",
+    "lastUpdated": "2026-08-15T04:24:59.410706+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "Ru8RkINDnZ-OdYFX2ebQaXtNxhk"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/MedicationAdministration",
   "version": "4.0.1",
+  "name": "MedicationAdministration",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "MedicationAdministration",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

@@ -1,15 +1,33 @@
 {
-  "id": "MessageHeader",
   "resourceType": "StructureDefinition",
-  "name": "MessageHeader",
-  "abstract": false,
+  "id": "MessageHeader",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "m6rf6rj2j9solnvabq2xufccr2",
+    "lastUpdated": "2026-08-15T04:25:42.866041+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "PjplLExF7cyStDhCw_s_NEQpGFQ"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/MessageHeader",
   "version": "4.0.1",
+  "name": "MessageHeader",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "MessageHeader",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

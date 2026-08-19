@@ -1,15 +1,33 @@
 {
-  "id": "ImagingStudy",
   "resourceType": "StructureDefinition",
-  "name": "ImagingStudy",
-  "abstract": false,
+  "id": "ImagingStudy",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "bm1kygtkl2ay5ogl74qzd77750",
+    "lastUpdated": "2026-08-15T04:25:16.546449+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "hSdpqjhrDJ4UZ-bqTf_x67LQKjU"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ImagingStudy",
   "version": "4.0.1",
+  "name": "ImagingStudy",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "ImagingStudy",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {
@@ -598,7 +616,7 @@
         "example": [
           {
             "label": "General",
-            "valueDateTime": "2011-01-01T11:01:20+03:00"
+            "valueDateTime": "2011-01-01T08:01:20+00:00"
           }
         ],
         "constraint": [

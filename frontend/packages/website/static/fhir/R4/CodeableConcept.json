@@ -1,15 +1,33 @@
 {
-  "id": "CodeableConcept",
   "resourceType": "StructureDefinition",
-  "name": "CodeableConcept",
-  "abstract": false,
+  "id": "CodeableConcept",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "oz73sjk1v2kjfu939yap04aq3-",
+    "lastUpdated": "2026-08-15T04:25:56.238285+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "xq5iu3LoKmAnJeAAh-MFeDcdzNI"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/CodeableConcept",
   "version": "4.0.1",
+  "name": "CodeableConcept",
+  "status": "active",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "CodeableConcept",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

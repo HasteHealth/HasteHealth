@@ -1,15 +1,33 @@
 {
-  "id": "FamilyMemberHistory",
   "resourceType": "StructureDefinition",
-  "name": "FamilyMemberHistory",
-  "abstract": false,
+  "id": "FamilyMemberHistory",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "2sozvrs1ajfezesian34cmyztc",
+    "lastUpdated": "2026-08-15T04:25:15.746198+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "UU0opV7sG8G7XYrKL4df0yKK0nY"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory",
   "version": "4.0.1",
+  "name": "FamilyMemberHistory",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "FamilyMemberHistory",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

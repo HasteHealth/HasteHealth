@@ -1,15 +1,33 @@
 {
-  "id": "TerminologyCapabilities",
   "resourceType": "StructureDefinition",
-  "name": "TerminologyCapabilities",
-  "abstract": false,
+  "id": "TerminologyCapabilities",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "meids2bq1pp2dvs04jvqmhl3fu",
+    "lastUpdated": "2026-08-15T04:25:00.515845+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "Nt9L_oFKps8onKTydoQMY3bKGcM"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities",
   "version": "4.0.1",
+  "name": "TerminologyCapabilities",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "TerminologyCapabilities",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

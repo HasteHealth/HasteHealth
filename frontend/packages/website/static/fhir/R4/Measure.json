@@ -1,15 +1,33 @@
 {
-  "id": "Measure",
   "resourceType": "StructureDefinition",
-  "name": "Measure",
-  "abstract": false,
+  "id": "Measure",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "37i9yyapk48t05kg78xeocti23",
+    "lastUpdated": "2026-08-15T04:25:29.038353+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "9qSNZeDKIG_u22wFFNfPTygMaG4"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Measure",
   "version": "4.0.1",
+  "name": "Measure",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Measure",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

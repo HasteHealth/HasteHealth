@@ -1,15 +1,33 @@
 {
-  "id": "GraphDefinition",
   "resourceType": "StructureDefinition",
-  "name": "GraphDefinition",
-  "abstract": false,
+  "id": "GraphDefinition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "6ia8hl8wacghvxeue5-99ev5b8",
+    "lastUpdated": "2026-08-15T04:25:37.582485+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "L0aV6V8mQDELOVLjARCKr0YHc-8"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/GraphDefinition",
   "version": "4.0.1",
+  "name": "GraphDefinition",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "GraphDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

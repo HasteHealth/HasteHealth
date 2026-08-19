@@ -1,15 +1,33 @@
 {
-  "id": "ImmunizationEvaluation",
   "resourceType": "StructureDefinition",
-  "name": "ImmunizationEvaluation",
-  "abstract": false,
+  "id": "ImmunizationEvaluation",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "1uzx7bsdmtzltm-pm6l0svbuwv",
+    "lastUpdated": "2026-08-15T04:25:00.883875+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "4vOqVVGL3sZTWCHpKgQgcL1zc0Q"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ImmunizationEvaluation",
   "version": "4.0.1",
+  "name": "ImmunizationEvaluation",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "ImmunizationEvaluation",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

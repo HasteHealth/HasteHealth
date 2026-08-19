@@ -1,15 +1,33 @@
 {
-  "id": "SubstanceProtein",
   "resourceType": "StructureDefinition",
-  "name": "SubstanceProtein",
-  "abstract": false,
+  "id": "SubstanceProtein",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "osdnzmmb0qmdugshjsy415h2u6",
+    "lastUpdated": "2026-08-15T04:25:13.578468+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "ZrIyTMjxFaoubNMXLuTwu_JaGwU"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/SubstanceProtein",
   "version": "4.0.1",
+  "name": "SubstanceProtein",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "SubstanceProtein",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

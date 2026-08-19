@@ -1,15 +1,33 @@
 {
-  "id": "time",
   "resourceType": "StructureDefinition",
-  "name": "time",
-  "abstract": false,
+  "id": "time",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "hvtpmlnqd6xh2zk2hdf0jrhjtn",
+    "lastUpdated": "2026-08-15T04:24:58.051518+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "2EOvbqnuzIermNNTJ2Jg122FQ64"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/time",
   "version": "4.0.1",
+  "name": "time",
+  "status": "active",
+  "kind": "primitive-type",
+  "abstract": false,
   "type": "time",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "primitive-type",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

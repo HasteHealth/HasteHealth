@@ -1,15 +1,33 @@
 {
-  "id": "ResearchStudy",
   "resourceType": "StructureDefinition",
-  "name": "ResearchStudy",
-  "abstract": false,
+  "id": "ResearchStudy",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "m3cj8r18owqyil1nz-b4vxnywe",
+    "lastUpdated": "2026-08-15T04:25:12.878764+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "QiuVSfPzVOFf_RkdMR7lehlyO_k"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ResearchStudy",
   "version": "4.0.1",
+  "name": "ResearchStudy",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "ResearchStudy",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

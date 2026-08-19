@@ -1,15 +1,33 @@
 {
-  "id": "Observation",
   "resourceType": "StructureDefinition",
-  "name": "Observation",
-  "abstract": false,
+  "id": "Observation",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "h9e1cvk1p1l14r10q2txovj7tm",
+    "lastUpdated": "2026-08-15T04:25:43.567857+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "mQUOwP8dpLhSeJzO1Q6Rk9QkO7w"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Observation",
   "version": "4.0.1",
+  "name": "Observation",
+  "status": "active",
+  "kind": "resource",
+  "abstract": false,
   "type": "Observation",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

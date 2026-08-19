@@ -1,15 +1,33 @@
 {
-  "id": "AllergyIntolerance",
   "resourceType": "StructureDefinition",
-  "name": "AllergyIntolerance",
-  "abstract": false,
+  "id": "AllergyIntolerance",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "7ul01nupdp-73bw3i1qaod0t2u",
+    "lastUpdated": "2026-08-15T04:25:50.859550+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "iH4f7qhbqQRB9v5tHkbDoApUQ38"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance",
   "version": "4.0.1",
+  "name": "AllergyIntolerance",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "AllergyIntolerance",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

@@ -1,15 +1,33 @@
 {
-  "id": "Patient",
   "resourceType": "StructureDefinition",
-  "name": "Patient",
-  "abstract": false,
+  "id": "Patient",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "gyfhoqkl19wle2fc346-uboa3k",
+    "lastUpdated": "2026-08-15T04:25:03.544855+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "rgjFeVTRKBQKced22QFvgVuhE_c"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Patient",
   "version": "4.0.1",
+  "name": "Patient",
+  "status": "active",
+  "kind": "resource",
+  "abstract": false,
   "type": "Patient",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

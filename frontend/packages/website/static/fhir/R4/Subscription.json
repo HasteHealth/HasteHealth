@@ -1,15 +1,33 @@
 {
-  "id": "Subscription",
   "resourceType": "StructureDefinition",
-  "name": "Subscription",
-  "abstract": false,
+  "id": "Subscription",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "f62obal2kdbp57kjlj5dwjur1r",
+    "lastUpdated": "2026-08-15T04:25:46.285854+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "LoGdXUzuRFg0znQ_y355LES6ka0"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Subscription",
   "version": "4.0.1",
+  "name": "Subscription",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Subscription",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

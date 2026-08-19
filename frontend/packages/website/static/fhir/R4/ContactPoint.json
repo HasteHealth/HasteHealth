@@ -1,15 +1,33 @@
 {
-  "id": "ContactPoint",
   "resourceType": "StructureDefinition",
-  "name": "ContactPoint",
-  "abstract": false,
+  "id": "ContactPoint",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "3ih5klsx9d574t-sinpe3ifv9l",
+    "lastUpdated": "2026-08-15T04:25:05.554359+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "0xibm30CVNy88Tb6LnrmjmeJGzE"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ContactPoint",
   "version": "4.0.1",
+  "name": "ContactPoint",
+  "status": "active",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "ContactPoint",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

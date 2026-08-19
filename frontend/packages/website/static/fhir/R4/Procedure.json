@@ -1,15 +1,33 @@
 {
-  "id": "Procedure",
   "resourceType": "StructureDefinition",
-  "name": "Procedure",
-  "abstract": false,
+  "id": "Procedure",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "ubvhp0s7lnm36x-tw2318kb4-h",
+    "lastUpdated": "2026-08-15T04:25:07.693538+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "xoae7HPsMHtYzeAO6-NgNa4dnXM"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Procedure",
   "version": "4.0.1",
+  "name": "Procedure",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "Procedure",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

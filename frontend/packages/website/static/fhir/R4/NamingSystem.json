@@ -1,15 +1,33 @@
 {
-  "id": "NamingSystem",
   "resourceType": "StructureDefinition",
-  "name": "NamingSystem",
-  "abstract": false,
+  "id": "NamingSystem",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "hlve4e1ldnhm81cjyfrq9w3lc2",
+    "lastUpdated": "2026-08-15T04:25:49.350455+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "afE0nM3S0kiG96w8qkmNEPwHmYI"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/NamingSystem",
   "version": "4.0.1",
+  "name": "NamingSystem",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "NamingSystem",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

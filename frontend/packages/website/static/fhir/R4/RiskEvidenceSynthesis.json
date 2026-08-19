@@ -1,15 +1,33 @@
 {
-  "id": "RiskEvidenceSynthesis",
   "resourceType": "StructureDefinition",
-  "name": "RiskEvidenceSynthesis",
-  "abstract": false,
+  "id": "RiskEvidenceSynthesis",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "mjw8lc4jodj4eg-kluze4t1oob",
+    "lastUpdated": "2026-08-15T04:24:40.821557+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "DnneqRf_UEbxbDcNr29AyJv7Gww"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/RiskEvidenceSynthesis",
   "version": "4.0.1",
+  "name": "RiskEvidenceSynthesis",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "RiskEvidenceSynthesis",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

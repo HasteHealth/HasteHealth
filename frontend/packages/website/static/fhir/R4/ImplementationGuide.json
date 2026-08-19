@@ -1,15 +1,33 @@
 {
-  "id": "ImplementationGuide",
   "resourceType": "StructureDefinition",
-  "name": "ImplementationGuide",
-  "abstract": false,
+  "id": "ImplementationGuide",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "nf1h39d656he48r3k43wyuo23v",
+    "lastUpdated": "2026-08-15T04:25:15.158595+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "CDjtkTCQiaoKLh5kmSz08gWlYGA"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ImplementationGuide",
   "version": "4.0.1",
+  "name": "ImplementationGuide",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "ImplementationGuide",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

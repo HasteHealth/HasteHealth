@@ -1,15 +1,33 @@
 {
-  "id": "DeviceDefinition",
   "resourceType": "StructureDefinition",
-  "name": "DeviceDefinition",
-  "abstract": false,
+  "id": "DeviceDefinition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "jt-r04nol101f81oly5djntb38",
+    "lastUpdated": "2026-08-15T04:25:58.311461+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "GZdHU3puklCenU2QQ8bJv18XNZg"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/DeviceDefinition",
   "version": "4.0.1",
+  "name": "DeviceDefinition",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "DeviceDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

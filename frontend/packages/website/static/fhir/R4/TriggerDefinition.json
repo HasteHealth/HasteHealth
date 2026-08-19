@@ -1,15 +1,33 @@
 {
-  "id": "TriggerDefinition",
   "resourceType": "StructureDefinition",
-  "name": "TriggerDefinition",
-  "abstract": false,
+  "id": "TriggerDefinition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "5s80naafi4sroakrkh-jself5r",
+    "lastUpdated": "2026-08-15T04:25:35.611839+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "prhQivgOR0cLlXJ2BGssq8vf6Cg"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/TriggerDefinition",
   "version": "4.0.1",
+  "name": "TriggerDefinition",
+  "status": "draft",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "TriggerDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

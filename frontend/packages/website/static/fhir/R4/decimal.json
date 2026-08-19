@@ -1,15 +1,33 @@
 {
-  "id": "decimal",
   "resourceType": "StructureDefinition",
-  "name": "decimal",
-  "abstract": false,
+  "id": "decimal",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "ohrszkwury63t2zc79m3tz3ghv",
+    "lastUpdated": "2026-08-15T04:25:15.777332+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "TwvnV4G8iIbXnJvFWyGxSb03eVE"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/decimal",
   "version": "4.0.1",
+  "name": "decimal",
+  "status": "active",
+  "kind": "primitive-type",
+  "abstract": false,
   "type": "decimal",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "primitive-type",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {

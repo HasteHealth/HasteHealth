@@ -1,15 +1,33 @@
 {
-  "id": "AdverseEvent",
   "resourceType": "StructureDefinition",
-  "name": "AdverseEvent",
-  "abstract": false,
+  "id": "AdverseEvent",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "bgzgmkugn7cepkrpxw2wy6j6jb",
+    "lastUpdated": "2026-08-15T04:24:59.533439+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "DEhgAIqmT3wPMsB3xfx61SXEEMw"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/AdverseEvent",
   "version": "4.0.1",
+  "name": "AdverseEvent",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "AdverseEvent",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

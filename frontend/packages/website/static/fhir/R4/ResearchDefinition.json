@@ -1,15 +1,33 @@
 {
-  "id": "ResearchDefinition",
   "resourceType": "StructureDefinition",
-  "name": "ResearchDefinition",
-  "abstract": false,
+  "id": "ResearchDefinition",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "nqvc80jpqyq6von525qma9-rmh",
+    "lastUpdated": "2026-08-15T04:24:59.571244+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "7rzLK4_1ThJQX_HoNoERbTXdngw"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ResearchDefinition",
   "version": "4.0.1",
+  "name": "ResearchDefinition",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "ResearchDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

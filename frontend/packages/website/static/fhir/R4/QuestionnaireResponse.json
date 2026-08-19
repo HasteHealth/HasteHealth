@@ -1,15 +1,33 @@
 {
-  "id": "QuestionnaireResponse",
   "resourceType": "StructureDefinition",
-  "name": "QuestionnaireResponse",
-  "abstract": false,
+  "id": "QuestionnaireResponse",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "rpox70vwk5s147dsrsmmd8zvh-",
+    "lastUpdated": "2026-08-15T04:25:43.692220+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "aPhCl6S39XdF67swplJq7Ah2f58"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse",
   "version": "4.0.1",
+  "name": "QuestionnaireResponse",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "QuestionnaireResponse",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

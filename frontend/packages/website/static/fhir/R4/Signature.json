@@ -1,15 +1,33 @@
 {
-  "id": "Signature",
   "resourceType": "StructureDefinition",
-  "name": "Signature",
-  "abstract": false,
+  "id": "Signature",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "l0f38fg5vna1fphxyqjyx5utr6",
+    "lastUpdated": "2026-08-15T04:24:52.121365+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "WRl0iSweiQJLD6ydkn8kFJ5lEto"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Signature",
   "version": "4.0.1",
+  "name": "Signature",
+  "status": "draft",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "Signature",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

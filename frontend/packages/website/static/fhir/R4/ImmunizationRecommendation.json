@@ -1,15 +1,33 @@
 {
-  "id": "ImmunizationRecommendation",
   "resourceType": "StructureDefinition",
-  "name": "ImmunizationRecommendation",
-  "abstract": false,
+  "id": "ImmunizationRecommendation",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "qkzaj49gy0om0hogjnt79irf7t",
+    "lastUpdated": "2026-08-15T04:25:04.427625+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "gVs-Wd35d21J_Th0EfI0E2YP7zU"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/ImmunizationRecommendation",
   "version": "4.0.1",
+  "name": "ImmunizationRecommendation",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "ImmunizationRecommendation",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

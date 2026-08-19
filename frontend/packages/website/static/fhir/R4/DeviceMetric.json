@@ -1,15 +1,33 @@
 {
-  "id": "DeviceMetric",
   "resourceType": "StructureDefinition",
-  "name": "DeviceMetric",
-  "abstract": false,
+  "id": "DeviceMetric",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "4wstbxuwpaptjbt6bu55u4q5fr",
+    "lastUpdated": "2026-08-15T04:25:09.273803+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "eK-kEFG2jzk5OjkxPgraosbucuA"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/DeviceMetric",
   "version": "4.0.1",
+  "name": "DeviceMetric",
+  "status": "draft",
+  "kind": "resource",
+  "abstract": false,
   "type": "DeviceMetric",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
-  "kind": "resource",
   "derivation": "specialization",
-  "status": "draft",
   "snapshot": {
     "element": [
       {

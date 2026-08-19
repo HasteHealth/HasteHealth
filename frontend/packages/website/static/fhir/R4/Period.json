@@ -1,15 +1,33 @@
 {
-  "id": "Period",
   "resourceType": "StructureDefinition",
-  "name": "Period",
-  "abstract": false,
+  "id": "Period",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "System/system"
+        }
+      }
+    ],
+    "versionId": "3ycsv3ufsh0499tm2f38h5f7n5",
+    "lastUpdated": "2026-08-15T04:25:00.763912+00:00",
+    "tag": [
+      {
+        "system": "https://haste.health/fhir/CodeSystem/hash",
+        "code": "dx5uFoEwWtApkk-VUcrlwe1iFME"
+      }
+    ]
+  },
   "url": "http://hl7.org/fhir/StructureDefinition/Period",
   "version": "4.0.1",
+  "name": "Period",
+  "status": "active",
+  "kind": "complex-type",
+  "abstract": false,
   "type": "Period",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
-  "kind": "complex-type",
   "derivation": "specialization",
-  "status": "active",
   "snapshot": {
     "element": [
       {
