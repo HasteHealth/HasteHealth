@@ -16,7 +16,8 @@ if (!HASTE_HEALTH_USERNAME || !HASTE_HEALTH_PASSWORD) {
 }
 
 const fhirBaseUrl = `${HASTE_HEALTH_URL}/w/${HASTE_HEALTH_TENANT}/${HASTE_HEALTH_PROJECT}/api/v1/fhir/r4`;
-const authHeader = `Basic ${Buffer.from(`${HASTE_HEALTH_USERNAME}:${HASTE_HEALTH_PASSWORD}`).toString("base64")}`;
+const credentials = `${HASTE_HEALTH_USERNAME}:${HASTE_HEALTH_PASSWORD}`;
+const authHeader = `Basic ${Buffer.from(credentials).toString("base64")}`;
 
 async function fetchAllResources(resourceType) {
   const resources = [];

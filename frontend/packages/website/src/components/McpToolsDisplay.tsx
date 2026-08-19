@@ -61,12 +61,12 @@ function categorize(name: string): CategoryKey {
 
 function refLabel(ref: string): string {
   const parts = ref.split("/");
-  return parts[parts.length - 1] || ref;
+  return parts.at(-1) || ref;
 }
 
 function EnumSummary({ values }: Readonly<{ values: unknown[] }>) {
   const [expanded, setExpanded] = React.useState(false);
-  const strings = values.map((v) => String(v));
+  const strings = values.map(String);
 
   if (strings.length <= 6) {
     return (
@@ -141,6 +141,14 @@ function TypeSummary({ schema }: Readonly<{ schema: JSONSchema | undefined }>) {
   return <span className="text-xs text-slate-500">{schema.type ?? "object"}</span>;
 }
 
+function nestedProperties(schema: JSONSchema): JSONSchema | undefined {
+  if (schema.type === "object" && schema.properties) return schema.properties;
+  if (schema.type === "array" && schema.items?.type === "object" && schema.items?.properties) {
+    return schema.items.properties;
+  }
+  return undefined;
+}
+
 function PropertyRow({
   name,
   schema,
@@ -152,14 +160,10 @@ function PropertyRow({
   required: boolean;
   depth?: number;
 }>) {
-  const nestedEntries: [string, JSONSchema][] | null =
-    schema.type === "object" && schema.properties
-      ? Object.entries(schema.properties)
-      : schema.type === "array" &&
-          schema.items?.type === "object" &&
-          schema.items?.properties
-        ? Object.entries(schema.items.properties)
-        : null;
+  const properties = nestedProperties(schema);
+  const nestedEntries: [string, JSONSchema][] | null = properties
+    ? Object.entries(properties)
+    : null;
 
   const nestedRequired: string[] =
     schema.type === "array" ? (schema.items?.required ?? []) : (schema.required ?? []);

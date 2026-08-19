@@ -15,8 +15,8 @@ function ColorizedJson({ code }: Readonly<{ code: string }>) {
     }
     nodes.push(
       <span key={i++} className="text-brand-300">{`"${match[1]}"`}</span>,
+      <Fragment key={i++}>:</Fragment>,
     );
-    nodes.push(<Fragment key={i++}>:</Fragment>);
     lastIndex = keyPattern.lastIndex;
   }
   nodes.push(<Fragment key={i++}>{code.slice(lastIndex)}</Fragment>);
