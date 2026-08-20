@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 import Heading from "@theme/Heading";
@@ -93,7 +93,143 @@ function SectionTitle(
   );
 }
 
+type CommandSegment = {
+  text: string;
+  highlight?: boolean;
+};
+
+const COMMAND_SEGMENTS: CommandSegment[] = [
+  { text: " haste-health api search-type " },
+  { text: "Patient", highlight: true },
+  { text: " " },
+  { text: '"name=chen&_count=1"', highlight: true },
+];
+
+const COMMAND_LENGTH = COMMAND_SEGMENTS.reduce(
+  (sum, seg) => sum + seg.text.length,
+  0,
+);
+
+const TYPE_MIN_DELAY_MS = 24;
+const TYPE_MAX_DELAY_MS = 48;
+const RESPOND_DELAY_MS = 150;
+const START_DELAY_MS = 500;
+
+function renderCommand(typed: number) {
+  let offset = 0;
+  let cursorPlaced = false;
+  return COMMAND_SEGMENTS.map((seg, i) => {
+    const start = offset;
+    offset += seg.text.length;
+    const localTyped = Math.max(0, Math.min(seg.text.length, typed - start));
+    const visible = seg.text.slice(0, localTyped);
+    const hidden = seg.text.slice(localTyped);
+    const showCursorHere = !cursorPlaced && hidden.length > 0;
+    if (showCursorHere) cursorPlaced = true;
+    return (
+      <React.Fragment key={i}>
+        {seg.highlight ? (
+          <span className="text-brand-300">{visible}</span>
+        ) : (
+          visible
+        )}
+        {showCursorHere ? (
+          <span className="hero-cursor" aria-hidden="true">
+            ▋
+          </span>
+        ) : null}
+        {hidden ? <span className="opacity-0">{hidden}</span> : null}
+      </React.Fragment>
+    );
+  });
+}
+
+function ResponseBody(props: Readonly<{ visible: boolean }>) {
+  return (
+    <span
+      className={
+        props.visible
+          ? "hero-response-in inline-block"
+          : "inline-block opacity-0"
+      }
+    >
+      {"{"}
+      {"\n"}
+      {"  "}
+      <span className="text-brand-300">"resourceType"</span>: "Bundle",
+      {"\n"}
+      {"  "}
+      <span className="text-brand-300">"type"</span>: "searchset",{"\n"}
+      {"  "}
+      <span className="text-brand-300">"total"</span>: 1,{"\n"}
+      {"  "}
+      <span className="text-brand-300">"entry"</span>: [{"{"}
+      {"\n"}
+      {"    "}
+      <span className="text-brand-300">"resource"</span>: {"{"}
+      {"\n"}
+      {"      "}
+      <span className="text-brand-300">"resourceType"</span>: "Patient",
+      {"\n"}
+      {"      "}
+      <span className="text-brand-300">"id"</span>: "xufn84vpa69b_998c1",
+      {"\n"}
+      {"      "}
+      <span className="text-brand-300">"name"</span>: [{"{"}{" "}
+      <span className="text-brand-300">"family"</span>: "Chen",{" "}
+      <span className="text-brand-300">"given"</span>: ["Maya"] {"}"}]{"\n"}
+      {"    "}
+      {"}"}
+      {"\n"}
+      {"  "}
+      {"}"}]{"\n"}
+      {"}"}
+    </span>
+  );
+}
+
 function HeroSnippet() {
+  const [typed, setTyped] = useState(COMMAND_LENGTH);
+  const [phase, setPhase] = useState<"typing" | "responding" | "output">(
+    "output",
+  );
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (prefersReducedMotion) return;
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+    let cancelled = false;
+
+    function typeStep(current: number) {
+      if (cancelled) return;
+      if (current >= COMMAND_LENGTH) {
+        setPhase("responding");
+        timeoutId = setTimeout(() => {
+          if (cancelled) return;
+          setPhase("output");
+        }, RESPOND_DELAY_MS);
+        return;
+      }
+      setTyped(current + 1);
+      const delay =
+        TYPE_MIN_DELAY_MS +
+        Math.random() * (TYPE_MAX_DELAY_MS - TYPE_MIN_DELAY_MS);
+      timeoutId = setTimeout(() => typeStep(current + 1), delay);
+    }
+
+    setTyped(0);
+    setPhase("typing");
+    timeoutId = setTimeout(() => typeStep(0), START_DELAY_MS);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
   return (
     <div className="overflow-hidden rounded-xl border border-white/15 bg-brand-950/50 shadow-2xl backdrop-blur">
       <div className="flex items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-2.5">
@@ -112,60 +248,9 @@ function HeroSnippet() {
           style={{ background: "transparent", color: "var(--color-brand-100)" }}
         >
           <span className="text-brand-300">$</span>
-          {" curl -G "}
-          {"https://api.haste.health"}
-          <wbr />
-          {"/w/my-tenant"}
-          <wbr />
-          {"/my-project"}
-          <wbr />
-          {"/api/v1"}
-          <wbr />
-          {"/fhir/r4"}
-          <wbr />
-          {"/Patient"}
-          {" \\"}
-          {"\n"}
-          {"       "}
-          <span className="text-brand-300">-d</span>
-          {" name=chen \\"}
-          {"\n"}
-          {"       "}
-          <span className="text-brand-300">-d</span>
-          {" _count=1"}
-          {"\n"}
-          {"\n"}
-          {"{"}
-          {"\n"}
-          {"  "}
-          <span className="text-brand-300">"resourceType"</span>: "Bundle",
-          {"\n"}
-          {"  "}
-          <span className="text-brand-300">"type"</span>: "searchset",{"\n"}
-          {"  "}
-          <span className="text-brand-300">"total"</span>: 1,{"\n"}
-          {"  "}
-          <span className="text-brand-300">"entry"</span>: [{"{"}
-          {"\n"}
-          {"    "}
-          <span className="text-brand-300">"resource"</span>: {"{"}
-          {"\n"}
-          {"      "}
-          <span className="text-brand-300">"resourceType"</span>: "Patient",
-          {"\n"}
-          {"      "}
-          <span className="text-brand-300">"id"</span>: "xufn84vpa69b_998c1",
-          {"\n"}
-          {"      "}
-          <span className="text-brand-300">"name"</span>: [{"{"}{" "}
-          <span className="text-brand-300">"family"</span>: "Chen",{" "}
-          <span className="text-brand-300">"given"</span>: ["Maya"] {"}"}]{"\n"}
-          {"    "}
-          {"}"}
-          {"\n"}
-          {"  "}
-          {"}"}]{"\n"}
-          {"}"}
+          {renderCommand(typed)}
+          {"\n\n"}
+          <ResponseBody visible={phase === "output"} />
         </code>
       </pre>
     </div>
@@ -260,8 +345,22 @@ export default function Home(): ReactNode {
               0%, 100% { transform: translate(0, 0) scale(1); }
               50% { transform: translate(-16px, 16px) scale(1.08); }
             }
+            .hero-cursor {
+              animation: hero-cursor-blink 0.9s step-end infinite;
+            }
+            @keyframes hero-cursor-blink {
+              0%, 100% { opacity: 1; }
+              50% { opacity: 0; }
+            }
+            .hero-response-in {
+              animation: hero-response-in 180ms ease-out;
+            }
+            @keyframes hero-response-in {
+              0% { opacity: 0; transform: translateY(2px); }
+              100% { opacity: 1; transform: translateY(0); }
+            }
             @media (prefers-reduced-motion: reduce) {
-              .hero-pulse-line, .hero-blob, .hero-blob-slow { animation: none; }
+              .hero-pulse-line, .hero-blob, .hero-blob-slow, .hero-cursor, .hero-response-in { animation: none; }
             }
           `}</style>
         </section>
