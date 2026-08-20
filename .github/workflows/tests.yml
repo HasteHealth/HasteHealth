@@ -58,7 +58,7 @@ jobs:
           -p haste-reflect-derive \
           -p haste-repository \
           -p haste-sd-to-json-schema \
-# -p haste-sql-on-fhir \
+          # -p haste-sql-on-fhir \
           -p haste-testscript-runner \
           -p haste-wal-worker \
           -p haste-worker \
