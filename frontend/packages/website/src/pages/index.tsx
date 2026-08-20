@@ -154,14 +154,12 @@ function HeroSnippet() {
           <span className="text-brand-300">"resourceType"</span>: "Patient",
           {"\n"}
           {"      "}
-          <span className="text-brand-300">"id"</span>:{" "}
-          "xufn84vpa69b_998c1",{"\n"}
+          <span className="text-brand-300">"id"</span>: "xufn84vpa69b_998c1",
+          {"\n"}
           {"      "}
           <span className="text-brand-300">"name"</span>: [{"{"}{" "}
           <span className="text-brand-300">"family"</span>: "Chen",{" "}
-          <span className="text-brand-300">"given"</span>: ["Maya"]{" "}
-          {"}"}]
-          {"\n"}
+          <span className="text-brand-300">"given"</span>: ["Maya"] {"}"}]{"\n"}
           {"    "}
           {"}"}
           {"\n"}

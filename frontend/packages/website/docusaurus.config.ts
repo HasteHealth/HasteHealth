@@ -173,6 +173,14 @@ const config: Config = {
               label: "Getting Started",
               to: "/docs/getting_started/quick_start",
             },
+            {
+              label: "Core Concepts",
+              to: "/docs/core_concepts/platform_architecture",
+            },
+            {
+              label: "API Reference",
+              to: "/docs/api/rest_api/fhir/intro",
+            },
           ],
         },
         {

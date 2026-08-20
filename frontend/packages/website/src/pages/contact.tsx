@@ -50,7 +50,7 @@ export default function Contact(): ReactNode {
         id="tw-scope"
         className="container mx-auto px-4 py-8 md:py-12 text-brand-950"
       >
-        <section className="rounded-3xl border border-brand-200  px-6 py-12 md:px-10 md:py-16">
+        <section className="rounded-3xl border border-brand-200 bg-white px-6 py-12 md:px-10 md:py-16">
           <div className="max-w-4xl space-y-4">
             <Heading
               as="h1"
@@ -75,7 +75,7 @@ export default function Contact(): ReactNode {
             {contactChannels.map((channel) => (
               <article
                 key={channel.title}
-                className="flex flex-col rounded-xl border border-brand-200  p-5"
+                className="flex flex-col rounded-xl border border-brand-200 bg-brand-50/40 p-5"
               >
                 <h3 className="text-lg font-semibold text-brand-900">
                   {channel.title}
@@ -85,7 +85,7 @@ export default function Contact(): ReactNode {
                 </p>
                 <Link
                   href={channel.href}
-                  className="mt-4 inline-flex items-center justify-center rounded-lg border border-brand-300 bg-white px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50 hover:text-brand-600"
+                  className="mt-4 inline-flex items-center justify-center rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800"
                 >
                   {channel.label}
                 </Link>
@@ -105,7 +105,7 @@ export default function Contact(): ReactNode {
             {communityLinks.map((link) => (
               <article
                 key={link.title}
-                className="flex flex-col rounded-xl border border-brand-200  p-5"
+                className="flex flex-col rounded-xl border border-brand-200 bg-brand-50/40 p-5"
               >
                 <h3 className="text-lg font-semibold text-brand-900">
                   {link.title}
@@ -115,7 +115,7 @@ export default function Contact(): ReactNode {
                 </p>
                 <Link
                   href={link.href}
-                  className="mt-4 inline-flex items-center justify-center rounded-lg border border-brand-300 bg-white px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50 hover:text-brand-600"
+                  className="mt-4 inline-flex items-center justify-center rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800"
                 >
                   {link.label}
                 </Link>
