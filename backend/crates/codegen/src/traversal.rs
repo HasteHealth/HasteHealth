@@ -1,5 +1,4 @@
 use haste_fhir_model::r4::generated::{resources::StructureDefinition, types::ElementDefinition};
-use regex::Regex;
 
 /// Returns the indices of the direct child elements of the element at `index`.
 ///
@@ -8,7 +7,6 @@ use regex::Regex;
 /// Returns an error if:
 /// - `index` is out of bounds.
 /// - An element does not contain a path.
-/// - The child matching regular expression cannot be compiled.
 pub fn ele_index_to_child_indices(
     elements: &[ElementDefinition],
     index: usize,
@@ -17,34 +15,31 @@ pub fn ele_index_to_child_indices(
         .get(index)
         .ok_or_else(|| format!("Index {index} out of bounds"))?;
 
-    let parent_path: String = parent
-        .path
-        .value
-        .as_ref()
-        .ok_or("Element has no path")?
-        .clone();
+    let parent_path: &str = parent.path.value.as_deref().ok_or("Element has no path")?;
 
     let depth = parent_path.matches('.').count();
-    let parent_path_escaped = parent_path.replace('.', "\\.");
-    let child_regex = Regex::new(&format!("^{parent_path_escaped}\\.[^.]+$"))
-        .map_err(|e| format!("Failed to compile regex: {e}"))?;
 
-    let mut cur_index = index + 1;
     let mut children_indices = Vec::new();
 
-    while cur_index < elements.len()
-        && let path = elements[cur_index]
-            .path
-            .value
-            .as_ref()
-            .ok_or("Not Found")?
-            .to_owned()
-        && path.matches('.').count() > depth
-    {
-        if child_regex.is_match(&path) {
+    for (cur_index, element) in elements.iter().enumerate().skip(index + 1) {
+        let path = element.path.value.as_deref().ok_or("Not Found")?;
+        let path_depth = path.matches('.').count();
+
+        if path_depth <= depth {
+            break;
+        }
+
+        // A direct child has exactly one more path segment than its parent, with the
+        // parent's path as a strict prefix followed by a `.` separator - equivalent to
+        // the previous `^{parent}\.[^.]+$` regex without paying for regex compilation
+        // on every call.
+        if path_depth == depth + 1
+            && path.len() > parent_path.len()
+            && path.starts_with(parent_path)
+            && path.as_bytes()[parent_path.len()] == b'.'
+        {
             children_indices.push(cur_index);
         }
-        cur_index += 1;
     }
 
     Ok(children_indices)
