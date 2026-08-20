@@ -556,10 +556,10 @@ mod tests {
         assert!(matches!(
             fhir_decimal,
             Ok(FHIRDecimal {
-                value: Some(std::f64::consts::PI),
+                value: Some(value),
                 id: None,
                 extension: None
-            })
+            }) if (value - 3.14).abs() < f64::EPSILON
         ));
     }
 
