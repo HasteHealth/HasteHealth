@@ -6,9 +6,9 @@ description = "Haste Health binary."
 publish = false
 license = "Apache-2.0"
 
-# [profile.release]
-# strip = true    # Automatically strip symbols from the binary.
-# opt-level = "z" # Optimize for size in release builds.
+[profile.release]
+lto = "thin"
+codegen-units = 1
 
 [workspace]
 resolver = "3"
@@ -79,10 +79,15 @@ json-patch = { version = "4.2.0", default-features = false }
 jsonwebtoken = { version = "10.4.0", default-features = false, features = [
     "use_pem",
 ] }
+mimalloc = { version = "0.1.52", default-features = false }
 moka = { version = "0.12.15", default-features = false }
 quote = { version = "1.0.46", default-features = false }
 proc-macro2 = { version = "1.0.106", default-features = false }
-regex = { version = "1.12.3", default-features = false }
+regex = { version = "1.12.3", default-features = false, features = [
+    "std",
+    "perf",
+    "unicode-perl",
+] }
 reqwest = { version = "0.13", default-features = false }
 rust-embed = { version = "8.12.0", default-features = false }
 sentry = { version = "0.46.2", default-features = false }
@@ -122,6 +127,7 @@ opentelemetry-stdout = { version = "0.32.0", default-features = false }
 opentelemetry_sdk = { version = "0.32.1", default-features = false, features = [
     "logs",
 ] }
+mimalloc = { workspace = true }
 quote = { workspace = true }
 reqwest = { workspace = true }
 sentry = { workspace = true }
