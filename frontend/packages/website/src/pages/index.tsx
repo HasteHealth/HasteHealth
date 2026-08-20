@@ -110,10 +110,10 @@ const COMMAND_LENGTH = COMMAND_SEGMENTS.reduce(
   0,
 );
 
-const TYPE_MIN_DELAY_MS = 8;
-const TYPE_MAX_DELAY_MS = 18;
-const RESPOND_DELAY_MS = 120;
-const START_DELAY_MS = 400;
+const TYPE_MIN_DELAY_MS = 24;
+const TYPE_MAX_DELAY_MS = 48;
+const RESPOND_DELAY_MS = 150;
+const START_DELAY_MS = 500;
 
 function renderCommand(typed: number) {
   let offset = 0;
