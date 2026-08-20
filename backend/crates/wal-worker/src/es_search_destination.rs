@@ -42,20 +42,24 @@ impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
         "http"
     }
 
-    async fn truncate_table(&self, table_id: TableId) -> EtlResult<()> {
+    fn truncate_table(&self, table_id: TableId) -> impl Future<Output = EtlResult<()>> {
         warn!(
             "truncate_table is not implemented for ESSearchDestination as it is not intended to be used for writing table rows directly. Received table_id: {:?}",
             table_id
         );
-        Ok(())
+        std::future::ready(Ok(()))
     }
 
-    async fn write_table_rows(&self, table_id: TableId, rows: Vec<TableRow>) -> EtlResult<()> {
+    fn write_table_rows(
+        &self,
+        table_id: TableId,
+        rows: Vec<TableRow>,
+    ) -> impl Future<Output = EtlResult<()>> {
         warn!(
             "write_table_rows is not implemented for ESSearchDestination as it is not intended to be used for writing table rows directly. Received table_id: {:?} and rows: {:?}",
             table_id, rows
         );
-        Ok(())
+        std::future::ready(Ok(()))
     }
 
     async fn write_events(&self, events: Vec<Event>) -> EtlResult<()> {

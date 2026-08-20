@@ -69,7 +69,7 @@ July opened with authentication and session hardening — multi-factor authentic
 - PRs: [#777](https://github.com/HasteHealth/HasteHealth/pull/777), [#778](https://github.com/HasteHealth/HasteHealth/pull/778), [#779](https://github.com/HasteHealth/HasteHealth/pull/779), [#780](https://github.com/HasteHealth/HasteHealth/pull/780), [#781](https://github.com/HasteHealth/HasteHealth/pull/781), [#824](https://github.com/HasteHealth/HasteHealth/pull/824), [#856](https://github.com/HasteHealth/HasteHealth/pull/856).
 
 ### CI, release, and local dev
-- The local `docker-compose` setup switched to a generic Elasticsearch image so it also runs on non-`arm64` hosts, and the Docker base image was bumped to 1.97.0.
+- The local `docker-compose` setup switched to a generic Elasticsearch image so it also runs on non-`arm64` hosts, and the Docker base image was bumped.
 - The experimental `wal_worker` crate was pinned and then pulled back out of the backend build while it's still being hardened, and a stray `deno` dependency was pinned to stop undefined-symbol errors during workspace builds.
 - Module functions in the binary crate were made private where they didn't need to be public, tightening the crate's API surface.
 - Test and e2e CI workflows picked up build caching that only persists once a run lands on `main`, the release workflow got a similar cache-based speedup, and the Docker build gained its own caching pass.

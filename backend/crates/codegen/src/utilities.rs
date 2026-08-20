@@ -393,7 +393,7 @@ pub mod extract {
     }
 
     pub fn cardinality(element: &ElementDefinition) -> (u64, Max) {
-        let min = element.min.as_ref().and_then(|m| m.value).map_or(0, |m| m);
+        let min = element.min.as_ref().and_then(|m| m.value).unwrap_or(0);
 
         let max = element
             .max

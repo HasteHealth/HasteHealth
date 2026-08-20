@@ -20,12 +20,12 @@ pub struct SearchParametersIndex {
 }
 
 impl SearchParameterResolve for SearchParametersIndex {
-    async fn by_resource_type(
+    fn by_resource_type(
         &self,
         _tenant: &TenantId,
         _project: &ProjectId,
         resource_type: &ResourceType,
-    ) -> Result<Vec<ResolvedParameter>, OperationOutcomeError> {
+    ) -> impl Future<Output = Result<Vec<ResolvedParameter>, OperationOutcomeError>> {
         let mut return_vec = Vec::new();
 
         if let Some(domain_params) = self
@@ -48,17 +48,17 @@ impl SearchParameterResolve for SearchParametersIndex {
             return_vec.extend(params.values().cloned());
         }
 
-        Ok(return_vec)
+        std::future::ready(Ok(return_vec))
     }
 
-    async fn by_name(
+    fn by_name(
         &self,
         _tenant: &TenantId,
         _project: &ProjectId,
         resource_type: Option<&ResourceType>,
         name: &str,
-    ) -> Result<Option<ResolvedParameter>, OperationOutcomeError> {
-        Ok(resource_type
+    ) -> impl Future<Output = Result<Option<ResolvedParameter>, OperationOutcomeError>> {
+        std::future::ready(Ok(resource_type
             .and_then(|resource_type| self.by_resource_type.get(resource_type.as_ref()))
             .and_then(|params| params.get(name))
             .or_else(|| {
@@ -71,15 +71,15 @@ impl SearchParameterResolve for SearchParametersIndex {
                     .get("DomainResource")
                     .and_then(|params| params.get(name))
             })
-            .cloned())
+            .cloned()))
     }
 
-    async fn all(
+    fn all(
         &self,
         _tenant: &TenantId,
         _project: &ProjectId,
-    ) -> Result<Vec<ResolvedParameter>, OperationOutcomeError> {
-        Ok(self.by_url.values().cloned().collect::<Vec<_>>())
+    ) -> impl Future<Output = Result<Vec<ResolvedParameter>, OperationOutcomeError>> {
+        std::future::ready(Ok(self.by_url.values().cloned().collect::<Vec<_>>()))
     }
 }
 
