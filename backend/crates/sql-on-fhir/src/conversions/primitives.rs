@@ -22,12 +22,12 @@ pub enum PrimitiveValue {
 }
 
 #[allow(dead_code)]
-fn downcast_meta_value<'a, T: 'static>(value: &'a dyn MetaValue) -> Option<&'a T> {
+fn downcast_meta_value<T: 'static>(value: &dyn MetaValue) -> Option<&T> {
     value.as_any().downcast_ref::<T>().or_else(|| {
         value
             .as_any()
             .downcast_ref::<Box<T>>()
-            .map(|boxed| boxed.as_ref())
+            .map(std::convert::AsRef::as_ref)
     })
 }
 
@@ -53,6 +53,13 @@ where
     Ok(extractor(value))
 }
 
+fn unsupported_type_error(type_name: &str) -> OperationOutcomeError {
+    OperationOutcomeError::error(
+        IssueType::invalid(),
+        format!("Unsupported primitive type: '{type_name}'"),
+    )
+}
+
 pub fn convert_meta_value(
     type_: &str,
     value: &dyn MetaValue,
@@ -64,6 +71,28 @@ pub fn convert_meta_value(
         ));
     }
 
+    match type_ {
+        "instant" | "time" | "date" | "dateTime" | "decimal" | "boolean" | "integer" | "string"
+        | "uri" | "base64Binary" | "code" | "id" | "oid" | "unsignedInt" | "positiveInt"
+        | "markdown" | "url" | "canonical" | "uuid" => convert_fhir_primitive(type_, value),
+
+        "http://hl7.org/fhirpath/System.String"
+        | "http://hl7.org/fhirpath/System.Boolean"
+        | "http://hl7.org/fhirpath/System.Integer"
+        | "http://hl7.org/fhirpath/System.Decimal"
+        | "http://hl7.org/fhirpath/System.Date"
+        | "http://hl7.org/fhirpath/System.DateTime"
+        | "http://hl7.org/fhirpath/System.Instant"
+        | "http://hl7.org/fhirpath/System.Time" => convert_fhirpath_system_type(type_, value),
+
+        type_name => Err(unsupported_type_error(type_name)),
+    }
+}
+
+fn convert_fhir_primitive(
+    type_: &str,
+    value: &dyn MetaValue,
+) -> Result<Option<PrimitiveValue>, OperationOutcomeError> {
     match type_ {
         "instant" => convert_with::<FHIRInstant, _, _>(value, "instant", |primitive| {
             primitive
@@ -98,91 +127,63 @@ pub fn convert_meta_value(
         "integer" => convert_with::<FHIRInteger, _, _>(value, "integer", |primitive| {
             primitive
                 .value
+                // FIXME: Do not convert to f64.
                 .map(|number| PrimitiveValue::Number(number as f64))
         }),
         "string" => convert_with::<FHIRString, _, _>(value, "string", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "uri" => convert_with::<FHIRUri, _, _>(value, "uri", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "base64Binary" => {
             convert_with::<FHIRBase64Binary, _, _>(value, "base64Binary", |primitive| {
-                primitive
-                    .value
-                    .as_ref()
-                    .cloned()
-                    .map(PrimitiveValue::String)
+                primitive.value.clone().map(PrimitiveValue::String)
             })
         }
-        "code" => {
-            // Because of inline terminologies we manually pull of the value
-            // For example AddressUse etc...
-            Ok(value
-                .get_field("value")
-                .and_then(|v| v.as_any().downcast_ref::<String>().cloned())
-                .map(PrimitiveValue::String))
-        }
+        "code" => Ok(value
+            .get_field("value")
+            .and_then(|v| v.as_any().downcast_ref::<String>().cloned())
+            .map(PrimitiveValue::String)),
         "id" => convert_with::<FHIRId, _, _>(value, "id", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "oid" => convert_with::<FHIROid, _, _>(value, "oid", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "unsignedInt" => convert_with::<FHIRUnsignedInt, _, _>(value, "unsignedInt", |primitive| {
             primitive
                 .value
+                // FIXME: Do not convert to f64.
                 .map(|number| PrimitiveValue::Number(number as f64))
         }),
         "positiveInt" => convert_with::<FHIRPositiveInt, _, _>(value, "positiveInt", |primitive| {
             primitive
                 .value
+                // FIXME: Do not convert to f64.
                 .map(|number| PrimitiveValue::Number(number as f64))
         }),
         "markdown" => convert_with::<FHIRMarkdown, _, _>(value, "markdown", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "url" => convert_with::<FHIRUrl, _, _>(value, "url", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "canonical" => convert_with::<FHIRCanonical, _, _>(value, "canonical", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
         "uuid" => convert_with::<FHIRUuid, _, _>(value, "uuid", |primitive| {
-            primitive
-                .value
-                .as_ref()
-                .cloned()
-                .map(PrimitiveValue::String)
+            primitive.value.clone().map(PrimitiveValue::String)
         }),
+        type_name => Err(unsupported_type_error(type_name)),
+    }
+}
+
+fn convert_fhirpath_system_type(
+    type_: &str,
+    value: &dyn MetaValue,
+) -> Result<Option<PrimitiveValue>, OperationOutcomeError> {
+    match type_ {
         "http://hl7.org/fhirpath/System.String" => Ok(value
             .as_any()
             .downcast_ref::<String>()
@@ -190,7 +191,7 @@ pub fn convert_meta_value(
                 value
                     .as_any()
                     .downcast_ref::<Box<String>>()
-                    .map(|boxed| boxed.as_ref())
+                    .map(std::convert::AsRef::as_ref)
             })
             .cloned()
             .map(PrimitiveValue::String)),
@@ -203,6 +204,7 @@ pub fn convert_meta_value(
             .as_any()
             .downcast_ref::<i64>()
             .copied()
+            // FIXME: Do not convert to f64.
             .map(|number| PrimitiveValue::Number(number as f64))),
         "http://hl7.org/fhirpath/System.Decimal" => Ok(value
             .as_any()
@@ -225,9 +227,6 @@ pub fn convert_meta_value(
             .as_any()
             .downcast_ref::<Time>()
             .map(|time| PrimitiveValue::String(time.to_string()))),
-        type_name => Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            format!("Unsupported primitive type: '{type_name}'"),
-        )),
+        type_name => Err(unsupported_type_error(type_name)),
     }
 }

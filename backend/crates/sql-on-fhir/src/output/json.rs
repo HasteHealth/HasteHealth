@@ -4,9 +4,7 @@ use ordermap::OrderMap;
 
 use crate::OutputResults;
 
-pub fn json(
-    results: Vec<OrderMap<String, OutputResults>>,
-) -> Result<Vec<u8>, OperationOutcomeError> {
+pub fn json(results: &[OrderMap<String, OutputResults>]) -> Result<Vec<u8>, OperationOutcomeError> {
     let mut byte_vector = Vec::new();
 
     serde_json::to_writer(&mut byte_vector, &results).map_err(|_e| {
