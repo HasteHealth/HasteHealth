@@ -267,15 +267,15 @@ impl<Key: AsRef<str> + Send + Sync>
         }
     }
 
-    async fn update(
+    fn update(
         &self,
         _tenant: &TenantId,
         _model: AuthorizationCode,
-    ) -> Result<AuthorizationCode, OperationOutcomeError> {
-        Err(OperationOutcomeError::fatal(
+    ) -> impl Future<Output = Result<AuthorizationCode, OperationOutcomeError>> {
+        std::future::ready(Err(OperationOutcomeError::fatal(
             IssueType::exception(),
             "Update operation for AuthorizationCode is not implemented.".to_string(),
-        ))
+        )))
     }
 
     async fn delete(&self, tenant: &TenantId, code: &Key) -> Result<(), OperationOutcomeError> {
