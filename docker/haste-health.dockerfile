@@ -1,4 +1,4 @@
-FROM rust:1.97.0-bookworm AS builder
+FROM rust:1.98.0-bookworm AS builder
 
 RUN apt update && apt install -y openssl pkg-config libssl-dev && apt clean
 
