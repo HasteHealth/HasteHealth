@@ -409,21 +409,19 @@ fn is_conformant_to_value_discriminator(
 #[derive(Debug)]
 struct SplitSlicing(HashMap<usize, Vec<Path>>);
 
-/// Resolves the element definition for each discriminator path against `slice_index`.
-///
-/// This lookup only depends on the slice being classified, not on any particular value
-/// location - so it's resolved once per slice and reused across every location that
-/// slice needs to be checked against.
-async fn resolve_discriminator_elements<'a, Resolver: CanonicalResolver>(
-    ctx: Arc<FHIRProfileCTX<'a, Resolver>>,
+async fn is_conformant_to_discriminators(
+    ctx: Arc<FHIRProfileCTX<'_, impl CanonicalResolver>>,
     slice_index: &usize,
+    discriminators: &[ElementDefinitionSlicingDiscriminator],
     discriminator_element_paths: &[String],
     parent_path: Option<&str>,
-) -> Result<Vec<FoundDiscriminator<'a, Resolver>>, OperationOutcomeError> {
-    let mut resolved = Vec::with_capacity(discriminator_element_paths.len());
-
-    for discriminator_element_path in discriminator_element_paths {
-        let Some(found) = find_element_definition_for_discriminator(
+    loc: &Path,
+) -> Result<bool, OperationOutcomeError> {
+    for (discriminator_element_index, discriminator_element_path) in
+        discriminator_element_paths.iter().enumerate()
+    {
+        let discriminator = &discriminators[discriminator_element_index];
+        let Some(slice_descriminator_value_definition) = find_element_definition_for_discriminator(
             ctx.clone(),
             discriminator_element_path,
             *slice_index,
@@ -441,23 +439,13 @@ async fn resolve_discriminator_elements<'a, Resolver: CanonicalResolver>(
             ));
         };
 
-        resolved.push(found);
-    }
-
-    Ok(resolved)
-}
-
-async fn is_conformant_to_discriminators(
-    root: &dyn MetaValue,
-    discriminators: &[ElementDefinitionSlicingDiscriminator],
-    resolved_discriminator_elements: &[FoundDiscriminator<'_, impl CanonicalResolver>],
-    loc: &Path,
-) -> Result<bool, OperationOutcomeError> {
-    for (discriminator, resolved) in discriminators.iter().zip(resolved_discriminator_elements) {
         if !is_conformant_to_slice_descriptor(
             discriminator,
-            get_element(resolved.ctx.profile(), resolved.discriminator_element_index)?,
-            root,
+            get_element(
+                slice_descriminator_value_definition.ctx.profile(),
+                slice_descriminator_value_definition.discriminator_element_index,
+            )?,
+            ctx.root,
             loc,
         )
         .await?
@@ -508,19 +496,13 @@ async fn split_slicing(
         let mut remainder_locs = vec![];
         let mut slice_locations = vec![];
 
-        let resolved_discriminator_elements = resolve_discriminator_elements(
-            ctx.clone(),
-            slice_index,
-            &discriminator_element_paths,
-            parent_path,
-        )
-        .await?;
-
         for loc in &locs {
             if is_conformant_to_discriminators(
-                ctx.root,
+                ctx.clone(),
+                slice_index,
                 discriminators,
-                &resolved_discriminator_elements,
+                &discriminator_element_paths,
+                parent_path,
                 loc,
             )
             .await?
