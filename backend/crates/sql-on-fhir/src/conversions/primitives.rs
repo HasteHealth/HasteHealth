@@ -127,6 +127,7 @@ fn convert_fhir_primitive(
         "integer" => convert_with::<FHIRInteger, _, _>(value, "integer", |primitive| {
             primitive
                 .value
+                // FIXME: Do not convert to f64.
                 .map(|number| PrimitiveValue::Number(number as f64))
         }),
         "string" => convert_with::<FHIRString, _, _>(value, "string", |primitive| {
@@ -153,11 +154,13 @@ fn convert_fhir_primitive(
         "unsignedInt" => convert_with::<FHIRUnsignedInt, _, _>(value, "unsignedInt", |primitive| {
             primitive
                 .value
+                // FIXME: Do not convert to f64.
                 .map(|number| PrimitiveValue::Number(number as f64))
         }),
         "positiveInt" => convert_with::<FHIRPositiveInt, _, _>(value, "positiveInt", |primitive| {
             primitive
                 .value
+                // FIXME: Do not convert to f64.
                 .map(|number| PrimitiveValue::Number(number as f64))
         }),
         "markdown" => convert_with::<FHIRMarkdown, _, _>(value, "markdown", |primitive| {
@@ -201,6 +204,7 @@ fn convert_fhirpath_system_type(
             .as_any()
             .downcast_ref::<i64>()
             .copied()
+            // FIXME: Do not convert to f64.
             .map(|number| PrimitiveValue::Number(number as f64))),
         "http://hl7.org/fhirpath/System.Decimal" => Ok(value
             .as_any()
