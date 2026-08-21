@@ -60,11 +60,17 @@ fn parse_redirect_port(redirect_uri: &str) -> Result<u16, OperationOutcomeError>
 
 /// Blocks waiting for the browser to redirect back with `?code=&state=`, on a single
 /// connection to the loopback listener. Returns (code, state).
-fn wait_for_callback(port: u16, expected_path: &str) -> Result<(String, String), OperationOutcomeError> {
+fn wait_for_callback(
+    port: u16,
+    expected_path: &str,
+) -> Result<(String, String), OperationOutcomeError> {
     let listener = TcpListener::bind(("127.0.0.1", port)).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::exception(),
-            format!("Failed to bind local callback listener on port {}: {}", port, e),
+            format!(
+                "Failed to bind local callback listener on port {}: {}",
+                port, e
+            ),
         )
     })?;
 
@@ -97,8 +103,7 @@ fn wait_for_callback(port: u16, expected_path: &str) -> Result<(String, String),
         .to_string();
 
     let mut stream = stream;
-    let body =
-        "<html><body><h3>Login complete.</h3><p>You can close this window and return to the terminal.</p></body></html>";
+    let body = "<html><body><h3>Login complete.</h3><p>You can close this window and return to the terminal.</p></body></html>";
     let response = format!(
         "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
         body.len(),
@@ -195,7 +200,10 @@ pub(crate) async fn login(state: Arc<Mutex<CLIState>>) -> Result<(), OperationOu
         .map_err(|e| {
             OperationOutcomeError::error(
                 IssueType::exception(),
-                format!("Invalid authorization_endpoint in discovery document: {}", e),
+                format!(
+                    "Invalid authorization_endpoint in discovery document: {}",
+                    e
+                ),
             )
         })?;
     authorize_url
@@ -209,7 +217,7 @@ pub(crate) async fn login(state: Arc<Mutex<CLIState>>) -> Result<(), OperationOu
         .append_pair("code_challenge_method", "S256");
 
     println!("Opening your browser to log in...");
-    println!("If it doesn't open automatically, visit:\n{}\n", authorize_url);
+    println!("If it doesn't open automatically, visit: {}", authorize_url);
     open_in_browser(authorize_url.as_str());
 
     let (code, returned_state) =
@@ -254,7 +262,10 @@ pub(crate) async fn login(state: Arc<Mutex<CLIState>>) -> Result<(), OperationOu
         let body = res.text().await.unwrap_or_default();
         return Err(OperationOutcomeError::error(
             IssueType::forbidden(),
-            format!("Failed to exchange authorization code: HTTP {} - {}", status, body),
+            format!(
+                "Failed to exchange authorization code: HTTP {} - {}",
+                status, body
+            ),
         ));
     }
 
@@ -296,7 +307,10 @@ pub(crate) async fn login(state: Arc<Mutex<CLIState>>) -> Result<(), OperationOu
         )
     })?;
 
-    println!("Login successful. Profile '{}' is now authenticated.", profile_name);
+    println!(
+        "Login successful. Profile '{}' is now authenticated.",
+        profile_name
+    );
 
     Ok(())
 }
