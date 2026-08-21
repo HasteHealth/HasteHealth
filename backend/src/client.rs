@@ -54,20 +54,19 @@ pub(crate) async fn fetch_discovery_document(
             )
         })?;
 
-    let well_known_document = serde_json::from_slice::<WellKnownDiscoveryDocument>(
-        &res.bytes().await.map_err(|e| {
+    let well_known_document =
+        serde_json::from_slice::<WellKnownDiscoveryDocument>(&res.bytes().await.map_err(|e| {
             OperationOutcomeError::error(
                 IssueType::exception(),
                 format!("Failed to read OIDC discovery document: {}", e),
             )
-        })?,
-    )
-    .map_err(|e| {
-        OperationOutcomeError::error(
-            IssueType::exception(),
-            format!("Failed to parse OIDC discovery document: {}", e),
-        )
-    })?;
+        })?)
+        .map_err(|e| {
+            OperationOutcomeError::error(
+                IssueType::exception(),
+                format!("Failed to parse OIDC discovery document: {}", e),
+            )
+        })?;
 
     current_state.well_known_document = Some(well_known_document.clone());
 
@@ -129,7 +128,9 @@ pub(crate) async fn refresh_access_token(
     {
         profile.tokens = Some(StoredTokens {
             access_token: token_response.access_token.clone(),
-            refresh_token: token_response.refresh_token.or(Some(refresh_token.to_string())),
+            refresh_token: token_response
+                .refresh_token
+                .or(Some(refresh_token.to_string())),
             id_token: token_response.id_token,
             expires_at: unix_now() + token_response.expires_in,
         });
