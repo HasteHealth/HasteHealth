@@ -88,8 +88,8 @@ pub(crate) enum ConfigCommands {
         r4_url: Option<String>,
         #[arg(short, long)]
         discovery_uri: Option<String>,
-        #[arg(long, value_enum, default_value = "client-credentials")]
-        auth_mode: AuthModeChoice,
+        #[arg(long, value_enum)]
+        auth_mode: Option<AuthModeChoice>,
         #[arg(short, long)]
         id: Option<String>,
         /// Client secret. Required for --auth-mode client-credentials, ignored otherwise.
@@ -227,6 +227,24 @@ pub(crate) async fn config(
                     .with_prompt("OIDC Client ID")
                     .interact_text()
                     .unwrap()
+            };
+
+            let auth_mode: AuthModeChoice = match auth_mode {
+                Some(mode) => mode.clone(),
+                None => {
+                    let options = ["Authorization Code (browser login)", "Client Credentials"];
+                    let selection = Select::with_theme(&ColorfulTheme::default())
+                        .with_prompt("Auth Mode")
+                        .items(&options)
+                        .default(0)
+                        .interact()
+                        .unwrap();
+
+                    match selection {
+                        1 => AuthModeChoice::ClientCredentials,
+                        _ => AuthModeChoice::AuthorizationCode,
+                    }
+                }
             };
 
             let auth = match auth_mode {
