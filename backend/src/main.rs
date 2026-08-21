@@ -63,6 +63,8 @@ enum CLICommand {
         #[command(subcommand)]
         command: commands::config::ConfigCommands,
     },
+    /// Log in as a human user via the browser (authorization_code + PKCE flow).
+    Login,
     Worker {
         #[command(subcommand)]
         command: Option<commands::worker::WorkerCommands>,
@@ -299,6 +301,7 @@ fn main() -> Result<(), OperationOutcomeError> {
                 CLICommand::Config { command } => {
                     commands::config::config(&cli_state, command).await
                 }
+                CLICommand::Login => commands::login::login(cli_state).await,
                 CLICommand::Api { command } => {
                     commands::api::api_commands(cli_state, command).await
                 }

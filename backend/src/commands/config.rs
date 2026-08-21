@@ -1,5 +1,5 @@
 use crate::{CLIState, CONFIG_LOCATION};
-use clap::Subcommand;
+use clap::{Subcommand, ValueEnum};
 use dialoguer::{Confirm, Select};
 use dialoguer::{Input, Password, theme::ColorfulTheme};
 use haste_fhir_model::r4::generated::terminology::IssueType;
@@ -39,6 +39,9 @@ pub(crate) struct Profile {
     pub(crate) r4_url: String,
     pub(crate) oidc_discovery_uri: String,
     pub(crate) auth: ProfileAuth,
+    /// Cached tokens for `ProfileAuth::AuthorizationCode` profiles, populated by `haste-health login`.
+    #[serde(default)]
+    pub(crate) tokens: Option<StoredTokens>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -47,7 +50,32 @@ pub(crate) enum ProfileAuth {
         client_id: String,
         client_secret: String,
     },
+    /// A public (no secret) OIDC client authenticated by a human via the browser-based
+    /// authorization_code + PKCE flow. Run `haste-health login` to obtain tokens.
+    AuthorizationCode {
+        client_id: String,
+        redirect_uri: String,
+        scope: String,
+    },
     Public {},
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub(crate) struct StoredTokens {
+    pub(crate) access_token: String,
+    pub(crate) refresh_token: Option<String>,
+    pub(crate) id_token: Option<String>,
+    /// Unix timestamp (seconds) the access token expires at.
+    pub(crate) expires_at: i64,
+}
+
+#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
+pub(crate) enum AuthModeChoice {
+    /// A confidential (server-to-server) client authenticated with a client secret.
+    ClientCredentials,
+    /// A public client a human logs into via the browser (authorization_code + PKCE).
+    /// Use `haste-health login` afterwards to obtain tokens.
+    AuthorizationCode,
 }
 
 #[derive(Subcommand, Debug)]
@@ -60,10 +88,19 @@ pub(crate) enum ConfigCommands {
         r4_url: Option<String>,
         #[arg(short, long)]
         discovery_uri: Option<String>,
+        #[arg(long, value_enum, default_value = "client-credentials")]
+        auth_mode: AuthModeChoice,
         #[arg(short, long)]
         id: Option<String>,
+        /// Client secret. Required for --auth-mode client-credentials, ignored otherwise.
         #[arg(short, long)]
         secret: Option<String>,
+        /// Loopback redirect URI for --auth-mode authorization-code (must be registered on the server client).
+        #[arg(long)]
+        redirect_uri: Option<String>,
+        /// OAuth scope to request for --auth-mode authorization-code.
+        #[arg(long)]
+        scope: Option<String>,
     },
     DeleteProfile {
         #[arg(short, long)]
@@ -150,8 +187,11 @@ pub(crate) async fn config(
             name,
             r4_url,
             discovery_uri,
+            auth_mode,
             id,
             secret,
+            redirect_uri,
+            scope,
         } => {
             let name: String = if let Some(name) = name {
                 name.clone()
@@ -189,13 +229,49 @@ pub(crate) async fn config(
                     .unwrap()
             };
 
-            let client_secret: String = if let Some(secret) = secret {
-                secret.clone()
-            } else {
-                Password::with_theme(&ColorfulTheme::default())
-                    .with_prompt("OIDC Client Secret")
-                    .interact()
-                    .unwrap()
+            let auth = match auth_mode {
+                AuthModeChoice::ClientCredentials => {
+                    let client_secret: String = if let Some(secret) = secret {
+                        secret.clone()
+                    } else {
+                        Password::with_theme(&ColorfulTheme::default())
+                            .with_prompt("OIDC Client Secret")
+                            .interact()
+                            .unwrap()
+                    };
+
+                    ProfileAuth::ClientCredentails {
+                        client_id: client_id.clone(),
+                        client_secret,
+                    }
+                }
+                AuthModeChoice::AuthorizationCode => {
+                    let redirect_uri: String = if let Some(redirect_uri) = redirect_uri {
+                        redirect_uri.clone()
+                    } else {
+                        Input::with_theme(&ColorfulTheme::default())
+                            .with_prompt("Loopback Redirect URI")
+                            .default("http://127.0.0.1:8976/callback".to_string())
+                            .interact_text()
+                            .unwrap()
+                    };
+
+                    let scope: String = if let Some(scope) = scope {
+                        scope.clone()
+                    } else {
+                        Input::with_theme(&ColorfulTheme::default())
+                            .with_prompt("OAuth Scope")
+                            .default("openid profile fhirUser offline_access user/*.*".to_string())
+                            .interact_text()
+                            .unwrap()
+                    };
+
+                    ProfileAuth::AuthorizationCode {
+                        client_id: client_id.clone(),
+                        redirect_uri,
+                        scope,
+                    }
+                }
             };
 
             let mut state = state.lock().await;
@@ -215,10 +291,8 @@ pub(crate) async fn config(
                 name: name.clone(),
                 r4_url: r4_url.clone(),
                 oidc_discovery_uri: oidc_discovery_uri.clone(),
-                auth: ProfileAuth::ClientCredentails {
-                    client_id: client_id.clone(),
-                    client_secret: client_secret.clone(),
-                },
+                auth,
+                tokens: None,
             };
 
             state.config.profiles.push(profile);
