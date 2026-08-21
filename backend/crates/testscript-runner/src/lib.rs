@@ -675,7 +675,7 @@ fn conditional_delete_request(
 
 /// The patch source fixture must be a `Binary` resource carrying the JSON Patch
 /// document, base64-encoded in `data` with `contentType`
-/// `application/json-patch+json` — the standard way TestScript represents patch
+/// `application/json-patch+json` — the standard way `TestScript` represents patch
 /// bodies, since there's no dedicated FHIR resource type for a JSON Patch document.
 fn patch_request(
     state: &TestState,
