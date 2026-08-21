@@ -47,17 +47,35 @@ impl From<UserSubscriptionChoice> for SubscriptionTier {
     }
 }
 
+#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
+pub(crate) enum ClientGrantTypeChoice {
+    /// A confidential (server-to-server) client authenticated with a client secret.
+    ClientCredentials,
+    /// A public client (no secret) a human logs into via the browser (authorization_code + PKCE).
+    AuthorizationCode,
+}
+
 #[derive(Subcommand, Debug)]
 pub(crate) enum ClientCommands {
     Create {
         #[arg(short, long)]
         id: String,
+        /// Required for --grant-type client-credentials. Ignored (and unset, making the
+        /// client public) for --grant-type authorization-code.
         #[arg(short, long)]
-        secret: String,
+        secret: Option<String>,
         #[arg(short, long)]
         tenant: String,
         #[arg(short, long)]
         project: String,
+        #[arg(long, value_enum, default_value = "client-credentials")]
+        grant_type: ClientGrantTypeChoice,
+        /// Loopback redirect URI(s) to allow, e.g. http://127.0.0.1:8976/callback.
+        /// Required for --grant-type authorization-code.
+        #[arg(long)]
+        redirect_uri: Vec<String>,
+        #[arg(long)]
+        scope: Option<String>,
     },
 }
 
@@ -250,7 +268,82 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                 project,
                 id,
                 secret,
+                grant_type,
+                redirect_uri,
+                scope,
             } => {
+                let client_app = match grant_type {
+                    ClientGrantTypeChoice::ClientCredentials => {
+                        let Some(secret) = secret else {
+                            return Err(OperationOutcomeError::error(
+                                IssueType::invalid(),
+                                "--secret is required for --grant-type client-credentials"
+                                    .to_string(),
+                            ));
+                        };
+
+                        ClientApplication {
+                            id: Some(id.clone()),
+                            secret: Some(Box::new(FHIRString {
+                                value: Some(secret.clone()),
+                                ..Default::default()
+                            })),
+                            scope: Some(Box::new(FHIRString {
+                                value: Some(
+                                    scope.clone().unwrap_or("openid system/*.*".to_string()),
+                                ),
+                                ..Default::default()
+                            })),
+                            name: Box::new(FHIRString {
+                                value: Some("CLI".to_string()),
+                                ..Default::default()
+                            }),
+                            grantType: vec![ClientapplicationGrantType::client_credentials()],
+                            responseTypes: ClientapplicationResponseTypes::token(),
+                            ..Default::default()
+                        }
+                    }
+                    ClientGrantTypeChoice::AuthorizationCode => {
+                        if redirect_uri.is_empty() {
+                            return Err(OperationOutcomeError::error(
+                                IssueType::invalid(),
+                                "At least one --redirect-uri is required for --grant-type authorization-code"
+                                    .to_string(),
+                            ));
+                        }
+
+                        ClientApplication {
+                            id: Some(id.clone()),
+                            secret: None,
+                            scope: Some(Box::new(FHIRString {
+                                value: Some(scope.clone().unwrap_or(
+                                    "openid profile fhirUser offline_access user/*.*".to_string(),
+                                )),
+                                ..Default::default()
+                            })),
+                            name: Box::new(FHIRString {
+                                value: Some("CLI".to_string()),
+                                ..Default::default()
+                            }),
+                            grantType: vec![
+                                ClientapplicationGrantType::authorization_code(),
+                                ClientapplicationGrantType::refresh_token(),
+                            ],
+                            responseTypes: ClientapplicationResponseTypes::code(),
+                            redirectUri: Some(
+                                redirect_uri
+                                    .iter()
+                                    .map(|uri| FHIRString {
+                                        value: Some(uri.clone()),
+                                        ..Default::default()
+                                    })
+                                    .collect(),
+                            ),
+                            ..Default::default()
+                        }
+                    }
+                };
+
                 let services = services::create_services(config).await?;
 
                 let ctx = Arc::new(ServerCTX::system(
@@ -260,79 +353,66 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                     services.rate_limit.clone(),
                 ));
 
+                let mut entries = Vec::with_capacity(2);
+
+                // Authorization-code clients are used by humans and rely on whatever
+                // access policy is attached to the authenticating user, so only
+                // client-credentials clients get an access policy of their own.
+                if *grant_type == ClientGrantTypeChoice::ClientCredentials {
+                    entries.push(BundleEntry {
+                        fullUrl: Some(Box::new(FHIRUri {
+                            value: Some("access-policy".to_string()),
+                            ..Default::default()
+                        })),
+                        request: Some(BundleEntryRequest {
+                            method: HttpVerb::post(),
+                            url: Box::new(FHIRUri {
+                                value: Some("AccessPolicyV2".to_string()),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        }),
+                        resource: Some(Box::new(Resource::AccessPolicyV2(AccessPolicyV2 {
+                            name: Box::new(FHIRString {
+                                value: Some("ADMIN".to_string()),
+                                ..Default::default()
+                            }),
+                            engine: AccessPolicyv2Engine::full_access(),
+                            target: Some(vec![AccessPolicyV2Target {
+                                link: Box::new(Reference {
+                                    reference: Some(Box::new(FHIRString {
+                                        value: Some("client-app".to_string()),
+                                        ..Default::default()
+                                    })),
+                                    ..Default::default()
+                                }),
+                            }]),
+                            ..Default::default()
+                        }))),
+                        ..Default::default()
+                    });
+                }
+
+                entries.push(BundleEntry {
+                    fullUrl: Some(Box::new(FHIRUri {
+                        value: Some("client-app".to_string()),
+                        ..Default::default()
+                    })),
+                    request: Some(BundleEntryRequest {
+                        method: HttpVerb::put(),
+                        url: Box::new(FHIRUri {
+                            value: Some(format!("ClientApplication/{}", id)),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    resource: Some(Box::new(Resource::ClientApplication(client_app))),
+                    ..Default::default()
+                });
+
                 let transaction_bundle = Bundle {
                     type_: BundleType::transaction(),
-                    entry: Some(vec![
-                        BundleEntry {
-                            fullUrl: Some(Box::new(FHIRUri {
-                                value: Some("access-policy".to_string()),
-                                ..Default::default()
-                            })),
-                            request: Some(BundleEntryRequest {
-                                method: HttpVerb::post(),
-                                url: Box::new(FHIRUri {
-                                    value: Some("AccessPolicyV2".to_string()),
-                                    ..Default::default()
-                                }),
-                                ..Default::default()
-                            }),
-                            resource: Some(Box::new(Resource::AccessPolicyV2(AccessPolicyV2 {
-                                name: Box::new(FHIRString {
-                                    value: Some("ADMIN".to_string()),
-                                    ..Default::default()
-                                }),
-                                engine: AccessPolicyv2Engine::full_access(),
-                                target: Some(vec![AccessPolicyV2Target {
-                                    link: Box::new(Reference {
-                                        reference: Some(Box::new(FHIRString {
-                                            value: Some("client-app".to_string()),
-                                            ..Default::default()
-                                        })),
-                                        ..Default::default()
-                                    }),
-                                }]),
-                                ..Default::default()
-                            }))),
-                            ..Default::default()
-                        },
-                        BundleEntry {
-                            fullUrl: Some(Box::new(FHIRUri {
-                                value: Some("client-app".to_string()),
-                                ..Default::default()
-                            })),
-                            request: Some(BundleEntryRequest {
-                                method: HttpVerb::put(),
-                                url: Box::new(FHIRUri {
-                                    value: Some(format!("ClientApplication/{}", id)),
-                                    ..Default::default()
-                                }),
-                                ..Default::default()
-                            }),
-                            resource: Some(Box::new(Resource::ClientApplication(
-                                ClientApplication {
-                                    id: Some(id.clone()),
-                                    secret: Some(Box::new(FHIRString {
-                                        value: Some(secret.clone()),
-                                        ..Default::default()
-                                    })),
-                                    scope: Some(Box::new(FHIRString {
-                                        value: Some("openid system/*.*".to_string()),
-                                        ..Default::default()
-                                    })),
-                                    name: Box::new(FHIRString {
-                                        value: Some("CLI".to_string()),
-                                        ..Default::default()
-                                    }),
-                                    grantType: vec![
-                                        ClientapplicationGrantType::client_credentials(),
-                                    ],
-                                    responseTypes: ClientapplicationResponseTypes::token(),
-                                    ..Default::default()
-                                },
-                            ))),
-                            ..Default::default()
-                        },
-                    ]),
+                    entry: Some(entries),
                     ..Default::default()
                 };
 

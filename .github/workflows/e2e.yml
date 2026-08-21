@@ -90,8 +90,8 @@ jobs:
       - name: Setup Tenant
         run: |
           ./target/debug/haste-health admin tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited
-          ./target/debug/haste-health admin client create --id testing --secret testing --tenant my-health --project system
-          ./target/debug/haste-health config create-profile -n testing --r4-url http://localhost:3000/w/my-health/system/api/v1/fhir/r4 --discovery-uri http://localhost:3000/.well-known/openid-configuration/w/my-health/system --id testing --secret testing
+          ./target/debug/haste-health admin client create --id testing --secret testing --tenant my-health --project system --grant-type client-credentials
+          ./target/debug/haste-health config create-profile -n testing --auth-mode client-credentials --r4-url http://localhost:3000/w/my-health/system/api/v1/fhir/r4 --discovery-uri http://localhost:3000/.well-known/openid-configuration/w/my-health/system --id testing --secret testing
         working-directory: ./backend
 
       - name: Confirm Client App
