@@ -353,58 +353,66 @@ pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcom
                     services.rate_limit.clone(),
                 ));
 
+                let mut entries = Vec::with_capacity(2);
+
+                // Authorization-code clients are used by humans and rely on whatever
+                // access policy is attached to the authenticating user, so only
+                // client-credentials clients get an access policy of their own.
+                if *grant_type == ClientGrantTypeChoice::ClientCredentials {
+                    entries.push(BundleEntry {
+                        fullUrl: Some(Box::new(FHIRUri {
+                            value: Some("access-policy".to_string()),
+                            ..Default::default()
+                        })),
+                        request: Some(BundleEntryRequest {
+                            method: HttpVerb::post(),
+                            url: Box::new(FHIRUri {
+                                value: Some("AccessPolicyV2".to_string()),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        }),
+                        resource: Some(Box::new(Resource::AccessPolicyV2(AccessPolicyV2 {
+                            name: Box::new(FHIRString {
+                                value: Some("ADMIN".to_string()),
+                                ..Default::default()
+                            }),
+                            engine: AccessPolicyv2Engine::full_access(),
+                            target: Some(vec![AccessPolicyV2Target {
+                                link: Box::new(Reference {
+                                    reference: Some(Box::new(FHIRString {
+                                        value: Some("client-app".to_string()),
+                                        ..Default::default()
+                                    })),
+                                    ..Default::default()
+                                }),
+                            }]),
+                            ..Default::default()
+                        }))),
+                        ..Default::default()
+                    });
+                }
+
+                entries.push(BundleEntry {
+                    fullUrl: Some(Box::new(FHIRUri {
+                        value: Some("client-app".to_string()),
+                        ..Default::default()
+                    })),
+                    request: Some(BundleEntryRequest {
+                        method: HttpVerb::put(),
+                        url: Box::new(FHIRUri {
+                            value: Some(format!("ClientApplication/{}", id)),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    resource: Some(Box::new(Resource::ClientApplication(client_app))),
+                    ..Default::default()
+                });
+
                 let transaction_bundle = Bundle {
                     type_: BundleType::transaction(),
-                    entry: Some(vec![
-                        BundleEntry {
-                            fullUrl: Some(Box::new(FHIRUri {
-                                value: Some("access-policy".to_string()),
-                                ..Default::default()
-                            })),
-                            request: Some(BundleEntryRequest {
-                                method: HttpVerb::post(),
-                                url: Box::new(FHIRUri {
-                                    value: Some("AccessPolicyV2".to_string()),
-                                    ..Default::default()
-                                }),
-                                ..Default::default()
-                            }),
-                            resource: Some(Box::new(Resource::AccessPolicyV2(AccessPolicyV2 {
-                                name: Box::new(FHIRString {
-                                    value: Some("ADMIN".to_string()),
-                                    ..Default::default()
-                                }),
-                                engine: AccessPolicyv2Engine::full_access(),
-                                target: Some(vec![AccessPolicyV2Target {
-                                    link: Box::new(Reference {
-                                        reference: Some(Box::new(FHIRString {
-                                            value: Some("client-app".to_string()),
-                                            ..Default::default()
-                                        })),
-                                        ..Default::default()
-                                    }),
-                                }]),
-                                ..Default::default()
-                            }))),
-                            ..Default::default()
-                        },
-                        BundleEntry {
-                            fullUrl: Some(Box::new(FHIRUri {
-                                value: Some("client-app".to_string()),
-                                ..Default::default()
-                            })),
-                            request: Some(BundleEntryRequest {
-                                method: HttpVerb::put(),
-                                url: Box::new(FHIRUri {
-                                    value: Some(format!("ClientApplication/{}", id)),
-                                    ..Default::default()
-                                }),
-                                ..Default::default()
-                            }),
-                            resource: Some(Box::new(Resource::ClientApplication(client_app))),
-                            ..Default::default()
-                        },
-                    ]),
+                    entry: Some(entries),
                     ..Default::default()
                 };
 
