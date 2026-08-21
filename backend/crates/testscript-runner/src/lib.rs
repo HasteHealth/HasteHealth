@@ -1,10 +1,12 @@
+use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
 use haste_fhir_client::{
     FHIRClient,
     request::{
-        DeleteRequest, FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
-        FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest, FHIRHistorySystemRequest,
-        FHIRHistoryTypeRequest, FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest,
-        FHIRInvokeTypeRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRTransactionRequest,
+        DeleteRequest, FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest,
+        FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest, FHIRDeleteTypeRequest,
+        FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
+        FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest, FHIRInvokeTypeRequest,
+        FHIRPatchRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRTransactionRequest,
         FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest, HistoryResponse,
         InvocationRequest, InvokeResponse, Operation, SearchResponse, UpdateRequest,
     },
@@ -347,6 +349,10 @@ async fn testscript_operation_to_fhir_request(
             transaction_request(state, pointer, operation)
         }
 
+        Some(op) if Some(op) == TestscriptOperationCodes::batch().as_str() => {
+            batch_request(state, pointer, operation)
+        }
+
         Some(op) if Some(op) == TestscriptOperationCodes::create().as_str() => {
             create_request(state, pointer, operation)
         }
@@ -355,12 +361,30 @@ async fn testscript_operation_to_fhir_request(
             update_request(state, pointer, operation)
         }
 
+        Some(op) if Some(op) == TestscriptOperationCodes::update_create().as_str() => {
+            conditional_update_request(state, pointer, operation).await
+        }
+
+        Some(op) if Some(op) == TestscriptOperationCodes::patch().as_str() => {
+            patch_request(state, pointer, operation)
+        }
+
         Some(op) if Some(op) == TestscriptOperationCodes::delete().as_str() => {
             delete_request(state, pointer, operation)
         }
 
-        Some(op) if Some(op) == TestscriptOperationCodes::delete_cond_multiple().as_str() => {
-            delete_cond_multiple_request(state, pointer, operation)
+        Some(op)
+            if Some(op) == TestscriptOperationCodes::delete_cond_multiple().as_str()
+                || Some(op) == TestscriptOperationCodes::delete_cond_single().as_str() =>
+        {
+            conditional_delete_request(state, pointer, operation)
+        }
+
+        Some(op)
+            if Some(op) == TestscriptOperationCodes::capabilities().as_str()
+                || Some(op) == TestscriptOperationCodes::conforms().as_str() =>
+        {
+            Ok(FHIRRequest::Capabilities)
         }
 
         Some("invoke") => invoke_request(state, pointer, operation),
@@ -506,6 +530,31 @@ fn transaction_request(
     }
 }
 
+fn batch_request(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<FHIRRequest, TestScriptError> {
+    let source_id = require_source_id(operation, pointer.path(), "Batch")?;
+    let source = state.resolve_fixture(source_id)?;
+    let resource = fixture_resource(source, source_id)?;
+
+    match resource {
+        Resource::Bundle(bundle) => {
+            if bundle.type_ != BundleType::batch() {
+                return Err(TestScriptError::ExecutionError(format!(
+                    "Fixture must be a batch bundle for batch operations for sourceId '{source_id}'."
+                )));
+            }
+
+            Ok(FHIRRequest::Batch(FHIRBatchRequest { resource: bundle }))
+        }
+        _ => Err(TestScriptError::ExecutionError(format!(
+            "Fixture '{source_id}' is not a batch Bundle resource."
+        ))),
+    }
+}
+
 fn create_request(
     state: &TestState,
     pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
@@ -543,6 +592,37 @@ fn update_request(
     )))
 }
 
+async fn conditional_update_request(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<FHIRRequest, TestScriptError> {
+    let source_id = require_source_id(operation, pointer.path(), "UpdateCreate")?;
+    let source = state.resolve_fixture(source_id)?;
+    let resource = fixture_resource(source, source_id)?;
+
+    let parameters = parsed_parameters(
+        state,
+        pointer.root(),
+        operation
+            .params
+            .as_ref()
+            .and_then(|p| p.value.as_deref())
+            .unwrap_or_default(),
+        pointer.path(),
+        "UpdateCreate",
+    )
+    .await?;
+
+    Ok(FHIRRequest::Update(UpdateRequest::Conditional(
+        FHIRConditionalUpdateRequest {
+            resource_type: derive_resource_type(operation, Some(source), pointer.path())?,
+            parameters,
+            resource,
+        },
+    )))
+}
+
 fn delete_request(
     state: &TestState,
     pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
@@ -559,7 +639,7 @@ fn delete_request(
     )))
 }
 
-fn delete_cond_multiple_request(
+fn conditional_delete_request(
     _state: &TestState,
     pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
     operation: &TestScriptSetupActionOperation,
@@ -573,7 +653,7 @@ fn delete_cond_multiple_request(
     )
     .map_err(|e| {
         TestScriptError::ExecutionError(format!(
-            "Failed to parse parameters for DeleteCondMultiple operation at '{}': {}",
+            "Failed to parse parameters for conditional delete operation at '{}': {}",
             pointer.path(),
             e
         ))
@@ -591,6 +671,62 @@ fn delete_cond_multiple_request(
             FHIRDeleteSystemRequest { parameters },
         )))
     }
+}
+
+/// The patch source fixture must be a `Binary` resource carrying the JSON Patch
+/// document, base64-encoded in `data` with `contentType`
+/// `application/json-patch+json` — the standard way `TestScript` represents patch
+/// bodies, since there's no dedicated FHIR resource type for a JSON Patch document.
+fn patch_request(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<FHIRRequest, TestScriptError> {
+    let target_id = require_target_id(operation, pointer.path(), "Patch")?;
+    let target = state.resolve_fixture(target_id)?;
+
+    let source_id = require_source_id(operation, pointer.path(), "Patch")?;
+    let source = state.resolve_fixture(source_id)?;
+    let Resource::Binary(binary) = fixture_resource(source, source_id)? else {
+        return Err(TestScriptError::ExecutionError(format!(
+            "Patch source fixture '{source_id}' must be a Binary resource containing the JSON Patch document."
+        )));
+    };
+
+    let content_type = binary.contentType.value.as_deref().unwrap_or_default();
+    if content_type != "application/json-patch+json" {
+        return Err(TestScriptError::ExecutionError(format!(
+            "Unsupported patch content type '{content_type}' for fixture '{source_id}'; only 'application/json-patch+json' is supported."
+        )));
+    }
+
+    let encoded = binary
+        .data
+        .as_ref()
+        .and_then(|d| d.value.as_deref())
+        .ok_or_else(|| {
+            TestScriptError::ExecutionError(format!(
+                "Patch source fixture '{source_id}' Binary resource has no 'data'."
+            ))
+        })?;
+
+    let decoded = BASE64.decode(encoded).map_err(|e| {
+        TestScriptError::ExecutionError(format!(
+            "Failed to base64-decode patch content for fixture '{source_id}': {e}"
+        ))
+    })?;
+
+    let patch: json_patch::Patch = serde_json::from_slice(&decoded).map_err(|e| {
+        TestScriptError::ExecutionError(format!(
+            "Failed to parse JSON Patch document for fixture '{source_id}': {e}"
+        ))
+    })?;
+
+    Ok(FHIRRequest::Patch(FHIRPatchRequest {
+        resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
+        id: fixture_string_field(target, target_id, "id")?,
+        patch,
+    }))
 }
 
 fn invoke_request(

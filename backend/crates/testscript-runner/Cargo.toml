@@ -19,6 +19,9 @@ haste-fhirpath = { path = "../fhirpath", version = "0.*" }
 haste-pointer = { path = "../pointer", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
 
+base64 = { workspace = true }
+json-patch = { workspace = true }
 regex = { workspace = true }
+serde_json = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 tracing = { workspace = true, features = ["attributes"] }
