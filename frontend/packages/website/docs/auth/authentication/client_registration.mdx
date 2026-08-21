@@ -68,7 +68,7 @@ Register a client by creating a `ClientApplication` resource through the FHIR AP
 Create a ClientApplication using the Haste Health CLI:
 
 ```bash
-haste-health api create ClientApplication --data '{"resourceType": "ClientApplication", "id": "cli", "name": "CLI", "grantType": ["client_credentials"], "responseTypes": "token", "secret": "my-super-secret", "scope": "openid system/*.*"}'
+haste-health api create ClientApplication --data '{"resourceType": "ClientApplication", "id": "backend-service", "name": "Backend Service", "grantType": ["client_credentials"], "responseTypes": "token", "secret": "my-super-secret", "scope": "openid system/*.*"}'
 ```
 
 </TabItem>
@@ -85,8 +85,8 @@ const client: AsynchronousClient<{}> = /* your configured client */;
 
 const newClient: ClientApplication = {
   resourceType: "ClientApplication",
-  id: "cli",
-  name: "CLI",
+  id: "backend-service",
+  name: "Backend Service",
   grantType: [
     "client_credentials"
   ],
@@ -117,8 +117,8 @@ curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/Clien
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{
            "resourceType": "ClientApplication",
-            "id": "cli",
-            "name": "CLI",
+            "id": "backend-service",
+            "name": "Backend Service",
             "grantType": [
               "client_credentials"
             ],
@@ -204,14 +204,14 @@ A mobile app with patient context:
 
 </TabItem>
 
-<TabItem value="backend-service" label="CLI/Backend Service">
-A command-line tool for developers:
+<TabItem value="backend-service" label="Backend Service">
+A headless server-to-server integration:
 
 ```json
 {
   "resourceType": "ClientApplication",
-  "id": "cli-tool",
-  "name": "Haste Health CLI",
+  "id": "backend-service",
+  "name": "Backend Integration Service",
   "secret": "testing",
   "grantType": [
     "client_credentials"
@@ -220,8 +220,31 @@ A command-line tool for developers:
   "scope": "system/*.*"
 }
 ```
-**Use Case**: Developer CLI for testing and automation
+**Use Case**: Machine-to-machine integrations and automation with no human in the loop
 **Grant Flow**: Client Credentials
+
+</TabItem>
+<TabItem value="cli-tool" label="CLI Tool">
+The Haste Health CLI signs in as a human via the browser:
+
+```json
+{
+  "resourceType": "ClientApplication",
+  "id": "cli",
+  "name": "Haste Health CLI",
+  "grantType": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "responseTypes": "code",
+  "redirectUri": [
+    "http://127.0.0.1:8976/callback"
+  ],
+  "scope": "openid profile fhirUser offline_access user/*.*"
+}
+```
+**Use Case**: Developers running `haste-health login` to authenticate the CLI as themselves
+**Grant Flow**: Authorization Code with PKCE → Browser Login → Tokens → API Access (no `AccessPolicyV2` needed — access follows the logged-in user's own policy)
 
 </TabItem>
 </Tabs>

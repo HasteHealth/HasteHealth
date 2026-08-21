@@ -45,6 +45,7 @@ This document contains the help content for the `haste-health` command-line prog
 * [`haste-health config create-profile`↴](#haste-health-config-create-profile)
 * [`haste-health config delete-profile`↴](#haste-health-config-delete-profile)
 * [`haste-health config set-active-profile`↴](#haste-health-config-set-active-profile)
+* [`haste-health login`↴](#haste-health-login)
 * [`haste-health worker`↴](#haste-health-worker)
 * [`haste-health worker worker`↴](#haste-health-worker-worker)
 * [`haste-health worker wal-worker`↴](#haste-health-worker-wal-worker)
@@ -81,6 +82,7 @@ Haste Health binary.
 * `server` — 
 * `api` — 
 * `config` — 
+* `login` — Log in as a human user via the browser (authorization_code + PKCE flow)
 * `worker` — 
 * `testscript` — 
 * `admin` — 
@@ -467,8 +469,18 @@ Data gets pulled from stdin
 * `-n`, `--name <NAME>`
 * `-r`, `--r4-url <R4_URL>`
 * `-d`, `--discovery-uri <DISCOVERY_URI>`
+* `--auth-mode <AUTH_MODE>`
+
+  Possible values:
+  - `client-credentials`:
+    A confidential (server-to-server) client authenticated with a client secret
+  - `authorization-code`:
+    A public client a human logs into via the browser (authorization_code + PKCE). Use `haste-health login` afterwards to obtain tokens
+
 * `-i`, `--id <ID>`
-* `-s`, `--secret <SECRET>`
+* `-s`, `--secret <SECRET>` — Client secret. Required for --auth-mode client-credentials, ignored otherwise
+* `--redirect-uri <REDIRECT_URI>` — Loopback redirect URI for --auth-mode authorization-code (must be registered on the server client)
+* `--scope <SCOPE>` — OAuth scope to request for --auth-mode authorization-code
 
 
 
@@ -493,6 +505,14 @@ Data gets pulled from stdin
 ###### **Options:**
 
 * `-n`, `--name <NAME>`
+
+
+
+## `haste-health login`
+
+Log in as a human user via the browser (authorization_code + PKCE flow)
+
+**Usage:** `haste-health login`
 
 
 
@@ -614,14 +634,26 @@ Data gets pulled from stdin
 
 ## `haste-health admin client create`
 
-**Usage:** `haste-health admin client create --id <ID> --secret <SECRET> --tenant <TENANT> --project <PROJECT>`
+**Usage:** `haste-health admin client create [OPTIONS] --id <ID> --tenant <TENANT> --project <PROJECT>`
 
 ###### **Options:**
 
 * `-i`, `--id <ID>`
-* `-s`, `--secret <SECRET>`
+* `-s`, `--secret <SECRET>` — Required for --grant-type client-credentials. Ignored (and unset, making the client public) for --grant-type authorization-code
 * `-t`, `--tenant <TENANT>`
 * `-p`, `--project <PROJECT>`
+* `--grant-type <GRANT_TYPE>`
+
+  Default value: `client-credentials`
+
+  Possible values:
+  - `client-credentials`:
+    A confidential (server-to-server) client authenticated with a client secret
+  - `authorization-code`:
+    A public client (no secret) a human logs into via the browser (authorization_code + PKCE)
+
+* `--redirect-uri <REDIRECT_URI>` — Loopback redirect URI(s) to allow, e.g. http://127.0.0.1:8976/callback. Required for --grant-type authorization-code
+* `--scope <SCOPE>`
 
 
 
