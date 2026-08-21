@@ -18,7 +18,7 @@ or build locally from source via:
 
 ```bash
 cd backend
-cargo build --locked --release
+cargo install --path . --locked
 ```
 
 Once installed, you can use the binary as follows:
@@ -39,31 +39,27 @@ This will display all available commands and options.
 
 ## Initial Setup
 
-### 1. Import CLI Configuration Bundle
+The CLI authenticates as a human user via the browser, using the `authorization_code` + PKCE flow. You log in once with `haste-health login` and the CLI stores the resulting tokens locally, refreshing them as needed.
 
-For easier setup, you can use the pre-configured CLI bundle to create a ClientApplication and AccessPolicy:
+### 1. Register a Client Application
 
-**Step 1: Download the CLI bundle**
+Register a public `ClientApplication` for the CLI to use. You can do this with the CLI itself (via an existing authenticated profile or the server admin binary), or through the Admin App:
 
-The CLI bundle can be downloaded via
+```bash
+haste-health admin client create \
+  --id cli \
+  --tenant [tenant] \
+  --project [project] \
+  --grant-type authorization-code \
+  --redirect-uri http://127.0.0.1:8976/callback \
+  --scope "openid profile fhirUser offline_access user/*.*"
 ```
-curl -o cli.json https://haste.health/config/cli_bundle.json
-```
 
-‼️ **Note:** For production use, change the default client secret in the bundle before importing.
+This creates a public (no secret) `ClientApplication` with ID `cli` supporting the `authorization_code` and `refresh_token` grants. Because it's a public client used by a signed-in human, it does not need an `AccessPolicyV2` of its own — access is governed by whichever policy is attached to the user who logs in.
 
-**Step 2: Import via Admin App**
+The `--scope` above is what `haste-health config create-profile` defaults to as well; adjust it to whatever scopes the logged-in users should be able to request. See the [Scopes documentation](/docs/auth/authorization/scopes) for the full syntax.
 
-1. Navigate to the Admin App at your Haste Health instance (e.g. https://[mytenant]_[myproject].haste-admin.app)
-2. Go to **Import → Bundles** (or `/bundle-import`)
-3. Select the `cli_bundle.json` file
-4. Click **Import**
-
-This will create:
-- A `ClientApplication` resource with ID `cli`
-- Client credentials (ID: `cli`, Secret: `testing`)
-- An `AccessPolicyV2` granting full access to the CLI client
-- System-level permissions (`system/*.*`)
+To register it through the Admin App instead, navigate to **resources/ClientApplication → New** and set the grant type to `authorization_code`, response type to `code`, add the redirect URI above, and set the same scopes.
 
 ### 2. Configure Your First Profile
 
@@ -76,17 +72,25 @@ haste-health config create-profile
 This interactive command will prompt you for:
 - **Profile name**: A unique identifier for this configuration
 - **FHIR R4 Server URL**: The FHIR R4 endpoint URL (found in your Admin App API Settings/FHIR)
-- **OIDC discovery URI**: Required for client_credentials auth (found in your Admin App under Settings/OpenID Connect)
-- **Client ID**: Your OAuth client ID (for client_credentials) (Use from step 1 the ClientApplication resource id)
-- **Client secret**: Your OAuth client secret (for client_credentials) (Use from step 1 the ClientApplication resource secret)
+- **OIDC discovery URI**: Found in your Admin App under Settings/OpenID Connect
+- **Client ID**: The `ClientApplication` ID from step 1 (e.g. `cli`)
+- **Auth Mode**: Press Enter to accept the default, `authorization-code`
+- **Loopback Redirect URI**: Press Enter to accept the default, `http://127.0.0.1:8976/callback`
+- **OAuth Scope**: Press Enter to accept the default, or enter whatever scopes you registered the client with in step 1 (see the [Scopes documentation](/docs/auth/authorization/scopes))
 
-‼️ **Note:** For production use, change the default client secret in the bundle before importing.
+### 3. Log In
+
+```bash
+haste-health login
+```
+
+This opens your browser to sign in against the active profile's OIDC provider, then stores the resulting access/refresh tokens in the CLI config.
 
 ### Configuration File Location
 
 The CLI stores configuration at:
 ```
-~/.haste-health/config.toml
+~/.haste_health/config.toml
 ```
 
 You can manually edit this file if needed. Example structure:
@@ -99,72 +103,27 @@ name = "LOCAL_CLIENT"
 r4_url = "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4"
 oidc_discovery_uri = "https://api.haste.health/.well-known/openid-configuration/w/[tenant]/[project]"
 
-[profiles.auth.ClientCredentails]
+[profiles.auth.AuthorizationCode]
 client_id = "cli"
-client_secret = "testing"
+redirect_uri = "http://127.0.0.1:8976/callback"
+scope = "openid profile fhirUser offline_access user/*.*"
 ```
+
+Tokens obtained via `haste-health login` are cached under `profiles.tokens` in this same file.
 
 ## API Commands
 
 The CLI provides commands for all FHIR REST operations.
 
-### Create a Resource
-
-Create a new FHIR resource:
+You can find a list of available API commands by running:
 
 ```bash
-haste-health api create Patient --data '{"resourceType": "Patient"}'
+haste-health api --help
 ```
-
-
-## Output Format
-
-By default, the CLI outputs JSON.
-
-Example output:
-```json
-{
-  "resourceType": "Patient",
-  "id": "patient-123",
-  "meta": {
-    "versionId": "1",
-    "lastUpdated": "2025-12-01T10:00:00.000Z"
-  },
-  "name": [
-    {
-      "given": ["John"],
-      "family": "Doe"
-    }
-  ]
-}
-```
-
-## Troubleshooting
-
-### Authentication Errors
-
-If you encounter authentication errors:
-
-1. Verify your client credentials are correct:
-   ```bash
-   haste-health config show-profile
-   ```
-
-2. Check that the ClientApplication exists in your server:
-   ```bash
-   haste-health api read r4 ClientApplication cli
-   ```
-
-3. Verify the access policy grants appropriate permissions
-
-## Best Practices
-
-## Resources
 
 ### Documentation
 - **[FHIR API Documentation](/docs/category/fhir)** - FHIR API reference
 - **[Authentication](/docs/category/oauth-grant-types)** - Auth setup guide
-- **[GitHub Repository](https://github.com/HasteHealth/HasteHealth)** - Source code
 
 ### External Resources
 - **[FHIR Specification](https://hl7.org/fhir)** - FHIR standard
