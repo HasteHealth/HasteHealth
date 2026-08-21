@@ -2917,13 +2917,16 @@ dependencies = [
 name = "haste-testscript-runner"
 version = "0.22.0"
 dependencies = [
+ "base64",
  "haste-fhir-client",
  "haste-fhir-model",
  "haste-fhir-operation-error",
  "haste-fhirpath",
  "haste-pointer",
  "haste-reflect",
+ "json-patch",
  "regex",
+ "serde_json",
  "tokio",
  "tracing",
 ]
