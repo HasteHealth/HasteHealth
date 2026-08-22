@@ -6,8 +6,8 @@ use haste_reflect::MetaValue;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{any::Any, fmt, marker::PhantomData, sync::OnceLock};
 pub trait ValueSetDef: 'static + Send + Sync {
-    const URL: &'static str;
-    const CODES: &'static [&'static str];
+    const URL: &str;
+    const CODES: &[&str];
 }
 pub struct BoundCode<VS: ValueSetDef> {
     code: Option<u16>,
@@ -150,11 +150,7 @@ impl<VS: ValueSetDef> MetaValue for BoundCode<VS> {
         false
     }
 }
-fn parse_code<E: serde::de::Error>(
-    codes: &'static [&'static str],
-    url: &'static str,
-    s: &str,
-) -> Result<u16, E> {
+fn parse_code<E: serde::de::Error>(codes: &[&str], url: &str, s: &str) -> Result<u16, E> {
     codes
         .binary_search(&s)
         .map(|i| i as u16)
@@ -182,8 +178,8 @@ impl<VS: ValueSetDef> Default for BoundCode<VS> {
 #[doc = "http://hl7.org/fhir/ValueSet/FHIR-version"]
 pub struct FHIRVersion;
 impl ValueSetDef for FHIRVersion {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/FHIR-version";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/FHIR-version";
+    const CODES: &[&str] = &[
         "0.0.80", "0.0.81", "0.0.82", "0.01", "0.05", "0.06", "0.11", "0.4.0", "0.5.0", "1.0.0",
         "1.0.1", "1.0.2", "1.1.0", "1.4.0", "1.6.0", "1.8.0", "3.0.0", "3.0.1", "3.3.0", "3.5.0",
         "4.0.0", "4.0.1",
@@ -331,8 +327,8 @@ impl FHIRVersion {
 #[doc = "http://hl7.org/fhir/ValueSet/abstract-types"]
 pub struct AbstractTypes;
 impl ValueSetDef for AbstractTypes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/abstract-types";
-    const CODES: &'static [&'static str] = &["Any", "Type"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/abstract-types";
+    const CODES: &[&str] = &["Any", "Type"];
 }
 impl AbstractTypes {
     #[inline]
@@ -356,8 +352,8 @@ impl AbstractTypes {
 #[doc = "http://hl7.org/fhir/ValueSet/account-status"]
 pub struct AccountStatus;
 impl ValueSetDef for AccountStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/account-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/account-status";
+    const CODES: &[&str] = &[
         "active",
         "entered-in-error",
         "inactive",
@@ -405,8 +401,8 @@ impl AccountStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/action-cardinality-behavior"]
 pub struct ActionCardinalityBehavior;
 impl ValueSetDef for ActionCardinalityBehavior {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/action-cardinality-behavior";
-    const CODES: &'static [&'static str] = &["multiple", "single"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/action-cardinality-behavior";
+    const CODES: &[&str] = &["multiple", "single"];
 }
 impl ActionCardinalityBehavior {
     #[inline]
@@ -430,8 +426,8 @@ impl ActionCardinalityBehavior {
 #[doc = "http://hl7.org/fhir/ValueSet/action-condition-kind"]
 pub struct ActionConditionKind;
 impl ValueSetDef for ActionConditionKind {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/action-condition-kind";
-    const CODES: &'static [&'static str] = &["applicability", "start", "stop"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/action-condition-kind";
+    const CODES: &[&str] = &["applicability", "start", "stop"];
 }
 impl ActionConditionKind {
     #[inline]
@@ -461,8 +457,8 @@ impl ActionConditionKind {
 #[doc = "http://hl7.org/fhir/ValueSet/action-grouping-behavior"]
 pub struct ActionGroupingBehavior;
 impl ValueSetDef for ActionGroupingBehavior {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/action-grouping-behavior";
-    const CODES: &'static [&'static str] = &["logical-group", "sentence-group", "visual-group"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/action-grouping-behavior";
+    const CODES: &[&str] = &["logical-group", "sentence-group", "visual-group"];
 }
 impl ActionGroupingBehavior {
     #[inline]
@@ -492,8 +488,8 @@ impl ActionGroupingBehavior {
 #[doc = "http://hl7.org/fhir/ValueSet/action-participant-type"]
 pub struct ActionParticipantType;
 impl ValueSetDef for ActionParticipantType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/action-participant-type";
-    const CODES: &'static [&'static str] = &["device", "patient", "practitioner", "related-person"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/action-participant-type";
+    const CODES: &[&str] = &["device", "patient", "practitioner", "related-person"];
 }
 impl ActionParticipantType {
     #[inline]
@@ -529,8 +525,8 @@ impl ActionParticipantType {
 #[doc = "http://hl7.org/fhir/ValueSet/action-precheck-behavior"]
 pub struct ActionPrecheckBehavior;
 impl ValueSetDef for ActionPrecheckBehavior {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/action-precheck-behavior";
-    const CODES: &'static [&'static str] = &["no", "yes"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/action-precheck-behavior";
+    const CODES: &[&str] = &["no", "yes"];
 }
 impl ActionPrecheckBehavior {
     #[inline]
@@ -554,8 +550,8 @@ impl ActionPrecheckBehavior {
 #[doc = "http://hl7.org/fhir/ValueSet/action-relationship-type"]
 pub struct ActionRelationshipType;
 impl ValueSetDef for ActionRelationshipType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/action-relationship-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/action-relationship-type";
+    const CODES: &[&str] = &[
         "after",
         "after-end",
         "after-start",
@@ -631,8 +627,8 @@ impl ActionRelationshipType {
 #[doc = "http://hl7.org/fhir/ValueSet/action-required-behavior"]
 pub struct ActionRequiredBehavior;
 impl ValueSetDef for ActionRequiredBehavior {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/action-required-behavior";
-    const CODES: &'static [&'static str] = &["could", "must", "must-unless-documented"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/action-required-behavior";
+    const CODES: &[&str] = &["could", "must", "must-unless-documented"];
 }
 impl ActionRequiredBehavior {
     #[inline]
@@ -662,8 +658,8 @@ impl ActionRequiredBehavior {
 #[doc = "http://hl7.org/fhir/ValueSet/action-selection-behavior"]
 pub struct ActionSelectionBehavior;
 impl ValueSetDef for ActionSelectionBehavior {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/action-selection-behavior";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/action-selection-behavior";
+    const CODES: &[&str] = &[
         "all",
         "all-or-none",
         "any",
@@ -718,8 +714,8 @@ impl ActionSelectionBehavior {
 #[doc = "http://hl7.org/fhir/ValueSet/action-type"]
 pub struct ActionType;
 impl ValueSetDef for ActionType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/action-type";
-    const CODES: &'static [&'static str] = &["create", "fire-event", "remove", "update"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/action-type";
+    const CODES: &[&str] = &["create", "fire-event", "remove", "update"];
 }
 impl ActionType {
     #[inline]
@@ -755,8 +751,8 @@ impl ActionType {
 #[doc = "http://hl7.org/fhir/ValueSet/activity-definition-category"]
 pub struct ActivityDefinitionCategory;
 impl ValueSetDef for ActivityDefinitionCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/activity-definition-category";
-    const CODES: &'static [&'static str] = &["assessment", "education", "treatment"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/activity-definition-category";
+    const CODES: &[&str] = &["assessment", "education", "treatment"];
 }
 impl ActivityDefinitionCategory {
     #[inline]
@@ -786,9 +782,8 @@ impl ActivityDefinitionCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/additionalmaterials"]
 pub struct Additionalmaterials;
 impl ValueSetDef for Additionalmaterials {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/additionalmaterials";
-    const CODES: &'static [&'static str] =
-        &["document", "email", "image", "model", "other", "xray"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/additionalmaterials";
+    const CODES: &[&str] = &["document", "email", "image", "model", "other", "xray"];
 }
 impl Additionalmaterials {
     #[inline]
@@ -836,8 +831,8 @@ impl Additionalmaterials {
 #[doc = "http://hl7.org/fhir/ValueSet/address-type"]
 pub struct AddressType;
 impl ValueSetDef for AddressType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/address-type";
-    const CODES: &'static [&'static str] = &["both", "physical", "postal"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/address-type";
+    const CODES: &[&str] = &["both", "physical", "postal"];
 }
 impl AddressType {
     #[inline]
@@ -867,8 +862,8 @@ impl AddressType {
 #[doc = "http://hl7.org/fhir/ValueSet/address-use"]
 pub struct AddressUse;
 impl ValueSetDef for AddressUse {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/address-use";
-    const CODES: &'static [&'static str] = &["billing", "home", "old", "temp", "work"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/address-use";
+    const CODES: &[&str] = &["billing", "home", "old", "temp", "work"];
 }
 impl AddressUse {
     #[inline]
@@ -910,8 +905,8 @@ impl AddressUse {
 #[doc = "http://hl7.org/fhir/ValueSet/adjudication"]
 pub struct Adjudication;
 impl ValueSetDef for Adjudication {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/adjudication";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/adjudication";
+    const CODES: &[&str] = &[
         "benefit",
         "copay",
         "deductible",
@@ -980,8 +975,8 @@ impl Adjudication {
 #[doc = "http://hl7.org/fhir/ValueSet/adjudication-error"]
 pub struct AdjudicationError;
 impl ValueSetDef for AdjudicationError {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/adjudication-error";
-    const CODES: &'static [&'static str] = &["a001", "a002"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/adjudication-error";
+    const CODES: &[&str] = &["a001", "a002"];
 }
 impl AdjudicationError {
     #[inline]
@@ -1005,8 +1000,8 @@ impl AdjudicationError {
 #[doc = "http://hl7.org/fhir/ValueSet/adjudication-reason"]
 pub struct AdjudicationReason;
 impl ValueSetDef for AdjudicationReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/adjudication-reason";
-    const CODES: &'static [&'static str] = &["ar001", "ar002"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/adjudication-reason";
+    const CODES: &[&str] = &["ar001", "ar002"];
 }
 impl AdjudicationReason {
     #[inline]
@@ -1030,8 +1025,8 @@ impl AdjudicationReason {
 #[doc = "http://hl7.org/fhir/ValueSet/administrative-gender"]
 pub struct AdministrativeGender;
 impl ValueSetDef for AdministrativeGender {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/administrative-gender";
-    const CODES: &'static [&'static str] = &["female", "male", "other", "unknown"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/administrative-gender";
+    const CODES: &[&str] = &["female", "male", "other", "unknown"];
 }
 impl AdministrativeGender {
     #[inline]
@@ -1067,8 +1062,8 @@ impl AdministrativeGender {
 #[doc = "http://hl7.org/fhir/ValueSet/adverse-event-actuality"]
 pub struct AdverseEventActuality;
 impl ValueSetDef for AdverseEventActuality {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/adverse-event-actuality";
-    const CODES: &'static [&'static str] = &["actual", "potential"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/adverse-event-actuality";
+    const CODES: &[&str] = &["actual", "potential"];
 }
 impl AdverseEventActuality {
     #[inline]
@@ -1092,8 +1087,8 @@ impl AdverseEventActuality {
 #[doc = "http://hl7.org/fhir/ValueSet/adverse-event-category"]
 pub struct AdverseEventCategory;
 impl ValueSetDef for AdverseEventCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/adverse-event-category";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/adverse-event-category";
+    const CODES: &[&str] = &[
         "expired-drug",
         "incorrect-prescribing-information",
         "medical-device-use-error",
@@ -1204,8 +1199,8 @@ impl AdverseEventCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/adverse-event-causality-assess"]
 pub struct AdverseEventCausalityAssess;
 impl ValueSetDef for AdverseEventCausalityAssess {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/adverse-event-causality-assess";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/adverse-event-causality-assess";
+    const CODES: &[&str] = &[
         "Certain",
         "Conditional-Classified",
         "Possible",
@@ -1260,8 +1255,8 @@ impl AdverseEventCausalityAssess {
 #[doc = "http://hl7.org/fhir/ValueSet/adverse-event-causality-method"]
 pub struct AdverseEventCausalityMethod;
 impl ValueSetDef for AdverseEventCausalityMethod {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/adverse-event-causality-method";
-    const CODES: &'static [&'static str] = &["Bayesian", "Checklist", "ProbabilityScale"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/adverse-event-causality-method";
+    const CODES: &[&str] = &["Bayesian", "Checklist", "ProbabilityScale"];
 }
 impl AdverseEventCausalityMethod {
     #[inline]
@@ -1291,8 +1286,8 @@ impl AdverseEventCausalityMethod {
 #[doc = "http://hl7.org/fhir/ValueSet/adverse-event-outcome"]
 pub struct AdverseEventOutcome;
 impl ValueSetDef for AdverseEventOutcome {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/adverse-event-outcome";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/adverse-event-outcome";
+    const CODES: &[&str] = &[
         "fatal",
         "ongoing",
         "recovering",
@@ -1347,8 +1342,8 @@ impl AdverseEventOutcome {
 #[doc = "http://hl7.org/fhir/ValueSet/adverse-event-seriousness"]
 pub struct AdverseEventSeriousness;
 impl ValueSetDef for AdverseEventSeriousness {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/adverse-event-seriousness";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/adverse-event-seriousness";
+    const CODES: &[&str] = &[
         "Non-serious",
         "Serious",
         "SeriousIsBirthDefect",
@@ -1417,8 +1412,8 @@ impl AdverseEventSeriousness {
 #[doc = "http://hl7.org/fhir/ValueSet/adverse-event-severity"]
 pub struct AdverseEventSeverity;
 impl ValueSetDef for AdverseEventSeverity {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/adverse-event-severity";
-    const CODES: &'static [&'static str] = &["mild", "moderate", "severe"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/adverse-event-severity";
+    const CODES: &[&str] = &["mild", "moderate", "severe"];
 }
 impl AdverseEventSeverity {
     #[inline]
@@ -1448,8 +1443,8 @@ impl AdverseEventSeverity {
 #[doc = "http://hl7.org/fhir/ValueSet/age-units"]
 pub struct AgeUnits;
 impl ValueSetDef for AgeUnits {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/age-units";
-    const CODES: &'static [&'static str] = &["a", "d", "h", "min", "mo", "wk"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/age-units";
+    const CODES: &[&str] = &["a", "d", "h", "min", "mo", "wk"];
 }
 impl AgeUnits {
     #[inline]
@@ -1497,8 +1492,8 @@ impl AgeUnits {
 #[doc = "http://hl7.org/fhir/ValueSet/all-types"]
 pub struct AllTypes;
 impl ValueSetDef for AllTypes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/all-types";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/all-types";
+    const CODES: &[&str] = &[
         "AccessPolicyV2",
         "Account",
         "ActivityDefinition",
@@ -3058,8 +3053,8 @@ impl AllTypes {
 #[doc = "http://hl7.org/fhir/ValueSet/allerg-intol-substance-exp-risk"]
 pub struct AllergIntolSubstanceExpRisk;
 impl ValueSetDef for AllergIntolSubstanceExpRisk {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/allerg-intol-substance-exp-risk";
-    const CODES: &'static [&'static str] = &["known-reaction-risk", "no-known-reaction-risk"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/allerg-intol-substance-exp-risk";
+    const CODES: &[&str] = &["known-reaction-risk", "no-known-reaction-risk"];
 }
 impl AllergIntolSubstanceExpRisk {
     #[inline]
@@ -3083,8 +3078,8 @@ impl AllergIntolSubstanceExpRisk {
 #[doc = "http://hl7.org/fhir/ValueSet/allergy-intolerance-category"]
 pub struct AllergyIntoleranceCategory;
 impl ValueSetDef for AllergyIntoleranceCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/allergy-intolerance-category";
-    const CODES: &'static [&'static str] = &["biologic", "environment", "food", "medication"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/allergy-intolerance-category";
+    const CODES: &[&str] = &["biologic", "environment", "food", "medication"];
 }
 impl AllergyIntoleranceCategory {
     #[inline]
@@ -3120,8 +3115,8 @@ impl AllergyIntoleranceCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/allergy-intolerance-criticality"]
 pub struct AllergyIntoleranceCriticality;
 impl ValueSetDef for AllergyIntoleranceCriticality {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/allergy-intolerance-criticality";
-    const CODES: &'static [&'static str] = &["high", "low", "unable-to-assess"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/allergy-intolerance-criticality";
+    const CODES: &[&str] = &["high", "low", "unable-to-assess"];
 }
 impl AllergyIntoleranceCriticality {
     #[inline]
@@ -3151,8 +3146,8 @@ impl AllergyIntoleranceCriticality {
 #[doc = "http://hl7.org/fhir/ValueSet/allergy-intolerance-type"]
 pub struct AllergyIntoleranceType;
 impl ValueSetDef for AllergyIntoleranceType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/allergy-intolerance-type";
-    const CODES: &'static [&'static str] = &["allergy", "intolerance"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/allergy-intolerance-type";
+    const CODES: &[&str] = &["allergy", "intolerance"];
 }
 impl AllergyIntoleranceType {
     #[inline]
@@ -3176,8 +3171,8 @@ impl AllergyIntoleranceType {
 #[doc = "http://hl7.org/fhir/ValueSet/allergyintolerance-clinical"]
 pub struct AllergyintoleranceClinical;
 impl ValueSetDef for AllergyintoleranceClinical {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/allergyintolerance-clinical";
-    const CODES: &'static [&'static str] = &["active", "inactive", "resolved"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/allergyintolerance-clinical";
+    const CODES: &[&str] = &["active", "inactive", "resolved"];
 }
 impl AllergyintoleranceClinical {
     #[inline]
@@ -3207,9 +3202,8 @@ impl AllergyintoleranceClinical {
 #[doc = "http://hl7.org/fhir/ValueSet/allergyintolerance-verification"]
 pub struct AllergyintoleranceVerification;
 impl ValueSetDef for AllergyintoleranceVerification {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/allergyintolerance-verification";
-    const CODES: &'static [&'static str] =
-        &["confirmed", "entered-in-error", "refuted", "unconfirmed"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/allergyintolerance-verification";
+    const CODES: &[&str] = &["confirmed", "entered-in-error", "refuted", "unconfirmed"];
 }
 impl AllergyintoleranceVerification {
     #[inline]
@@ -3245,8 +3239,8 @@ impl AllergyintoleranceVerification {
 #[doc = "http://hl7.org/fhir/ValueSet/animal-genderstatus"]
 pub struct AnimalGenderstatus;
 impl ValueSetDef for AnimalGenderstatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/animal-genderstatus";
-    const CODES: &'static [&'static str] = &["intact", "neutered", "unknown"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/animal-genderstatus";
+    const CODES: &[&str] = &["intact", "neutered", "unknown"];
 }
 impl AnimalGenderstatus {
     #[inline]
@@ -3276,8 +3270,8 @@ impl AnimalGenderstatus {
 #[doc = "http://hl7.org/fhir/ValueSet/animal-species"]
 pub struct AnimalSpecies;
 impl ValueSetDef for AnimalSpecies {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/animal-species";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/animal-species";
+    const CODES: &[&str] = &[
         "125097000",
         "125099002",
         "132950000",
@@ -3360,8 +3354,8 @@ impl AnimalSpecies {
 #[doc = "http://hl7.org/fhir/ValueSet/appointmentstatus"]
 pub struct Appointmentstatus;
 impl ValueSetDef for Appointmentstatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/appointmentstatus";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/appointmentstatus";
+    const CODES: &[&str] = &[
         "arrived",
         "booked",
         "cancelled",
@@ -3444,8 +3438,8 @@ impl Appointmentstatus {
 #[doc = "http://hl7.org/fhir/ValueSet/assert-direction-codes"]
 pub struct AssertDirectionCodes;
 impl ValueSetDef for AssertDirectionCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/assert-direction-codes";
-    const CODES: &'static [&'static str] = &["request", "response"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/assert-direction-codes";
+    const CODES: &[&str] = &["request", "response"];
 }
 impl AssertDirectionCodes {
     #[inline]
@@ -3469,8 +3463,8 @@ impl AssertDirectionCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/assert-operator-codes"]
 pub struct AssertOperatorCodes;
 impl ValueSetDef for AssertOperatorCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/assert-operator-codes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/assert-operator-codes";
+    const CODES: &[&str] = &[
         "contains",
         "empty",
         "equals",
@@ -3560,8 +3554,8 @@ impl AssertOperatorCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/assert-response-code-types"]
 pub struct AssertResponseCodeTypes;
 impl ValueSetDef for AssertResponseCodeTypes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/assert-response-code-types";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/assert-response-code-types";
+    const CODES: &[&str] = &[
         "bad",
         "conflict",
         "created",
@@ -3658,8 +3652,8 @@ impl AssertResponseCodeTypes {
 #[doc = "http://hl7.org/fhir/ValueSet/asset-availability"]
 pub struct AssetAvailability;
 impl ValueSetDef for AssetAvailability {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/asset-availability";
-    const CODES: &'static [&'static str] = &["lease"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/asset-availability";
+    const CODES: &[&str] = &["lease"];
 }
 impl AssetAvailability {
     #[inline]
@@ -3677,8 +3671,8 @@ impl AssetAvailability {
 #[doc = "http://hl7.org/fhir/ValueSet/audit-entity-type"]
 pub struct AuditEntityType;
 impl ValueSetDef for AuditEntityType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/audit-entity-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/audit-entity-type";
+    const CODES: &[&str] = &[
         "1",
         "2",
         "3",
@@ -4755,8 +4749,8 @@ impl AuditEntityType {
 #[doc = "http://hl7.org/fhir/ValueSet/audit-event-action"]
 pub struct AuditEventAction;
 impl ValueSetDef for AuditEventAction {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/audit-event-action";
-    const CODES: &'static [&'static str] = &["C", "D", "E", "R", "U"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/audit-event-action";
+    const CODES: &[&str] = &["C", "D", "E", "R", "U"];
 }
 impl AuditEventAction {
     #[inline]
@@ -4798,8 +4792,8 @@ impl AuditEventAction {
 #[doc = "http://hl7.org/fhir/ValueSet/audit-event-outcome"]
 pub struct AuditEventOutcome;
 impl ValueSetDef for AuditEventOutcome {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/audit-event-outcome";
-    const CODES: &'static [&'static str] = &["0", "12", "4", "8"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/audit-event-outcome";
+    const CODES: &[&str] = &["0", "12", "4", "8"];
 }
 impl AuditEventOutcome {
     #[inline]
@@ -4835,8 +4829,8 @@ impl AuditEventOutcome {
 #[doc = "http://hl7.org/fhir/ValueSet/audit-event-sub-type"]
 pub struct AuditEventSubType;
 impl ValueSetDef for AuditEventSubType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/audit-event-sub-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/audit-event-sub-type";
+    const CODES: &[&str] = &[
         "110120",
         "110121",
         "110122",
@@ -5129,8 +5123,8 @@ impl AuditEventSubType {
 #[doc = "http://hl7.org/fhir/ValueSet/audit-event-type"]
 pub struct AuditEventType;
 impl ValueSetDef for AuditEventType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/audit-event-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/audit-event-type";
+    const CODES: &[&str] = &[
         "110100",
         "110101",
         "110102",
@@ -5444,8 +5438,8 @@ impl AuditEventType {
 #[doc = "http://hl7.org/fhir/ValueSet/audit-source-type"]
 pub struct AuditSourceType;
 impl ValueSetDef for AuditSourceType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/audit-source-type";
-    const CODES: &'static [&'static str] = &["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/audit-source-type";
+    const CODES: &[&str] = &["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 }
 impl AuditSourceType {
     #[inline]
@@ -5511,8 +5505,8 @@ impl AuditSourceType {
 #[doc = "http://hl7.org/fhir/ValueSet/basic-resource-type"]
 pub struct BasicResourceType;
 impl ValueSetDef for BasicResourceType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/basic-resource-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/basic-resource-type";
+    const CODES: &[&str] = &[
         "account",
         "adjudicat",
         "adminact",
@@ -5637,8 +5631,8 @@ impl BasicResourceType {
 #[doc = "http://hl7.org/fhir/ValueSet/benefit-network"]
 pub struct BenefitNetwork;
 impl ValueSetDef for BenefitNetwork {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/benefit-network";
-    const CODES: &'static [&'static str] = &["in", "out"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/benefit-network";
+    const CODES: &[&str] = &["in", "out"];
 }
 impl BenefitNetwork {
     #[inline]
@@ -5662,8 +5656,8 @@ impl BenefitNetwork {
 #[doc = "http://hl7.org/fhir/ValueSet/benefit-term"]
 pub struct BenefitTerm;
 impl ValueSetDef for BenefitTerm {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/benefit-term";
-    const CODES: &'static [&'static str] = &["annual", "day", "lifetime"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/benefit-term";
+    const CODES: &[&str] = &["annual", "day", "lifetime"];
 }
 impl BenefitTerm {
     #[inline]
@@ -5693,8 +5687,8 @@ impl BenefitTerm {
 #[doc = "http://hl7.org/fhir/ValueSet/benefit-type"]
 pub struct BenefitType;
 impl ValueSetDef for BenefitType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/benefit-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/benefit-type";
+    const CODES: &[&str] = &[
         "benefit",
         "copay",
         "copay-maximum",
@@ -5791,8 +5785,8 @@ impl BenefitType {
 #[doc = "http://hl7.org/fhir/ValueSet/benefit-unit"]
 pub struct BenefitUnit;
 impl ValueSetDef for BenefitUnit {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/benefit-unit";
-    const CODES: &'static [&'static str] = &["family", "individual"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/benefit-unit";
+    const CODES: &[&str] = &["family", "individual"];
 }
 impl BenefitUnit {
     #[inline]
@@ -5816,8 +5810,8 @@ impl BenefitUnit {
 #[doc = "http://hl7.org/fhir/ValueSet/binding-strength"]
 pub struct BindingStrength;
 impl ValueSetDef for BindingStrength {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/binding-strength";
-    const CODES: &'static [&'static str] = &["example", "extensible", "preferred", "required"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/binding-strength";
+    const CODES: &[&str] = &["example", "extensible", "preferred", "required"];
 }
 impl BindingStrength {
     #[inline]
@@ -5853,8 +5847,8 @@ impl BindingStrength {
 #[doc = "http://hl7.org/fhir/ValueSet/bodysite-laterality"]
 pub struct BodysiteLaterality;
 impl ValueSetDef for BodysiteLaterality {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/bodysite-laterality";
-    const CODES: &'static [&'static str] = &["419161000", "419465000", "51440002"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/bodysite-laterality";
+    const CODES: &[&str] = &["419161000", "419465000", "51440002"];
 }
 impl BodysiteLaterality {
     #[inline]
@@ -5884,8 +5878,8 @@ impl BodysiteLaterality {
 #[doc = "http://hl7.org/fhir/ValueSet/bodystructure-relative-location"]
 pub struct BodystructureRelativeLocation;
 impl ValueSetDef for BodystructureRelativeLocation {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/bodystructure-relative-location";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/bodystructure-relative-location";
+    const CODES: &[&str] = &[
         "255551008",
         "255561001",
         "261089000",
@@ -5982,8 +5976,8 @@ impl BodystructureRelativeLocation {
 #[doc = "http://hl7.org/fhir/ValueSet/bundle-type"]
 pub struct BundleType;
 impl ValueSetDef for BundleType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/bundle-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/bundle-type";
+    const CODES: &[&str] = &[
         "batch",
         "batch-response",
         "collection",
@@ -6059,8 +6053,8 @@ impl BundleType {
 #[doc = "http://hl7.org/fhir/ValueSet/c80-facilitycodes"]
 pub struct C80Facilitycodes;
 impl ValueSetDef for C80Facilitycodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/c80-facilitycodes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/c80-facilitycodes";
+    const CODES: &[&str] = &[
         "10206005",
         "10531005",
         "11424001",
@@ -6626,8 +6620,8 @@ impl C80Facilitycodes {
 #[doc = "http://hl7.org/fhir/ValueSet/c80-practice-codes"]
 pub struct C80PracticeCodes;
 impl ValueSetDef for C80PracticeCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/c80-practice-codes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/c80-practice-codes";
+    const CODES: &[&str] = &[
         "394539006",
         "394576009",
         "394577000",
@@ -7445,8 +7439,8 @@ impl C80PracticeCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/capability-statement-kind"]
 pub struct CapabilityStatementKind;
 impl ValueSetDef for CapabilityStatementKind {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/capability-statement-kind";
-    const CODES: &'static [&'static str] = &["capability", "instance", "requirements"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/capability-statement-kind";
+    const CODES: &[&str] = &["capability", "instance", "requirements"];
 }
 impl CapabilityStatementKind {
     #[inline]
@@ -7476,8 +7470,8 @@ impl CapabilityStatementKind {
 #[doc = "http://hl7.org/fhir/ValueSet/care-plan-activity-kind"]
 pub struct CarePlanActivityKind;
 impl ValueSetDef for CarePlanActivityKind {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/care-plan-activity-kind";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/care-plan-activity-kind";
+    const CODES: &[&str] = &[
         "Appointment",
         "CommunicationRequest",
         "DeviceRequest",
@@ -7546,8 +7540,8 @@ impl CarePlanActivityKind {
 #[doc = "http://hl7.org/fhir/ValueSet/care-plan-activity-status"]
 pub struct CarePlanActivityStatus;
 impl ValueSetDef for CarePlanActivityStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/care-plan-activity-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/care-plan-activity-status";
+    const CODES: &[&str] = &[
         "cancelled",
         "completed",
         "entered-in-error",
@@ -7623,8 +7617,8 @@ impl CarePlanActivityStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/care-plan-intent"]
 pub struct CarePlanIntent;
 impl ValueSetDef for CarePlanIntent {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/care-plan-intent";
-    const CODES: &'static [&'static str] = &["option", "order", "plan", "proposal"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/care-plan-intent";
+    const CODES: &[&str] = &["option", "order", "plan", "proposal"];
 }
 impl CarePlanIntent {
     #[inline]
@@ -7660,8 +7654,8 @@ impl CarePlanIntent {
 #[doc = "http://hl7.org/fhir/ValueSet/care-team-status"]
 pub struct CareTeamStatus;
 impl ValueSetDef for CareTeamStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/care-team-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/care-team-status";
+    const CODES: &[&str] = &[
         "active",
         "entered-in-error",
         "inactive",
@@ -7709,8 +7703,8 @@ impl CareTeamStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/catalogType"]
 pub struct CatalogType;
 impl ValueSetDef for CatalogType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/catalogType";
-    const CODES: &'static [&'static str] = &["device", "medication", "protocol"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/catalogType";
+    const CODES: &[&str] = &["device", "medication", "protocol"];
 }
 impl CatalogType {
     #[inline]
@@ -7740,8 +7734,8 @@ impl CatalogType {
 #[doc = "http://hl7.org/fhir/ValueSet/cdshooks-indicator"]
 pub struct CdshooksIndicator;
 impl ValueSetDef for CdshooksIndicator {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/cdshooks-indicator";
-    const CODES: &'static [&'static str] = &["critical", "info", "warning"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/cdshooks-indicator";
+    const CODES: &[&str] = &["critical", "info", "warning"];
 }
 impl CdshooksIndicator {
     #[inline]
@@ -7771,8 +7765,8 @@ impl CdshooksIndicator {
 #[doc = "http://hl7.org/fhir/ValueSet/certainty-subcomponent-rating"]
 pub struct CertaintySubcomponentRating;
 impl ValueSetDef for CertaintySubcomponentRating {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/certainty-subcomponent-rating";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/certainty-subcomponent-rating";
+    const CODES: &[&str] = &[
         "absent",
         "critical-concern",
         "downcode1",
@@ -7862,8 +7856,8 @@ impl CertaintySubcomponentRating {
 #[doc = "http://hl7.org/fhir/ValueSet/certainty-subcomponent-type"]
 pub struct CertaintySubcomponentType;
 impl ValueSetDef for CertaintySubcomponentType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/certainty-subcomponent-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/certainty-subcomponent-type";
+    const CODES: &[&str] = &[
         "DoseResponseGradient",
         "Imprecision",
         "Inconsistency",
@@ -7932,8 +7926,8 @@ impl CertaintySubcomponentType {
 #[doc = "http://hl7.org/fhir/ValueSet/chargeitem-billingcodes"]
 pub struct ChargeitemBillingcodes;
 impl ValueSetDef for ChargeitemBillingcodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/chargeitem-billingcodes";
-    const CODES: &'static [&'static str] = &["1100", "1210", "1320"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/chargeitem-billingcodes";
+    const CODES: &[&str] = &["1100", "1210", "1320"];
 }
 impl ChargeitemBillingcodes {
     #[inline]
@@ -7963,8 +7957,8 @@ impl ChargeitemBillingcodes {
 #[doc = "http://hl7.org/fhir/ValueSet/chargeitem-status"]
 pub struct ChargeitemStatus;
 impl ValueSetDef for ChargeitemStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/chargeitem-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/chargeitem-status";
+    const CODES: &[&str] = &[
         "aborted",
         "billable",
         "billed",
@@ -8026,8 +8020,8 @@ impl ChargeitemStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/choice-list-orientation"]
 pub struct ChoiceListOrientation;
 impl ValueSetDef for ChoiceListOrientation {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/choice-list-orientation";
-    const CODES: &'static [&'static str] = &["horizontal", "vertical"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/choice-list-orientation";
+    const CODES: &[&str] = &["horizontal", "vertical"];
 }
 impl ChoiceListOrientation {
     #[inline]
@@ -8051,8 +8045,8 @@ impl ChoiceListOrientation {
 #[doc = "http://hl7.org/fhir/ValueSet/chromosome-human"]
 pub struct ChromosomeHuman;
 impl ValueSetDef for ChromosomeHuman {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/chromosome-human";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/chromosome-human";
+    const CODES: &[&str] = &[
         "1", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "2", "20", "21", "22",
         "3", "4", "5", "6", "7", "8", "9", "X", "Y",
     ];
@@ -8211,8 +8205,8 @@ impl ChromosomeHuman {
 #[doc = "http://hl7.org/fhir/ValueSet/claim-careteamrole"]
 pub struct ClaimCareteamrole;
 impl ValueSetDef for ClaimCareteamrole {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/claim-careteamrole";
-    const CODES: &'static [&'static str] = &["assist", "other", "primary", "supervisor"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/claim-careteamrole";
+    const CODES: &[&str] = &["assist", "other", "primary", "supervisor"];
 }
 impl ClaimCareteamrole {
     #[inline]
@@ -8248,8 +8242,8 @@ impl ClaimCareteamrole {
 #[doc = "http://hl7.org/fhir/ValueSet/claim-exception"]
 pub struct ClaimException;
 impl ValueSetDef for ClaimException {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/claim-exception";
-    const CODES: &'static [&'static str] = &["disabled", "student"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/claim-exception";
+    const CODES: &[&str] = &["disabled", "student"];
 }
 impl ClaimException {
     #[inline]
@@ -8273,8 +8267,8 @@ impl ClaimException {
 #[doc = "http://hl7.org/fhir/ValueSet/claim-informationcategory"]
 pub struct ClaimInformationcategory;
 impl ValueSetDef for ClaimInformationcategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/claim-informationcategory";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/claim-informationcategory";
+    const CODES: &[&str] = &[
         "attachment",
         "discharge",
         "employmentimpacted",
@@ -8385,8 +8379,8 @@ impl ClaimInformationcategory {
 #[doc = "http://hl7.org/fhir/ValueSet/claim-modifiers"]
 pub struct ClaimModifiers;
 impl ValueSetDef for ClaimModifiers {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/claim-modifiers";
-    const CODES: &'static [&'static str] = &["a", "b", "c", "e", "rooh", "x"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/claim-modifiers";
+    const CODES: &[&str] = &["a", "b", "c", "e", "rooh", "x"];
 }
 impl ClaimModifiers {
     #[inline]
@@ -8434,8 +8428,8 @@ impl ClaimModifiers {
 #[doc = "http://hl7.org/fhir/ValueSet/claim-subtype"]
 pub struct ClaimSubtype;
 impl ValueSetDef for ClaimSubtype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/claim-subtype";
-    const CODES: &'static [&'static str] = &["emergency", "ortho"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/claim-subtype";
+    const CODES: &[&str] = &["emergency", "ortho"];
 }
 impl ClaimSubtype {
     #[inline]
@@ -8459,8 +8453,8 @@ impl ClaimSubtype {
 #[doc = "http://hl7.org/fhir/ValueSet/claim-type"]
 pub struct ClaimType;
 impl ValueSetDef for ClaimType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/claim-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/claim-type";
+    const CODES: &[&str] = &[
         "institutional",
         "oral",
         "pharmacy",
@@ -8508,8 +8502,8 @@ impl ClaimType {
 #[doc = "http://hl7.org/fhir/ValueSet/claim-use"]
 pub struct ClaimUse;
 impl ValueSetDef for ClaimUse {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/claim-use";
-    const CODES: &'static [&'static str] = &["claim", "preauthorization", "predetermination"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/claim-use";
+    const CODES: &[&str] = &["claim", "preauthorization", "predetermination"];
 }
 impl ClaimUse {
     #[inline]
@@ -8539,8 +8533,8 @@ impl ClaimUse {
 #[doc = "http://hl7.org/fhir/ValueSet/clinicalimpression-status"]
 pub struct ClinicalimpressionStatus;
 impl ValueSetDef for ClinicalimpressionStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/clinicalimpression-status";
-    const CODES: &'static [&'static str] = &["completed", "entered-in-error", "in-progress"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/clinicalimpression-status";
+    const CODES: &[&str] = &["completed", "entered-in-error", "in-progress"];
 }
 impl ClinicalimpressionStatus {
     #[inline]
@@ -8570,8 +8564,8 @@ impl ClinicalimpressionStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/code-search-support"]
 pub struct CodeSearchSupport;
 impl ValueSetDef for CodeSearchSupport {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/code-search-support";
-    const CODES: &'static [&'static str] = &["all", "explicit"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/code-search-support";
+    const CODES: &[&str] = &["all", "explicit"];
 }
 impl CodeSearchSupport {
     #[inline]
@@ -8595,8 +8589,8 @@ impl CodeSearchSupport {
 #[doc = "http://hl7.org/fhir/ValueSet/codesystem-altcode-kind"]
 pub struct CodesystemAltcodeKind;
 impl ValueSetDef for CodesystemAltcodeKind {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/codesystem-altcode-kind";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/codesystem-altcode-kind";
+    const CODES: &[&str] = &[
         "alternate",
         "case-insensitive",
         "case-sensitive",
@@ -8644,8 +8638,8 @@ impl CodesystemAltcodeKind {
 #[doc = "http://hl7.org/fhir/ValueSet/codesystem-content-mode"]
 pub struct CodesystemContentMode;
 impl ValueSetDef for CodesystemContentMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/codesystem-content-mode";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/codesystem-content-mode";
+    const CODES: &[&str] = &[
         "complete",
         "example",
         "fragment",
@@ -8693,8 +8687,8 @@ impl CodesystemContentMode {
 #[doc = "http://hl7.org/fhir/ValueSet/codesystem-hierarchy-meaning"]
 pub struct CodesystemHierarchyMeaning;
 impl ValueSetDef for CodesystemHierarchyMeaning {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/codesystem-hierarchy-meaning";
-    const CODES: &'static [&'static str] = &["classified-with", "grouped-by", "is-a", "part-of"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/codesystem-hierarchy-meaning";
+    const CODES: &[&str] = &["classified-with", "grouped-by", "is-a", "part-of"];
 }
 impl CodesystemHierarchyMeaning {
     #[inline]
@@ -8730,8 +8724,8 @@ impl CodesystemHierarchyMeaning {
 #[doc = "http://hl7.org/fhir/ValueSet/common-tags"]
 pub struct CommonTags;
 impl ValueSetDef for CommonTags {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/common-tags";
-    const CODES: &'static [&'static str] = &["actionable"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/common-tags";
+    const CODES: &[&str] = &["actionable"];
 }
 impl CommonTags {
     #[inline]
@@ -8749,8 +8743,8 @@ impl CommonTags {
 #[doc = "http://hl7.org/fhir/ValueSet/communication-category"]
 pub struct CommunicationCategory;
 impl ValueSetDef for CommunicationCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/communication-category";
-    const CODES: &'static [&'static str] = &["alert", "instruction", "notification", "reminder"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/communication-category";
+    const CODES: &[&str] = &["alert", "instruction", "notification", "reminder"];
 }
 impl CommunicationCategory {
     #[inline]
@@ -8786,8 +8780,8 @@ impl CommunicationCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/communication-not-done-reason"]
 pub struct CommunicationNotDoneReason;
 impl ValueSetDef for CommunicationNotDoneReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/communication-not-done-reason";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/communication-not-done-reason";
+    const CODES: &[&str] = &[
         "family-objection",
         "invalid-phone-number",
         "patient-objection",
@@ -8842,8 +8836,8 @@ impl CommunicationNotDoneReason {
 #[doc = "http://hl7.org/fhir/ValueSet/communication-topic"]
 pub struct CommunicationTopic;
 impl ValueSetDef for CommunicationTopic {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/communication-topic";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/communication-topic";
+    const CODES: &[&str] = &[
         "appointment-reminder",
         "phone-consult",
         "prescription-refill-request",
@@ -8898,8 +8892,8 @@ impl CommunicationTopic {
 #[doc = "http://hl7.org/fhir/ValueSet/compartment-type"]
 pub struct CompartmentType;
 impl ValueSetDef for CompartmentType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/compartment-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/compartment-type";
+    const CODES: &[&str] = &[
         "Device",
         "Encounter",
         "Patient",
@@ -8947,8 +8941,8 @@ impl CompartmentType {
 #[doc = "http://hl7.org/fhir/ValueSet/composite-measure-scoring"]
 pub struct CompositeMeasureScoring;
 impl ValueSetDef for CompositeMeasureScoring {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/composite-measure-scoring";
-    const CODES: &'static [&'static str] = &["all-or-nothing", "linear", "opportunity", "weighted"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/composite-measure-scoring";
+    const CODES: &[&str] = &["all-or-nothing", "linear", "opportunity", "weighted"];
 }
 impl CompositeMeasureScoring {
     #[inline]
@@ -8984,8 +8978,8 @@ impl CompositeMeasureScoring {
 #[doc = "http://hl7.org/fhir/ValueSet/composition-altcode-kind"]
 pub struct CompositionAltcodeKind;
 impl ValueSetDef for CompositionAltcodeKind {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/composition-altcode-kind";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/composition-altcode-kind";
+    const CODES: &[&str] = &[
         "alternate",
         "case-insensitive",
         "case-sensitive",
@@ -9033,8 +9027,8 @@ impl CompositionAltcodeKind {
 #[doc = "http://hl7.org/fhir/ValueSet/composition-attestation-mode"]
 pub struct CompositionAttestationMode;
 impl ValueSetDef for CompositionAttestationMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/composition-attestation-mode";
-    const CODES: &'static [&'static str] = &["legal", "official", "personal", "professional"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/composition-attestation-mode";
+    const CODES: &[&str] = &["legal", "official", "personal", "professional"];
 }
 impl CompositionAttestationMode {
     #[inline]
@@ -9070,8 +9064,8 @@ impl CompositionAttestationMode {
 #[doc = "http://hl7.org/fhir/ValueSet/composition-status"]
 pub struct CompositionStatus;
 impl ValueSetDef for CompositionStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/composition-status";
-    const CODES: &'static [&'static str] = &["amended", "entered-in-error", "final", "preliminary"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/composition-status";
+    const CODES: &[&str] = &["amended", "entered-in-error", "final", "preliminary"];
 }
 impl CompositionStatus {
     #[inline]
@@ -9107,8 +9101,8 @@ impl CompositionStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/concept-map-equivalence"]
 pub struct ConceptMapEquivalence;
 impl ValueSetDef for ConceptMapEquivalence {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/concept-map-equivalence";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/concept-map-equivalence";
+    const CODES: &[&str] = &[
         "disjoint",
         "equal",
         "equivalent",
@@ -9191,8 +9185,8 @@ impl ConceptMapEquivalence {
 #[doc = "http://hl7.org/fhir/ValueSet/concept-property-type"]
 pub struct ConceptPropertyType;
 impl ValueSetDef for ConceptPropertyType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/concept-property-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/concept-property-type";
+    const CODES: &[&str] = &[
         "Coding", "boolean", "code", "dateTime", "decimal", "integer", "string",
     ];
 }
@@ -9248,9 +9242,8 @@ impl ConceptPropertyType {
 #[doc = "http://hl7.org/fhir/ValueSet/concept-subsumption-outcome"]
 pub struct ConceptSubsumptionOutcome;
 impl ValueSetDef for ConceptSubsumptionOutcome {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/concept-subsumption-outcome";
-    const CODES: &'static [&'static str] =
-        &["equivalent", "not-subsumed", "subsumed-by", "subsumes"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/concept-subsumption-outcome";
+    const CODES: &[&str] = &["equivalent", "not-subsumed", "subsumed-by", "subsumes"];
 }
 impl ConceptSubsumptionOutcome {
     #[inline]
@@ -9286,8 +9279,8 @@ impl ConceptSubsumptionOutcome {
 #[doc = "http://hl7.org/fhir/ValueSet/conceptmap-unmapped-mode"]
 pub struct ConceptmapUnmappedMode;
 impl ValueSetDef for ConceptmapUnmappedMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/conceptmap-unmapped-mode";
-    const CODES: &'static [&'static str] = &["fixed", "other-map", "provided"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/conceptmap-unmapped-mode";
+    const CODES: &[&str] = &["fixed", "other-map", "provided"];
 }
 impl ConceptmapUnmappedMode {
     #[inline]
@@ -9317,8 +9310,8 @@ impl ConceptmapUnmappedMode {
 #[doc = "http://hl7.org/fhir/ValueSet/condition-category"]
 pub struct ConditionCategory;
 impl ValueSetDef for ConditionCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/condition-category";
-    const CODES: &'static [&'static str] = &["encounter-diagnosis", "problem-list-item"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/condition-category";
+    const CODES: &[&str] = &["encounter-diagnosis", "problem-list-item"];
 }
 impl ConditionCategory {
     #[inline]
@@ -9342,8 +9335,8 @@ impl ConditionCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/condition-clinical"]
 pub struct ConditionClinical;
 impl ValueSetDef for ConditionClinical {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/condition-clinical";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/condition-clinical";
+    const CODES: &[&str] = &[
         "active",
         "inactive",
         "recurrence",
@@ -9398,8 +9391,8 @@ impl ConditionClinical {
 #[doc = "http://hl7.org/fhir/ValueSet/condition-severity"]
 pub struct ConditionSeverity;
 impl ValueSetDef for ConditionSeverity {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/condition-severity";
-    const CODES: &'static [&'static str] = &["24484000", "255604002", "6736007"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/condition-severity";
+    const CODES: &[&str] = &["24484000", "255604002", "6736007"];
 }
 impl ConditionSeverity {
     #[inline]
@@ -9429,8 +9422,8 @@ impl ConditionSeverity {
 #[doc = "http://hl7.org/fhir/ValueSet/condition-state"]
 pub struct ConditionState;
 impl ValueSetDef for ConditionState {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/condition-state";
-    const CODES: &'static [&'static str] = &["active", "inactive", "resolved"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/condition-state";
+    const CODES: &[&str] = &["active", "inactive", "resolved"];
 }
 impl ConditionState {
     #[inline]
@@ -9460,8 +9453,8 @@ impl ConditionState {
 #[doc = "http://hl7.org/fhir/ValueSet/condition-ver-status"]
 pub struct ConditionVerStatus;
 impl ValueSetDef for ConditionVerStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/condition-ver-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/condition-ver-status";
+    const CODES: &[&str] = &[
         "confirmed",
         "differential",
         "entered-in-error",
@@ -9516,8 +9509,8 @@ impl ConditionVerStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/conditional-delete-status"]
 pub struct ConditionalDeleteStatus;
 impl ValueSetDef for ConditionalDeleteStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/conditional-delete-status";
-    const CODES: &'static [&'static str] = &["multiple", "not-supported", "single"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/conditional-delete-status";
+    const CODES: &[&str] = &["multiple", "not-supported", "single"];
 }
 impl ConditionalDeleteStatus {
     #[inline]
@@ -9547,8 +9540,8 @@ impl ConditionalDeleteStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/conditional-read-status"]
 pub struct ConditionalReadStatus;
 impl ValueSetDef for ConditionalReadStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/conditional-read-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/conditional-read-status";
+    const CODES: &[&str] = &[
         "full-support",
         "modified-since",
         "not-match",
@@ -9589,8 +9582,8 @@ impl ConditionalReadStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/conformance-expectation"]
 pub struct ConformanceExpectation;
 impl ValueSetDef for ConformanceExpectation {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/conformance-expectation";
-    const CODES: &'static [&'static str] = &["MAY", "SHALL", "SHOULD", "SHOULD-NOT"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/conformance-expectation";
+    const CODES: &[&str] = &["MAY", "SHALL", "SHOULD", "SHOULD-NOT"];
 }
 impl ConformanceExpectation {
     #[inline]
@@ -9626,8 +9619,8 @@ impl ConformanceExpectation {
 #[doc = "http://hl7.org/fhir/ValueSet/consent-action"]
 pub struct ConsentAction;
 impl ValueSetDef for ConsentAction {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/consent-action";
-    const CODES: &'static [&'static str] = &["access", "collect", "correct", "disclose", "use"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/consent-action";
+    const CODES: &[&str] = &["access", "collect", "correct", "disclose", "use"];
 }
 impl ConsentAction {
     #[inline]
@@ -9669,8 +9662,8 @@ impl ConsentAction {
 #[doc = "http://hl7.org/fhir/ValueSet/consent-data-meaning"]
 pub struct ConsentDataMeaning;
 impl ValueSetDef for ConsentDataMeaning {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/consent-data-meaning";
-    const CODES: &'static [&'static str] = &["authoredby", "dependents", "instance", "related"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/consent-data-meaning";
+    const CODES: &[&str] = &["authoredby", "dependents", "instance", "related"];
 }
 impl ConsentDataMeaning {
     #[inline]
@@ -9706,9 +9699,8 @@ impl ConsentDataMeaning {
 #[doc = "http://hl7.org/fhir/ValueSet/consent-performer"]
 pub struct ConsentPerformer;
 impl ValueSetDef for ConsentPerformer {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/consent-performer";
-    const CODES: &'static [&'static str] =
-        &["consenter", "delegatee", "delegator", "grantee", "grantor"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/consent-performer";
+    const CODES: &[&str] = &["consenter", "delegatee", "delegator", "grantee", "grantor"];
 }
 impl ConsentPerformer {
     #[inline]
@@ -9750,8 +9742,8 @@ impl ConsentPerformer {
 #[doc = "http://hl7.org/fhir/ValueSet/consent-policy"]
 pub struct ConsentPolicy;
 impl ValueSetDef for ConsentPolicy {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/consent-policy";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/consent-policy";
+    const CODES: &[&str] = &[
         "at-elga",
         "cric",
         "dch-3927",
@@ -9946,8 +9938,8 @@ impl ConsentPolicy {
 #[doc = "http://hl7.org/fhir/ValueSet/consent-provision-type"]
 pub struct ConsentProvisionType;
 impl ValueSetDef for ConsentProvisionType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/consent-provision-type";
-    const CODES: &'static [&'static str] = &["deny", "permit"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/consent-provision-type";
+    const CODES: &[&str] = &["deny", "permit"];
 }
 impl ConsentProvisionType {
     #[inline]
@@ -9971,8 +9963,8 @@ impl ConsentProvisionType {
 #[doc = "http://hl7.org/fhir/ValueSet/consent-scope"]
 pub struct ConsentScope;
 impl ValueSetDef for ConsentScope {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/consent-scope";
-    const CODES: &'static [&'static str] = &["adr", "patient-privacy", "research", "treatment"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/consent-scope";
+    const CODES: &[&str] = &["adr", "patient-privacy", "research", "treatment"];
 }
 impl ConsentScope {
     #[inline]
@@ -10008,8 +10000,8 @@ impl ConsentScope {
 #[doc = "http://hl7.org/fhir/ValueSet/consent-state-codes"]
 pub struct ConsentStateCodes;
 impl ValueSetDef for ConsentStateCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/consent-state-codes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/consent-state-codes";
+    const CODES: &[&str] = &[
         "active",
         "draft",
         "entered-in-error",
@@ -10064,8 +10056,8 @@ impl ConsentStateCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/consistency-type"]
 pub struct ConsistencyType;
 impl ValueSetDef for ConsistencyType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/consistency-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/consistency-type";
+    const CODES: &[&str] = &[
         "439021000124105",
         "439031000124108",
         "439041000124103",
@@ -10106,8 +10098,8 @@ impl ConsistencyType {
 #[doc = "http://hl7.org/fhir/ValueSet/constraint-severity"]
 pub struct ConstraintSeverity;
 impl ValueSetDef for ConstraintSeverity {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/constraint-severity";
-    const CODES: &'static [&'static str] = &["error", "warning"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/constraint-severity";
+    const CODES: &[&str] = &["error", "warning"];
 }
 impl ConstraintSeverity {
     #[inline]
@@ -10131,9 +10123,8 @@ impl ConstraintSeverity {
 #[doc = "http://hl7.org/fhir/ValueSet/contact-point-system"]
 pub struct ContactPointSystem;
 impl ValueSetDef for ContactPointSystem {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contact-point-system";
-    const CODES: &'static [&'static str] =
-        &["email", "fax", "other", "pager", "phone", "sms", "url"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contact-point-system";
+    const CODES: &[&str] = &["email", "fax", "other", "pager", "phone", "sms", "url"];
 }
 impl ContactPointSystem {
     #[inline]
@@ -10187,8 +10178,8 @@ impl ContactPointSystem {
 #[doc = "http://hl7.org/fhir/ValueSet/contact-point-use"]
 pub struct ContactPointUse;
 impl ValueSetDef for ContactPointUse {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contact-point-use";
-    const CODES: &'static [&'static str] = &["home", "mobile", "old", "temp", "work"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contact-point-use";
+    const CODES: &[&str] = &["home", "mobile", "old", "temp", "work"];
 }
 impl ContactPointUse {
     #[inline]
@@ -10230,8 +10221,8 @@ impl ContactPointUse {
 #[doc = "http://hl7.org/fhir/ValueSet/contactentity-type"]
 pub struct ContactentityType;
 impl ValueSetDef for ContactentityType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contactentity-type";
-    const CODES: &'static [&'static str] = &["ADMIN", "BILL", "HR", "PATINF", "PAYOR", "PRESS"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contactentity-type";
+    const CODES: &[&str] = &["ADMIN", "BILL", "HR", "PATINF", "PAYOR", "PRESS"];
 }
 impl ContactentityType {
     #[inline]
@@ -10279,8 +10270,8 @@ impl ContactentityType {
 #[doc = "http://hl7.org/fhir/ValueSet/container-cap"]
 pub struct ContainerCap;
 impl ValueSetDef for ContainerCap {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/container-cap";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/container-cap";
+    const CODES: &[&str] = &[
         "black",
         "brown",
         "dark-yellow",
@@ -10377,8 +10368,8 @@ impl ContainerCap {
 #[doc = "http://hl7.org/fhir/ValueSet/container-material"]
 pub struct ContainerMaterial;
 impl ValueSetDef for ContainerMaterial {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/container-material";
-    const CODES: &'static [&'static str] = &["32039001", "425620007", "61088005"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/container-material";
+    const CODES: &[&str] = &["32039001", "425620007", "61088005"];
 }
 impl ContainerMaterial {
     #[inline]
@@ -10408,8 +10399,8 @@ impl ContainerMaterial {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-action"]
 pub struct ContractAction;
 impl ValueSetDef for ContractAction {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-action";
-    const CODES: &'static [&'static str] = &["action-a", "action-b"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-action";
+    const CODES: &[&str] = &["action-a", "action-b"];
 }
 impl ContractAction {
     #[inline]
@@ -10433,8 +10424,8 @@ impl ContractAction {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-actionstatus"]
 pub struct ContractActionstatus;
 impl ValueSetDef for ContractActionstatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-actionstatus";
-    const CODES: &'static [&'static str] = &["complete"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-actionstatus";
+    const CODES: &[&str] = &["complete"];
 }
 impl ContractActionstatus {
     #[inline]
@@ -10452,8 +10443,8 @@ impl ContractActionstatus {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-actorrole"]
 pub struct ContractActorrole;
 impl ValueSetDef for ContractActorrole {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-actorrole";
-    const CODES: &'static [&'static str] = &["patient", "practitioner"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-actorrole";
+    const CODES: &[&str] = &["patient", "practitioner"];
 }
 impl ContractActorrole {
     #[inline]
@@ -10477,8 +10468,8 @@ impl ContractActorrole {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-assetcontext"]
 pub struct ContractAssetcontext;
 impl ValueSetDef for ContractAssetcontext {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-assetcontext";
-    const CODES: &'static [&'static str] = &["custodian"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-assetcontext";
+    const CODES: &[&str] = &["custodian"];
 }
 impl ContractAssetcontext {
     #[inline]
@@ -10496,8 +10487,8 @@ impl ContractAssetcontext {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-assetscope"]
 pub struct ContractAssetscope;
 impl ValueSetDef for ContractAssetscope {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-assetscope";
-    const CODES: &'static [&'static str] = &["thing"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-assetscope";
+    const CODES: &[&str] = &["thing"];
 }
 impl ContractAssetscope {
     #[inline]
@@ -10515,8 +10506,8 @@ impl ContractAssetscope {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-assetsubtype"]
 pub struct ContractAssetsubtype;
 impl ValueSetDef for ContractAssetsubtype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-assetsubtype";
-    const CODES: &'static [&'static str] = &["participation"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-assetsubtype";
+    const CODES: &[&str] = &["participation"];
 }
 impl ContractAssetsubtype {
     #[inline]
@@ -10534,8 +10525,8 @@ impl ContractAssetsubtype {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-assettype"]
 pub struct ContractAssettype;
 impl ValueSetDef for ContractAssettype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-assettype";
-    const CODES: &'static [&'static str] = &["participation"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-assettype";
+    const CODES: &[&str] = &["participation"];
 }
 impl ContractAssettype {
     #[inline]
@@ -10553,8 +10544,8 @@ impl ContractAssettype {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-content-derivative"]
 pub struct ContractContentDerivative;
 impl ValueSetDef for ContractContentDerivative {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-content-derivative";
-    const CODES: &'static [&'static str] = &["registration", "retrieval", "shareable", "statement"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-content-derivative";
+    const CODES: &[&str] = &["registration", "retrieval", "shareable", "statement"];
 }
 impl ContractContentDerivative {
     #[inline]
@@ -10590,8 +10581,8 @@ impl ContractContentDerivative {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-data-meaning"]
 pub struct ContractDataMeaning;
 impl ValueSetDef for ContractDataMeaning {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-data-meaning";
-    const CODES: &'static [&'static str] = &["authoredby", "dependents", "instance", "related"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-data-meaning";
+    const CODES: &[&str] = &["authoredby", "dependents", "instance", "related"];
 }
 impl ContractDataMeaning {
     #[inline]
@@ -10627,8 +10618,8 @@ impl ContractDataMeaning {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-decision-mode"]
 pub struct ContractDecisionMode;
 impl ValueSetDef for ContractDecisionMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-decision-mode";
-    const CODES: &'static [&'static str] = &["policy"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-decision-mode";
+    const CODES: &[&str] = &["policy"];
 }
 impl ContractDecisionMode {
     #[inline]
@@ -10646,8 +10637,8 @@ impl ContractDecisionMode {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-definition-subtype"]
 pub struct ContractDefinitionSubtype;
 impl ValueSetDef for ContractDefinitionSubtype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-definition-subtype";
-    const CODES: &'static [&'static str] = &["temp"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-definition-subtype";
+    const CODES: &[&str] = &["temp"];
 }
 impl ContractDefinitionSubtype {
     #[inline]
@@ -10665,8 +10656,8 @@ impl ContractDefinitionSubtype {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-definition-type"]
 pub struct ContractDefinitionType;
 impl ValueSetDef for ContractDefinitionType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-definition-type";
-    const CODES: &'static [&'static str] = &["temp"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-definition-type";
+    const CODES: &[&str] = &["temp"];
 }
 impl ContractDefinitionType {
     #[inline]
@@ -10684,8 +10675,8 @@ impl ContractDefinitionType {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-expiration-type"]
 pub struct ContractExpirationType;
 impl ValueSetDef for ContractExpirationType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-expiration-type";
-    const CODES: &'static [&'static str] = &["breach"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-expiration-type";
+    const CODES: &[&str] = &["breach"];
 }
 impl ContractExpirationType {
     #[inline]
@@ -10703,8 +10694,8 @@ impl ContractExpirationType {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-legalstate"]
 pub struct ContractLegalstate;
 impl ValueSetDef for ContractLegalstate {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-legalstate";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-legalstate";
+    const CODES: &[&str] = &[
         "amended",
         "appended",
         "cancelled",
@@ -10822,8 +10813,8 @@ impl ContractLegalstate {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-party-role"]
 pub struct ContractPartyRole;
 impl ValueSetDef for ContractPartyRole {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-party-role";
-    const CODES: &'static [&'static str] = &["flunky"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-party-role";
+    const CODES: &[&str] = &["flunky"];
 }
 impl ContractPartyRole {
     #[inline]
@@ -10841,8 +10832,8 @@ impl ContractPartyRole {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-publicationstatus"]
 pub struct ContractPublicationstatus;
 impl ValueSetDef for ContractPublicationstatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-publicationstatus";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-publicationstatus";
+    const CODES: &[&str] = &[
         "amended",
         "appended",
         "cancelled",
@@ -10960,8 +10951,8 @@ impl ContractPublicationstatus {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-scope"]
 pub struct ContractScope;
 impl ValueSetDef for ContractScope {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-scope";
-    const CODES: &'static [&'static str] = &["policy"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-scope";
+    const CODES: &[&str] = &["policy"];
 }
 impl ContractScope {
     #[inline]
@@ -10979,8 +10970,8 @@ impl ContractScope {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-security-category"]
 pub struct ContractSecurityCategory;
 impl ValueSetDef for ContractSecurityCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-security-category";
-    const CODES: &'static [&'static str] = &["policy"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-security-category";
+    const CODES: &[&str] = &["policy"];
 }
 impl ContractSecurityCategory {
     #[inline]
@@ -10998,8 +10989,8 @@ impl ContractSecurityCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-security-classification"]
 pub struct ContractSecurityClassification;
 impl ValueSetDef for ContractSecurityClassification {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-security-classification";
-    const CODES: &'static [&'static str] = &["policy"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-security-classification";
+    const CODES: &[&str] = &["policy"];
 }
 impl ContractSecurityClassification {
     #[inline]
@@ -11017,8 +11008,8 @@ impl ContractSecurityClassification {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-security-control"]
 pub struct ContractSecurityControl;
 impl ValueSetDef for ContractSecurityControl {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-security-control";
-    const CODES: &'static [&'static str] = &["policy"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-security-control";
+    const CODES: &[&str] = &["policy"];
 }
 impl ContractSecurityControl {
     #[inline]
@@ -11036,8 +11027,8 @@ impl ContractSecurityControl {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-signer-type"]
 pub struct ContractSignerType;
 impl ValueSetDef for ContractSignerType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-signer-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-signer-type";
+    const CODES: &[&str] = &[
         "AFFL",
         "AGNT",
         "AMENDER",
@@ -11386,8 +11377,8 @@ impl ContractSignerType {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-status"]
 pub struct ContractStatus;
 impl ValueSetDef for ContractStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-status";
+    const CODES: &[&str] = &[
         "amended",
         "appended",
         "cancelled",
@@ -11505,8 +11496,8 @@ impl ContractStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-subtype"]
 pub struct ContractSubtype;
 impl ValueSetDef for ContractSubtype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-subtype";
-    const CODES: &'static [&'static str] = &["disclosure-ca", "disclosure-us"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-subtype";
+    const CODES: &[&str] = &["disclosure-ca", "disclosure-us"];
 }
 impl ContractSubtype {
     #[inline]
@@ -11530,8 +11521,8 @@ impl ContractSubtype {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-term-subtype"]
 pub struct ContractTermSubtype;
 impl ValueSetDef for ContractTermSubtype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-term-subtype";
-    const CODES: &'static [&'static str] = &["condition", "innominate", "warranty"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-term-subtype";
+    const CODES: &[&str] = &["condition", "innominate", "warranty"];
 }
 impl ContractTermSubtype {
     #[inline]
@@ -11561,8 +11552,8 @@ impl ContractTermSubtype {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-term-type"]
 pub struct ContractTermType;
 impl ValueSetDef for ContractTermType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-term-type";
-    const CODES: &'static [&'static str] = &["statutory", "subject-to"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-term-type";
+    const CODES: &[&str] = &["statutory", "subject-to"];
 }
 impl ContractTermType {
     #[inline]
@@ -11586,8 +11577,8 @@ impl ContractTermType {
 #[doc = "http://hl7.org/fhir/ValueSet/contract-type"]
 pub struct ContractType;
 impl ValueSetDef for ContractType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contract-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contract-type";
+    const CODES: &[&str] = &[
         "consent",
         "disclosure",
         "healthinsurance",
@@ -11635,8 +11626,8 @@ impl ContractType {
 #[doc = "http://hl7.org/fhir/ValueSet/contributor-type"]
 pub struct ContributorType;
 impl ValueSetDef for ContributorType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/contributor-type";
-    const CODES: &'static [&'static str] = &["author", "editor", "endorser", "reviewer"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/contributor-type";
+    const CODES: &[&str] = &["author", "editor", "endorser", "reviewer"];
 }
 impl ContributorType {
     #[inline]
@@ -11672,8 +11663,8 @@ impl ContributorType {
 #[doc = "http://hl7.org/fhir/ValueSet/copy-number-event"]
 pub struct CopyNumberEvent;
 impl ValueSetDef for CopyNumberEvent {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/copy-number-event";
-    const CODES: &'static [&'static str] = &["amp", "del", "lof"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/copy-number-event";
+    const CODES: &[&str] = &["amp", "del", "lof"];
 }
 impl CopyNumberEvent {
     #[inline]
@@ -11703,8 +11694,8 @@ impl CopyNumberEvent {
 #[doc = "http://hl7.org/fhir/ValueSet/coverage-class"]
 pub struct CoverageClass;
 impl ValueSetDef for CoverageClass {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/coverage-class";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/coverage-class";
+    const CODES: &[&str] = &[
         "class", "group", "plan", "rxbin", "rxgroup", "rxid", "rxpcn", "sequence", "subclass",
         "subgroup", "subplan",
     ];
@@ -11785,8 +11776,8 @@ impl CoverageClass {
 #[doc = "http://hl7.org/fhir/ValueSet/coverage-copay-type"]
 pub struct CoverageCopayType;
 impl ValueSetDef for CoverageCopayType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/coverage-copay-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/coverage-copay-type";
+    const CODES: &[&str] = &[
         "copay",
         "copaypct",
         "deductible",
@@ -11869,8 +11860,8 @@ impl CoverageCopayType {
 #[doc = "http://hl7.org/fhir/ValueSet/coverage-financial-exception"]
 pub struct CoverageFinancialException;
 impl ValueSetDef for CoverageFinancialException {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/coverage-financial-exception";
-    const CODES: &'static [&'static str] = &["foster", "retired"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/coverage-financial-exception";
+    const CODES: &[&str] = &["foster", "retired"];
 }
 impl CoverageFinancialException {
     #[inline]
@@ -11894,8 +11885,8 @@ impl CoverageFinancialException {
 #[doc = "http://hl7.org/fhir/ValueSet/coverage-selfpay"]
 pub struct CoverageSelfpay;
 impl ValueSetDef for CoverageSelfpay {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/coverage-selfpay";
-    const CODES: &'static [&'static str] = &["pay"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/coverage-selfpay";
+    const CODES: &[&str] = &["pay"];
 }
 impl CoverageSelfpay {
     #[inline]
@@ -11913,9 +11904,8 @@ impl CoverageSelfpay {
 #[doc = "http://hl7.org/fhir/ValueSet/coverageeligibilityresponse-ex-auth-support"]
 pub struct CoverageeligibilityresponseExAuthSupport;
 impl ValueSetDef for CoverageeligibilityresponseExAuthSupport {
-    const URL: &'static str =
-        "http://hl7.org/fhir/ValueSet/coverageeligibilityresponse-ex-auth-support";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/coverageeligibilityresponse-ex-auth-support";
+    const CODES: &[&str] = &[
         "accidentreport",
         "diagnosticimageorder",
         "diagnosticimagereport",
@@ -11984,8 +11974,8 @@ impl CoverageeligibilityresponseExAuthSupport {
 #[doc = "http://hl7.org/fhir/ValueSet/data-absent-reason"]
 pub struct DataAbsentReason;
 impl ValueSetDef for DataAbsentReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/data-absent-reason";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/data-absent-reason";
+    const CODES: &[&str] = &[
         "as-text",
         "asked-declined",
         "asked-unknown",
@@ -12103,8 +12093,8 @@ impl DataAbsentReason {
 #[doc = "http://hl7.org/fhir/ValueSet/data-types"]
 pub struct DataTypes;
 impl ValueSetDef for DataTypes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/data-types";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/data-types";
+    const CODES: &[&str] = &[
         "Address",
         "Age",
         "Annotation",
@@ -12558,8 +12548,8 @@ impl DataTypes {
 #[doc = "http://hl7.org/fhir/ValueSet/days-of-week"]
 pub struct DaysOfWeek;
 impl ValueSetDef for DaysOfWeek {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/days-of-week";
-    const CODES: &'static [&'static str] = &["fri", "mon", "sat", "sun", "thu", "tue", "wed"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/days-of-week";
+    const CODES: &[&str] = &["fri", "mon", "sat", "sun", "thu", "tue", "wed"];
 }
 impl DaysOfWeek {
     #[inline]
@@ -12613,8 +12603,8 @@ impl DaysOfWeek {
 #[doc = "http://hl7.org/fhir/ValueSet/defined-types"]
 pub struct DefinedTypes;
 impl ValueSetDef for DefinedTypes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/defined-types";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/defined-types";
+    const CODES: &[&str] = &[
         "Account",
         "ActivityDefinition",
         "Address",
@@ -14104,8 +14094,8 @@ impl DefinedTypes {
 #[doc = "http://hl7.org/fhir/ValueSet/definition-resource-types"]
 pub struct DefinitionResourceTypes;
 impl ValueSetDef for DefinitionResourceTypes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/definition-resource-types";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/definition-resource-types";
+    const CODES: &[&str] = &[
         "ActivityDefinition",
         "EventDefinition",
         "Measure",
@@ -14160,8 +14150,8 @@ impl DefinitionResourceTypes {
 #[doc = "http://hl7.org/fhir/ValueSet/definition-status"]
 pub struct DefinitionStatus;
 impl ValueSetDef for DefinitionStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/definition-status";
-    const CODES: &'static [&'static str] = &["active", "draft", "unknown", "withdrawn"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/definition-status";
+    const CODES: &[&str] = &["active", "draft", "unknown", "withdrawn"];
 }
 impl DefinitionStatus {
     #[inline]
@@ -14197,8 +14187,8 @@ impl DefinitionStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/definition-topic"]
 pub struct DefinitionTopic;
 impl ValueSetDef for DefinitionTopic {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/definition-topic";
-    const CODES: &'static [&'static str] = &["assessment", "education", "treatment"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/definition-topic";
+    const CODES: &[&str] = &["assessment", "education", "treatment"];
 }
 impl DefinitionTopic {
     #[inline]
@@ -14228,8 +14218,8 @@ impl DefinitionTopic {
 #[doc = "http://hl7.org/fhir/ValueSet/definition-use"]
 pub struct DefinitionUse;
 impl ValueSetDef for DefinitionUse {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/definition-use";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/definition-use";
+    const CODES: &[&str] = &[
         "archetype",
         "custom-resource",
         "dam",
@@ -14284,8 +14274,8 @@ impl DefinitionUse {
 #[doc = "http://hl7.org/fhir/ValueSet/designation-use"]
 pub struct DesignationUse;
 impl ValueSetDef for DesignationUse {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/designation-use";
-    const CODES: &'static [&'static str] = &["900000000000003001", "900000000000013009"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/designation-use";
+    const CODES: &[&str] = &["900000000000003001", "900000000000013009"];
 }
 impl DesignationUse {
     #[inline]
@@ -14309,8 +14299,8 @@ impl DesignationUse {
 #[doc = "http://hl7.org/fhir/ValueSet/detectedissue-severity"]
 pub struct DetectedissueSeverity;
 impl ValueSetDef for DetectedissueSeverity {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/detectedissue-severity";
-    const CODES: &'static [&'static str] = &["high", "low", "moderate"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/detectedissue-severity";
+    const CODES: &[&str] = &["high", "low", "moderate"];
 }
 impl DetectedissueSeverity {
     #[inline]
@@ -14340,8 +14330,8 @@ impl DetectedissueSeverity {
 #[doc = "http://hl7.org/fhir/ValueSet/device-component-property"]
 pub struct DeviceComponentProperty;
 impl ValueSetDef for DeviceComponentProperty {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/device-component-property";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/device-component-property";
+    const CODES: &[&str] = &[
         "532353", "532354", "532355", "68219", "68220", "68221", "68222", "68223", "68224", "68226",
     ];
 }
@@ -14415,8 +14405,8 @@ impl DeviceComponentProperty {
 #[doc = "http://hl7.org/fhir/ValueSet/device-definition-status"]
 pub struct DeviceDefinitionStatus;
 impl ValueSetDef for DeviceDefinitionStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/device-definition-status";
-    const CODES: &'static [&'static str] = &["active", "entered-in-error", "inactive", "unknown"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/device-definition-status";
+    const CODES: &[&str] = &["active", "entered-in-error", "inactive", "unknown"];
 }
 impl DeviceDefinitionStatus {
     #[inline]
@@ -14452,8 +14442,8 @@ impl DeviceDefinitionStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/device-nametype"]
 pub struct DeviceNametype;
 impl ValueSetDef for DeviceNametype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/device-nametype";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/device-nametype";
+    const CODES: &[&str] = &[
         "manufacturer-name",
         "model-name",
         "other",
@@ -14508,8 +14498,8 @@ impl DeviceNametype {
 #[doc = "http://hl7.org/fhir/ValueSet/device-safety"]
 pub struct DeviceSafety;
 impl ValueSetDef for DeviceSafety {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/device-safety";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/device-safety";
+    const CODES: &[&str] = &[
         "C101673", "C106038", "C106045", "C106046", "C106047", "C113844",
     ];
 }
@@ -14559,8 +14549,8 @@ impl DeviceSafety {
 #[doc = "http://hl7.org/fhir/ValueSet/device-statement-status"]
 pub struct DeviceStatementStatus;
 impl ValueSetDef for DeviceStatementStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/device-statement-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/device-statement-status";
+    const CODES: &[&str] = &[
         "active",
         "completed",
         "entered-in-error",
@@ -14615,8 +14605,8 @@ impl DeviceStatementStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/device-status"]
 pub struct DeviceStatus;
 impl ValueSetDef for DeviceStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/device-status";
-    const CODES: &'static [&'static str] = &["active", "entered-in-error", "inactive", "unknown"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/device-status";
+    const CODES: &[&str] = &["active", "entered-in-error", "inactive", "unknown"];
 }
 impl DeviceStatus {
     #[inline]
@@ -14652,8 +14642,8 @@ impl DeviceStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/device-status-reason"]
 pub struct DeviceStatusReason;
 impl ValueSetDef for DeviceStatusReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/device-status-reason";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/device-status-reason";
+    const CODES: &[&str] = &[
         "hw-discon",
         "not-ready",
         "off",
@@ -14722,9 +14712,8 @@ impl DeviceStatusReason {
 #[doc = "http://hl7.org/fhir/ValueSet/diagnosis-role"]
 pub struct DiagnosisRole;
 impl ValueSetDef for DiagnosisRole {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/diagnosis-role";
-    const CODES: &'static [&'static str] =
-        &["AD", "CC", "CM", "DD", "billing", "post-op", "pre-op"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/diagnosis-role";
+    const CODES: &[&str] = &["AD", "CC", "CM", "DD", "billing", "post-op", "pre-op"];
 }
 impl DiagnosisRole {
     #[inline]
@@ -14778,8 +14767,8 @@ impl DiagnosisRole {
 #[doc = "http://hl7.org/fhir/ValueSet/diagnostic-report-status"]
 pub struct DiagnosticReportStatus;
 impl ValueSetDef for DiagnosticReportStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/diagnostic-report-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/diagnostic-report-status";
+    const CODES: &[&str] = &[
         "amended",
         "appended",
         "cancelled",
@@ -14862,8 +14851,8 @@ impl DiagnosticReportStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/dicm-405-mediatype"]
 pub struct Dicm405Mediatype;
 impl ValueSetDef for Dicm405Mediatype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/dicm-405-mediatype";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/dicm-405-mediatype";
+    const CODES: &[&str] = &[
         "110010", "110030", "110031", "110032", "110033", "110034", "110035", "110036", "110037",
         "110038",
     ];
@@ -14938,8 +14927,8 @@ impl Dicm405Mediatype {
 #[doc = "http://hl7.org/fhir/ValueSet/discriminator-type"]
 pub struct DiscriminatorType;
 impl ValueSetDef for DiscriminatorType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/discriminator-type";
-    const CODES: &'static [&'static str] = &["exists", "pattern", "profile", "type", "value"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/discriminator-type";
+    const CODES: &[&str] = &["exists", "pattern", "profile", "type", "value"];
 }
 impl DiscriminatorType {
     #[inline]
@@ -14981,8 +14970,8 @@ impl DiscriminatorType {
 #[doc = "http://hl7.org/fhir/ValueSet/distance-units"]
 pub struct DistanceUnits;
 impl ValueSetDef for DistanceUnits {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/distance-units";
-    const CODES: &'static [&'static str] = &["km", "m", "mm", "nm", "um"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/distance-units";
+    const CODES: &[&str] = &["km", "m", "mm", "nm", "um"];
 }
 impl DistanceUnits {
     #[inline]
@@ -15024,8 +15013,8 @@ impl DistanceUnits {
 #[doc = "http://hl7.org/fhir/ValueSet/doc-section-codes"]
 pub struct DocSectionCodes;
 impl ValueSetDef for DocSectionCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/doc-section-codes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/doc-section-codes";
+    const CODES: &[&str] = &[
         "10154-3", "10157-6", "10160-0", "10164-2", "10183-2", "10184-0", "10187-3", "10210-3",
         "10216-0", "10218-6", "10222-8", "10223-6", "11329-0", "11348-0", "11369-6", "11493-4",
         "11535-2", "11537-8", "18776-5", "18841-7", "29299-5", "29545-1", "29549-3", "29554-3",
@@ -15375,8 +15364,8 @@ impl DocSectionCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/document-classcodes"]
 pub struct DocumentClasscodes;
 impl ValueSetDef for DocumentClasscodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/document-classcodes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/document-classcodes";
+    const CODES: &[&str] = &[
         "11369-6", "11485-0", "11486-8", "11488-4", "11504-8", "11506-3", "11543-6", "15508-5",
         "18726-0", "18748-4", "18761-7", "18842-5", "26436-6", "26441-6", "26442-4", "27895-2",
         "27896-0", "27897-8", "27898-6", "28570-0", "28619-5", "28634-4", "29749-9", "29750-7",
@@ -15665,8 +15654,8 @@ impl DocumentClasscodes {
 #[doc = "http://hl7.org/fhir/ValueSet/document-mode"]
 pub struct DocumentMode;
 impl ValueSetDef for DocumentMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/document-mode";
-    const CODES: &'static [&'static str] = &["consumer", "producer"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/document-mode";
+    const CODES: &[&str] = &["consumer", "producer"];
 }
 impl DocumentMode {
     #[inline]
@@ -15690,8 +15679,8 @@ impl DocumentMode {
 #[doc = "http://hl7.org/fhir/ValueSet/document-reference-status"]
 pub struct DocumentReferenceStatus;
 impl ValueSetDef for DocumentReferenceStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/document-reference-status";
-    const CODES: &'static [&'static str] = &["current", "entered-in-error", "superseded"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/document-reference-status";
+    const CODES: &[&str] = &["current", "entered-in-error", "superseded"];
 }
 impl DocumentReferenceStatus {
     #[inline]
@@ -15721,8 +15710,8 @@ impl DocumentReferenceStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/document-relationship-type"]
 pub struct DocumentRelationshipType;
 impl ValueSetDef for DocumentRelationshipType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/document-relationship-type";
-    const CODES: &'static [&'static str] = &["appends", "replaces", "signs", "transforms"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/document-relationship-type";
+    const CODES: &[&str] = &["appends", "replaces", "signs", "transforms"];
 }
 impl DocumentRelationshipType {
     #[inline]
@@ -15758,8 +15747,8 @@ impl DocumentRelationshipType {
 #[doc = "http://hl7.org/fhir/ValueSet/dose-rate-type"]
 pub struct DoseRateType;
 impl ValueSetDef for DoseRateType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/dose-rate-type";
-    const CODES: &'static [&'static str] = &["calculated", "ordered"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/dose-rate-type";
+    const CODES: &[&str] = &["calculated", "ordered"];
 }
 impl DoseRateType {
     #[inline]
@@ -15783,8 +15772,8 @@ impl DoseRateType {
 #[doc = "http://hl7.org/fhir/ValueSet/duration-units"]
 pub struct DurationUnits;
 impl ValueSetDef for DurationUnits {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/duration-units";
-    const CODES: &'static [&'static str] = &["a", "d", "h", "min", "mo", "ms", "s", "wk"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/duration-units";
+    const CODES: &[&str] = &["a", "d", "h", "min", "mo", "ms", "s", "wk"];
 }
 impl DurationUnits {
     #[inline]
@@ -15844,8 +15833,8 @@ impl DurationUnits {
 #[doc = "http://hl7.org/fhir/ValueSet/effect-estimate-type"]
 pub struct EffectEstimateType;
 impl ValueSetDef for EffectEstimateType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/effect-estimate-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/effect-estimate-type";
+    const CODES: &[&str] = &[
         "absolute-ARD",
         "absolute-MeanDiff",
         "absolute-MedianDiff",
@@ -15907,9 +15896,8 @@ impl EffectEstimateType {
 #[doc = "http://hl7.org/fhir/ValueSet/eligibilityrequest-purpose"]
 pub struct EligibilityrequestPurpose;
 impl ValueSetDef for EligibilityrequestPurpose {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/eligibilityrequest-purpose";
-    const CODES: &'static [&'static str] =
-        &["auth-requirements", "benefits", "discovery", "validation"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/eligibilityrequest-purpose";
+    const CODES: &[&str] = &["auth-requirements", "benefits", "discovery", "validation"];
 }
 impl EligibilityrequestPurpose {
     #[inline]
@@ -15945,9 +15933,8 @@ impl EligibilityrequestPurpose {
 #[doc = "http://hl7.org/fhir/ValueSet/eligibilityresponse-purpose"]
 pub struct EligibilityresponsePurpose;
 impl ValueSetDef for EligibilityresponsePurpose {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/eligibilityresponse-purpose";
-    const CODES: &'static [&'static str] =
-        &["auth-requirements", "benefits", "discovery", "validation"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/eligibilityresponse-purpose";
+    const CODES: &[&str] = &["auth-requirements", "benefits", "discovery", "validation"];
 }
 impl EligibilityresponsePurpose {
     #[inline]
@@ -15983,8 +15970,8 @@ impl EligibilityresponsePurpose {
 #[doc = "http://hl7.org/fhir/ValueSet/encounter-admit-source"]
 pub struct EncounterAdmitSource;
 impl ValueSetDef for EncounterAdmitSource {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/encounter-admit-source";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/encounter-admit-source";
+    const CODES: &[&str] = &[
         "born",
         "emd",
         "gp",
@@ -16067,8 +16054,8 @@ impl EncounterAdmitSource {
 #[doc = "http://hl7.org/fhir/ValueSet/encounter-diet"]
 pub struct EncounterDiet;
 impl ValueSetDef for EncounterDiet {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/encounter-diet";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/encounter-diet";
+    const CODES: &[&str] = &[
         "dairy-free",
         "gluten-free",
         "halal",
@@ -16130,8 +16117,8 @@ impl EncounterDiet {
 #[doc = "http://hl7.org/fhir/ValueSet/encounter-discharge-disposition"]
 pub struct EncounterDischargeDisposition;
 impl ValueSetDef for EncounterDischargeDisposition {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/encounter-discharge-disposition";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/encounter-discharge-disposition";
+    const CODES: &[&str] = &[
         "aadvice",
         "alt-home",
         "exp",
@@ -16221,8 +16208,8 @@ impl EncounterDischargeDisposition {
 #[doc = "http://hl7.org/fhir/ValueSet/encounter-location-status"]
 pub struct EncounterLocationStatus;
 impl ValueSetDef for EncounterLocationStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/encounter-location-status";
-    const CODES: &'static [&'static str] = &["active", "completed", "planned", "reserved"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/encounter-location-status";
+    const CODES: &[&str] = &["active", "completed", "planned", "reserved"];
 }
 impl EncounterLocationStatus {
     #[inline]
@@ -16258,8 +16245,8 @@ impl EncounterLocationStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/encounter-participant-type"]
 pub struct EncounterParticipantType;
 impl ValueSetDef for EncounterParticipantType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/encounter-participant-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/encounter-participant-type";
+    const CODES: &[&str] = &[
         "ADM",
         "ALY",
         "ATND",
@@ -16713,8 +16700,8 @@ impl EncounterParticipantType {
 #[doc = "http://hl7.org/fhir/ValueSet/encounter-special-arrangements"]
 pub struct EncounterSpecialArrangements;
 impl ValueSetDef for EncounterSpecialArrangements {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/encounter-special-arrangements";
-    const CODES: &'static [&'static str] = &["add-bed", "att", "dog", "int", "wheel"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/encounter-special-arrangements";
+    const CODES: &[&str] = &["add-bed", "att", "dog", "int", "wheel"];
 }
 impl EncounterSpecialArrangements {
     #[inline]
@@ -16756,8 +16743,8 @@ impl EncounterSpecialArrangements {
 #[doc = "http://hl7.org/fhir/ValueSet/encounter-special-courtesy"]
 pub struct EncounterSpecialCourtesy;
 impl ValueSetDef for EncounterSpecialCourtesy {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/encounter-special-courtesy";
-    const CODES: &'static [&'static str] = &["EXT", "NRM", "PRF", "STF", "UNK", "VIP"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/encounter-special-courtesy";
+    const CODES: &[&str] = &["EXT", "NRM", "PRF", "STF", "UNK", "VIP"];
 }
 impl EncounterSpecialCourtesy {
     #[inline]
@@ -16805,8 +16792,8 @@ impl EncounterSpecialCourtesy {
 #[doc = "http://hl7.org/fhir/ValueSet/encounter-status"]
 pub struct EncounterStatus;
 impl ValueSetDef for EncounterStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/encounter-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/encounter-status";
+    const CODES: &[&str] = &[
         "arrived",
         "cancelled",
         "entered-in-error",
@@ -16882,8 +16869,8 @@ impl EncounterStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/encounter-type"]
 pub struct EncounterType;
 impl ValueSetDef for EncounterType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/encounter-type";
-    const CODES: &'static [&'static str] = &["ADMS", "BD/BM-clin", "CCS60", "OKI"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/encounter-type";
+    const CODES: &[&str] = &["ADMS", "BD/BM-clin", "CCS60", "OKI"];
 }
 impl EncounterType {
     #[inline]
@@ -16919,8 +16906,8 @@ impl EncounterType {
 #[doc = "http://hl7.org/fhir/ValueSet/endpoint-connection-type"]
 pub struct EndpointConnectionType;
 impl ValueSetDef for EndpointConnectionType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/endpoint-connection-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/endpoint-connection-type";
+    const CODES: &[&str] = &[
         "dicom-qido-rs",
         "dicom-stow-rs",
         "dicom-wado-rs",
@@ -17031,8 +17018,8 @@ impl EndpointConnectionType {
 #[doc = "http://hl7.org/fhir/ValueSet/endpoint-payload-type"]
 pub struct EndpointPayloadType;
 impl ValueSetDef for EndpointPayloadType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/endpoint-payload-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/endpoint-payload-type";
+    const CODES: &[&str] = &[
         "any",
         "none",
         "urn:hl7-org:sdwg:ccda-nonXMLBody:1.1",
@@ -17556,8 +17543,8 @@ impl EndpointPayloadType {
 #[doc = "http://hl7.org/fhir/ValueSet/endpoint-status"]
 pub struct EndpointStatus;
 impl ValueSetDef for EndpointStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/endpoint-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/endpoint-status";
+    const CODES: &[&str] = &[
         "active",
         "entered-in-error",
         "error",
@@ -17612,8 +17599,8 @@ impl EndpointStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/enteral-route"]
 pub struct EnteralRoute;
 impl ValueSetDef for EnteralRoute {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/enteral-route";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/enteral-route";
+    const CODES: &[&str] = &[
         "EFT", "ENTINSTL", "GJT", "GT", "JJTINSTL", "NGT", "OGT", "OJJ", "PO",
     ];
 }
@@ -17681,8 +17668,8 @@ impl EnteralRoute {
 #[doc = "http://hl7.org/fhir/ValueSet/entformula-additive"]
 pub struct EntformulaAdditive;
 impl ValueSetDef for EntformulaAdditive {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/entformula-additive";
-    const CODES: &'static [&'static str] = &["carbohydrate", "fiber", "lipid", "protein", "water"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/entformula-additive";
+    const CODES: &[&str] = &["carbohydrate", "fiber", "lipid", "protein", "water"];
 }
 impl EntformulaAdditive {
     #[inline]
@@ -17724,8 +17711,8 @@ impl EntformulaAdditive {
 #[doc = "http://hl7.org/fhir/ValueSet/entformula-type"]
 pub struct EntformulaType;
 impl ValueSetDef for EntformulaType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/entformula-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/entformula-type";
+    const CODES: &[&str] = &[
         "441531000124102",
         "441561000124106",
         "441571000124104",
@@ -17990,8 +17977,8 @@ impl EntformulaType {
 #[doc = "http://hl7.org/fhir/ValueSet/episode-of-care-status"]
 pub struct EpisodeOfCareStatus;
 impl ValueSetDef for EpisodeOfCareStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/episode-of-care-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/episode-of-care-status";
+    const CODES: &[&str] = &[
         "active",
         "cancelled",
         "entered-in-error",
@@ -18053,8 +18040,8 @@ impl EpisodeOfCareStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/episodeofcare-type"]
 pub struct EpisodeofcareType;
 impl ValueSetDef for EpisodeofcareType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/episodeofcare-type";
-    const CODES: &'static [&'static str] = &["cacp", "da", "diab", "hacc", "pac"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/episodeofcare-type";
+    const CODES: &[&str] = &["cacp", "da", "diab", "hacc", "pac"];
 }
 impl EpisodeofcareType {
     #[inline]
@@ -18096,8 +18083,8 @@ impl EpisodeofcareType {
 #[doc = "http://hl7.org/fhir/ValueSet/event-capability-mode"]
 pub struct EventCapabilityMode;
 impl ValueSetDef for EventCapabilityMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/event-capability-mode";
-    const CODES: &'static [&'static str] = &["receiver", "sender"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/event-capability-mode";
+    const CODES: &[&str] = &["receiver", "sender"];
 }
 impl EventCapabilityMode {
     #[inline]
@@ -18121,8 +18108,8 @@ impl EventCapabilityMode {
 #[doc = "http://hl7.org/fhir/ValueSet/event-or-request-resource-types"]
 pub struct EventOrRequestResourceTypes;
 impl ValueSetDef for EventOrRequestResourceTypes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/event-or-request-resource-types";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/event-or-request-resource-types";
+    const CODES: &[&str] = &[
         "Appointment",
         "AppointmentResponse",
         "CarePlan",
@@ -18471,8 +18458,8 @@ impl EventOrRequestResourceTypes {
 #[doc = "http://hl7.org/fhir/ValueSet/event-resource-types"]
 pub struct EventResourceTypes;
 impl ValueSetDef for EventResourceTypes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/event-resource-types";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/event-resource-types";
+    const CODES: &[&str] = &[
         "ChargeItem",
         "ClaimResponse",
         "ClinicalImpression",
@@ -18723,8 +18710,8 @@ impl EventResourceTypes {
 #[doc = "http://hl7.org/fhir/ValueSet/event-status"]
 pub struct EventStatus;
 impl ValueSetDef for EventStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/event-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/event-status";
+    const CODES: &[&str] = &[
         "completed",
         "entered-in-error",
         "in-progress",
@@ -18793,8 +18780,8 @@ impl EventStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/event-timing"]
 pub struct EventTiming;
 impl ValueSetDef for EventTiming {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/event-timing";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/event-timing";
+    const CODES: &[&str] = &[
         "AC",
         "ACD",
         "ACM",
@@ -18989,8 +18976,8 @@ impl EventTiming {
 #[doc = "http://hl7.org/fhir/ValueSet/evidence-quality"]
 pub struct EvidenceQuality;
 impl ValueSetDef for EvidenceQuality {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/evidence-quality";
-    const CODES: &'static [&'static str] = &["high", "low", "moderate", "very-low"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/evidence-quality";
+    const CODES: &[&str] = &["high", "low", "moderate", "very-low"];
 }
 impl EvidenceQuality {
     #[inline]
@@ -19026,8 +19013,8 @@ impl EvidenceQuality {
 #[doc = "http://hl7.org/fhir/ValueSet/evidence-variant-state"]
 pub struct EvidenceVariantState;
 impl ValueSetDef for EvidenceVariantState {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/evidence-variant-state";
-    const CODES: &'static [&'static str] = &["high-risk", "low-risk", "medium-risk"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/evidence-variant-state";
+    const CODES: &[&str] = &["high-risk", "low-risk", "medium-risk"];
 }
 impl EvidenceVariantState {
     #[inline]
@@ -19057,8 +19044,8 @@ impl EvidenceVariantState {
 #[doc = "http://hl7.org/fhir/ValueSet/ex-benefitcategory"]
 pub struct ExBenefitcategory;
 impl ValueSetDef for ExBenefitcategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ex-benefitcategory";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ex-benefitcategory";
+    const CODES: &[&str] = &[
         "1", "14", "2", "23", "24", "25", "26", "27", "28", "3", "30", "35", "36", "37", "4", "49",
         "5", "55", "56", "61", "62", "63", "69", "76", "F1", "F3", "F4", "F6",
     ];
@@ -19241,8 +19228,8 @@ impl ExBenefitcategory {
 #[doc = "http://hl7.org/fhir/ValueSet/ex-diagnosis-on-admission"]
 pub struct ExDiagnosisOnAdmission;
 impl ValueSetDef for ExDiagnosisOnAdmission {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ex-diagnosis-on-admission";
-    const CODES: &'static [&'static str] = &["n", "u", "w", "y"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ex-diagnosis-on-admission";
+    const CODES: &[&str] = &["n", "u", "w", "y"];
 }
 impl ExDiagnosisOnAdmission {
     #[inline]
@@ -19278,8 +19265,8 @@ impl ExDiagnosisOnAdmission {
 #[doc = "http://hl7.org/fhir/ValueSet/ex-diagnosisrelatedgroup"]
 pub struct ExDiagnosisrelatedgroup;
 impl ValueSetDef for ExDiagnosisrelatedgroup {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ex-diagnosisrelatedgroup";
-    const CODES: &'static [&'static str] = &["100", "101", "300", "400"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ex-diagnosisrelatedgroup";
+    const CODES: &[&str] = &["100", "101", "300", "400"];
 }
 impl ExDiagnosisrelatedgroup {
     #[inline]
@@ -19315,8 +19302,8 @@ impl ExDiagnosisrelatedgroup {
 #[doc = "http://hl7.org/fhir/ValueSet/ex-diagnosistype"]
 pub struct ExDiagnosistype;
 impl ValueSetDef for ExDiagnosistype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ex-diagnosistype";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ex-diagnosistype";
+    const CODES: &[&str] = &[
         "admitting",
         "clinical",
         "differential",
@@ -19413,8 +19400,8 @@ impl ExDiagnosistype {
 #[doc = "http://hl7.org/fhir/ValueSet/ex-onsettype"]
 pub struct ExOnsettype;
 impl ValueSetDef for ExOnsettype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ex-onsettype";
-    const CODES: &'static [&'static str] = &["lmn", "lxm", "sym"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ex-onsettype";
+    const CODES: &[&str] = &["lmn", "lxm", "sym"];
 }
 impl ExOnsettype {
     #[inline]
@@ -19444,9 +19431,8 @@ impl ExOnsettype {
 #[doc = "http://hl7.org/fhir/ValueSet/ex-payee-resource-type"]
 pub struct ExPayeeResourceType;
 impl ValueSetDef for ExPayeeResourceType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ex-payee-resource-type";
-    const CODES: &'static [&'static str] =
-        &["organization", "patient", "practitioner", "relatedperson"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ex-payee-resource-type";
+    const CODES: &[&str] = &["organization", "patient", "practitioner", "relatedperson"];
 }
 impl ExPayeeResourceType {
     #[inline]
@@ -19482,8 +19468,8 @@ impl ExPayeeResourceType {
 #[doc = "http://hl7.org/fhir/ValueSet/ex-paymenttype"]
 pub struct ExPaymenttype;
 impl ValueSetDef for ExPaymenttype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ex-paymenttype";
-    const CODES: &'static [&'static str] = &["complete", "partial"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ex-paymenttype";
+    const CODES: &[&str] = &["complete", "partial"];
 }
 impl ExPaymenttype {
     #[inline]
@@ -19507,8 +19493,8 @@ impl ExPaymenttype {
 #[doc = "http://hl7.org/fhir/ValueSet/ex-procedure-type"]
 pub struct ExProcedureType;
 impl ValueSetDef for ExProcedureType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ex-procedure-type";
-    const CODES: &'static [&'static str] = &["primary", "secondary"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ex-procedure-type";
+    const CODES: &[&str] = &["primary", "secondary"];
 }
 impl ExProcedureType {
     #[inline]
@@ -19532,8 +19518,8 @@ impl ExProcedureType {
 #[doc = "http://hl7.org/fhir/ValueSet/ex-program-code"]
 pub struct ExProgramCode;
 impl ValueSetDef for ExProgramCode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ex-program-code";
-    const CODES: &'static [&'static str] = &["as", "auscr", "hd", "none"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ex-program-code";
+    const CODES: &[&str] = &["as", "auscr", "hd", "none"];
 }
 impl ExProgramCode {
     #[inline]
@@ -19569,8 +19555,8 @@ impl ExProgramCode {
 #[doc = "http://hl7.org/fhir/ValueSet/ex-revenue-center"]
 pub struct ExRevenueCenter;
 impl ValueSetDef for ExRevenueCenter {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ex-revenue-center";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ex-revenue-center";
+    const CODES: &[&str] = &[
         "0010", "0370", "0420", "0421", "0440", "0441", "0450", "0451", "0452",
     ];
 }
@@ -19638,8 +19624,8 @@ impl ExRevenueCenter {
 #[doc = "http://hl7.org/fhir/ValueSet/example-extensional"]
 pub struct ExampleExtensional;
 impl ValueSetDef for ExampleExtensional {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/example-extensional";
-    const CODES: &'static [&'static str] = &["14647-2", "2093-3", "35200-5", "9342-7"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/example-extensional";
+    const CODES: &[&str] = &["14647-2", "2093-3", "35200-5", "9342-7"];
 }
 impl ExampleExtensional {
     #[inline]
@@ -19675,8 +19661,8 @@ impl ExampleExtensional {
 #[doc = "http://hl7.org/fhir/ValueSet/example-filter"]
 pub struct ExampleFilter;
 impl ValueSetDef for ExampleFilter {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/example-filter";
-    const CODES: &'static [&'static str] = &["chol", "chol-mass", "chol-mmol"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/example-filter";
+    const CODES: &[&str] = &["chol", "chol-mass", "chol-mmol"];
 }
 impl ExampleFilter {
     #[inline]
@@ -19706,8 +19692,8 @@ impl ExampleFilter {
 #[doc = "http://hl7.org/fhir/ValueSet/example-hierarchical"]
 pub struct ExampleHierarchical;
 impl ValueSetDef for ExampleHierarchical {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/example-hierarchical";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/example-hierarchical";
+    const CODES: &[&str] = &[
         "conflict",
         "duplicate",
         "exception",
@@ -19811,8 +19797,8 @@ impl ExampleHierarchical {
 #[doc = "http://hl7.org/fhir/ValueSet/examplescenario-actor-type"]
 pub struct ExamplescenarioActorType;
 impl ValueSetDef for ExamplescenarioActorType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/examplescenario-actor-type";
-    const CODES: &'static [&'static str] = &["entity", "person"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/examplescenario-actor-type";
+    const CODES: &[&str] = &["entity", "person"];
 }
 impl ExamplescenarioActorType {
     #[inline]
@@ -19836,8 +19822,8 @@ impl ExamplescenarioActorType {
 #[doc = "http://hl7.org/fhir/ValueSet/expansion-parameter-source"]
 pub struct ExpansionParameterSource;
 impl ValueSetDef for ExpansionParameterSource {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/expansion-parameter-source";
-    const CODES: &'static [&'static str] = &["codesystem", "input", "server"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/expansion-parameter-source";
+    const CODES: &[&str] = &["codesystem", "input", "server"];
 }
 impl ExpansionParameterSource {
     #[inline]
@@ -19867,8 +19853,8 @@ impl ExpansionParameterSource {
 #[doc = "http://hl7.org/fhir/ValueSet/expansion-processing-rule"]
 pub struct ExpansionProcessingRule;
 impl ValueSetDef for ExpansionProcessingRule {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/expansion-processing-rule";
-    const CODES: &'static [&'static str] = &["all-codes", "groups-only", "ungrouped"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/expansion-processing-rule";
+    const CODES: &[&str] = &["all-codes", "groups-only", "ungrouped"];
 }
 impl ExpansionProcessingRule {
     #[inline]
@@ -19898,8 +19884,8 @@ impl ExpansionProcessingRule {
 #[doc = "http://hl7.org/fhir/ValueSet/explanationofbenefit-status"]
 pub struct ExplanationofbenefitStatus;
 impl ValueSetDef for ExplanationofbenefitStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/explanationofbenefit-status";
-    const CODES: &'static [&'static str] = &["active", "cancelled", "draft", "entered-in-error"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/explanationofbenefit-status";
+    const CODES: &[&str] = &["active", "cancelled", "draft", "entered-in-error"];
 }
 impl ExplanationofbenefitStatus {
     #[inline]
@@ -19935,8 +19921,8 @@ impl ExplanationofbenefitStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/exposure-state"]
 pub struct ExposureState;
 impl ValueSetDef for ExposureState {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/exposure-state";
-    const CODES: &'static [&'static str] = &["exposure", "exposure-alternative"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/exposure-state";
+    const CODES: &[&str] = &["exposure", "exposure-alternative"];
 }
 impl ExposureState {
     #[inline]
@@ -19960,9 +19946,8 @@ impl ExposureState {
 #[doc = "http://hl7.org/fhir/ValueSet/expression-language"]
 pub struct ExpressionLanguage;
 impl ValueSetDef for ExpressionLanguage {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/expression-language";
-    const CODES: &'static [&'static str] =
-        &["application/x-fhir-query", "text/cql", "text/fhirpath"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/expression-language";
+    const CODES: &[&str] = &["application/x-fhir-query", "text/cql", "text/fhirpath"];
 }
 impl ExpressionLanguage {
     #[inline]
@@ -19992,8 +19977,8 @@ impl ExpressionLanguage {
 #[doc = "http://hl7.org/fhir/ValueSet/extension-context-type"]
 pub struct ExtensionContextType;
 impl ValueSetDef for ExtensionContextType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/extension-context-type";
-    const CODES: &'static [&'static str] = &["element", "extension", "fhirpath"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/extension-context-type";
+    const CODES: &[&str] = &["element", "extension", "fhirpath"];
 }
 impl ExtensionContextType {
     #[inline]
@@ -20023,8 +20008,8 @@ impl ExtensionContextType {
 #[doc = "http://hl7.org/fhir/ValueSet/filter-operator"]
 pub struct FilterOperator;
 impl ValueSetDef for FilterOperator {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/filter-operator";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/filter-operator";
+    const CODES: &[&str] = &[
         "=",
         "descendent-of",
         "exists",
@@ -20100,8 +20085,8 @@ impl FilterOperator {
 #[doc = "http://hl7.org/fhir/ValueSet/financial-taskcode"]
 pub struct FinancialTaskcode;
 impl ValueSetDef for FinancialTaskcode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/financial-taskcode";
-    const CODES: &'static [&'static str] = &["cancel", "poll", "release", "reprocess", "status"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/financial-taskcode";
+    const CODES: &[&str] = &["cancel", "poll", "release", "reprocess", "status"];
 }
 impl FinancialTaskcode {
     #[inline]
@@ -20143,8 +20128,8 @@ impl FinancialTaskcode {
 #[doc = "http://hl7.org/fhir/ValueSet/financial-taskinputtype"]
 pub struct FinancialTaskinputtype;
 impl ValueSetDef for FinancialTaskinputtype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/financial-taskinputtype";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/financial-taskinputtype";
+    const CODES: &[&str] = &[
         "exclude",
         "include",
         "item",
@@ -20206,8 +20191,8 @@ impl FinancialTaskinputtype {
 #[doc = "http://hl7.org/fhir/ValueSet/flag-category"]
 pub struct FlagCategory;
 impl ValueSetDef for FlagCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/flag-category";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/flag-category";
+    const CODES: &[&str] = &[
         "admin",
         "advance-directive",
         "behavioral",
@@ -20290,8 +20275,8 @@ impl FlagCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/flag-priority"]
 pub struct FlagPriority;
 impl ValueSetDef for FlagPriority {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/flag-priority";
-    const CODES: &'static [&'static str] = &["PH", "PL", "PM", "PN"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/flag-priority";
+    const CODES: &[&str] = &["PH", "PL", "PM", "PN"];
 }
 impl FlagPriority {
     #[inline]
@@ -20327,8 +20312,8 @@ impl FlagPriority {
 #[doc = "http://hl7.org/fhir/ValueSet/flag-status"]
 pub struct FlagStatus;
 impl ValueSetDef for FlagStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/flag-status";
-    const CODES: &'static [&'static str] = &["active", "entered-in-error", "inactive"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/flag-status";
+    const CODES: &[&str] = &["active", "entered-in-error", "inactive"];
 }
 impl FlagStatus {
     #[inline]
@@ -20358,8 +20343,8 @@ impl FlagStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/fm-conditions"]
 pub struct FmConditions;
 impl ValueSetDef for FmConditions {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/fm-conditions";
-    const CODES: &'static [&'static str] = &["123987"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/fm-conditions";
+    const CODES: &[&str] = &["123987"];
 }
 impl FmConditions {
     #[inline]
@@ -20377,8 +20362,8 @@ impl FmConditions {
 #[doc = "http://hl7.org/fhir/ValueSet/fm-itemtype"]
 pub struct FmItemtype;
 impl ValueSetDef for FmItemtype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/fm-itemtype";
-    const CODES: &'static [&'static str] = &["group", "product", "service"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/fm-itemtype";
+    const CODES: &[&str] = &["group", "product", "service"];
 }
 impl FmItemtype {
     #[inline]
@@ -20408,8 +20393,8 @@ impl FmItemtype {
 #[doc = "http://hl7.org/fhir/ValueSet/fm-status"]
 pub struct FmStatus;
 impl ValueSetDef for FmStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/fm-status";
-    const CODES: &'static [&'static str] = &["active", "cancelled", "draft", "entered-in-error"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/fm-status";
+    const CODES: &[&str] = &["active", "cancelled", "draft", "entered-in-error"];
 }
 impl FmStatus {
     #[inline]
@@ -20445,8 +20430,8 @@ impl FmStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/focal-subject"]
 pub struct FocalSubject;
 impl ValueSetDef for FocalSubject {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/focal-subject";
-    const CODES: &'static [&'static str] = &["83418008", "DON", "SPS"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/focal-subject";
+    const CODES: &[&str] = &["83418008", "DON", "SPS"];
 }
 impl FocalSubject {
     #[inline]
@@ -20476,8 +20461,8 @@ impl FocalSubject {
 #[doc = "http://hl7.org/fhir/ValueSet/forms"]
 pub struct Forms;
 impl ValueSetDef for Forms {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/forms";
-    const CODES: &'static [&'static str] = &["1", "2"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/forms";
+    const CODES: &[&str] = &["1", "2"];
 }
 impl Forms {
     #[inline]
@@ -20501,8 +20486,8 @@ impl Forms {
 #[doc = "http://hl7.org/fhir/ValueSet/fundsreserve"]
 pub struct Fundsreserve;
 impl ValueSetDef for Fundsreserve {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/fundsreserve";
-    const CODES: &'static [&'static str] = &["none", "patient", "provider"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/fundsreserve";
+    const CODES: &[&str] = &["none", "patient", "provider"];
 }
 impl Fundsreserve {
     #[inline]
@@ -20532,8 +20517,8 @@ impl Fundsreserve {
 #[doc = "http://hl7.org/fhir/ValueSet/gender-identity"]
 pub struct GenderIdentity;
 impl ValueSetDef for GenderIdentity {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/gender-identity";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/gender-identity";
+    const CODES: &[&str] = &[
         "female",
         "male",
         "non-binary",
@@ -20595,8 +20580,8 @@ impl GenderIdentity {
 #[doc = "http://hl7.org/fhir/ValueSet/goal-acceptance-status"]
 pub struct GoalAcceptanceStatus;
 impl ValueSetDef for GoalAcceptanceStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/goal-acceptance-status";
-    const CODES: &'static [&'static str] = &["agree", "disagree", "pending"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/goal-acceptance-status";
+    const CODES: &[&str] = &["agree", "disagree", "pending"];
 }
 impl GoalAcceptanceStatus {
     #[inline]
@@ -20626,8 +20611,8 @@ impl GoalAcceptanceStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/goal-achievement"]
 pub struct GoalAchievement;
 impl ValueSetDef for GoalAchievement {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/goal-achievement";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/goal-achievement";
+    const CODES: &[&str] = &[
         "achieved",
         "improving",
         "in-progress",
@@ -20703,8 +20688,8 @@ impl GoalAchievement {
 #[doc = "http://hl7.org/fhir/ValueSet/goal-category"]
 pub struct GoalCategory;
 impl ValueSetDef for GoalCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/goal-category";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/goal-category";
+    const CODES: &[&str] = &[
         "behavioral",
         "dietary",
         "nursing",
@@ -20752,8 +20737,8 @@ impl GoalCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/goal-priority"]
 pub struct GoalPriority;
 impl ValueSetDef for GoalPriority {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/goal-priority";
-    const CODES: &'static [&'static str] = &["high-priority", "low-priority", "medium-priority"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/goal-priority";
+    const CODES: &[&str] = &["high-priority", "low-priority", "medium-priority"];
 }
 impl GoalPriority {
     #[inline]
@@ -20783,8 +20768,8 @@ impl GoalPriority {
 #[doc = "http://hl7.org/fhir/ValueSet/goal-relationship-type"]
 pub struct GoalRelationshipType;
 impl ValueSetDef for GoalRelationshipType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/goal-relationship-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/goal-relationship-type";
+    const CODES: &[&str] = &[
         "milestone",
         "other",
         "predecessor",
@@ -20832,8 +20817,8 @@ impl GoalRelationshipType {
 #[doc = "http://hl7.org/fhir/ValueSet/goal-start-event"]
 pub struct GoalStartEvent;
 impl ValueSetDef for GoalStartEvent {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/goal-start-event";
-    const CODES: &'static [&'static str] = &["308283009", "32485007", "386216000", "442137000"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/goal-start-event";
+    const CODES: &[&str] = &["308283009", "32485007", "386216000", "442137000"];
 }
 impl GoalStartEvent {
     #[inline]
@@ -20869,8 +20854,8 @@ impl GoalStartEvent {
 #[doc = "http://hl7.org/fhir/ValueSet/goal-status"]
 pub struct GoalStatus;
 impl ValueSetDef for GoalStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/goal-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/goal-status";
+    const CODES: &[&str] = &[
         "accepted",
         "active",
         "cancelled",
@@ -20946,8 +20931,8 @@ impl GoalStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/goal-status-reason"]
 pub struct GoalStatusReason;
 impl ValueSetDef for GoalStatusReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/goal-status-reason";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/goal-status-reason";
+    const CODES: &[&str] = &[
         "financial-barrier",
         "lack-of-social-support",
         "lack-of-transportation",
@@ -21023,8 +21008,8 @@ impl GoalStatusReason {
 #[doc = "http://hl7.org/fhir/ValueSet/graph-compartment-rule"]
 pub struct GraphCompartmentRule;
 impl ValueSetDef for GraphCompartmentRule {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/graph-compartment-rule";
-    const CODES: &'static [&'static str] = &["custom", "different", "identical", "matching"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/graph-compartment-rule";
+    const CODES: &[&str] = &["custom", "different", "identical", "matching"];
 }
 impl GraphCompartmentRule {
     #[inline]
@@ -21060,8 +21045,8 @@ impl GraphCompartmentRule {
 #[doc = "http://hl7.org/fhir/ValueSet/graph-compartment-use"]
 pub struct GraphCompartmentUse;
 impl ValueSetDef for GraphCompartmentUse {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/graph-compartment-use";
-    const CODES: &'static [&'static str] = &["condition", "requirement"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/graph-compartment-use";
+    const CODES: &[&str] = &["condition", "requirement"];
 }
 impl GraphCompartmentUse {
     #[inline]
@@ -21085,8 +21070,8 @@ impl GraphCompartmentUse {
 #[doc = "http://hl7.org/fhir/ValueSet/group-measure"]
 pub struct GroupMeasure;
 impl ValueSetDef for GroupMeasure {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/group-measure";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/group-measure";
+    const CODES: &[&str] = &[
         "mean",
         "mean-of-mean",
         "mean-of-median",
@@ -21141,8 +21126,8 @@ impl GroupMeasure {
 #[doc = "http://hl7.org/fhir/ValueSet/group-type"]
 pub struct GroupType;
 impl ValueSetDef for GroupType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/group-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/group-type";
+    const CODES: &[&str] = &[
         "animal",
         "device",
         "medication",
@@ -21197,8 +21182,8 @@ impl GroupType {
 #[doc = "http://hl7.org/fhir/ValueSet/guidance-response-status"]
 pub struct GuidanceResponseStatus;
 impl ValueSetDef for GuidanceResponseStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/guidance-response-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/guidance-response-status";
+    const CODES: &[&str] = &[
         "data-requested",
         "data-required",
         "entered-in-error",
@@ -21253,8 +21238,8 @@ impl GuidanceResponseStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/guide-page-generation"]
 pub struct GuidePageGeneration;
 impl ValueSetDef for GuidePageGeneration {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/guide-page-generation";
-    const CODES: &'static [&'static str] = &["generated", "html", "markdown", "xml"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/guide-page-generation";
+    const CODES: &[&str] = &["generated", "html", "markdown", "xml"];
 }
 impl GuidePageGeneration {
     #[inline]
@@ -21290,8 +21275,8 @@ impl GuidePageGeneration {
 #[doc = "http://hl7.org/fhir/ValueSet/guide-parameter-code"]
 pub struct GuideParameterCode;
 impl ValueSetDef for GuideParameterCode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/guide-parameter-code";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/guide-parameter-code";
+    const CODES: &[&str] = &[
         "apply",
         "expansion-parameter",
         "generate-json",
@@ -21374,8 +21359,8 @@ impl GuideParameterCode {
 #[doc = "http://hl7.org/fhir/ValueSet/handling-condition"]
 pub struct HandlingCondition;
 impl ValueSetDef for HandlingCondition {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/handling-condition";
-    const CODES: &'static [&'static str] = &["frozen", "refrigerated", "room"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/handling-condition";
+    const CODES: &[&str] = &["frozen", "refrigerated", "room"];
 }
 impl HandlingCondition {
     #[inline]
@@ -21405,8 +21390,8 @@ impl HandlingCondition {
 #[doc = "http://hl7.org/fhir/ValueSet/history-absent-reason"]
 pub struct HistoryAbsentReason;
 impl ValueSetDef for HistoryAbsentReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/history-absent-reason";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/history-absent-reason";
+    const CODES: &[&str] = &[
         "deferred",
         "subject-unknown",
         "unable-to-obtain",
@@ -21447,9 +21432,8 @@ impl HistoryAbsentReason {
 #[doc = "http://hl7.org/fhir/ValueSet/history-status"]
 pub struct HistoryStatus;
 impl ValueSetDef for HistoryStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/history-status";
-    const CODES: &'static [&'static str] =
-        &["completed", "entered-in-error", "health-unknown", "partial"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/history-status";
+    const CODES: &[&str] = &["completed", "entered-in-error", "health-unknown", "partial"];
 }
 impl HistoryStatus {
     #[inline]
@@ -21485,8 +21469,8 @@ impl HistoryStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/hl7-work-group"]
 pub struct Hl7WorkGroup;
 impl ValueSetDef for Hl7WorkGroup {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/hl7-work-group";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/hl7-work-group";
+    const CODES: &[&str] = &[
         "aid", "brr", "cbcc", "cds", "cg", "cqi", "dev", "ehr", "fhir", "fm", "hsi", "ii", "inm",
         "its", "mnm", "oo", "pa", "pc", "pher", "phx", "sd", "sec", "us", "vocab",
     ];
@@ -21645,9 +21629,8 @@ impl Hl7WorkGroup {
 #[doc = "http://hl7.org/fhir/ValueSet/http-operations"]
 pub struct HttpOperations;
 impl ValueSetDef for HttpOperations {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/http-operations";
-    const CODES: &'static [&'static str] =
-        &["delete", "get", "head", "options", "patch", "post", "put"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/http-operations";
+    const CODES: &[&str] = &["delete", "get", "head", "options", "patch", "post", "put"];
 }
 impl HttpOperations {
     #[inline]
@@ -21701,8 +21684,8 @@ impl HttpOperations {
 #[doc = "http://hl7.org/fhir/ValueSet/http-verb"]
 pub struct HttpVerb;
 impl ValueSetDef for HttpVerb {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/http-verb";
-    const CODES: &'static [&'static str] = &["DELETE", "GET", "HEAD", "PATCH", "POST", "PUT"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/http-verb";
+    const CODES: &[&str] = &["DELETE", "GET", "HEAD", "PATCH", "POST", "PUT"];
 }
 impl HttpVerb {
     #[inline]
@@ -21750,8 +21733,8 @@ impl HttpVerb {
 #[doc = "http://hl7.org/fhir/ValueSet/icd-10"]
 pub struct Icd10;
 impl ValueSetDef for Icd10 {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/icd-10";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/icd-10";
+    const CODES: &[&str] = &[
         "112233", "123456", "123457", "123987", "321789", "987654", "997755",
     ];
 }
@@ -21807,8 +21790,8 @@ impl Icd10 {
 #[doc = "http://hl7.org/fhir/ValueSet/icd-10-procedures"]
 pub struct Icd10Procedures;
 impl ValueSetDef for Icd10Procedures {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/icd-10-procedures";
-    const CODES: &'static [&'static str] = &["123001", "123002", "123003"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/icd-10-procedures";
+    const CODES: &[&str] = &["123001", "123002", "123003"];
 }
 impl Icd10Procedures {
     #[inline]
@@ -21838,8 +21821,8 @@ impl Icd10Procedures {
 #[doc = "http://hl7.org/fhir/ValueSet/identifier-type"]
 pub struct IdentifierType;
 impl ValueSetDef for IdentifierType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/identifier-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/identifier-type";
+    const CODES: &[&str] = &[
         "ACSN", "BRN", "DL", "DR", "EN", "FILL", "JHN", "MCN", "MD", "MR", "NIIP", "PLAC", "PPN",
         "PRN", "SB", "SNO", "TAX", "UDI",
     ];
@@ -21962,8 +21945,8 @@ impl IdentifierType {
 #[doc = "http://hl7.org/fhir/ValueSet/identifier-use"]
 pub struct IdentifierUse;
 impl ValueSetDef for IdentifierUse {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/identifier-use";
-    const CODES: &'static [&'static str] = &["official", "old", "secondary", "temp", "usual"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/identifier-use";
+    const CODES: &[&str] = &["official", "old", "secondary", "temp", "usual"];
 }
 impl IdentifierUse {
     #[inline]
@@ -22005,8 +21988,8 @@ impl IdentifierUse {
 #[doc = "http://hl7.org/fhir/ValueSet/identity-assuranceLevel"]
 pub struct IdentityAssuranceLevel;
 impl ValueSetDef for IdentityAssuranceLevel {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/identity-assuranceLevel";
-    const CODES: &'static [&'static str] = &["level1", "level2", "level3", "level4"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/identity-assuranceLevel";
+    const CODES: &[&str] = &["level1", "level2", "level3", "level4"];
 }
 impl IdentityAssuranceLevel {
     #[inline]
@@ -22042,8 +22025,8 @@ impl IdentityAssuranceLevel {
 #[doc = "http://hl7.org/fhir/ValueSet/imagingstudy-status"]
 pub struct ImagingstudyStatus;
 impl ValueSetDef for ImagingstudyStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/imagingstudy-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/imagingstudy-status";
+    const CODES: &[&str] = &[
         "available",
         "cancelled",
         "entered-in-error",
@@ -22091,8 +22074,8 @@ impl ImagingstudyStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-evaluation-dose-status"]
 pub struct ImmunizationEvaluationDoseStatus;
 impl ValueSetDef for ImmunizationEvaluationDoseStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-evaluation-dose-status";
-    const CODES: &'static [&'static str] = &["notvalid", "valid"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-evaluation-dose-status";
+    const CODES: &[&str] = &["notvalid", "valid"];
 }
 impl ImmunizationEvaluationDoseStatus {
     #[inline]
@@ -22116,9 +22099,8 @@ impl ImmunizationEvaluationDoseStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-evaluation-dose-status-reason"]
 pub struct ImmunizationEvaluationDoseStatusReason;
 impl ValueSetDef for ImmunizationEvaluationDoseStatusReason {
-    const URL: &'static str =
-        "http://hl7.org/fhir/ValueSet/immunization-evaluation-dose-status-reason";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-evaluation-dose-status-reason";
+    const CODES: &[&str] = &[
         "advstorage",
         "coldchbrk",
         "explot",
@@ -22166,8 +22148,8 @@ impl ImmunizationEvaluationDoseStatusReason {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-evaluation-status"]
 pub struct ImmunizationEvaluationStatus;
 impl ValueSetDef for ImmunizationEvaluationStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-evaluation-status";
-    const CODES: &'static [&'static str] = &["completed", "entered-in-error"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-evaluation-status";
+    const CODES: &[&str] = &["completed", "entered-in-error"];
 }
 impl ImmunizationEvaluationStatus {
     #[inline]
@@ -22191,8 +22173,8 @@ impl ImmunizationEvaluationStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-evaluation-target-disease"]
 pub struct ImmunizationEvaluationTargetDisease;
 impl ValueSetDef for ImmunizationEvaluationTargetDisease {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-evaluation-target-disease";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-evaluation-target-disease";
+    const CODES: &[&str] = &[
         "14189004",
         "1857005",
         "27836007",
@@ -22268,8 +22250,8 @@ impl ImmunizationEvaluationTargetDisease {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-function"]
 pub struct ImmunizationFunction;
 impl ValueSetDef for ImmunizationFunction {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-function";
-    const CODES: &'static [&'static str] = &["AP", "OP"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-function";
+    const CODES: &[&str] = &["AP", "OP"];
 }
 impl ImmunizationFunction {
     #[inline]
@@ -22293,8 +22275,8 @@ impl ImmunizationFunction {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-funding-source"]
 pub struct ImmunizationFundingSource;
 impl ValueSetDef for ImmunizationFundingSource {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-funding-source";
-    const CODES: &'static [&'static str] = &["private", "public"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-funding-source";
+    const CODES: &[&str] = &["private", "public"];
 }
 impl ImmunizationFundingSource {
     #[inline]
@@ -22318,8 +22300,8 @@ impl ImmunizationFundingSource {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-origin"]
 pub struct ImmunizationOrigin;
 impl ValueSetDef for ImmunizationOrigin {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-origin";
-    const CODES: &'static [&'static str] = &["provider", "recall", "record", "school"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-origin";
+    const CODES: &[&str] = &["provider", "recall", "record", "school"];
 }
 impl ImmunizationOrigin {
     #[inline]
@@ -22355,8 +22337,8 @@ impl ImmunizationOrigin {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-program-eligibility"]
 pub struct ImmunizationProgramEligibility;
 impl ValueSetDef for ImmunizationProgramEligibility {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-program-eligibility";
-    const CODES: &'static [&'static str] = &["ineligible", "uninsured"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-program-eligibility";
+    const CODES: &[&str] = &["ineligible", "uninsured"];
 }
 impl ImmunizationProgramEligibility {
     #[inline]
@@ -22380,8 +22362,8 @@ impl ImmunizationProgramEligibility {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-reason"]
 pub struct ImmunizationReason;
 impl ValueSetDef for ImmunizationReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-reason";
-    const CODES: &'static [&'static str] = &["281657000", "429060002"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-reason";
+    const CODES: &[&str] = &["281657000", "429060002"];
 }
 impl ImmunizationReason {
     #[inline]
@@ -22405,9 +22387,8 @@ impl ImmunizationReason {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-recommendation-date-criterion"]
 pub struct ImmunizationRecommendationDateCriterion;
 impl ValueSetDef for ImmunizationRecommendationDateCriterion {
-    const URL: &'static str =
-        "http://hl7.org/fhir/ValueSet/immunization-recommendation-date-criterion";
-    const CODES: &'static [&'static str] = &["30980-7", "30981-5", "59777-3", "59778-1"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-recommendation-date-criterion";
+    const CODES: &[&str] = &["30980-7", "30981-5", "59777-3", "59778-1"];
 }
 impl ImmunizationRecommendationDateCriterion {
     #[inline]
@@ -22443,8 +22424,8 @@ impl ImmunizationRecommendationDateCriterion {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-recommendation-reason"]
 pub struct ImmunizationRecommendationReason;
 impl ValueSetDef for ImmunizationRecommendationReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-recommendation-reason";
-    const CODES: &'static [&'static str] = &["77176002", "77386006"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-recommendation-reason";
+    const CODES: &[&str] = &["77176002", "77386006"];
 }
 impl ImmunizationRecommendationReason {
     #[inline]
@@ -22468,9 +22449,8 @@ impl ImmunizationRecommendationReason {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-recommendation-status"]
 pub struct ImmunizationRecommendationStatus;
 impl ValueSetDef for ImmunizationRecommendationStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-recommendation-status";
-    const CODES: &'static [&'static str] =
-        &["complete", "contraindicated", "due", "immune", "overdue"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-recommendation-status";
+    const CODES: &[&str] = &["complete", "contraindicated", "due", "immune", "overdue"];
 }
 impl ImmunizationRecommendationStatus {
     #[inline]
@@ -22512,9 +22492,8 @@ impl ImmunizationRecommendationStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-recommendation-target-disease"]
 pub struct ImmunizationRecommendationTargetDisease;
 impl ValueSetDef for ImmunizationRecommendationTargetDisease {
-    const URL: &'static str =
-        "http://hl7.org/fhir/ValueSet/immunization-recommendation-target-disease";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-recommendation-target-disease";
+    const CODES: &[&str] = &[
         "14189004",
         "1857005",
         "27836007",
@@ -22590,9 +22569,8 @@ impl ImmunizationRecommendationTargetDisease {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-route"]
 pub struct ImmunizationRoute;
 impl ValueSetDef for ImmunizationRoute {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-route";
-    const CODES: &'static [&'static str] =
-        &["IDINJ", "IM", "IVINJ", "NASINHLC", "PO", "SQ", "TRNSDERM"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-route";
+    const CODES: &[&str] = &["IDINJ", "IM", "IVINJ", "NASINHLC", "PO", "SQ", "TRNSDERM"];
 }
 impl ImmunizationRoute {
     #[inline]
@@ -22646,8 +22624,8 @@ impl ImmunizationRoute {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-site"]
 pub struct ImmunizationSite;
 impl ValueSetDef for ImmunizationSite {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-site";
-    const CODES: &'static [&'static str] = &["LA", "RA"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-site";
+    const CODES: &[&str] = &["LA", "RA"];
 }
 impl ImmunizationSite {
     #[inline]
@@ -22671,8 +22649,8 @@ impl ImmunizationSite {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-status"]
 pub struct ImmunizationStatus;
 impl ValueSetDef for ImmunizationStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-status";
-    const CODES: &'static [&'static str] = &["completed", "entered-in-error", "not-done"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-status";
+    const CODES: &[&str] = &["completed", "entered-in-error", "not-done"];
 }
 impl ImmunizationStatus {
     #[inline]
@@ -22702,8 +22680,8 @@ impl ImmunizationStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-subpotent-reason"]
 pub struct ImmunizationSubpotentReason;
 impl ValueSetDef for ImmunizationSubpotentReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-subpotent-reason";
-    const CODES: &'static [&'static str] = &["coldchainbreak", "partial", "recall"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-subpotent-reason";
+    const CODES: &[&str] = &["coldchainbreak", "partial", "recall"];
 }
 impl ImmunizationSubpotentReason {
     #[inline]
@@ -22733,8 +22711,8 @@ impl ImmunizationSubpotentReason {
 #[doc = "http://hl7.org/fhir/ValueSet/immunization-target-disease"]
 pub struct ImmunizationTargetDisease;
 impl ValueSetDef for ImmunizationTargetDisease {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/immunization-target-disease";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/immunization-target-disease";
+    const CODES: &[&str] = &[
         "14189004",
         "1857005",
         "27836007",
@@ -22810,8 +22788,8 @@ impl ImmunizationTargetDisease {
 #[doc = "http://hl7.org/fhir/ValueSet/implantStatus"]
 pub struct ImplantStatus;
 impl ValueSetDef for ImplantStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/implantStatus";
-    const CODES: &'static [&'static str] = &["disabled", "functional", "non-functional", "unknown"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/implantStatus";
+    const CODES: &[&str] = &["disabled", "functional", "non-functional", "unknown"];
 }
 impl ImplantStatus {
     #[inline]
@@ -22847,8 +22825,8 @@ impl ImplantStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/inactive"]
 pub struct Inactive;
 impl ValueSetDef for Inactive {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/inactive";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/inactive";
+    const CODES: &[&str] = &[
         "APT",
         "ARQ",
         "CRT",
@@ -23057,8 +23035,8 @@ impl Inactive {
 #[doc = "http://hl7.org/fhir/ValueSet/instance-availability"]
 pub struct InstanceAvailability;
 impl ValueSetDef for InstanceAvailability {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/instance-availability";
-    const CODES: &'static [&'static str] = &["NEARLINE", "OFFLINE", "ONLINE", "UNAVAILABLE"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/instance-availability";
+    const CODES: &[&str] = &["NEARLINE", "OFFLINE", "ONLINE", "UNAVAILABLE"];
 }
 impl InstanceAvailability {
     #[inline]
@@ -23094,8 +23072,8 @@ impl InstanceAvailability {
 #[doc = "http://hl7.org/fhir/ValueSet/insuranceplan-applicability"]
 pub struct InsuranceplanApplicability;
 impl ValueSetDef for InsuranceplanApplicability {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/insuranceplan-applicability";
-    const CODES: &'static [&'static str] = &["in-network", "other", "out-of-network"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/insuranceplan-applicability";
+    const CODES: &[&str] = &["in-network", "other", "out-of-network"];
 }
 impl InsuranceplanApplicability {
     #[inline]
@@ -23125,8 +23103,8 @@ impl InsuranceplanApplicability {
 #[doc = "http://hl7.org/fhir/ValueSet/insuranceplan-type"]
 pub struct InsuranceplanType;
 impl ValueSetDef for InsuranceplanType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/insuranceplan-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/insuranceplan-type";
+    const CODES: &[&str] = &[
         "Drug",
         "dental",
         "home",
@@ -23209,8 +23187,8 @@ impl InsuranceplanType {
 #[doc = "http://hl7.org/fhir/ValueSet/intervention"]
 pub struct Intervention;
 impl ValueSetDef for Intervention {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/intervention";
-    const CODES: &'static [&'static str] = &["other", "unknown"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/intervention";
+    const CODES: &[&str] = &["other", "unknown"];
 }
 impl Intervention {
     #[inline]
@@ -23234,8 +23212,8 @@ impl Intervention {
 #[doc = "http://hl7.org/fhir/ValueSet/investigation-sets"]
 pub struct InvestigationSets;
 impl ValueSetDef for InvestigationSets {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/investigation-sets";
-    const CODES: &'static [&'static str] = &["160237006", "271336007"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/investigation-sets";
+    const CODES: &[&str] = &["160237006", "271336007"];
 }
 impl InvestigationSets {
     #[inline]
@@ -23259,8 +23237,8 @@ impl InvestigationSets {
 #[doc = "http://hl7.org/fhir/ValueSet/invoice-priceComponentType"]
 pub struct InvoicePriceComponentType;
 impl ValueSetDef for InvoicePriceComponentType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/invoice-priceComponentType";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/invoice-priceComponentType";
+    const CODES: &[&str] = &[
         "base",
         "deduction",
         "discount",
@@ -23315,8 +23293,8 @@ impl InvoicePriceComponentType {
 #[doc = "http://hl7.org/fhir/ValueSet/invoice-status"]
 pub struct InvoiceStatus;
 impl ValueSetDef for InvoiceStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/invoice-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/invoice-status";
+    const CODES: &[&str] = &[
         "balanced",
         "cancelled",
         "draft",
@@ -23364,8 +23342,8 @@ impl InvoiceStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/iso3166-1-2"]
 pub struct Iso316612;
 impl ValueSetDef for Iso316612 {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/iso3166-1-2";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/iso3166-1-2";
+    const CODES: &[&str] = &[
         "AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX",
         "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ",
         "BR", "BS", "BT", "BV", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK",
@@ -24889,8 +24867,8 @@ impl Iso316612 {
 #[doc = "http://hl7.org/fhir/ValueSet/issue-severity"]
 pub struct IssueSeverity;
 impl ValueSetDef for IssueSeverity {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/issue-severity";
-    const CODES: &'static [&'static str] = &["error", "fatal", "information", "warning"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/issue-severity";
+    const CODES: &[&str] = &["error", "fatal", "information", "warning"];
 }
 impl IssueSeverity {
     #[inline]
@@ -24926,8 +24904,8 @@ impl IssueSeverity {
 #[doc = "http://hl7.org/fhir/ValueSet/issue-type"]
 pub struct IssueType;
 impl ValueSetDef for IssueType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/issue-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/issue-type";
+    const CODES: &[&str] = &[
         "business-rule",
         "code-invalid",
         "conflict",
@@ -25157,8 +25135,8 @@ impl IssueType {
 #[doc = "http://hl7.org/fhir/ValueSet/item-type"]
 pub struct ItemType;
 impl ValueSetDef for ItemType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/item-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/item-type";
+    const CODES: &[&str] = &[
         "attachment",
         "boolean",
         "choice",
@@ -25290,8 +25268,8 @@ impl ItemType {
 #[doc = "http://hl7.org/fhir/ValueSet/knowledge-resource-types"]
 pub struct KnowledgeResourceTypes;
 impl ValueSetDef for KnowledgeResourceTypes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/knowledge-resource-types";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/knowledge-resource-types";
+    const CODES: &[&str] = &[
         "ActivityDefinition",
         "CodeSystem",
         "ConceptMap",
@@ -25367,8 +25345,8 @@ impl KnowledgeResourceTypes {
 #[doc = "http://hl7.org/fhir/ValueSet/language-preference-type"]
 pub struct LanguagePreferenceType;
 impl ValueSetDef for LanguagePreferenceType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/language-preference-type";
-    const CODES: &'static [&'static str] = &["verbal", "written"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/language-preference-type";
+    const CODES: &[&str] = &["verbal", "written"];
 }
 impl LanguagePreferenceType {
     #[inline]
@@ -25392,8 +25370,8 @@ impl LanguagePreferenceType {
 #[doc = "http://hl7.org/fhir/ValueSet/languages"]
 pub struct Languages;
 impl ValueSetDef for Languages {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/languages";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/languages";
+    const CODES: &[&str] = &[
         "ar", "bn", "cs", "da", "de", "de-AT", "de-CH", "de-DE", "el", "en", "en-AU", "en-CA",
         "en-GB", "en-IN", "en-NZ", "en-SG", "en-US", "es", "es-AR", "es-ES", "es-UY", "fi", "fr",
         "fr-BE", "fr-CH", "fr-FR", "fy", "fy-NL", "hi", "hr", "it", "it-CH", "it-IT", "ja", "ko",
@@ -25747,8 +25725,8 @@ impl Languages {
 #[doc = "http://hl7.org/fhir/ValueSet/ldlcholesterol-codes"]
 pub struct LdlcholesterolCodes;
 impl ValueSetDef for LdlcholesterolCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ldlcholesterol-codes";
-    const CODES: &'static [&'static str] = &["13457-7", "18262-6"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ldlcholesterol-codes";
+    const CODES: &[&str] = &["13457-7", "18262-6"];
 }
 impl LdlcholesterolCodes {
     #[inline]
@@ -25772,8 +25750,8 @@ impl LdlcholesterolCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/library-type"]
 pub struct LibraryType;
 impl ValueSetDef for LibraryType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/library-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/library-type";
+    const CODES: &[&str] = &[
         "asset-collection",
         "logic-library",
         "model-definition",
@@ -25814,8 +25792,8 @@ impl LibraryType {
 #[doc = "http://hl7.org/fhir/ValueSet/link-type"]
 pub struct LinkType;
 impl ValueSetDef for LinkType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/link-type";
-    const CODES: &'static [&'static str] = &["refer", "replaced-by", "replaces", "seealso"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/link-type";
+    const CODES: &[&str] = &["refer", "replaced-by", "replaces", "seealso"];
 }
 impl LinkType {
     #[inline]
@@ -25851,8 +25829,8 @@ impl LinkType {
 #[doc = "http://hl7.org/fhir/ValueSet/linkage-type"]
 pub struct LinkageType;
 impl ValueSetDef for LinkageType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/linkage-type";
-    const CODES: &'static [&'static str] = &["alternate", "historical", "source"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/linkage-type";
+    const CODES: &[&str] = &["alternate", "historical", "source"];
 }
 impl LinkageType {
     #[inline]
@@ -25882,8 +25860,8 @@ impl LinkageType {
 #[doc = "http://hl7.org/fhir/ValueSet/list-empty-reason"]
 pub struct ListEmptyReason;
 impl ValueSetDef for ListEmptyReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/list-empty-reason";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/list-empty-reason";
+    const CODES: &[&str] = &[
         "closed",
         "nilknown",
         "notasked",
@@ -25938,8 +25916,8 @@ impl ListEmptyReason {
 #[doc = "http://hl7.org/fhir/ValueSet/list-example-codes"]
 pub struct ListExampleCodes;
 impl ValueSetDef for ListExampleCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/list-example-codes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/list-example-codes";
+    const CODES: &[&str] = &[
         "adverserxns",
         "alerts",
         "allergies",
@@ -26015,8 +25993,8 @@ impl ListExampleCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/list-item-flag"]
 pub struct ListItemFlag;
 impl ValueSetDef for ListItemFlag {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/list-item-flag";
-    const CODES: &'static [&'static str] = &["01", "02", "03", "04", "05", "06"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/list-item-flag";
+    const CODES: &[&str] = &["01", "02", "03", "04", "05", "06"];
 }
 impl ListItemFlag {
     #[inline]
@@ -26064,8 +26042,8 @@ impl ListItemFlag {
 #[doc = "http://hl7.org/fhir/ValueSet/list-mode"]
 pub struct ListMode;
 impl ValueSetDef for ListMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/list-mode";
-    const CODES: &'static [&'static str] = &["changes", "snapshot", "working"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/list-mode";
+    const CODES: &[&str] = &["changes", "snapshot", "working"];
 }
 impl ListMode {
     #[inline]
@@ -26095,8 +26073,8 @@ impl ListMode {
 #[doc = "http://hl7.org/fhir/ValueSet/list-order"]
 pub struct ListOrder;
 impl ValueSetDef for ListOrder {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/list-order";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/list-order";
+    const CODES: &[&str] = &[
         "alphabetic",
         "category",
         "entry-date",
@@ -26165,8 +26143,8 @@ impl ListOrder {
 #[doc = "http://hl7.org/fhir/ValueSet/list-status"]
 pub struct ListStatus;
 impl ValueSetDef for ListStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/list-status";
-    const CODES: &'static [&'static str] = &["current", "entered-in-error", "retired"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/list-status";
+    const CODES: &[&str] = &["current", "entered-in-error", "retired"];
 }
 impl ListStatus {
     #[inline]
@@ -26196,8 +26174,8 @@ impl ListStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/location-mode"]
 pub struct LocationMode;
 impl ValueSetDef for LocationMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/location-mode";
-    const CODES: &'static [&'static str] = &["instance", "kind"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/location-mode";
+    const CODES: &[&str] = &["instance", "kind"];
 }
 impl LocationMode {
     #[inline]
@@ -26221,8 +26199,8 @@ impl LocationMode {
 #[doc = "http://hl7.org/fhir/ValueSet/location-physical-type"]
 pub struct LocationPhysicalType;
 impl ValueSetDef for LocationPhysicalType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/location-physical-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/location-physical-type";
+    const CODES: &[&str] = &[
         "area", "bd", "bu", "ca", "co", "ho", "jdn", "lvl", "rd", "ro", "si", "ve", "wa", "wi",
     ];
 }
@@ -26320,8 +26298,8 @@ impl LocationPhysicalType {
 #[doc = "http://hl7.org/fhir/ValueSet/location-status"]
 pub struct LocationStatus;
 impl ValueSetDef for LocationStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/location-status";
-    const CODES: &'static [&'static str] = &["active", "inactive", "suspended"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/location-status";
+    const CODES: &[&str] = &["active", "inactive", "suspended"];
 }
 impl LocationStatus {
     #[inline]
@@ -26351,8 +26329,8 @@ impl LocationStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/map-context-type"]
 pub struct MapContextType;
 impl ValueSetDef for MapContextType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/map-context-type";
-    const CODES: &'static [&'static str] = &["type", "variable"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/map-context-type";
+    const CODES: &[&str] = &["type", "variable"];
 }
 impl MapContextType {
     #[inline]
@@ -26376,8 +26354,8 @@ impl MapContextType {
 #[doc = "http://hl7.org/fhir/ValueSet/map-group-type-mode"]
 pub struct MapGroupTypeMode;
 impl ValueSetDef for MapGroupTypeMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/map-group-type-mode";
-    const CODES: &'static [&'static str] = &["none", "type-and-types", "types"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/map-group-type-mode";
+    const CODES: &[&str] = &["none", "type-and-types", "types"];
 }
 impl MapGroupTypeMode {
     #[inline]
@@ -26407,8 +26385,8 @@ impl MapGroupTypeMode {
 #[doc = "http://hl7.org/fhir/ValueSet/map-input-mode"]
 pub struct MapInputMode;
 impl ValueSetDef for MapInputMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/map-input-mode";
-    const CODES: &'static [&'static str] = &["source", "target"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/map-input-mode";
+    const CODES: &[&str] = &["source", "target"];
 }
 impl MapInputMode {
     #[inline]
@@ -26432,8 +26410,8 @@ impl MapInputMode {
 #[doc = "http://hl7.org/fhir/ValueSet/map-model-mode"]
 pub struct MapModelMode;
 impl ValueSetDef for MapModelMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/map-model-mode";
-    const CODES: &'static [&'static str] = &["produced", "queried", "source", "target"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/map-model-mode";
+    const CODES: &[&str] = &["produced", "queried", "source", "target"];
 }
 impl MapModelMode {
     #[inline]
@@ -26469,8 +26447,8 @@ impl MapModelMode {
 #[doc = "http://hl7.org/fhir/ValueSet/map-source-list-mode"]
 pub struct MapSourceListMode;
 impl ValueSetDef for MapSourceListMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/map-source-list-mode";
-    const CODES: &'static [&'static str] = &["first", "last", "not_first", "not_last", "only_one"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/map-source-list-mode";
+    const CODES: &[&str] = &["first", "last", "not_first", "not_last", "only_one"];
 }
 impl MapSourceListMode {
     #[inline]
@@ -26512,8 +26490,8 @@ impl MapSourceListMode {
 #[doc = "http://hl7.org/fhir/ValueSet/map-target-list-mode"]
 pub struct MapTargetListMode;
 impl ValueSetDef for MapTargetListMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/map-target-list-mode";
-    const CODES: &'static [&'static str] = &["collate", "first", "last", "share"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/map-target-list-mode";
+    const CODES: &[&str] = &["collate", "first", "last", "share"];
 }
 impl MapTargetListMode {
     #[inline]
@@ -26549,8 +26527,8 @@ impl MapTargetListMode {
 #[doc = "http://hl7.org/fhir/ValueSet/map-transform"]
 pub struct MapTransform;
 impl ValueSetDef for MapTransform {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/map-transform";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/map-transform";
+    const CODES: &[&str] = &[
         "append",
         "c",
         "cast",
@@ -26682,9 +26660,8 @@ impl MapTransform {
 #[doc = "http://hl7.org/fhir/ValueSet/marital-status"]
 pub struct MaritalStatus;
 impl ValueSetDef for MaritalStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/marital-status";
-    const CODES: &'static [&'static str] =
-        &["A", "D", "I", "L", "M", "P", "S", "T", "U", "UNK", "W"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/marital-status";
+    const CODES: &[&str] = &["A", "D", "I", "L", "M", "P", "S", "T", "U", "UNK", "W"];
 }
 impl MaritalStatus {
     #[inline]
@@ -26762,8 +26739,8 @@ impl MaritalStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/match-grade"]
 pub struct MatchGrade;
 impl ValueSetDef for MatchGrade {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/match-grade";
-    const CODES: &'static [&'static str] = &["certain", "certainly-not", "possible", "probable"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/match-grade";
+    const CODES: &[&str] = &["certain", "certainly-not", "possible", "probable"];
 }
 impl MatchGrade {
     #[inline]
@@ -26799,8 +26776,8 @@ impl MatchGrade {
 #[doc = "http://hl7.org/fhir/ValueSet/measure-data-usage"]
 pub struct MeasureDataUsage;
 impl ValueSetDef for MeasureDataUsage {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/measure-data-usage";
-    const CODES: &'static [&'static str] = &["risk-adjustment-factor", "supplemental-data"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/measure-data-usage";
+    const CODES: &[&str] = &["risk-adjustment-factor", "supplemental-data"];
 }
 impl MeasureDataUsage {
     #[inline]
@@ -26824,8 +26801,8 @@ impl MeasureDataUsage {
 #[doc = "http://hl7.org/fhir/ValueSet/measure-improvement-notation"]
 pub struct MeasureImprovementNotation;
 impl ValueSetDef for MeasureImprovementNotation {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/measure-improvement-notation";
-    const CODES: &'static [&'static str] = &["decrease", "increase"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/measure-improvement-notation";
+    const CODES: &[&str] = &["decrease", "increase"];
 }
 impl MeasureImprovementNotation {
     #[inline]
@@ -26849,8 +26826,8 @@ impl MeasureImprovementNotation {
 #[doc = "http://hl7.org/fhir/ValueSet/measure-population"]
 pub struct MeasurePopulation;
 impl ValueSetDef for MeasurePopulation {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/measure-population";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/measure-population";
+    const CODES: &[&str] = &[
         "denominator",
         "denominator-exception",
         "denominator-exclusion",
@@ -26926,8 +26903,8 @@ impl MeasurePopulation {
 #[doc = "http://hl7.org/fhir/ValueSet/measure-report-status"]
 pub struct MeasureReportStatus;
 impl ValueSetDef for MeasureReportStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/measure-report-status";
-    const CODES: &'static [&'static str] = &["complete", "error", "pending"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/measure-report-status";
+    const CODES: &[&str] = &["complete", "error", "pending"];
 }
 impl MeasureReportStatus {
     #[inline]
@@ -26957,9 +26934,8 @@ impl MeasureReportStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/measure-report-type"]
 pub struct MeasureReportType;
 impl ValueSetDef for MeasureReportType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/measure-report-type";
-    const CODES: &'static [&'static str] =
-        &["data-collection", "individual", "subject-list", "summary"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/measure-report-type";
+    const CODES: &[&str] = &["data-collection", "individual", "subject-list", "summary"];
 }
 impl MeasureReportType {
     #[inline]
@@ -26995,9 +26971,8 @@ impl MeasureReportType {
 #[doc = "http://hl7.org/fhir/ValueSet/measure-scoring"]
 pub struct MeasureScoring;
 impl ValueSetDef for MeasureScoring {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/measure-scoring";
-    const CODES: &'static [&'static str] =
-        &["cohort", "continuous-variable", "proportion", "ratio"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/measure-scoring";
+    const CODES: &[&str] = &["cohort", "continuous-variable", "proportion", "ratio"];
 }
 impl MeasureScoring {
     #[inline]
@@ -27033,8 +27008,8 @@ impl MeasureScoring {
 #[doc = "http://hl7.org/fhir/ValueSet/measure-type"]
 pub struct MeasureType;
 impl ValueSetDef for MeasureType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/measure-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/measure-type";
+    const CODES: &[&str] = &[
         "composite",
         "outcome",
         "patient-reported-outcome",
@@ -27082,8 +27057,8 @@ impl MeasureType {
 #[doc = "http://hl7.org/fhir/ValueSet/med-admin-perform-function"]
 pub struct MedAdminPerformFunction;
 impl ValueSetDef for MedAdminPerformFunction {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/med-admin-perform-function";
-    const CODES: &'static [&'static str] = &["performer", "verifier", "witness"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/med-admin-perform-function";
+    const CODES: &[&str] = &["performer", "verifier", "witness"];
 }
 impl MedAdminPerformFunction {
     #[inline]
@@ -27113,8 +27088,8 @@ impl MedAdminPerformFunction {
 #[doc = "http://hl7.org/fhir/ValueSet/media-type"]
 pub struct MediaType;
 impl ValueSetDef for MediaType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/media-type";
-    const CODES: &'static [&'static str] = &["audio", "image", "video"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/media-type";
+    const CODES: &[&str] = &["audio", "image", "video"];
 }
 impl MediaType {
     #[inline]
@@ -27144,8 +27119,8 @@ impl MediaType {
 #[doc = "http://hl7.org/fhir/ValueSet/medication-admin-category"]
 pub struct MedicationAdminCategory;
 impl ValueSetDef for MedicationAdminCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medication-admin-category";
-    const CODES: &'static [&'static str] = &["community", "inpatient", "outpatient"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medication-admin-category";
+    const CODES: &[&str] = &["community", "inpatient", "outpatient"];
 }
 impl MedicationAdminCategory {
     #[inline]
@@ -27175,8 +27150,8 @@ impl MedicationAdminCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/medication-admin-status"]
 pub struct MedicationAdminStatus;
 impl ValueSetDef for MedicationAdminStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medication-admin-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medication-admin-status";
+    const CODES: &[&str] = &[
         "completed",
         "entered-in-error",
         "in-progress",
@@ -27238,9 +27213,8 @@ impl MedicationAdminStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/medication-statement-category"]
 pub struct MedicationStatementCategory;
 impl ValueSetDef for MedicationStatementCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medication-statement-category";
-    const CODES: &'static [&'static str] =
-        &["community", "inpatient", "outpatient", "patientspecified"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medication-statement-category";
+    const CODES: &[&str] = &["community", "inpatient", "outpatient", "patientspecified"];
 }
 impl MedicationStatementCategory {
     #[inline]
@@ -27276,8 +27250,8 @@ impl MedicationStatementCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/medication-statement-status"]
 pub struct MedicationStatementStatus;
 impl ValueSetDef for MedicationStatementStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medication-statement-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medication-statement-status";
+    const CODES: &[&str] = &[
         "active",
         "completed",
         "entered-in-error",
@@ -27346,8 +27320,8 @@ impl MedicationStatementStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/medication-status"]
 pub struct MedicationStatus;
 impl ValueSetDef for MedicationStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medication-status";
-    const CODES: &'static [&'static str] = &["active", "entered-in-error", "inactive"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medication-status";
+    const CODES: &[&str] = &["active", "entered-in-error", "inactive"];
 }
 impl MedicationStatus {
     #[inline]
@@ -27377,8 +27351,8 @@ impl MedicationStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/medicationdispense-category"]
 pub struct MedicationdispenseCategory;
 impl ValueSetDef for MedicationdispenseCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medicationdispense-category";
-    const CODES: &'static [&'static str] = &["community", "discharge", "inpatient", "outpatient"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medicationdispense-category";
+    const CODES: &[&str] = &["community", "discharge", "inpatient", "outpatient"];
 }
 impl MedicationdispenseCategory {
     #[inline]
@@ -27414,8 +27388,8 @@ impl MedicationdispenseCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/medicationdispense-performer-function"]
 pub struct MedicationdispensePerformerFunction;
 impl ValueSetDef for MedicationdispensePerformerFunction {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medicationdispense-performer-function";
-    const CODES: &'static [&'static str] = &["checker", "dataenterer", "finalchecker", "packager"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medicationdispense-performer-function";
+    const CODES: &[&str] = &["checker", "dataenterer", "finalchecker", "packager"];
 }
 impl MedicationdispensePerformerFunction {
     #[inline]
@@ -27451,8 +27425,8 @@ impl MedicationdispensePerformerFunction {
 #[doc = "http://hl7.org/fhir/ValueSet/medicationdispense-status"]
 pub struct MedicationdispenseStatus;
 impl ValueSetDef for MedicationdispenseStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medicationdispense-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medicationdispense-status";
+    const CODES: &[&str] = &[
         "cancelled",
         "completed",
         "declined",
@@ -27528,8 +27502,8 @@ impl MedicationdispenseStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/medicationdispense-status-reason"]
 pub struct MedicationdispenseStatusReason;
 impl ValueSetDef for MedicationdispenseStatusReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medicationdispense-status-reason";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medicationdispense-status-reason";
+    const CODES: &[&str] = &[
         "altchoice",
         "clarif",
         "drughigh",
@@ -27689,8 +27663,8 @@ impl MedicationdispenseStatusReason {
 #[doc = "http://hl7.org/fhir/ValueSet/medicationknowledge-characteristic"]
 pub struct MedicationknowledgeCharacteristic;
 impl ValueSetDef for MedicationknowledgeCharacteristic {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medicationknowledge-characteristic";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medicationknowledge-characteristic";
+    const CODES: &[&str] = &[
         "coating",
         "color",
         "imprintcd",
@@ -27752,8 +27726,8 @@ impl MedicationknowledgeCharacteristic {
 #[doc = "http://hl7.org/fhir/ValueSet/medicationknowledge-package-type"]
 pub struct MedicationknowledgePackageType;
 impl ValueSetDef for MedicationknowledgePackageType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medicationknowledge-package-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medicationknowledge-package-type";
+    const CODES: &[&str] = &[
         "amp", "bag", "blstrpk", "bot", "box", "can", "cart", "disk", "doset", "jar", "jug",
         "minim", "nebamp", "ovul", "pch", "pkt", "sash", "strip", "tin", "tub", "tube", "vial",
     ];
@@ -27900,8 +27874,8 @@ impl MedicationknowledgePackageType {
 #[doc = "http://hl7.org/fhir/ValueSet/medicationknowledge-status"]
 pub struct MedicationknowledgeStatus;
 impl ValueSetDef for MedicationknowledgeStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medicationknowledge-status";
-    const CODES: &'static [&'static str] = &["active", "entered-in-error", "inactive"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medicationknowledge-status";
+    const CODES: &[&str] = &["active", "entered-in-error", "inactive"];
 }
 impl MedicationknowledgeStatus {
     #[inline]
@@ -27931,8 +27905,8 @@ impl MedicationknowledgeStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/medicationrequest-category"]
 pub struct MedicationrequestCategory;
 impl ValueSetDef for MedicationrequestCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medicationrequest-category";
-    const CODES: &'static [&'static str] = &["community", "discharge", "inpatient", "outpatient"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medicationrequest-category";
+    const CODES: &[&str] = &["community", "discharge", "inpatient", "outpatient"];
 }
 impl MedicationrequestCategory {
     #[inline]
@@ -27968,8 +27942,8 @@ impl MedicationrequestCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/medicationrequest-course-of-therapy"]
 pub struct MedicationrequestCourseOfTherapy;
 impl ValueSetDef for MedicationrequestCourseOfTherapy {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medicationrequest-course-of-therapy";
-    const CODES: &'static [&'static str] = &["acute", "continuous", "seasonal"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medicationrequest-course-of-therapy";
+    const CODES: &[&str] = &["acute", "continuous", "seasonal"];
 }
 impl MedicationrequestCourseOfTherapy {
     #[inline]
@@ -27999,8 +27973,8 @@ impl MedicationrequestCourseOfTherapy {
 #[doc = "http://hl7.org/fhir/ValueSet/medicationrequest-intent"]
 pub struct MedicationrequestIntent;
 impl ValueSetDef for MedicationrequestIntent {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medicationrequest-intent";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medicationrequest-intent";
+    const CODES: &[&str] = &[
         "filler-order",
         "instance-order",
         "option",
@@ -28069,8 +28043,8 @@ impl MedicationrequestIntent {
 #[doc = "http://hl7.org/fhir/ValueSet/medicationrequest-status"]
 pub struct MedicationrequestStatus;
 impl ValueSetDef for MedicationrequestStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medicationrequest-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medicationrequest-status";
+    const CODES: &[&str] = &[
         "active",
         "cancelled",
         "completed",
@@ -28139,8 +28113,8 @@ impl MedicationrequestStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/medicationrequest-status-reason"]
 pub struct MedicationrequestStatusReason;
 impl ValueSetDef for MedicationrequestStatusReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/medicationrequest-status-reason";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/medicationrequest-status-reason";
+    const CODES: &[&str] = &[
         "altchoice",
         "clarif",
         "drughigh",
@@ -28244,9 +28218,8 @@ impl MedicationrequestStatusReason {
 #[doc = "http://hl7.org/fhir/ValueSet/message-reason-encounter"]
 pub struct MessageReasonEncounter;
 impl ValueSetDef for MessageReasonEncounter {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/message-reason-encounter";
-    const CODES: &'static [&'static str] =
-        &["absent", "admit", "discharge", "edit", "moved", "return"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/message-reason-encounter";
+    const CODES: &[&str] = &["absent", "admit", "discharge", "edit", "moved", "return"];
 }
 impl MessageReasonEncounter {
     #[inline]
@@ -28294,8 +28267,8 @@ impl MessageReasonEncounter {
 #[doc = "http://hl7.org/fhir/ValueSet/message-significance-category"]
 pub struct MessageSignificanceCategory;
 impl ValueSetDef for MessageSignificanceCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/message-significance-category";
-    const CODES: &'static [&'static str] = &["consequence", "currency", "notification"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/message-significance-category";
+    const CODES: &[&str] = &["consequence", "currency", "notification"];
 }
 impl MessageSignificanceCategory {
     #[inline]
@@ -28325,8 +28298,8 @@ impl MessageSignificanceCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/message-transport"]
 pub struct MessageTransport;
 impl ValueSetDef for MessageTransport {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/message-transport";
-    const CODES: &'static [&'static str] = &["ftp", "http", "mllp"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/message-transport";
+    const CODES: &[&str] = &["ftp", "http", "mllp"];
 }
 impl MessageTransport {
     #[inline]
@@ -28356,8 +28329,8 @@ impl MessageTransport {
 #[doc = "http://hl7.org/fhir/ValueSet/messageheader-response-request"]
 pub struct MessageheaderResponseRequest;
 impl ValueSetDef for MessageheaderResponseRequest {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/messageheader-response-request";
-    const CODES: &'static [&'static str] = &["always", "never", "on-error", "on-success"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/messageheader-response-request";
+    const CODES: &[&str] = &["always", "never", "on-error", "on-success"];
 }
 impl MessageheaderResponseRequest {
     #[inline]
@@ -28393,8 +28366,8 @@ impl MessageheaderResponseRequest {
 #[doc = "http://hl7.org/fhir/ValueSet/metric-calibration-state"]
 pub struct MetricCalibrationState;
 impl ValueSetDef for MetricCalibrationState {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/metric-calibration-state";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/metric-calibration-state";
+    const CODES: &[&str] = &[
         "calibrated",
         "calibration-required",
         "not-calibrated",
@@ -28435,8 +28408,8 @@ impl MetricCalibrationState {
 #[doc = "http://hl7.org/fhir/ValueSet/metric-calibration-type"]
 pub struct MetricCalibrationType;
 impl ValueSetDef for MetricCalibrationType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/metric-calibration-type";
-    const CODES: &'static [&'static str] = &["gain", "offset", "two-point", "unspecified"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/metric-calibration-type";
+    const CODES: &[&str] = &["gain", "offset", "two-point", "unspecified"];
 }
 impl MetricCalibrationType {
     #[inline]
@@ -28472,9 +28445,8 @@ impl MetricCalibrationType {
 #[doc = "http://hl7.org/fhir/ValueSet/metric-category"]
 pub struct MetricCategory;
 impl ValueSetDef for MetricCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/metric-category";
-    const CODES: &'static [&'static str] =
-        &["calculation", "measurement", "setting", "unspecified"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/metric-category";
+    const CODES: &[&str] = &["calculation", "measurement", "setting", "unspecified"];
 }
 impl MetricCategory {
     #[inline]
@@ -28510,8 +28482,8 @@ impl MetricCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/metric-color"]
 pub struct MetricColor;
 impl ValueSetDef for MetricColor {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/metric-color";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/metric-color";
+    const CODES: &[&str] = &[
         "black", "blue", "cyan", "green", "magenta", "red", "white", "yellow",
     ];
 }
@@ -28573,8 +28545,8 @@ impl MetricColor {
 #[doc = "http://hl7.org/fhir/ValueSet/metric-operational-status"]
 pub struct MetricOperationalStatus;
 impl ValueSetDef for MetricOperationalStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/metric-operational-status";
-    const CODES: &'static [&'static str] = &["entered-in-error", "off", "on", "standby"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/metric-operational-status";
+    const CODES: &[&str] = &["entered-in-error", "off", "on", "standby"];
 }
 impl MetricOperationalStatus {
     #[inline]
@@ -28610,8 +28582,8 @@ impl MetricOperationalStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/missing-tooth-reason"]
 pub struct MissingToothReason;
 impl ValueSetDef for MissingToothReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/missing-tooth-reason";
-    const CODES: &'static [&'static str] = &["c", "e", "o", "u"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/missing-tooth-reason";
+    const CODES: &[&str] = &["c", "e", "o", "u"];
 }
 impl MissingToothReason {
     #[inline]
@@ -28647,8 +28619,8 @@ impl MissingToothReason {
 #[doc = "http://hl7.org/fhir/ValueSet/modified-foodtype"]
 pub struct ModifiedFoodtype;
 impl ValueSetDef for ModifiedFoodtype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/modified-foodtype";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/modified-foodtype";
+    const CODES: &[&str] = &[
         "102263004",
         "226529007",
         "226760005",
@@ -28759,8 +28731,8 @@ impl ModifiedFoodtype {
 #[doc = "http://hl7.org/fhir/ValueSet/name-assembly-order"]
 pub struct NameAssemblyOrder;
 impl ValueSetDef for NameAssemblyOrder {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/name-assembly-order";
-    const CODES: &'static [&'static str] = &["F", "G", "NL1", "NL2", "NL3", "NL4", "UNK"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/name-assembly-order";
+    const CODES: &[&str] = &["F", "G", "NL1", "NL2", "NL3", "NL4", "UNK"];
 }
 impl NameAssemblyOrder {
     #[inline]
@@ -28814,8 +28786,8 @@ impl NameAssemblyOrder {
 #[doc = "http://hl7.org/fhir/ValueSet/name-part-qualifier"]
 pub struct NamePartQualifier;
 impl ValueSetDef for NamePartQualifier {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/name-part-qualifier";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/name-part-qualifier";
+    const CODES: &[&str] = &[
         "AC", "AD", "BR", "CL", "HON", "IN", "LS", "MID", "NB", "PR", "SP", "VV",
     ];
 }
@@ -28901,8 +28873,8 @@ impl NamePartQualifier {
 #[doc = "http://hl7.org/fhir/ValueSet/name-use"]
 pub struct NameUse;
 impl ValueSetDef for NameUse {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/name-use";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/name-use";
+    const CODES: &[&str] = &[
         "anonymous",
         "maiden",
         "nickname",
@@ -28964,8 +28936,8 @@ impl NameUse {
 #[doc = "http://hl7.org/fhir/ValueSet/name-v3-representation"]
 pub struct NameV3Representation;
 impl ValueSetDef for NameV3Representation {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/name-v3-representation";
-    const CODES: &'static [&'static str] = &["ABC", "IDE", "SYL"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/name-v3-representation";
+    const CODES: &[&str] = &["ABC", "IDE", "SYL"];
 }
 impl NameV3Representation {
     #[inline]
@@ -28995,8 +28967,8 @@ impl NameV3Representation {
 #[doc = "http://hl7.org/fhir/ValueSet/namingsystem-identifier-type"]
 pub struct NamingsystemIdentifierType;
 impl ValueSetDef for NamingsystemIdentifierType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/namingsystem-identifier-type";
-    const CODES: &'static [&'static str] = &["oid", "other", "uri", "uuid"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/namingsystem-identifier-type";
+    const CODES: &[&str] = &["oid", "other", "uri", "uuid"];
 }
 impl NamingsystemIdentifierType {
     #[inline]
@@ -29032,8 +29004,8 @@ impl NamingsystemIdentifierType {
 #[doc = "http://hl7.org/fhir/ValueSet/namingsystem-type"]
 pub struct NamingsystemType;
 impl ValueSetDef for NamingsystemType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/namingsystem-type";
-    const CODES: &'static [&'static str] = &["codesystem", "identifier", "root"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/namingsystem-type";
+    const CODES: &[&str] = &["codesystem", "identifier", "root"];
 }
 impl NamingsystemType {
     #[inline]
@@ -29063,8 +29035,8 @@ impl NamingsystemType {
 #[doc = "http://hl7.org/fhir/ValueSet/narrative-status"]
 pub struct NarrativeStatus;
 impl ValueSetDef for NarrativeStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/narrative-status";
-    const CODES: &'static [&'static str] = &["additional", "empty", "extensions", "generated"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/narrative-status";
+    const CODES: &[&str] = &["additional", "empty", "extensions", "generated"];
 }
 impl NarrativeStatus {
     #[inline]
@@ -29100,8 +29072,8 @@ impl NarrativeStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/network-type"]
 pub struct NetworkType;
 impl ValueSetDef for NetworkType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/network-type";
-    const CODES: &'static [&'static str] = &["1", "2", "3", "4", "5"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/network-type";
+    const CODES: &[&str] = &["1", "2", "3", "4", "5"];
 }
 impl NetworkType {
     #[inline]
@@ -29143,8 +29115,8 @@ impl NetworkType {
 #[doc = "http://hl7.org/fhir/ValueSet/nhin-purposeofuse"]
 pub struct NhinPurposeofuse;
 impl ValueSetDef for NhinPurposeofuse {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/nhin-purposeofuse";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/nhin-purposeofuse";
+    const CODES: &[&str] = &[
         "ABUSE",
         "COVERAGE",
         "DECEASED",
@@ -29346,8 +29318,8 @@ impl NhinPurposeofuse {
 #[doc = "http://hl7.org/fhir/ValueSet/note-type"]
 pub struct NoteType;
 impl ValueSetDef for NoteType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/note-type";
-    const CODES: &'static [&'static str] = &["display", "print", "printoper"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/note-type";
+    const CODES: &[&str] = &["display", "print", "printoper"];
 }
 impl NoteType {
     #[inline]
@@ -29377,8 +29349,8 @@ impl NoteType {
 #[doc = "http://hl7.org/fhir/ValueSet/object-lifecycle-events"]
 pub struct ObjectLifecycleEvents;
 impl ValueSetDef for ObjectLifecycleEvents {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/object-lifecycle-events";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/object-lifecycle-events";
+    const CODES: &[&str] = &[
         "1",
         "10",
         "11",
@@ -29685,8 +29657,8 @@ impl ObjectLifecycleEvents {
 #[doc = "http://hl7.org/fhir/ValueSet/object-role"]
 pub struct ObjectRole;
 impl ValueSetDef for ObjectRole {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/object-role";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/object-role";
+    const CODES: &[&str] = &[
         "1", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "2", "20", "21", "22",
         "23", "24", "3", "4", "5", "6", "7", "8", "9",
     ];
@@ -29845,8 +29817,8 @@ impl ObjectRole {
 #[doc = "http://hl7.org/fhir/ValueSet/observation-category"]
 pub struct ObservationCategory;
 impl ValueSetDef for ObservationCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/observation-category";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/observation-category";
+    const CODES: &[&str] = &[
         "activity",
         "exam",
         "imaging",
@@ -29922,8 +29894,8 @@ impl ObservationCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/observation-interpretation"]
 pub struct ObservationInterpretation;
 impl ValueSetDef for ObservationInterpretation {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/observation-interpretation";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/observation-interpretation";
+    const CODES: &[&str] = &[
         "<",
         ">",
         "A",
@@ -30335,8 +30307,8 @@ impl ObservationInterpretation {
 #[doc = "http://hl7.org/fhir/ValueSet/observation-range-category"]
 pub struct ObservationRangeCategory;
 impl ValueSetDef for ObservationRangeCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/observation-range-category";
-    const CODES: &'static [&'static str] = &["absolute", "critical", "reference"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/observation-range-category";
+    const CODES: &[&str] = &["absolute", "critical", "reference"];
 }
 impl ObservationRangeCategory {
     #[inline]
@@ -30366,8 +30338,8 @@ impl ObservationRangeCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/observation-statistics"]
 pub struct ObservationStatistics;
 impl ValueSetDef for ObservationStatistics {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/observation-statistics";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/observation-statistics";
+    const CODES: &[&str] = &[
         "20-percent",
         "4-dev",
         "4-lower",
@@ -30527,8 +30499,8 @@ impl ObservationStatistics {
 #[doc = "http://hl7.org/fhir/ValueSet/observation-status"]
 pub struct ObservationStatus;
 impl ValueSetDef for ObservationStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/observation-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/observation-status";
+    const CODES: &[&str] = &[
         "amended",
         "cancelled",
         "corrected",
@@ -30597,8 +30569,8 @@ impl ObservationStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/observation-vitalsignresult"]
 pub struct ObservationVitalsignresult;
 impl ValueSetDef for ObservationVitalsignresult {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/observation-vitalsignresult";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/observation-vitalsignresult";
+    const CODES: &[&str] = &[
         "2708-6", "29463-7", "39156-5", "8302-2", "8310-5", "8462-4", "8478-0", "8480-6",
         "85353-1", "85354-9", "8867-4", "9279-1", "9843-4",
     ];
@@ -30691,8 +30663,8 @@ impl ObservationVitalsignresult {
 #[doc = "http://hl7.org/fhir/ValueSet/operation-kind"]
 pub struct OperationKind;
 impl ValueSetDef for OperationKind {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/operation-kind";
-    const CODES: &'static [&'static str] = &["operation", "query"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/operation-kind";
+    const CODES: &[&str] = &["operation", "query"];
 }
 impl OperationKind {
     #[inline]
@@ -30716,8 +30688,8 @@ impl OperationKind {
 #[doc = "http://hl7.org/fhir/ValueSet/operation-outcome"]
 pub struct OperationOutcome;
 impl ValueSetDef for OperationOutcome {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/operation-outcome";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/operation-outcome";
+    const CODES: &[&str] = &[
         "DELETE_MULTIPLE_MATCHES",
         "MSG_AUTH_REQUIRED",
         "MSG_BAD_FORMAT",
@@ -31080,8 +31052,8 @@ impl OperationOutcome {
 #[doc = "http://hl7.org/fhir/ValueSet/operation-parameter-use"]
 pub struct OperationParameterUse;
 impl ValueSetDef for OperationParameterUse {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/operation-parameter-use";
-    const CODES: &'static [&'static str] = &["in", "out"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/operation-parameter-use";
+    const CODES: &[&str] = &["in", "out"];
 }
 impl OperationParameterUse {
     #[inline]
@@ -31105,8 +31077,8 @@ impl OperationParameterUse {
 #[doc = "http://hl7.org/fhir/ValueSet/oral-prosthodontic-material"]
 pub struct OralProsthodonticMaterial;
 impl ValueSetDef for OralProsthodonticMaterial {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/oral-prosthodontic-material";
-    const CODES: &'static [&'static str] = &["1", "2", "3", "4"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/oral-prosthodontic-material";
+    const CODES: &[&str] = &["1", "2", "3", "4"];
 }
 impl OralProsthodonticMaterial {
     #[inline]
@@ -31142,8 +31114,8 @@ impl OralProsthodonticMaterial {
 #[doc = "http://hl7.org/fhir/ValueSet/organization-role"]
 pub struct OrganizationRole;
 impl ValueSetDef for OrganizationRole {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/organization-role";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/organization-role";
+    const CODES: &[&str] = &[
         "HIE/HIO",
         "agency",
         "diagnostics",
@@ -31212,8 +31184,8 @@ impl OrganizationRole {
 #[doc = "http://hl7.org/fhir/ValueSet/organization-type"]
 pub struct OrganizationType;
 impl ValueSetDef for OrganizationType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/organization-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/organization-type";
+    const CODES: &[&str] = &[
         "bus", "cg", "crs", "dept", "edu", "govt", "ins", "other", "pay", "prov", "reli", "team",
     ];
 }
@@ -31299,8 +31271,8 @@ impl OrganizationType {
 #[doc = "http://hl7.org/fhir/ValueSet/orientation-type"]
 pub struct OrientationType;
 impl ValueSetDef for OrientationType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/orientation-type";
-    const CODES: &'static [&'static str] = &["antisense", "sense"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/orientation-type";
+    const CODES: &[&str] = &["antisense", "sense"];
 }
 impl OrientationType {
     #[inline]
@@ -31324,8 +31296,8 @@ impl OrientationType {
 #[doc = "http://hl7.org/fhir/ValueSet/parameter-group"]
 pub struct ParameterGroup;
 impl ValueSetDef for ParameterGroup {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/parameter-group";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/parameter-group";
+    const CODES: &[&str] = &[
         "blood-chemistry",
         "drug-delivery",
         "ecg",
@@ -31401,8 +31373,8 @@ impl ParameterGroup {
 #[doc = "http://hl7.org/fhir/ValueSet/parent-relationship-codes"]
 pub struct ParentRelationshipCodes;
 impl ValueSetDef for ParentRelationshipCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/parent-relationship-codes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/parent-relationship-codes";
+    const CODES: &[&str] = &[
         "ACC",
         "ACHFID",
         "ACTMIL",
@@ -34194,8 +34166,8 @@ impl ParentRelationshipCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/participantrequired"]
 pub struct Participantrequired;
 impl ValueSetDef for Participantrequired {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/participantrequired";
-    const CODES: &'static [&'static str] = &["information-only", "optional", "required"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/participantrequired";
+    const CODES: &[&str] = &["information-only", "optional", "required"];
 }
 impl Participantrequired {
     #[inline]
@@ -34225,8 +34197,8 @@ impl Participantrequired {
 #[doc = "http://hl7.org/fhir/ValueSet/participationstatus"]
 pub struct Participationstatus;
 impl ValueSetDef for Participationstatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/participationstatus";
-    const CODES: &'static [&'static str] = &["accepted", "declined", "needs-action", "tentative"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/participationstatus";
+    const CODES: &[&str] = &["accepted", "declined", "needs-action", "tentative"];
 }
 impl Participationstatus {
     #[inline]
@@ -34262,8 +34234,8 @@ impl Participationstatus {
 #[doc = "http://hl7.org/fhir/ValueSet/payeetype"]
 pub struct Payeetype;
 impl ValueSetDef for Payeetype {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/payeetype";
-    const CODES: &'static [&'static str] = &["other", "provider", "subscriber"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/payeetype";
+    const CODES: &[&str] = &["other", "provider", "subscriber"];
 }
 impl Payeetype {
     #[inline]
@@ -34293,8 +34265,8 @@ impl Payeetype {
 #[doc = "http://hl7.org/fhir/ValueSet/payment-adjustment-reason"]
 pub struct PaymentAdjustmentReason;
 impl ValueSetDef for PaymentAdjustmentReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/payment-adjustment-reason";
-    const CODES: &'static [&'static str] = &["a001", "a002"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/payment-adjustment-reason";
+    const CODES: &[&str] = &["a001", "a002"];
 }
 impl PaymentAdjustmentReason {
     #[inline]
@@ -34318,8 +34290,8 @@ impl PaymentAdjustmentReason {
 #[doc = "http://hl7.org/fhir/ValueSet/payment-status"]
 pub struct PaymentStatus;
 impl ValueSetDef for PaymentStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/payment-status";
-    const CODES: &'static [&'static str] = &["cleared", "paid"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/payment-status";
+    const CODES: &[&str] = &["cleared", "paid"];
 }
 impl PaymentStatus {
     #[inline]
@@ -34343,8 +34315,8 @@ impl PaymentStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/payment-type"]
 pub struct PaymentType;
 impl ValueSetDef for PaymentType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/payment-type";
-    const CODES: &'static [&'static str] = &["adjustment", "advance", "payment"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/payment-type";
+    const CODES: &[&str] = &["adjustment", "advance", "payment"];
 }
 impl PaymentType {
     #[inline]
@@ -34374,8 +34346,8 @@ impl PaymentType {
 #[doc = "http://hl7.org/fhir/ValueSet/performer-function"]
 pub struct PerformerFunction;
 impl ValueSetDef for PerformerFunction {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/performer-function";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/performer-function";
+    const CODES: &[&str] = &[
         "ATND", "AUT", "AUTHEN", "CON", "ENT", "INF", "LA", "PART", "PPRF", "RESP", "SPRF",
         "TRANS", "VRF", "WIT",
     ];
@@ -34474,8 +34446,8 @@ impl PerformerFunction {
 #[doc = "http://hl7.org/fhir/ValueSet/permitted-data-type"]
 pub struct PermittedDataType;
 impl ValueSetDef for PermittedDataType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/permitted-data-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/permitted-data-type";
+    const CODES: &[&str] = &[
         "CodeableConcept",
         "Period",
         "Quantity",
@@ -34565,8 +34537,8 @@ impl PermittedDataType {
 #[doc = "http://hl7.org/fhir/ValueSet/plan-definition-type"]
 pub struct PlanDefinitionType;
 impl ValueSetDef for PlanDefinitionType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/plan-definition-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/plan-definition-type";
+    const CODES: &[&str] = &[
         "clinical-protocol",
         "eca-rule",
         "order-set",
@@ -34607,9 +34579,8 @@ impl PlanDefinitionType {
 #[doc = "http://hl7.org/fhir/ValueSet/postal-address-use"]
 pub struct PostalAddressUse;
 impl ValueSetDef for PostalAddressUse {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/postal-address-use";
-    const CODES: &'static [&'static str] =
-        &["BAD", "CONF", "DIR", "HP", "HV", "PHYS", "PST", "PUB"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/postal-address-use";
+    const CODES: &[&str] = &["BAD", "CONF", "DIR", "HP", "HV", "PHYS", "PST", "PUB"];
 }
 impl PostalAddressUse {
     #[inline]
@@ -34669,8 +34640,8 @@ impl PostalAddressUse {
 #[doc = "http://hl7.org/fhir/ValueSet/practitioner-specialty"]
 pub struct PractitionerSpecialty;
 impl ValueSetDef for PractitionerSpecialty {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/practitioner-specialty";
-    const CODES: &'static [&'static str] = &["cardio", "dent", "dietary", "midw", "sysarch"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/practitioner-specialty";
+    const CODES: &[&str] = &["cardio", "dent", "dietary", "midw", "sysarch"];
 }
 impl PractitionerSpecialty {
     #[inline]
@@ -34712,8 +34683,8 @@ impl PractitionerSpecialty {
 #[doc = "http://hl7.org/fhir/ValueSet/precision-estimate-type"]
 pub struct PrecisionEstimateType;
 impl ValueSetDef for PrecisionEstimateType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/precision-estimate-type";
-    const CODES: &'static [&'static str] = &["CI", "IQR", "SD", "SE"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/precision-estimate-type";
+    const CODES: &[&str] = &["CI", "IQR", "SD", "SE"];
 }
 impl PrecisionEstimateType {
     #[inline]
@@ -34749,8 +34720,8 @@ impl PrecisionEstimateType {
 #[doc = "http://hl7.org/fhir/ValueSet/probability-distribution-type"]
 pub struct ProbabilityDistributionType;
 impl ValueSetDef for ProbabilityDistributionType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/probability-distribution-type";
-    const CODES: &'static [&'static str] = &["B", "E", "F", "G", "LN", "N", "T", "U", "X2"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/probability-distribution-type";
+    const CODES: &[&str] = &["B", "E", "F", "G", "LN", "N", "T", "U", "X2"];
 }
 impl ProbabilityDistributionType {
     #[inline]
@@ -34816,8 +34787,8 @@ impl ProbabilityDistributionType {
 #[doc = "http://hl7.org/fhir/ValueSet/procedure-category"]
 pub struct ProcedureCategory;
 impl ValueSetDef for ProcedureCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/procedure-category";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/procedure-category";
+    const CODES: &[&str] = &[
         "103693007",
         "24642003",
         "387713003",
@@ -34879,8 +34850,8 @@ impl ProcedureCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/procedure-followup"]
 pub struct ProcedureFollowup;
 impl ValueSetDef for ProcedureFollowup {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/procedure-followup";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/procedure-followup";
+    const CODES: &[&str] = &[
         "18949003",
         "225164002",
         "229506003",
@@ -34963,8 +34934,8 @@ impl ProcedureFollowup {
 #[doc = "http://hl7.org/fhir/ValueSet/procedure-outcome"]
 pub struct ProcedureOutcome;
 impl ValueSetDef for ProcedureOutcome {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/procedure-outcome";
-    const CODES: &'static [&'static str] = &["385669000", "385670004", "385671000"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/procedure-outcome";
+    const CODES: &[&str] = &["385669000", "385670004", "385671000"];
 }
 impl ProcedureOutcome {
     #[inline]
@@ -34994,8 +34965,8 @@ impl ProcedureOutcome {
 #[doc = "http://hl7.org/fhir/ValueSet/procedure-progress-status-codes"]
 pub struct ProcedureProgressStatusCodes;
 impl ValueSetDef for ProcedureProgressStatusCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/procedure-progress-status-codes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/procedure-progress-status-codes";
+    const CODES: &[&str] = &[
         "anesthesia-induced",
         "closed-incision",
         "in-operating-room",
@@ -35050,8 +35021,8 @@ impl ProcedureProgressStatusCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/process-priority"]
 pub struct ProcessPriority;
 impl ValueSetDef for ProcessPriority {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/process-priority";
-    const CODES: &'static [&'static str] = &["deferred", "normal", "stat"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/process-priority";
+    const CODES: &[&str] = &["deferred", "normal", "stat"];
 }
 impl ProcessPriority {
     #[inline]
@@ -35081,9 +35052,8 @@ impl ProcessPriority {
 #[doc = "http://hl7.org/fhir/ValueSet/product-category"]
 pub struct ProductCategory;
 impl ValueSetDef for ProductCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/product-category";
-    const CODES: &'static [&'static str] =
-        &["biologicalAgent", "cells", "fluid", "organ", "tissue"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/product-category";
+    const CODES: &[&str] = &["biologicalAgent", "cells", "fluid", "organ", "tissue"];
 }
 impl ProductCategory {
     #[inline]
@@ -35125,8 +35095,8 @@ impl ProductCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/product-status"]
 pub struct ProductStatus;
 impl ValueSetDef for ProductStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/product-status";
-    const CODES: &'static [&'static str] = &["available", "unavailable"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/product-status";
+    const CODES: &[&str] = &["available", "unavailable"];
 }
 impl ProductStatus {
     #[inline]
@@ -35150,8 +35120,8 @@ impl ProductStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/product-storage-scale"]
 pub struct ProductStorageScale;
 impl ValueSetDef for ProductStorageScale {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/product-storage-scale";
-    const CODES: &'static [&'static str] = &["celsius", "farenheit", "kelvin"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/product-storage-scale";
+    const CODES: &[&str] = &["celsius", "farenheit", "kelvin"];
 }
 impl ProductStorageScale {
     #[inline]
@@ -35181,8 +35151,8 @@ impl ProductStorageScale {
 #[doc = "http://hl7.org/fhir/ValueSet/property-representation"]
 pub struct PropertyRepresentation;
 impl ValueSetDef for PropertyRepresentation {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/property-representation";
-    const CODES: &'static [&'static str] = &["cdaText", "typeAttr", "xhtml", "xmlAttr", "xmlText"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/property-representation";
+    const CODES: &[&str] = &["cdaText", "typeAttr", "xhtml", "xmlAttr", "xmlText"];
 }
 impl PropertyRepresentation {
     #[inline]
@@ -35224,8 +35194,8 @@ impl PropertyRepresentation {
 #[doc = "http://hl7.org/fhir/ValueSet/provenance-activity-type"]
 pub struct ProvenanceActivityType;
 impl ValueSetDef for ProvenanceActivityType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/provenance-activity-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/provenance-activity-type";
+    const CODES: &[&str] = &[
         "ADM",
         "ALY",
         "ANONY",
@@ -35735,8 +35705,8 @@ impl ProvenanceActivityType {
 #[doc = "http://hl7.org/fhir/ValueSet/provenance-agent-role"]
 pub struct ProvenanceAgentRole;
 impl ValueSetDef for ProvenanceAgentRole {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/provenance-agent-role";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/provenance-agent-role";
+    const CODES: &[&str] = &[
         "assembler",
         "attester",
         "author",
@@ -35819,8 +35789,8 @@ impl ProvenanceAgentRole {
 #[doc = "http://hl7.org/fhir/ValueSet/provenance-agent-type"]
 pub struct ProvenanceAgentType;
 impl ValueSetDef for ProvenanceAgentType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/provenance-agent-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/provenance-agent-type";
+    const CODES: &[&str] = &[
         "assembler",
         "attester",
         "author",
@@ -35903,9 +35873,8 @@ impl ProvenanceAgentType {
 #[doc = "http://hl7.org/fhir/ValueSet/provenance-entity-role"]
 pub struct ProvenanceEntityRole;
 impl ValueSetDef for ProvenanceEntityRole {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/provenance-entity-role";
-    const CODES: &'static [&'static str] =
-        &["derivation", "quotation", "removal", "revision", "source"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/provenance-entity-role";
+    const CODES: &[&str] = &["derivation", "quotation", "removal", "revision", "source"];
 }
 impl ProvenanceEntityRole {
     #[inline]
@@ -35947,8 +35916,8 @@ impl ProvenanceEntityRole {
 #[doc = "http://hl7.org/fhir/ValueSet/provenance-history-agent-type"]
 pub struct ProvenanceHistoryAgentType;
 impl ValueSetDef for ProvenanceHistoryAgentType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/provenance-history-agent-type";
-    const CODES: &'static [&'static str] = &["AUT", "ENT", "INF", "VRF"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/provenance-history-agent-type";
+    const CODES: &[&str] = &["AUT", "ENT", "INF", "VRF"];
 }
 impl ProvenanceHistoryAgentType {
     #[inline]
@@ -35984,8 +35953,8 @@ impl ProvenanceHistoryAgentType {
 #[doc = "http://hl7.org/fhir/ValueSet/provenance-history-record-activity"]
 pub struct ProvenanceHistoryRecordActivity;
 impl ValueSetDef for ProvenanceHistoryRecordActivity {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/provenance-history-record-activity";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/provenance-history-record-activity";
+    const CODES: &[&str] = &[
         "ABORT",
         "ACTIVATE",
         "CANCEL",
@@ -36096,8 +36065,8 @@ impl ProvenanceHistoryRecordActivity {
 #[doc = "http://hl7.org/fhir/ValueSet/provider-qualification"]
 pub struct ProviderQualification;
 impl ValueSetDef for ProviderQualification {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/provider-qualification";
-    const CODES: &'static [&'static str] = &["311405", "604210", "604215"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/provider-qualification";
+    const CODES: &[&str] = &["311405", "604210", "604215"];
 }
 impl ProviderQualification {
     #[inline]
@@ -36127,8 +36096,8 @@ impl ProviderQualification {
 #[doc = "http://hl7.org/fhir/ValueSet/publication-status"]
 pub struct PublicationStatus;
 impl ValueSetDef for PublicationStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/publication-status";
-    const CODES: &'static [&'static str] = &["active", "draft", "retired", "unknown"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/publication-status";
+    const CODES: &[&str] = &["active", "draft", "retired", "unknown"];
 }
 impl PublicationStatus {
     #[inline]
@@ -36164,8 +36133,8 @@ impl PublicationStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/quality-type"]
 pub struct QualityType;
 impl ValueSetDef for QualityType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/quality-type";
-    const CODES: &'static [&'static str] = &["indel", "snp", "unknown"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/quality-type";
+    const CODES: &[&str] = &["indel", "snp", "unknown"];
 }
 impl QualityType {
     #[inline]
@@ -36195,8 +36164,8 @@ impl QualityType {
 #[doc = "http://hl7.org/fhir/ValueSet/quantity-comparator"]
 pub struct QuantityComparator;
 impl ValueSetDef for QuantityComparator {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/quantity-comparator";
-    const CODES: &'static [&'static str] = &["<", "<=", ">", ">="];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/quantity-comparator";
+    const CODES: &[&str] = &["<", "<=", ">", ">="];
 }
 impl QuantityComparator {
     #[inline]
@@ -36232,8 +36201,8 @@ impl QuantityComparator {
 #[doc = "http://hl7.org/fhir/ValueSet/question-max-occurs"]
 pub struct QuestionMaxOccurs;
 impl ValueSetDef for QuestionMaxOccurs {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/question-max-occurs";
-    const CODES: &'static [&'static str] = &["*"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/question-max-occurs";
+    const CODES: &[&str] = &["*"];
 }
 impl QuestionMaxOccurs {
     #[inline]
@@ -36251,8 +36220,8 @@ impl QuestionMaxOccurs {
 #[doc = "http://hl7.org/fhir/ValueSet/questionnaire-answers-status"]
 pub struct QuestionnaireAnswersStatus;
 impl ValueSetDef for QuestionnaireAnswersStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/questionnaire-answers-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/questionnaire-answers-status";
+    const CODES: &[&str] = &[
         "amended",
         "completed",
         "entered-in-error",
@@ -36300,8 +36269,8 @@ impl QuestionnaireAnswersStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/questionnaire-category"]
 pub struct QuestionnaireCategory;
 impl ValueSetDef for QuestionnaireCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/questionnaire-category";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/questionnaire-category";
+    const CODES: &[&str] = &[
         "273384008",
         "273479001",
         "273601006",
@@ -36349,8 +36318,8 @@ impl QuestionnaireCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/questionnaire-display-category"]
 pub struct QuestionnaireDisplayCategory;
 impl ValueSetDef for QuestionnaireDisplayCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/questionnaire-display-category";
-    const CODES: &'static [&'static str] = &["help", "instructions", "security"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/questionnaire-display-category";
+    const CODES: &[&str] = &["help", "instructions", "security"];
 }
 impl QuestionnaireDisplayCategory {
     #[inline]
@@ -36380,8 +36349,8 @@ impl QuestionnaireDisplayCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/questionnaire-enable-behavior"]
 pub struct QuestionnaireEnableBehavior;
 impl ValueSetDef for QuestionnaireEnableBehavior {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/questionnaire-enable-behavior";
-    const CODES: &'static [&'static str] = &["all", "any"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/questionnaire-enable-behavior";
+    const CODES: &[&str] = &["all", "any"];
 }
 impl QuestionnaireEnableBehavior {
     #[inline]
@@ -36405,8 +36374,8 @@ impl QuestionnaireEnableBehavior {
 #[doc = "http://hl7.org/fhir/ValueSet/questionnaire-enable-operator"]
 pub struct QuestionnaireEnableOperator;
 impl ValueSetDef for QuestionnaireEnableOperator {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/questionnaire-enable-operator";
-    const CODES: &'static [&'static str] = &["!=", "<", "<=", "=", ">", ">=", "exists"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/questionnaire-enable-operator";
+    const CODES: &[&str] = &["!=", "<", "<=", "=", ">", ">=", "exists"];
 }
 impl QuestionnaireEnableOperator {
     #[inline]
@@ -36460,8 +36429,8 @@ impl QuestionnaireEnableOperator {
 #[doc = "http://hl7.org/fhir/ValueSet/questionnaire-item-control"]
 pub struct QuestionnaireItemControl;
 impl ValueSetDef for QuestionnaireItemControl {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/questionnaire-item-control";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/questionnaire-item-control";
+    const CODES: &[&str] = &[
         "atable",
         "autocomplete",
         "check-box",
@@ -36649,8 +36618,8 @@ impl QuestionnaireItemControl {
 #[doc = "http://hl7.org/fhir/ValueSet/questionnaire-usage-mode"]
 pub struct QuestionnaireUsageMode;
 impl ValueSetDef for QuestionnaireUsageMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/questionnaire-usage-mode";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/questionnaire-usage-mode";
+    const CODES: &[&str] = &[
         "capture",
         "capture-display",
         "capture-display-non-empty",
@@ -36698,8 +36667,8 @@ impl QuestionnaireUsageMode {
 #[doc = "http://hl7.org/fhir/ValueSet/questionnaireresponse-mode"]
 pub struct QuestionnaireresponseMode;
 impl ValueSetDef for QuestionnaireresponseMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/questionnaireresponse-mode";
-    const CODES: &'static [&'static str] = &["ELECTRONIC", "VERBAL", "WRITTEN"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/questionnaireresponse-mode";
+    const CODES: &[&str] = &["ELECTRONIC", "VERBAL", "WRITTEN"];
 }
 impl QuestionnaireresponseMode {
     #[inline]
@@ -36729,8 +36698,8 @@ impl QuestionnaireresponseMode {
 #[doc = "http://hl7.org/fhir/ValueSet/reaction-event-certainty"]
 pub struct ReactionEventCertainty;
 impl ValueSetDef for ReactionEventCertainty {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/reaction-event-certainty";
-    const CODES: &'static [&'static str] = &["confirmed", "likely", "unknown", "unlikely"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/reaction-event-certainty";
+    const CODES: &[&str] = &["confirmed", "likely", "unknown", "unlikely"];
 }
 impl ReactionEventCertainty {
     #[inline]
@@ -36766,8 +36735,8 @@ impl ReactionEventCertainty {
 #[doc = "http://hl7.org/fhir/ValueSet/reaction-event-severity"]
 pub struct ReactionEventSeverity;
 impl ValueSetDef for ReactionEventSeverity {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/reaction-event-severity";
-    const CODES: &'static [&'static str] = &["mild", "moderate", "severe"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/reaction-event-severity";
+    const CODES: &[&str] = &["mild", "moderate", "severe"];
 }
 impl ReactionEventSeverity {
     #[inline]
@@ -36797,8 +36766,8 @@ impl ReactionEventSeverity {
 #[doc = "http://hl7.org/fhir/ValueSet/reason-medication-given-codes"]
 pub struct ReasonMedicationGivenCodes;
 impl ValueSetDef for ReasonMedicationGivenCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/reason-medication-given-codes";
-    const CODES: &'static [&'static str] = &["a", "b", "c"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/reason-medication-given-codes";
+    const CODES: &[&str] = &["a", "b", "c"];
 }
 impl ReasonMedicationGivenCodes {
     #[inline]
@@ -36828,8 +36797,8 @@ impl ReasonMedicationGivenCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/recommendation-strength"]
 pub struct RecommendationStrength;
 impl ValueSetDef for RecommendationStrength {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/recommendation-strength";
-    const CODES: &'static [&'static str] = &["strong", "weak"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/recommendation-strength";
+    const CODES: &[&str] = &["strong", "weak"];
 }
 impl RecommendationStrength {
     #[inline]
@@ -36853,8 +36822,8 @@ impl RecommendationStrength {
 #[doc = "http://hl7.org/fhir/ValueSet/reference-handling-policy"]
 pub struct ReferenceHandlingPolicy;
 impl ValueSetDef for ReferenceHandlingPolicy {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/reference-handling-policy";
-    const CODES: &'static [&'static str] = &["enforced", "literal", "local", "logical", "resolves"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/reference-handling-policy";
+    const CODES: &[&str] = &["enforced", "literal", "local", "logical", "resolves"];
 }
 impl ReferenceHandlingPolicy {
     #[inline]
@@ -36896,8 +36865,8 @@ impl ReferenceHandlingPolicy {
 #[doc = "http://hl7.org/fhir/ValueSet/reference-version-rules"]
 pub struct ReferenceVersionRules;
 impl ValueSetDef for ReferenceVersionRules {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/reference-version-rules";
-    const CODES: &'static [&'static str] = &["either", "independent", "specific"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/reference-version-rules";
+    const CODES: &[&str] = &["either", "independent", "specific"];
 }
 impl ReferenceVersionRules {
     #[inline]
@@ -36927,8 +36896,8 @@ impl ReferenceVersionRules {
 #[doc = "http://hl7.org/fhir/ValueSet/referencerange-meaning"]
 pub struct ReferencerangeMeaning;
 impl ValueSetDef for ReferencerangeMeaning {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/referencerange-meaning";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/referencerange-meaning";
+    const CODES: &[&str] = &[
         "endocrine",
         "follicular",
         "luteal",
@@ -37032,8 +37001,8 @@ impl ReferencerangeMeaning {
 #[doc = "http://hl7.org/fhir/ValueSet/rejection-criteria"]
 pub struct RejectionCriteria;
 impl ValueSetDef for RejectionCriteria {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/rejection-criteria";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/rejection-criteria";
+    const CODES: &[&str] = &[
         "broken",
         "clotted",
         "hemolized",
@@ -37081,8 +37050,8 @@ impl RejectionCriteria {
 #[doc = "http://hl7.org/fhir/ValueSet/related-artifact-type"]
 pub struct RelatedArtifactType;
 impl ValueSetDef for RelatedArtifactType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/related-artifact-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/related-artifact-type";
+    const CODES: &[&str] = &[
         "citation",
         "composed-of",
         "depends-on",
@@ -37151,8 +37120,8 @@ impl RelatedArtifactType {
 #[doc = "http://hl7.org/fhir/ValueSet/related-claim-relationship"]
 pub struct RelatedClaimRelationship;
 impl ValueSetDef for RelatedClaimRelationship {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/related-claim-relationship";
-    const CODES: &'static [&'static str] = &["associated", "prior"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/related-claim-relationship";
+    const CODES: &[&str] = &["associated", "prior"];
 }
 impl RelatedClaimRelationship {
     #[inline]
@@ -37176,8 +37145,8 @@ impl RelatedClaimRelationship {
 #[doc = "http://hl7.org/fhir/ValueSet/relation-type"]
 pub struct RelationType;
 impl ValueSetDef for RelationType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/relation-type";
-    const CODES: &'static [&'static str] = &["is-replaced-by", "triggers"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/relation-type";
+    const CODES: &[&str] = &["is-replaced-by", "triggers"];
 }
 impl RelationType {
     #[inline]
@@ -37201,8 +37170,8 @@ impl RelationType {
 #[doc = "http://hl7.org/fhir/ValueSet/relationship"]
 pub struct Relationship;
 impl ValueSetDef for Relationship {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/relationship";
-    const CODES: &'static [&'static str] = &["1", "2", "3", "4", "5"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/relationship";
+    const CODES: &[&str] = &["1", "2", "3", "4", "5"];
 }
 impl Relationship {
     #[inline]
@@ -37244,8 +37213,8 @@ impl Relationship {
 #[doc = "http://hl7.org/fhir/ValueSet/remittance-outcome"]
 pub struct RemittanceOutcome;
 impl ValueSetDef for RemittanceOutcome {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/remittance-outcome";
-    const CODES: &'static [&'static str] = &["complete", "error", "partial", "queued"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/remittance-outcome";
+    const CODES: &[&str] = &["complete", "error", "partial", "queued"];
 }
 impl RemittanceOutcome {
     #[inline]
@@ -37281,8 +37250,8 @@ impl RemittanceOutcome {
 #[doc = "http://hl7.org/fhir/ValueSet/report-action-result-codes"]
 pub struct ReportActionResultCodes;
 impl ValueSetDef for ReportActionResultCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/report-action-result-codes";
-    const CODES: &'static [&'static str] = &["error", "fail", "pass", "skip", "warning"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/report-action-result-codes";
+    const CODES: &[&str] = &["error", "fail", "pass", "skip", "warning"];
 }
 impl ReportActionResultCodes {
     #[inline]
@@ -37324,8 +37293,8 @@ impl ReportActionResultCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/report-participant-type"]
 pub struct ReportParticipantType;
 impl ValueSetDef for ReportParticipantType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/report-participant-type";
-    const CODES: &'static [&'static str] = &["client", "server", "test-engine"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/report-participant-type";
+    const CODES: &[&str] = &["client", "server", "test-engine"];
 }
 impl ReportParticipantType {
     #[inline]
@@ -37355,8 +37324,8 @@ impl ReportParticipantType {
 #[doc = "http://hl7.org/fhir/ValueSet/report-result-codes"]
 pub struct ReportResultCodes;
 impl ValueSetDef for ReportResultCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/report-result-codes";
-    const CODES: &'static [&'static str] = &["fail", "pass", "pending"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/report-result-codes";
+    const CODES: &[&str] = &["fail", "pass", "pending"];
 }
 impl ReportResultCodes {
     #[inline]
@@ -37386,8 +37355,8 @@ impl ReportResultCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/report-status-codes"]
 pub struct ReportStatusCodes;
 impl ValueSetDef for ReportStatusCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/report-status-codes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/report-status-codes";
+    const CODES: &[&str] = &[
         "completed",
         "entered-in-error",
         "in-progress",
@@ -37435,8 +37404,8 @@ impl ReportStatusCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/repository-type"]
 pub struct RepositoryType;
 impl ValueSetDef for RepositoryType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/repository-type";
-    const CODES: &'static [&'static str] = &["directlink", "login", "oauth", "openapi", "other"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/repository-type";
+    const CODES: &[&str] = &["directlink", "login", "oauth", "openapi", "other"];
 }
 impl RepositoryType {
     #[inline]
@@ -37478,8 +37447,8 @@ impl RepositoryType {
 #[doc = "http://hl7.org/fhir/ValueSet/request-intent"]
 pub struct RequestIntent;
 impl ValueSetDef for RequestIntent {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/request-intent";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/request-intent";
+    const CODES: &[&str] = &[
         "directive",
         "filler-order",
         "instance-order",
@@ -37555,8 +37524,8 @@ impl RequestIntent {
 #[doc = "http://hl7.org/fhir/ValueSet/request-priority"]
 pub struct RequestPriority;
 impl ValueSetDef for RequestPriority {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/request-priority";
-    const CODES: &'static [&'static str] = &["asap", "routine", "stat", "urgent"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/request-priority";
+    const CODES: &[&str] = &["asap", "routine", "stat", "urgent"];
 }
 impl RequestPriority {
     #[inline]
@@ -37592,8 +37561,8 @@ impl RequestPriority {
 #[doc = "http://hl7.org/fhir/ValueSet/request-resource-types"]
 pub struct RequestResourceTypes;
 impl ValueSetDef for RequestResourceTypes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/request-resource-types";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/request-resource-types";
+    const CODES: &[&str] = &[
         "Appointment",
         "AppointmentResponse",
         "CarePlan",
@@ -37711,8 +37680,8 @@ impl RequestResourceTypes {
 #[doc = "http://hl7.org/fhir/ValueSet/request-status"]
 pub struct RequestStatus;
 impl ValueSetDef for RequestStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/request-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/request-status";
+    const CODES: &[&str] = &[
         "active",
         "completed",
         "draft",
@@ -37774,8 +37743,8 @@ impl RequestStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/research-element-type"]
 pub struct ResearchElementType;
 impl ValueSetDef for ResearchElementType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/research-element-type";
-    const CODES: &'static [&'static str] = &["exposure", "outcome", "population"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/research-element-type";
+    const CODES: &[&str] = &["exposure", "outcome", "population"];
 }
 impl ResearchElementType {
     #[inline]
@@ -37805,8 +37774,8 @@ impl ResearchElementType {
 #[doc = "http://hl7.org/fhir/ValueSet/research-study-objective-type"]
 pub struct ResearchStudyObjectiveType;
 impl ValueSetDef for ResearchStudyObjectiveType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/research-study-objective-type";
-    const CODES: &'static [&'static str] = &["exploratory", "primary", "secondary"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/research-study-objective-type";
+    const CODES: &[&str] = &["exploratory", "primary", "secondary"];
 }
 impl ResearchStudyObjectiveType {
     #[inline]
@@ -37836,8 +37805,8 @@ impl ResearchStudyObjectiveType {
 #[doc = "http://hl7.org/fhir/ValueSet/research-study-phase"]
 pub struct ResearchStudyPhase;
 impl ValueSetDef for ResearchStudyPhase {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/research-study-phase";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/research-study-phase";
+    const CODES: &[&str] = &[
         "early-phase-1",
         "n-a",
         "phase-1",
@@ -37906,8 +37875,8 @@ impl ResearchStudyPhase {
 #[doc = "http://hl7.org/fhir/ValueSet/research-study-prim-purp-type"]
 pub struct ResearchStudyPrimPurpType;
 impl ValueSetDef for ResearchStudyPrimPurpType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/research-study-prim-purp-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/research-study-prim-purp-type";
+    const CODES: &[&str] = &[
         "basic-science",
         "device-feasibility",
         "diagnostic",
@@ -37976,8 +37945,8 @@ impl ResearchStudyPrimPurpType {
 #[doc = "http://hl7.org/fhir/ValueSet/research-study-reason-stopped"]
 pub struct ResearchStudyReasonStopped;
 impl ValueSetDef for ResearchStudyReasonStopped {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/research-study-reason-stopped";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/research-study-reason-stopped";
+    const CODES: &[&str] = &[
         "accrual-goal-met",
         "closed-due-to-lack-of-study-progress",
         "closed-due-to-toxicity",
@@ -38018,8 +37987,8 @@ impl ResearchStudyReasonStopped {
 #[doc = "http://hl7.org/fhir/ValueSet/research-study-status"]
 pub struct ResearchStudyStatus;
 impl ValueSetDef for ResearchStudyStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/research-study-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/research-study-status";
+    const CODES: &[&str] = &[
         "active",
         "administratively-completed",
         "approved",
@@ -38109,8 +38078,8 @@ impl ResearchStudyStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/research-subject-status"]
 pub struct ResearchSubjectStatus;
 impl ValueSetDef for ResearchSubjectStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/research-subject-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/research-subject-status";
+    const CODES: &[&str] = &[
         "candidate",
         "eligible",
         "follow-up",
@@ -38214,8 +38183,8 @@ impl ResearchSubjectStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/resource-aggregation-mode"]
 pub struct ResourceAggregationMode;
 impl ValueSetDef for ResourceAggregationMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/resource-aggregation-mode";
-    const CODES: &'static [&'static str] = &["bundled", "contained", "referenced"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/resource-aggregation-mode";
+    const CODES: &[&str] = &["bundled", "contained", "referenced"];
 }
 impl ResourceAggregationMode {
     #[inline]
@@ -38245,8 +38214,8 @@ impl ResourceAggregationMode {
 #[doc = "http://hl7.org/fhir/ValueSet/resource-security-category"]
 pub struct ResourceSecurityCategory;
 impl ValueSetDef for ResourceSecurityCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/resource-security-category";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/resource-security-category";
+    const CODES: &[&str] = &[
         "anonymous",
         "business",
         "individual",
@@ -38294,8 +38263,8 @@ impl ResourceSecurityCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/resource-slicing-rules"]
 pub struct ResourceSlicingRules;
 impl ValueSetDef for ResourceSlicingRules {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/resource-slicing-rules";
-    const CODES: &'static [&'static str] = &["closed", "open", "openAtEnd"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/resource-slicing-rules";
+    const CODES: &[&str] = &["closed", "open", "openAtEnd"];
 }
 impl ResourceSlicingRules {
     #[inline]
@@ -38325,8 +38294,8 @@ impl ResourceSlicingRules {
 #[doc = "http://hl7.org/fhir/ValueSet/resource-status"]
 pub struct ResourceStatus;
 impl ValueSetDef for ResourceStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/resource-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/resource-status";
+    const CODES: &[&str] = &[
         "abandoned",
         "accepted",
         "active",
@@ -38556,9 +38525,8 @@ impl ResourceStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/resource-type-link"]
 pub struct ResourceTypeLink;
 impl ValueSetDef for ResourceTypeLink {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/resource-type-link";
-    const CODES: &'static [&'static str] =
-        &["organization", "patient", "practitioner", "relatedperson"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/resource-type-link";
+    const CODES: &[&str] = &["organization", "patient", "practitioner", "relatedperson"];
 }
 impl ResourceTypeLink {
     #[inline]
@@ -38594,8 +38562,8 @@ impl ResourceTypeLink {
 #[doc = "http://hl7.org/fhir/ValueSet/resource-types"]
 pub struct ResourceTypes;
 impl ValueSetDef for ResourceTypes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/resource-types";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/resource-types";
+    const CODES: &[&str] = &[
         "AccessPolicyV2",
         "Account",
         "ActivityDefinition",
@@ -39700,8 +39668,8 @@ impl ResourceTypes {
 #[doc = "http://hl7.org/fhir/ValueSet/resource-validation-mode"]
 pub struct ResourceValidationMode;
 impl ValueSetDef for ResourceValidationMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/resource-validation-mode";
-    const CODES: &'static [&'static str] = &["create", "delete", "profile", "update"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/resource-validation-mode";
+    const CODES: &[&str] = &["create", "delete", "profile", "update"];
 }
 impl ResourceValidationMode {
     #[inline]
@@ -39737,8 +39705,8 @@ impl ResourceValidationMode {
 #[doc = "http://hl7.org/fhir/ValueSet/response-code"]
 pub struct ResponseCode;
 impl ValueSetDef for ResponseCode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/response-code";
-    const CODES: &'static [&'static str] = &["fatal-error", "ok", "transient-error"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/response-code";
+    const CODES: &[&str] = &["fatal-error", "ok", "transient-error"];
 }
 impl ResponseCode {
     #[inline]
@@ -39768,8 +39736,8 @@ impl ResponseCode {
 #[doc = "http://hl7.org/fhir/ValueSet/restful-capability-mode"]
 pub struct RestfulCapabilityMode;
 impl ValueSetDef for RestfulCapabilityMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/restful-capability-mode";
-    const CODES: &'static [&'static str] = &["client", "server"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/restful-capability-mode";
+    const CODES: &[&str] = &["client", "server"];
 }
 impl RestfulCapabilityMode {
     #[inline]
@@ -39793,8 +39761,8 @@ impl RestfulCapabilityMode {
 #[doc = "http://hl7.org/fhir/ValueSet/restful-security-service"]
 pub struct RestfulSecurityService;
 impl ValueSetDef for RestfulSecurityService {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/restful-security-service";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/restful-security-service";
+    const CODES: &[&str] = &[
         "Basic",
         "Certificates",
         "Kerberos",
@@ -39849,8 +39817,8 @@ impl RestfulSecurityService {
 #[doc = "http://hl7.org/fhir/ValueSet/risk-estimate-type"]
 pub struct RiskEstimateType;
 impl ValueSetDef for RiskEstimateType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/risk-estimate-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/risk-estimate-type";
+    const CODES: &[&str] = &[
         "count",
         "derivedProportion",
         "descriptive",
@@ -39905,8 +39873,8 @@ impl RiskEstimateType {
 #[doc = "http://hl7.org/fhir/ValueSet/risk-probability"]
 pub struct RiskProbability;
 impl ValueSetDef for RiskProbability {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/risk-probability";
-    const CODES: &'static [&'static str] = &["certain", "high", "low", "moderate", "negligible"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/risk-probability";
+    const CODES: &[&str] = &["certain", "high", "low", "moderate", "negligible"];
 }
 impl RiskProbability {
     #[inline]
@@ -39948,8 +39916,8 @@ impl RiskProbability {
 #[doc = "http://hl7.org/fhir/ValueSet/search-comparator"]
 pub struct SearchComparator;
 impl ValueSetDef for SearchComparator {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/search-comparator";
-    const CODES: &'static [&'static str] = &["ap", "eb", "eq", "ge", "gt", "le", "lt", "ne", "sa"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/search-comparator";
+    const CODES: &[&str] = &["ap", "eb", "eq", "ge", "gt", "le", "lt", "ne", "sa"];
 }
 impl SearchComparator {
     #[inline]
@@ -40015,8 +39983,8 @@ impl SearchComparator {
 #[doc = "http://hl7.org/fhir/ValueSet/search-entry-mode"]
 pub struct SearchEntryMode;
 impl ValueSetDef for SearchEntryMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/search-entry-mode";
-    const CODES: &'static [&'static str] = &["include", "match", "outcome"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/search-entry-mode";
+    const CODES: &[&str] = &["include", "match", "outcome"];
 }
 impl SearchEntryMode {
     #[inline]
@@ -40046,8 +40014,8 @@ impl SearchEntryMode {
 #[doc = "http://hl7.org/fhir/ValueSet/search-modifier-code"]
 pub struct SearchModifierCode;
 impl ValueSetDef for SearchModifierCode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/search-modifier-code";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/search-modifier-code";
+    const CODES: &[&str] = &[
         "above",
         "below",
         "contains",
@@ -40144,8 +40112,8 @@ impl SearchModifierCode {
 #[doc = "http://hl7.org/fhir/ValueSet/search-param-type"]
 pub struct SearchParamType;
 impl ValueSetDef for SearchParamType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/search-param-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/search-param-type";
+    const CODES: &[&str] = &[
         "composite",
         "date",
         "number",
@@ -40221,8 +40189,8 @@ impl SearchParamType {
 #[doc = "http://hl7.org/fhir/ValueSet/search-xpath-usage"]
 pub struct SearchXpathUsage;
 impl ValueSetDef for SearchXpathUsage {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/search-xpath-usage";
-    const CODES: &'static [&'static str] = &["distance", "nearby", "normal", "other", "phonetic"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/search-xpath-usage";
+    const CODES: &[&str] = &["distance", "nearby", "normal", "other", "phonetic"];
 }
 impl SearchXpathUsage {
     #[inline]
@@ -40264,8 +40232,8 @@ impl SearchXpathUsage {
 #[doc = "http://hl7.org/fhir/ValueSet/secondary-finding"]
 pub struct SecondaryFinding;
 impl ValueSetDef for SecondaryFinding {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/secondary-finding";
-    const CODES: &'static [&'static str] = &["acmg-version1", "acmg-version2"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/secondary-finding";
+    const CODES: &[&str] = &["acmg-version1", "acmg-version2"];
 }
 impl SecondaryFinding {
     #[inline]
@@ -40289,8 +40257,8 @@ impl SecondaryFinding {
 #[doc = "http://hl7.org/fhir/ValueSet/sequence-type"]
 pub struct SequenceType;
 impl ValueSetDef for SequenceType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/sequence-type";
-    const CODES: &'static [&'static str] = &["aa", "dna", "rna"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/sequence-type";
+    const CODES: &[&str] = &["aa", "dna", "rna"];
 }
 impl SequenceType {
     #[inline]
@@ -40320,8 +40288,8 @@ impl SequenceType {
 #[doc = "http://hl7.org/fhir/ValueSet/series-performer-function"]
 pub struct SeriesPerformerFunction;
 impl ValueSetDef for SeriesPerformerFunction {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/series-performer-function";
-    const CODES: &'static [&'static str] = &["CON", "PRF", "REF", "SPRF", "VRF"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/series-performer-function";
+    const CODES: &[&str] = &["CON", "PRF", "REF", "SPRF", "VRF"];
 }
 impl SeriesPerformerFunction {
     #[inline]
@@ -40363,8 +40331,8 @@ impl SeriesPerformerFunction {
 #[doc = "http://hl7.org/fhir/ValueSet/service-modifiers"]
 pub struct ServiceModifiers;
 impl ValueSetDef for ServiceModifiers {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/service-modifiers";
-    const CODES: &'static [&'static str] = &["ah", "sr"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/service-modifiers";
+    const CODES: &[&str] = &["ah", "sr"];
 }
 impl ServiceModifiers {
     #[inline]
@@ -40388,8 +40356,8 @@ impl ServiceModifiers {
 #[doc = "http://hl7.org/fhir/ValueSet/service-pharmacy"]
 pub struct ServicePharmacy;
 impl ValueSetDef for ServicePharmacy {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/service-pharmacy";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/service-pharmacy";
+    const CODES: &[&str] = &[
         "compoundfee",
         "dispensefee",
         "drugcost",
@@ -40444,8 +40412,8 @@ impl ServicePharmacy {
 #[doc = "http://hl7.org/fhir/ValueSet/service-place"]
 pub struct ServicePlace;
 impl ValueSetDef for ServicePlace {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/service-place";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/service-place";
+    const CODES: &[&str] = &[
         "01", "03", "04", "05", "06", "07", "08", "09", "11", "12", "13", "14", "15", "19", "20",
         "21", "41",
     ];
@@ -40562,8 +40530,8 @@ impl ServicePlace {
 #[doc = "http://hl7.org/fhir/ValueSet/service-product"]
 pub struct ServiceProduct;
 impl ValueSetDef for ServiceProduct {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/service-product";
-    const CODES: &'static [&'static str] = &["exam", "flushot"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/service-product";
+    const CODES: &[&str] = &["exam", "flushot"];
 }
 impl ServiceProduct {
     #[inline]
@@ -40587,8 +40555,8 @@ impl ServiceProduct {
 #[doc = "http://hl7.org/fhir/ValueSet/service-provision-conditions"]
 pub struct ServiceProvisionConditions;
 impl ValueSetDef for ServiceProvisionConditions {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/service-provision-conditions";
-    const CODES: &'static [&'static str] = &["cost", "disc", "free"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/service-provision-conditions";
+    const CODES: &[&str] = &["cost", "disc", "free"];
 }
 impl ServiceProvisionConditions {
     #[inline]
@@ -40618,8 +40586,8 @@ impl ServiceProvisionConditions {
 #[doc = "http://hl7.org/fhir/ValueSet/service-referral-method"]
 pub struct ServiceReferralMethod;
 impl ValueSetDef for ServiceReferralMethod {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/service-referral-method";
-    const CODES: &'static [&'static str] = &["elec", "fax", "mail", "phone", "semail"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/service-referral-method";
+    const CODES: &[&str] = &["elec", "fax", "mail", "phone", "semail"];
 }
 impl ServiceReferralMethod {
     #[inline]
@@ -40661,8 +40629,8 @@ impl ServiceReferralMethod {
 #[doc = "http://hl7.org/fhir/ValueSet/service-uscls"]
 pub struct ServiceUscls;
 impl ValueSetDef for ServiceUscls {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/service-uscls";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/service-uscls";
+    const CODES: &[&str] = &[
         "1101", "1102", "1103", "11101", "11102", "11103", "11104", "1201", "1205", "2101", "2102",
         "21211", "21212", "2141", "2601", "27211", "67211", "99111", "99333", "99555",
     ];
@@ -40797,8 +40765,8 @@ impl ServiceUscls {
 #[doc = "http://hl7.org/fhir/ValueSet/servicerequest-category"]
 pub struct ServicerequestCategory;
 impl ValueSetDef for ServicerequestCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/servicerequest-category";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/servicerequest-category";
+    const CODES: &[&str] = &[
         "108252007",
         "363679005",
         "387713003",
@@ -40846,8 +40814,8 @@ impl ServicerequestCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/servicerequest-orderdetail"]
 pub struct ServicerequestOrderdetail;
 impl ValueSetDef for ServicerequestOrderdetail {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/servicerequest-orderdetail";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/servicerequest-orderdetail";
+    const CODES: &[&str] = &[
         "243144002",
         "243150007",
         "286812008",
@@ -40895,8 +40863,8 @@ impl ServicerequestOrderdetail {
 #[doc = "http://hl7.org/fhir/ValueSet/sibling-relationship-codes"]
 pub struct SiblingRelationshipCodes;
 impl ValueSetDef for SiblingRelationshipCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/sibling-relationship-codes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/sibling-relationship-codes";
+    const CODES: &[&str] = &[
         "ACC",
         "ACHFID",
         "ACTMIL",
@@ -43688,8 +43656,8 @@ impl SiblingRelationshipCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/signature-type"]
 pub struct SignatureType;
 impl ValueSetDef for SignatureType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/signature-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/signature-type";
+    const CODES: &[&str] = &[
         "1.2.840.10065.1.12.1.1",
         "1.2.840.10065.1.12.1.10",
         "1.2.840.10065.1.12.1.11",
@@ -43828,8 +43796,8 @@ impl SignatureType {
 #[doc = "http://hl7.org/fhir/ValueSet/slotstatus"]
 pub struct Slotstatus;
 impl ValueSetDef for Slotstatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/slotstatus";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/slotstatus";
+    const CODES: &[&str] = &[
         "busy",
         "busy-tentative",
         "busy-unavailable",
@@ -43877,8 +43845,8 @@ impl Slotstatus {
 #[doc = "http://hl7.org/fhir/ValueSet/smart-capabilities"]
 pub struct SmartCapabilities;
 impl ValueSetDef for SmartCapabilities {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/smart-capabilities";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/smart-capabilities";
+    const CODES: &[&str] = &[
         "client-confidential-symmetric",
         "client-public",
         "context-ehr-encounter",
@@ -43989,8 +43957,8 @@ impl SmartCapabilities {
 #[doc = "http://hl7.org/fhir/ValueSet/sort-direction"]
 pub struct SortDirection;
 impl ValueSetDef for SortDirection {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/sort-direction";
-    const CODES: &'static [&'static str] = &["ascending", "descending"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/sort-direction";
+    const CODES: &[&str] = &["ascending", "descending"];
 }
 impl SortDirection {
     #[inline]
@@ -44014,8 +43982,8 @@ impl SortDirection {
 #[doc = "http://hl7.org/fhir/ValueSet/spdx-license"]
 pub struct SpdxLicense;
 impl ValueSetDef for SpdxLicense {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/spdx-license";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/spdx-license";
+    const CODES: &[&str] = &[
         "0BSD",
         "AAL",
         "ADSL",
@@ -46450,8 +46418,8 @@ impl SpdxLicense {
 #[doc = "http://hl7.org/fhir/ValueSet/special-values"]
 pub struct SpecialValues;
 impl ValueSetDef for SpecialValues {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/special-values";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/special-values";
+    const CODES: &[&str] = &[
         "false",
         "nil-known",
         "sufficient",
@@ -46506,8 +46474,8 @@ impl SpecialValues {
 #[doc = "http://hl7.org/fhir/ValueSet/specimen-collection"]
 pub struct SpecimenCollection;
 impl ValueSetDef for SpecimenCollection {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/specimen-collection";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/specimen-collection";
+    const CODES: &[&str] = &[
         "129300006",
         "129304002",
         "129314006",
@@ -46590,8 +46558,8 @@ impl SpecimenCollection {
 #[doc = "http://hl7.org/fhir/ValueSet/specimen-collection-method"]
 pub struct SpecimenCollectionMethod;
 impl ValueSetDef for SpecimenCollectionMethod {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/specimen-collection-method";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/specimen-collection-method";
+    const CODES: &[&str] = &[
         "129300006",
         "129304002",
         "129314006",
@@ -46674,8 +46642,8 @@ impl SpecimenCollectionMethod {
 #[doc = "http://hl7.org/fhir/ValueSet/specimen-collection-priority"]
 pub struct SpecimenCollectionPriority;
 impl ValueSetDef for SpecimenCollectionPriority {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/specimen-collection-priority";
-    const CODES: &'static [&'static str] = &["1", "2", "3", "4", "5", "6", "7"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/specimen-collection-priority";
+    const CODES: &[&str] = &["1", "2", "3", "4", "5", "6", "7"];
 }
 impl SpecimenCollectionPriority {
     #[inline]
@@ -46729,8 +46697,8 @@ impl SpecimenCollectionPriority {
 #[doc = "http://hl7.org/fhir/ValueSet/specimen-contained-preference"]
 pub struct SpecimenContainedPreference;
 impl ValueSetDef for SpecimenContainedPreference {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/specimen-contained-preference";
-    const CODES: &'static [&'static str] = &["alternate", "preferred"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/specimen-contained-preference";
+    const CODES: &[&str] = &["alternate", "preferred"];
 }
 impl SpecimenContainedPreference {
     #[inline]
@@ -46754,8 +46722,8 @@ impl SpecimenContainedPreference {
 #[doc = "http://hl7.org/fhir/ValueSet/specimen-status"]
 pub struct SpecimenStatus;
 impl ValueSetDef for SpecimenStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/specimen-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/specimen-status";
+    const CODES: &[&str] = &[
         "available",
         "entered-in-error",
         "unavailable",
@@ -46796,8 +46764,8 @@ impl SpecimenStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/standards-status"]
 pub struct StandardsStatus;
 impl ValueSetDef for StandardsStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/standards-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/standards-status";
+    const CODES: &[&str] = &[
         "deprecated",
         "draft",
         "external",
@@ -46852,8 +46820,8 @@ impl StandardsStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/strand-type"]
 pub struct StrandType;
 impl ValueSetDef for StrandType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/strand-type";
-    const CODES: &'static [&'static str] = &["crick", "watson"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/strand-type";
+    const CODES: &[&str] = &["crick", "watson"];
 }
 impl StrandType {
     #[inline]
@@ -46877,9 +46845,8 @@ impl StrandType {
 #[doc = "http://hl7.org/fhir/ValueSet/structure-definition-kind"]
 pub struct StructureDefinitionKind;
 impl ValueSetDef for StructureDefinitionKind {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/structure-definition-kind";
-    const CODES: &'static [&'static str] =
-        &["complex-type", "logical", "primitive-type", "resource"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/structure-definition-kind";
+    const CODES: &[&str] = &["complex-type", "logical", "primitive-type", "resource"];
 }
 impl StructureDefinitionKind {
     #[inline]
@@ -46915,8 +46882,8 @@ impl StructureDefinitionKind {
 #[doc = "http://hl7.org/fhir/ValueSet/study-type"]
 pub struct StudyType;
 impl ValueSetDef for StudyType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/study-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/study-type";
+    const CODES: &[&str] = &[
         "CCT",
         "RCT",
         "case-control",
@@ -46978,8 +46945,8 @@ impl StudyType {
 #[doc = "http://hl7.org/fhir/ValueSet/subject-type"]
 pub struct SubjectType;
 impl ValueSetDef for SubjectType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/subject-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/subject-type";
+    const CODES: &[&str] = &[
         "Device",
         "Location",
         "Organization",
@@ -47027,8 +46994,8 @@ impl SubjectType {
 #[doc = "http://hl7.org/fhir/ValueSet/subscriber-relationship"]
 pub struct SubscriberRelationship;
 impl ValueSetDef for SubscriberRelationship {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/subscriber-relationship";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/subscriber-relationship";
+    const CODES: &[&str] = &[
         "child", "common", "injured", "other", "parent", "self", "spouse",
     ];
 }
@@ -47084,8 +47051,8 @@ impl SubscriberRelationship {
 #[doc = "http://hl7.org/fhir/ValueSet/subscription-channel-type"]
 pub struct SubscriptionChannelType;
 impl ValueSetDef for SubscriptionChannelType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/subscription-channel-type";
-    const CODES: &'static [&'static str] = &["email", "message", "rest-hook", "sms", "websocket"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/subscription-channel-type";
+    const CODES: &[&str] = &["email", "message", "rest-hook", "sms", "websocket"];
 }
 impl SubscriptionChannelType {
     #[inline]
@@ -47127,8 +47094,8 @@ impl SubscriptionChannelType {
 #[doc = "http://hl7.org/fhir/ValueSet/subscription-status"]
 pub struct SubscriptionStatus;
 impl ValueSetDef for SubscriptionStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/subscription-status";
-    const CODES: &'static [&'static str] = &["active", "error", "off", "requested"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/subscription-status";
+    const CODES: &[&str] = &["active", "error", "off", "requested"];
 }
 impl SubscriptionStatus {
     #[inline]
@@ -47164,8 +47131,8 @@ impl SubscriptionStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/subscription-tag"]
 pub struct SubscriptionTag;
 impl ValueSetDef for SubscriptionTag {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/subscription-tag";
-    const CODES: &'static [&'static str] = &["delivered", "queued"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/subscription-tag";
+    const CODES: &[&str] = &["delivered", "queued"];
 }
 impl SubscriptionTag {
     #[inline]
@@ -47189,8 +47156,8 @@ impl SubscriptionTag {
 #[doc = "http://hl7.org/fhir/ValueSet/substance-category"]
 pub struct SubstanceCategory;
 impl ValueSetDef for SubstanceCategory {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/substance-category";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/substance-category";
+    const CODES: &[&str] = &[
         "allergen",
         "biological",
         "body",
@@ -47252,8 +47219,8 @@ impl SubstanceCategory {
 #[doc = "http://hl7.org/fhir/ValueSet/substance-status"]
 pub struct SubstanceStatus;
 impl ValueSetDef for SubstanceStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/substance-status";
-    const CODES: &'static [&'static str] = &["active", "entered-in-error", "inactive"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/substance-status";
+    const CODES: &[&str] = &["active", "entered-in-error", "inactive"];
 }
 impl SubstanceStatus {
     #[inline]
@@ -47283,8 +47250,8 @@ impl SubstanceStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/supplement-type"]
 pub struct SupplementType;
 impl ValueSetDef for SupplementType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/supplement-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/supplement-type";
+    const CODES: &[&str] = &[
         "441531000124102",
         "441561000124106",
         "441571000124104",
@@ -47612,9 +47579,8 @@ impl SupplementType {
 #[doc = "http://hl7.org/fhir/ValueSet/supplydelivery-status"]
 pub struct SupplydeliveryStatus;
 impl ValueSetDef for SupplydeliveryStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/supplydelivery-status";
-    const CODES: &'static [&'static str] =
-        &["abandoned", "completed", "entered-in-error", "in-progress"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/supplydelivery-status";
+    const CODES: &[&str] = &["abandoned", "completed", "entered-in-error", "in-progress"];
 }
 impl SupplydeliveryStatus {
     #[inline]
@@ -47650,8 +47616,8 @@ impl SupplydeliveryStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/supplydelivery-type"]
 pub struct SupplydeliveryType;
 impl ValueSetDef for SupplydeliveryType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/supplydelivery-type";
-    const CODES: &'static [&'static str] = &["device", "medication"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/supplydelivery-type";
+    const CODES: &[&str] = &["device", "medication"];
 }
 impl SupplydeliveryType {
     #[inline]
@@ -47675,8 +47641,8 @@ impl SupplydeliveryType {
 #[doc = "http://hl7.org/fhir/ValueSet/supplyrequest-kind"]
 pub struct SupplyrequestKind;
 impl ValueSetDef for SupplyrequestKind {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/supplyrequest-kind";
-    const CODES: &'static [&'static str] = &["central", "nonstock"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/supplyrequest-kind";
+    const CODES: &[&str] = &["central", "nonstock"];
 }
 impl SupplyrequestKind {
     #[inline]
@@ -47700,8 +47666,8 @@ impl SupplyrequestKind {
 #[doc = "http://hl7.org/fhir/ValueSet/supplyrequest-reason"]
 pub struct SupplyrequestReason;
 impl ValueSetDef for SupplyrequestReason {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/supplyrequest-reason";
-    const CODES: &'static [&'static str] = &["patient-care", "ward-stock"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/supplyrequest-reason";
+    const CODES: &[&str] = &["patient-care", "ward-stock"];
 }
 impl SupplyrequestReason {
     #[inline]
@@ -47725,8 +47691,8 @@ impl SupplyrequestReason {
 #[doc = "http://hl7.org/fhir/ValueSet/supplyrequest-status"]
 pub struct SupplyrequestStatus;
 impl ValueSetDef for SupplyrequestStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/supplyrequest-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/supplyrequest-status";
+    const CODES: &[&str] = &[
         "active",
         "cancelled",
         "completed",
@@ -47788,9 +47754,8 @@ impl SupplyrequestStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/surface"]
 pub struct Surface;
 impl ValueSetDef for Surface {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/surface";
-    const CODES: &'static [&'static str] =
-        &["B", "D", "DI", "DO", "I", "L", "M", "MO", "MOD", "O", "V"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/surface";
+    const CODES: &[&str] = &["B", "D", "DI", "DO", "I", "L", "M", "MO", "MOD", "O", "V"];
 }
 impl Surface {
     #[inline]
@@ -47868,8 +47833,8 @@ impl Surface {
 #[doc = "http://hl7.org/fhir/ValueSet/synthesis-type"]
 pub struct SynthesisType;
 impl ValueSetDef for SynthesisType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/synthesis-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/synthesis-type";
+    const CODES: &[&str] = &[
         "IPD-MA",
         "classification",
         "combined-NMA",
@@ -47924,9 +47889,8 @@ impl SynthesisType {
 #[doc = "http://hl7.org/fhir/ValueSet/system-restful-interaction"]
 pub struct SystemRestfulInteraction;
 impl ValueSetDef for SystemRestfulInteraction {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/system-restful-interaction";
-    const CODES: &'static [&'static str] =
-        &["batch", "history-system", "search-system", "transaction"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/system-restful-interaction";
+    const CODES: &[&str] = &["batch", "history-system", "search-system", "transaction"];
 }
 impl SystemRestfulInteraction {
     #[inline]
@@ -47962,8 +47926,8 @@ impl SystemRestfulInteraction {
 #[doc = "http://hl7.org/fhir/ValueSet/task-code"]
 pub struct TaskCode;
 impl ValueSetDef for TaskCode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/task-code";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/task-code";
+    const CODES: &[&str] = &[
         "abort", "approve", "change", "fulfill", "replace", "resume", "suspend",
     ];
 }
@@ -48019,8 +47983,8 @@ impl TaskCode {
 #[doc = "http://hl7.org/fhir/ValueSet/task-intent"]
 pub struct TaskIntent;
 impl ValueSetDef for TaskIntent {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/task-intent";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/task-intent";
+    const CODES: &[&str] = &[
         "filler-order",
         "instance-order",
         "option",
@@ -48096,8 +48060,8 @@ impl TaskIntent {
 #[doc = "http://hl7.org/fhir/ValueSet/task-status"]
 pub struct TaskStatus;
 impl ValueSetDef for TaskStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/task-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/task-status";
+    const CODES: &[&str] = &[
         "accepted",
         "cancelled",
         "completed",
@@ -48194,8 +48158,8 @@ impl TaskStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/teeth"]
 pub struct Teeth;
 impl ValueSetDef for Teeth {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/teeth";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/teeth";
+    const CODES: &[&str] = &[
         "11", "12", "13", "14", "15", "16", "17", "18", "21", "22", "23", "24", "25", "26", "27",
         "28", "31", "32", "33", "34", "35", "36", "37", "38", "41", "42", "43", "44", "45", "46",
         "47", "48",
@@ -48403,8 +48367,8 @@ impl Teeth {
 #[doc = "http://hl7.org/fhir/ValueSet/template-status-code"]
 pub struct TemplateStatusCode;
 impl ValueSetDef for TemplateStatusCode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/template-status-code";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/template-status-code";
+    const CODES: &[&str] = &[
         "active",
         "cancelled",
         "draft",
@@ -48473,8 +48437,8 @@ impl TemplateStatusCode {
 #[doc = "http://hl7.org/fhir/ValueSet/testscript-operation-codes"]
 pub struct TestscriptOperationCodes;
 impl ValueSetDef for TestscriptOperationCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/testscript-operation-codes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/testscript-operation-codes";
+    const CODES: &[&str] = &[
         "apply",
         "batch",
         "capabilities",
@@ -48802,8 +48766,8 @@ impl TestscriptOperationCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/testscript-profile-destination-types"]
 pub struct TestscriptProfileDestinationTypes;
 impl ValueSetDef for TestscriptProfileDestinationTypes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/testscript-profile-destination-types";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/testscript-profile-destination-types";
+    const CODES: &[&str] = &[
         "FHIR-SDC-FormManager",
         "FHIR-SDC-FormProcessor",
         "FHIR-SDC-FormReceiver",
@@ -48844,8 +48808,8 @@ impl TestscriptProfileDestinationTypes {
 #[doc = "http://hl7.org/fhir/ValueSet/testscript-profile-origin-types"]
 pub struct TestscriptProfileOriginTypes;
 impl ValueSetDef for TestscriptProfileOriginTypes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/testscript-profile-origin-types";
-    const CODES: &'static [&'static str] = &["FHIR-Client", "FHIR-SDC-FormFiller"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/testscript-profile-origin-types";
+    const CODES: &[&str] = &["FHIR-Client", "FHIR-SDC-FormFiller"];
 }
 impl TestscriptProfileOriginTypes {
     #[inline]
@@ -48869,8 +48833,8 @@ impl TestscriptProfileOriginTypes {
 #[doc = "http://hl7.org/fhir/ValueSet/texture-code"]
 pub struct TextureCode;
 impl ValueSetDef for TextureCode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/texture-code";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/texture-code";
+    const CODES: &[&str] = &[
         "228049004",
         "228053002",
         "228055009",
@@ -48981,8 +48945,8 @@ impl TextureCode {
 #[doc = "http://hl7.org/fhir/ValueSet/timing-abbreviation"]
 pub struct TimingAbbreviation;
 impl ValueSetDef for TimingAbbreviation {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/timing-abbreviation";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/timing-abbreviation";
+    const CODES: &[&str] = &[
         "AM", "BED", "BID", "MO", "PM", "Q1H", "Q2H", "Q3H", "Q4H", "Q6H", "Q8H", "QD", "QID",
         "QOD", "TID", "WK",
     ];
@@ -49093,8 +49057,8 @@ impl TimingAbbreviation {
 #[doc = "http://hl7.org/fhir/ValueSet/tooth"]
 pub struct Tooth;
 impl ValueSetDef for Tooth {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/tooth";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/tooth";
+    const CODES: &[&str] = &[
         "0", "1", "11", "12", "13", "14", "15", "16", "17", "18", "2", "21", "22", "23", "24",
         "25", "26", "27", "28", "3", "31", "32", "33", "34", "35", "36", "37", "38", "4", "41",
         "42", "43", "44", "45", "46", "47", "48", "5", "6", "7", "8",
@@ -49356,8 +49320,8 @@ impl Tooth {
 #[doc = "http://hl7.org/fhir/ValueSet/transaction-mode"]
 pub struct TransactionMode;
 impl ValueSetDef for TransactionMode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/transaction-mode";
-    const CODES: &'static [&'static str] = &["batch", "both", "not-supported", "transaction"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/transaction-mode";
+    const CODES: &[&str] = &["batch", "both", "not-supported", "transaction"];
 }
 impl TransactionMode {
     #[inline]
@@ -49393,8 +49357,8 @@ impl TransactionMode {
 #[doc = "http://hl7.org/fhir/ValueSet/trigger-type"]
 pub struct TriggerType;
 impl ValueSetDef for TriggerType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/trigger-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/trigger-type";
+    const CODES: &[&str] = &[
         "data-access-ended",
         "data-accessed",
         "data-added",
@@ -49463,8 +49427,8 @@ impl TriggerType {
 #[doc = "http://hl7.org/fhir/ValueSet/type-derivation-rule"]
 pub struct TypeDerivationRule;
 impl ValueSetDef for TypeDerivationRule {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/type-derivation-rule";
-    const CODES: &'static [&'static str] = &["constraint", "specialization"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/type-derivation-rule";
+    const CODES: &[&str] = &["constraint", "specialization"];
 }
 impl TypeDerivationRule {
     #[inline]
@@ -49488,8 +49452,8 @@ impl TypeDerivationRule {
 #[doc = "http://hl7.org/fhir/ValueSet/type-restful-interaction"]
 pub struct TypeRestfulInteraction;
 impl ValueSetDef for TypeRestfulInteraction {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/type-restful-interaction";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/type-restful-interaction";
+    const CODES: &[&str] = &[
         "create",
         "delete",
         "history-instance",
@@ -49565,8 +49529,8 @@ impl TypeRestfulInteraction {
 #[doc = "http://hl7.org/fhir/ValueSet/ucum-bodylength"]
 pub struct UcumBodylength;
 impl ValueSetDef for UcumBodylength {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ucum-bodylength";
-    const CODES: &'static [&'static str] = &["[in_i]", "cm"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ucum-bodylength";
+    const CODES: &[&str] = &["[in_i]", "cm"];
 }
 impl UcumBodylength {
     #[inline]
@@ -49590,8 +49554,8 @@ impl UcumBodylength {
 #[doc = "http://hl7.org/fhir/ValueSet/ucum-bodytemp"]
 pub struct UcumBodytemp;
 impl ValueSetDef for UcumBodytemp {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ucum-bodytemp";
-    const CODES: &'static [&'static str] = &["Cel", "[degF]"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ucum-bodytemp";
+    const CODES: &[&str] = &["Cel", "[degF]"];
 }
 impl UcumBodytemp {
     #[inline]
@@ -49615,8 +49579,8 @@ impl UcumBodytemp {
 #[doc = "http://hl7.org/fhir/ValueSet/ucum-bodyweight"]
 pub struct UcumBodyweight;
 impl ValueSetDef for UcumBodyweight {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ucum-bodyweight";
-    const CODES: &'static [&'static str] = &["[lb_av]", "g", "kg"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ucum-bodyweight";
+    const CODES: &[&str] = &["[lb_av]", "g", "kg"];
 }
 impl UcumBodyweight {
     #[inline]
@@ -49646,8 +49610,8 @@ impl UcumBodyweight {
 #[doc = "http://hl7.org/fhir/ValueSet/ucum-vitals-common"]
 pub struct UcumVitalsCommon;
 impl ValueSetDef for UcumVitalsCommon {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/ucum-vitals-common";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/ucum-vitals-common";
+    const CODES: &[&str] = &[
         "%", "/min", "Cel", "[degF]", "[in_i]", "[lb_av]", "cm", "g", "kg", "kg/m2", "m2", "mm[Hg]",
     ];
 }
@@ -49733,8 +49697,8 @@ impl UcumVitalsCommon {
 #[doc = "http://hl7.org/fhir/ValueSet/udi"]
 pub struct Udi;
 impl ValueSetDef for Udi {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/udi";
-    const CODES: &'static [&'static str] = &["gudid"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/udi";
+    const CODES: &[&str] = &["gudid"];
 }
 impl Udi {
     #[inline]
@@ -49752,8 +49716,8 @@ impl Udi {
 #[doc = "http://hl7.org/fhir/ValueSet/udi-entry-type"]
 pub struct UdiEntryType;
 impl ValueSetDef for UdiEntryType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/udi-entry-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/udi-entry-type";
+    const CODES: &[&str] = &[
         "barcode",
         "card",
         "manual",
@@ -49808,8 +49772,8 @@ impl UdiEntryType {
 #[doc = "http://hl7.org/fhir/ValueSet/units-of-time"]
 pub struct UnitsOfTime;
 impl ValueSetDef for UnitsOfTime {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/units-of-time";
-    const CODES: &'static [&'static str] = &["a", "d", "h", "min", "mo", "s", "wk"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/units-of-time";
+    const CODES: &[&str] = &["a", "d", "h", "min", "mo", "s", "wk"];
 }
 impl UnitsOfTime {
     #[inline]
@@ -49863,8 +49827,8 @@ impl UnitsOfTime {
 #[doc = "http://hl7.org/fhir/ValueSet/unknown-content-code"]
 pub struct UnknownContentCode;
 impl ValueSetDef for UnknownContentCode {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/unknown-content-code";
-    const CODES: &'static [&'static str] = &["both", "elements", "extensions", "no"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/unknown-content-code";
+    const CODES: &[&str] = &["both", "elements", "extensions", "no"];
 }
 impl UnknownContentCode {
     #[inline]
@@ -49900,8 +49864,8 @@ impl UnknownContentCode {
 #[doc = "http://hl7.org/fhir/ValueSet/usage-context-type"]
 pub struct UsageContextType;
 impl ValueSetDef for UsageContextType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/usage-context-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/usage-context-type";
+    const CODES: &[&str] = &[
         "age", "focus", "gender", "program", "species", "task", "user", "venue", "workflow",
     ];
 }
@@ -49969,8 +49933,8 @@ impl UsageContextType {
 #[doc = "http://hl7.org/fhir/ValueSet/variable-type"]
 pub struct VariableType;
 impl ValueSetDef for VariableType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/variable-type";
-    const CODES: &'static [&'static str] = &["continuous", "descriptive", "dichotomous"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/variable-type";
+    const CODES: &[&str] = &["continuous", "descriptive", "dichotomous"];
 }
 impl VariableType {
     #[inline]
@@ -50000,8 +49964,8 @@ impl VariableType {
 #[doc = "http://hl7.org/fhir/ValueSet/variant-state"]
 pub struct VariantState;
 impl ValueSetDef for VariantState {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/variant-state";
-    const CODES: &'static [&'static str] = &["absent", "negative", "positive"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/variant-state";
+    const CODES: &[&str] = &["absent", "negative", "positive"];
 }
 impl VariantState {
     #[inline]
@@ -50031,8 +49995,8 @@ impl VariantState {
 #[doc = "http://hl7.org/fhir/ValueSet/verificationresult-can-push-updates"]
 pub struct VerificationresultCanPushUpdates;
 impl ValueSetDef for VerificationresultCanPushUpdates {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/verificationresult-can-push-updates";
-    const CODES: &'static [&'static str] = &["no", "undetermined", "yes"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/verificationresult-can-push-updates";
+    const CODES: &[&str] = &["no", "undetermined", "yes"];
 }
 impl VerificationresultCanPushUpdates {
     #[inline]
@@ -50062,9 +50026,8 @@ impl VerificationresultCanPushUpdates {
 #[doc = "http://hl7.org/fhir/ValueSet/verificationresult-communication-method"]
 pub struct VerificationresultCommunicationMethod;
 impl ValueSetDef for VerificationresultCommunicationMethod {
-    const URL: &'static str =
-        "http://hl7.org/fhir/ValueSet/verificationresult-communication-method";
-    const CODES: &'static [&'static str] = &["manual", "portal", "pull", "push"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/verificationresult-communication-method";
+    const CODES: &[&str] = &["manual", "portal", "pull", "push"];
 }
 impl VerificationresultCommunicationMethod {
     #[inline]
@@ -50100,8 +50063,8 @@ impl VerificationresultCommunicationMethod {
 #[doc = "http://hl7.org/fhir/ValueSet/verificationresult-failure-action"]
 pub struct VerificationresultFailureAction;
 impl ValueSetDef for VerificationresultFailureAction {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/verificationresult-failure-action";
-    const CODES: &'static [&'static str] = &["fatal", "none", "rec-only", "warn"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/verificationresult-failure-action";
+    const CODES: &[&str] = &["fatal", "none", "rec-only", "warn"];
 }
 impl VerificationresultFailureAction {
     #[inline]
@@ -50137,8 +50100,8 @@ impl VerificationresultFailureAction {
 #[doc = "http://hl7.org/fhir/ValueSet/verificationresult-need"]
 pub struct VerificationresultNeed;
 impl ValueSetDef for VerificationresultNeed {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/verificationresult-need";
-    const CODES: &'static [&'static str] = &["initial", "none", "periodic"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/verificationresult-need";
+    const CODES: &[&str] = &["initial", "none", "periodic"];
 }
 impl VerificationresultNeed {
     #[inline]
@@ -50168,8 +50131,8 @@ impl VerificationresultNeed {
 #[doc = "http://hl7.org/fhir/ValueSet/verificationresult-primary-source-type"]
 pub struct VerificationresultPrimarySourceType;
 impl ValueSetDef for VerificationresultPrimarySourceType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/verificationresult-primary-source-type";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/verificationresult-primary-source-type";
+    const CODES: &[&str] = &[
         "auth-source",
         "cont-ed",
         "issuer",
@@ -50245,8 +50208,8 @@ impl VerificationresultPrimarySourceType {
 #[doc = "http://hl7.org/fhir/ValueSet/verificationresult-push-type-available"]
 pub struct VerificationresultPushTypeAvailable;
 impl ValueSetDef for VerificationresultPushTypeAvailable {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/verificationresult-push-type-available";
-    const CODES: &'static [&'static str] = &["any", "source", "specific"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/verificationresult-push-type-available";
+    const CODES: &[&str] = &["any", "source", "specific"];
 }
 impl VerificationresultPushTypeAvailable {
     #[inline]
@@ -50276,8 +50239,8 @@ impl VerificationresultPushTypeAvailable {
 #[doc = "http://hl7.org/fhir/ValueSet/verificationresult-status"]
 pub struct VerificationresultStatus;
 impl ValueSetDef for VerificationresultStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/verificationresult-status";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/verificationresult-status";
+    const CODES: &[&str] = &[
         "attested",
         "in-process",
         "req-revalid",
@@ -50332,8 +50295,8 @@ impl VerificationresultStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/verificationresult-validation-process"]
 pub struct VerificationresultValidationProcess;
 impl ValueSetDef for VerificationresultValidationProcess {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/verificationresult-validation-process";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/verificationresult-validation-process";
+    const CODES: &[&str] = &[
         "edit-check",
         "in-context",
         "multi",
@@ -50388,8 +50351,8 @@ impl VerificationresultValidationProcess {
 #[doc = "http://hl7.org/fhir/ValueSet/verificationresult-validation-status"]
 pub struct VerificationresultValidationStatus;
 impl ValueSetDef for VerificationresultValidationStatus {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/verificationresult-validation-status";
-    const CODES: &'static [&'static str] = &["failed", "successful", "unknown"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/verificationresult-validation-status";
+    const CODES: &[&str] = &["failed", "successful", "unknown"];
 }
 impl VerificationresultValidationStatus {
     #[inline]
@@ -50419,8 +50382,8 @@ impl VerificationresultValidationStatus {
 #[doc = "http://hl7.org/fhir/ValueSet/verificationresult-validation-type"]
 pub struct VerificationresultValidationType;
 impl ValueSetDef for VerificationresultValidationType {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/verificationresult-validation-type";
-    const CODES: &'static [&'static str] = &["multiple", "nothing", "primary"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/verificationresult-validation-type";
+    const CODES: &[&str] = &["multiple", "nothing", "primary"];
 }
 impl VerificationresultValidationType {
     #[inline]
@@ -50450,8 +50413,8 @@ impl VerificationresultValidationType {
 #[doc = "http://hl7.org/fhir/ValueSet/versioning-policy"]
 pub struct VersioningPolicy;
 impl ValueSetDef for VersioningPolicy {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/versioning-policy";
-    const CODES: &'static [&'static str] = &["no-version", "versioned", "versioned-update"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/versioning-policy";
+    const CODES: &[&str] = &["no-version", "versioned", "versioned-update"];
 }
 impl VersioningPolicy {
     #[inline]
@@ -50481,8 +50444,8 @@ impl VersioningPolicy {
 #[doc = "http://hl7.org/fhir/ValueSet/vision-base-codes"]
 pub struct VisionBaseCodes;
 impl ValueSetDef for VisionBaseCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/vision-base-codes";
-    const CODES: &'static [&'static str] = &["down", "in", "out", "up"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/vision-base-codes";
+    const CODES: &[&str] = &["down", "in", "out", "up"];
 }
 impl VisionBaseCodes {
     #[inline]
@@ -50518,8 +50481,8 @@ impl VisionBaseCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/vision-eye-codes"]
 pub struct VisionEyeCodes;
 impl ValueSetDef for VisionEyeCodes {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/vision-eye-codes";
-    const CODES: &'static [&'static str] = &["left", "right"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/vision-eye-codes";
+    const CODES: &[&str] = &["left", "right"];
 }
 impl VisionEyeCodes {
     #[inline]
@@ -50543,8 +50506,8 @@ impl VisionEyeCodes {
 #[doc = "http://hl7.org/fhir/ValueSet/vision-product"]
 pub struct VisionProduct;
 impl ValueSetDef for VisionProduct {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/vision-product";
-    const CODES: &'static [&'static str] = &["contact", "lens"];
+    const URL: &str = "http://hl7.org/fhir/ValueSet/vision-product";
+    const CODES: &[&str] = &["contact", "lens"];
 }
 impl VisionProduct {
     #[inline]
@@ -50568,8 +50531,8 @@ impl VisionProduct {
 #[doc = "http://hl7.org/fhir/ValueSet/written-language"]
 pub struct WrittenLanguage;
 impl ValueSetDef for WrittenLanguage {
-    const URL: &'static str = "http://hl7.org/fhir/ValueSet/written-language";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://hl7.org/fhir/ValueSet/written-language";
+    const CODES: &[&str] = &[
         "ar", "bn", "cs", "da", "de", "el", "en", "es", "fi", "fr", "fy", "hi", "hr", "it", "ja",
         "ko", "nl", "no", "pa", "pl", "pt", "ru", "sr", "sv", "te", "zh",
     ];
@@ -50740,8 +50703,8 @@ impl WrittenLanguage {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-AcknowledgementCondition"]
 pub struct V3AcknowledgementCondition;
 impl ValueSetDef for V3AcknowledgementCondition {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-AcknowledgementCondition";
-    const CODES: &'static [&'static str] = &["AL", "ER", "NE", "SU"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-AcknowledgementCondition";
+    const CODES: &[&str] = &["AL", "ER", "NE", "SU"];
 }
 impl V3AcknowledgementCondition {
     #[inline]
@@ -50777,8 +50740,8 @@ impl V3AcknowledgementCondition {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-AcknowledgementDetailCode"]
 pub struct V3AcknowledgementDetailCode;
 impl ValueSetDef for V3AcknowledgementDetailCode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-AcknowledgementDetailCode";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-AcknowledgementDetailCode";
+    const CODES: &[&str] = &[
         "INTERR",
         "NOSTORE",
         "NS200",
@@ -50987,8 +50950,8 @@ impl V3AcknowledgementDetailCode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-AcknowledgementDetailType"]
 pub struct V3AcknowledgementDetailType;
 impl ValueSetDef for V3AcknowledgementDetailType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-AcknowledgementDetailType";
-    const CODES: &'static [&'static str] = &["E", "ERR", "I", "INFO", "W", "WARN"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-AcknowledgementDetailType";
+    const CODES: &[&str] = &["E", "ERR", "I", "INFO", "W", "WARN"];
 }
 impl V3AcknowledgementDetailType {
     #[inline]
@@ -51036,8 +50999,8 @@ impl V3AcknowledgementDetailType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-AcknowledgementType"]
 pub struct V3AcknowledgementType;
 impl ValueSetDef for V3AcknowledgementType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-AcknowledgementType";
-    const CODES: &'static [&'static str] = &["AA", "AE", "AR", "CA", "CE", "CR"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-AcknowledgementType";
+    const CODES: &[&str] = &["AA", "AE", "AR", "CA", "CE", "CR"];
 }
 impl V3AcknowledgementType {
     #[inline]
@@ -51085,8 +51048,8 @@ impl V3AcknowledgementType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActClass"]
 pub struct V3ActClass;
 impl ValueSetDef for V3ActClass {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActClass";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActClass";
+    const CODES: &[&str] = &[
         "ACCM",
         "ACCT",
         "ACSN",
@@ -51967,8 +51930,8 @@ impl V3ActClass {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActClassClinicalDocument"]
 pub struct V3ActClassClinicalDocument;
 impl ValueSetDef for V3ActClassClinicalDocument {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActClassClinicalDocument";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActClassClinicalDocument";
+    const CODES: &[&str] = &[
         "ACCM",
         "ACCT",
         "ACSN",
@@ -52849,8 +52812,8 @@ impl V3ActClassClinicalDocument {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActClassDocument"]
 pub struct V3ActClassDocument;
 impl ValueSetDef for V3ActClassDocument {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActClassDocument";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActClassDocument";
+    const CODES: &[&str] = &[
         "ACCM",
         "ACCT",
         "ACSN",
@@ -53731,8 +53694,8 @@ impl V3ActClassDocument {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActClassInvestigation"]
 pub struct V3ActClassInvestigation;
 impl ValueSetDef for V3ActClassInvestigation {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActClassInvestigation";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActClassInvestigation";
+    const CODES: &[&str] = &[
         "ACCM",
         "ACCT",
         "ACSN",
@@ -54613,8 +54576,8 @@ impl V3ActClassInvestigation {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActClassObservation"]
 pub struct V3ActClassObservation;
 impl ValueSetDef for V3ActClassObservation {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActClassObservation";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActClassObservation";
+    const CODES: &[&str] = &[
         "ACCM",
         "ACCT",
         "ACSN",
@@ -55495,8 +55458,8 @@ impl V3ActClassObservation {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActClassProcedure"]
 pub struct V3ActClassProcedure;
 impl ValueSetDef for V3ActClassProcedure {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActClassProcedure";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActClassProcedure";
+    const CODES: &[&str] = &[
         "ACCM",
         "ACCT",
         "ACSN",
@@ -56377,8 +56340,8 @@ impl V3ActClassProcedure {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActClassROI"]
 pub struct V3ActClassROI;
 impl ValueSetDef for V3ActClassROI {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActClassROI";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActClassROI";
+    const CODES: &[&str] = &[
         "ACCM",
         "ACCT",
         "ACSN",
@@ -57259,8 +57222,8 @@ impl V3ActClassROI {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActClassSupply"]
 pub struct V3ActClassSupply;
 impl ValueSetDef for V3ActClassSupply {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActClassSupply";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActClassSupply";
+    const CODES: &[&str] = &[
         "ACCM",
         "ACCT",
         "ACSN",
@@ -58141,8 +58104,8 @@ impl V3ActClassSupply {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActExposureLevelCode"]
 pub struct V3ActExposureLevelCode;
 impl ValueSetDef for V3ActExposureLevelCode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActExposureLevelCode";
-    const CODES: &'static [&'static str] = &["HIGH", "LOW", "MEDIUM", "_ActExposureLevelCode"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActExposureLevelCode";
+    const CODES: &[&str] = &["HIGH", "LOW", "MEDIUM", "_ActExposureLevelCode"];
 }
 impl V3ActExposureLevelCode {
     #[inline]
@@ -58178,8 +58141,8 @@ impl V3ActExposureLevelCode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActInvoiceElementModifier"]
 pub struct V3ActInvoiceElementModifier;
 impl ValueSetDef for V3ActInvoiceElementModifier {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActInvoiceElementModifier";
-    const CODES: &'static [&'static str] = &["EFORM", "FAX", "LINV", "PAPER"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActInvoiceElementModifier";
+    const CODES: &[&str] = &["EFORM", "FAX", "LINV", "PAPER"];
 }
 impl V3ActInvoiceElementModifier {
     #[inline]
@@ -58215,8 +58178,8 @@ impl V3ActInvoiceElementModifier {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActMood"]
 pub struct V3ActMood;
 impl ValueSetDef for V3ActMood {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActMood";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActMood";
+    const CODES: &[&str] = &[
         "APT",
         "ARQ",
         "CRT",
@@ -58425,8 +58388,8 @@ impl V3ActMood {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActMoodIntent"]
 pub struct V3ActMoodIntent;
 impl ValueSetDef for V3ActMoodIntent {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActMoodIntent";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActMoodIntent";
+    const CODES: &[&str] = &[
         "APT",
         "ARQ",
         "CRT",
@@ -58635,8 +58598,8 @@ impl V3ActMoodIntent {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActMoodPredicate"]
 pub struct V3ActMoodPredicate;
 impl ValueSetDef for V3ActMoodPredicate {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActMoodPredicate";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActMoodPredicate";
+    const CODES: &[&str] = &[
         "APT",
         "ARQ",
         "CRT",
@@ -58845,8 +58808,8 @@ impl V3ActMoodPredicate {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActPriority"]
 pub struct V3ActPriority;
 impl ValueSetDef for V3ActPriority {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActPriority";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActPriority";
+    const CODES: &[&str] = &[
         "A", "CR", "CS", "CSP", "CSR", "EL", "EM", "P", "PRN", "R", "RR", "S", "T", "UD", "UR",
     ];
 }
@@ -58950,8 +58913,8 @@ impl V3ActPriority {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActReason"]
 pub struct V3ActReason;
 impl ValueSetDef for V3ActReason {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActReason";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActReason";
+    const CODES: &[&str] = &[
         "ACCRED",
         "ACCREQNA",
         "ADMINERROR",
@@ -60924,8 +60887,8 @@ impl V3ActReason {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipCheckpoint"]
 pub struct V3ActRelationshipCheckpoint;
 impl ValueSetDef for V3ActRelationshipCheckpoint {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipCheckpoint";
-    const CODES: &'static [&'static str] = &["B", "E", "S", "T", "X"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipCheckpoint";
+    const CODES: &[&str] = &["B", "E", "S", "T", "X"];
 }
 impl V3ActRelationshipCheckpoint {
     #[inline]
@@ -60967,8 +60930,8 @@ impl V3ActRelationshipCheckpoint {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipConditional"]
 pub struct V3ActRelationshipConditional;
 impl ValueSetDef for V3ActRelationshipConditional {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipConditional";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipConditional";
+    const CODES: &[&str] = &[
         "ACTIMM",
         "ADJUNCT",
         "APND",
@@ -61940,8 +61903,8 @@ impl V3ActRelationshipConditional {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipFulfills"]
 pub struct V3ActRelationshipFulfills;
 impl ValueSetDef for V3ActRelationshipFulfills {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipFulfills";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipFulfills";
+    const CODES: &[&str] = &[
         "ACTIMM",
         "ADJUNCT",
         "APND",
@@ -62913,8 +62876,8 @@ impl V3ActRelationshipFulfills {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipHasComponent"]
 pub struct V3ActRelationshipHasComponent;
 impl ValueSetDef for V3ActRelationshipHasComponent {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipHasComponent";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipHasComponent";
+    const CODES: &[&str] = &[
         "ACTIMM",
         "ADJUNCT",
         "APND",
@@ -63886,8 +63849,8 @@ impl V3ActRelationshipHasComponent {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipJoin"]
 pub struct V3ActRelationshipJoin;
 impl ValueSetDef for V3ActRelationshipJoin {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipJoin";
-    const CODES: &'static [&'static str] = &["D", "K", "W", "X"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipJoin";
+    const CODES: &[&str] = &["D", "K", "W", "X"];
 }
 impl V3ActRelationshipJoin {
     #[inline]
@@ -63923,8 +63886,8 @@ impl V3ActRelationshipJoin {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipPertains"]
 pub struct V3ActRelationshipPertains;
 impl ValueSetDef for V3ActRelationshipPertains {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipPertains";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipPertains";
+    const CODES: &[&str] = &[
         "ACTIMM",
         "ADJUNCT",
         "APND",
@@ -64896,8 +64859,8 @@ impl V3ActRelationshipPertains {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipSplit"]
 pub struct V3ActRelationshipSplit;
 impl ValueSetDef for V3ActRelationshipSplit {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipSplit";
-    const CODES: &'static [&'static str] = &["E1", "EW", "I1", "IW"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipSplit";
+    const CODES: &[&str] = &["E1", "EW", "I1", "IW"];
 }
 impl V3ActRelationshipSplit {
     #[inline]
@@ -64933,8 +64896,8 @@ impl V3ActRelationshipSplit {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipSubset"]
 pub struct V3ActRelationshipSubset;
 impl ValueSetDef for V3ActRelationshipSubset {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipSubset";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipSubset";
+    const CODES: &[&str] = &[
         "ActRelationshipExpectedSubset",
         "ActRelationshipPastSubset",
         "FIRST",
@@ -65045,8 +65008,8 @@ impl V3ActRelationshipSubset {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipType"]
 pub struct V3ActRelationshipType;
 impl ValueSetDef for V3ActRelationshipType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipType";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActRelationshipType";
+    const CODES: &[&str] = &[
         "ACTIMM",
         "ADJUNCT",
         "APND",
@@ -66018,8 +65981,8 @@ impl V3ActRelationshipType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActSite"]
 pub struct V3ActSite;
 impl ValueSetDef for V3ActSite {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActSite";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActSite";
+    const CODES: &[&str] = &[
         "BE",
         "BN",
         "BU",
@@ -66410,8 +66373,8 @@ impl V3ActSite {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActStatus"]
 pub struct V3ActStatus;
 impl ValueSetDef for V3ActStatus {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActStatus";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActStatus";
+    const CODES: &[&str] = &[
         "aborted",
         "active",
         "cancelled",
@@ -66494,9 +66457,8 @@ impl V3ActStatus {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActSubstanceAdminSubstitutionCode"]
 pub struct V3ActSubstanceAdminSubstitutionCode;
 impl ValueSetDef for V3ActSubstanceAdminSubstitutionCode {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-ActSubstanceAdminSubstitutionCode";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActSubstanceAdminSubstitutionCode";
+    const CODES: &[&str] = &[
         "BC",
         "E",
         "EC",
@@ -66579,8 +66541,8 @@ impl V3ActSubstanceAdminSubstitutionCode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActUSPrivacyLaw"]
 pub struct V3ActUSPrivacyLaw;
 impl ValueSetDef for V3ActUSPrivacyLaw {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActUSPrivacyLaw";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActUSPrivacyLaw";
+    const CODES: &[&str] = &[
         "42CFRPart2",
         "CommonRule",
         "HIPAANOPP",
@@ -66642,8 +66604,8 @@ impl V3ActUSPrivacyLaw {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ActUncertainty"]
 pub struct V3ActUncertainty;
 impl ValueSetDef for V3ActUncertainty {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ActUncertainty";
-    const CODES: &'static [&'static str] = &["N", "U"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ActUncertainty";
+    const CODES: &[&str] = &["N", "U"];
 }
 impl V3ActUncertainty {
     #[inline]
@@ -66667,8 +66629,8 @@ impl V3ActUncertainty {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-AddressPartType"]
 pub struct V3AddressPartType;
 impl ValueSetDef for V3AddressPartType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-AddressPartType";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-AddressPartType";
+    const CODES: &[&str] = &[
         "ADL", "AL", "BNN", "BNR", "BNS", "CAR", "CEN", "CNT", "CPA", "CTY", "DAL", "DEL", "DINST",
         "DINSTA", "DINSTQ", "DIR", "DMOD", "DMODID", "DPID", "INT", "POB", "PRE", "SAL", "STA",
         "STB", "STR", "STTYP", "UNID", "UNIT", "ZIP",
@@ -66864,8 +66826,8 @@ impl V3AddressPartType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-AddressUse"]
 pub struct V3AddressUse;
 impl ValueSetDef for V3AddressUse {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-AddressUse";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-AddressUse";
+    const CODES: &[&str] = &[
         "AS",
         "BAD",
         "CONF",
@@ -67011,8 +66973,8 @@ impl V3AddressUse {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-AdministrativeGender"]
 pub struct V3AdministrativeGender;
 impl ValueSetDef for V3AdministrativeGender {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-AdministrativeGender";
-    const CODES: &'static [&'static str] = &["F", "M", "UN"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-AdministrativeGender";
+    const CODES: &[&str] = &["F", "M", "UN"];
 }
 impl V3AdministrativeGender {
     #[inline]
@@ -67042,9 +67004,8 @@ impl V3AdministrativeGender {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-AmericanIndianAlaskaNativeLanguages"]
 pub struct V3AmericanIndianAlaskaNativeLanguages;
 impl ValueSetDef for V3AmericanIndianAlaskaNativeLanguages {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-AmericanIndianAlaskaNativeLanguages";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-AmericanIndianAlaskaNativeLanguages";
+    const CODES: &[&str] = &[
         "_Abenakian",
         "_Aleut",
         "_Algic",
@@ -68842,8 +68803,8 @@ impl V3AmericanIndianAlaskaNativeLanguages {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-Calendar"]
 pub struct V3Calendar;
 impl ValueSetDef for V3Calendar {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-Calendar";
-    const CODES: &'static [&'static str] = &["GREG"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-Calendar";
+    const CODES: &[&str] = &["GREG"];
 }
 impl V3Calendar {
     #[inline]
@@ -68861,8 +68822,8 @@ impl V3Calendar {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-CalendarCycle"]
 pub struct V3CalendarCycle;
 impl ValueSetDef for V3CalendarCycle {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-CalendarCycle";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-CalendarCycle";
+    const CODES: &[&str] = &[
         "CD",
         "CH",
         "CM",
@@ -69001,8 +68962,8 @@ impl V3CalendarCycle {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-CalendarType"]
 pub struct V3CalendarType;
 impl ValueSetDef for V3CalendarType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-CalendarType";
-    const CODES: &'static [&'static str] = &["GREG"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-CalendarType";
+    const CODES: &[&str] = &["GREG"];
 }
 impl V3CalendarType {
     #[inline]
@@ -69020,8 +68981,8 @@ impl V3CalendarType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-Charset"]
 pub struct V3Charset;
 impl ValueSetDef for V3Charset {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-Charset";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-Charset";
+    const CODES: &[&str] = &[
         "EBCDIC",
         "ISO-10646-UCS-2",
         "ISO-10646-UCS-4",
@@ -69104,8 +69065,8 @@ impl V3Charset {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-CodingRationale"]
 pub struct V3CodingRationale;
 impl ValueSetDef for V3CodingRationale {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-CodingRationale";
-    const CODES: &'static [&'static str] = &["HL7", "O", "OR", "P", "PR", "R", "SH", "SRC"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-CodingRationale";
+    const CODES: &[&str] = &["HL7", "O", "OR", "P", "PR", "R", "SH", "SRC"];
 }
 impl V3CodingRationale {
     #[inline]
@@ -69165,8 +69126,8 @@ impl V3CodingRationale {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-CommunicationFunctionType"]
 pub struct V3CommunicationFunctionType;
 impl ValueSetDef for V3CommunicationFunctionType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-CommunicationFunctionType";
-    const CODES: &'static [&'static str] = &["RCV", "RSP", "SND"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-CommunicationFunctionType";
+    const CODES: &[&str] = &["RCV", "RSP", "SND"];
 }
 impl V3CommunicationFunctionType {
     #[inline]
@@ -69196,8 +69157,8 @@ impl V3CommunicationFunctionType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-CompressionAlgorithm"]
 pub struct V3CompressionAlgorithm;
 impl ValueSetDef for V3CompressionAlgorithm {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-CompressionAlgorithm";
-    const CODES: &'static [&'static str] = &["BZ", "DF", "GZ", "Z", "Z7", "ZL"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-CompressionAlgorithm";
+    const CODES: &[&str] = &["BZ", "DF", "GZ", "Z", "Z7", "ZL"];
 }
 impl V3CompressionAlgorithm {
     #[inline]
@@ -69245,8 +69206,8 @@ impl V3CompressionAlgorithm {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-Confidentiality"]
 pub struct V3Confidentiality;
 impl ValueSetDef for V3Confidentiality {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-Confidentiality";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-Confidentiality";
+    const CODES: &[&str] = &[
         "B",
         "C",
         "D",
@@ -69399,9 +69360,8 @@ impl V3Confidentiality {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ConfidentialityClassification"]
 pub struct V3ConfidentialityClassification;
 impl ValueSetDef for V3ConfidentialityClassification {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-ConfidentialityClassification";
-    const CODES: &'static [&'static str] = &["L", "M", "N", "R", "U", "V"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ConfidentialityClassification";
+    const CODES: &[&str] = &["L", "M", "N", "R", "U", "V"];
 }
 impl V3ConfidentialityClassification {
     #[inline]
@@ -69449,8 +69409,8 @@ impl V3ConfidentialityClassification {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ContainerCap"]
 pub struct V3ContainerCap;
 impl ValueSetDef for V3ContainerCap {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ContainerCap";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ContainerCap";
+    const CODES: &[&str] = &[
         "CHILD",
         "EASY",
         "FILM",
@@ -69512,8 +69472,8 @@ impl V3ContainerCap {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ContainerSeparator"]
 pub struct V3ContainerSeparator;
 impl ValueSetDef for V3ContainerSeparator {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ContainerSeparator";
-    const CODES: &'static [&'static str] = &["GEL", "NONE"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ContainerSeparator";
+    const CODES: &[&str] = &["GEL", "NONE"];
 }
 impl V3ContainerSeparator {
     #[inline]
@@ -69537,8 +69497,8 @@ impl V3ContainerSeparator {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ContentProcessingMode"]
 pub struct V3ContentProcessingMode;
 impl ValueSetDef for V3ContentProcessingMode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ContentProcessingMode";
-    const CODES: &'static [&'static str] = &["SEQL", "UNOR"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ContentProcessingMode";
+    const CODES: &[&str] = &["SEQL", "UNOR"];
 }
 impl V3ContentProcessingMode {
     #[inline]
@@ -69562,8 +69522,8 @@ impl V3ContentProcessingMode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ContextControl"]
 pub struct V3ContextControl;
 impl ValueSetDef for V3ContextControl {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ContextControl";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ContextControl";
+    const CODES: &[&str] = &[
         "AN",
         "AP",
         "ON",
@@ -69632,8 +69592,8 @@ impl V3ContextControl {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-DataOperation"]
 pub struct V3DataOperation;
 impl ValueSetDef for V3DataOperation {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-DataOperation";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-DataOperation";
+    const CODES: &[&str] = &[
         "ABORT",
         "ACTIVATE",
         "APPEND",
@@ -69786,8 +69746,8 @@ impl V3DataOperation {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-Dentition"]
 pub struct V3Dentition;
 impl ValueSetDef for V3Dentition {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-Dentition";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-Dentition";
+    const CODES: &[&str] = &[
         "ArtificialDentition",
         "PermanentDentition",
         "PrimaryDentition",
@@ -71928,8 +71888,8 @@ impl V3Dentition {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-DeviceAlertLevel"]
 pub struct V3DeviceAlertLevel;
 impl ValueSetDef for V3DeviceAlertLevel {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-DeviceAlertLevel";
-    const CODES: &'static [&'static str] = &["C", "N", "S", "W"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-DeviceAlertLevel";
+    const CODES: &[&str] = &["C", "N", "S", "W"];
 }
 impl V3DeviceAlertLevel {
     #[inline]
@@ -71965,8 +71925,8 @@ impl V3DeviceAlertLevel {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-DocumentCompletion"]
 pub struct V3DocumentCompletion;
 impl ValueSetDef for V3DocumentCompletion {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-DocumentCompletion";
-    const CODES: &'static [&'static str] = &["AU", "DI", "DO", "IN", "IP", "LA", "NU", "PA", "UC"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-DocumentCompletion";
+    const CODES: &[&str] = &["AU", "DI", "DO", "IN", "IP", "LA", "NU", "PA", "UC"];
 }
 impl V3DocumentCompletion {
     #[inline]
@@ -72032,8 +71992,8 @@ impl V3DocumentCompletion {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-DocumentStorage"]
 pub struct V3DocumentStorage;
 impl ValueSetDef for V3DocumentStorage {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-DocumentStorage";
-    const CODES: &'static [&'static str] = &["AA", "AC", "AR", "PU"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-DocumentStorage";
+    const CODES: &[&str] = &["AA", "AC", "AR", "PU"];
 }
 impl V3DocumentStorage {
     #[inline]
@@ -72069,8 +72029,8 @@ impl V3DocumentStorage {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EducationLevel"]
 pub struct V3EducationLevel;
 impl ValueSetDef for V3EducationLevel {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EducationLevel";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EducationLevel";
+    const CODES: &[&str] = &[
         "ASSOC", "BD", "ELEM", "GD", "HS", "PB", "POSTG", "SCOL", "SEC",
     ];
 }
@@ -72138,8 +72098,8 @@ impl V3EducationLevel {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EmployeeJobClass"]
 pub struct V3EmployeeJobClass;
 impl ValueSetDef for V3EmployeeJobClass {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EmployeeJobClass";
-    const CODES: &'static [&'static str] = &["FT", "PT"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EmployeeJobClass";
+    const CODES: &[&str] = &["FT", "PT"];
 }
 impl V3EmployeeJobClass {
     #[inline]
@@ -72163,8 +72123,8 @@ impl V3EmployeeJobClass {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EncounterAdmissionSource"]
 pub struct V3EncounterAdmissionSource;
 impl ValueSetDef for V3EncounterAdmissionSource {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EncounterAdmissionSource";
-    const CODES: &'static [&'static str] = &["E", "LD", "NB"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EncounterAdmissionSource";
+    const CODES: &[&str] = &["E", "LD", "NB"];
 }
 impl V3EncounterAdmissionSource {
     #[inline]
@@ -72194,8 +72154,8 @@ impl V3EncounterAdmissionSource {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EncounterSpecialCourtesy"]
 pub struct V3EncounterSpecialCourtesy;
 impl ValueSetDef for V3EncounterSpecialCourtesy {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EncounterSpecialCourtesy";
-    const CODES: &'static [&'static str] = &["EXT", "NRM", "PRF", "STF", "VIP"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EncounterSpecialCourtesy";
+    const CODES: &[&str] = &["EXT", "NRM", "PRF", "STF", "VIP"];
 }
 impl V3EncounterSpecialCourtesy {
     #[inline]
@@ -72237,8 +72197,8 @@ impl V3EncounterSpecialCourtesy {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityClass"]
 pub struct V3EntityClass;
 impl ValueSetDef for V3EntityClass {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityClass";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityClass";
+    const CODES: &[&str] = &[
         "ANM", "CER", "CHEM", "CITY", "CONT", "COUNTRY", "COUNTY", "DEV", "ENT", "FOOD", "HCE",
         "HOLD", "LIV", "MAT", "MIC", "MMAT", "MODDV", "NAT", "NLIV", "ORG", "PLC", "PLNT",
         "PROVINCE", "PSN", "PUB", "RGRP", "STATE",
@@ -72416,8 +72376,8 @@ impl V3EntityClass {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityClassDevice"]
 pub struct V3EntityClassDevice;
 impl ValueSetDef for V3EntityClassDevice {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityClassDevice";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityClassDevice";
+    const CODES: &[&str] = &[
         "ANM", "CER", "CHEM", "CITY", "CONT", "COUNTRY", "COUNTY", "DEV", "ENT", "FOOD", "HCE",
         "HOLD", "LIV", "MAT", "MIC", "MMAT", "MODDV", "NAT", "NLIV", "ORG", "PLC", "PLNT",
         "PROVINCE", "PSN", "PUB", "RGRP", "STATE",
@@ -72595,8 +72555,8 @@ impl V3EntityClassDevice {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityClassLivingSubject"]
 pub struct V3EntityClassLivingSubject;
 impl ValueSetDef for V3EntityClassLivingSubject {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityClassLivingSubject";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityClassLivingSubject";
+    const CODES: &[&str] = &[
         "ANM", "CER", "CHEM", "CITY", "CONT", "COUNTRY", "COUNTY", "DEV", "ENT", "FOOD", "HCE",
         "HOLD", "LIV", "MAT", "MIC", "MMAT", "MODDV", "NAT", "NLIV", "ORG", "PLC", "PLNT",
         "PROVINCE", "PSN", "PUB", "RGRP", "STATE",
@@ -72774,9 +72734,8 @@ impl V3EntityClassLivingSubject {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityClassManufacturedMaterial"]
 pub struct V3EntityClassManufacturedMaterial;
 impl ValueSetDef for V3EntityClassManufacturedMaterial {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-EntityClassManufacturedMaterial";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityClassManufacturedMaterial";
+    const CODES: &[&str] = &[
         "ANM", "CER", "CHEM", "CITY", "CONT", "COUNTRY", "COUNTY", "DEV", "ENT", "FOOD", "HCE",
         "HOLD", "LIV", "MAT", "MIC", "MMAT", "MODDV", "NAT", "NLIV", "ORG", "PLC", "PLNT",
         "PROVINCE", "PSN", "PUB", "RGRP", "STATE",
@@ -72954,8 +72913,8 @@ impl V3EntityClassManufacturedMaterial {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityClassOrganization"]
 pub struct V3EntityClassOrganization;
 impl ValueSetDef for V3EntityClassOrganization {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityClassOrganization";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityClassOrganization";
+    const CODES: &[&str] = &[
         "ANM", "CER", "CHEM", "CITY", "CONT", "COUNTRY", "COUNTY", "DEV", "ENT", "FOOD", "HCE",
         "HOLD", "LIV", "MAT", "MIC", "MMAT", "MODDV", "NAT", "NLIV", "ORG", "PLC", "PLNT",
         "PROVINCE", "PSN", "PUB", "RGRP", "STATE",
@@ -73133,8 +73092,8 @@ impl V3EntityClassOrganization {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityClassPlace"]
 pub struct V3EntityClassPlace;
 impl ValueSetDef for V3EntityClassPlace {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityClassPlace";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityClassPlace";
+    const CODES: &[&str] = &[
         "ANM", "CER", "CHEM", "CITY", "CONT", "COUNTRY", "COUNTY", "DEV", "ENT", "FOOD", "HCE",
         "HOLD", "LIV", "MAT", "MIC", "MMAT", "MODDV", "NAT", "NLIV", "ORG", "PLC", "PLNT",
         "PROVINCE", "PSN", "PUB", "RGRP", "STATE",
@@ -73312,8 +73271,8 @@ impl V3EntityClassPlace {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityClassRoot"]
 pub struct V3EntityClassRoot;
 impl ValueSetDef for V3EntityClassRoot {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityClassRoot";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityClassRoot";
+    const CODES: &[&str] = &[
         "ANM", "CER", "CHEM", "CITY", "CONT", "COUNTRY", "COUNTY", "DEV", "ENT", "FOOD", "HCE",
         "HOLD", "LIV", "MAT", "MIC", "MMAT", "MODDV", "NAT", "NLIV", "ORG", "PLC", "PLNT",
         "PROVINCE", "PSN", "PUB", "RGRP", "STATE",
@@ -73491,8 +73450,8 @@ impl V3EntityClassRoot {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityCode"]
 pub struct V3EntityCode;
 impl ValueSetDef for V3EntityCode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityCode";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityCode";
+    const CODES: &[&str] = &[
         "ACDA",
         "ACDB",
         "ACET",
@@ -74520,9 +74479,8 @@ impl V3EntityCode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityDeterminer"]
 pub struct V3EntityDeterminer;
 impl ValueSetDef for V3EntityDeterminer {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityDeterminer";
-    const CODES: &'static [&'static str] =
-        &["GROUP", "GROUPKIND", "INSTANCE", "KIND", "QUANTIFIED_KIND"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityDeterminer";
+    const CODES: &[&str] = &["GROUP", "GROUPKIND", "INSTANCE", "KIND", "QUANTIFIED_KIND"];
 }
 impl V3EntityDeterminer {
     #[inline]
@@ -74564,9 +74522,8 @@ impl V3EntityDeterminer {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityDeterminerDetermined"]
 pub struct V3EntityDeterminerDetermined;
 impl ValueSetDef for V3EntityDeterminerDetermined {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityDeterminerDetermined";
-    const CODES: &'static [&'static str] =
-        &["GROUP", "GROUPKIND", "INSTANCE", "KIND", "QUANTIFIED_KIND"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityDeterminerDetermined";
+    const CODES: &[&str] = &["GROUP", "GROUPKIND", "INSTANCE", "KIND", "QUANTIFIED_KIND"];
 }
 impl V3EntityDeterminerDetermined {
     #[inline]
@@ -74608,8 +74565,8 @@ impl V3EntityDeterminerDetermined {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityHandling"]
 pub struct V3EntityHandling;
 impl ValueSetDef for V3EntityHandling {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityHandling";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityHandling";
+    const CODES: &[&str] = &[
         "AMB", "C37", "CAMB", "CATM", "CFRZ", "CREF", "DFRZ", "DRY", "FRZ", "MTLF", "NTR", "PRTL",
         "PSA", "PSO", "REF", "SBU", "UFRZ", "UPR",
     ];
@@ -74732,8 +74689,8 @@ impl V3EntityHandling {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityNamePartQualifier"]
 pub struct V3EntityNamePartQualifier;
 impl ValueSetDef for V3EntityNamePartQualifier {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityNamePartQualifier";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityNamePartQualifier";
+    const CODES: &[&str] = &[
         "AC",
         "AD",
         "BR",
@@ -74949,8 +74906,8 @@ impl V3EntityNamePartQualifier {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityNamePartQualifierR2"]
 pub struct V3EntityNamePartQualifierR2;
 impl ValueSetDef for V3EntityNamePartQualifierR2 {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityNamePartQualifierR2";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityNamePartQualifierR2";
+    const CODES: &[&str] = &[
         "AC",
         "AD",
         "BR",
@@ -75152,8 +75109,8 @@ impl V3EntityNamePartQualifierR2 {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityNamePartType"]
 pub struct V3EntityNamePartType;
 impl ValueSetDef for V3EntityNamePartType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityNamePartType";
-    const CODES: &'static [&'static str] = &["DEL", "FAM", "GIV", "PFX", "SFX"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityNamePartType";
+    const CODES: &[&str] = &["DEL", "FAM", "GIV", "PFX", "SFX"];
 }
 impl V3EntityNamePartType {
     #[inline]
@@ -75195,8 +75152,8 @@ impl V3EntityNamePartType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityNamePartTypeR2"]
 pub struct V3EntityNamePartTypeR2;
 impl ValueSetDef for V3EntityNamePartTypeR2 {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityNamePartTypeR2";
-    const CODES: &'static [&'static str] = &["DEL", "FAM", "GIV", "TITLE"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityNamePartTypeR2";
+    const CODES: &[&str] = &["DEL", "FAM", "GIV", "TITLE"];
 }
 impl V3EntityNamePartTypeR2 {
     #[inline]
@@ -75232,8 +75189,8 @@ impl V3EntityNamePartTypeR2 {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityNameUse"]
 pub struct V3EntityNameUse;
 impl ValueSetDef for V3EntityNameUse {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityNameUse";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityNameUse";
+    const CODES: &[&str] = &[
         "A",
         "ABC",
         "ASGN",
@@ -75351,8 +75308,8 @@ impl V3EntityNameUse {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityNameUseR2"]
 pub struct V3EntityNameUseR2;
 impl ValueSetDef for V3EntityNameUseR2 {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityNameUseR2";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityNameUseR2";
+    const CODES: &[&str] = &[
         "A",
         "ABC",
         "ANON",
@@ -75491,8 +75448,8 @@ impl V3EntityNameUseR2 {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityRisk"]
 pub struct V3EntityRisk;
 impl ValueSetDef for V3EntityRisk {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityRisk";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityRisk";
+    const CODES: &[&str] = &[
         "AGG", "BHZ", "BIO", "COR", "ESC", "EXP", "IFL", "INF", "INJ", "POI", "RAD",
     ];
 }
@@ -75572,9 +75529,8 @@ impl V3EntityRisk {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EntityStatus"]
 pub struct V3EntityStatus;
 impl ValueSetDef for V3EntityStatus {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EntityStatus";
-    const CODES: &'static [&'static str] =
-        &["active", "inactive", "normal", "nullified", "terminated"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EntityStatus";
+    const CODES: &[&str] = &["active", "inactive", "normal", "nullified", "terminated"];
 }
 impl V3EntityStatus {
     #[inline]
@@ -75616,8 +75572,8 @@ impl V3EntityStatus {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-EquipmentAlertLevel"]
 pub struct V3EquipmentAlertLevel;
 impl ValueSetDef for V3EquipmentAlertLevel {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-EquipmentAlertLevel";
-    const CODES: &'static [&'static str] = &["C", "N", "S", "W"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-EquipmentAlertLevel";
+    const CODES: &[&str] = &["C", "N", "S", "W"];
 }
 impl V3EquipmentAlertLevel {
     #[inline]
@@ -75653,8 +75609,8 @@ impl V3EquipmentAlertLevel {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-Ethnicity"]
 pub struct V3Ethnicity;
 impl ValueSetDef for V3Ethnicity {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-Ethnicity";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-Ethnicity";
+    const CODES: &[&str] = &[
         "2135-2", "2137-8", "2138-6", "2139-4", "2140-2", "2141-0", "2142-8", "2143-6", "2144-4",
         "2145-1", "2146-9", "2148-5", "2149-3", "2150-1", "2151-9", "2152-7", "2153-5", "2155-0",
         "2156-8", "2157-6", "2158-4", "2159-2", "2160-0", "2161-8", "2162-6", "2163-4", "2165-9",
@@ -75930,8 +75886,8 @@ impl V3Ethnicity {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ExposureMode"]
 pub struct V3ExposureMode;
 impl ValueSetDef for V3ExposureMode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ExposureMode";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ExposureMode";
+    const CODES: &[&str] = &[
         "AIRBORNE",
         "CONTACT",
         "FOODBORNE",
@@ -75979,8 +75935,8 @@ impl V3ExposureMode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-FamilyMember"]
 pub struct V3FamilyMember;
 impl ValueSetDef for V3FamilyMember {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-FamilyMember";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-FamilyMember";
+    const CODES: &[&str] = &[
         "ACC",
         "ACHFID",
         "ACTMIL",
@@ -78772,8 +78728,8 @@ impl V3FamilyMember {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-GTSAbbreviation"]
 pub struct V3GTSAbbreviation;
 impl ValueSetDef for V3GTSAbbreviation {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-GTSAbbreviation";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-GTSAbbreviation";
+    const CODES: &[&str] = &[
         "AM",
         "BED",
         "BID",
@@ -79094,8 +79050,8 @@ impl V3GTSAbbreviation {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-GenderStatus"]
 pub struct V3GenderStatus;
 impl ValueSetDef for V3GenderStatus {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-GenderStatus";
-    const CODES: &'static [&'static str] = &["I", "N"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-GenderStatus";
+    const CODES: &[&str] = &["I", "N"];
 }
 impl V3GenderStatus {
     #[inline]
@@ -79119,8 +79075,8 @@ impl V3GenderStatus {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-GeneralPurposeOfUse"]
 pub struct V3GeneralPurposeOfUse;
 impl ValueSetDef for V3GeneralPurposeOfUse {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-GeneralPurposeOfUse";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-GeneralPurposeOfUse";
+    const CODES: &[&str] = &[
         "COVERAGE", "ETREAT", "HMARKT", "HOPERAT", "HPAYMT", "HRESCH", "PATRQT", "PUBHLTH", "TREAT",
     ];
 }
@@ -79188,8 +79144,8 @@ impl V3GeneralPurposeOfUse {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-HL7ContextConductionStyle"]
 pub struct V3HL7ContextConductionStyle;
 impl ValueSetDef for V3HL7ContextConductionStyle {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-HL7ContextConductionStyle";
-    const CODES: &'static [&'static str] = &["C", "I", "V"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-HL7ContextConductionStyle";
+    const CODES: &[&str] = &["C", "I", "V"];
 }
 impl V3HL7ContextConductionStyle {
     #[inline]
@@ -79219,8 +79175,8 @@ impl V3HL7ContextConductionStyle {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-HL7StandardVersionCode"]
 pub struct V3HL7StandardVersionCode;
 impl ValueSetDef for V3HL7StandardVersionCode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-HL7StandardVersionCode";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-HL7StandardVersionCode";
+    const CODES: &[&str] = &[
         "Ballot2008Jan",
         "Ballot2008May",
         "Ballot2008Sep",
@@ -79408,8 +79364,8 @@ impl V3HL7StandardVersionCode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-HL7UpdateMode"]
 pub struct V3HL7UpdateMode;
 impl ValueSetDef for V3HL7UpdateMode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-HL7UpdateMode";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-HL7UpdateMode";
+    const CODES: &[&str] = &[
         "A",
         "AR",
         "AU",
@@ -79534,8 +79490,8 @@ impl V3HL7UpdateMode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-HtmlLinkType"]
 pub struct V3HtmlLinkType;
 impl ValueSetDef for V3HtmlLinkType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-HtmlLinkType";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-HtmlLinkType";
+    const CODES: &[&str] = &[
         "alternate",
         "appendix",
         "bookmark",
@@ -79653,8 +79609,8 @@ impl V3HtmlLinkType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-IdentifierReliability"]
 pub struct V3IdentifierReliability;
 impl ValueSetDef for V3IdentifierReliability {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-IdentifierReliability";
-    const CODES: &'static [&'static str] = &["ISS", "UNV", "VRF"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-IdentifierReliability";
+    const CODES: &[&str] = &["ISS", "UNV", "VRF"];
 }
 impl V3IdentifierReliability {
     #[inline]
@@ -79684,8 +79640,8 @@ impl V3IdentifierReliability {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-IdentifierScope"]
 pub struct V3IdentifierScope;
 impl ValueSetDef for V3IdentifierScope {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-IdentifierScope";
-    const CODES: &'static [&'static str] = &["BUSN", "OBJ", "VER", "VW"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-IdentifierScope";
+    const CODES: &[&str] = &["BUSN", "OBJ", "VER", "VW"];
 }
 impl V3IdentifierScope {
     #[inline]
@@ -79721,8 +79677,8 @@ impl V3IdentifierScope {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-IntegrityCheckAlgorithm"]
 pub struct V3IntegrityCheckAlgorithm;
 impl ValueSetDef for V3IntegrityCheckAlgorithm {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-IntegrityCheckAlgorithm";
-    const CODES: &'static [&'static str] = &["SHA-1", "SHA-256"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-IntegrityCheckAlgorithm";
+    const CODES: &[&str] = &["SHA-1", "SHA-256"];
 }
 impl V3IntegrityCheckAlgorithm {
     #[inline]
@@ -79746,8 +79702,8 @@ impl V3IntegrityCheckAlgorithm {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-LanguageAbilityMode"]
 pub struct V3LanguageAbilityMode;
 impl ValueSetDef for V3LanguageAbilityMode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-LanguageAbilityMode";
-    const CODES: &'static [&'static str] = &["ESGN", "ESP", "EWR", "RSGN", "RSP", "RWR"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-LanguageAbilityMode";
+    const CODES: &[&str] = &["ESGN", "ESP", "EWR", "RSGN", "RSP", "RWR"];
 }
 impl V3LanguageAbilityMode {
     #[inline]
@@ -79795,8 +79751,8 @@ impl V3LanguageAbilityMode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-LanguageAbilityProficiency"]
 pub struct V3LanguageAbilityProficiency;
 impl ValueSetDef for V3LanguageAbilityProficiency {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-LanguageAbilityProficiency";
-    const CODES: &'static [&'static str] = &["E", "F", "G", "P"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-LanguageAbilityProficiency";
+    const CODES: &[&str] = &["E", "F", "G", "P"];
 }
 impl V3LanguageAbilityProficiency {
     #[inline]
@@ -79832,8 +79788,8 @@ impl V3LanguageAbilityProficiency {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-LivingArrangement"]
 pub struct V3LivingArrangement;
 impl ValueSetDef for V3LivingArrangement {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-LivingArrangement";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-LivingArrangement";
+    const CODES: &[&str] = &[
         "CS", "G", "H", "HL", "I", "M", "N", "PR", "R", "SL", "T", "X",
     ];
 }
@@ -79919,8 +79875,8 @@ impl V3LivingArrangement {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-LocalMarkupIgnore"]
 pub struct V3LocalMarkupIgnore;
 impl ValueSetDef for V3LocalMarkupIgnore {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-LocalMarkupIgnore";
-    const CODES: &'static [&'static str] = &["all", "markup"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-LocalMarkupIgnore";
+    const CODES: &[&str] = &["all", "markup"];
 }
 impl V3LocalMarkupIgnore {
     #[inline]
@@ -79944,8 +79900,8 @@ impl V3LocalMarkupIgnore {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-LocalRemoteControlState"]
 pub struct V3LocalRemoteControlState;
 impl ValueSetDef for V3LocalRemoteControlState {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-LocalRemoteControlState";
-    const CODES: &'static [&'static str] = &["L", "R"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-LocalRemoteControlState";
+    const CODES: &[&str] = &["L", "R"];
 }
 impl V3LocalRemoteControlState {
     #[inline]
@@ -79969,8 +79925,8 @@ impl V3LocalRemoteControlState {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ManagedParticipationStatus"]
 pub struct V3ManagedParticipationStatus;
 impl ValueSetDef for V3ManagedParticipationStatus {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ManagedParticipationStatus";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ManagedParticipationStatus";
+    const CODES: &[&str] = &[
         "active",
         "cancelled",
         "completed",
@@ -80025,8 +79981,8 @@ impl V3ManagedParticipationStatus {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-MapRelationship"]
 pub struct V3MapRelationship;
 impl ValueSetDef for V3MapRelationship {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-MapRelationship";
-    const CODES: &'static [&'static str] = &["BT", "E", "NT"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-MapRelationship";
+    const CODES: &[&str] = &["BT", "E", "NT"];
 }
 impl V3MapRelationship {
     #[inline]
@@ -80056,8 +80012,8 @@ impl V3MapRelationship {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-MaritalStatus"]
 pub struct V3MaritalStatus;
 impl ValueSetDef for V3MaritalStatus {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-MaritalStatus";
-    const CODES: &'static [&'static str] = &["A", "D", "I", "L", "M", "P", "S", "T", "U", "W"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-MaritalStatus";
+    const CODES: &[&str] = &["A", "D", "I", "L", "M", "P", "S", "T", "U", "W"];
 }
 impl V3MaritalStatus {
     #[inline]
@@ -80129,8 +80085,8 @@ impl V3MaritalStatus {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-MessageWaitingPriority"]
 pub struct V3MessageWaitingPriority;
 impl ValueSetDef for V3MessageWaitingPriority {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-MessageWaitingPriority";
-    const CODES: &'static [&'static str] = &["H", "L", "M"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-MessageWaitingPriority";
+    const CODES: &[&str] = &["H", "L", "M"];
 }
 impl V3MessageWaitingPriority {
     #[inline]
@@ -80160,8 +80116,8 @@ impl V3MessageWaitingPriority {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-MilitaryRoleType"]
 pub struct V3MilitaryRoleType;
 impl ValueSetDef for V3MilitaryRoleType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-MilitaryRoleType";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-MilitaryRoleType";
+    const CODES: &[&str] = &[
         "ACC",
         "ACHFID",
         "ACTMIL",
@@ -82953,8 +82909,8 @@ impl V3MilitaryRoleType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ModifyIndicator"]
 pub struct V3ModifyIndicator;
 impl ValueSetDef for V3ModifyIndicator {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ModifyIndicator";
-    const CODES: &'static [&'static str] = &["M", "N"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ModifyIndicator";
+    const CODES: &[&str] = &["M", "N"];
 }
 impl V3ModifyIndicator {
     #[inline]
@@ -82978,8 +82934,8 @@ impl V3ModifyIndicator {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-NullFlavor"]
 pub struct V3NullFlavor;
 impl ValueSetDef for V3NullFlavor {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-NullFlavor";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-NullFlavor";
+    const CODES: &[&str] = &[
         "ASKU", "DER", "INV", "MSK", "NA", "NASK", "NAV", "NAVU", "NI", "NINF", "NP", "OTH",
         "PINF", "QS", "TRC", "UNC", "UNK",
     ];
@@ -83096,8 +83052,8 @@ impl V3NullFlavor {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ObservationCategory"]
 pub struct V3ObservationCategory;
 impl ValueSetDef for V3ObservationCategory {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ObservationCategory";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ObservationCategory";
+    const CODES: &[&str] = &[
         "exam",
         "imaging",
         "laboratory",
@@ -83166,8 +83122,8 @@ impl V3ObservationCategory {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ObservationInterpretation"]
 pub struct V3ObservationInterpretation;
 impl ValueSetDef for V3ObservationInterpretation {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ObservationInterpretation";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ObservationInterpretation";
+    const CODES: &[&str] = &[
         "<",
         ">",
         "A",
@@ -83579,8 +83535,8 @@ impl V3ObservationInterpretation {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ObservationMethod"]
 pub struct V3ObservationMethod;
 impl ValueSetDef for V3ObservationMethod {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ObservationMethod";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ObservationMethod";
+    const CODES: &[&str] = &[
         "0001",
         "0002",
         "0003",
@@ -85721,8 +85677,8 @@ impl V3ObservationMethod {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ObservationValue"]
 pub struct V3ObservationValue;
 impl ValueSetDef for V3ObservationValue {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ObservationValue";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ObservationValue";
+    const CODES: &[&str] = &[
         "A0",
         "A1",
         "A2",
@@ -87485,8 +87441,8 @@ impl V3ObservationValue {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ParticipationFunction"]
 pub struct V3ParticipationFunction;
 impl ValueSetDef for V3ParticipationFunction {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ParticipationFunction";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ParticipationFunction";
+    const CODES: &[&str] = &[
         "ADMPHYS",
         "ANEST",
         "ANRS",
@@ -87842,8 +87798,8 @@ impl V3ParticipationFunction {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ParticipationIndirectTarget"]
 pub struct V3ParticipationIndirectTarget;
 impl ValueSetDef for V3ParticipationIndirectTarget {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ParticipationIndirectTarget";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ParticipationIndirectTarget";
+    const CODES: &[&str] = &[
         "ADM",
         "ALY",
         "ATND",
@@ -88283,9 +88239,8 @@ impl V3ParticipationIndirectTarget {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ParticipationInformationGenerator"]
 pub struct V3ParticipationInformationGenerator;
 impl ValueSetDef for V3ParticipationInformationGenerator {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-ParticipationInformationGenerator";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ParticipationInformationGenerator";
+    const CODES: &[&str] = &[
         "ADM",
         "ALY",
         "ATND",
@@ -88725,9 +88680,8 @@ impl V3ParticipationInformationGenerator {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ParticipationInformationTranscriber"]
 pub struct V3ParticipationInformationTranscriber;
 impl ValueSetDef for V3ParticipationInformationTranscriber {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-ParticipationInformationTranscriber";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ParticipationInformationTranscriber";
+    const CODES: &[&str] = &[
         "ADM",
         "ALY",
         "ATND",
@@ -89167,8 +89121,8 @@ impl V3ParticipationInformationTranscriber {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ParticipationMode"]
 pub struct V3ParticipationMode;
 impl ValueSetDef for V3ParticipationMode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ParticipationMode";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ParticipationMode";
+    const CODES: &[&str] = &[
         "DICTATE",
         "ELECTRONIC",
         "EMAILWRIT",
@@ -89286,9 +89240,8 @@ impl V3ParticipationMode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ParticipationPhysicalPerformer"]
 pub struct V3ParticipationPhysicalPerformer;
 impl ValueSetDef for V3ParticipationPhysicalPerformer {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-ParticipationPhysicalPerformer";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ParticipationPhysicalPerformer";
+    const CODES: &[&str] = &[
         "ADM",
         "ALY",
         "ATND",
@@ -89728,8 +89681,8 @@ impl V3ParticipationPhysicalPerformer {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ParticipationSignature"]
 pub struct V3ParticipationSignature;
 impl ValueSetDef for V3ParticipationSignature {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ParticipationSignature";
-    const CODES: &'static [&'static str] = &["I", "S", "X"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ParticipationSignature";
+    const CODES: &[&str] = &["I", "S", "X"];
 }
 impl V3ParticipationSignature {
     #[inline]
@@ -89759,8 +89712,8 @@ impl V3ParticipationSignature {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ParticipationTargetDirect"]
 pub struct V3ParticipationTargetDirect;
 impl ValueSetDef for V3ParticipationTargetDirect {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ParticipationTargetDirect";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ParticipationTargetDirect";
+    const CODES: &[&str] = &[
         "ADM",
         "ALY",
         "ATND",
@@ -90200,8 +90153,8 @@ impl V3ParticipationTargetDirect {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ParticipationTargetLocation"]
 pub struct V3ParticipationTargetLocation;
 impl ValueSetDef for V3ParticipationTargetLocation {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ParticipationTargetLocation";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ParticipationTargetLocation";
+    const CODES: &[&str] = &[
         "ADM",
         "ALY",
         "ATND",
@@ -90641,8 +90594,8 @@ impl V3ParticipationTargetLocation {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ParticipationTargetSubject"]
 pub struct V3ParticipationTargetSubject;
 impl ValueSetDef for V3ParticipationTargetSubject {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ParticipationTargetSubject";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ParticipationTargetSubject";
+    const CODES: &[&str] = &[
         "ADM",
         "ALY",
         "ATND",
@@ -91082,8 +91035,8 @@ impl V3ParticipationTargetSubject {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ParticipationType"]
 pub struct V3ParticipationType;
 impl ValueSetDef for V3ParticipationType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ParticipationType";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ParticipationType";
+    const CODES: &[&str] = &[
         "ADM",
         "ALY",
         "ATND",
@@ -91523,8 +91476,8 @@ impl V3ParticipationType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ParticipationVerifier"]
 pub struct V3ParticipationVerifier;
 impl ValueSetDef for V3ParticipationVerifier {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ParticipationVerifier";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ParticipationVerifier";
+    const CODES: &[&str] = &[
         "ADM",
         "ALY",
         "ATND",
@@ -91964,9 +91917,8 @@ impl V3ParticipationVerifier {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-PatientImportance"]
 pub struct V3PatientImportance;
 impl ValueSetDef for V3PatientImportance {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-PatientImportance";
-    const CODES: &'static [&'static str] =
-        &["BM", "DFM", "DR", "FD", "FOR", "GOVT", "SFM", "STF", "VIP"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-PatientImportance";
+    const CODES: &[&str] = &["BM", "DFM", "DR", "FD", "FOR", "GOVT", "SFM", "STF", "VIP"];
 }
 impl V3PatientImportance {
     #[inline]
@@ -92032,8 +91984,8 @@ impl V3PatientImportance {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-PaymentTerms"]
 pub struct V3PaymentTerms;
 impl ValueSetDef for V3PaymentTerms {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-PaymentTerms";
-    const CODES: &'static [&'static str] = &["COD", "N30", "N60", "N90"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-PaymentTerms";
+    const CODES: &[&str] = &["COD", "N30", "N60", "N90"];
 }
 impl V3PaymentTerms {
     #[inline]
@@ -92069,8 +92021,8 @@ impl V3PaymentTerms {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-PersonDisabilityType"]
 pub struct V3PersonDisabilityType;
 impl ValueSetDef for V3PersonDisabilityType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-PersonDisabilityType";
-    const CODES: &'static [&'static str] = &["1", "2", "3", "4", "5", "CB", "CR", "G", "WC", "WK"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-PersonDisabilityType";
+    const CODES: &[&str] = &["1", "2", "3", "4", "5", "CB", "CR", "G", "WC", "WK"];
 }
 impl V3PersonDisabilityType {
     #[inline]
@@ -92142,8 +92094,8 @@ impl V3PersonDisabilityType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-PersonalRelationshipRoleType"]
 pub struct V3PersonalRelationshipRoleType;
 impl ValueSetDef for V3PersonalRelationshipRoleType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-PersonalRelationshipRoleType";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-PersonalRelationshipRoleType";
+    const CODES: &[&str] = &[
         "ACC",
         "ACHFID",
         "ACTMIL",
@@ -94935,8 +94887,8 @@ impl V3PersonalRelationshipRoleType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ProbabilityDistributionType"]
 pub struct V3ProbabilityDistributionType;
 impl ValueSetDef for V3ProbabilityDistributionType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ProbabilityDistributionType";
-    const CODES: &'static [&'static str] = &["B", "E", "F", "G", "LN", "N", "T", "U", "X2"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ProbabilityDistributionType";
+    const CODES: &[&str] = &["B", "E", "F", "G", "LN", "N", "T", "U", "X2"];
 }
 impl V3ProbabilityDistributionType {
     #[inline]
@@ -95002,8 +94954,8 @@ impl V3ProbabilityDistributionType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ProcessingID"]
 pub struct V3ProcessingID;
 impl ValueSetDef for V3ProcessingID {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ProcessingID";
-    const CODES: &'static [&'static str] = &["D", "P", "T"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ProcessingID";
+    const CODES: &[&str] = &["D", "P", "T"];
 }
 impl V3ProcessingID {
     #[inline]
@@ -95033,8 +94985,8 @@ impl V3ProcessingID {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ProcessingMode"]
 pub struct V3ProcessingMode;
 impl ValueSetDef for V3ProcessingMode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ProcessingMode";
-    const CODES: &'static [&'static str] = &["A", "I", "R", "T"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ProcessingMode";
+    const CODES: &[&str] = &["A", "I", "R", "T"];
 }
 impl V3ProcessingMode {
     #[inline]
@@ -95070,8 +95022,8 @@ impl V3ProcessingMode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ProvenanceEventCurrentState"]
 pub struct V3ProvenanceEventCurrentState;
 impl ValueSetDef for V3ProvenanceEventCurrentState {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ProvenanceEventCurrentState";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ProvenanceEventCurrentState";
+    const CODES: &[&str] = &[
         "AU",
         "DI",
         "DO",
@@ -95161,9 +95113,8 @@ impl V3ProvenanceEventCurrentState {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ProvenanceEventCurrentState-AS"]
 pub struct V3ProvenanceEventCurrentStateAS;
 impl ValueSetDef for V3ProvenanceEventCurrentStateAS {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-ProvenanceEventCurrentState-AS";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ProvenanceEventCurrentState-AS";
+    const CODES: &[&str] = &[
         "aborted",
         "cancelled",
         "completed",
@@ -95218,9 +95169,8 @@ impl V3ProvenanceEventCurrentStateAS {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ProvenanceEventCurrentState-DC"]
 pub struct V3ProvenanceEventCurrentStateDC;
 impl ValueSetDef for V3ProvenanceEventCurrentStateDC {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-ProvenanceEventCurrentState-DC";
-    const CODES: &'static [&'static str] = &["AU", "DI", "DO", "LA", "UC"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ProvenanceEventCurrentState-DC";
+    const CODES: &[&str] = &["AU", "DI", "DO", "LA", "UC"];
 }
 impl V3ProvenanceEventCurrentStateDC {
     #[inline]
@@ -95262,8 +95212,8 @@ impl V3ProvenanceEventCurrentStateDC {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-PurposeOfUse"]
 pub struct V3PurposeOfUse;
 impl ValueSetDef for V3PurposeOfUse {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-PurposeOfUse";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-PurposeOfUse";
+    const CODES: &[&str] = &[
         "ACCRED",
         "ACCREQNA",
         "ADMINERROR",
@@ -97236,8 +97186,8 @@ impl V3PurposeOfUse {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-QueryParameterValue"]
 pub struct V3QueryParameterValue;
 impl ValueSetDef for V3QueryParameterValue {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-QueryParameterValue";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-QueryParameterValue";
+    const CODES: &[&str] = &[
         "ALLDISP",
         "AO",
         "C",
@@ -97362,8 +97312,8 @@ impl V3QueryParameterValue {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-QueryPriority"]
 pub struct V3QueryPriority;
 impl ValueSetDef for V3QueryPriority {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-QueryPriority";
-    const CODES: &'static [&'static str] = &["D", "I"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-QueryPriority";
+    const CODES: &[&str] = &["D", "I"];
 }
 impl V3QueryPriority {
     #[inline]
@@ -97387,8 +97337,8 @@ impl V3QueryPriority {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-QueryRequestLimit"]
 pub struct V3QueryRequestLimit;
 impl ValueSetDef for V3QueryRequestLimit {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-QueryRequestLimit";
-    const CODES: &'static [&'static str] = &["RD", "_QueryRequestLimit"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-QueryRequestLimit";
+    const CODES: &[&str] = &["RD", "_QueryRequestLimit"];
 }
 impl V3QueryRequestLimit {
     #[inline]
@@ -97412,8 +97362,8 @@ impl V3QueryRequestLimit {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-QueryResponse"]
 pub struct V3QueryResponse;
 impl ValueSetDef for V3QueryResponse {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-QueryResponse";
-    const CODES: &'static [&'static str] = &["AE", "NF", "OK", "QE"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-QueryResponse";
+    const CODES: &[&str] = &["AE", "NF", "OK", "QE"];
 }
 impl V3QueryResponse {
     #[inline]
@@ -97449,8 +97399,8 @@ impl V3QueryResponse {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-QueryStatusCode"]
 pub struct V3QueryStatusCode;
 impl ValueSetDef for V3QueryStatusCode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-QueryStatusCode";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-QueryStatusCode";
+    const CODES: &[&str] = &[
         "aborted",
         "deliveredResponse",
         "executing",
@@ -97498,8 +97448,8 @@ impl V3QueryStatusCode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RelationalOperator"]
 pub struct V3RelationalOperator;
 impl ValueSetDef for V3RelationalOperator {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RelationalOperator";
-    const CODES: &'static [&'static str] = &["CT", "EQ", "GE", "GN", "GT", "LE", "LT", "NE"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RelationalOperator";
+    const CODES: &[&str] = &["CT", "EQ", "GE", "GN", "GT", "LE", "LT", "NE"];
 }
 impl V3RelationalOperator {
     #[inline]
@@ -97559,8 +97509,8 @@ impl V3RelationalOperator {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RelationshipConjunction"]
 pub struct V3RelationshipConjunction;
 impl ValueSetDef for V3RelationshipConjunction {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RelationshipConjunction";
-    const CODES: &'static [&'static str] = &["AND", "OR", "XOR"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RelationshipConjunction";
+    const CODES: &[&str] = &["AND", "OR", "XOR"];
 }
 impl V3RelationshipConjunction {
     #[inline]
@@ -97590,8 +97540,8 @@ impl V3RelationshipConjunction {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ReligiousAffiliation"]
 pub struct V3ReligiousAffiliation;
 impl ValueSetDef for V3ReligiousAffiliation {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ReligiousAffiliation";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ReligiousAffiliation";
+    const CODES: &[&str] = &[
         "1001", "1002", "1003", "1004", "1005", "1006", "1007", "1008", "1009", "1010", "1011",
         "1012", "1013", "1014", "1015", "1016", "1017", "1018", "1019", "1020", "1021", "1022",
         "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031", "1032", "1033",
@@ -98104,8 +98054,8 @@ impl V3ReligiousAffiliation {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ResponseLevel"]
 pub struct V3ResponseLevel;
 impl ValueSetDef for V3ResponseLevel {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ResponseLevel";
-    const CODES: &'static [&'static str] = &["C", "D", "E", "F", "N", "R", "X"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ResponseLevel";
+    const CODES: &[&str] = &["C", "D", "E", "F", "N", "R", "X"];
 }
 impl V3ResponseLevel {
     #[inline]
@@ -98159,8 +98109,8 @@ impl V3ResponseLevel {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ResponseModality"]
 pub struct V3ResponseModality;
 impl ValueSetDef for V3ResponseModality {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ResponseModality";
-    const CODES: &'static [&'static str] = &["B", "R", "T"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ResponseModality";
+    const CODES: &[&str] = &["B", "R", "T"];
 }
 impl V3ResponseModality {
     #[inline]
@@ -98190,8 +98140,8 @@ impl V3ResponseModality {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ResponseMode"]
 pub struct V3ResponseMode;
 impl ValueSetDef for V3ResponseMode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-ResponseMode";
-    const CODES: &'static [&'static str] = &["D", "I", "Q"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ResponseMode";
+    const CODES: &[&str] = &["D", "I", "Q"];
 }
 impl V3ResponseMode {
     #[inline]
@@ -98221,8 +98171,8 @@ impl V3ResponseMode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleClass"]
 pub struct V3RoleClass;
 impl ValueSetDef for V3RoleClass {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleClass";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleClass";
+    const CODES: &[&str] = &[
         "ACCESS",
         "ACTI",
         "ACTIB",
@@ -99019,8 +98969,8 @@ impl V3RoleClass {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleClassAgent"]
 pub struct V3RoleClassAgent;
 impl ValueSetDef for V3RoleClassAgent {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleClassAgent";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleClassAgent";
+    const CODES: &[&str] = &[
         "ACCESS",
         "ACTI",
         "ACTIB",
@@ -99817,8 +99767,8 @@ impl V3RoleClassAgent {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleClassAssociative"]
 pub struct V3RoleClassAssociative;
 impl ValueSetDef for V3RoleClassAssociative {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleClassAssociative";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleClassAssociative";
+    const CODES: &[&str] = &[
         "ACCESS",
         "ACTI",
         "ACTIB",
@@ -100615,8 +100565,8 @@ impl V3RoleClassAssociative {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleClassManufacturedProduct"]
 pub struct V3RoleClassManufacturedProduct;
 impl ValueSetDef for V3RoleClassManufacturedProduct {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleClassManufacturedProduct";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleClassManufacturedProduct";
+    const CODES: &[&str] = &[
         "ACCESS",
         "ACTI",
         "ACTIB",
@@ -101413,8 +101363,8 @@ impl V3RoleClassManufacturedProduct {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleClassMutualRelationship"]
 pub struct V3RoleClassMutualRelationship;
 impl ValueSetDef for V3RoleClassMutualRelationship {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleClassMutualRelationship";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleClassMutualRelationship";
+    const CODES: &[&str] = &[
         "ACCESS",
         "ACTI",
         "ACTIB",
@@ -102211,8 +102161,8 @@ impl V3RoleClassMutualRelationship {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleClassPartitive"]
 pub struct V3RoleClassPartitive;
 impl ValueSetDef for V3RoleClassPartitive {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleClassPartitive";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleClassPartitive";
+    const CODES: &[&str] = &[
         "ACCESS",
         "ACTI",
         "ACTIB",
@@ -103009,8 +102959,8 @@ impl V3RoleClassPartitive {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleClassPassive"]
 pub struct V3RoleClassPassive;
 impl ValueSetDef for V3RoleClassPassive {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleClassPassive";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleClassPassive";
+    const CODES: &[&str] = &[
         "ACCESS",
         "ACTI",
         "ACTIB",
@@ -103807,8 +103757,8 @@ impl V3RoleClassPassive {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleClassRelationshipFormal"]
 pub struct V3RoleClassRelationshipFormal;
 impl ValueSetDef for V3RoleClassRelationshipFormal {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleClassRelationshipFormal";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleClassRelationshipFormal";
+    const CODES: &[&str] = &[
         "ACCESS",
         "ACTI",
         "ACTIB",
@@ -104605,8 +104555,8 @@ impl V3RoleClassRelationshipFormal {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleClassRoot"]
 pub struct V3RoleClassRoot;
 impl ValueSetDef for V3RoleClassRoot {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleClassRoot";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleClassRoot";
+    const CODES: &[&str] = &[
         "ACCESS",
         "ACTI",
         "ACTIB",
@@ -105403,9 +105353,8 @@ impl V3RoleClassRoot {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleClassServiceDeliveryLocation"]
 pub struct V3RoleClassServiceDeliveryLocation;
 impl ValueSetDef for V3RoleClassServiceDeliveryLocation {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-RoleClassServiceDeliveryLocation";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleClassServiceDeliveryLocation";
+    const CODES: &[&str] = &[
         "ACCESS",
         "ACTI",
         "ACTIB",
@@ -106202,8 +106151,8 @@ impl V3RoleClassServiceDeliveryLocation {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleClassSpecimen"]
 pub struct V3RoleClassSpecimen;
 impl ValueSetDef for V3RoleClassSpecimen {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleClassSpecimen";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleClassSpecimen";
+    const CODES: &[&str] = &[
         "ACCESS",
         "ACTI",
         "ACTIB",
@@ -107000,8 +106949,8 @@ impl V3RoleClassSpecimen {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleCode"]
 pub struct V3RoleCode;
 impl ValueSetDef for V3RoleCode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleCode";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleCode";
+    const CODES: &[&str] = &[
         "ACC",
         "ACHFID",
         "ACTMIL",
@@ -109793,8 +109742,8 @@ impl V3RoleCode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleLinkStatus"]
 pub struct V3RoleLinkStatus;
 impl ValueSetDef for V3RoleLinkStatus {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleLinkStatus";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleLinkStatus";
+    const CODES: &[&str] = &[
         "ACTIVE",
         "CANCELLED",
         "COMPLETED",
@@ -109849,8 +109798,8 @@ impl V3RoleLinkStatus {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleLinkType"]
 pub struct V3RoleLinkType;
 impl ValueSetDef for V3RoleLinkType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleLinkType";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleLinkType";
+    const CODES: &[&str] = &[
         "BACKUP", "CONT", "DIRAUTH", "IDENT", "INDAUTH", "PART", "REL", "REPL",
     ];
 }
@@ -109912,8 +109861,8 @@ impl V3RoleLinkType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RoleStatus"]
 pub struct V3RoleStatus;
 impl ValueSetDef for V3RoleStatus {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RoleStatus";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RoleStatus";
+    const CODES: &[&str] = &[
         "active",
         "cancelled",
         "normal",
@@ -109975,8 +109924,8 @@ impl V3RoleStatus {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-RouteOfAdministration"]
 pub struct V3RouteOfAdministration;
 impl ValueSetDef for V3RouteOfAdministration {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-RouteOfAdministration";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-RouteOfAdministration";
+    const CODES: &[&str] = &[
         "AMNINJ",
         "BILINJ",
         "BLADINJ",
@@ -112691,9 +112640,8 @@ impl V3RouteOfAdministration {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-SecurityIntegrityObservationValue"]
 pub struct V3SecurityIntegrityObservationValue;
 impl ValueSetDef for V3SecurityIntegrityObservationValue {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-SecurityIntegrityObservationValue";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-SecurityIntegrityObservationValue";
+    const CODES: &[&str] = &[
         "A0",
         "A1",
         "A2",
@@ -114456,8 +114404,8 @@ impl V3SecurityIntegrityObservationValue {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-Sequencing"]
 pub struct V3Sequencing;
 impl ValueSetDef for V3Sequencing {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-Sequencing";
-    const CODES: &'static [&'static str] = &["A", "D", "N"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-Sequencing";
+    const CODES: &[&str] = &["A", "D", "N"];
 }
 impl V3Sequencing {
     #[inline]
@@ -114487,9 +114435,8 @@ impl V3Sequencing {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-ServiceDeliveryLocationRoleType"]
 pub struct V3ServiceDeliveryLocationRoleType;
 impl ValueSetDef for V3ServiceDeliveryLocationRoleType {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-ServiceDeliveryLocationRoleType";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-ServiceDeliveryLocationRoleType";
+    const CODES: &[&str] = &[
         "ACC",
         "ACHFID",
         "ACTMIL",
@@ -117281,8 +117228,8 @@ impl V3ServiceDeliveryLocationRoleType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-SetOperator"]
 pub struct V3SetOperator;
 impl ValueSetDef for V3SetOperator {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-SetOperator";
-    const CODES: &'static [&'static str] = &["A", "E", "H", "I", "P", "_ValueSetOperator"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-SetOperator";
+    const CODES: &[&str] = &["A", "E", "H", "I", "P", "_ValueSetOperator"];
 }
 impl V3SetOperator {
     #[inline]
@@ -117330,8 +117277,8 @@ impl V3SetOperator {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-SeverityObservation"]
 pub struct V3SeverityObservation;
 impl ValueSetDef for V3SeverityObservation {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-SeverityObservation";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-SeverityObservation";
+    const CODES: &[&str] = &[
         "A0",
         "A1",
         "A2",
@@ -119094,8 +119041,8 @@ impl V3SeverityObservation {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-SpecimenType"]
 pub struct V3SpecimenType;
 impl ValueSetDef for V3SpecimenType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-SpecimenType";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-SpecimenType";
+    const CODES: &[&str] = &[
         "ABS",
         "AMN",
         "ASP",
@@ -119976,9 +119923,8 @@ impl V3SpecimenType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-SubstanceAdminSubstitutionReason"]
 pub struct V3SubstanceAdminSubstitutionReason;
 impl ValueSetDef for V3SubstanceAdminSubstitutionReason {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-SubstanceAdminSubstitutionReason";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-SubstanceAdminSubstitutionReason";
+    const CODES: &[&str] = &[
         "ACCRED",
         "ACCREQNA",
         "ADMINERROR",
@@ -121951,9 +121897,8 @@ impl V3SubstanceAdminSubstitutionReason {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-SubstitutionCondition"]
 pub struct V3SubstitutionCondition;
 impl ValueSetDef for V3SubstitutionCondition {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-SubstitutionCondition";
-    const CODES: &'static [&'static str] =
-        &["CONFIRM", "NOSUB", "NOTIFY", "UNCOND", "_Conditional"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-SubstitutionCondition";
+    const CODES: &[&str] = &["CONFIRM", "NOSUB", "NOTIFY", "UNCOND", "_Conditional"];
 }
 impl V3SubstitutionCondition {
     #[inline]
@@ -121995,8 +121940,8 @@ impl V3SubstitutionCondition {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-TableCellHorizontalAlign"]
 pub struct V3TableCellHorizontalAlign;
 impl ValueSetDef for V3TableCellHorizontalAlign {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-TableCellHorizontalAlign";
-    const CODES: &'static [&'static str] = &["center", "char", "justify", "left", "right"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-TableCellHorizontalAlign";
+    const CODES: &[&str] = &["center", "char", "justify", "left", "right"];
 }
 impl V3TableCellHorizontalAlign {
     #[inline]
@@ -122038,8 +121983,8 @@ impl V3TableCellHorizontalAlign {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-TableCellScope"]
 pub struct V3TableCellScope;
 impl ValueSetDef for V3TableCellScope {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-TableCellScope";
-    const CODES: &'static [&'static str] = &["col", "colgroup", "row", "rowgroup"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-TableCellScope";
+    const CODES: &[&str] = &["col", "colgroup", "row", "rowgroup"];
 }
 impl V3TableCellScope {
     #[inline]
@@ -122075,8 +122020,8 @@ impl V3TableCellScope {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-TableCellVerticalAlign"]
 pub struct V3TableCellVerticalAlign;
 impl ValueSetDef for V3TableCellVerticalAlign {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-TableCellVerticalAlign";
-    const CODES: &'static [&'static str] = &["baseline", "bottom", "middle", "top"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-TableCellVerticalAlign";
+    const CODES: &[&str] = &["baseline", "bottom", "middle", "top"];
 }
 impl V3TableCellVerticalAlign {
     #[inline]
@@ -122112,8 +122057,8 @@ impl V3TableCellVerticalAlign {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-TableFrame"]
 pub struct V3TableFrame;
 impl ValueSetDef for V3TableFrame {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-TableFrame";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-TableFrame";
+    const CODES: &[&str] = &[
         "above", "below", "border", "box", "hsides", "lhs", "rhs", "void", "vsides",
     ];
 }
@@ -122181,8 +122126,8 @@ impl V3TableFrame {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-TableRules"]
 pub struct V3TableRules;
 impl ValueSetDef for V3TableRules {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-TableRules";
-    const CODES: &'static [&'static str] = &["all", "cols", "groups", "none", "rows"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-TableRules";
+    const CODES: &[&str] = &["all", "cols", "groups", "none", "rows"];
 }
 impl V3TableRules {
     #[inline]
@@ -122224,8 +122169,8 @@ impl V3TableRules {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-TargetAwareness"]
 pub struct V3TargetAwareness;
 impl ValueSetDef for V3TargetAwareness {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-TargetAwareness";
-    const CODES: &'static [&'static str] = &["D", "F", "I", "M", "P", "U"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-TargetAwareness";
+    const CODES: &[&str] = &["D", "F", "I", "M", "P", "U"];
 }
 impl V3TargetAwareness {
     #[inline]
@@ -122273,9 +122218,8 @@ impl V3TargetAwareness {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-TelecommunicationCapabilities"]
 pub struct V3TelecommunicationCapabilities;
 impl ValueSetDef for V3TelecommunicationCapabilities {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-TelecommunicationCapabilities";
-    const CODES: &'static [&'static str] = &["data", "fax", "sms", "tty", "voice"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-TelecommunicationCapabilities";
+    const CODES: &[&str] = &["data", "fax", "sms", "tty", "voice"];
 }
 impl V3TelecommunicationCapabilities {
     #[inline]
@@ -122317,8 +122261,8 @@ impl V3TelecommunicationCapabilities {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-TimingEvent"]
 pub struct V3TimingEvent;
 impl ValueSetDef for V3TimingEvent {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-TimingEvent";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-TimingEvent";
+    const CODES: &[&str] = &[
         "AC", "ACD", "ACM", "ACV", "C", "CD", "CM", "CV", "HS", "IC", "ICD", "ICM", "ICV", "PC",
         "PCD", "PCM", "PCV", "WAKE",
     ];
@@ -122441,9 +122385,8 @@ impl V3TimingEvent {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-TransmissionRelationshipTypeCode"]
 pub struct V3TransmissionRelationshipTypeCode;
 impl ValueSetDef for V3TransmissionRelationshipTypeCode {
-    const URL: &'static str =
-        "http://terminology.hl7.org/ValueSet/v3-TransmissionRelationshipTypeCode";
-    const CODES: &'static [&'static str] = &["SEQL"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-TransmissionRelationshipTypeCode";
+    const CODES: &[&str] = &["SEQL"];
 }
 impl V3TransmissionRelationshipTypeCode {
     #[inline]
@@ -122461,8 +122404,8 @@ impl V3TransmissionRelationshipTypeCode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-VaccineManufacturer"]
 pub struct V3VaccineManufacturer;
 impl ValueSetDef for V3VaccineManufacturer {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-VaccineManufacturer";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-VaccineManufacturer";
+    const CODES: &[&str] = &[
         "AB", "AD", "ALP", "AR", "AVI", "BA", "BAY", "BP", "BPC", "CEN", "CHI", "CON", "EVN",
         "GRE", "IAG", "IM", "IUS", "JPN", "KGC", "LED", "MA", "MED", "MIL", "MIP", "MSD", "NAB",
         "NAV", "NOV", "NYB", "ORT", "OTC", "PD", "PMC", "PRX", "SCL", "SI", "SKB", "USA", "WA",
@@ -122719,8 +122662,8 @@ impl V3VaccineManufacturer {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-VerificationMethod"]
 pub struct V3VerificationMethod;
 impl ValueSetDef for V3VerificationMethod {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-VerificationMethod";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-VerificationMethod";
+    const CODES: &[&str] = &[
         "0001",
         "0002",
         "0003",
@@ -124861,8 +124804,8 @@ impl V3VerificationMethod {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-WorkClassificationODH"]
 pub struct V3WorkClassificationODH;
 impl ValueSetDef for V3WorkClassificationODH {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-WorkClassificationODH";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-WorkClassificationODH";
+    const CODES: &[&str] = &[
         "PWAF", "PWFG", "PWLG", "PWNSE", "PWSE", "PWSG", "UWNSE", "UWSE", "VW",
     ];
 }
@@ -124930,8 +124873,8 @@ impl V3WorkClassificationODH {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-WorkScheduleODH"]
 pub struct V3WorkScheduleODH;
 impl ValueSetDef for V3WorkScheduleODH {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-WorkScheduleODH";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-WorkScheduleODH";
+    const CODES: &[&str] = &[
         "A0",
         "A1",
         "A2",
@@ -126694,8 +126637,8 @@ impl V3WorkScheduleODH {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-employmentStatusODH"]
 pub struct V3EmploymentStatusODH;
 impl ValueSetDef for V3EmploymentStatusODH {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-employmentStatusODH";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-employmentStatusODH";
+    const CODES: &[&str] = &[
         "A0",
         "A1",
         "A2",
@@ -128458,8 +128401,8 @@ impl V3EmploymentStatusODH {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-hl7ApprovalStatus"]
 pub struct V3Hl7ApprovalStatus;
 impl ValueSetDef for V3Hl7ApprovalStatus {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-hl7ApprovalStatus";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-hl7ApprovalStatus";
+    const CODES: &[&str] = &[
         "affd", "affi", "affn", "appad", "appai", "appan", "appd", "appi", "appn", "comi", "comn",
         "draft", "loc", "memd", "memi", "memn", "ns", "prop", "ref", "wd",
     ];
@@ -128594,8 +128537,8 @@ impl V3Hl7ApprovalStatus {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-hl7CMETAttribution"]
 pub struct V3Hl7CMETAttribution;
 impl ValueSetDef for V3Hl7CMETAttribution {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-hl7CMETAttribution";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-hl7CMETAttribution";
+    const CODES: &[&str] = &[
         "contact",
         "identified",
         "identified-confirmable",
@@ -128657,8 +128600,8 @@ impl V3Hl7CMETAttribution {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-hl7ITSType"]
 pub struct V3Hl7ITSType;
 impl ValueSetDef for V3Hl7ITSType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-hl7ITSType";
-    const CODES: &'static [&'static str] = &["UML", "XML"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-hl7ITSType";
+    const CODES: &[&str] = &["UML", "XML"];
 }
 impl V3Hl7ITSType {
     #[inline]
@@ -128682,8 +128625,8 @@ impl V3Hl7ITSType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-hl7ITSVersionCode"]
 pub struct V3Hl7ITSVersionCode;
 impl ValueSetDef for V3Hl7ITSVersionCode {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-hl7ITSVersionCode";
-    const CODES: &'static [&'static str] = &["XMLV1PR1"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-hl7ITSVersionCode";
+    const CODES: &[&str] = &["XMLV1PR1"];
 }
 impl V3Hl7ITSVersionCode {
     #[inline]
@@ -128701,8 +128644,8 @@ impl V3Hl7ITSVersionCode {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-hl7PublishingDomain"]
 pub struct V3Hl7PublishingDomain;
 impl ValueSetDef for V3Hl7PublishingDomain {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-hl7PublishingDomain";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-hl7PublishingDomain";
+    const CODES: &[&str] = &[
         "AB", "AI", "AL", "BB", "CD", "CG", "CI", "CO", "CP", "CR", "CS", "CT", "DD", "DI", "DS",
         "EM", "II", "IZ", "LB", "ME", "MI", "MM", "MR", "MT", "OB", "OO", "OR", "PA", "PC", "PH",
         "PM", "QI", "QM", "RG", "RI", "RP", "RR", "RT", "RX", "SC", "SP", "TD",
@@ -128970,8 +128913,8 @@ impl V3Hl7PublishingDomain {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-hl7PublishingSection"]
 pub struct V3Hl7PublishingSection;
 impl ValueSetDef for V3Hl7PublishingSection {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-hl7PublishingSection";
-    const CODES: &'static [&'static str] = &["AM", "HM", "IM", "UU"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-hl7PublishingSection";
+    const CODES: &[&str] = &["AM", "HM", "IM", "UU"];
 }
 impl V3Hl7PublishingSection {
     #[inline]
@@ -129007,9 +128950,8 @@ impl V3Hl7PublishingSection {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-hl7PublishingSubSection"]
 pub struct V3Hl7PublishingSubSection;
 impl ValueSetDef for V3Hl7PublishingSubSection {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-hl7PublishingSubSection";
-    const CODES: &'static [&'static str] =
-        &["CO", "FI", "MC", "MF", "PO", "PR", "QU", "RC", "RE", "UU"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-hl7PublishingSubSection";
+    const CODES: &[&str] = &["CO", "FI", "MC", "MF", "PO", "PR", "QU", "RC", "RE", "UU"];
 }
 impl V3Hl7PublishingSubSection {
     #[inline]
@@ -129081,8 +129023,8 @@ impl V3Hl7PublishingSubSection {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-hl7Realm"]
 pub struct V3Hl7Realm;
 impl ValueSetDef for V3Hl7Realm {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-hl7Realm";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-hl7Realm";
+    const CODES: &[&str] = &[
         "AR",
         "AT",
         "AU",
@@ -129410,8 +129352,8 @@ impl V3Hl7Realm {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-hl7V3Conformance"]
 pub struct V3Hl7V3Conformance;
 impl ValueSetDef for V3Hl7V3Conformance {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-hl7V3Conformance";
-    const CODES: &'static [&'static str] = &["I", "NP", "R", "RC", "RI", "U"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-hl7V3Conformance";
+    const CODES: &[&str] = &["I", "NP", "R", "RC", "RI", "U"];
 }
 impl V3Hl7V3Conformance {
     #[inline]
@@ -129459,8 +129401,8 @@ impl V3Hl7V3Conformance {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-hl7VoteResolution"]
 pub struct V3Hl7VoteResolution;
 impl ValueSetDef for V3Hl7VoteResolution {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-hl7VoteResolution";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-hl7VoteResolution";
+    const CODES: &[&str] = &[
         "affdef",
         "affi",
         "affirmativeResolution",
@@ -129564,8 +129506,8 @@ impl V3Hl7VoteResolution {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-orderableDrugForm"]
 pub struct V3OrderableDrugForm;
 impl ValueSetDef for V3OrderableDrugForm {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-orderableDrugForm";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-orderableDrugForm";
+    const CODES: &[&str] = &[
         "AER",
         "APPFUL",
         "BAINHL",
@@ -130705,8 +130647,8 @@ impl V3OrderableDrugForm {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-styleType"]
 pub struct V3StyleType;
 impl ValueSetDef for V3StyleType {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-styleType";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-styleType";
+    const CODES: &[&str] = &[
         "Arabic",
         "BigAlpha",
         "BigRoman",
@@ -130866,8 +130808,8 @@ impl V3StyleType {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-substanceAdminSubstitution"]
 pub struct V3SubstanceAdminSubstitution;
 impl ValueSetDef for V3SubstanceAdminSubstitution {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-substanceAdminSubstitution";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-substanceAdminSubstitution";
+    const CODES: &[&str] = &[
         "BC",
         "E",
         "EC",
@@ -130950,8 +130892,8 @@ impl V3SubstanceAdminSubstitution {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-triggerEventID"]
 pub struct V3TriggerEventID;
 impl ValueSetDef for V3TriggerEventID {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-triggerEventID";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-triggerEventID";
+    const CODES: &[&str] = &[
         "POLB_TE004000UV",
         "POLB_TE004001UV",
         "POLB_TE004002UV",
@@ -131041,8 +130983,8 @@ impl V3TriggerEventID {
 #[doc = "http://terminology.hl7.org/ValueSet/v3-xBasicConfidentialityKind"]
 pub struct V3XBasicConfidentialityKind;
 impl ValueSetDef for V3XBasicConfidentialityKind {
-    const URL: &'static str = "http://terminology.hl7.org/ValueSet/v3-xBasicConfidentialityKind";
-    const CODES: &'static [&'static str] = &["N", "R", "V"];
+    const URL: &str = "http://terminology.hl7.org/ValueSet/v3-xBasicConfidentialityKind";
+    const CODES: &[&str] = &["N", "R", "V"];
 }
 impl V3XBasicConfidentialityKind {
     #[inline]
@@ -131072,9 +131014,8 @@ impl V3XBasicConfidentialityKind {
 #[doc = "https://haste.health/fhir/ValueSet/AccessPolicyAttributeOperationTypes"]
 pub struct AccessPolicyAttributeOperationTypes;
 impl ValueSetDef for AccessPolicyAttributeOperationTypes {
-    const URL: &'static str =
-        "https://haste.health/fhir/ValueSet/AccessPolicyAttributeOperationTypes";
-    const CODES: &'static [&'static str] = &["read", "search-system", "search-type"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyAttributeOperationTypes";
+    const CODES: &[&str] = &["read", "search-system", "search-type"];
 }
 impl AccessPolicyAttributeOperationTypes {
     #[inline]
@@ -131104,8 +131045,8 @@ impl AccessPolicyAttributeOperationTypes {
 #[doc = "https://haste.health/fhir/ValueSet/AccessPolicyEngineV2"]
 pub struct AccessPolicyv2Engine;
 impl ValueSetDef for AccessPolicyv2Engine {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/AccessPolicyEngineV2";
-    const CODES: &'static [&'static str] = &["full-access", "rule-engine"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyEngineV2";
+    const CODES: &[&str] = &["full-access", "rule-engine"];
 }
 impl AccessPolicyv2Engine {
     #[inline]
@@ -131129,8 +131070,8 @@ impl AccessPolicyv2Engine {
 #[doc = "https://haste.health/fhir/ValueSet/AccessPolicyFHIRAPILevel"]
 pub struct AccessPolicyFhirApiLevel;
 impl ValueSetDef for AccessPolicyFhirApiLevel {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/AccessPolicyFHIRAPILevel";
-    const CODES: &'static [&'static str] = &["instance", "system", "type"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyFHIRAPILevel";
+    const CODES: &[&str] = &["instance", "system", "type"];
 }
 impl AccessPolicyFhirApiLevel {
     #[inline]
@@ -131160,8 +131101,8 @@ impl AccessPolicyFhirApiLevel {
 #[doc = "https://haste.health/fhir/ValueSet/AccessPolicyFHIRAPIMethod"]
 pub struct AccessPolicyFhirApiMethods;
 impl ValueSetDef for AccessPolicyFhirApiMethods {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/AccessPolicyFHIRAPIMethod";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyFHIRAPIMethod";
+    const CODES: &[&str] = &[
         "batch",
         "capabilities",
         "create",
@@ -131258,8 +131199,8 @@ impl AccessPolicyFhirApiMethods {
 #[doc = "https://haste.health/fhir/ValueSet/AccessPolicyFHIRAPIParameter"]
 pub struct AccessPolicyFhirApiParameter;
 impl ValueSetDef for AccessPolicyFhirApiParameter {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/AccessPolicyFHIRAPIParameter";
-    const CODES: &'static [&'static str] = &["id", "resourceType", "versionId"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyFHIRAPIParameter";
+    const CODES: &[&str] = &["id", "resourceType", "versionId"];
 }
 impl AccessPolicyFhirApiParameter {
     #[inline]
@@ -131289,8 +131230,8 @@ impl AccessPolicyFhirApiParameter {
 #[doc = "https://haste.health/fhir/ValueSet/AccessPolicyType"]
 pub struct AccessPolicyType;
 impl ValueSetDef for AccessPolicyType {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/AccessPolicyType";
-    const CODES: &'static [&'static str] = &["fhir-rest", "full-access"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyType";
+    const CODES: &[&str] = &["fhir-rest", "full-access"];
 }
 impl AccessPolicyType {
     #[inline]
@@ -131314,8 +131255,8 @@ impl AccessPolicyType {
 #[doc = "https://haste.health/fhir/ValueSet/AccessPolicyV2CombineBehavior"]
 pub struct AccessPolicyv2CombineBehavior;
 impl ValueSetDef for AccessPolicyv2CombineBehavior {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/AccessPolicyV2CombineBehavior";
-    const CODES: &'static [&'static str] = &["all-of", "any"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyV2CombineBehavior";
+    const CODES: &[&str] = &["all-of", "any"];
 }
 impl AccessPolicyv2CombineBehavior {
     #[inline]
@@ -131339,9 +131280,8 @@ impl AccessPolicyv2CombineBehavior {
 #[doc = "https://haste.health/fhir/ValueSet/AccessPolicyV2RuleConditionOperator"]
 pub struct AccessPolicyv2RuleConditionOperator;
 impl ValueSetDef for AccessPolicyv2RuleConditionOperator {
-    const URL: &'static str =
-        "https://haste.health/fhir/ValueSet/AccessPolicyV2RuleConditionOperator";
-    const CODES: &'static [&'static str] = &["!=", "="];
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyV2RuleConditionOperator";
+    const CODES: &[&str] = &["!=", "="];
 }
 impl AccessPolicyv2RuleConditionOperator {
     #[inline]
@@ -131365,8 +131305,8 @@ impl AccessPolicyv2RuleConditionOperator {
 #[doc = "https://haste.health/fhir/ValueSet/AccessPolicyV2RuleEffect"]
 pub struct AccessPolicyRuleEffect;
 impl ValueSetDef for AccessPolicyRuleEffect {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/AccessPolicyV2RuleEffect";
-    const CODES: &'static [&'static str] = &["deny", "permit"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/AccessPolicyV2RuleEffect";
+    const CODES: &[&str] = &["deny", "permit"];
 }
 impl AccessPolicyRuleEffect {
     #[inline]
@@ -131390,8 +131330,8 @@ impl AccessPolicyRuleEffect {
 #[doc = "https://haste.health/fhir/ValueSet/CanonicalResourceTypes"]
 pub struct CanonicalResourceTypes;
 impl ValueSetDef for CanonicalResourceTypes {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/CanonicalResourceTypes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "https://haste.health/fhir/ValueSet/CanonicalResourceTypes";
+    const CODES: &[&str] = &[
         "ActivityDefinition",
         "CapabilityStatement",
         "ChargeItemDefinition",
@@ -131607,8 +131547,8 @@ impl CanonicalResourceTypes {
 #[doc = "https://haste.health/fhir/ValueSet/ClientApplicationGrantType"]
 pub struct ClientapplicationGrantType;
 impl ValueSetDef for ClientapplicationGrantType {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/ClientApplicationGrantType";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "https://haste.health/fhir/ValueSet/ClientApplicationGrantType";
+    const CODES: &[&str] = &[
         "authorization_code",
         "basic_auth",
         "client_credentials",
@@ -131649,8 +131589,8 @@ impl ClientapplicationGrantType {
 #[doc = "https://haste.health/fhir/ValueSet/ClientApplicationResponseTypes"]
 pub struct ClientapplicationResponseTypes;
 impl ValueSetDef for ClientapplicationResponseTypes {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/ClientApplicationResponseTypes";
-    const CODES: &'static [&'static str] = &["code", "token"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/ClientApplicationResponseTypes";
+    const CODES: &[&str] = &["code", "token"];
 }
 impl ClientapplicationResponseTypes {
     #[inline]
@@ -131674,8 +131614,8 @@ impl ClientapplicationResponseTypes {
 #[doc = "https://haste.health/fhir/ValueSet/IdentityProviderAccessType"]
 pub struct IdentityProviderAccessType;
 impl ValueSetDef for IdentityProviderAccessType {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/IdentityProviderAccessType";
-    const CODES: &'static [&'static str] = &["oidc"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/IdentityProviderAccessType";
+    const CODES: &[&str] = &["oidc"];
 }
 impl IdentityProviderAccessType {
     #[inline]
@@ -131693,9 +131633,8 @@ impl IdentityProviderAccessType {
 #[doc = "https://haste.health/fhir/ValueSet/IdentityProviderPKCEChallengeMethod"]
 pub struct IdentityProviderPkceChallengeMethod;
 impl ValueSetDef for IdentityProviderPkceChallengeMethod {
-    const URL: &'static str =
-        "https://haste.health/fhir/ValueSet/IdentityProviderPKCEChallengeMethod";
-    const CODES: &'static [&'static str] = &["S256", "plain"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/IdentityProviderPKCEChallengeMethod";
+    const CODES: &[&str] = &["S256", "plain"];
 }
 impl IdentityProviderPkceChallengeMethod {
     #[inline]
@@ -131719,8 +131658,8 @@ impl IdentityProviderPkceChallengeMethod {
 #[doc = "https://haste.health/fhir/ValueSet/IdentityProviderStatus"]
 pub struct IdentityProviderStatus;
 impl ValueSetDef for IdentityProviderStatus {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/IdentityProviderStatus";
-    const CODES: &'static [&'static str] = &["active", "disabled"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/IdentityProviderStatus";
+    const CODES: &[&str] = &["active", "disabled"];
 }
 impl IdentityProviderStatus {
     #[inline]
@@ -131744,8 +131683,8 @@ impl IdentityProviderStatus {
 #[doc = "https://haste.health/fhir/ValueSet/MembershipRole"]
 pub struct MembershipRole;
 impl ValueSetDef for MembershipRole {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/MembershipRole";
-    const CODES: &'static [&'static str] = &["admin", "member"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/MembershipRole";
+    const CODES: &[&str] = &["admin", "member"];
 }
 impl MembershipRole {
     #[inline]
@@ -131769,8 +131708,8 @@ impl MembershipRole {
 #[doc = "https://haste.health/fhir/ValueSet/MessageBrokerType"]
 pub struct MessageBrokerType;
 impl ValueSetDef for MessageBrokerType {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/MessageBrokerType";
-    const CODES: &'static [&'static str] = &["kafka"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/MessageBrokerType";
+    const CODES: &[&str] = &["kafka"];
 }
 impl MessageBrokerType {
     #[inline]
@@ -131788,8 +131727,8 @@ impl MessageBrokerType {
 #[doc = "https://haste.health/fhir/ValueSet/ResourceTypes"]
 pub struct HasteHealthTypes;
 impl ValueSetDef for HasteHealthTypes {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/ResourceTypes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "https://haste.health/fhir/ValueSet/ResourceTypes";
+    const CODES: &[&str] = &[
         "AccessPolicy",
         "Account",
         "ActivityDefinition",
@@ -132859,8 +132798,8 @@ impl HasteHealthTypes {
 #[doc = "https://haste.health/fhir/ValueSet/SupportedFHIRVersion"]
 pub struct SupportedFhirVersion;
 impl ValueSetDef for SupportedFhirVersion {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/SupportedFHIRVersion";
-    const CODES: &'static [&'static str] = &["r4"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/SupportedFHIRVersion";
+    const CODES: &[&str] = &["r4"];
 }
 impl SupportedFhirVersion {
     #[inline]
@@ -132878,8 +132817,8 @@ impl SupportedFhirVersion {
 #[doc = "https://haste.health/fhir/ValueSet/UserRole"]
 pub struct UserRole;
 impl ValueSetDef for UserRole {
-    const URL: &'static str = "https://haste.health/fhir/ValueSet/UserRole";
-    const CODES: &'static [&'static str] = &["admin", "member", "owner"];
+    const URL: &str = "https://haste.health/fhir/ValueSet/UserRole";
+    const CODES: &[&str] = &["admin", "member", "owner"];
 }
 impl UserRole {
     #[inline]
@@ -132909,8 +132848,8 @@ impl UserRole {
 #[doc = "https://sql-on-fhir.org/ig/ValueSet/AllSQLContentTypeCodes"]
 pub struct AllSQLContentTypeCodes;
 impl ValueSetDef for AllSQLContentTypeCodes {
-    const URL: &'static str = "https://sql-on-fhir.org/ig/ValueSet/AllSQLContentTypeCodes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "https://sql-on-fhir.org/ig/ValueSet/AllSQLContentTypeCodes";
+    const CODES: &[&str] = &[
         "application/sql",
         "application/sql;dialect=ansi-sql",
         "application/sql;dialect=bigquery",
@@ -133084,8 +133023,8 @@ impl AllSQLContentTypeCodes {
 #[doc = "https://sql-on-fhir.org/ig/ValueSet/ExportStatusCodes"]
 pub struct ExportStatusCodes;
 impl ValueSetDef for ExportStatusCodes {
-    const URL: &'static str = "https://sql-on-fhir.org/ig/ValueSet/ExportStatusCodes";
-    const CODES: &'static [&'static str] = &[
+    const URL: &str = "https://sql-on-fhir.org/ig/ValueSet/ExportStatusCodes";
+    const CODES: &[&str] = &[
         "accepted",
         "cancelled",
         "completed",
@@ -133133,8 +133072,8 @@ impl ExportStatusCodes {
 #[doc = "https://sql-on-fhir.org/ig/ValueSet/OutputFormatCodes"]
 pub struct OutputFormatCodes;
 impl ValueSetDef for OutputFormatCodes {
-    const URL: &'static str = "https://sql-on-fhir.org/ig/ValueSet/OutputFormatCodes";
-    const CODES: &'static [&'static str] = &["csv", "fhir", "json", "ndjson", "parquet"];
+    const URL: &str = "https://sql-on-fhir.org/ig/ValueSet/OutputFormatCodes";
+    const CODES: &[&str] = &["csv", "fhir", "json", "ndjson", "parquet"];
 }
 impl OutputFormatCodes {
     #[inline]
@@ -133176,8 +133115,8 @@ impl OutputFormatCodes {
 #[doc = "https://sql-on-fhir.org/ig/ValueSet/SQLQueryRunOutputFormatCodes"]
 pub struct SQLQueryRunOutputFormatCodes;
 impl ValueSetDef for SQLQueryRunOutputFormatCodes {
-    const URL: &'static str = "https://sql-on-fhir.org/ig/ValueSet/SQLQueryRunOutputFormatCodes";
-    const CODES: &'static [&'static str] = &["csv", "fhir", "json", "ndjson", "parquet"];
+    const URL: &str = "https://sql-on-fhir.org/ig/ValueSet/SQLQueryRunOutputFormatCodes";
+    const CODES: &[&str] = &["csv", "fhir", "json", "ndjson", "parquet"];
 }
 impl SQLQueryRunOutputFormatCodes {
     #[inline]

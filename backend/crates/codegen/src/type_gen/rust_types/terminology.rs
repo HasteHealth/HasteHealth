@@ -173,8 +173,8 @@ fn generate_const_variants(value_set: ValueSet) -> Option<TokenStream> {
                 pub struct #terminology_enum_name;
 
                 impl ValueSetDef for #terminology_enum_name {
-                    const URL: &'static str = #terminology_url;
-                    const CODES: &'static [&'static str] = &[#(#code_vec),*];
+                    const URL: &str = #terminology_url;
+                    const CODES: &[&str] = &[#(#code_vec),*];
                 }
 
                 impl #terminology_enum_name {
@@ -352,8 +352,8 @@ fn prebuilt_code_imports() -> TokenStream {
 fn prebuilt_code_struct() -> TokenStream {
     quote! {
         pub trait ValueSetDef: 'static + Send + Sync {
-            const URL: &'static str;
-            const CODES: &'static [&'static str];
+            const URL: &str;
+            const CODES: &[&str];
         }
 
         pub struct BoundCode<VS: ValueSetDef> {
@@ -554,8 +554,8 @@ fn prebuilt_code_serde() -> TokenStream {
     quote! {
         // Non-generic over VS — monomorphizes per Deserializer, i.e. ~once.
         fn parse_code<E: serde::de::Error>(
-            codes: &'static [&'static str],
-            url: &'static str,
+            codes: &[&str],
+            url: &str,
             s: &str,
         ) -> Result<u16, E> {
             codes
