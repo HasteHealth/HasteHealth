@@ -11,11 +11,10 @@ use crate::{
     },
     extract::{
         csrf_token::CSRFToken,
-        path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
+        path_tenant::{Project, ProjectIdentifier},
     },
     services::ServerState,
-    ui::components::TenantName,
-    ui::pages,
+    ui::{components::TenantContext, pages},
 };
 use axum::{
     Extension,
@@ -105,10 +104,9 @@ pub async fn authorize<
 >(
     _: AuthorizePath,
     Scopes(scopes): Scopes,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     Cached(Project(project_resource)): Cached<Project>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
-    Cached(branding): Cached<TenantName>,
     State(app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Extension(oidc_params): Extension<OIDCParameters>,

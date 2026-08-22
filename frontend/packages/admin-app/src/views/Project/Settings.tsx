@@ -153,7 +153,7 @@ function readFileAsBase64(file: File): Promise<string> {
         reject(new Error("FileReader result was not a string"));
       }
     };
-    reader.onerror = (error) => reject(error);
+    reader.onerror = () => reject(new Error("Failed to read file"));
   });
 }
 
@@ -177,6 +177,13 @@ function TenantBranding({ isOwner }: Readonly<{ isOwner: boolean }>) {
 
   const displayedLogoUrl =
     logoPreviewUrl ?? (logoCleared ? undefined : currentLogoDataUrl);
+
+  let logoStatusLabel = "Current logo";
+  if (logoPreviewUrl) {
+    logoStatusLabel = "New logo (unsaved)";
+  } else if (logoCleared) {
+    logoStatusLabel = "Logo will be cleared";
+  }
 
   const loadBranding = useCallback(() => {
     setLoadingBranding(true);
@@ -324,13 +331,7 @@ function TenantBranding({ isOwner }: Readonly<{ isOwner: boolean }>) {
                 </button>
               )}
             </div>
-            <span className="text-xs text-slate-500">
-              {logoPreviewUrl
-                ? "New logo (unsaved)"
-                : logoCleared
-                  ? "Logo will be cleared"
-                  : "Current logo"}
-            </span>
+            <span className="text-xs text-slate-500">{logoStatusLabel}</span>
           </div>
 
           {isOwner ? (

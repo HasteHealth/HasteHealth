@@ -28,9 +28,9 @@ use crate::{
         },
         session,
     },
-    extract::{csrf_token::CSRFToken, path_tenant::TenantIdentifier},
+    extract::csrf_token::CSRFToken,
     services::ServerState,
-    ui::components::TenantName,
+    ui::components::TenantContext,
 };
 
 #[derive(TypedPath, Deserialize)]
@@ -47,8 +47,7 @@ pub async fn create_post<
     _: MFACreatePOST,
     uri: OriginalUri,
     CSRFToken(csrf_token): CSRFToken,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    Cached(branding): Cached<TenantName>,
+    Cached(context): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
@@ -63,9 +62,9 @@ pub async fn create_post<
 
     let existing_mfa_credentials = TenantModelAdmin::<UserMFACredentialCreate, _, _, _, _>::search(
         state.repo.as_ref(),
-        &tenant,
+        &context.tenant,
         &UserMFASearchClaims {
-            tenant: tenant.clone(),
+            tenant: context.tenant.clone(),
             user_id: UserId::new(get_auth_state.user.id.clone()),
             is_active: None,
         },
@@ -98,7 +97,7 @@ pub async fn create_post<
 
     let user_mfa_credential = TenantModelAdmin::<UserMFACredentialCreate, _, _, _, _>::create(
         state.repo.as_ref(),
-        &tenant,
+        &context.tenant,
         UserMFACredentialCreate {
             user_id: UserId::new(get_auth_state.user.id.clone()),
             credential_type: haste_repository::types::mfa::MFACredentialType::TOTP,
@@ -115,12 +114,11 @@ pub async fn create_post<
 
     let mfa_active_html = activate_html(
         state.as_ref(),
-        &tenant,
+        &context,
         &get_auth_state.user,
         &user_mfa_credential,
         &csrf_token,
         &mfa_activation_post_route(&uri, &user_mfa_credential, "/create"),
-        Some(&branding),
     )
     .await?;
 

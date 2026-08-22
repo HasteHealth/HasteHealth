@@ -4,10 +4,9 @@ use crate::{
         oidc::routes::route_string::tenant_route_string,
         session::{self, user::SessionAuthorizationState},
     },
-    extract::{csrf_token::CSRFToken, path_tenant::TenantIdentifier},
+    extract::csrf_token::CSRFToken,
     services::ServerState,
-    ui::components::TenantName,
-    ui::pages::mfa,
+    ui::{components::TenantContext, pages::mfa},
 };
 use axum::{
     Form,
@@ -121,8 +120,7 @@ pub async fn totp_verification_get<
     Query(query): Query<TOTPVerificationQuery>,
     uri: OriginalUri,
     CSRFToken(csrf_token): CSRFToken,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    Cached(branding): Cached<TenantName>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
@@ -156,8 +154,7 @@ pub async fn totp_verification_post<
     Query(query): Query<TOTPVerificationQuery>,
     uri: OriginalUri,
     CSRFToken(csrf_token): CSRFToken,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    Cached(branding): Cached<TenantName>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
     Form(form_data): Form<TOTPVerificationPOSTBody>,

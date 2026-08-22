@@ -5,11 +5,13 @@ use crate::{
     },
     extract::{
         csrf_token::CSRFToken,
-        path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
+        path_tenant::{Project, ProjectIdentifier},
     },
     services::ServerState,
-    ui::components::TenantName,
-    ui::pages::{self, message::message_html},
+    ui::{
+        components::TenantContext,
+        pages::{self, message::message_html},
+    },
 };
 use axum::{
     Form,
@@ -38,9 +40,8 @@ pub struct PasswordResetInitiate;
 
 pub async fn password_reset_initiate_get(
     _: PasswordResetInitiate,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     Cached(Project(project)): Cached<Project>,
-    Cached(branding): Cached<TenantName>,
     CSRFToken(csrf_token): CSRFToken,
     uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
@@ -70,10 +71,9 @@ pub async fn password_reset_initiate_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: PasswordResetInitiate,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     project_resource: Project,
-    Cached(branding): Cached<TenantName>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     CSRFToken(csrf_token): CSRFToken,
     form: axum::extract::Form<PasswordResetFormInitiate>,
@@ -131,10 +131,9 @@ pub async fn password_reset_verify_get<
     _: PasswordResetVerify,
     uri: OriginalUri,
     query: Query<PasswordResetVerifyQuery>,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
-    Cached(branding): Cached<TenantName>,
     CSRFToken(csrf_token): CSRFToken,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Markup, OperationOutcomeError> {
@@ -193,10 +192,9 @@ pub async fn password_reset_verify_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: PasswordResetVerify,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
-    Cached(branding): Cached<TenantName>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     CSRFToken(csrf_token): CSRFToken,
     Form(body): Form<PasswordVerifyPOSTBODY>,

@@ -1,9 +1,19 @@
+use haste_jwt::TenantId;
 use maud::{Markup, html};
 
 use crate::static_assets::asset_route;
 
 #[derive(Clone, Debug, Default)]
 pub struct TenantName(pub Option<String>);
+
+/// Bundles a request's tenant identity together with its display branding, so extractors
+/// and page-render functions that need both don't have to take two separate parameters.
+/// Populated once per request by [`crate::extract::path_tenant`]'s `FromRequestParts` impl.
+#[derive(Clone)]
+pub struct TenantContext {
+    pub tenant: TenantId,
+    pub branding: TenantName,
+}
 
 /// Renders the banner for pages with no tenant context (e.g. before a tenant has been
 /// identified). `header` is shown as-is, and the static default logo is used.

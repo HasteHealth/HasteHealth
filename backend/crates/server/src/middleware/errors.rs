@@ -1,7 +1,4 @@
-use crate::{
-    extract::path_tenant::TenantIdentifier, ui::components::TenantName,
-    ui::pages::error::error_html,
-};
+use crate::{ui::components::TenantContext, ui::pages::error::error_html};
 use axum::{
     extract::Request,
     middleware::Next,
@@ -27,8 +24,7 @@ pub async fn log_operationoutcome_errors(request: Request, next: Next) -> Respon
 /// If the client accepts HTML, an error page is rendered.
 /// Otherwise, a FHIR OperationOutcome JSON response is returned.
 pub async fn operation_outcome_error_handle(
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    Cached(branding): Cached<TenantName>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     request: Request,
     next: Next,
 ) -> Response {
