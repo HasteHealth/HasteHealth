@@ -8,10 +8,10 @@ import { createStorybookClient } from "../stories.client";
 import { FHIRReferenceEditable } from "./Reference";
 
 const FHIRReferenceStorie = (
-  props: Parameters<typeof FHIRReferenceEditable>[0]
+  props: Parameters<typeof FHIRReferenceEditable>[0],
 ) => {
   const [reference, setReference] = React.useState<Reference | undefined>(
-    props.value
+    props.value,
   );
   return (
     <FHIRReferenceEditable

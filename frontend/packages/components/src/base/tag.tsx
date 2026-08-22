@@ -8,14 +8,7 @@ interface TagProps extends DetailedHTMLProps<
   className?: string;
   children: React.ReactNode;
   color?:
-    | "blue"
-    | "gray"
-    | "red"
-    | "green"
-    | "yellow"
-    | "indigo"
-    | "purple"
-    | "pink";
+    "blue" | "gray" | "red" | "green" | "yellow" | "indigo" | "purple" | "pink";
 }
 
 export function Tag({

@@ -4,11 +4,10 @@ import React from "react";
 type ButtonType = "primary" | "secondary" | "danger";
 type ButtonSize = "small" | "medium" | "large";
 
-export interface ButtonProps
-  extends React.DetailedHTMLProps<
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
-    HTMLButtonElement
-  > {
+export interface ButtonProps extends React.DetailedHTMLProps<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+> {
   children: React.ReactNode;
   buttonSize?: ButtonSize;
   buttonType?: ButtonType;

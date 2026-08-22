@@ -1,6 +1,22 @@
 import {
   ArrowLeftOnRectangleIcon,
+  ArrowUpTrayIcon,
+  BeakerIcon,
+  BellIcon,
+  CalendarDaysIcon,
+  ChartBarIcon,
+  CircleStackIcon,
+  ClipboardDocumentCheckIcon,
+  ClipboardDocumentListIcon,
+  ClockIcon,
   Cog6ToothIcon,
+  DocumentMagnifyingGlassIcon,
+  ExclamationTriangleIcon,
+  LockClosedIcon,
+  PuzzlePieceIcon,
+  UserGroupIcon,
+  UsersIcon,
+  WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
 import classNames from "classnames";
 import { useAtom } from "jotai";
@@ -32,6 +48,7 @@ import Search from "./components/Search";
 import SearchModal from "./components/SearchModal";
 import { VITE_CLIENT_ID, VITE_FHIR_BASE_URL } from "./config";
 import { createAdminAppClient, getClient } from "./db/client";
+import { useTenantBranding } from "./hooks/useTenantBranding";
 
 import BundleImport from "./views/Project/BundleImport";
 import Dashboard from "./views/Project/Dashboard";
@@ -51,7 +68,7 @@ import * as r4Types from "@haste-health/fhir-types/r4/types";
 import SystemResources from "./views/System";
 import { ProjectInformation } from "@haste-health/generated-ops/r4";
 import { R4 } from "@haste-health/fhir-types/versions";
-import { Logo } from "./components/Logo";
+import { AppLogo } from "./components/AppLogo";
 
 import "@haste-health/components/dist/index.css";
 import "./index.css";
@@ -325,19 +342,21 @@ const router =
         },
       ]);
 
-function Navbar() {
+function Navbar({ showLogo = true }: Readonly<{ showLogo?: boolean }>) {
   const hasteHealth = useHasteHealth();
   const navigate = useNavigate();
 
   return (
     <div className="px-4 sticky top-0 bg-white border-b z-20 text-sm">
       <div className={`flex items-center ${APP_HEADER_HEIGHT_CLASS}`}>
-        <Logo
-          className="h-14 mr-4 cursor-pointer text-brand-500"
-          onClick={() => {
-            navigate(generatePath("/", {}));
-          }}
-        />
+        {showLogo && (
+          <AppLogo
+            className="h-9 mr-4 cursor-pointer text-brand-500"
+            onClick={() => {
+              navigate(generatePath("/", {}));
+            }}
+          />
+        )}
         <div className="flex grow"></div>
         <div className="flex justify-center items-center space-x-8">
           <div className="min-w-72 flex grow">
@@ -412,6 +431,9 @@ function ProjectRoot() {
   const navigate = useNavigate();
   const matches = useMatches();
   const [project, setProject] = React.useState<r4Types.Project | null>(null);
+  const [sidebarOpen, setSidebarOpen] = React.useState(true);
+  const branding = useTenantBranding();
+  const tenantDisplayName = branding.name || hasteHealth.tenant;
 
   useEffect(() => {
     hasteHealth.client
@@ -423,35 +445,51 @@ function ProjectRoot() {
 
   return (
     <SideBar.SidebarLayout
-      navbar={<Navbar />}
+      navbar={<Navbar showLogo={false} />}
       sidebar={
         <SideBar.SideBar
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen((open) => !open)}
           top={
             <div
-              onClick={() => navigate(generatePath("/", {}))}
-              className="group font-semibold cursor-pointer p-2 mb-4"
+              className={classNames("flex items-center gap-2 mb-4", {
+                "justify-start": sidebarOpen,
+                "justify-center": !sidebarOpen,
+              })}
             >
-              <div>
-                <span
-                  className={classNames(
-                    "font-bold group-hover:text-brand-900 group-hover:underline",
-                    {
-                      "text-brand-900 underline":
-                        matches[matches.length - 1].id === "dashboard",
-                    },
-                  )}
+              <AppLogo
+                className="h-9 w-9 shrink-0 cursor-pointer text-brand-500"
+                onClick={() => navigate(generatePath("/", {}))}
+              />
+              {sidebarOpen && (
+                <div
+                  onClick={() => navigate(generatePath("/", {}))}
+                  className="group font-semibold cursor-pointer min-w-0"
                 >
-                  {project?.name}
-                </span>
-              </div>
-              <div>
-                <span className="text-slate-400">{hasteHealth.tenant}</span>
-              </div>
+                  <div className="truncate">
+                    <span
+                      className={classNames(
+                        "font-bold group-hover:text-brand-900 group-hover:underline",
+                        {
+                          "text-brand-900 underline":
+                            matches[matches.length - 1].id === "dashboard",
+                        },
+                      )}
+                    >
+                      {tenantDisplayName}
+                    </span>
+                  </div>
+                  <div className="truncate">
+                    <span className="text-slate-400">{project?.name}</span>
+                  </div>
+                </div>
+              )}
             </div>
           }
         >
           <SideBar.SideBarItemGroup label="Clinical">
             <SideBar.SideBarItem
+              logo={<UsersIcon />}
               active={matches[0].params.resourceType === "Patient"}
               onClick={() => {
                 navigate(
@@ -464,6 +502,7 @@ function ProjectRoot() {
               Patients
             </SideBar.SideBarItem>
             <SideBar.SideBarItem
+              logo={<CalendarDaysIcon />}
               active={matches[0].params.resourceType === "Encounter"}
               onClick={() => {
                 navigate(
@@ -476,6 +515,7 @@ function ProjectRoot() {
               Encounters
             </SideBar.SideBarItem>
             <SideBar.SideBarItem
+              logo={<BeakerIcon />}
               active={matches[0].params.resourceType === "Observation"}
               onClick={() => {
                 navigate(
@@ -490,6 +530,7 @@ function ProjectRoot() {
           </SideBar.SideBarItemGroup>
           <SideBar.SideBarItemGroup label="UI">
             <SideBar.SideBarItem
+              logo={<ClipboardDocumentListIcon />}
               active={matches[0].params.resourceType === "Questionnaire"}
               onClick={() => {
                 navigate(
@@ -502,6 +543,7 @@ function ProjectRoot() {
               Questionnaires
             </SideBar.SideBarItem>
             <SideBar.SideBarItem
+              logo={<ClipboardDocumentCheckIcon />}
               active={
                 matches[0].params.resourceType === "QuestionnaireResponse"
               }
@@ -518,6 +560,7 @@ function ProjectRoot() {
           </SideBar.SideBarItemGroup>
           <SideBar.SideBarItemGroup label="Monitoring">
             <SideBar.SideBarItem
+              logo={<DocumentMagnifyingGlassIcon />}
               active={matches[0].params.resourceType === "AuditEvent"}
               onClick={() => {
                 navigate(
@@ -530,6 +573,7 @@ function ProjectRoot() {
               Audit Events
             </SideBar.SideBarItem>
             <SideBar.SideBarItem
+              logo={<ClockIcon />}
               active={
                 matches.find((match) => match.id === "system-history") !==
                 undefined
@@ -541,6 +585,7 @@ function ProjectRoot() {
               Event History
             </SideBar.SideBarItem>
             <SideBar.SideBarItem
+              logo={<ExclamationTriangleIcon />}
               active={
                 matches.find((match) => match.id === "indexing-errors") !==
                 undefined
@@ -555,6 +600,7 @@ function ProjectRoot() {
 
           <SideBar.SideBarItemGroup label="Security">
             <SideBar.SideBarItem
+              logo={<UserGroupIcon />}
               active={matches[0].params.resourceType === "Membership"}
               onClick={() => {
                 navigate(
@@ -567,6 +613,7 @@ function ProjectRoot() {
               Membership
             </SideBar.SideBarItem>
             <SideBar.SideBarItem
+              logo={<LockClosedIcon />}
               active={matches[0].params.resourceType === "AccessPolicyV2"}
               onClick={() => {
                 navigate(
@@ -579,6 +626,7 @@ function ProjectRoot() {
               Access Policies
             </SideBar.SideBarItem>
             <SideBar.SideBarItem
+              logo={<PuzzlePieceIcon />}
               active={matches[0].params.resourceType === "ClientApplication"}
               onClick={() => {
                 navigate(
@@ -593,6 +641,7 @@ function ProjectRoot() {
           </SideBar.SideBarItemGroup>
           <SideBar.SideBarItemGroup label="Import">
             <SideBar.SideBarItem
+              logo={<ArrowUpTrayIcon />}
               active={
                 matches.find((match) => match.id === "bundle-import") !==
                 undefined
@@ -606,6 +655,7 @@ function ProjectRoot() {
           </SideBar.SideBarItemGroup>
           <SideBar.SideBarItemGroup label="Configuration">
             <SideBar.SideBarItem
+              logo={<WrenchScrewdriverIcon />}
               active={matches[0].params.resourceType === "OperationDefinition"}
               onClick={() => {
                 navigate(
@@ -618,6 +668,7 @@ function ProjectRoot() {
               Custom Operations
             </SideBar.SideBarItem>
             <SideBar.SideBarItem
+              logo={<BellIcon />}
               active={matches[0].params.resourceType === "Subscription"}
               onClick={() => {
                 navigate(
@@ -633,6 +684,7 @@ function ProjectRoot() {
 
           <SideBar.SideBarItemGroup label="Analytics">
             <SideBar.SideBarItem
+              logo={<ChartBarIcon />}
               active={matches[0].params.resourceType === "ViewDefinition"}
               onClick={() => {
                 navigate(
@@ -647,6 +699,7 @@ function ProjectRoot() {
           </SideBar.SideBarItemGroup>
           <SideBar.SideBarItemGroup label="Data">
             <SideBar.SideBarItem
+              logo={<CircleStackIcon />}
               active={
                 matches.find((match) => match.id === "resources") !==
                   undefined ||
