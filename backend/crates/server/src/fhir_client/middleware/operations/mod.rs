@@ -82,6 +82,8 @@ impl<
             Box::new(custom_operations::valueset_validate_code_op()),
             Box::new(custom_operations::hl7v2_parse_op()),
             Box::new(custom_operations::indexing_errors_op()),
+            Box::new(custom_operations::tenant_customization_op()),
+            Box::new(custom_operations::tenant_branding_op()),
         ];
 
         Self(Arc::new(executors))

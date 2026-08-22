@@ -6,7 +6,10 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
 use std::sync::Arc;
 
+mod branding;
 mod project_select;
+
+pub use branding::logo;
 
 pub fn create_router<
     Repo: Repository + Send + Sync,

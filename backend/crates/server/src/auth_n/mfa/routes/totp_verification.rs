@@ -6,6 +6,7 @@ use crate::{
     },
     extract::{csrf_token::CSRFToken, path_tenant::TenantIdentifier},
     services::ServerState,
+    ui::components::TenantName,
     ui::pages::mfa,
 };
 use axum::{
@@ -121,6 +122,7 @@ pub async fn totp_verification_get<
     uri: OriginalUri,
     CSRFToken(csrf_token): CSRFToken,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(branding): Cached<TenantName>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
@@ -140,6 +142,7 @@ pub async fn totp_verification_get<
         credentials[0].totp_digits as usize,
         &uri.to_string(),
         None,
+        Some(&branding),
     )
     .into_response())
 }
@@ -154,6 +157,7 @@ pub async fn totp_verification_post<
     uri: OriginalUri,
     CSRFToken(csrf_token): CSRFToken,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(branding): Cached<TenantName>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
     Form(form_data): Form<TOTPVerificationPOSTBody>,
@@ -207,6 +211,7 @@ pub async fn totp_verification_post<
             Some(vec![
                 "Invalid verification code. Please try again.".to_string(),
             ]),
+            Some(&branding),
         )
         .into_response());
     }

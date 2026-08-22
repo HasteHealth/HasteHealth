@@ -1,4 +1,7 @@
-use crate::{extract::path_tenant::TenantIdentifier, ui::pages::error::error_html};
+use crate::{
+    extract::path_tenant::TenantIdentifier, ui::components::TenantName,
+    ui::pages::error::error_html,
+};
 use axum::{
     extract::Request,
     middleware::Next,
@@ -25,6 +28,7 @@ pub async fn log_operationoutcome_errors(request: Request, next: Next) -> Respon
 /// Otherwise, a FHIR OperationOutcome JSON response is returned.
 pub async fn operation_outcome_error_handle(
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(branding): Cached<TenantName>,
     request: Request,
     next: Next,
 ) -> Response {
@@ -63,6 +67,7 @@ pub async fn operation_outcome_error_handle(
                             .unwrap_or("An unexpected error occurred."))
                     }
                 },
+                Some(&branding),
             );
             let mut html_response = body_html.into_response();
             let status_mut = html_response.status_mut();

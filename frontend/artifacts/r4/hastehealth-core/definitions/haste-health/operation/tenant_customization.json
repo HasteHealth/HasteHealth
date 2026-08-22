@@ -1,0 +1,78 @@
+{
+    "resourceType": "Bundle",
+    "type": "collection",
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "OperationDefinition",
+                "id": "haste-health-tenant-customization",
+                "url": "https://haste.health/OperationDefinition/tenant-customization",
+                "version": "4.0.1",
+                "name": "Tenant Customization",
+                "status": "draft",
+                "kind": "operation",
+                "date": "2026-08-21T09:29:23+11:00",
+                "publisher": "HasteHealth",
+                "description": "Set display customization for the current tenant, such as its display name and logo.",
+                "code": "tenant-customization",
+                "system": true,
+                "type": false,
+                "instance": false,
+                "parameter": [
+                    {
+                        "name": "name",
+                        "use": "in",
+                        "min": 0,
+                        "max": "1",
+                        "documentation": "Display name for the tenant. Omit to clear the tenant's display name.",
+                        "type": "string"
+                    },
+                    {
+                        "name": "logo",
+                        "use": "in",
+                        "min": 0,
+                        "max": "1",
+                        "documentation": "Logo for the tenant. Omit to clear the tenant's logo.",
+                        "type": "Attachment"
+                    }
+                ]
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "OperationDefinition",
+                "id": "haste-health-tenant-branding",
+                "url": "https://haste.health/OperationDefinition/tenant-branding",
+                "version": "4.0.1",
+                "name": "Tenant Branding",
+                "status": "draft",
+                "kind": "operation",
+                "date": "2026-08-22T00:00:00+00:00",
+                "publisher": "HasteHealth",
+                "description": "Get the current tenant's display name and logo, if set.",
+                "code": "tenant-branding",
+                "system": true,
+                "type": false,
+                "instance": false,
+                "parameter": [
+                    {
+                        "name": "name",
+                        "use": "out",
+                        "min": 0,
+                        "max": "1",
+                        "documentation": "Display name for the tenant, if one has been set.",
+                        "type": "string"
+                    },
+                    {
+                        "name": "logo",
+                        "use": "out",
+                        "min": 0,
+                        "max": "1",
+                        "documentation": "Logo for the tenant, if one has been set.",
+                        "type": "Attachment"
+                    }
+                ]
+            }
+        }
+    ]
+}

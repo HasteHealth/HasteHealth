@@ -8,6 +8,40 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::TenantId;
 use sqlx::{PgExecutor, QueryBuilder};
 
+fn validate_tenant_customization(
+    subscription_tier: &str,
+    display_name: &Option<String>,
+    logo_data: &Option<Vec<u8>>,
+    logo_content_type: &Option<String>,
+) -> Result<(), OperationOutcomeError> {
+    if logo_data.is_some() != logo_content_type.is_some() {
+        return Err(OperationOutcomeError::error(
+            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
+            "Tenant logo data and content type must be provided together".to_string(),
+        ));
+    }
+
+    if let Some(content_type) = logo_content_type
+        && !content_type.starts_with("image/")
+    {
+        return Err(OperationOutcomeError::error(
+            haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
+            "Tenant logo content type must be an image MIME type".to_string(),
+        ));
+    }
+
+    if subscription_tier == "free"
+        && (display_name.is_some() || logo_data.is_some() || logo_content_type.is_some())
+    {
+        return Err(OperationOutcomeError::error(
+            haste_fhir_model::r4::generated::terminology::IssueType::forbidden(),
+            "Tenant customization requires a paid subscription tier".to_string(),
+        ));
+    }
+
+    Ok(())
+}
+
 async fn create_tenant<'a, 'e, E>(
     executor: E,
     tenant: CreateTenant,
@@ -20,11 +54,18 @@ where
         .unwrap_or_else(|| TenantId::new(generate_id(None)));
     validate_id(id.as_ref())?;
 
+    validate_tenant_customization(
+        tenant.subscription_tier.as_deref().unwrap_or("free"),
+        &tenant.display_name,
+        &tenant.logo_data,
+        &tenant.logo_content_type,
+    )?;
+
     let result = sqlx::query_as::<_, Tenant>(
         r"
-            INSERT INTO tenants (id, subscription_tier)
-            VALUES ($1, $2)
-            RETURNING id, subscription_tier
+            INSERT INTO tenants (id, subscription_tier, display_name, logo_data, logo_content_type)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id, subscription_tier, display_name, logo_data, logo_content_type
         ",
     )
     .bind(id)
@@ -33,6 +74,9 @@ where
             .subscription_tier
             .unwrap_or_else(|| "free".to_string()),
     )
+    .bind(tenant.display_name)
+    .bind(tenant.logo_data)
+    .bind(tenant.logo_content_type)
     .fetch_one(executor)
     .await;
 
@@ -60,7 +104,7 @@ where
 {
     let tenant = sqlx::query_as::<_, Tenant>(
         r"
-            SELECT id, subscription_tier
+            SELECT id, subscription_tier, display_name, logo_data, logo_content_type
             FROM tenants
             WHERE id = $1
         ",
@@ -80,15 +124,25 @@ async fn update_tenant<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
+    validate_tenant_customization(
+        &tenant.subscription_tier,
+        &tenant.display_name,
+        &tenant.logo_data,
+        &tenant.logo_content_type,
+    )?;
+
     let updated_tenant = sqlx::query_as::<_, Tenant>(
         r"
             UPDATE tenants
-            SET subscription_tier = $1
-            WHERE id = $2
-            RETURNING id, subscription_tier
+            SET subscription_tier = $1, display_name = $2, logo_data = $3, logo_content_type = $4
+            WHERE id = $5
+            RETURNING id, subscription_tier, display_name, logo_data, logo_content_type
         ",
     )
     .bind(tenant.subscription_tier)
+    .bind(tenant.display_name)
+    .bind(tenant.logo_data)
+    .bind(tenant.logo_content_type)
     .bind(tenant.id)
     .fetch_one(executor)
     .await
@@ -122,8 +176,9 @@ async fn search_tenant<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
-    let mut query_builder: QueryBuilder<sqlx::Postgres> =
-        QueryBuilder::new(r"SELECT id, subscription_tier FROM tenants WHERE ");
+    let mut query_builder: QueryBuilder<sqlx::Postgres> = QueryBuilder::new(
+        r"SELECT id, subscription_tier, display_name, logo_data, logo_content_type FROM tenants WHERE ",
+    );
 
     if let Some(subscription_tier) = clauses.subscription_tier.as_ref() {
         query_builder
@@ -209,5 +264,34 @@ impl<Key: AsRef<str> + Send + Sync>
                 search_tenant(&mut **tx, claims).await
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::validate_tenant_customization;
+
+    #[test]
+    fn free_tenants_cannot_set_branding() {
+        let result = validate_tenant_customization(
+            "free",
+            &Some("Example Health".to_string()),
+            &None,
+            &None,
+        );
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn paid_tenants_can_set_branding() {
+        let result = validate_tenant_customization(
+            "professional",
+            &Some("Example Health".to_string()),
+            &Some(vec![1, 2, 3]),
+            &Some("image/png".to_string()),
+        );
+
+        assert!(result.is_ok());
     }
 }

@@ -12,6 +12,7 @@ use crate::{
     },
     fhir_client::ServerCTX,
     services::ServerState,
+    ui::components::TenantName,
     ui::pages,
 };
 use axum::{
@@ -52,6 +53,7 @@ pub async fn login_get<
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
+    Cached(branding): Cached<TenantName>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     CSRFToken(csrf_token): CSRFToken,
     uri: OriginalUri,
@@ -65,6 +67,7 @@ pub async fn login_get<
         &client_app,
         &uri.to_string(),
         None,
+        Some(&branding),
     );
 
     Ok(response)
@@ -152,6 +155,7 @@ pub async fn login_post<
     _: Login,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
+    Cached(branding): Cached<TenantName>,
     uri: OriginalUri,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
@@ -209,6 +213,7 @@ pub async fn login_post<
                 &client_app,
                 &uri.to_string(),
                 Some(vec!["Invalid credentials. Please try again.".to_string()]),
+                Some(&branding),
             )
             .into_response())
         }

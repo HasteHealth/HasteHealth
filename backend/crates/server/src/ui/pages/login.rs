@@ -1,6 +1,6 @@
 use crate::{
     auth_n::oidc::routes::{federated::FederatedInitiate, route_string::oidc_route_string},
-    ui::components::{banner, page_html},
+    ui::components::{TenantName, page_banner, page_html},
 };
 use haste_fhir_model::r4::generated::resources::{ClientApplication, IdentityProvider};
 use haste_jwt::{ProjectId, TenantId};
@@ -15,6 +15,7 @@ pub fn login_form_html(
     client_app: &ClientApplication,
     login_route: &str,
     errors: Option<Vec<String>>,
+    branding: Option<&TenantName>,
 ) -> Markup {
     let project_id = project.id.clone().map(ProjectId::new).unwrap();
     let project_name = project
@@ -43,7 +44,7 @@ pub fn login_form_html(
         });
 
     page_html(html! {
-        (banner(tenant.as_ref(), Some(&project_name)))
+        (page_banner(tenant.as_ref(), Some(&project_name), branding))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                 // div {}

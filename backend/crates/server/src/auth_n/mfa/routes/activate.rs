@@ -2,6 +2,7 @@ use crate::{
     auth_n::{mfa::utilities::user_mfa_to_totp, session},
     extract::{csrf_token::CSRFToken, path_tenant::TenantIdentifier},
     services::ServerState,
+    ui::components::TenantName,
     ui::pages::{message::message_html, mfa},
 };
 use axum::{
@@ -70,6 +71,7 @@ pub async fn activate_html<
     user_mfa_credential: &UserMFACredential,
     csrf_token: &str,
     mfa_activation_post_route: &str,
+    branding: Option<&TenantName>,
 ) -> Result<PreEscaped<String>, OperationOutcomeError> {
     let totp = user_mfa_to_totp(
         state.secret_provider.as_ref(),
@@ -104,6 +106,7 @@ pub async fn activate_html<
         user_mfa_credential.totp_digits as usize,
         mfa_activation_post_route,
         None,
+        branding,
     );
 
     Ok(mfa_active_html)
@@ -118,6 +121,7 @@ pub async fn activate_get<
     uri: OriginalUri,
     CSRFToken(csrf_token): CSRFToken,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(branding): Cached<TenantName>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
@@ -157,6 +161,7 @@ pub async fn activate_get<
         &user_mfa_credential,
         &csrf_token,
         uri.path(),
+        Some(&branding),
     )
     .await?;
 
@@ -172,6 +177,7 @@ pub async fn activate_post<
     _uri: OriginalUri,
     CSRFToken(csrf_token): CSRFToken,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(branding): Cached<TenantName>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
     Form(mfa_activate_data): Form<MFAActivatePOSTBody>,
@@ -248,6 +254,7 @@ pub async fn activate_post<
                 "MFA has been activated successfully. You can close this window."
             }
         },
+        Some(&branding),
     )
     .into_response())
 }

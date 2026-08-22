@@ -57,6 +57,9 @@ dotenvy = { workspace = true }
 email_address = { version = "0.2.9", default-features = false, features = [
     "serde_support",
 ] }
+image = { version = "0.25.10", default-features = false, features = [
+    "png",
+] }
 json-patch = { workspace = true }
 jsonwebtoken = { workspace = true }
 maud = { version = "0.27.0", default-features = false, features = ["axum"] }

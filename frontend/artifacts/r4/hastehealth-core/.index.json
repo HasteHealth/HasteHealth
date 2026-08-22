@@ -66,6 +66,10 @@
       "resourceType": "OperationDefinition"
     },
     {
+      "filename": "definitions/haste-health/operation/tenant_customization.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
       "filename": "definitions/haste-health/operation/usage-statistics.json",
       "resourceType": "OperationDefinition"
     },

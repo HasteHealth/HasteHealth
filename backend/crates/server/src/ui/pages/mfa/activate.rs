@@ -1,4 +1,4 @@
-use crate::ui::components::{banner, otp_code_input, page_html};
+use crate::ui::components::{TenantName, otp_code_input, page_banner, page_html};
 use haste_jwt::TenantId;
 use maud::{Markup, html};
 
@@ -10,9 +10,10 @@ pub fn mfa_activate_html(
     digits: usize,
     activate_route: &str,
     errors: Option<Vec<String>>,
+    branding: Option<&TenantName>,
 ) -> Markup {
     page_html(html! {
-        (banner(tenant.as_ref(), None))
+        (page_banner(tenant.as_ref(), None, branding))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                 @if let Some(errors) = errors {

@@ -152,6 +152,7 @@ pub async fn global_login_post<
                 }
             }
         },
+        None,
     )
     .into_response())
 }

@@ -1,4 +1,4 @@
-use crate::ui::components::{banner, page_html};
+use crate::ui::components::{TenantName, page_banner, page_html};
 use haste_jwt::TenantId;
 use haste_repository::types::mfa::UserMFACredential;
 use maud::{Markup, html};
@@ -24,9 +24,10 @@ pub fn mfa_select_html(
     csrf_token: &str,
     credentials: &[UserMFACredential],
     mfa_select_route: &str,
+    branding: Option<&TenantName>,
 ) -> Markup {
     page_html(html! {
-        (banner(tenant.as_ref(), None))
+        (page_banner(tenant.as_ref(), None, branding))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
             @if credentials.is_empty() {
                 div class="p-6 space-y-4 md:space-y-6 sm:p-8" {

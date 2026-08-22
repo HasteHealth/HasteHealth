@@ -5,29 +5,41 @@ import {
   LockClosedIcon,
   ShieldCheckIcon,
   UserCircleIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
+  Button,
+  Input,
   Loading,
   Table,
   Toaster,
   useHasteHealth,
 } from "@haste-health/components";
-import { OperationOutcome, id } from "@haste-health/fhir-types/r4/types";
+import {
+  Attachment,
+  OperationOutcome,
+  base64Binary,
+  code,
+  id,
+} from "@haste-health/fhir-types/r4/types";
 import { R4 } from "@haste-health/fhir-types/versions";
 import {
   HasteHealthDeleteRefreshToken,
   HasteHealthDeleteScope,
   HasteHealthListRefreshTokens,
   HasteHealthListScopes,
+  HasteHealthTenantBranding,
+  HasteHealthTenantCustomization,
 } from "@haste-health/generated-ops/lib/r4/ops";
 import { IDTokenPayload } from "@haste-health/jwt/types";
 
 import { VITE_FHIR_BASE_URL } from "../../config";
 import { getClient } from "../../db/client";
 import { getEndpointMetadata } from "../../db/endpointMeta";
+import { getErrorMessage } from "../../utilities";
 
 type SettingsProps = {
   user?: IDTokenPayload<string>;
@@ -125,6 +137,259 @@ function CopyField({
         <ClipboardDocumentIcon className="h-4 w-4 shrink-0 text-slate-500" />
       </button>
     </div>
+  );
+}
+
+function readFileAsBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onload = () => {
+      const data = reader.result;
+      if (typeof data === "string") {
+        resolve(data.split(",")[1]);
+      } else {
+        reject(new Error("FileReader result was not a string"));
+      }
+    };
+    reader.onerror = (error) => reject(error);
+  });
+}
+
+function TenantBranding({ isOwner }: Readonly<{ isOwner: boolean }>) {
+  const client = useAtomValue(getClient);
+
+  const [tenantName, setTenantName] = useState("");
+  const [logo, setLogo] = useState<Attachment>();
+  const [logoCleared, setLogoCleared] = useState(false);
+  const [loadingBranding, setLoadingBranding] = useState(true);
+  const [logoFile, setLogoFile] = useState<File>();
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string>();
+  const [logoIssues, setLogoIssues] = useState<string[]>([]);
+  const [savingBranding, setSavingBranding] = useState(false);
+  const [logoInputKey, setLogoInputKey] = useState(0);
+
+  const currentLogoDataUrl =
+    logo?.contentType && logo?.data
+      ? `data:${logo.contentType};base64,${logo.data}`
+      : undefined;
+
+  const displayedLogoUrl =
+    logoPreviewUrl ?? (logoCleared ? undefined : currentLogoDataUrl);
+
+  const loadBranding = useCallback(() => {
+    setLoadingBranding(true);
+
+    client
+      .invoke_system(HasteHealthTenantBranding.Op, {}, R4, {})
+      .then((res) => {
+        setTenantName(res.name ?? "");
+        setLogo(res.logo);
+        setLogoCleared(false);
+      })
+      .catch(() => {
+        Toaster.error("Failed to load tenant branding.");
+      })
+      .finally(() => {
+        setLoadingBranding(false);
+      });
+  }, [client]);
+
+  useEffect(() => {
+    loadBranding();
+  }, [loadBranding]);
+
+  const selectLogoFile = useCallback((file: File | undefined) => {
+    setLogoIssues([]);
+    setLogoPreviewUrl((previous) => {
+      if (previous) {
+        URL.revokeObjectURL(previous);
+      }
+      return undefined;
+    });
+
+    if (!file) {
+      setLogoFile(undefined);
+      return;
+    }
+
+    if (file.type !== "image/png") {
+      setLogoIssues(["Logo must be a PNG image."]);
+      setLogoFile(undefined);
+      return;
+    }
+
+    setLogoFile(file);
+    setLogoPreviewUrl(URL.createObjectURL(file));
+    setLogoCleared(false);
+  }, []);
+
+  const clearLogo = useCallback(() => {
+    selectLogoFile(undefined);
+    setLogoCleared(true);
+    setLogoInputKey((key) => key + 1);
+  }, [selectLogoFile]);
+
+  const clearName = useCallback(() => {
+    setTenantName("");
+  }, []);
+
+  const saveBranding = useCallback(() => {
+    setSavingBranding(true);
+
+    const buildInput =
+      async (): Promise<HasteHealthTenantCustomization.Input> => {
+        const input: HasteHealthTenantCustomization.Input = {};
+
+        // Omitting `name`/`logo` clears them server-side, so an unset value must be
+        // resent to preserve it rather than simply left out of the request.
+        if (tenantName.trim()) {
+          input.name = tenantName.trim();
+        }
+
+        if (logoFile) {
+          input.logo = {
+            contentType: "image/png" as code,
+            data: (await readFileAsBase64(logoFile)) as base64Binary,
+          };
+        } else if (!logoCleared && logo?.contentType && logo?.data) {
+          input.logo = { contentType: logo.contentType, data: logo.data };
+        }
+
+        return input;
+      };
+
+    const savePromise = buildInput().then((input) =>
+      client.invoke_system(HasteHealthTenantCustomization.Op, {}, R4, input),
+    );
+
+    Toaster.promise(savePromise, {
+      loading: "Saving tenant branding",
+      success: () => {
+        selectLogoFile(undefined);
+        setLogoInputKey((key) => key + 1);
+        loadBranding();
+        return "Tenant branding updated";
+      },
+      error: (error) => getErrorMessage(error),
+    }).finally(() => {
+      setSavingBranding(false);
+    });
+  }, [
+    client,
+    tenantName,
+    logoFile,
+    logoCleared,
+    logo,
+    selectLogoFile,
+    loadBranding,
+  ]);
+
+  return (
+    <SectionCard
+      title="Tenant Branding"
+      description={
+        isOwner
+          ? "Set the display name and logo shown on login and admin pages for this tenant."
+          : "Display name and logo shown on login and admin pages for this tenant."
+      }
+    >
+      {loadingBranding ? (
+        <div className="flex items-center gap-2 py-4 text-sm text-slate-500">
+          <Loading />
+          <span>Loading tenant branding...</span>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+          <div className="flex flex-col items-center gap-2">
+            <div className="relative h-24 w-24">
+              <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-slate-50">
+                {displayedLogoUrl && (
+                  <img
+                    src={displayedLogoUrl}
+                    alt="Tenant logo"
+                    className="h-full w-full object-contain"
+                  />
+                )}
+              </div>
+              {isOwner && displayedLogoUrl && (
+                <button
+                  type="button"
+                  aria-label="Clear logo"
+                  className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm hover:text-slate-700"
+                  onClick={clearLogo}
+                >
+                  <XMarkIcon className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            <span className="text-xs text-slate-500">
+              {logoPreviewUrl
+                ? "New logo (unsaved)"
+                : logoCleared
+                  ? "Logo will be cleared"
+                  : "Current logo"}
+            </span>
+          </div>
+
+          {isOwner ? (
+            <div className="flex flex-1 flex-col gap-3">
+              <Input
+                label="Display Name"
+                placeholder="Leave blank to clear the display name"
+                value={tenantName}
+                onChange={(e) => setTenantName(e.target.value)}
+                icon={
+                  tenantName && (
+                    <button
+                      type="button"
+                      aria-label="Clear display name"
+                      className="text-slate-400 hover:text-slate-600"
+                      onClick={clearName}
+                    >
+                      <XMarkIcon className="h-4 w-4" />
+                    </button>
+                  )
+                }
+              />
+
+              <Input
+                key={logoInputKey}
+                label="Logo"
+                type="file"
+                accept="image/png"
+                issues={logoIssues}
+                onChange={(e) => selectLogoFile(e.target.files?.[0])}
+              />
+              <p className="text-xs text-slate-500">
+                Logo must be a square PNG image; it will be resized to
+                150x150.
+              </p>
+
+              <div className="flex justify-end">
+                <Button
+                  buttonSize="medium"
+                  disabled={savingBranding}
+                  onClick={saveBranding}
+                >
+                  {savingBranding ? "Saving..." : "Save Branding"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-1 flex-col gap-1">
+              <span className="text-sm font-medium text-slate-700">
+                {tenantName || "No display name set"}
+              </span>
+              <p className="text-xs text-slate-500">
+                Only tenant owners can update branding.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </SectionCard>
   );
 }
 
@@ -242,6 +507,8 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
     ? `${VITE_FHIR_BASE_URL}/w/${tenant}/mfa/admin`
     : undefined;
 
+  const isOwner = user?.["https://haste.health/user_role"] === "owner";
+
   const endpointCount = useMemo(() => {
     let configured = 0;
 
@@ -277,6 +544,8 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
           </p>
         </div>
       </header>
+
+      <TenantBranding isOwner={isOwner} />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard

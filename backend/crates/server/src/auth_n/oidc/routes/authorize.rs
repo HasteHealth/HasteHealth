@@ -14,6 +14,7 @@ use crate::{
         path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
     },
     services::ServerState,
+    ui::components::TenantName,
     ui::pages,
 };
 use axum::{
@@ -107,6 +108,7 @@ pub async fn authorize<
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
+    Cached(branding): Cached<TenantName>,
     State(app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Extension(oidc_params): Extension<OIDCParameters>,
@@ -288,6 +290,7 @@ pub async fn authorize<
                 redirect_uri: redirect_uri.to_string(),
                 accept: None,
             },
+            Some(&branding),
         )
         .into_response());
     }

@@ -1,4 +1,4 @@
-use crate::ui::components::{banner, page_html};
+use crate::ui::components::{TenantName, page_banner, page_html};
 use haste_jwt::TenantId;
 use haste_repository::types::mfa::UserMFACredential;
 use maud::{Markup, html};
@@ -25,9 +25,10 @@ pub fn mfa_admin_html(
     create_route: &str,
     delete_route: &str,
     activate_route: &str,
+    branding: Option<&TenantName>,
 ) -> Markup {
     page_html(html! {
-        (banner(tenant.as_ref(), None))
+        (page_banner(tenant.as_ref(), None, branding))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                 h1 class="text-xl font-bold leading-tight tracking-tight text-slate-900 md:text-2xl " { "Manage MFA methods" }

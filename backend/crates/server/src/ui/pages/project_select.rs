@@ -1,7 +1,7 @@
 use crate::{
     auth_n::oidc::hardcoded_clients::admin_app,
     config::ServerConfig,
-    ui::components::{banner, page_html},
+    ui::components::{TenantName, page_banner, page_html},
 };
 use haste_fhir_model::r4::generated::{resources::Project, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -18,9 +18,10 @@ pub fn project_select_html(
     config: &ServerConfig,
     tenant: &TenantId,
     projects: &[Project],
+    branding: Option<&TenantName>,
 ) -> Result<Markup, OperationOutcomeError> {
     Ok(page_html(html! {
-        (banner(tenant.as_ref(), None))
+        (page_banner(tenant.as_ref(), None, branding))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
             @if projects.is_empty() {
                 div class="p-6 space-y-4 md:space-y-6 sm:p-8" {

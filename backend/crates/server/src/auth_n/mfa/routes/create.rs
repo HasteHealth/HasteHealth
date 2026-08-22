@@ -30,6 +30,7 @@ use crate::{
     },
     extract::{csrf_token::CSRFToken, path_tenant::TenantIdentifier},
     services::ServerState,
+    ui::components::TenantName,
 };
 
 #[derive(TypedPath, Deserialize)]
@@ -47,6 +48,7 @@ pub async fn create_post<
     uri: OriginalUri,
     CSRFToken(csrf_token): CSRFToken,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(branding): Cached<TenantName>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
@@ -118,6 +120,7 @@ pub async fn create_post<
         &user_mfa_credential,
         &csrf_token,
         &mfa_activation_post_route(&uri, &user_mfa_credential, "/create"),
+        Some(&branding),
     )
     .await?;
 

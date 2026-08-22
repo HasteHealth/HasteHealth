@@ -1,5 +1,6 @@
 use crate::{
     auth_n::oidc::utilities::set_user_password, fhir_client::ServerCTX, services::ServerState,
+    ui::components::TenantName,
 };
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
@@ -75,6 +76,32 @@ pub struct CreateTenantOutput {
     pub owner: haste_repository::types::user::User,
 }
 
+pub async fn read_tenant<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+>(
+    services: &ServerState<Repo, Search, Terminology>,
+    tenant_id: &TenantId,
+) -> Result<Tenant, OperationOutcomeError> {
+    TenantModelAdmin::<CreateTenant, _, _, _, _>::read(
+        services.repo.as_ref(),
+        &TenantId::System,
+        &tenant_id.as_ref().to_string(),
+    )
+    .await?
+    .ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::not_found(),
+            format!("Tenant '{}' was not found.", tenant_id),
+        )
+    })
+}
+
+pub fn tenant_name(tenant: &Tenant) -> TenantName {
+    TenantName(tenant.display_name.clone())
+}
+
 pub async fn create_tenant<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -95,6 +122,9 @@ pub async fn create_tenant<
         CreateTenant {
             id: Some(TenantId::new(tenant_id.unwrap_or(generate_id(Some(16))))),
             subscription_tier: Some(subscription_tier.clone().into()),
+            display_name: None,
+            logo_data: None,
+            logo_content_type: None,
         },
     )
     .await?;
