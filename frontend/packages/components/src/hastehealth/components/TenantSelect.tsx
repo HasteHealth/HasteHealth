@@ -25,7 +25,7 @@ export const InitialDisplay = ({ value }: { value: string }) => {
         `bg-${color}-100`,
         `text-${color}-800`,
         `dark:bg-${color}-800`,
-        `dark:text-${color}-100`
+        `dark:text-${color}-100`,
       )}
     >
       <span className="font-bold">{initial}</span>

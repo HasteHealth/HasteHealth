@@ -10,7 +10,9 @@ export const FHIRHumanNameReadOnly = ({
   value,
 }: Readonly<FHIRHumanNameReadOnlyProps>) => {
   if (value?.text) {
-    return <span className="whitespace-nowrap text-slate-700">{value.text}</span>;
+    return (
+      <span className="whitespace-nowrap text-slate-700">{value.text}</span>
+    );
   }
 
   const lead = [value?.prefix?.join(" "), value?.given?.join(" ")]

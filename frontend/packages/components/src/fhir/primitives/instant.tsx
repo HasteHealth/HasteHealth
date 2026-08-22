@@ -33,12 +33,12 @@ export const FHIRInstantEditable = ({
       issues={issues}
       type="datetime-local"
       value={dayjs(value, "YYYY-MM-DDThh:mm:ss.SSSZ").format(
-        "YYYY-MM-DDThh:mm:ss.SSS"
+        "YYYY-MM-DDThh:mm:ss.SSS",
       )}
       onChange={(e) => {
         if (onChange) {
           const dateString = dayjs(e.target.value).format(
-            "YYYY-MM-DDThh:mm:ss.SSSZ"
+            "YYYY-MM-DDThh:mm:ss.SSSZ",
           );
           onChange(dateString as instant);
         }

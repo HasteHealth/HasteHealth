@@ -20,9 +20,7 @@ export const FHIRCodingReadOnly = ({
           {value.code}
         </span>
       )}
-      {value.display && (
-        <span className="text-slate-700">{value.display}</span>
-      )}
+      {value.display && <span className="text-slate-700">{value.display}</span>}
     </span>
   );
 };

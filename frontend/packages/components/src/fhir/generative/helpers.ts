@@ -5,15 +5,15 @@ import {
 
 function _resolveContentReferenceIndex(
   sd: StructureDefinition,
-  element: ElementDefinition
+  element: ElementDefinition,
 ): number {
   const contentReference = element.contentReference?.split("#")[1];
   const referenceElementIndex = sd.snapshot?.element.findIndex(
-    (element) => element.id === contentReference
+    (element) => element.id === contentReference,
   );
   if (!referenceElementIndex)
     throw new Error(
-      "unable to resolve contentreference: '" + element.contentReference + "'"
+      "unable to resolve contentreference: '" + element.contentReference + "'",
     );
 
   return referenceElementIndex;
@@ -21,7 +21,7 @@ function _resolveContentReferenceIndex(
 
 export function getElementDefinition(
   sd: StructureDefinition,
-  elementIndex: number
+  elementIndex: number,
 ): { elementIndex: number; element: ElementDefinition } {
   const element = sd.snapshot?.element?.[elementIndex];
 
@@ -33,7 +33,7 @@ export function getElementDefinition(
     const resolvedElement = sd.snapshot?.element?.[referenceElementIndex];
     if (!resolvedElement)
       throw new Error(
-        `Unable to resolve content reference ${element.contentReference}`
+        `Unable to resolve content reference ${element.contentReference}`,
       );
     return { elementIndex: referenceElementIndex, element: resolvedElement };
   }

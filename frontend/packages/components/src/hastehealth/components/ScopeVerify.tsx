@@ -54,7 +54,7 @@ export const ScopeVerifyForm = ({
                   `bg-${generateTailwindColorFromValue(client.name)}-100`,
                   `text-${generateTailwindColorFromValue(client.name)}-800`,
                   `dark:bg-${generateTailwindColorFromValue(client.name)}-800`,
-                  `dark:text-${generateTailwindColorFromValue(client.name)}-100`
+                  `dark:text-${generateTailwindColorFromValue(client.name)}-100`,
                 )}
               >
                 <div>{client.name.substring(0, 1).toUpperCase()}</div>

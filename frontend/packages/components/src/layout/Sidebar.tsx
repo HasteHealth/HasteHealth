@@ -1,7 +1,4 @@
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from "@heroicons/react/24/outline";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
 import React from "react";
 
@@ -41,17 +38,14 @@ export function SideBarItem({
       >
         {logo && (
           <div
-            className={classNames(
-              "flex-none w-5 h-5 transition duration-75",
-              { "mr-3": isOpen },
-            )}
+            className={classNames("flex-none w-5 h-5 transition duration-75", {
+              "mr-3": isOpen,
+            })}
           >
             {logo}
           </div>
         )}
-        {isOpen && (
-          <span className="flex-1 whitespace-nowrap">{children}</span>
-        )}
+        {isOpen && <span className="flex-1 whitespace-nowrap">{children}</span>}
       </div>
     </li>
   );
