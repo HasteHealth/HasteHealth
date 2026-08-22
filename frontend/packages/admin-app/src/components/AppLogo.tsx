@@ -7,7 +7,11 @@ export const AppLogo = ({
   className,
   onClick,
 }: Readonly<{ className?: string; onClick?: () => void }>) => {
-  const { logoDataUrl } = useTenantBranding();
+  const { logoDataUrl, loading } = useTenantBranding();
+
+  if (loading) {
+    return <div className={className} aria-hidden="true" />;
+  }
 
   if (logoDataUrl) {
     return (

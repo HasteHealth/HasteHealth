@@ -9,14 +9,19 @@ import { getClient } from "../db/client";
 export type TenantBrandingInfo = {
   name?: string;
   logoDataUrl?: string;
+  loading: boolean;
 };
 
 export function useTenantBranding(): TenantBrandingInfo {
   const client = useAtomValue(getClient);
-  const [branding, setBranding] = useState<TenantBrandingInfo>({});
+  const [branding, setBranding] = useState<Omit<TenantBrandingInfo, "loading">>(
+    {},
+  );
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
 
     client
       .invoke_system(HasteHealthTenantBranding.Op, {}, R4, {})
@@ -35,6 +40,11 @@ export function useTenantBranding(): TenantBrandingInfo {
       })
       .catch(() => {
         // Leave branding empty so callers fall back to their defaults.
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
       });
 
     return () => {
@@ -42,5 +52,5 @@ export function useTenantBranding(): TenantBrandingInfo {
     };
   }, [client]);
 
-  return branding;
+  return { ...branding, loading };
 }
