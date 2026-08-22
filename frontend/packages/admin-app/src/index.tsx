@@ -51,7 +51,7 @@ import * as r4Types from "@haste-health/fhir-types/r4/types";
 import SystemResources from "./views/System";
 import { ProjectInformation } from "@haste-health/generated-ops/r4";
 import { R4 } from "@haste-health/fhir-types/versions";
-import { Logo } from "./components/Logo";
+import { AppLogo } from "./components/AppLogo";
 
 import "@haste-health/components/dist/index.css";
 import "./index.css";
@@ -332,7 +332,7 @@ function Navbar() {
   return (
     <div className="px-4 sticky top-0 bg-white border-b z-20 text-sm">
       <div className={`flex items-center ${APP_HEADER_HEIGHT_CLASS}`}>
-        <Logo
+        <AppLogo
           className="h-14 mr-4 cursor-pointer text-brand-500"
           onClick={() => {
             navigate(generatePath("/", {}));
