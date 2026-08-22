@@ -189,11 +189,12 @@ None,
             }
             div {
                 span {
-                    r#"An email has been sent to your email address "# 
-                    span class="underline text-brand-600" { (user.email.unwrap_or("unknown".to_string())) } 
+                    r#"An email has been sent to your email address "#
+                    span class="underline text-brand-600" { (user.email.unwrap_or("unknown".to_string())) }
                     r#" to reset your password"#
                 }
             }
-        }
+        },
+        None,
     ).into_response())
 }

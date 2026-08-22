@@ -253,6 +253,7 @@ pub async fn server(
     }
 
     let tenant_router = Router::new()
+        .route("/branding/logo", get(auth_n::tenant::routes::logo))
         .nest("/auth", auth_n::tenant::routes::create_router())
         .nest("/{project}/api/v1", project_router)
         .nest(
@@ -260,9 +261,12 @@ pub async fn server(
             auth_n::mfa::routes::create_router(shared_state.clone()),
         )
         .layer(
-            // Relies on tenant for html so moving operation outcome error handling to here.
+            // Relies on tenant (and now tenant branding) for html so moving operation outcome error handling to here.
             ServiceBuilder::new()
-                .layer(from_fn(operation_outcome_error_handle))
+                .layer(axum::middleware::from_fn_with_state(
+                    shared_state.clone(),
+                    operation_outcome_error_handle,
+                ))
                 .layer(from_fn(log_operationoutcome_errors)),
         );
 

@@ -1,4 +1,4 @@
-use crate::ui::components::{banner, page_html};
+use crate::ui::components::{TenantName, page_banner, page_html};
 use haste_jwt::TenantId;
 use maud::{Markup, html};
 
@@ -11,6 +11,7 @@ pub fn email_form_html(
     project: Option<&haste_fhir_model::r4::generated::resources::Project>,
     csrf_token: &str,
     email_information: &EmailInformation,
+    branding: Option<&TenantName>,
 ) -> Markup {
     let project_name = project
         .and_then(|p| p.name.value.as_ref())
@@ -18,7 +19,7 @@ pub fn email_form_html(
         .map(|s| s.as_str());
 
     page_html(html! {
-        (banner(tenant.as_ref(), project_name))
+        (page_banner(tenant.as_ref(), project_name, branding))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow  md:mt-0  xl:p-0 " {
             form class="space-y-4 md:space-y-6" action=(email_information.continue_url) method="POST" {
                 input type="hidden" name="csrf_token" value=(csrf_token) {}

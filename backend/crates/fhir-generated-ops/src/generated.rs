@@ -595,6 +595,70 @@ pub mod HasteHealthListScopes {
         }
     }
 }
+#[doc = "Set display customization for the current tenant, such as its display name and logo."]
+pub mod HasteHealthTenantCustomization {
+    use super::*;
+    pub const CODE: &str = "tenant-customization";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        #[doc = "Display name for the tenant. Omit to clear the tenant's display name."]
+        pub name: Option<FHIRString>,
+        #[doc = "Logo for the tenant. Omit to clear the tenant's logo."]
+        pub logo: Option<Attachment>,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {}
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
+#[doc = "Get the current tenant's display name and logo, if set."]
+pub mod HasteHealthTenantBranding {
+    use super::*;
+    pub const CODE: &str = "tenant-branding";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[doc = "Display name for the tenant, if one has been set."]
+        pub name: Option<FHIRString>,
+        #[doc = "Logo for the tenant, if one has been set."]
+        pub logo: Option<Attachment>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
 #[doc = "The apply operation applies a definition in a specific context"]
 pub mod ActivityDefinitionApply {
     use super::*;

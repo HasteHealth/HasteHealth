@@ -8,6 +8,7 @@ mod hl7v2_parse;
 mod idp_info;
 mod indexing_errors;
 mod project_information;
+mod tenant_customization;
 mod terminology;
 mod viewdefinition_run;
 
@@ -21,5 +22,6 @@ pub use hl7v2_parse::*;
 pub use idp_info::*;
 pub use indexing_errors::*;
 pub use project_information::*;
+pub use tenant_customization::*;
 pub use terminology::*;
 pub use viewdefinition_run::*;

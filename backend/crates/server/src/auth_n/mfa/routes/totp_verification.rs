@@ -4,9 +4,9 @@ use crate::{
         oidc::routes::route_string::tenant_route_string,
         session::{self, user::SessionAuthorizationState},
     },
-    extract::{csrf_token::CSRFToken, path_tenant::TenantIdentifier},
+    extract::csrf_token::CSRFToken,
     services::ServerState,
-    ui::pages::mfa,
+    ui::{components::TenantContext, pages::mfa},
 };
 use axum::{
     Form,
@@ -120,7 +120,7 @@ pub async fn totp_verification_get<
     Query(query): Query<TOTPVerificationQuery>,
     uri: OriginalUri,
     CSRFToken(csrf_token): CSRFToken,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
@@ -140,6 +140,7 @@ pub async fn totp_verification_get<
         credentials[0].totp_digits as usize,
         &uri.to_string(),
         None,
+        Some(&branding),
     )
     .into_response())
 }
@@ -153,7 +154,7 @@ pub async fn totp_verification_post<
     Query(query): Query<TOTPVerificationQuery>,
     uri: OriginalUri,
     CSRFToken(csrf_token): CSRFToken,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
     Form(form_data): Form<TOTPVerificationPOSTBody>,
@@ -207,6 +208,7 @@ pub async fn totp_verification_post<
             Some(vec![
                 "Invalid verification code. Please try again.".to_string(),
             ]),
+            Some(&branding),
         )
         .into_response());
     }

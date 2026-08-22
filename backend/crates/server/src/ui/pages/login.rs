@@ -1,14 +1,14 @@
 use crate::{
     auth_n::oidc::routes::{federated::FederatedInitiate, route_string::oidc_route_string},
-    ui::components::{banner, page_html},
+    ui::components::{TenantContext, page_banner, page_html},
 };
 use haste_fhir_model::r4::generated::resources::{ClientApplication, IdentityProvider};
-use haste_jwt::{ProjectId, TenantId};
+use haste_jwt::ProjectId;
 use maud::{Markup, html};
 use std::borrow::Cow;
 
 pub fn login_form_html(
-    tenant: &TenantId,
+    context: &TenantContext,
     project: &haste_fhir_model::r4::generated::resources::Project,
     csrf_token: &str,
     identity_providers: Option<&Vec<IdentityProvider>>,
@@ -24,7 +24,7 @@ pub fn login_form_html(
         .map(|s| Cow::Borrowed(s.as_str()))
         .unwrap_or_else(|| Cow::Owned(project_id.as_ref().to_string()));
     let password_reset_route =
-        oidc_route_string(tenant, &project_id, "interactions/password-reset");
+        oidc_route_string(&context.tenant, &project_id, "interactions/password-reset");
     let password_reset_route_str = password_reset_route
         .to_str()
         .expect("Could not create password reset route.");
@@ -43,7 +43,7 @@ pub fn login_form_html(
         });
 
     page_html(html! {
-        (banner(tenant.as_ref(), Some(&project_name)))
+        (page_banner(context.tenant.as_ref(), Some(&project_name), Some(&context.branding)))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                 // div {}

@@ -5,10 +5,13 @@ use crate::{
     },
     extract::{
         csrf_token::CSRFToken,
-        path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
+        path_tenant::{Project, ProjectIdentifier},
     },
     services::ServerState,
-    ui::pages::{self, message::message_html},
+    ui::{
+        components::TenantContext,
+        pages::{self, message::message_html},
+    },
 };
 use axum::{
     Form,
@@ -37,7 +40,7 @@ pub struct PasswordResetInitiate;
 
 pub async fn password_reset_initiate_get(
     _: PasswordResetInitiate,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     Cached(Project(project)): Cached<Project>,
     CSRFToken(csrf_token): CSRFToken,
     uri: OriginalUri,
@@ -49,6 +52,7 @@ pub async fn password_reset_initiate_get(
         &pages::email_form::EmailInformation {
             continue_url: uri.path().to_string(),
         },
+        Some(&branding),
     );
 
     Ok(response)
@@ -67,7 +71,7 @@ pub async fn password_reset_initiate_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: PasswordResetInitiate,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     project_resource: Project,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
@@ -100,6 +104,7 @@ pub async fn password_reset_initiate_post<
             Some(&tenant),
             Some(&project_resource.0),
             html! {"An email will arrive in the next few minutes with the next steps to reset your password."},
+            Some(&branding),
         ))
     } else {
         Err(OperationOutcomeError::error(
@@ -126,7 +131,7 @@ pub async fn password_reset_verify_get<
     _: PasswordResetVerify,
     uri: OriginalUri,
     query: Query<PasswordResetVerifyQuery>,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
     CSRFToken(csrf_token): CSRFToken,
@@ -163,6 +168,7 @@ pub async fn password_reset_verify_get<
                     button type="submit" class="cursor-pointer w-full text-white bg-brand-600 hover:bg-brand-500 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"{"Continue"}
                 }
             },
+            Some(&branding),
         ))
     } else {
         Err(OperationOutcomeError::error(
@@ -186,7 +192,7 @@ pub async fn password_reset_verify_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: PasswordResetVerify,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
@@ -262,6 +268,7 @@ pub async fn password_reset_verify_post<
                     }
                 }
             },
+            Some(&branding),
         ))
     } else {
         Err(OperationOutcomeError::error(

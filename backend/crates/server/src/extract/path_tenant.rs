@@ -1,4 +1,8 @@
-use crate::services::ServerState;
+use crate::{
+    services::ServerState,
+    tenants::{read_tenant, tenant_name},
+    ui::components::TenantContext,
+};
 use axum::{
     extract::{FromRequestParts, Path},
     http::request::Parts,
@@ -97,5 +101,32 @@ impl<S: Send + Sync> FromRequestParts<S> for TenantIdentifier {
             .map_err(|err| err.into_response())?;
 
         Ok(tenant_information)
+    }
+}
+
+impl<Repo, Search, Terminology> FromRequestParts<Arc<ServerState<Repo, Search, Terminology>>>
+    for TenantContext
+where
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+{
+    type Rejection = Response;
+
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &Arc<ServerState<Repo, Search, Terminology>>,
+    ) -> Result<Self, Self::Rejection> {
+        let TenantIdentifier { tenant } = TenantIdentifier::from_request_parts(parts, state)
+            .await
+            .map_err(|err| err.into_response())?;
+
+        let tenant_record = read_tenant(state, &tenant)
+            .await
+            .map_err(|err| err.into_response())?;
+
+        let branding = tenant_name(&tenant_record);
+
+        Ok(Self { tenant, branding })
     }
 }

@@ -6,12 +6,10 @@ use crate::{
         },
         session::{self, user::SessionAuthorizationState},
     },
-    extract::{
-        csrf_token::CSRFToken,
-        path_tenant::{Project, TenantIdentifier},
-    },
+    extract::{csrf_token::CSRFToken, path_tenant::Project},
     fhir_client::ServerCTX,
     services::ServerState,
+    ui::components::TenantContext,
     ui::pages,
 };
 use axum::{
@@ -50,15 +48,16 @@ pub async fn login_get<
 >(
     _: Login,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(context): Cached<TenantContext>,
     Cached(Project(project_resource)): Cached<Project>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     CSRFToken(csrf_token): CSRFToken,
     uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
-    let idps = resolve_identity_providers(&state, tenant.clone(), &project_resource).await?;
+    let idps =
+        resolve_identity_providers(&state, context.tenant.clone(), &project_resource).await?;
     let response = pages::login::login_form_html(
-        &tenant,
+        &context,
         &project_resource,
         &csrf_token,
         idps.as_ref(),
@@ -150,7 +149,7 @@ pub async fn login_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: Login,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(context): Cached<TenantContext>,
     Cached(Project(project_resource)): Cached<Project>,
     uri: OriginalUri,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
@@ -169,7 +168,7 @@ pub async fn login_post<
     let login_result = state
         .repo
         .login(
-            &tenant,
+            &context.tenant,
             &LoginMethod::EmailPassword {
                 email: login_data.email,
                 password: login_data.password,
@@ -190,7 +189,7 @@ pub async fn login_post<
             let redirect_target =
                 match session::user::get_authorization_state(&current_session).await? {
                     Some(SessionAuthorizationState::MFARequired { .. }) => {
-                        totp_verification_route(&tenant, &authorization_redirect)
+                        totp_verification_route(&context.tenant, &authorization_redirect)
                     }
                     _ => authorization_redirect,
                 };
@@ -200,9 +199,10 @@ pub async fn login_post<
         }
         LoginResult::Failure => {
             let idps =
-                resolve_identity_providers(&state, tenant.clone(), &project_resource).await?;
+                resolve_identity_providers(&state, context.tenant.clone(), &project_resource)
+                    .await?;
             Ok(pages::login::login_form_html(
-                &tenant,
+                &context,
                 &project_resource,
                 &csrf_token,
                 idps.as_ref(),

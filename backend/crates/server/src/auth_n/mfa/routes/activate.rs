@@ -1,7 +1,8 @@
 use crate::{
     auth_n::{mfa::utilities::user_mfa_to_totp, session},
-    extract::{csrf_token::CSRFToken, path_tenant::TenantIdentifier},
+    extract::csrf_token::CSRFToken,
     services::ServerState,
+    ui::components::TenantContext,
     ui::pages::{message::message_html, mfa},
 };
 use axum::{
@@ -14,7 +15,6 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::TenantId;
 use haste_repository::{
     Repository,
     admin::TenantModelAdmin,
@@ -65,7 +65,7 @@ pub async fn activate_html<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     state: &ServerState<Repo, Search, Terminology>,
-    tenant: &TenantId,
+    context: &TenantContext,
     user: &User,
     user_mfa_credential: &UserMFACredential,
     csrf_token: &str,
@@ -91,7 +91,7 @@ pub async fn activate_html<
     let qr_code_image = format!("data:image/png;base64,{}", qr_code);
 
     let mfa_active_html = mfa::activate::mfa_activate_html(
-        tenant,
+        context,
         csrf_token,
         user_mfa_credential
             .id
@@ -117,7 +117,7 @@ pub async fn activate_get<
     MFAActivateGET { id }: MFAActivateGET,
     uri: OriginalUri,
     CSRFToken(csrf_token): CSRFToken,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(context): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
@@ -132,7 +132,7 @@ pub async fn activate_get<
 
     let Some(user_mfa_credential) = TenantModelAdmin::<UserMFACredentialCreate, _, _, _, _>::read(
         state.repo.as_ref(),
-        &tenant,
+        &context.tenant,
         &MFAKey::new(UserId::new(get_auth_state.user.id.clone()), id),
     )
     .await?
@@ -152,7 +152,7 @@ pub async fn activate_get<
 
     let mfa_active_html = activate_html(
         state.as_ref(),
-        &tenant,
+        &context,
         &get_auth_state.user,
         &user_mfa_credential,
         &csrf_token,
@@ -171,7 +171,7 @@ pub async fn activate_post<
     MFAActivatePOST { id }: MFAActivatePOST,
     _uri: OriginalUri,
     CSRFToken(csrf_token): CSRFToken,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
     Form(mfa_activate_data): Form<MFAActivatePOSTBody>,
@@ -248,6 +248,7 @@ pub async fn activate_post<
                 "MFA has been activated successfully. You can close this window."
             }
         },
+        Some(&branding),
     )
     .into_response())
 }

@@ -2858,6 +2858,7 @@ dependencies = [
  "haste-repository",
  "haste-sd-to-json-schema",
  "haste-sql-on-fhir",
+ "image",
  "json-patch",
  "jsonwebtoken",
  "maud",

@@ -21,9 +21,9 @@ use tower_sessions::Session;
 
 use crate::{
     auth_n::session,
-    extract::{csrf_token::CSRFToken, path_tenant::TenantIdentifier},
+    extract::csrf_token::CSRFToken,
     services::ServerState,
-    ui::pages::mfa,
+    ui::{components::TenantContext, pages::mfa},
 };
 
 fn create_mfa_route(uri: &OriginalUri, replace_path: &str) -> String {
@@ -52,7 +52,7 @@ pub async fn admin_get<
     _: MFAAdminGET,
     uri: OriginalUri,
     CSRFToken(csrf_token): CSRFToken,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
@@ -83,6 +83,7 @@ pub async fn admin_get<
         &create_mfa_route(&uri, "/admin"),
         &delete_mfa_route(&uri, "/admin"),
         &activate_mfa_route(&uri, "/admin"),
+        Some(&branding),
     );
 
     Ok(mfa_admin_html.into_response())
