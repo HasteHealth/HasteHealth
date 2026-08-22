@@ -342,9 +342,7 @@ const router =
         },
       ]);
 
-function Navbar({
-  showLogo = true,
-}: Readonly<{ showLogo?: boolean }>) {
+function Navbar({ showLogo = true }: Readonly<{ showLogo?: boolean }>) {
   const hasteHealth = useHasteHealth();
   const navigate = useNavigate();
 
@@ -353,7 +351,7 @@ function Navbar({
       <div className={`flex items-center ${APP_HEADER_HEIGHT_CLASS}`}>
         {showLogo && (
           <AppLogo
-            className="h-10 mr-4 cursor-pointer text-brand-500"
+            className="h-9 mr-4 cursor-pointer text-brand-500"
             onClick={() => {
               navigate(generatePath("/", {}));
             }}
