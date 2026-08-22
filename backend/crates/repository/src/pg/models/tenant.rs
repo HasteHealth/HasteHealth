@@ -10,9 +10,9 @@ use sqlx::{PgExecutor, QueryBuilder};
 
 fn validate_tenant_customization(
     subscription_tier: &str,
-    display_name: &Option<String>,
-    logo_data: &Option<Vec<u8>>,
-    logo_content_type: &Option<String>,
+    display_name: Option<&String>,
+    logo_data: Option<&Vec<u8>>,
+    logo_content_type: Option<&String>,
 ) -> Result<(), OperationOutcomeError> {
     if logo_data.is_some() != logo_content_type.is_some() {
         return Err(OperationOutcomeError::error(
@@ -56,9 +56,9 @@ where
 
     validate_tenant_customization(
         tenant.subscription_tier.as_deref().unwrap_or("free"),
-        &tenant.display_name,
-        &tenant.logo_data,
-        &tenant.logo_content_type,
+        tenant.display_name.as_ref(),
+        tenant.logo_data.as_ref(),
+        tenant.logo_content_type.as_ref(),
     )?;
 
     let result = sqlx::query_as::<_, Tenant>(
@@ -126,9 +126,9 @@ where
 {
     validate_tenant_customization(
         &tenant.subscription_tier,
-        &tenant.display_name,
-        &tenant.logo_data,
-        &tenant.logo_content_type,
+        tenant.display_name.as_ref(),
+        tenant.logo_data.as_ref(),
+        tenant.logo_content_type.as_ref(),
     )?;
 
     let updated_tenant = sqlx::query_as::<_, Tenant>(
@@ -273,12 +273,8 @@ mod tests {
 
     #[test]
     fn free_tenants_cannot_set_branding() {
-        let result = validate_tenant_customization(
-            "free",
-            &Some("Example Health".to_string()),
-            &None,
-            &None,
-        );
+        let result =
+            validate_tenant_customization("free", Some(&"Example Health".to_string()), None, None);
 
         assert!(result.is_err());
     }
@@ -287,9 +283,9 @@ mod tests {
     fn paid_tenants_can_set_branding() {
         let result = validate_tenant_customization(
             "professional",
-            &Some("Example Health".to_string()),
-            &Some(vec![1, 2, 3]),
-            &Some("image/png".to_string()),
+            Some(&"Example Health".to_string()),
+            Some(&vec![1, 2, 3]),
+            Some(&"image/png".to_string()),
         );
 
         assert!(result.is_ok());
