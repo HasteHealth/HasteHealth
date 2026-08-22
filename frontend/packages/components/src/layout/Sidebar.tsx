@@ -62,7 +62,7 @@ export function SideBarItemGroup({
   label,
   children,
   ...props
-}: SideBarItemGroupProps) {
+}: Readonly<SideBarItemGroupProps>) {
   const isOpen = React.useContext(SidebarOpenContext);
 
   return (
