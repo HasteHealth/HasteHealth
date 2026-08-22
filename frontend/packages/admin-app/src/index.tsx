@@ -333,7 +333,7 @@ function Navbar() {
     <div className="px-4 sticky top-0 bg-white border-b z-20 text-sm">
       <div className={`flex items-center ${APP_HEADER_HEIGHT_CLASS}`}>
         <AppLogo
-          className="h-14 mr-4 cursor-pointer text-brand-500"
+          className="h-10 mr-4 cursor-pointer text-brand-500"
           onClick={() => {
             navigate(generatePath("/", {}));
           }}
