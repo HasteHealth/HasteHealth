@@ -5,35 +5,44 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use quote::quote;
 use std::{io::Write, path::Path, process::Stdio};
 
-#[derive(Clone, ValueEnum)]
+/// Which tier of FHIR types to generate.
+#[derive(Clone, Debug, ValueEnum)]
 pub(crate) enum GenerateLevel {
     Primitive,
     Complex,
     Resource,
 }
 
-#[derive(Subcommand)]
+/// Code generators (Rust FHIR types, operations, TestScripts) used to build this crate.
+#[derive(Subcommand, Debug)]
 pub(crate) enum CodeGen {
+    /// Generate Rust structs for FHIR resources/types/terminology from StructureDefinitions.
     Types {
+        /// Input FHIR StructureDefinition file(s) or directories (JSON). Repeatable.
         #[arg(short, long)]
         input: Vec<String>,
-        /// Output Rust file path
+        /// Output directory for the generated `resources.rs`, `types.rs`, `terminology.rs`, `mod.rs`.
         #[arg(short, long)]
         output: String,
+        /// Restrict generation to one tier of types. Defaults to generating all tiers.
         #[arg(short, long)]
         level: Option<GenerateLevel>,
     },
+    /// Generate Rust bindings for FHIR OperationDefinitions.
     Operations {
+        /// Input FHIR OperationDefinition file(s) or directories (JSON). Repeatable.
         #[arg(short, long)]
         input: Vec<String>,
-        /// Output Rust file path
+        /// Output Rust file path. Prints to stdout if omitted.
         #[arg(short, long)]
         output: Option<String>,
     },
+    /// Generate FHIR TestScript resources.
     TestScripts {
+        /// Input file(s) or directories describing the TestScripts to generate. Repeatable.
         #[arg(short, long)]
         input: Vec<String>,
-        /// Output Rust file path
+        /// Output directory for the generated TestScript JSON files.
         #[arg(short, long)]
         output: String,
     },
@@ -62,6 +71,7 @@ fn format_code(rust_code: String) -> String {
     formatted_code.to_string()
 }
 
+/// Runs the `generate` command group.
 pub(crate) async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeError> {
     match command {
         CodeGen::Operations { input, output } => {

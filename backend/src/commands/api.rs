@@ -1,135 +1,173 @@
-#![allow(unused)]
 use crate::CLIState;
 use clap::Subcommand;
-use haste_fhir_client::{
-    FHIRClient,
-    http::{FHIRHttpClient, FHIRHttpState},
-    url::ParsedParameters,
-};
+use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, Resource, ResourceType},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+/// Make FHIR REST API calls against the active profile's server.
+///
+/// Commands that take a resource body accept it via `--data` (inline JSON), `--file`
+/// (a JSON file), or, if neither is given, a single line read from stdin.
 #[derive(Subcommand, Debug)]
 pub(crate) enum ApiCommands {
+    /// Create a resource (`POST [base]/[type]`).
     Create {
+        /// Resource JSON, inline.
         #[arg(short, long)]
         data: Option<String>,
+        /// Path to a file containing the resource JSON.
         #[arg(short, long)]
         file: Option<String>,
+        /// FHIR resource type to create.
         resource_type: String,
     },
-    Read {
-        resource_type: String,
-        id: String,
-    },
+    /// Read the current version of a resource (`GET [base]/[type]/[id]`).
+    Read { resource_type: String, id: String },
 
+    /// Read a specific historical version of a resource (`GET [base]/[type]/[id]/_history/[vid]`).
     VersionRead {
         resource_type: String,
         id: String,
         version_id: String,
     },
 
+    /// Apply a JSON Patch to a resource (`PATCH [base]/[type]/[id]`).
     Patch {
+        /// JSON Patch document, inline.
         #[arg(short, long)]
         data: Option<String>,
+        /// Path to a file containing the JSON Patch document.
         #[arg(short, long)]
         file: Option<String>,
         resource_type: String,
         id: String,
     },
+    /// Create or replace a resource at a known ID (`PUT [base]/[type]/[id]`).
     Update {
+        /// Resource JSON, inline.
         #[arg(short, long)]
         data: Option<String>,
+        /// Path to a file containing the resource JSON.
         #[arg(short, long)]
         file: Option<String>,
         resource_type: String,
         id: String,
     },
+    /// Submit a transaction Bundle (`POST [base]`, type `transaction`).
     Transaction {
+        /// Bundle JSON, inline.
         #[arg(short, long)]
         data: Option<String>,
+        /// Submit the same bundle this many times concurrently. Defaults to 1.
         #[arg(short, long)]
         parallel: Option<usize>,
+        /// Path to a file containing the Bundle JSON.
         #[arg(short, long)]
         file: Option<String>,
+        /// Print each response bundle to stdout.
         #[arg(short, long)]
         output: Option<bool>,
     },
+    /// Submit a batch Bundle (`POST [base]`, type `batch`).
     Batch {
+        /// Bundle JSON, inline.
         #[arg(short, long)]
         data: Option<String>,
+        /// Path to a file containing the Bundle JSON.
         #[arg(short, long)]
         file: Option<String>,
+        /// Print the response bundle to stdout.
         #[arg(short, long)]
         output: Option<bool>,
     },
 
+    /// Fetch the system-wide history (`GET [base]/_history`).
     HistorySystem {
+        /// FHIR search-style parameters, e.g. `_since=2024-01-01`.
         parameters: Option<String>,
     },
 
+    /// Fetch the history of a resource type (`GET [base]/[type]/_history`).
     HistoryType {
         resource_type: String,
+        /// FHIR search-style parameters, e.g. `_since=2024-01-01`.
         parameters: Option<String>,
     },
 
+    /// Fetch the history of a single resource instance (`GET [base]/[type]/[id]/_history`).
     HistoryInstance {
         resource_type: String,
         id: String,
+        /// FHIR search-style parameters, e.g. `_since=2024-01-01`.
         parameters: Option<String>,
     },
 
+    /// Search a resource type (`GET [base]/[type]?...`).
     SearchType {
         resource_type: String,
+        /// FHIR search parameters, e.g. `name=eve&_count=20`.
         parameters: Option<String>,
     },
 
+    /// Search across all resource types (`GET [base]?...`).
     SearchSystem {
+        /// FHIR search parameters, e.g. `_lastUpdated=gt2024-01-01`.
         parameters: Option<String>,
     },
 
+    /// Invoke a system-level operation (`POST [base]/$[operation_name]`).
     InvokeSystem {
+        /// Parameters resource JSON, inline.
         #[arg(short, long)]
         data: Option<String>,
+        /// Path to a file containing the Parameters resource JSON.
         #[arg(short, long)]
         file: Option<String>,
         operation_name: String,
     },
 
+    /// Invoke a type-level operation (`POST [base]/[type]/$[operation_name]`).
     InvokeType {
+        /// Parameters resource JSON, inline.
         #[arg(short, long)]
         data: Option<String>,
+        /// Path to a file containing the Parameters resource JSON.
         #[arg(short, long)]
         file: Option<String>,
         resource_type: String,
         operation_name: String,
     },
 
+    /// Fetch the server's CapabilityStatement (`GET [base]/metadata`).
     Capabilities {},
 
-    DeleteInstance {
-        resource_type: String,
-        id: String,
-    },
+    /// Delete a single resource instance (`DELETE [base]/[type]/[id]`).
+    DeleteInstance { resource_type: String, id: String },
 
+    /// Delete all resources of a type matching search parameters (`DELETE [base]/[type]?...`).
     DeleteType {
         resource_type: String,
+        /// FHIR search parameters selecting which resources to delete.
         parameters: Option<String>,
     },
 
+    /// Delete all resources matching system-level search parameters (`DELETE [base]?...`).
     DeleteSystem {
+        /// FHIR search parameters selecting which resources to delete.
         parameters: Option<String>,
     },
 
+    /// Invoke an instance-level operation (`POST [base]/[type]/[id]/$[operation_name]`).
     InvokeInstance {
+        /// Parameters resource JSON, inline.
         #[arg(short, long)]
         data: Option<String>,
+        /// Path to a file containing the Parameters resource JSON.
         #[arg(short, long)]
         file: Option<String>,
         resource_type: String,
@@ -183,6 +221,7 @@ async fn derive_resource_data_arg_file_arg_or_stdin<Type: serde::de::Deserialize
     }
 }
 
+/// Runs the `api` command group.
 pub(crate) async fn api_commands(
     state: Arc<Mutex<CLIState>>,
     command: &ApiCommands,

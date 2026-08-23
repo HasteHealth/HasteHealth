@@ -1,42 +1,26 @@
 use std::sync::Arc;
 
-use clap::{Subcommand, ValueEnum};
+use clap::Subcommand;
 use figment::{
     Figment,
     providers::{Env, Format as _, Toml},
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_jwt::claims::SubscriptionTier;
 use haste_server::{config::ServerConfig, server};
 
-#[derive(Clone, Debug, ValueEnum)]
-pub(crate) enum UserSubscriptionChoice {
-    Free,
-    Professional,
-    Team,
-    Unlimited,
-}
-
-impl From<UserSubscriptionChoice> for SubscriptionTier {
-    fn from(choice: UserSubscriptionChoice) -> Self {
-        match choice {
-            UserSubscriptionChoice::Free => SubscriptionTier::Free,
-            UserSubscriptionChoice::Professional => SubscriptionTier::Professional,
-            UserSubscriptionChoice::Team => SubscriptionTier::Team,
-            UserSubscriptionChoice::Unlimited => SubscriptionTier::Unlimited,
-        }
-    }
-}
-
+/// Run the FHIR server.
 #[derive(Subcommand, Debug)]
 pub(crate) enum ServerCommands {
+    /// Start the HTTP server. Configuration is read from `haste.toml` and `HASTE_*` env vars.
     Start {
+        /// Port to listen on. Defaults to 3000.
         #[arg(short, long)]
         port: Option<u16>,
     },
 }
 
+/// Runs the `server` command group.
 pub(crate) async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeError> {
     let config: ServerConfig = Figment::new()
         .merge(Toml::file("haste.toml"))
