@@ -1,4 +1,4 @@
-use crate::{CLIState, CONFIG_LOCATION, commands::config::StoredTokens};
+use crate::{CLIState, SECRETS_LOCATION, secrets::StoredTokens};
 use haste_fhir_client::http::{FHIRHttpClient, FHIRHttpState};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -120,35 +120,16 @@ pub(crate) async fn refresh_access_token(
     let mut current_state = state.lock().await;
     current_state.access_token = Some(token_response.access_token.clone());
 
-    if let Some(profile) = current_state
-        .config
-        .profiles
-        .iter_mut()
-        .find(|p| p.name == profile_name)
-    {
-        profile.tokens = Some(StoredTokens {
-            access_token: token_response.access_token.clone(),
-            refresh_token: token_response
-                .refresh_token
-                .or(Some(refresh_token.to_string())),
-            id_token: token_response.id_token,
-            expires_at: unix_now() + token_response.expires_in,
-        });
-    }
+    current_state.secrets.profile_mut(profile_name).tokens = Some(StoredTokens {
+        access_token: token_response.access_token.clone(),
+        refresh_token: token_response
+            .refresh_token
+            .or(Some(refresh_token.to_string())),
+        id_token: token_response.id_token,
+        expires_at: unix_now() + token_response.expires_in,
+    });
 
-    std::fs::write(
-        &*CONFIG_LOCATION,
-        toml::to_string(&current_state.config).unwrap(),
-    )
-    .map_err(|_| {
-        OperationOutcomeError::error(
-            IssueType::exception(),
-            format!(
-                "Failed to write config file at location '{}'",
-                CONFIG_LOCATION.to_string_lossy()
-            ),
-        )
-    })?;
+    crate::secrets::write_secrets(&SECRETS_LOCATION, &current_state.secrets)?;
 
     Ok(token_response.access_token)
 }
@@ -165,15 +146,29 @@ async fn config_to_fhir_http_state(
         ));
     };
 
+    let profile_name = active_profile.name.clone();
+    let client_secret = current_state
+        .secrets
+        .profile(&profile_name)
+        .and_then(|s| s.client_secret.clone());
+    drop(current_state);
+
     let state = state.clone();
     let http_state = FHIRHttpState::new(
         &active_profile.r4_url.clone(),
         match active_profile.auth {
             crate::commands::config::ProfileAuth::Public {} => None,
-            crate::commands::config::ProfileAuth::ClientCredentails {
-                client_id,
-                client_secret,
-            } => {
+            crate::commands::config::ProfileAuth::ClientCredentails { client_id } => {
+                let Some(client_secret) = client_secret else {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::invalid(),
+                        format!(
+                            "No client secret stored for profile '{}'. Recreate it with `haste-health config create-profile`.",
+                            profile_name
+                        ),
+                    ));
+                };
+
                 Some(Arc::new(move || {
                     let state = state.clone();
                     let client_id = client_id.clone();
@@ -244,7 +239,6 @@ async fn config_to_fhir_http_state(
                 redirect_uri: _,
                 scope: _,
             } => {
-                let profile_name = active_profile.name.clone();
                 Some(Arc::new(move || {
                     let state = state.clone();
                     let client_id = client_id.clone();
@@ -257,9 +251,9 @@ async fn config_to_fhir_http_state(
                         let stored_tokens = {
                             let current_state = state.lock().await;
                             current_state
-                                .config
-                                .current_profile()
-                                .and_then(|p| p.tokens.clone())
+                                .secrets
+                                .profile(&profile_name)
+                                .and_then(|s| s.tokens.clone())
                         };
 
                         let Some(tokens) = stored_tokens else {

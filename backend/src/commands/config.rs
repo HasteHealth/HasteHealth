@@ -1,4 +1,9 @@
-use crate::{CLIState, CONFIG_LOCATION};
+//! Manage named server connection profiles (`~/.haste_health/config.toml`).
+//!
+//! Secret material (client secrets, cached OAuth tokens) is *not* stored here — see
+//! [`crate::commands::secrets`] — so this file is safe to inspect, back up, or share.
+
+use crate::{CLIState, CONFIG_LOCATION, SECRETS_LOCATION, secrets};
 use clap::{Subcommand, ValueEnum};
 use dialoguer::{Confirm, Select};
 use dialoguer::{Input, Password, theme::ColorfulTheme};
@@ -8,7 +13,7 @@ use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, sync::Arc};
 use tokio::sync::Mutex;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub(crate) struct CLIConfiguration {
     pub active_profile: Option<String>,
     pub profiles: Vec<Profile>,
@@ -24,32 +29,21 @@ impl CLIConfiguration {
     }
 }
 
-impl Default for CLIConfiguration {
-    fn default() -> Self {
-        CLIConfiguration {
-            active_profile: None,
-            profiles: vec![],
-        }
-    }
-}
-
+/// A named connection to a FHIR server plus how the CLI should authenticate to it.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct Profile {
     pub(crate) name: String,
     pub(crate) r4_url: String,
     pub(crate) oidc_discovery_uri: String,
     pub(crate) auth: ProfileAuth,
-    /// Cached tokens for `ProfileAuth::AuthorizationCode` profiles, populated by `haste-health login`.
-    #[serde(default)]
-    pub(crate) tokens: Option<StoredTokens>,
 }
 
+/// How the CLI authenticates for a given profile. Any secret values (client secret,
+/// cached tokens) live in the separate secrets file, keyed by profile name.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) enum ProfileAuth {
-    ClientCredentails {
-        client_id: String,
-        client_secret: String,
-    },
+    /// A confidential (server-to-server) client authenticated with a client secret.
+    ClientCredentails { client_id: String },
     /// A public (no secret) OIDC client authenticated by a human via the browser-based
     /// authorization_code + PKCE flow. Run `haste-health login` to obtain tokens.
     AuthorizationCode {
@@ -57,18 +51,11 @@ pub(crate) enum ProfileAuth {
         redirect_uri: String,
         scope: String,
     },
+    /// No authentication; requests are sent unauthenticated.
     Public {},
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub(crate) struct StoredTokens {
-    pub(crate) access_token: String,
-    pub(crate) refresh_token: Option<String>,
-    pub(crate) id_token: Option<String>,
-    /// Unix timestamp (seconds) the access token expires at.
-    pub(crate) expires_at: i64,
-}
-
+/// How the CLI authenticates for a newly created profile.
 #[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
 pub(crate) enum AuthModeChoice {
     /// A confidential (server-to-server) client authenticated with a client secret.
@@ -78,21 +65,31 @@ pub(crate) enum AuthModeChoice {
     AuthorizationCode,
 }
 
+/// Manage named server connection profiles.
 #[derive(Subcommand, Debug)]
 pub(crate) enum ConfigCommands {
+    /// Print the currently active profile (never includes secrets or tokens).
     ShowProfile,
+    /// Create a new profile and set it as active. Prompts interactively for any option
+    /// not passed on the command line.
     CreateProfile {
+        /// Name to identify this profile by.
         #[arg(short, long)]
         name: Option<String>,
+        /// Base URL of the FHIR R4 server.
         #[arg(short, long)]
         r4_url: Option<String>,
+        /// OIDC discovery (`.well-known/openid-configuration`) URI.
         #[arg(short, long)]
         discovery_uri: Option<String>,
+        /// How the CLI should authenticate as this profile.
         #[arg(long, value_enum)]
         auth_mode: Option<AuthModeChoice>,
+        /// OIDC client ID.
         #[arg(short, long)]
         id: Option<String>,
         /// Client secret. Required for --auth-mode client-credentials, ignored otherwise.
+        /// Stored in the secrets file, not the profile itself.
         #[arg(short, long)]
         secret: Option<String>,
         /// Loopback redirect URI for --auth-mode authorization-code (must be registered on the server client).
@@ -102,13 +99,18 @@ pub(crate) enum ConfigCommands {
         #[arg(long)]
         scope: Option<String>,
     },
+    /// Delete a profile and its stored secrets.
     DeleteProfile {
+        /// Name of the profile to delete.
         #[arg(short, long)]
         name: Option<String>,
+        /// Skip the interactive confirmation prompt.
         #[arg(short, long)]
         confirm: Option<bool>,
     },
+    /// Change which profile is used by default.
     SetActiveProfile {
+        /// Name of the profile to activate.
         #[arg(short, long)]
         name: Option<String>,
     },
@@ -162,6 +164,18 @@ pub(crate) fn load_config(location: &PathBuf) -> CLIConfiguration {
     }
 }
 
+fn write_config(config: &CLIConfiguration) -> Result<(), OperationOutcomeError> {
+    std::fs::write(&*CONFIG_LOCATION, toml::to_string(config).unwrap()).map_err(|_| {
+        OperationOutcomeError::error(
+            IssueType::exception(),
+            format!(
+                "Failed to write config file at location '{}'",
+                CONFIG_LOCATION.to_string_lossy()
+            ),
+        )
+    })
+}
+
 pub(crate) async fn config(
     state: &Arc<Mutex<CLIState>>,
     command: &ConfigCommands,
@@ -169,13 +183,7 @@ pub(crate) async fn config(
     match command {
         ConfigCommands::ShowProfile => {
             let state = state.lock().await;
-            if let Some(active_profile_id) = state.config.active_profile.as_ref()
-                && let Some(active_profile) = state
-                    .config
-                    .profiles
-                    .iter()
-                    .find(|p| &p.name == active_profile_id)
-            {
+            if let Some(active_profile) = state.config.current_profile() {
                 println!("{:#?}", active_profile);
             } else {
                 println!("No active profile set.");
@@ -247,7 +255,7 @@ pub(crate) async fn config(
                 }
             };
 
-            let auth = match auth_mode {
+            let (auth, client_secret) = match auth_mode {
                 AuthModeChoice::ClientCredentials => {
                     let client_secret: String = if let Some(secret) = secret {
                         secret.clone()
@@ -258,10 +266,12 @@ pub(crate) async fn config(
                             .unwrap()
                     };
 
-                    ProfileAuth::ClientCredentails {
-                        client_id: client_id.clone(),
-                        client_secret,
-                    }
+                    (
+                        ProfileAuth::ClientCredentails {
+                            client_id: client_id.clone(),
+                        },
+                        Some(client_secret),
+                    )
                 }
                 AuthModeChoice::AuthorizationCode => {
                     let redirect_uri: String = if let Some(redirect_uri) = redirect_uri {
@@ -284,11 +294,14 @@ pub(crate) async fn config(
                             .unwrap()
                     };
 
-                    ProfileAuth::AuthorizationCode {
-                        client_id: client_id.clone(),
-                        redirect_uri,
-                        scope,
-                    }
+                    (
+                        ProfileAuth::AuthorizationCode {
+                            client_id: client_id.clone(),
+                            redirect_uri,
+                            scope,
+                        },
+                        None,
+                    )
                 }
             };
 
@@ -310,25 +323,17 @@ pub(crate) async fn config(
                 r4_url: r4_url.clone(),
                 oidc_discovery_uri: oidc_discovery_uri.clone(),
                 auth,
-                tokens: None,
             };
 
             state.config.profiles.push(profile);
             state.config.active_profile = Some(name.clone());
 
-            std::fs::write(&*CONFIG_LOCATION, toml::to_string(&state.config).unwrap()).map_err(
-                |_| {
-                    OperationOutcomeError::error(
-                        IssueType::exception(),
-                        format!(
-                            "Failed to write config file at location '{}'",
-                            CONFIG_LOCATION.to_string_lossy()
-                        ),
-                    )
-                },
-            )?;
+            if let Some(client_secret) = client_secret {
+                state.secrets.profile_mut(&name).client_secret = Some(client_secret);
+                secrets::write_secrets(&SECRETS_LOCATION, &state.secrets)?;
+            }
 
-            Ok(())
+            write_config(&state.config)
         }
         ConfigCommands::DeleteProfile { name, confirm } => {
             let name: String = if let Some(name) = name {
@@ -362,20 +367,10 @@ pub(crate) async fn config(
                 .config
                 .profiles
                 .retain(|profile| profile.name != *name);
+            state.secrets.remove_profile(&name);
 
-            std::fs::write(&*CONFIG_LOCATION, toml::to_string(&state.config).unwrap()).map_err(
-                |_| {
-                    OperationOutcomeError::error(
-                        IssueType::exception(),
-                        format!(
-                            "Failed to write config file at location '{}'",
-                            CONFIG_LOCATION.to_string_lossy()
-                        ),
-                    )
-                },
-            )?;
-
-            Ok(())
+            secrets::write_secrets(&SECRETS_LOCATION, &state.secrets)?;
+            write_config(&state.config)
         }
         ConfigCommands::SetActiveProfile { name } => {
             let mut state = state.lock().await;
@@ -430,18 +425,7 @@ pub(crate) async fn config(
 
             state.config.active_profile = Some(name.to_string());
 
-            std::fs::write(&*CONFIG_LOCATION, toml::to_string(&state.config).unwrap()).map_err(
-                |_| {
-                    OperationOutcomeError::error(
-                        IssueType::exception(),
-                        format!(
-                            "Failed to write config file at location '{}'",
-                            CONFIG_LOCATION.to_string_lossy()
-                        ),
-                    )
-                },
-            )?;
-            Ok(())
+            write_config(&state.config)
         }
     }
 }

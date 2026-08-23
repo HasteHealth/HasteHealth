@@ -12,26 +12,37 @@ use std::net::TcpListener;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-#[derive(Subcommand)]
+/// Bridge HL7v2 messages to and from the FHIR server.
+#[derive(Subcommand, Debug)]
 pub(crate) enum HL7v2Commands {
+    /// Listen for MLLP-framed HL7v2 messages, convert them to FHIR, and submit them.
     Receiver {
+        /// Address to bind the MLLP listener to.
         #[arg(short, long)]
         address: String,
+        /// Port to bind the MLLP listener to.
         #[arg(short, long)]
         port: u16,
+        /// Entry template file name (resolved within --template-dir) used to convert
+        /// incoming HL7v2 messages to FHIR.
         #[arg(short, long)]
         main: String,
+        /// Directory containing the conversion templates.
         #[arg(short, long)]
         template_dir: String,
     },
+    /// Send HL7v2 messages over MLLP. Not yet implemented.
     Sender {
+        /// Address of the MLLP receiver to send to.
         #[arg(short, long)]
         address: String,
+        /// Port of the MLLP receiver to send to.
         #[arg(short, long)]
         port: u16,
     },
 }
 
+/// Runs the `hl7v2` command group.
 pub(crate) async fn hl7v2(
     state: Arc<Mutex<CLIState>>,
     command: &HL7v2Commands,

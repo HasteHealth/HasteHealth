@@ -11,13 +11,19 @@ use std::{path::Path, sync::Arc};
 use tokio::{sync::Mutex, task::JoinSet};
 use tracing::{error, info};
 
-#[derive(Subcommand)]
+/// Run FHIR TestScript resources against the active profile's server.
+#[derive(Subcommand, Debug)]
 pub(crate) enum TestScriptCommands {
+    /// Run every TestScript resource found under the given input path(s), in parallel,
+    /// and write a transaction Bundle of the resulting TestReports.
     Run {
+        /// File or directory to search for TestScript resources (JSON). Repeatable.
         #[arg(short, long)]
         input: Vec<String>,
+        /// Write the resulting TestReport bundle to this file instead of stdout.
         #[arg(short, long)]
         output: Option<String>,
+        /// Delay between operations within a TestScript, in milliseconds.
         #[arg(short, long)]
         wait_between_operations_ms: Option<u64>,
     },
@@ -67,6 +73,7 @@ fn load_testscript_files(path: &Path) -> Vec<TestScript> {
     testscripts
 }
 
+/// Runs the `testscript` command group.
 pub(crate) async fn testscript_commands(
     state: Arc<Mutex<CLIState>>,
     command: &TestScriptCommands,

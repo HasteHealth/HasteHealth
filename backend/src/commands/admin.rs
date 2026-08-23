@@ -28,6 +28,7 @@ use haste_server::{
 };
 use std::sync::Arc;
 
+/// Subscription tier to assign a newly created tenant.
 #[derive(Clone, Debug, ValueEnum)]
 pub(crate) enum UserSubscriptionChoice {
     Free,
@@ -47,6 +48,7 @@ impl From<UserSubscriptionChoice> for SubscriptionTier {
     }
 }
 
+/// How a newly created OIDC client authenticates.
 #[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
 pub(crate) enum ClientGrantTypeChoice {
     /// A confidential (server-to-server) client authenticated with a client secret.
@@ -55,83 +57,113 @@ pub(crate) enum ClientGrantTypeChoice {
     AuthorizationCode,
 }
 
+/// Manage OIDC ClientApplication resources.
 #[derive(Subcommand, Debug)]
 pub(crate) enum ClientCommands {
+    /// Create a ClientApplication and, for client-credentials clients, an AccessPolicyV2
+    /// granting it full access.
     Create {
+        /// OIDC client ID to create.
         #[arg(short, long)]
         id: String,
         /// Required for --grant-type client-credentials. Ignored (and unset, making the
         /// client public) for --grant-type authorization-code.
         #[arg(short, long)]
         secret: Option<String>,
+        /// Tenant to create the client in.
         #[arg(short, long)]
         tenant: String,
+        /// Project to create the client in.
         #[arg(short, long)]
         project: String,
+        /// OAuth grant type the client uses to authenticate.
         #[arg(long, value_enum, default_value = "client-credentials")]
         grant_type: ClientGrantTypeChoice,
         /// Loopback redirect URI(s) to allow, e.g. http://127.0.0.1:8976/callback.
         /// Required for --grant-type authorization-code.
         #[arg(long)]
         redirect_uri: Vec<String>,
+        /// OAuth scope to grant the client. Defaults depend on --grant-type.
         #[arg(long)]
         scope: Option<String>,
     },
 }
 
+/// Server-side administrative operations (tenants, users, clients, migrations).
 #[derive(Subcommand, Debug)]
 pub(crate) enum AdminCommands {
+    /// Manage tenants.
     Tenant {
         #[command(subcommand)]
         command: TenantCommands,
     },
 
+    /// Manage users.
     User {
         #[command(subcommand)]
         command: UserCommands,
     },
 
+    /// Manage OIDC ClientApplication resources.
     Client {
         #[command(subcommand)]
         command: ClientCommands,
     },
 
+    /// Run database/search/artifact migrations.
     Migrate {
         #[command(subcommand)]
         command: MigrationCommands,
     },
 }
 
+/// Run database/search/artifact migrations.
 #[derive(Subcommand, Debug)]
 pub(crate) enum MigrationCommands {
+    /// Load the built-in FHIR artifacts (StructureDefinitions, ValueSets, etc).
     Artifacts {},
+    /// Reload the built-in FHIR artifacts from scratch, discarding local edits to them.
     ResetArtifacts {},
+    /// Run pending repository (Postgres) migrations.
     Repo {},
+    /// Run pending search index (ElasticSearch) migrations.
     Search {},
+    /// Run all of the above: repo, then search, then artifacts.
     All,
 }
 
+/// Manage tenants.
 #[derive(Subcommand, Debug)]
 pub(crate) enum TenantCommands {
+    /// Create a tenant and its owner user.
     Create {
+        /// Tenant ID to create.
         #[arg(short, long)]
         id: String,
+        /// Subscription tier to assign. Defaults to Free.
         #[arg(short, long)]
         subscription_tier: Option<UserSubscriptionChoice>,
+        /// Email address for the tenant's owner user.
         #[arg(long)]
         owner_email: String,
+        /// Password for the tenant's owner user.
         #[arg(long)]
         owner_password: String,
     },
 }
 
+/// Manage users.
 #[derive(Subcommand, Debug)]
 pub(crate) enum UserCommands {
+    /// Create an admin user within a tenant.
     Create {
+        /// Email address for the new user.
         #[arg(short, long)]
         email: String,
+        /// Password for the new user.
         #[arg(short, long)]
         password: String,
+        /// Tenant to create the user in.
         #[arg(short, long)]
         tenant: String,
     },
@@ -161,6 +193,7 @@ async fn migrate_artifacts(config: Arc<ServerConfig>) -> Result<(), OperationOut
     Ok(())
 }
 
+/// Runs the `admin` command group.
 pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcomeError> {
     let config: Arc<ServerConfig> = Arc::new(
         Figment::new()

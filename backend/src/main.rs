@@ -28,9 +28,11 @@ use tracing_subscriber::{EnvFilter, layer::SubscriberExt, registry::Registry};
 use tracing_tree::HierarchicalLayer;
 
 use crate::commands::config::{CLIConfiguration, load_config};
+use crate::secrets::{CLISecrets, load_secrets};
 
 mod client;
 mod commands;
+mod secrets;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)] // Read from `Cargo.toml`
@@ -41,46 +43,54 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 enum CLICommand {
-    /// Data gets pulled from stdin.
+    /// Evaluate a FHIRPath expression against a FHIR resource read from stdin.
     FHIRPath {
         /// FHIRPath expression to evaluate
         fhirpath: String,
     },
+    /// Code generators (Rust FHIR types, operations, TestScripts) used to build this crate.
     Generate {
-        /// Input FHIR StructureDefinition file (JSON)
         #[command(subcommand)]
         command: commands::codegen::CodeGen,
     },
+    /// Run the FHIR server.
     Server {
         #[command(subcommand)]
         command: commands::server::ServerCommands,
     },
+    /// Make FHIR REST API calls against the active profile's server.
     Api {
         #[command(subcommand)]
         command: commands::api::ApiCommands,
     },
+    /// Manage named server connection profiles used by other commands.
     Config {
         #[command(subcommand)]
         command: commands::config::ConfigCommands,
     },
     /// Log in as a human user via the browser (authorization_code + PKCE flow).
     Login,
+    /// Run background workers (search indexing, WAL processing).
     Worker {
         #[command(subcommand)]
         command: Option<commands::worker::WorkerCommands>,
     },
+    /// Run FHIR TestScript resources against the active profile's server.
     Testscript {
         #[command(subcommand)]
         command: commands::testscript::TestScriptCommands,
     },
+    /// Server-side administrative operations (tenants, users, clients, migrations).
     Admin {
         #[command(subcommand)]
         command: commands::admin::AdminCommands,
     },
+    /// Bridge HL7v2 messages to and from the FHIR server.
     Hl7v2 {
         #[command(subcommand)]
         command: commands::hl7v2::HL7v2Commands,
     },
+    /// Generate Markdown documentation for this CLI's commands.
     Doc {
         /// Output markdown file path
         #[arg(short, long)]
@@ -88,26 +98,36 @@ enum CLICommand {
     },
 }
 
-static CONFIG_LOCATION: LazyLock<PathBuf> = LazyLock::new(|| {
+/// Directory holding the CLI's config and secrets files (`~/.haste_health`).
+static CONFIG_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
     let config_dir = std::env::home_dir()
         .unwrap_or_else(|| std::path::PathBuf::from("."))
         .join(".haste_health");
 
     std::fs::create_dir_all(&config_dir).expect("Failed to create config directory");
 
-    config_dir.join("config.toml")
+    config_dir
 });
+
+/// Non-secret profile config (server URLs, auth mode). Safe to inspect or back up.
+static CONFIG_LOCATION: LazyLock<PathBuf> = LazyLock::new(|| CONFIG_DIR.join("config.toml"));
+
+/// Client secrets and cached OAuth tokens, kept out of `CONFIG_LOCATION` so they never
+/// show up via `config show-profile` or similar.
+static SECRETS_LOCATION: LazyLock<PathBuf> = LazyLock::new(|| CONFIG_DIR.join(".secrets.toml"));
 
 struct CLIState {
     config: CLIConfiguration,
+    secrets: CLISecrets,
     access_token: Option<String>,
     well_known_document: Option<WellKnownDiscoveryDocument>,
 }
 
 impl CLIState {
-    fn new(config: CLIConfiguration) -> Self {
+    fn new(config: CLIConfiguration, secrets: CLISecrets) -> Self {
         CLIState {
             config,
+            secrets,
             access_token: None,
             well_known_document: None,
         }
@@ -116,8 +136,9 @@ impl CLIState {
 
 static CLI_STATE: LazyLock<Arc<Mutex<CLIState>>> = LazyLock::new(|| {
     let config = load_config(&CONFIG_LOCATION);
+    let secrets = load_secrets(&SECRETS_LOCATION);
 
-    Arc::new(Mutex::new(CLIState::new(config)))
+    Arc::new(Mutex::new(CLIState::new(config, secrets)))
 });
 
 enum CLIEnvironmentVariables {

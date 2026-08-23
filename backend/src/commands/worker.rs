@@ -9,12 +9,17 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_worker::{search_indexing, traits::Worker as _};
 
+/// Run background workers (search indexing, WAL processing).
 #[derive(Subcommand, Debug)]
 pub(crate) enum WorkerCommands {
+    /// Run the search-indexing worker. Default when no subcommand is given.
     Worker,
+    /// Run the Postgres WAL (write-ahead log) worker. Not yet implemented.
     WalWorker,
 }
 
+/// Runs the `worker` command group. `command` is `None` when the bare `worker`
+/// invocation is used, which behaves the same as `worker worker`.
 pub(crate) async fn worker(command: &Option<WorkerCommands>) -> Result<(), OperationOutcomeError> {
     match command {
         None | Some(WorkerCommands::Worker) => {

@@ -1,7 +1,8 @@
 use crate::{
-    CLIState, CONFIG_LOCATION,
+    CLIState, SECRETS_LOCATION,
     client::{TokenResponseBody, fetch_discovery_document, unix_now},
-    commands::config::{ProfileAuth, StoredTokens},
+    commands::config::ProfileAuth,
+    secrets::StoredTokens,
 };
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use haste_fhir_model::r4::generated::terminology::IssueType;
@@ -158,6 +159,8 @@ fn wait_for_callback(
     Ok((code, state))
 }
 
+/// Runs the browser-based authorization_code + PKCE login flow for the active profile
+/// and caches the resulting tokens in the secrets file.
 pub(crate) async fn login(state: Arc<Mutex<CLIState>>) -> Result<(), OperationOutcomeError> {
     let (client_id, redirect_uri, scope, profile_name) = {
         let current_state = state.lock().await;
@@ -279,33 +282,14 @@ pub(crate) async fn login(state: Arc<Mutex<CLIState>>) -> Result<(), OperationOu
     let mut current_state = state.lock().await;
     current_state.access_token = Some(token_response.access_token.clone());
 
-    if let Some(profile) = current_state
-        .config
-        .profiles
-        .iter_mut()
-        .find(|p| p.name == profile_name)
-    {
-        profile.tokens = Some(StoredTokens {
-            access_token: token_response.access_token,
-            refresh_token: token_response.refresh_token,
-            id_token: token_response.id_token,
-            expires_at: unix_now() + token_response.expires_in,
-        });
-    }
+    current_state.secrets.profile_mut(&profile_name).tokens = Some(StoredTokens {
+        access_token: token_response.access_token,
+        refresh_token: token_response.refresh_token,
+        id_token: token_response.id_token,
+        expires_at: unix_now() + token_response.expires_in,
+    });
 
-    std::fs::write(
-        &*CONFIG_LOCATION,
-        toml::to_string(&current_state.config).unwrap(),
-    )
-    .map_err(|_| {
-        OperationOutcomeError::error(
-            IssueType::exception(),
-            format!(
-                "Failed to write config file at location '{}'",
-                CONFIG_LOCATION.to_string_lossy()
-            ),
-        )
-    })?;
+    crate::secrets::write_secrets(&SECRETS_LOCATION, &current_state.secrets)?;
 
     println!(
         "Login successful. Profile '{}' is now authenticated.",
