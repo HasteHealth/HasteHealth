@@ -182,6 +182,10 @@
       "resourceType": "SearchParameter"
     },
     {
+      "filename": "definitions/haste-health/structuredefinition/access_policy_v2_assignment.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
       "filename": "definitions/haste-health/structuredefinition/access_policy_v2.json",
       "resourceType": "StructureDefinition"
     },
