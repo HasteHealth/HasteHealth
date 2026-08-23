@@ -12,7 +12,8 @@ use serde_json::{Map, Value, json};
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
-    ResolvedParameter, SearchParameterResolve, elastic_search::DYNAMIC_PARAMETER_INDEX_FIELD,
+    ResolvedParameter, SearchParameterResolve,
+    elastic_search::{DYNAMIC_PARAMETER_INDEX_FIELD, flatten_parameter_field_name},
 };
 
 // Note use of nested because must preserve groupings of fields.
@@ -88,27 +89,28 @@ pub fn create_elasticsearch_searchparameter_mappings(parameters: &[ResolvedParam
     for parameter in parameters {
         let search_parameter = &parameter.search_parameter;
         if let Some(parameter_url) = search_parameter.url.value.as_ref() {
+            let field_name = flatten_parameter_field_name(parameter_url);
             match &search_parameter.type_ {
                 param_type if param_type == &SearchParamType::number() => {
-                    property_mapping.insert(parameter_url.clone(), number_index_mapping());
+                    property_mapping.insert(field_name, number_index_mapping());
                 }
                 param_type if param_type == &SearchParamType::string() => {
-                    property_mapping.insert(parameter_url.clone(), string_index_mapping());
+                    property_mapping.insert(field_name, string_index_mapping());
                 }
                 param_type if param_type == &SearchParamType::uri() => {
-                    property_mapping.insert(parameter_url.clone(), uri_index_mapping());
+                    property_mapping.insert(field_name, uri_index_mapping());
                 }
                 param_type if param_type == &SearchParamType::token() => {
-                    property_mapping.insert(parameter_url.clone(), token_index_mapping());
+                    property_mapping.insert(field_name, token_index_mapping());
                 }
                 param_type if param_type == &SearchParamType::date() => {
-                    property_mapping.insert(parameter_url.clone(), date_index_mapping());
+                    property_mapping.insert(field_name, date_index_mapping());
                 }
                 param_type if param_type == &SearchParamType::reference() => {
-                    property_mapping.insert(parameter_url.clone(), reference_index_mapping());
+                    property_mapping.insert(field_name, reference_index_mapping());
                 }
                 param_type if param_type == &SearchParamType::quantity() => {
-                    property_mapping.insert(parameter_url.clone(), quantity_index_mapping());
+                    property_mapping.insert(field_name, quantity_index_mapping());
                 }
                 // Not Supported yet
                 param_type

@@ -4,7 +4,8 @@ use crate::{
     ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions, SearchParameterResolve,
     SearchReturn,
     elastic_search::{
-        DYNAMIC_PARAMETER_INDEX_FIELD, ElasticSearchResponse, SearchError, get_index_name,
+        DYNAMIC_PARAMETER_INDEX_FIELD, ElasticSearchResponse, SearchError,
+        flatten_parameter_field_name, get_index_name,
     },
 };
 use elasticsearch::{Elasticsearch, SearchParts};
@@ -78,6 +79,7 @@ fn sort_build(
     let url = search_param.url.value.clone().ok_or_else(|| {
         QueryBuildError::UnsupportedParameter(search_param.name.value.clone().unwrap_or_default())
     })?;
+    let url = flatten_parameter_field_name(&url);
 
     match &search_param.type_ {
         param_type if param_type == &SearchParamType::date() => match direction {
@@ -163,7 +165,7 @@ fn simple_missing_modifier(
                 || param_type == &SearchParamType::string()
                 || param_type == &SearchParamType::number() =>
         {
-            url
+            flatten_parameter_field_name(url)
         }
         _ => {
             return Err(QueryBuildError::UnsupportedModifier("missing".to_string()));

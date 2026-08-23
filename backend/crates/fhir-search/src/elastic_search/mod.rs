@@ -38,6 +38,19 @@ struct SearchEntryPrivate {
 
 static DYNAMIC_PARAMETER_INDEX_FIELD: &str = "dynamic_parameters";
 
+/// Elasticsearch treats a literal `.` in a mapped field name as an object
+/// path separator: e.g. mapping the field
+/// `http://hl7.org/fhir/SearchParameter/Patient-name` silently produces
+/// nested objects (`http://hl7` -> `org/fhir/SearchParameter/Patient-name`),
+/// even though `/` is left alone. Search parameter canonical URLs almost
+/// always contain a dotted domain, so every active (top-level) search
+/// parameter needs its dots stripped to stay a genuinely flat field
+/// consistently in the index mapping, in the documents written to it, and in
+/// queries built against it.
+fn flatten_parameter_field_name(url: &str) -> String {
+    url.replace('.', "_")
+}
+
 #[derive(OperationOutcomeError, Debug)]
 pub enum SearchError {
     #[fatal(
@@ -474,7 +487,7 @@ async fn resource_to_elastic_index(
 
             match param.level {
                 ParameterLevel::System => {
-                    map.insert(url.clone(), result_vec);
+                    map.insert(flatten_parameter_field_name(url), result_vec);
                 }
                 // Project Parameters are indexed using a single JS Object which gets indexed to
                 ParameterLevel::Project => {
@@ -493,11 +506,13 @@ async fn resource_to_elastic_index(
     Ok(map)
 }
 
-static R4_FHIR_INDEX: &str = "r4_search_index";
+#[allow(dead_code)]
+static R4_FHIR_INDEX_V1: &str = "r4_search_index";
+static R4_FHIR_INDEX_V2: &str = "r4_search_index_v2";
 
 #[must_use]
 pub const fn get_index_name() -> &'static str {
-    R4_FHIR_INDEX
+    R4_FHIR_INDEX_V2
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -611,5 +626,26 @@ impl<SearchParameterResolver: SearchParameterResolve> SearchEngine
         )
         .await?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn flatten_parameter_field_name_strips_dots_only() {
+        assert_eq!(
+            flatten_parameter_field_name("http://hl7.org/fhir/SearchParameter/Patient-name"),
+            "http://hl7_org/fhir/SearchParameter/Patient-name"
+        );
+    }
+
+    #[test]
+    fn flatten_parameter_field_name_handles_multiple_dots() {
+        assert_eq!(
+            flatten_parameter_field_name("https://sub.acme.io/v1.2/x"),
+            "https://sub_acme_io/v1_2/x"
+        );
     }
 }

@@ -1,3 +1,4 @@
+use crate::elastic_search::flatten_parameter_field_name;
 use haste_fhir_model::r4::generated::resources::SearchParameter;
 
 mod date;
@@ -17,15 +18,10 @@ pub use token::*;
 pub use uri::*;
 
 pub fn namespace_parameter(namespace: Option<&str>, search_parameter: &SearchParameter) -> String {
+    let url = search_parameter.url.value.as_deref().unwrap_or("");
+
     namespace.map_or_else(
-        || {
-            search_parameter
-                .url
-                .value
-                .as_deref()
-                .map_or("", |s| s)
-                .to_string()
-        },
-        |ns| ns.to_string() + "." + search_parameter.url.value.as_deref().map_or("", |s| s),
+        || flatten_parameter_field_name(url),
+        |ns| ns.to_string() + "." + url,
     )
 }
