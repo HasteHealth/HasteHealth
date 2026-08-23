@@ -118,6 +118,17 @@ async fn record_failures(
         tenant
     );
 
+    for failure in failures {
+        tracing::error!(
+            tenant = %tenant,
+            resource_type = %failure.resource_type,
+            version_id = failure.version_id.as_ref(),
+            fhir_method = failure.fhir_method.as_str(),
+            error = %failure.error_message,
+            "Elasticsearch indexing failed for resource"
+        );
+    }
+
     indexing_error_provider.record_failures(failures).await?;
 
     Ok(())

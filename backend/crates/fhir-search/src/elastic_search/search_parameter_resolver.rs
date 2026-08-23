@@ -1,6 +1,9 @@
 use elasticsearch::Elasticsearch;
 use haste_fhir_client::request::{FHIRSearchTypeRequest, SearchRequest};
-use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
+use haste_fhir_model::r4::generated::{
+    resources::{Resource, ResourceType},
+    terminology::IssueType,
+};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{Repository, fhir::CachePolicy};
@@ -84,19 +87,23 @@ async fn get_or_create_sp_index_for_project<Repo: Repository + Send + Sync>(
     project: ProjectId,
 ) -> Result<Option<Arc<SearchParametersIndex>>, OperationOutcomeError> {
     if let (TenantId::System, ProjectId::System) = (&tenant, &project) {
-        Ok(None)
-    } else {
-        let index_key = (tenant, project);
-        if let Some(index) = SEARCHPARAMETER_CACHE.get(&index_key).await {
-            Ok(Some(index))
-        } else {
-            let index =
-                Arc::new(create_project_sp_index(es, repo, &index_key.0, &index_key.1).await?);
-            SEARCHPARAMETER_CACHE.insert(index_key, index.clone()).await;
-
-            Ok(Some(index))
-        }
+        return Ok(None);
     }
+
+    let index_key = (tenant, project);
+    // try_get_with avoids a race condition where multiple tasks might try to create the same index simultaneously.
+    // If the index already exists in the cache, it will be returned immediately.
+    // Otherwise, the provided async block will be executed to create the index and insert it into the cache.
+    let index = SEARCHPARAMETER_CACHE
+        .try_get_with(index_key.clone(), async {
+            create_project_sp_index(es, repo, &index_key.0, &index_key.1)
+                .await
+                .map(Arc::new)
+        })
+        .await
+        .map_err(|e| OperationOutcomeError::fatal(IssueType::exception(), e.to_string()))?;
+
+    Ok(Some(index))
 }
 
 impl<Repo: Repository + Send + Sync> SearchParameterResolve

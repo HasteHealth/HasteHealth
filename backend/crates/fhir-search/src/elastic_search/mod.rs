@@ -70,7 +70,7 @@ pub enum SearchError {
     Fatal(u16),
     #[fatal(
         code = "exception",
-        diagnostic = "Elasticsearch server failed to index."
+        diagnostic = "Elasticsearch server failed to index: '{arg0}'"
     )]
     ElasticsearchError(#[from] elasticsearch::Error),
     #[fatal(
