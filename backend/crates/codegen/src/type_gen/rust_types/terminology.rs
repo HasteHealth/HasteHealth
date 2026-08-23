@@ -568,20 +568,25 @@ fn prebuilt_code_serde() -> TokenStream {
                 })
         }
 
+        struct BoundCodeVisitor<VS>(PhantomData<VS>);
+
+        impl<'de, VS: ValueSetDef> serde::de::Visitor<'de> for BoundCodeVisitor<VS> {
+            type Value = BoundCode<VS>;
+
+            fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                write!(f, "a string code in ValueSet {}", VS::URL)
+            }
+
+            fn visit_str<E: serde::de::Error>(self, v: &str) -> Result<Self::Value, E> {
+                parse_code::<E>(VS::CODES, VS::URL, v).map(BoundCode::from_index)
+            }
+        }
+
         impl<'de, VS: ValueSetDef> Deserialize<'de> for BoundCode<VS> {
             fn deserialize<D: Deserializer<'de>>(
                 d: D,
             ) -> Result<Self, D::Error> {
-                // Element/_field handling stays at the parent-struct level,
-                // exactly as your current derive does it.
-                let s = <&str>::deserialize(d)?;
-
-                parse_code::<D::Error>(
-                    VS::CODES,
-                    VS::URL,
-                    s,
-                )
-                .map(Self::from_index)
+                d.deserialize_str(BoundCodeVisitor(PhantomData))
             }
         }
 
