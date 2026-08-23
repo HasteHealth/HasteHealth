@@ -23,7 +23,9 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationInvocation;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_operation_executor::{providers::deno_embedded::pool::DenoPool, traits::OperationExecutor};
+use haste_operation_executor::{
+    providers::deno_embedded::pool::DenoPool, traits::OperationExecutor,
+};
 use haste_repository::Repository;
 use std::sync::Arc;
 
