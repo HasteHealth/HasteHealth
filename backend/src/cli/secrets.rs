@@ -1,8 +1,8 @@
 //! Storage for CLI secret material (OIDC client secrets, cached OAuth tokens).
 //!
-//! Kept in its own file, separate from `CLIConfiguration`, so that secrets never show up
-//! when a user inspects their config (e.g. `haste-health config show-profile`) and so the
-//! two files can be handled differently (e.g. excluded from dotfile backups/sync).
+//! Kept in its own file, separate from [`crate::cli::config`], so that secrets never show
+//! up when a user inspects their config (e.g. `haste-health config show-profile`) and so
+//! the two files can be handled differently (e.g. excluded from dotfile backups/sync).
 
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -31,14 +31,14 @@ pub(crate) struct ProfileSecrets {
     pub(crate) tokens: Option<StoredTokens>,
 }
 
-/// All CLI secrets, keyed by profile name. Persisted separately from `CLIConfiguration`.
+/// All CLI secrets, keyed by profile name. Persisted separately from `CliConfiguration`.
 #[derive(Serialize, Deserialize, Debug, Default)]
-pub(crate) struct CLISecrets {
+pub(crate) struct CliSecrets {
     #[serde(default)]
     pub(crate) profiles: HashMap<String, ProfileSecrets>,
 }
 
-impl CLISecrets {
+impl CliSecrets {
     pub(crate) fn profile(&self, name: &str) -> Option<&ProfileSecrets> {
         self.profiles.get(name)
     }
@@ -52,7 +52,7 @@ impl CLISecrets {
     }
 }
 
-fn read_existing_secrets(location: &PathBuf) -> Result<CLISecrets, OperationOutcomeError> {
+fn read_existing_secrets(location: &PathBuf) -> Result<CliSecrets, OperationOutcomeError> {
     let secrets_str = std::fs::read_to_string(location).map_err(|_| {
         OperationOutcomeError::error(
             IssueType::exception(),
@@ -63,7 +63,7 @@ fn read_existing_secrets(location: &PathBuf) -> Result<CLISecrets, OperationOutc
         )
     })?;
 
-    toml::from_str::<CLISecrets>(&secrets_str).map_err(|_| {
+    toml::from_str::<CliSecrets>(&secrets_str).map_err(|_| {
         OperationOutcomeError::error(
             IssueType::exception(),
             format!(
@@ -75,19 +75,19 @@ fn read_existing_secrets(location: &PathBuf) -> Result<CLISecrets, OperationOutc
 }
 
 /// Loads the secrets file, creating an empty one on disk if it doesn't exist yet.
-pub(crate) fn load_secrets(location: &PathBuf) -> CLISecrets {
+pub(crate) fn load_secrets(location: &PathBuf) -> CliSecrets {
     if let Ok(secrets) = read_existing_secrets(location) {
         return secrets;
     }
 
-    let secrets = CLISecrets::default();
+    let secrets = CliSecrets::default();
     write_secrets(location, &secrets).expect("Failed to write default secrets file");
     secrets
 }
 
 pub(crate) fn write_secrets(
     location: &PathBuf,
-    secrets: &CLISecrets,
+    secrets: &CliSecrets,
 ) -> Result<(), OperationOutcomeError> {
     std::fs::write(location, toml::to_string(secrets).unwrap()).map_err(|_| {
         OperationOutcomeError::error(

@@ -194,7 +194,7 @@ async fn migrate_artifacts(config: Arc<ServerConfig>) -> Result<(), OperationOut
 }
 
 /// Runs the `admin` command group.
-pub(crate) async fn admin(command: &AdminCommands) -> Result<(), OperationOutcomeError> {
+pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeError> {
     let config: Arc<ServerConfig> = Arc::new(
         Figment::new()
             .merge(Toml::file("haste.toml"))

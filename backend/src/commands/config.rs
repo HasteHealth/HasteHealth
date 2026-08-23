@@ -1,59 +1,20 @@
-//! Manage named server connection profiles (`~/.haste_health/config.toml`).
+//! `config` command: manage named server connection profiles.
 //!
-//! Secret material (client secrets, cached OAuth tokens) is *not* stored here — see
-//! [`crate::commands::secrets`] — so this file is safe to inspect, back up, or share.
+//! This module only owns the CLI surface (argument parsing, prompts). The persisted
+//! schema lives in [`crate::cli::config`]; secrets in [`crate::cli::secrets`].
 
-use crate::{CLIState, CONFIG_LOCATION, SECRETS_LOCATION, secrets};
+use crate::cli::{
+    config::{CliConfiguration, Profile, ProfileAuth, write_config},
+    secrets,
+    state::{CONFIG_LOCATION, CliState, SECRETS_LOCATION},
+};
 use clap::{Subcommand, ValueEnum};
 use dialoguer::{Confirm, Select};
 use dialoguer::{Input, Password, theme::ColorfulTheme};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use serde::{Deserialize, Serialize};
-use std::{path::PathBuf, sync::Arc};
+use std::sync::Arc;
 use tokio::sync::Mutex;
-
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub(crate) struct CLIConfiguration {
-    pub active_profile: Option<String>,
-    pub profiles: Vec<Profile>,
-}
-
-impl CLIConfiguration {
-    pub(crate) fn current_profile(&self) -> Option<&Profile> {
-        if let Some(active_profile_id) = self.active_profile.as_ref() {
-            self.profiles.iter().find(|p| &p.name == active_profile_id)
-        } else {
-            None
-        }
-    }
-}
-
-/// A named connection to a FHIR server plus how the CLI should authenticate to it.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub(crate) struct Profile {
-    pub(crate) name: String,
-    pub(crate) r4_url: String,
-    pub(crate) oidc_discovery_uri: String,
-    pub(crate) auth: ProfileAuth,
-}
-
-/// How the CLI authenticates for a given profile. Any secret values (client secret,
-/// cached tokens) live in the separate secrets file, keyed by profile name.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub(crate) enum ProfileAuth {
-    /// A confidential (server-to-server) client authenticated with a client secret.
-    ClientCredentails { client_id: String },
-    /// A public (no secret) OIDC client authenticated by a human via the browser-based
-    /// authorization_code + PKCE flow. Run `haste-health login` to obtain tokens.
-    AuthorizationCode {
-        client_id: String,
-        redirect_uri: String,
-        scope: String,
-    },
-    /// No authentication; requests are sent unauthenticated.
-    Public {},
-}
 
 /// How the CLI authenticates for a newly created profile.
 #[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
@@ -116,68 +77,13 @@ pub(crate) enum ConfigCommands {
     },
 }
 
-fn read_existing_config(location: &PathBuf) -> Result<CLIConfiguration, OperationOutcomeError> {
-    let config_str = std::fs::read_to_string(location).map_err(|_| {
-        OperationOutcomeError::error(
-            IssueType::exception(),
-            format!(
-                "Failed to read config file at location '{}'",
-                location.to_string_lossy()
-            ),
-        )
-    })?;
-
-    let config = toml::from_str::<CLIConfiguration>(&config_str).map_err(|_| {
-        OperationOutcomeError::error(
-            IssueType::exception(),
-            format!(
-                "Failed to parse config file at location '{}'",
-                location.to_string_lossy()
-            ),
-        )
-    })?;
-
-    Ok(config)
+fn persist(config: &CliConfiguration) -> Result<(), OperationOutcomeError> {
+    write_config(&CONFIG_LOCATION, config)
 }
 
-pub(crate) fn load_config(location: &PathBuf) -> CLIConfiguration {
-    let config: Result<CLIConfiguration, OperationOutcomeError> = read_existing_config(location);
-
-    if let Ok(config) = config {
-        config
-    } else {
-        let config = CLIConfiguration::default();
-
-        std::fs::write(location, toml::to_string(&config).unwrap())
-            .map_err(|_| {
-                OperationOutcomeError::error(
-                    IssueType::exception(),
-                    format!(
-                        "Failed to write default config file at location '{}'",
-                        location.to_string_lossy()
-                    ),
-                )
-            })
-            .expect("Failed to write default config file");
-
-        config
-    }
-}
-
-fn write_config(config: &CLIConfiguration) -> Result<(), OperationOutcomeError> {
-    std::fs::write(&*CONFIG_LOCATION, toml::to_string(config).unwrap()).map_err(|_| {
-        OperationOutcomeError::error(
-            IssueType::exception(),
-            format!(
-                "Failed to write config file at location '{}'",
-                CONFIG_LOCATION.to_string_lossy()
-            ),
-        )
-    })
-}
-
-pub(crate) async fn config(
-    state: &Arc<Mutex<CLIState>>,
+/// Runs the `config` command group.
+pub(crate) async fn run(
+    state: Arc<Mutex<CliState>>,
     command: &ConfigCommands,
 ) -> Result<(), OperationOutcomeError> {
     match command {
@@ -333,7 +239,7 @@ pub(crate) async fn config(
                 secrets::write_secrets(&SECRETS_LOCATION, &state.secrets)?;
             }
 
-            write_config(&state.config)
+            persist(&state.config)
         }
         ConfigCommands::DeleteProfile { name, confirm } => {
             let name: String = if let Some(name) = name {
@@ -346,7 +252,7 @@ pub(crate) async fn config(
             };
 
             let confirmed = if let Some(confirm) = confirm {
-                confirm.clone()
+                *confirm
             } else {
                 Confirm::with_theme(&ColorfulTheme::default())
                     .with_prompt(format!(
@@ -370,7 +276,7 @@ pub(crate) async fn config(
             state.secrets.remove_profile(&name);
 
             secrets::write_secrets(&SECRETS_LOCATION, &state.secrets)?;
-            write_config(&state.config)
+            persist(&state.config)
         }
         ConfigCommands::SetActiveProfile { name } => {
             let mut state = state.lock().await;
@@ -425,7 +331,7 @@ pub(crate) async fn config(
 
             state.config.active_profile = Some(name.to_string());
 
-            write_config(&state.config)
+            persist(&state.config)
         }
     }
 }

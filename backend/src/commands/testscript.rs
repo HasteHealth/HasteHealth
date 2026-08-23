@@ -1,4 +1,4 @@
-use crate::CLIState;
+use crate::cli::state::CliState;
 use clap::Subcommand;
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, BundleEntryRequest, Resource, TestScript},
@@ -74,8 +74,8 @@ fn load_testscript_files(path: &Path) -> Vec<TestScript> {
 }
 
 /// Runs the `testscript` command group.
-pub(crate) async fn testscript_commands(
-    state: Arc<Mutex<CLIState>>,
+pub(crate) async fn run(
+    state: Arc<Mutex<CliState>>,
     command: &TestScriptCommands,
 ) -> Result<(), OperationOutcomeError> {
     match command {
@@ -84,7 +84,7 @@ pub(crate) async fn testscript_commands(
             input: inputs,
             wait_between_operations_ms,
         } => {
-            let fhir_client = crate::client::fhir_client(state).await?;
+            let fhir_client = crate::cli::client::fhir_client(state).await?;
 
             let mut testreport_entries = vec![];
             let testrunner_options = Arc::new(TestRunnerOptions {

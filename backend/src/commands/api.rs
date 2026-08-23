@@ -1,4 +1,4 @@
-use crate::CLIState;
+use crate::cli::state::CliState;
 use clap::Subcommand;
 use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_model::r4::generated::{
@@ -222,11 +222,11 @@ async fn derive_resource_data_arg_file_arg_or_stdin<Type: serde::de::Deserialize
 }
 
 /// Runs the `api` command group.
-pub(crate) async fn api_commands(
-    state: Arc<Mutex<CLIState>>,
+pub(crate) async fn run(
+    state: Arc<Mutex<CliState>>,
     command: &ApiCommands,
 ) -> Result<(), OperationOutcomeError> {
-    let fhir_client = crate::client::fhir_client(state).await?;
+    let fhir_client = crate::cli::client::fhir_client(state).await?;
 
     match command {
         ApiCommands::Create {
