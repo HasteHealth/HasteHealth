@@ -389,7 +389,7 @@ impl<
                     _ => false,
                 }),
                 middleware: Middleware::new(vec![Box::new(
-                    middleware::operations::Middleware::new(),
+                    middleware::operations::Middleware::new(&config.config),
                 )]),
             },
             // Authentication routes.

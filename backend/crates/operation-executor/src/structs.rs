@@ -1,6 +1,7 @@
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PluginCodeType {
     JavaScript,
     TypeScript,

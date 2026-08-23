@@ -4,8 +4,8 @@ use deno_core::error::ModuleLoaderError;
 pub mod pool;
 
 use deno_core::{
-    Extension, GarbageCollected, ModuleLoadOptions, ModuleLoadReferrer, ModuleLoader, ModuleSource,
-    ModuleType, OpState, PollEventLoopOptions, op2, resolve_import, serde_json, v8,
+    Extension, GarbageCollected, ModuleLoadOptions, ModuleLoadReferrer, ModuleLoader, ModuleType,
+    OpState, PollEventLoopOptions, op2, resolve_import, serde_json, v8,
 };
 // main.rs
 use deno_core::error::AnyError;
@@ -13,19 +13,51 @@ use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::resources::ResourceType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
+use std::time::Duration;
 use tokio::sync::Mutex;
 
 use deno_ast::{MediaType, ModuleSpecifier};
 use deno_ast::{ParseParams, SourceMapOption};
 use deno_core::ModuleLoadResponse;
-use deno_core::ModuleSourceCode;
 use deno_error::JsErrorBox;
 
 pub use pool::DenoPool;
 
 use crate::structs::PluginCodeType;
+
+/// Hard ceiling on how long a single custom-operation script may run before
+/// its isolate is forcibly terminated.
+///
+/// V8 execution is fully synchronous from Rust's point of view: a runaway
+/// script (e.g. an infinite loop) never yields back to the async executor,
+/// so `tokio::time::timeout` cannot interrupt it. Instead an
+/// [`ExecutionWatchdog`] on a separate OS thread calls
+/// `IsolateHandle::terminate_execution`, which V8 supports specifically for
+/// this purpose.
+const EXECUTION_TIMEOUT: Duration = Duration::from_secs(10);
+
+/// Hard ceiling on the V8 heap a single custom-operation script may grow to
+/// before its isolate is forcibly terminated. Without this, one tenant's
+/// script can exhaust memory shared by every other tenant's executions on
+/// the same process.
+const MAX_HEAP_BYTES: usize = 128 * 1024 * 1024;
+
+/// Custom-operation source rarely changes between invocations of the same
+/// operation, so cache the transpiled output keyed by (declared media type,
+/// raw source). This is a pure function of its inputs -- caching it cannot
+/// leak state between runs, it only avoids redundant TypeScript parsing on
+/// every call. Bounded to avoid unbounded growth if many distinct scripts
+/// are ever seen.
+const TRANSPILE_CACHE_CAPACITY: usize = 256;
+
+type TranspileCacheKey = (PluginCodeType, String);
+
+static TRANSPILE_CACHE: LazyLock<
+    std::sync::Mutex<HashMap<TranspileCacheKey, (ModuleType, String)>>,
+> = LazyLock::new(|| std::sync::Mutex::new(HashMap::new()));
 
 impl From<PluginCodeType> for MediaType {
     fn from(value: PluginCodeType) -> Self {
@@ -95,6 +127,8 @@ fn transpile_code_to_js(
     }
 }
 
+/// Resolves import specifiers but never actually loads anything from disk or
+/// the network.
 struct TsModuleLoader;
 impl ModuleLoader for TsModuleLoader {
     fn resolve(
@@ -108,31 +142,88 @@ impl ModuleLoader for TsModuleLoader {
 
     fn load(
         &self,
-        module_specifier: &ModuleSpecifier,
+        _module_specifier: &ModuleSpecifier,
         _maybe_referrer: Option<&ModuleLoadReferrer>,
         _options: ModuleLoadOptions,
     ) -> ModuleLoadResponse {
-        fn load(module_specifier: &ModuleSpecifier) -> Result<ModuleSource, ModuleLoaderError> {
-            let path = module_specifier
-                .to_file_path()
-                .map_err(|()| JsErrorBox::generic("Only file:// URLs are supported."))?;
+        ModuleLoadResponse::Sync(Err(JsErrorBox::generic(
+            "Imports are not supported in custom operation scripts.",
+        )))
+    }
+}
 
-            let code = std::fs::read_to_string(&path).map_err(JsErrorBox::from_err)?;
-            let path = module_specifier
-                .to_file_path()
-                .map_err(|()| JsErrorBox::generic("Only file:// URLs are supported."))?;
-            let media_type = MediaType::from_path(&path);
-            let (module_type, code) = transpile_code_to_js(module_specifier, media_type, &code)?;
+/// Transpiles `code` to JS, reusing a cached result when the same
+/// `(media type, source)` pair has already been transpiled.
+fn cached_transpile_to_js(
+    plugin_code_type: PluginCodeType,
+    code: &str,
+) -> Result<(ModuleType, String), JsErrorBox> {
+    let key = (plugin_code_type, code.to_string());
 
-            Ok(ModuleSource::new(
-                module_type,
-                ModuleSourceCode::String(code.into()),
-                module_specifier,
-                None,
-            ))
+    if let Some(cached) = TRANSPILE_CACHE
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .get(&key)
+    {
+        return Ok(cached.clone());
+    }
+
+    let user_module_specifier = ModuleSpecifier::parse("memo://user.ts").unwrap();
+    let result = transpile_code_to_js(&user_module_specifier, plugin_code_type.into(), code)?;
+
+    let mut cache = TRANSPILE_CACHE
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    if cache.len() >= TRANSPILE_CACHE_CAPACITY {
+        cache.clear();
+    }
+    cache.insert(key, result.clone());
+
+    Ok(result)
+}
+
+/// Runs a callback on a dedicated OS thread that forcibly terminates a V8
+/// isolate if it doesn't finish within a deadline.
+///
+/// V8's `run_event_loop` blocks the calling thread for as long as the script
+/// keeps the event loop busy; a script stuck in an infinite loop never polls
+/// again, so nothing on that same thread (including a `tokio::time::sleep`)
+/// can ever run to interrupt it. `IsolateHandle::terminate_execution` is
+/// V8's supported mechanism for interrupting a busy isolate from another
+/// thread, so the watchdog has to live on one.
+struct ExecutionWatchdog {
+    stop_tx: Option<std::sync::mpsc::Sender<()>>,
+    thread: Option<std::thread::JoinHandle<()>>,
+}
+
+impl ExecutionWatchdog {
+    fn start(isolate_handle: v8::IsolateHandle, timeout: Duration) -> Self {
+        let (stop_tx, stop_rx) = std::sync::mpsc::channel::<()>();
+
+        let thread = std::thread::spawn(move || {
+            if matches!(
+                stop_rx.recv_timeout(timeout),
+                Err(std::sync::mpsc::RecvTimeoutError::Timeout)
+            ) {
+                isolate_handle.terminate_execution();
+            }
+        });
+
+        Self {
+            stop_tx: Some(stop_tx),
+            thread: Some(thread),
         }
+    }
+}
 
-        ModuleLoadResponse::Sync(load(module_specifier))
+impl Drop for ExecutionWatchdog {
+    fn drop(&mut self) {
+        if let Some(stop_tx) = self.stop_tx.take() {
+            let _ = stop_tx.send(());
+        }
+        if let Some(thread) = self.thread.take() {
+            let _ = thread.join();
+        }
     }
 }
 
@@ -220,7 +311,7 @@ pub async fn fhir_read_resource<
         )
         .await
         .map_err(|e| {
-            println!("Error reading resource: {e:?}");
+            tracing::error!(error = ?e, "Failed to read resource for custom operation script");
             deno_error::JsErrorBox::type_error("Failed to read resource")
         })?;
 
@@ -277,18 +368,12 @@ pub async fn get_input_value<
     }))
 }
 
-async fn run_code<
+/// Builds a fresh, never-yet-used V8 isolate wired up with the ops a
+/// custom-operation script needs, but does not run anything against it.
+fn build_deno_runtime<
     CTX: Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
->(
-    ctx: CTX,
-    client: Arc<Client>,
-    media_type: PluginCodeType,
-    code: &str,
-    input: serde_json::Value,
-) -> Result<Option<serde_json::Value>, AnyError> {
-    // let main_module = deno_core::resolve_path(file_path, &std::env::current_dir()?)?;
-
+>() -> deno_core::JsRuntime {
     let runjs = Extension {
         name: "runjs",
         ops: std::borrow::Cow::Owned(vec![
@@ -299,13 +384,44 @@ async fn run_code<
         ..Default::default()
     };
 
-    let mut deno_runtime = deno_core::JsRuntime::new(deno_core::RuntimeOptions {
+    let create_params = v8::Isolate::create_params().heap_limits(0, MAX_HEAP_BYTES);
+
+    deno_core::JsRuntime::new(deno_core::RuntimeOptions {
         module_loader: Some(Rc::new(TsModuleLoader)),
         extensions: vec![runjs],
         startup_snapshot: Some(RUNTIME_SNAPSHOT),
-        // startup_snapshot: Some(RUNTIME_SNAPSHOT),
+        create_params: Some(create_params),
         ..Default::default()
-    });
+    })
+}
+
+async fn run_code<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    mut deno_runtime: deno_core::JsRuntime,
+    ctx: CTX,
+    client: Arc<Client>,
+    media_type: PluginCodeType,
+    code: &str,
+    input: serde_json::Value,
+    timeout: Duration,
+) -> Result<Option<serde_json::Value>, AnyError> {
+    let isolate_handle = deno_runtime.v8_isolate().thread_safe_handle();
+
+    {
+        let terminate_handle = isolate_handle.clone();
+        deno_runtime.add_near_heap_limit_callback(move |current_limit, _initial_limit| {
+            // Forcefully stop the script and give V8 enough headroom to unwind
+            // cleanly instead of retriggering this callback in a tight loop.
+            terminate_handle.terminate_execution();
+            current_limit * 2
+        });
+    }
+
+    // Guards the whole execution below: if the script doesn't finish within
+    // `timeout`, this forcibly terminates it from another thread.
+    let _watchdog = ExecutionWatchdog::start(isolate_handle, timeout);
 
     let js_runtime_state = Arc::new(Mutex::new(JSRuntimeState {
         fhir_client: client,
@@ -322,8 +438,7 @@ async fn run_code<
 
     let user_module_specifier = ModuleSpecifier::parse("memo://user.ts").unwrap();
 
-    let (_module_type, js_code) =
-        transpile_code_to_js(&user_module_specifier, media_type.into(), code).unwrap();
+    let (_module_type, js_code) = cached_transpile_to_js(media_type, code)?;
 
     let user_mod_id = deno_runtime
         .load_side_es_module_from_code(&user_module_specifier, js_code)
@@ -361,4 +476,300 @@ async fn run_code<
         .into_inner();
 
     Ok(owned_runetime_state.return_value)
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use super::*;
+    use deno_core::serde_json::json;
+    use haste_fhir_client::request::{FHIRRequest, FHIRResponse};
+    use haste_fhir_client::url::ParsedParameters;
+    use haste_fhir_model::r4::generated::resources::{
+        Bundle, CapabilityStatement, Parameters, Resource,
+    };
+    use json_patch::Patch;
+    use std::time::Instant;
+
+    #[derive(Clone)]
+    pub(crate) struct TestCtx;
+
+    /// A `FHIRClient` double that isn't expected to be called by any of these
+    /// tests -- they only exercise the sandboxing behavior of `run_code`
+    /// itself, not the `fhir.readResource` op.
+    pub(crate) struct MockClient;
+
+    impl FHIRClient<TestCtx, OperationOutcomeError> for MockClient {
+        async fn request(
+            &self,
+            _ctx: TestCtx,
+            _request: FHIRRequest,
+        ) -> Result<FHIRResponse, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn capabilities(
+            &self,
+            _ctx: TestCtx,
+        ) -> Result<CapabilityStatement, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn search_system(
+            &self,
+            _ctx: TestCtx,
+            _parameters: ParsedParameters,
+        ) -> Result<Bundle, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn search_type(
+            &self,
+            _ctx: TestCtx,
+            _resource_type: ResourceType,
+            _parameters: ParsedParameters,
+        ) -> Result<Bundle, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn create(
+            &self,
+            _ctx: TestCtx,
+            _resource_type: ResourceType,
+            _resource: Resource,
+        ) -> Result<Resource, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn update(
+            &self,
+            _ctx: TestCtx,
+            _resource_type: ResourceType,
+            _id: String,
+            _resource: Resource,
+        ) -> Result<Resource, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn conditional_update(
+            &self,
+            _ctx: TestCtx,
+            _resource_type: ResourceType,
+            _parameters: ParsedParameters,
+            _resource: Resource,
+        ) -> Result<Resource, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn patch(
+            &self,
+            _ctx: TestCtx,
+            _resource_type: ResourceType,
+            _id: String,
+            _patches: Patch,
+        ) -> Result<Resource, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn read(
+            &self,
+            _ctx: TestCtx,
+            _resource_type: ResourceType,
+            _id: String,
+        ) -> Result<Option<Resource>, OperationOutcomeError> {
+            Ok(None)
+        }
+
+        async fn vread(
+            &self,
+            _ctx: TestCtx,
+            _resource_type: ResourceType,
+            _id: String,
+            _version_id: String,
+        ) -> Result<Option<Resource>, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn delete_instance(
+            &self,
+            _ctx: TestCtx,
+            _resource_type: ResourceType,
+            _id: String,
+        ) -> Result<(), OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn delete_type(
+            &self,
+            _ctx: TestCtx,
+            _resource_type: ResourceType,
+            _parameters: ParsedParameters,
+        ) -> Result<(), OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn delete_system(
+            &self,
+            _ctx: TestCtx,
+            _parameters: ParsedParameters,
+        ) -> Result<(), OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn history_system(
+            &self,
+            _ctx: TestCtx,
+            _parameters: ParsedParameters,
+        ) -> Result<Bundle, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn history_type(
+            &self,
+            _ctx: TestCtx,
+            _resource_type: ResourceType,
+            _parameters: ParsedParameters,
+        ) -> Result<Bundle, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn history_instance(
+            &self,
+            _ctx: TestCtx,
+            _resource_type: ResourceType,
+            _id: String,
+            _parameters: ParsedParameters,
+        ) -> Result<Bundle, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn invoke_instance(
+            &self,
+            _ctx: TestCtx,
+            _resource_type: ResourceType,
+            _id: String,
+            _operation: String,
+            _parameters: Parameters,
+        ) -> Result<Resource, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn invoke_type(
+            &self,
+            _ctx: TestCtx,
+            _resource_type: ResourceType,
+            _operation: String,
+            _parameters: Parameters,
+        ) -> Result<Resource, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn invoke_system(
+            &self,
+            _ctx: TestCtx,
+            _operation: String,
+            _parameters: Parameters,
+        ) -> Result<Resource, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn transaction(
+            &self,
+            _ctx: TestCtx,
+            _bundle: Bundle,
+        ) -> Result<Bundle, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+
+        async fn batch(
+            &self,
+            _ctx: TestCtx,
+            _bundle: Bundle,
+        ) -> Result<Bundle, OperationOutcomeError> {
+            unimplemented!("not used by these tests")
+        }
+    }
+
+    #[tokio::test]
+    async fn happy_path_javascript_returns_value() {
+        let deno_runtime = build_deno_runtime::<TestCtx, MockClient>();
+        let result = run_code(
+            deno_runtime,
+            TestCtx,
+            Arc::new(MockClient),
+            PluginCodeType::JavaScript,
+            "export default async function () { return { answer: 42 }; }",
+            json!({}),
+            Duration::from_secs(5),
+        )
+        .await
+        .expect("script should run successfully");
+
+        assert_eq!(result, Some(json!({ "answer": 42 })));
+    }
+
+    #[tokio::test]
+    async fn happy_path_typescript_returns_value() {
+        let deno_runtime = build_deno_runtime::<TestCtx, MockClient>();
+        let result = run_code(
+            deno_runtime,
+            TestCtx,
+            Arc::new(MockClient),
+            PluginCodeType::TypeScript,
+            "export default async function (): Promise<{ answer: number }> { return { answer: 42 }; }",
+            json!({}),
+            Duration::from_secs(5),
+        )
+        .await
+        .expect("script should run successfully");
+
+        assert_eq!(result, Some(json!({ "answer": 42 })));
+    }
+
+    #[tokio::test]
+    async fn imports_are_rejected() {
+        // Regression test: this loader used to read arbitrary files off the
+        // host filesystem for any `import` a tenant's script happened to
+        // contain. It must now be rejected outright.
+        let deno_runtime = build_deno_runtime::<TestCtx, MockClient>();
+        let result = run_code(
+            deno_runtime,
+            TestCtx,
+            Arc::new(MockClient),
+            PluginCodeType::JavaScript,
+            "import secret from 'file:///etc/passwd'; export default async function () { return secret; }",
+            json!({}),
+            Duration::from_secs(5),
+        )
+        .await;
+
+        assert!(
+            result.is_err(),
+            "importing an arbitrary file must never succeed"
+        );
+    }
+
+    #[tokio::test]
+    async fn runaway_script_is_terminated_within_timeout() {
+        let timeout = Duration::from_millis(200);
+        let started = Instant::now();
+
+        let deno_runtime = build_deno_runtime::<TestCtx, MockClient>();
+        let result = run_code(
+            deno_runtime,
+            TestCtx,
+            Arc::new(MockClient),
+            PluginCodeType::JavaScript,
+            "export default async function () { while (true) {} }",
+            json!({}),
+            timeout,
+        )
+        .await;
+
+        assert!(result.is_err(), "runaway script must be terminated");
+        assert!(
+            started.elapsed() < timeout * 5,
+            "termination took far longer than the configured timeout: {:?}",
+            started.elapsed()
+        );
+    }
 }
