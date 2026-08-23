@@ -81,6 +81,38 @@ fn persist(config: &CliConfiguration) -> Result<(), OperationOutcomeError> {
     write_config(&CONFIG_LOCATION, config)
 }
 
+fn select_profile_name(state: &CliState, prompt: &str) -> Result<String, OperationOutcomeError> {
+    let profile_names = state
+        .config
+        .profiles
+        .iter()
+        .map(|profile| profile.name.as_str())
+        .collect::<Vec<_>>();
+
+    if profile_names.is_empty() {
+        return Err(OperationOutcomeError::error(
+            IssueType::exception(),
+            "No profiles available.".to_string(),
+        ));
+    }
+
+    let active_profile_index = state
+        .config
+        .active_profile
+        .as_ref()
+        .and_then(|active_name| profile_names.iter().position(|&name| name == active_name))
+        .unwrap_or(0);
+
+    let selection = Select::with_theme(&ColorfulTheme::default())
+        .with_prompt(prompt)
+        .items(&profile_names)
+        .default(active_profile_index)
+        .interact()
+        .unwrap();
+
+    Ok(profile_names[selection].to_string())
+}
+
 /// Runs the `config` command group.
 pub(crate) async fn run(
     state: Arc<Mutex<CliState>>,
@@ -245,10 +277,8 @@ pub(crate) async fn run(
             let name: String = if let Some(name) = name {
                 name.clone()
             } else {
-                Input::with_theme(&ColorfulTheme::default())
-                    .with_prompt("Enter the profile name you wish to delete")
-                    .interact_text()
-                    .unwrap()
+                let state = state.lock().await;
+                select_profile_name(&state, "Choose a profile to delete")?
             };
 
             let confirmed = if let Some(confirm) = confirm {
@@ -280,41 +310,10 @@ pub(crate) async fn run(
         }
         ConfigCommands::SetActiveProfile { name } => {
             let mut state = state.lock().await;
-            let user_profile_names = state
-                .config
-                .profiles
-                .iter()
-                .map(|p| p.name.as_str())
-                .collect::<Vec<_>>();
-
-            if user_profile_names.is_empty() {
-                return Err(OperationOutcomeError::error(
-                    IssueType::exception(),
-                    "No profiles available to set as active.".to_string(),
-                ));
-            }
-
-            let active_profile_index = state
-                .config
-                .active_profile
-                .as_ref()
-                .and_then(|active_name| {
-                    user_profile_names
-                        .iter()
-                        .position(|&name| name == active_name)
-                })
-                .unwrap_or(0);
-
             let name: String = if let Some(name) = name {
                 name.clone()
             } else {
-                let selection = Select::new()
-                    .with_prompt("Choose a profile to set as active.")
-                    .items(&user_profile_names)
-                    .default(active_profile_index)
-                    .interact()
-                    .unwrap();
-                user_profile_names[selection].to_string()
+                select_profile_name(&state, "Choose a profile to set as active")?
             };
 
             if !state
