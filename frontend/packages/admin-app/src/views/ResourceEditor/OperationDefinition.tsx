@@ -422,7 +422,7 @@ interface Context {
 }
 
 export default async function(context: Context) {
-  const sd = await fhir.readResource("StructureDefinition", context.request.parameters.parameter.filter(p => p.name === "id")[0].valueString);
+  const sd = await fhir.read("StructureDefinition", context.request.parameters.parameter.filter(p => p.name === "id")[0].valueString);
 
   return {
       resourceType: 'Parameters',

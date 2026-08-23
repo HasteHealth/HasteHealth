@@ -26,6 +26,8 @@ deno_error = { version = "0.7.1", default-features = false }
 tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }
 crossbeam-channel = "0.5.16"
 tracing = { workspace = true }
+json-patch = { workspace = true }
+serde = { workspace = true }
 
 [build-dependencies]
 deno_core = { version = "=0.409.0", default-features = false, features = [
@@ -33,5 +35,4 @@ deno_core = { version = "=0.409.0", default-features = false, features = [
 ] }
 
 [dev-dependencies]
-json-patch = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt", "test-util"] }
