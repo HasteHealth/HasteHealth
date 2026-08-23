@@ -4136,6 +4136,26 @@ export interface UsageContext {
   valueReference?: Reference;
 }
 
+export interface AccessPolicyV2Assignment {
+resourceType: "AccessPolicyV2Assignment"
+  /** 
+   * Logical id of this artifact
+   */
+  id?: id;
+  /** 
+   * Metadata about the resource
+   */
+  meta?: Meta;
+  /** 
+   * The access policy that this assignment grants.
+   */
+  accessPolicy: Reference;
+  /** 
+   * The target reference the access policy applies to.
+   */
+  link: Reference;
+}
+
 export interface AccessPolicyV2AttributeOperation {
   /** 
    * The operation to retrieve the attribute.
@@ -45686,6 +45706,7 @@ resourceType: "VisionPrescription"
   lensSpecification: Array<VisionPrescriptionLensSpecification>;
 }
 export type ResourceMap = {
+  AccessPolicyV2Assignment: AccessPolicyV2Assignment;
   AccessPolicyV2: AccessPolicyV2;
   ClientApplication: ClientApplication;
   HL7V2: HL7V2;

@@ -44,6 +44,10 @@
         {
             "code": "ViewDefinition",
             "display": "ViewDefinition"
+        },
+        {
+            "code": "AccessPolicyV2Assignment",
+            "display": "AccessPolicyV2Assignment"
         }
     ]
 }

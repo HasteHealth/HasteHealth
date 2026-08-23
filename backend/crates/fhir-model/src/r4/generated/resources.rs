@@ -203,6 +203,47 @@ impl AccessPolicyV2 {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "AccessPolicyV2Assignment"]
+#[fhir_serialize_type = "resource"]
+#[doc = "A set of rules that govern how a system resource is accessed and used."]
+pub struct AccessPolicyV2Assignment {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    # [reference (targets = ["AccessPolicyV2"])]
+    #[doc = "The access policy that this assignment grants."]
+    pub accessPolicy: Box<Reference>,
+    # [reference (targets = ["ClientApplication" , "Membership" , "OperationDefinition"])]
+    #[doc = "Who the access policy applies to."]
+    pub link: Box<Reference>,
+}
+impl AccessPolicyV2Assignment {
+    pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
+        for field in fields {
+            if !(["id", "meta", "accessPolicy", "link"]).contains(field) {
+                return Err(FilterFieldsError::UnknownField(
+                    field.to_string(),
+                    "AccessPolicyV2Assignment".to_string(),
+                ));
+            }
+        }
+        let mut out = Self::default();
+        out.id = self.id;
+        out.meta = self.meta;
+        out.accessPolicy = self.accessPolicy;
+        out.link = self.link;
+        Ok(out)
+    }
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
 #[fhir_type = "ClientApplication"]
 #[fhir_serialize_type = "resource"]
 #[doc = "ClientApplication"]
@@ -45586,6 +45627,7 @@ impl ViewDefinition {
 #[serde(tag = "resourceType")]
 pub enum Resource {
     AccessPolicyV2(AccessPolicyV2),
+    AccessPolicyV2Assignment(AccessPolicyV2Assignment),
     ClientApplication(ClientApplication),
     HL7V2(HL7V2),
     IdentityProvider(IdentityProvider),
@@ -45748,6 +45790,9 @@ impl Resource {
     pub fn filter(self, fields: &[&str]) -> Result<Resource, FilterFieldsError> {
         match self {
             Resource::AccessPolicyV2(r) => Ok(Resource::AccessPolicyV2(r.filter(fields)?)),
+            Resource::AccessPolicyV2Assignment(r) => {
+                Ok(Resource::AccessPolicyV2Assignment(r.filter(fields)?))
+            }
             Resource::ClientApplication(r) => Ok(Resource::ClientApplication(r.filter(fields)?)),
             Resource::HL7V2(r) => Ok(Resource::HL7V2(r.filter(fields)?)),
             Resource::IdentityProvider(r) => Ok(Resource::IdentityProvider(r.filter(fields)?)),
@@ -45984,6 +46029,7 @@ impl Resource {
     pub fn resource_type(&self) -> ResourceType {
         match self {
             Resource::AccessPolicyV2(_) => ResourceType::AccessPolicyV2,
+            Resource::AccessPolicyV2Assignment(_) => ResourceType::AccessPolicyV2Assignment,
             Resource::ClientApplication(_) => ResourceType::ClientApplication,
             Resource::HL7V2(_) => ResourceType::HL7V2,
             Resource::IdentityProvider(_) => ResourceType::IdentityProvider,
@@ -46152,6 +46198,7 @@ impl Resource {
     pub fn id<'a>(&'a self) -> &'a Option<String> {
         match self {
             Resource::AccessPolicyV2(r) => &r.id,
+            Resource::AccessPolicyV2Assignment(r) => &r.id,
             Resource::ClientApplication(r) => &r.id,
             Resource::HL7V2(r) => &r.id,
             Resource::IdentityProvider(r) => &r.id,
@@ -46318,6 +46365,7 @@ pub enum ResourceTypeError {
 )]
 pub enum ResourceType {
     AccessPolicyV2,
+    AccessPolicyV2Assignment,
     ClientApplication,
     HL7V2,
     IdentityProvider,
@@ -46481,6 +46529,11 @@ impl ResourceType {
             ResourceType::AccessPolicyV2 => Ok(Resource::AccessPolicyV2(serde_json::from_str::<
                 AccessPolicyV2,
             >(data)?)),
+            ResourceType::AccessPolicyV2Assignment => {
+                Ok(Resource::AccessPolicyV2Assignment(serde_json::from_str::<
+                    AccessPolicyV2Assignment,
+                >(data)?))
+            }
             ResourceType::ClientApplication => {
                 Ok(Resource::ClientApplication(serde_json::from_str::<
                     ClientApplication,
@@ -47021,6 +47074,7 @@ impl AsRef<str> for ResourceType {
     fn as_ref(&self) -> &str {
         match self {
             ResourceType::AccessPolicyV2 => "AccessPolicyV2",
+            ResourceType::AccessPolicyV2Assignment => "AccessPolicyV2Assignment",
             ResourceType::ClientApplication => "ClientApplication",
             ResourceType::HL7V2 => "HL7V2",
             ResourceType::IdentityProvider => "IdentityProvider",
@@ -47182,6 +47236,7 @@ impl TryFrom<String> for ResourceType {
     fn try_from(s: String) -> Result<Self, Self::Error> {
         match s.as_str() {
             "AccessPolicyV2" => Ok(ResourceType::AccessPolicyV2),
+            "AccessPolicyV2Assignment" => Ok(ResourceType::AccessPolicyV2Assignment),
             "ClientApplication" => Ok(ResourceType::ClientApplication),
             "HL7V2" => Ok(ResourceType::HL7V2),
             "IdentityProvider" => Ok(ResourceType::IdentityProvider),
@@ -47348,6 +47403,7 @@ impl TryFrom<&str> for ResourceType {
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s {
             "AccessPolicyV2" => Ok(ResourceType::AccessPolicyV2),
+            "AccessPolicyV2Assignment" => Ok(ResourceType::AccessPolicyV2Assignment),
             "ClientApplication" => Ok(ResourceType::ClientApplication),
             "HL7V2" => Ok(ResourceType::HL7V2),
             "IdentityProvider" => Ok(ResourceType::IdentityProvider),
