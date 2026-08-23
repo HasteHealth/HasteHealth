@@ -2761,6 +2761,7 @@ dependencies = [
  "haste-fhir-serialization-json",
  "haste-reflect",
  "json-patch",
+ "serde",
  "tokio",
  "tracing",
 ]

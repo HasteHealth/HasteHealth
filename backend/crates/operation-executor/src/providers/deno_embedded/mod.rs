@@ -10,8 +10,10 @@ use deno_core::{
 // main.rs
 use deno_core::error::AnyError;
 use haste_fhir_client::FHIRClient;
-use haste_fhir_model::r4::generated::resources::ResourceType;
+use haste_fhir_client::url::ParsedParameters;
+use haste_fhir_model::r4::generated::resources::{Bundle, Parameters, Resource, ResourceType};
 use haste_fhir_operation_error::OperationOutcomeError;
+use json_patch::Patch;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -280,47 +282,522 @@ impl InteropObject {
     }
 }
 
+/// Fetches the shared per-invocation state that every op needs to reach the
+/// tenant's `FHIRClient` and request context.
+fn runtime_state<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: &Rc<RefCell<OpState>>,
+) -> Arc<Mutex<JSRuntimeState<CTX, Client>>> {
+    state
+        .borrow()
+        .borrow::<Arc<Mutex<JSRuntimeState<CTX, Client>>>>()
+        .clone()
+}
+
+fn parse_resource_type(resource_type: String) -> Result<ResourceType, JsErrorBox> {
+    ResourceType::try_from(resource_type)
+        .map_err(|_| JsErrorBox::type_error("Invalid resource type"))
+}
+
+/// Parses a FHIR search query string (e.g. `"name=Smith&_count=10"`, with or
+/// without a leading `?`) into the parameter list `FHIRClient` expects.
+fn parse_query(query: String) -> Result<ParsedParameters, JsErrorBox> {
+    ParsedParameters::try_from(query.as_str())
+        .map_err(|error| JsErrorBox::type_error(format!("Invalid search parameters: {error}")))
+}
+
+fn parse_body<T: serde::de::DeserializeOwned>(
+    value: serde_json::Value,
+    what: &str,
+) -> Result<T, JsErrorBox> {
+    serde_json::from_value(value)
+        .map_err(|error| JsErrorBox::type_error(format!("Invalid {what}: {error}")))
+}
+
+fn to_json<T: serde::Serialize>(value: &T) -> Result<serde_json::Value, JsErrorBox> {
+    serde_json::to_value(value)
+        .map_err(|_| JsErrorBox::type_error("Failed to serialize response"))
+}
+
+/// Logs the underlying `OperationOutcomeError` and surfaces its diagnostics
+/// to the script -- these errors are already meant to be shown to FHIR API
+/// callers, so passing the message through gives script authors an
+/// actionable reason their operation failed.
+fn map_fhir_error(operation: &'static str) -> impl FnOnce(OperationOutcomeError) -> JsErrorBox {
+    move |error| {
+        tracing::error!(error = ?error, operation, "FHIR operation failed in custom operation script");
+        JsErrorBox::type_error(error.to_string())
+    }
+}
+
 #[op2]
 #[serde]
-pub async fn fhir_read_resource<
+pub async fn fhir_capabilities<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let capabilities = app_state
+        .fhir_client
+        .capabilities(app_state.ctx.clone())
+        .await
+        .map_err(map_fhir_error("capabilities"))?;
+
+    to_json(&capabilities)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_search_type<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] resource_type: String,
+    #[string] query: String,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let resource_type = parse_resource_type(resource_type)?;
+    let query = parse_query(query)?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let bundle = app_state
+        .fhir_client
+        .search_type(app_state.ctx.clone(), resource_type, query)
+        .await
+        .map_err(map_fhir_error("searchType"))?;
+
+    to_json(&bundle)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_search_system<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] query: String,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let query = parse_query(query)?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let bundle = app_state
+        .fhir_client
+        .search_system(app_state.ctx.clone(), query)
+        .await
+        .map_err(map_fhir_error("searchSystem"))?;
+
+    to_json(&bundle)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_create<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] resource_type: String,
+    #[serde] resource: serde_json::Value,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let resource_type = parse_resource_type(resource_type)?;
+    let resource: Resource = parse_body(resource, "resource")?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let created = app_state
+        .fhir_client
+        .create(app_state.ctx.clone(), resource_type, resource)
+        .await
+        .map_err(map_fhir_error("create"))?;
+
+    to_json(&created)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_update<
     CTX: Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
     state: Rc<RefCell<OpState>>,
     #[string] resource_type: String,
     #[string] id: String,
-) -> Result<serde_json::Value, deno_error::JsErrorBox> {
-    let app_state = {
-        let state = state.borrow();
-        // Use the state
+    #[serde] resource: serde_json::Value,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let resource_type = parse_resource_type(resource_type)?;
+    let resource: Resource = parse_body(resource, "resource")?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
 
-        state
-            .borrow::<Arc<Mutex<JSRuntimeState<CTX, Client>>>>()
-            .clone()
-    };
+    let updated = app_state
+        .fhir_client
+        .update(app_state.ctx.clone(), resource_type, id, resource)
+        .await
+        .map_err(map_fhir_error("update"))?;
 
+    to_json(&updated)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_conditional_update<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] resource_type: String,
+    #[string] query: String,
+    #[serde] resource: serde_json::Value,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let resource_type = parse_resource_type(resource_type)?;
+    let query = parse_query(query)?;
+    let resource: Resource = parse_body(resource, "resource")?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let updated = app_state
+        .fhir_client
+        .conditional_update(app_state.ctx.clone(), resource_type, query, resource)
+        .await
+        .map_err(map_fhir_error("conditionalUpdate"))?;
+
+    to_json(&updated)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_patch<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] resource_type: String,
+    #[string] id: String,
+    #[serde] patch: serde_json::Value,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let resource_type = parse_resource_type(resource_type)?;
+    let patch: Patch = parse_body(patch, "patch")?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let patched = app_state
+        .fhir_client
+        .patch(app_state.ctx.clone(), resource_type, id, patch)
+        .await
+        .map_err(map_fhir_error("patch"))?;
+
+    to_json(&patched)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_read<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] resource_type: String,
+    #[string] id: String,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let resource_type = parse_resource_type(resource_type)?;
+    let app_state = runtime_state::<CTX, Client>(&state);
     let app_state = app_state.lock().await;
 
     let resource = app_state
         .fhir_client
-        .read(
-            app_state.ctx.clone(),
-            ResourceType::try_from(resource_type)
-                .map_err(|_| deno_error::JsErrorBox::type_error("Invalid resource type"))?,
-            id,
-        )
+        .read(app_state.ctx.clone(), resource_type, id)
         .await
-        .map_err(|e| {
-            tracing::error!(error = ?e, "Failed to read resource for custom operation script");
-            deno_error::JsErrorBox::type_error("Failed to read resource")
-        })?;
+        .map_err(map_fhir_error("read"))?;
 
-    if let Some(resource) = resource {
-        serde_json::to_value(&resource)
-            .map_err(|_| deno_error::JsErrorBox::type_error("Failed to serialize resource"))
-    } else {
-        Ok(serde_json::Value::Null)
+    match resource {
+        Some(resource) => to_json(&resource),
+        None => Ok(serde_json::Value::Null),
     }
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_vread<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] resource_type: String,
+    #[string] id: String,
+    #[string] version_id: String,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let resource_type = parse_resource_type(resource_type)?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let resource = app_state
+        .fhir_client
+        .vread(app_state.ctx.clone(), resource_type, id, version_id)
+        .await
+        .map_err(map_fhir_error("vread"))?;
+
+    match resource {
+        Some(resource) => to_json(&resource),
+        None => Ok(serde_json::Value::Null),
+    }
+}
+
+#[op2]
+pub async fn fhir_delete_instance<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] resource_type: String,
+    #[string] id: String,
+) -> Result<(), JsErrorBox> {
+    let resource_type = parse_resource_type(resource_type)?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    app_state
+        .fhir_client
+        .delete_instance(app_state.ctx.clone(), resource_type, id)
+        .await
+        .map_err(map_fhir_error("deleteInstance"))
+}
+
+#[op2]
+pub async fn fhir_delete_type<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] resource_type: String,
+    #[string] query: String,
+) -> Result<(), JsErrorBox> {
+    let resource_type = parse_resource_type(resource_type)?;
+    let query = parse_query(query)?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    app_state
+        .fhir_client
+        .delete_type(app_state.ctx.clone(), resource_type, query)
+        .await
+        .map_err(map_fhir_error("deleteType"))
+}
+
+#[op2]
+pub async fn fhir_delete_system<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] query: String,
+) -> Result<(), JsErrorBox> {
+    let query = parse_query(query)?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    app_state
+        .fhir_client
+        .delete_system(app_state.ctx.clone(), query)
+        .await
+        .map_err(map_fhir_error("deleteSystem"))
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_history_instance<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] resource_type: String,
+    #[string] id: String,
+    #[string] query: String,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let resource_type = parse_resource_type(resource_type)?;
+    let query = parse_query(query)?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let bundle = app_state
+        .fhir_client
+        .history_instance(app_state.ctx.clone(), resource_type, id, query)
+        .await
+        .map_err(map_fhir_error("historyInstance"))?;
+
+    to_json(&bundle)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_history_type<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] resource_type: String,
+    #[string] query: String,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let resource_type = parse_resource_type(resource_type)?;
+    let query = parse_query(query)?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let bundle = app_state
+        .fhir_client
+        .history_type(app_state.ctx.clone(), resource_type, query)
+        .await
+        .map_err(map_fhir_error("historyType"))?;
+
+    to_json(&bundle)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_history_system<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] query: String,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let query = parse_query(query)?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let bundle = app_state
+        .fhir_client
+        .history_system(app_state.ctx.clone(), query)
+        .await
+        .map_err(map_fhir_error("historySystem"))?;
+
+    to_json(&bundle)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_invoke_instance<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] resource_type: String,
+    #[string] id: String,
+    #[string] operation: String,
+    #[serde] parameters: serde_json::Value,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let resource_type = parse_resource_type(resource_type)?;
+    let parameters: Parameters = parse_body(parameters, "parameters")?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let result = app_state
+        .fhir_client
+        .invoke_instance(app_state.ctx.clone(), resource_type, id, operation, parameters)
+        .await
+        .map_err(map_fhir_error("invokeInstance"))?;
+
+    to_json(&result)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_invoke_type<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] resource_type: String,
+    #[string] operation: String,
+    #[serde] parameters: serde_json::Value,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let resource_type = parse_resource_type(resource_type)?;
+    let parameters: Parameters = parse_body(parameters, "parameters")?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let result = app_state
+        .fhir_client
+        .invoke_type(app_state.ctx.clone(), resource_type, operation, parameters)
+        .await
+        .map_err(map_fhir_error("invokeType"))?;
+
+    to_json(&result)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_invoke_system<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[string] operation: String,
+    #[serde] parameters: serde_json::Value,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let parameters: Parameters = parse_body(parameters, "parameters")?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let result = app_state
+        .fhir_client
+        .invoke_system(app_state.ctx.clone(), operation, parameters)
+        .await
+        .map_err(map_fhir_error("invokeSystem"))?;
+
+    to_json(&result)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_transaction<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[serde] bundle: serde_json::Value,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let bundle: Bundle = parse_body(bundle, "bundle")?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let result = app_state
+        .fhir_client
+        .transaction(app_state.ctx.clone(), bundle)
+        .await
+        .map_err(map_fhir_error("transaction"))?;
+
+    to_json(&result)
+}
+
+#[op2]
+#[serde]
+pub async fn fhir_batch<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[serde] bundle: serde_json::Value,
+) -> Result<serde_json::Value, JsErrorBox> {
+    let bundle: Bundle = parse_body(bundle, "bundle")?;
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
+
+    let result = app_state
+        .fhir_client
+        .batch(app_state.ctx.clone(), bundle)
+        .await
+        .map_err(map_fhir_error("batch"))?;
+
+    to_json(&result)
 }
 
 #[op2]
@@ -331,17 +808,11 @@ pub async fn set_return_value<
 >(
     state: Rc<RefCell<OpState>>,
     #[serde] value: serde_json::Value,
-) -> Result<(), deno_error::JsErrorBox> {
-    let app_state = {
-        let state = state.borrow();
-        // Use the state
-        state
-            .borrow::<Arc<Mutex<JSRuntimeState<CTX, Client>>>>()
-            .clone()
-    };
-    let mut mutable_state = app_state.lock().await;
+) -> Result<(), JsErrorBox> {
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let mut app_state = app_state.lock().await;
 
-    mutable_state.return_value = Some(value);
+    app_state.return_value = Some(value);
     Ok(())
 }
 
@@ -352,19 +823,12 @@ pub async fn get_input_value<
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
     state: Rc<RefCell<OpState>>,
-) -> Result<serde_json::Value, deno_error::JsErrorBox> {
-    let app_state = {
-        let state = state.borrow();
-        // Use the state
-        state
-            .borrow::<Arc<Mutex<JSRuntimeState<CTX, Client>>>>()
-            .clone()
-    };
-
-    let state = app_state.lock().await;
+) -> Result<serde_json::Value, JsErrorBox> {
+    let app_state = runtime_state::<CTX, Client>(&state);
+    let app_state = app_state.lock().await;
 
     Ok(serde_json::json!({
-        "request": state.input.clone(),
+        "request": app_state.input.clone(),
     }))
 }
 
@@ -377,7 +841,26 @@ fn build_deno_runtime<
     let runjs = Extension {
         name: "runjs",
         ops: std::borrow::Cow::Owned(vec![
-            fhir_read_resource::<CTX, Client>(),
+            fhir_capabilities::<CTX, Client>(),
+            fhir_search_type::<CTX, Client>(),
+            fhir_search_system::<CTX, Client>(),
+            fhir_create::<CTX, Client>(),
+            fhir_update::<CTX, Client>(),
+            fhir_conditional_update::<CTX, Client>(),
+            fhir_patch::<CTX, Client>(),
+            fhir_read::<CTX, Client>(),
+            fhir_vread::<CTX, Client>(),
+            fhir_delete_instance::<CTX, Client>(),
+            fhir_delete_type::<CTX, Client>(),
+            fhir_delete_system::<CTX, Client>(),
+            fhir_history_instance::<CTX, Client>(),
+            fhir_history_type::<CTX, Client>(),
+            fhir_history_system::<CTX, Client>(),
+            fhir_invoke_instance::<CTX, Client>(),
+            fhir_invoke_type::<CTX, Client>(),
+            fhir_invoke_system::<CTX, Client>(),
+            fhir_transaction::<CTX, Client>(),
+            fhir_batch::<CTX, Client>(),
             set_return_value::<CTX, Client>(),
             get_input_value::<CTX, Client>(),
         ]),
@@ -487,6 +970,7 @@ pub(crate) mod tests {
     use haste_fhir_model::r4::generated::resources::{
         Bundle, CapabilityStatement, Parameters, Resource,
     };
+    use haste_fhir_model::r4::generated::terminology::IssueType;
     use json_patch::Patch;
     use std::time::Instant;
 
@@ -495,7 +979,7 @@ pub(crate) mod tests {
 
     /// A `FHIRClient` double that isn't expected to be called by any of these
     /// tests -- they only exercise the sandboxing behavior of `run_code`
-    /// itself, not the `fhir.readResource` op.
+    /// itself, not the `fhir.read` op.
     pub(crate) struct MockClient;
 
     impl FHIRClient<TestCtx, OperationOutcomeError> for MockClient {
@@ -511,7 +995,7 @@ pub(crate) mod tests {
             &self,
             _ctx: TestCtx,
         ) -> Result<CapabilityStatement, OperationOutcomeError> {
-            unimplemented!("not used by these tests")
+            Ok(CapabilityStatement::default())
         }
 
         async fn search_system(
@@ -528,16 +1012,16 @@ pub(crate) mod tests {
             _resource_type: ResourceType,
             _parameters: ParsedParameters,
         ) -> Result<Bundle, OperationOutcomeError> {
-            unimplemented!("not used by these tests")
+            Ok(Bundle::default())
         }
 
         async fn create(
             &self,
             _ctx: TestCtx,
             _resource_type: ResourceType,
-            _resource: Resource,
+            resource: Resource,
         ) -> Result<Resource, OperationOutcomeError> {
-            unimplemented!("not used by these tests")
+            Ok(resource)
         }
 
         async fn update(
@@ -595,7 +1079,7 @@ pub(crate) mod tests {
             _resource_type: ResourceType,
             _id: String,
         ) -> Result<(), OperationOutcomeError> {
-            unimplemented!("not used by these tests")
+            Ok(())
         }
 
         async fn delete_type(
@@ -666,10 +1150,13 @@ pub(crate) mod tests {
         async fn invoke_system(
             &self,
             _ctx: TestCtx,
-            _operation: String,
+            operation: String,
             _parameters: Parameters,
         ) -> Result<Resource, OperationOutcomeError> {
-            unimplemented!("not used by these tests")
+            serde_json::from_value(json!({ "resourceType": "Parameters", "id": operation }))
+                .map_err(|error| {
+                    OperationOutcomeError::error(IssueType::invalid(), error.to_string())
+                })
         }
 
         async fn transaction(
@@ -723,6 +1210,102 @@ pub(crate) mod tests {
         .expect("script should run successfully");
 
         assert_eq!(result, Some(json!({ "answer": 42 })));
+    }
+
+    #[tokio::test]
+    async fn fhir_create_op_round_trips_through_the_client() {
+        let deno_runtime = build_deno_runtime::<TestCtx, MockClient>();
+        let result = run_code(
+            deno_runtime,
+            TestCtx,
+            Arc::new(MockClient),
+            PluginCodeType::JavaScript,
+            "export default async function () { return await fhir.create('Patient', { resourceType: 'Patient', id: 'example' }); }",
+            json!({}),
+            Duration::from_secs(5),
+        )
+        .await
+        .expect("script should call fhir.create");
+
+        assert_eq!(
+            result,
+            Some(json!({ "resourceType": "Patient", "id": "example" }))
+        );
+    }
+
+    #[tokio::test]
+    async fn fhir_search_type_op_returns_a_bundle() {
+        let deno_runtime = build_deno_runtime::<TestCtx, MockClient>();
+        let result = run_code(
+            deno_runtime,
+            TestCtx,
+            Arc::new(MockClient),
+            PluginCodeType::JavaScript,
+            "export default async function () { return await fhir.searchType('Patient', { name: 'Smith', _count: 10 }); }",
+            json!({}),
+            Duration::from_secs(5),
+        )
+        .await
+        .expect("script should call fhir.searchType");
+
+        assert_eq!(result, Some(json!({ "resourceType": "Bundle" })));
+    }
+
+    #[tokio::test]
+    async fn fhir_delete_instance_op_resolves() {
+        let deno_runtime = build_deno_runtime::<TestCtx, MockClient>();
+        let result = run_code(
+            deno_runtime,
+            TestCtx,
+            Arc::new(MockClient),
+            PluginCodeType::JavaScript,
+            "export default async function () { await fhir.deleteInstance('Patient', 'example'); return { deleted: true }; }",
+            json!({}),
+            Duration::from_secs(5),
+        )
+        .await
+        .expect("script should call fhir.deleteInstance");
+
+        assert_eq!(result, Some(json!({ "deleted": true })));
+    }
+
+    #[tokio::test]
+    async fn fhir_invoke_system_op_defaults_missing_parameters() {
+        let deno_runtime = build_deno_runtime::<TestCtx, MockClient>();
+        let result = run_code(
+            deno_runtime,
+            TestCtx,
+            Arc::new(MockClient),
+            PluginCodeType::JavaScript,
+            "export default async function () { return await fhir.invokeSystem('everything'); }",
+            json!({}),
+            Duration::from_secs(5),
+        )
+        .await
+        .expect("script should call fhir.invokeSystem");
+
+        assert_eq!(
+            result,
+            Some(json!({ "resourceType": "Parameters", "id": "everything" }))
+        );
+    }
+
+    #[tokio::test]
+    async fn fhir_capabilities_op_returns_the_capability_statement() {
+        let deno_runtime = build_deno_runtime::<TestCtx, MockClient>();
+        let result = run_code(
+            deno_runtime,
+            TestCtx,
+            Arc::new(MockClient),
+            PluginCodeType::JavaScript,
+            "export default async function () { return await fhir.capabilities(); }",
+            json!({}),
+            Duration::from_secs(5),
+        )
+        .await
+        .expect("script should call fhir.capabilities");
+
+        assert_eq!(result, Some(json!({ "resourceType": "CapabilityStatement" })));
     }
 
     #[tokio::test]
