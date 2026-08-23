@@ -89,6 +89,11 @@ pub struct ElasticSearchEngine<SearchParameterResolver: SearchParameterResolve +
     parameter_resolver: Arc<SearchParameterResolver>,
     fp_engine: Arc<FPEngine>,
     client: Arc<Elasticsearch>,
+    /// Whether `migrate` is allowed to rebuild the index (briefly making it
+    /// unavailable) to drop columns for search parameters that no longer
+    /// exist. When `false`, `migrate` only logs which parameters would be
+    /// dropped.
+    prune_removed_search_parameters: bool,
 }
 
 /// Creates an Elasticsearch client using the provided URL and credentials.
@@ -215,11 +220,13 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
         parameter_resolver: Arc<SearchParameterResolver>,
         fp_engine: Arc<FPEngine>,
         es_client: Arc<Elasticsearch>,
+        prune_removed_search_parameters: bool,
     ) -> Self {
         ElasticSearchEngine {
             parameter_resolver,
             fp_engine,
             client: es_client,
+            prune_removed_search_parameters,
         }
     }
 
@@ -600,6 +607,7 @@ impl<SearchParameterResolver: SearchParameterResolve> SearchEngine
             self.parameter_resolver.clone(),
             &self.client,
             get_index_name(),
+            self.prune_removed_search_parameters,
         )
         .await?;
         Ok(())

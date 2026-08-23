@@ -136,6 +136,7 @@ fn create_search_engine<Repo: Repository + Send + Sync + 'static>(
                 )),
                 Arc::new(FPEngine::new()),
                 es_client,
+                elasticsearch_config.prune_removed_search_parameters,
             ));
 
             Ok(k)

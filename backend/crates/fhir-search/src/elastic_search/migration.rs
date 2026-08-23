@@ -1,11 +1,14 @@
 use elasticsearch::{
     Elasticsearch,
-    indices::{IndicesCreateParts, IndicesPutMappingParts},
+    indices::{
+        IndicesCreateParts, IndicesDeleteParts, IndicesGetMappingParts, IndicesPutMappingParts,
+    },
+    params::Slices,
 };
 use haste_fhir_model::r4::generated::terminology::SearchParamType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
-use serde_json::{Value, json};
+use serde_json::{Map, Value, json};
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
@@ -188,10 +191,204 @@ pub fn create_elasticsearch_searchparameter_mappings(parameters: &[ResolvedParam
     })
 }
 
+/// Compares the property keys of an expected mapping against an index's
+/// current mapping. Pure and index-agnostic so it can be unit tested without
+/// a live Elasticsearch cluster.
+fn diff_property_keys(
+    expected: &Map<String, Value>,
+    current: &Map<String, Value>,
+) -> (Vec<String>, Vec<String>) {
+    let mut added: Vec<String> = expected
+        .keys()
+        .filter(|key| !current.contains_key(*key))
+        .cloned()
+        .collect();
+    let mut removed: Vec<String> = current
+        .keys()
+        .filter(|key| !expected.contains_key(*key))
+        .cloned()
+        .collect();
+
+    added.sort();
+    removed.sort();
+
+    (added, removed)
+}
+
+fn index_creation_body(mapping_body: &Value) -> Value {
+    json!({
+       "settings": {
+           "index": {
+                "mapping": {
+                    "nested_fields": {
+                        "limit": 2000
+                    },
+                    "total_fields": {
+                        "limit": 10000
+                    }
+                }
+           }
+       },
+       "mappings": mapping_body
+    })
+}
+
+async fn create_index(elastic_search: &Elasticsearch, index: &str, mapping_body: &Value) {
+    let res = elastic_search
+        .indices()
+        .create(IndicesCreateParts::Index(index))
+        .body(index_creation_body(mapping_body))
+        .send()
+        .await
+        .unwrap();
+
+    if res.status_code().is_success() {
+        tracing::info!("Elasticsearch index '{}' created successfully.", index);
+    } else {
+        tracing::error!(
+            "Failed to create Elasticsearch index '{}': {:?}",
+            index,
+            res
+        );
+        tracing::error!("Response: {:?}", res.text().await.unwrap());
+        panic!();
+    }
+}
+
+async fn delete_index(elastic_search: &Elasticsearch, index: &str) {
+    let res = elastic_search
+        .indices()
+        .delete(IndicesDeleteParts::Index(&[index]))
+        .send()
+        .await
+        .unwrap();
+
+    if res.status_code().is_success() {
+        tracing::info!("Elasticsearch index '{}' deleted successfully.", index);
+    } else {
+        tracing::error!(
+            "Failed to delete Elasticsearch index '{}': {:?}",
+            index,
+            res
+        );
+        tracing::error!("Response: {:?}", res.text().await.unwrap());
+        panic!();
+    }
+}
+
+/// Copies documents from `from_index` into `to_index`. When `keep_fields` is
+/// set, only those top-level `_source` fields are carried over -- this is
+/// what actually drops data for search parameters that no longer exist,
+/// since Elasticsearch has no API to remove a field from a mapping in place.
+async fn reindex(
+    elastic_search: &Elasticsearch,
+    from_index: &str,
+    to_index: &str,
+    keep_fields: Option<&[String]>,
+) {
+    let mut source = json!({ "index": from_index });
+    if let Some(fields) = keep_fields {
+        source["_source"] = json!(fields);
+    }
+
+    let res = elastic_search
+        .reindex()
+        .body(json!({
+            "source": source,
+            "dest": { "index": to_index }
+        }))
+        .refresh(true)
+        .slices(Slices::Auto)
+        .wait_for_completion(true)
+        .send()
+        .await
+        .unwrap();
+
+    if res.status_code().is_success() {
+        tracing::info!(
+            "Reindexed '{}' into '{}' successfully.",
+            from_index,
+            to_index
+        );
+    } else {
+        tracing::error!(
+            "Failed to reindex '{}' into '{}': {:?}",
+            from_index,
+            to_index,
+            res
+        );
+        tracing::error!("Response: {:?}", res.text().await.unwrap());
+        panic!();
+    }
+}
+
+async fn fetch_mapping_properties(
+    elastic_search: &Elasticsearch,
+    index: &str,
+) -> Map<String, Value> {
+    let res = elastic_search
+        .indices()
+        .get_mapping(IndicesGetMappingParts::Index(&[index]))
+        .send()
+        .await
+        .unwrap();
+
+    if !res.status_code().is_success() {
+        tracing::error!(
+            "Failed to fetch Elasticsearch mapping for index '{}': {:?}",
+            index,
+            res
+        );
+        panic!();
+    }
+
+    let body: Value = res.json().await.unwrap();
+
+    body.get(index)
+        .and_then(|v| v.get("mappings"))
+        .and_then(|v| v.get("properties"))
+        .and_then(Value::as_object)
+        .cloned()
+        .unwrap_or_default()
+}
+
+/// Merges newly-added search parameter columns into an existing index's
+/// mapping. Always safe to run in place -- Elasticsearch mappings only ever
+/// grow via `put_mapping`, so this never touches already-mapped fields.
+async fn apply_additive_mapping(elastic_search: &Elasticsearch, index: &str, mapping_body: &Value) {
+    let res = elastic_search
+        .indices()
+        .put_mapping(IndicesPutMappingParts::Index(&[index]))
+        .body(mapping_body)
+        .send()
+        .await
+        .unwrap();
+
+    if res.status_code().is_success() {
+        tracing::info!("Elasticsearch mapping updated successfully.");
+    } else {
+        tracing::error!("Failed to update Elasticsearch mapping: {:?}", res);
+        tracing::error!("Response: {:?}", res.text().await.unwrap());
+        panic!();
+    }
+}
+
+/// Brings an index's mapping in sync with the current set of search
+/// parameters: new parameters get their column added, and parameters that no
+/// longer exist have their column (and indexed data) dropped.
+///
+/// Adding columns is a plain `put_mapping` merge, always applied. Removing
+/// columns isn't -- Elasticsearch mappings are append-only -- so dropping one
+/// requires rebuilding the index from scratch under a staging name, keeping
+/// only the fields that are still expected, then swapping it back into place
+/// under the original index name. That rebuild briefly makes the index
+/// unavailable, so it only runs when `prune_removed_parameters` is `true`;
+/// otherwise removed parameters are just logged.
 pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
     parameter_resolver: Arc<ParameterResolver>,
     elastic_search: &Elasticsearch,
     index: &str,
+    prune_removed_parameters: bool,
 ) -> Result<(), OperationOutcomeError> {
     let exists_res = elastic_search
         .indices()
@@ -200,7 +397,7 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
         .await
         .unwrap();
 
-    let mapping_body = create_elasticsearch_searchparameter_mappings(
+    let expected_mapping_body = create_elasticsearch_searchparameter_mappings(
         &parameter_resolver
             .all(&TenantId::System, &ProjectId::System)
             .await?,
@@ -208,52 +405,130 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
 
     let index_exists = exists_res.status_code().is_success();
 
-    if index_exists {
-        let res = elastic_search
-            .indices()
-            .put_mapping(IndicesPutMappingParts::Index(&[index]))
-            .body(mapping_body)
-            .send()
-            .await
-            .unwrap();
-        if res.status_code().is_success() {
-            tracing::info!("Elasticsearch mapping updated successfully.");
-        } else {
-            tracing::error!("Failed to update Elasticsearch mapping: {:?}", res);
-            tracing::error!("Response: {:?}", res.text().await.unwrap());
-            panic!();
-        }
-    } else {
-        let res = elastic_search
-            .indices()
-            .create(IndicesCreateParts::Index(index))
-            .body(json!({
-                   "settings": {
-                       "index": {
-                            "mapping": {
-                                "nested_fields": {
-                                    "limit": 2000
-                                },
-                                "total_fields": {
-                                    "limit": 10000
-                                }
-                            }
-                       }
-                   },
-                   "mappings": mapping_body
-            }))
-            .send()
-            .await
-            .unwrap();
-
-        if res.status_code().is_success() {
-            tracing::info!("Elasticsearch mapping created successfully.");
-        } else {
-            tracing::error!("Failed to create Elasticsearch mapping: {:?}", res);
-            tracing::error!("Response: {:?}", res.text().await.unwrap());
-            panic!();
-        }
+    if !index_exists {
+        create_index(elastic_search, index, &expected_mapping_body).await;
+        return Ok(());
     }
 
+    let expected_properties = expected_mapping_body
+        .get("properties")
+        .and_then(Value::as_object)
+        .cloned()
+        .unwrap_or_default();
+
+    let current_properties = fetch_mapping_properties(elastic_search, index).await;
+
+    let (added, removed) = diff_property_keys(&expected_properties, &current_properties);
+
+    if added.is_empty() && removed.is_empty() {
+        tracing::info!(
+            "Elasticsearch mapping for index '{}' already in sync with search parameters.",
+            index
+        );
+        return Ok(());
+    }
+
+    if !removed.is_empty() && !prune_removed_parameters {
+        tracing::warn!(
+            "{} search parameter column(s) on index '{}' are no longer backed by an active SearchParameter and would be dropped: {:?}. Not rebuilding the index because `prune_removed_search_parameters` is disabled.",
+            removed.len(),
+            index,
+            removed
+        );
+
+        if !added.is_empty() {
+            tracing::info!(
+                "Adding {} new search parameter column(s) to index '{}': {:?}",
+                added.len(),
+                index,
+                added
+            );
+            apply_additive_mapping(elastic_search, index, &expected_mapping_body).await;
+        }
+
+        return Ok(());
+    }
+
+    if removed.is_empty() {
+        tracing::info!(
+            "Adding {} new search parameter column(s) to index '{}': {:?}",
+            added.len(),
+            index,
+            added
+        );
+        apply_additive_mapping(elastic_search, index, &expected_mapping_body).await;
+        return Ok(());
+    }
+
+    tracing::info!(
+        "Search parameter columns changed for index '{}' -- {} added {:?}, {} removed {:?}. Rebuilding index.",
+        index,
+        added.len(),
+        added,
+        removed.len(),
+        removed
+    );
+
+    let expected_keys: Vec<String> = expected_properties.keys().cloned().collect();
+    let staging_index = format!("{}_migrate_{}", index, chrono::Utc::now().timestamp());
+
+    create_index(elastic_search, &staging_index, &expected_mapping_body).await;
+    reindex(elastic_search, index, &staging_index, Some(&expected_keys)).await;
+
+    delete_index(elastic_search, index).await;
+    create_index(elastic_search, index, &expected_mapping_body).await;
+    reindex(elastic_search, &staging_index, index, None).await;
+
+    delete_index(elastic_search, &staging_index).await;
+
+    tracing::info!(
+        "Elasticsearch index '{}' rebuilt successfully with synced mapping.",
+        index
+    );
+
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn props(keys: &[&str]) -> Map<String, Value> {
+        keys.iter()
+            .map(|key| ((*key).to_string(), json!({ "type": "keyword" })))
+            .collect()
+    }
+
+    #[test]
+    fn diff_property_keys_detects_additions_and_removals() {
+        let expected = props(&["patient", "status", "code"]);
+        let current = props(&["patient", "status", "old-param"]);
+
+        let (added, removed) = diff_property_keys(&expected, &current);
+
+        assert_eq!(added, vec!["code".to_string()]);
+        assert_eq!(removed, vec!["old-param".to_string()]);
+    }
+
+    #[test]
+    fn diff_property_keys_empty_when_in_sync() {
+        let expected = props(&["patient", "status"]);
+        let current = props(&["patient", "status"]);
+
+        let (added, removed) = diff_property_keys(&expected, &current);
+
+        assert!(added.is_empty());
+        assert!(removed.is_empty());
+    }
+
+    #[test]
+    fn diff_property_keys_handles_pure_addition() {
+        let expected = props(&["patient", "status"]);
+        let current = props(&["patient"]);
+
+        let (added, removed) = diff_property_keys(&expected, &current);
+
+        assert_eq!(added, vec!["status".to_string()]);
+        assert!(removed.is_empty());
+    }
 }

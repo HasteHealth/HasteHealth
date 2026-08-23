@@ -452,6 +452,8 @@ fn create_search_engine(
                 )),
                 Arc::new(haste_fhirpath::FPEngine::new()),
                 es_client,
+                // This worker only indexes documents; it never calls `migrate`.
+                false,
             ));
 
             Ok(search_engine)
