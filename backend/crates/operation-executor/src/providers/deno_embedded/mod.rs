@@ -284,10 +284,7 @@ impl InteropObject {
 
 /// Fetches the shared per-invocation state that every op needs to reach the
 /// tenant's `FHIRClient` and request context.
-fn runtime_state<
-    CTX: Clone + 'static,
-    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
->(
+fn runtime_state<CTX: Clone + 'static, Client: FHIRClient<CTX, OperationOutcomeError> + 'static>(
     state: &Rc<RefCell<OpState>>,
 ) -> Arc<Mutex<JSRuntimeState<CTX, Client>>> {
     state
@@ -317,8 +314,7 @@ fn parse_body<T: serde::de::DeserializeOwned>(
 }
 
 fn to_json<T: serde::Serialize>(value: &T) -> Result<serde_json::Value, JsErrorBox> {
-    serde_json::to_value(value)
-        .map_err(|_| JsErrorBox::type_error("Failed to serialize response"))
+    serde_json::to_value(value).map_err(|_| JsErrorBox::type_error("Failed to serialize response"))
 }
 
 /// Logs the underlying `OperationOutcomeError` and surfaces its diagnostics
@@ -701,7 +697,13 @@ pub async fn fhir_invoke_instance<
 
     let result = app_state
         .fhir_client
-        .invoke_instance(app_state.ctx.clone(), resource_type, id, operation, parameters)
+        .invoke_instance(
+            app_state.ctx.clone(),
+            resource_type,
+            id,
+            operation,
+            parameters,
+        )
         .await
         .map_err(map_fhir_error("invokeInstance"))?;
 
@@ -1305,7 +1307,10 @@ pub(crate) mod tests {
         .await
         .expect("script should call fhir.capabilities");
 
-        assert_eq!(result, Some(json!({ "resourceType": "CapabilityStatement" })));
+        assert_eq!(
+            result,
+            Some(json!({ "resourceType": "CapabilityStatement" }))
+        );
     }
 
     #[tokio::test]
