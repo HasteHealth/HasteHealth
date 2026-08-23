@@ -300,8 +300,8 @@ fn parse_resource_type(resource_type: String) -> Result<ResourceType, JsErrorBox
 
 /// Parses a FHIR search query string (e.g. `"name=Smith&_count=10"`, with or
 /// without a leading `?`) into the parameter list `FHIRClient` expects.
-fn parse_query(query: String) -> Result<ParsedParameters, JsErrorBox> {
-    ParsedParameters::try_from(query.as_str())
+fn parse_query(query: &str) -> Result<ParsedParameters, JsErrorBox> {
+    ParsedParameters::try_from(query)
         .map_err(|error| JsErrorBox::type_error(format!("Invalid search parameters: {error}")))
 }
 
@@ -359,7 +359,7 @@ pub async fn fhir_search_type<
     #[string] query: String,
 ) -> Result<serde_json::Value, JsErrorBox> {
     let resource_type = parse_resource_type(resource_type)?;
-    let query = parse_query(query)?;
+    let query = parse_query(&query)?;
     let app_state = runtime_state::<CTX, Client>(&state);
     let app_state = app_state.lock().await;
 
@@ -381,7 +381,7 @@ pub async fn fhir_search_system<
     state: Rc<RefCell<OpState>>,
     #[string] query: String,
 ) -> Result<serde_json::Value, JsErrorBox> {
-    let query = parse_query(query)?;
+    let query = parse_query(&query)?;
     let app_state = runtime_state::<CTX, Client>(&state);
     let app_state = app_state.lock().await;
 
@@ -455,7 +455,7 @@ pub async fn fhir_conditional_update<
     #[serde] resource: serde_json::Value,
 ) -> Result<serde_json::Value, JsErrorBox> {
     let resource_type = parse_resource_type(resource_type)?;
-    let query = parse_query(query)?;
+    let query = parse_query(&query)?;
     let resource: Resource = parse_body(resource, "resource")?;
     let app_state = runtime_state::<CTX, Client>(&state);
     let app_state = app_state.lock().await;
@@ -577,7 +577,7 @@ pub async fn fhir_delete_type<
     #[string] query: String,
 ) -> Result<(), JsErrorBox> {
     let resource_type = parse_resource_type(resource_type)?;
-    let query = parse_query(query)?;
+    let query = parse_query(&query)?;
     let app_state = runtime_state::<CTX, Client>(&state);
     let app_state = app_state.lock().await;
 
@@ -596,7 +596,7 @@ pub async fn fhir_delete_system<
     state: Rc<RefCell<OpState>>,
     #[string] query: String,
 ) -> Result<(), JsErrorBox> {
-    let query = parse_query(query)?;
+    let query = parse_query(&query)?;
     let app_state = runtime_state::<CTX, Client>(&state);
     let app_state = app_state.lock().await;
 
@@ -619,7 +619,7 @@ pub async fn fhir_history_instance<
     #[string] query: String,
 ) -> Result<serde_json::Value, JsErrorBox> {
     let resource_type = parse_resource_type(resource_type)?;
-    let query = parse_query(query)?;
+    let query = parse_query(&query)?;
     let app_state = runtime_state::<CTX, Client>(&state);
     let app_state = app_state.lock().await;
 
@@ -643,7 +643,7 @@ pub async fn fhir_history_type<
     #[string] query: String,
 ) -> Result<serde_json::Value, JsErrorBox> {
     let resource_type = parse_resource_type(resource_type)?;
-    let query = parse_query(query)?;
+    let query = parse_query(&query)?;
     let app_state = runtime_state::<CTX, Client>(&state);
     let app_state = app_state.lock().await;
 
@@ -665,7 +665,7 @@ pub async fn fhir_history_system<
     state: Rc<RefCell<OpState>>,
     #[string] query: String,
 ) -> Result<serde_json::Value, JsErrorBox> {
-    let query = parse_query(query)?;
+    let query = parse_query(&query)?;
     let app_state = runtime_state::<CTX, Client>(&state);
     let app_state = app_state.lock().await;
 
