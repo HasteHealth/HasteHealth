@@ -1,4 +1,11 @@
-use crate::{CLIState, SECRETS_LOCATION, secrets::StoredTokens};
+//! Builds the authenticated FHIR HTTP client used by commands that talk to a server
+//! (`api`, `testscript`, `hl7v2`), based on the active profile's auth mode.
+
+use crate::cli::{
+    config::ProfileAuth,
+    secrets::StoredTokens,
+    state::{CliState, SECRETS_LOCATION},
+};
 use haste_fhir_client::http::{FHIRHttpClient, FHIRHttpState};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -27,9 +34,9 @@ pub(crate) fn unix_now() -> i64 {
         .as_secs() as i64
 }
 
-/// Fetches (and caches on `CLIState`) the OIDC discovery document for the active profile.
+/// Fetches (and caches on `CliState`) the OIDC discovery document for the active profile.
 pub(crate) async fn fetch_discovery_document(
-    state: &Arc<Mutex<CLIState>>,
+    state: &Arc<Mutex<CliState>>,
 ) -> Result<WellKnownDiscoveryDocument, OperationOutcomeError> {
     let mut current_state = state.lock().await;
 
@@ -75,7 +82,7 @@ pub(crate) async fn fetch_discovery_document(
 
 /// Exchanges a refresh token for a new access token, persisting the refreshed tokens to disk.
 pub(crate) async fn refresh_access_token(
-    state: &Arc<Mutex<CLIState>>,
+    state: &Arc<Mutex<CliState>>,
     client_id: &str,
     profile_name: &str,
     refresh_token: &str,
@@ -129,13 +136,13 @@ pub(crate) async fn refresh_access_token(
         expires_at: unix_now() + token_response.expires_in,
     });
 
-    crate::secrets::write_secrets(&SECRETS_LOCATION, &current_state.secrets)?;
+    crate::cli::secrets::write_secrets(&SECRETS_LOCATION, &current_state.secrets)?;
 
     Ok(token_response.access_token)
 }
 
 async fn config_to_fhir_http_state(
-    state: Arc<Mutex<CLIState>>,
+    state: Arc<Mutex<CliState>>,
 ) -> Result<FHIRHttpState, OperationOutcomeError> {
     let current_state = state.lock().await;
     let Some(active_profile) = current_state.config.current_profile().cloned() else {
@@ -157,8 +164,8 @@ async fn config_to_fhir_http_state(
     let http_state = FHIRHttpState::new(
         &active_profile.r4_url.clone(),
         match active_profile.auth {
-            crate::commands::config::ProfileAuth::Public {} => None,
-            crate::commands::config::ProfileAuth::ClientCredentails { client_id } => {
+            ProfileAuth::Public {} => None,
+            ProfileAuth::ClientCredentails { client_id } => {
                 let Some(client_secret) = client_secret else {
                     return Err(OperationOutcomeError::error(
                         IssueType::invalid(),
@@ -234,7 +241,7 @@ async fn config_to_fhir_http_state(
                     })
                 }))
             }
-            crate::commands::config::ProfileAuth::AuthorizationCode {
+            ProfileAuth::AuthorizationCode {
                 client_id,
                 redirect_uri: _,
                 scope: _,
@@ -289,7 +296,7 @@ async fn config_to_fhir_http_state(
 }
 
 pub(crate) async fn fhir_client(
-    state: Arc<Mutex<CLIState>>,
+    state: Arc<Mutex<CliState>>,
 ) -> Result<Arc<FHIRHttpClient<()>>, OperationOutcomeError> {
     let http_state = config_to_fhir_http_state(state).await?;
     let fhir_client = Arc::new(FHIRHttpClient::<()>::new(http_state));

@@ -20,7 +20,7 @@ pub(crate) enum WorkerCommands {
 
 /// Runs the `worker` command group. `command` is `None` when the bare `worker`
 /// invocation is used, which behaves the same as `worker worker`.
-pub(crate) async fn worker(command: &Option<WorkerCommands>) -> Result<(), OperationOutcomeError> {
+pub(crate) async fn run(command: &Option<WorkerCommands>) -> Result<(), OperationOutcomeError> {
     match command {
         None | Some(WorkerCommands::Worker) => {
             let config: Arc<search_indexing::WorkerEnvironment> = Arc::new(

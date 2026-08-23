@@ -72,7 +72,7 @@ fn format_code(rust_code: String) -> String {
 }
 
 /// Runs the `generate` command group.
-pub(crate) async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeError> {
+pub(crate) async fn run(command: &CodeGen) -> Result<(), OperationOutcomeError> {
     match command {
         CodeGen::Operations { input, output } => {
             let generated_operation_definitions =

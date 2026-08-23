@@ -1,18 +1,12 @@
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
-use std::{
-    collections::HashMap,
-    path::PathBuf,
-    sync::{Arc, LazyLock},
-    time::Duration,
-};
+use std::{collections::HashMap, time::Duration};
 
 use clap::{Parser, Subcommand};
 use haste_config::{Config, ConfigType, get_config};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
 use opentelemetry::KeyValue;
 use opentelemetry::trace::TracerProvider as _;
 use opentelemetry_appender_tracing::layer::OpenTelemetryTracingBridge;
@@ -22,27 +16,22 @@ use opentelemetry_sdk::Resource;
 use opentelemetry_sdk::logs::SdkLoggerProvider;
 use opentelemetry_sdk::trace::SdkTracerProvider;
 use reqwest::Url;
-use tokio::sync::Mutex;
 use tracing_subscriber::registry::LookupSpan;
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, registry::Registry};
 use tracing_tree::HierarchicalLayer;
 
-use crate::commands::config::{CLIConfiguration, load_config};
-use crate::secrets::{CLISecrets, load_secrets};
-
-mod client;
+mod cli;
 mod commands;
-mod secrets;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)] // Read from `Cargo.toml`
 pub struct Cli {
     #[command(subcommand)]
-    command: CLICommand,
+    command: CliCommand,
 }
 
 #[derive(Subcommand)]
-enum CLICommand {
+enum CliCommand {
     /// Evaluate a FHIRPath expression against a FHIR resource read from stdin.
     FHIRPath {
         /// FHIRPath expression to evaluate
@@ -98,63 +87,20 @@ enum CLICommand {
     },
 }
 
-/// Directory holding the CLI's config and secrets files (`~/.haste_health`).
-static CONFIG_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
-    let config_dir = std::env::home_dir()
-        .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join(".haste_health");
-
-    std::fs::create_dir_all(&config_dir).expect("Failed to create config directory");
-
-    config_dir
-});
-
-/// Non-secret profile config (server URLs, auth mode). Safe to inspect or back up.
-static CONFIG_LOCATION: LazyLock<PathBuf> = LazyLock::new(|| CONFIG_DIR.join("config.toml"));
-
-/// Client secrets and cached OAuth tokens, kept out of `CONFIG_LOCATION` so they never
-/// show up via `config show-profile` or similar.
-static SECRETS_LOCATION: LazyLock<PathBuf> = LazyLock::new(|| CONFIG_DIR.join(".secrets.toml"));
-
-struct CLIState {
-    config: CLIConfiguration,
-    secrets: CLISecrets,
-    access_token: Option<String>,
-    well_known_document: Option<WellKnownDiscoveryDocument>,
-}
-
-impl CLIState {
-    fn new(config: CLIConfiguration, secrets: CLISecrets) -> Self {
-        CLIState {
-            config,
-            secrets,
-            access_token: None,
-            well_known_document: None,
-        }
-    }
-}
-
-static CLI_STATE: LazyLock<Arc<Mutex<CLIState>>> = LazyLock::new(|| {
-    let config = load_config(&CONFIG_LOCATION);
-    let secrets = load_secrets(&SECRETS_LOCATION);
-
-    Arc::new(Mutex::new(CLIState::new(config, secrets)))
-});
-
-enum CLIEnvironmentVariables {
+enum CliEnvironmentVariables {
     SentryDSN,
     OTELEndpoint,
     OTELHeaders,
     LogType,
 }
 
-impl From<CLIEnvironmentVariables> for String {
-    fn from(value: CLIEnvironmentVariables) -> Self {
+impl From<CliEnvironmentVariables> for String {
+    fn from(value: CliEnvironmentVariables) -> Self {
         match value {
-            CLIEnvironmentVariables::SentryDSN => "SENTRY_DSN".to_string(),
-            CLIEnvironmentVariables::OTELEndpoint => "OTEL_ENDPOINT".to_string(),
-            CLIEnvironmentVariables::OTELHeaders => "OTEL_HEADERS".to_string(),
-            CLIEnvironmentVariables::LogType => "LOG_TYPE".to_string(),
+            CliEnvironmentVariables::SentryDSN => "SENTRY_DSN".to_string(),
+            CliEnvironmentVariables::OTELEndpoint => "OTEL_ENDPOINT".to_string(),
+            CliEnvironmentVariables::OTELHeaders => "OTEL_HEADERS".to_string(),
+            CliEnvironmentVariables::LogType => "LOG_TYPE".to_string(),
         }
     }
 }
@@ -164,10 +110,10 @@ struct OtelGuard {
     _logger_provider: SdkLoggerProvider,
 }
 
-fn otel_guard(config: &dyn Config<CLIEnvironmentVariables>) -> Option<OtelGuard> {
-    let endpoint = config.get(CLIEnvironmentVariables::OTELEndpoint).ok()?;
+fn otel_guard(config: &dyn Config<CliEnvironmentVariables>) -> Option<OtelGuard> {
+    let endpoint = config.get(CliEnvironmentVariables::OTELEndpoint).ok()?;
     let headers_str = config
-        .get(CLIEnvironmentVariables::OTELHeaders)
+        .get(CliEnvironmentVariables::OTELHeaders)
         .unwrap_or_default();
     let headers = headers_str
         .split(',')
@@ -239,7 +185,7 @@ fn otel_guard(config: &dyn Config<CLIEnvironmentVariables>) -> Option<OtelGuard>
 
 fn inject_otel_subscriber<S>(
     subscriber: S,
-    config: &dyn Config<CLIEnvironmentVariables>,
+    config: &dyn Config<CliEnvironmentVariables>,
 ) -> Option<OtelGuard>
 where
     S: tracing::Subscriber + Send + Sync + 'static,
@@ -261,10 +207,10 @@ where
 }
 
 fn setup_tracing(
-    config: &dyn Config<CLIEnvironmentVariables>,
+    config: &dyn Config<CliEnvironmentVariables>,
 ) -> Result<Option<OtelGuard>, OperationOutcomeError> {
     let log_type = config
-        .get(CLIEnvironmentVariables::LogType)
+        .get(CliEnvironmentVariables::LogType)
         .unwrap_or("JSON".to_string());
 
     let subscriber = Registry::default()
@@ -290,9 +236,9 @@ fn main() -> Result<(), OperationOutcomeError> {
     let config = get_config(ConfigType::Environment);
 
     let cli = Cli::parse();
-    let cli_state = CLI_STATE.clone();
+    let cli_state = cli::state::CLI_STATE.clone();
 
-    let sentry_location = config.get(CLIEnvironmentVariables::SentryDSN);
+    let sentry_location = config.get(CliEnvironmentVariables::SentryDSN);
 
     let _guard = sentry::init((
         sentry_location.unwrap_or_default(),
@@ -313,24 +259,6 @@ fn main() -> Result<(), OperationOutcomeError> {
         .unwrap()
         .block_on(async {
             let _otel_provider = setup_tracing(config.as_ref())?;
-            match &cli.command {
-                CLICommand::Doc { output } => commands::doc::generate_cli_markdown(output).await,
-                CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath).await,
-                CLICommand::Generate { command } => commands::codegen::codegen(command).await,
-                CLICommand::Server { command } => commands::server::server(command).await,
-                CLICommand::Worker { command } => commands::worker::worker(command).await,
-                CLICommand::Config { command } => {
-                    commands::config::config(&cli_state, command).await
-                }
-                CLICommand::Login => commands::login::login(cli_state).await,
-                CLICommand::Api { command } => {
-                    commands::api::api_commands(cli_state, command).await
-                }
-                CLICommand::Testscript { command } => {
-                    commands::testscript::testscript_commands(cli_state, command).await
-                }
-                CLICommand::Admin { command } => commands::admin::admin(command).await,
-                CLICommand::Hl7v2 { command } => commands::hl7v2::hl7v2(cli_state, command).await,
-            }
+            commands::run(cli_state, &cli.command).await
         })
 }

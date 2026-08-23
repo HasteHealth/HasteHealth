@@ -21,7 +21,7 @@ pub(crate) enum ServerCommands {
 }
 
 /// Runs the `server` command group.
-pub(crate) async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeError> {
+pub(crate) async fn run(command: &ServerCommands) -> Result<(), OperationOutcomeError> {
     let config: ServerConfig = Figment::new()
         .merge(Toml::file("haste.toml"))
         .merge(Env::prefixed("HASTE_"))

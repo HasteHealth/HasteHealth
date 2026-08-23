@@ -1,4 +1,4 @@
-use crate::CLIState;
+use crate::cli::state::CliState;
 use clap::Subcommand;
 use haste_fhir_client::FHIRClient;
 use haste_fhir_converter::Input;
@@ -43,11 +43,11 @@ pub(crate) enum HL7v2Commands {
 }
 
 /// Runs the `hl7v2` command group.
-pub(crate) async fn hl7v2(
-    state: Arc<Mutex<CLIState>>,
+pub(crate) async fn run(
+    state: Arc<Mutex<CliState>>,
     command: &HL7v2Commands,
 ) -> Result<(), OperationOutcomeError> {
-    let fhir_client = crate::client::fhir_client(state).await?;
+    let fhir_client = crate::cli::client::fhir_client(state).await?;
 
     match command {
         HL7v2Commands::Receiver {

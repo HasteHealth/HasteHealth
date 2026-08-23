@@ -1,8 +1,8 @@
-use crate::{
-    CLIState, SECRETS_LOCATION,
+use crate::cli::{
     client::{TokenResponseBody, fetch_discovery_document, unix_now},
-    commands::config::ProfileAuth,
+    config::ProfileAuth,
     secrets::StoredTokens,
+    state::{CliState, SECRETS_LOCATION},
 };
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use haste_fhir_model::r4::generated::terminology::IssueType;
@@ -159,9 +159,9 @@ fn wait_for_callback(
     Ok((code, state))
 }
 
-/// Runs the browser-based authorization_code + PKCE login flow for the active profile
-/// and caches the resulting tokens in the secrets file.
-pub(crate) async fn login(state: Arc<Mutex<CLIState>>) -> Result<(), OperationOutcomeError> {
+/// Runs the `login` command: the browser-based authorization_code + PKCE login flow for
+/// the active profile, caching the resulting tokens in the secrets file.
+pub(crate) async fn run(state: Arc<Mutex<CliState>>) -> Result<(), OperationOutcomeError> {
     let (client_id, redirect_uri, scope, profile_name) = {
         let current_state = state.lock().await;
         let Some(profile) = current_state.config.current_profile().cloned() else {
@@ -289,7 +289,7 @@ pub(crate) async fn login(state: Arc<Mutex<CLIState>>) -> Result<(), OperationOu
         expires_at: unix_now() + token_response.expires_in,
     });
 
-    crate::secrets::write_secrets(&SECRETS_LOCATION, &current_state.secrets)?;
+    crate::cli::secrets::write_secrets(&SECRETS_LOCATION, &current_state.secrets)?;
 
     println!(
         "Login successful. Profile '{}' is now authenticated.",

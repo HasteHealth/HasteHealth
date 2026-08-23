@@ -3,7 +3,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use crate::Cli;
 
 /// Runs the `doc` command: renders this CLI's `--help` text for every command to Markdown.
-pub(crate) async fn generate_cli_markdown(output: &str) -> Result<(), OperationOutcomeError> {
+pub(crate) async fn run(output: &str) -> Result<(), OperationOutcomeError> {
     let markdown: String = clap_markdown::help_markdown::<Cli>();
 
     let top_string = "
