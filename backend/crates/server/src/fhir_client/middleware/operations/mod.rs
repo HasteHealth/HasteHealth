@@ -1,8 +1,11 @@
-use crate::fhir_client::{
-    ServerCTX,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
+use crate::{
+    config::ServerConfig,
+    fhir_client::{
+        ServerCTX,
+        middleware::{
+            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+            ServerMiddlewareState,
+        },
     },
 };
 use haste_fhir_client::{
@@ -20,9 +23,11 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationInvocation;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_operation_executor::traits::OperationExecutor;
+use haste_operation_executor::{
+    providers::deno_embedded::pool::DenoPool, traits::OperationExecutor,
+};
 use haste_repository::Repository;
-use std::sync::{Arc, LazyLock};
+use std::sync::Arc;
 
 mod custom_operations;
 
@@ -41,12 +46,6 @@ impl<CTX> Clone for ServerOperations<CTX> {
         ServerOperations(self.0.clone())
     }
 }
-
-static DENO_EXECUTOR: LazyLock<haste_operation_executor::providers::deno_embedded::pool::DenoPool> =
-    LazyLock::new(|| {
-        haste_operation_executor::providers::deno_embedded::pool::DenoPool::new(4)
-            .expect("Failed to create DenoPool")
-    });
 
 impl<
     Repo: Repository + Send + Sync + 'static,
@@ -127,6 +126,7 @@ pub struct Middleware<
     Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 > {
     operations: ServerOperations<ServerOperationContext<State, Client>>,
+    deno_executor: Arc<DenoPool>,
 }
 
 impl<
@@ -136,9 +136,13 @@ impl<
     Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 > Middleware<ServerMiddlewareState<Repo, Search, Terminology>, Client>
 {
-    pub fn new() -> Self {
+    pub fn new(config: &ServerConfig) -> Self {
         Middleware {
             operations: ServerOperations::new(),
+            deno_executor: Arc::new(
+                DenoPool::new(config.operations.deno_pool_threads)
+                    .expect("Failed to create DenoPool"),
+            ),
         }
     }
 }
@@ -167,6 +171,7 @@ impl<
         >,
     ) -> ServerMiddlewareOutput<Client> {
         let executors = self.operations.clone();
+        let deno_executor = self.deno_executor.clone();
 
         // tokio::task::spawn_blocking(f)
 
@@ -206,7 +211,7 @@ impl<
                         && let Some(Resource::OperationDefinition(operation_definition)) =
                             entry.resource.as_deref()
                     {
-                        let output = DENO_EXECUTOR
+                        let output = deno_executor
                             .execute_operation(
                                 context.ctx.clone(),
                                 context.ctx.client.clone(),

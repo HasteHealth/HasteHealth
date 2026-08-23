@@ -21,6 +21,7 @@ pub struct ServerConfig {
     pub max_request_body_size: usize,
     pub monitoring: MonitoringConfig,
     pub security: SecurityConfig,
+    pub operations: OperationsConfig,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -37,6 +38,18 @@ pub struct SecurityConfig {
 #[serde(default)]
 pub struct MFAConfig {
     pub max_credentials_per_user: usize,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(default)]
+pub struct OperationsConfig {
+    /// Number of dedicated OS threads in the pool that executes custom
+    /// (tenant-authored) FHIR operation scripts in isolated Deno/V8
+    /// sandboxes. Each thread handles one script invocation at a time, so
+    /// this is a hard ceiling on how many custom operations can run
+    /// concurrently. Defaults to roughly half the host's available
+    /// parallelism.
+    pub deno_pool_threads: usize,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -144,6 +157,7 @@ impl Default for ServerConfig {
             rate_limits: RateLimitsConfig::default(),
             monitoring: MonitoringConfig::default(),
             security: SecurityConfig::default(),
+            operations: OperationsConfig::default(),
         }
     }
 }
@@ -201,6 +215,18 @@ impl Default for MFAConfig {
     fn default() -> Self {
         Self {
             max_credentials_per_user: 1,
+        }
+    }
+}
+
+impl Default for OperationsConfig {
+    fn default() -> Self {
+        let available = std::thread::available_parallelism()
+            .map(std::num::NonZeroUsize::get)
+            .unwrap_or(4);
+
+        Self {
+            deno_pool_threads: (available / 2).max(2),
         }
     }
 }

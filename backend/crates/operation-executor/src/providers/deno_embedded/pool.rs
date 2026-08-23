@@ -1,8 +1,9 @@
-use crate::providers::deno_embedded::run_code;
+use crate::providers::deno_embedded::{EXECUTION_TIMEOUT, build_deno_runtime, run_code};
 use crate::structs::PluginCodeType;
 use crate::traits::OperationExecutor;
 use crate::validate::validate_parameters;
 use crate::{CUSTOM_CODE_EXTENSION_URL, extract_code_from_operation_definition};
+use crossbeam_channel::{Receiver, Sender};
 use deno_core::serde_json::json;
 use deno_core::{error::AnyError, serde_json};
 use haste_fhir_client::FHIRClient;
@@ -10,9 +11,9 @@ use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_model::r4::generated::resources::{OperationDefinition, Parameters};
 use haste_fhir_model::r4::generated::terminology::{IssueType, OperationParameterUse};
 use haste_fhir_operation_error::OperationOutcomeError;
+use std::collections::VecDeque;
 use std::io;
 use std::sync::Arc;
-use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc;
 use std::thread::{self, JoinHandle};
 use tokio::runtime::Runtime;
@@ -20,9 +21,30 @@ use tokio::sync::oneshot;
 
 type JobResult = Result<Option<serde_json::Value>, AnyError>;
 
+/// How many never-yet-used isolates each worker keeps ready to hand out
+/// immediately, instead of building one synchronously on the request path.
+///
+/// Jobs run strictly one at a time per worker, so a spare of 1 is enough to
+/// fully hide isolate-creation latency: each job consumes the spare left
+/// over from the previous job, then -- *after* its own response has already
+/// been sent -- builds a fresh replacement for whichever job comes next.
+/// This does not change how many isolates a call ever gets (still exactly
+/// one, used once); it only moves *when* that isolate's construction cost
+/// is paid, off the critical path of the request it doesn't belong to.
+const WARM_RUNTIME_BUFFER_SIZE: usize = 1;
+
+/// Hard ceiling on the size of a single custom operation's source code.
+const MAX_CUSTOM_OPERATION_CODE_BYTES: usize = 256 * 1024;
+
+/// How many jobs may sit queued (in addition to however many are already
+/// running) before a `DenoPool` starts rejecting new work instead of
+/// accepting it.
+const QUEUE_DEPTH_MULTIPLIER: usize = 4;
+
 pub struct DenoPool {
-    next_worker: AtomicUsize,
-    workers: Vec<WorkerHandle>,
+    command_tx: Sender<WorkerCommand>,
+    workers: Vec<JoinHandle<()>>,
+    max_queue_depth: usize,
 }
 
 impl DenoPool {
@@ -31,6 +53,11 @@ impl DenoPool {
     /// Each worker is spawned during construction. If any worker fails to start, all workers
     /// that were successfully spawned up to that point are shut down before the error is
     /// returned.
+    ///
+    /// All workers pull jobs from a single shared queue, so an idle worker always picks up
+    /// the next job regardless of which worker happens to be busy -- unlike a fixed
+    /// round-robin assignment, a single slow or wedged script can't head-of-line-block jobs
+    /// that land on "its" worker while other workers sit idle.
     ///
     /// # Arguments
     ///
@@ -50,23 +77,25 @@ impl DenoPool {
             return Err(io::Error::other("DenoPool requires at least one worker thread").into());
         }
 
+        let (command_tx, command_rx) = crossbeam_channel::unbounded();
         let mut workers = Vec::with_capacity(thread_count);
 
         for index in 0..thread_count {
-            let result = spawn_worker(index);
+            let result = spawn_worker(index, command_rx.clone());
 
             match result {
                 Ok(worker) => workers.push(worker),
                 Err(error) => {
-                    shutdown_workers(&mut workers);
+                    shutdown_workers(&command_tx, &mut workers);
                     return Err(error);
                 }
             }
         }
 
         Ok(Self {
-            next_worker: AtomicUsize::new(0),
+            command_tx,
             workers,
+            max_queue_depth: thread_count * QUEUE_DEPTH_MULTIPLIER,
         })
     }
 
@@ -81,29 +110,47 @@ impl DenoPool {
         code: impl Into<String>,
         input: serde_json::Value,
     ) -> JobResult {
-        let worker_index = self.next_worker.fetch_add(1, Ordering::Relaxed) % self.workers.len();
-        let worker = &self.workers[worker_index];
-
         let (response_tx, response_rx) = oneshot::channel();
         let code = code.into();
 
-        let task = Box::new(move |runtime: &Runtime| {
-            let result = runtime.block_on(async move {
-                let output = run_code(ctx, client, media_type, &code, input).await?;
+        let task = Box::new(
+            move |runtime: &Runtime, warm_pool: &mut VecDeque<deno_core::JsRuntime>| {
+                let prewarmed = warm_pool.pop_front();
 
-                output
-                    .map(serde_json::from_value)
-                    .transpose()
-                    .map_err(AnyError::from)
-            });
+                let result = runtime.block_on(async move {
+                    let deno_runtime = prewarmed.unwrap_or_else(build_deno_runtime::<CTX, Client>);
 
-            let _ = response_tx.send(result);
-        }) as Box<dyn WorkerTask>;
+                    let output = run_code(
+                        deno_runtime,
+                        ctx,
+                        client,
+                        media_type,
+                        &code,
+                        input,
+                        EXECUTION_TIMEOUT,
+                    )
+                    .await?;
 
-        worker
-            .command_tx
+                    output
+                        .map(serde_json::from_value)
+                        .transpose()
+                        .map_err(AnyError::from)
+                });
+
+                let _ = response_tx.send(result);
+
+                // Refill *after* the response has already been sent, so this
+                // build only delays the worker picking up its next job it
+                // never adds to the latency of the job that just finished.
+                if warm_pool.len() < WARM_RUNTIME_BUFFER_SIZE {
+                    warm_pool.push_back(build_deno_runtime::<CTX, Client>());
+                }
+            },
+        ) as Box<dyn WorkerTask>;
+
+        self.command_tx
             .send(WorkerCommand::Run(task))
-            .map_err(|_| io::Error::other("DenoPool worker is not accepting jobs"))?;
+            .map_err(|_| io::Error::other("DenoPool has no workers accepting jobs"))?;
 
         response_rx
             .await
@@ -113,7 +160,7 @@ impl DenoPool {
 
 impl Drop for DenoPool {
     fn drop(&mut self) {
-        shutdown_workers(&mut self.workers);
+        shutdown_workers(&self.command_tx, &mut self.workers);
     }
 }
 
@@ -168,6 +215,13 @@ impl OperationExecutor for DenoPool {
             &OperationParameterUse::in_(),
         )?;
 
+        if self.command_tx.len() >= self.max_queue_depth {
+            return Err(OperationOutcomeError::error(
+                IssueType::throttled(),
+                "Too many custom operations are already queued; try again shortly".to_string(),
+            ));
+        }
+
         let (code, media_type) =
             extract_code_from_operation_definition(operation).ok_or_else(|| {
                 OperationOutcomeError::error(
@@ -177,6 +231,15 @@ impl OperationExecutor for DenoPool {
                     ),
                 )
             })?;
+
+        if code.len() > MAX_CUSTOM_OPERATION_CODE_BYTES {
+            return Err(OperationOutcomeError::error(
+                IssueType::invalid(),
+                format!(
+                    "Custom operation source code exceeds the maximum allowed size of {MAX_CUSTOM_OPERATION_CODE_BYTES} bytes"
+                ),
+            ));
+        }
 
         let media_type = PluginCodeType::try_from(media_type)?;
 
@@ -219,31 +282,28 @@ impl OperationExecutor for DenoPool {
     }
 }
 
-struct WorkerHandle {
-    command_tx: mpsc::Sender<WorkerCommand>,
-    join_handle: Option<JoinHandle<()>>,
-}
-
 enum WorkerCommand {
     Run(Box<dyn WorkerTask>),
     Shutdown,
 }
 
 trait WorkerTask: Send + 'static {
-    fn run(self: Box<Self>, runtime: &Runtime);
+    fn run(self: Box<Self>, runtime: &Runtime, warm_pool: &mut VecDeque<deno_core::JsRuntime>);
 }
 
 impl<Function> WorkerTask for Function
 where
-    Function: FnOnce(&Runtime) + Send + 'static,
+    Function: FnOnce(&Runtime, &mut VecDeque<deno_core::JsRuntime>) + Send + 'static,
 {
-    fn run(self: Box<Self>, runtime: &Runtime) {
-        (*self)(runtime);
+    fn run(self: Box<Self>, runtime: &Runtime, warm_pool: &mut VecDeque<deno_core::JsRuntime>) {
+        (*self)(runtime, warm_pool);
     }
 }
 
-fn spawn_worker(index: usize) -> Result<WorkerHandle, AnyError> {
-    let (command_tx, command_rx) = mpsc::channel();
+fn spawn_worker(
+    index: usize,
+    command_rx: Receiver<WorkerCommand>,
+) -> Result<JoinHandle<()>, AnyError> {
     let (startup_tx, startup_rx) = mpsc::sync_channel(1);
 
     let join_handle = thread::Builder::new()
@@ -263,9 +323,16 @@ fn spawn_worker(index: usize) -> Result<WorkerHandle, AnyError> {
                 }
             };
 
+            // Local to this OS thread: `deno_core::JsRuntime` wraps a V8
+            // isolate that is not `Send`, so a spare can never be built on
+            // one thread and handed to another -- each worker must warm its
+            // own buffer.
+            let mut warm_pool: VecDeque<deno_core::JsRuntime> =
+                VecDeque::with_capacity(WARM_RUNTIME_BUFFER_SIZE);
+
             while let Ok(command) = command_rx.recv() {
                 match command {
-                    WorkerCommand::Run(task) => task.run(&runtime),
+                    WorkerCommand::Run(task) => task.run(&runtime, &mut warm_pool),
                     WorkerCommand::Shutdown => break,
                 }
             }
@@ -275,20 +342,96 @@ fn spawn_worker(index: usize) -> Result<WorkerHandle, AnyError> {
         .recv()
         .map_err(|_| io::Error::other("DenoPool worker failed during startup"))??;
 
-    Ok(WorkerHandle {
-        command_tx,
-        join_handle: Some(join_handle),
-    })
+    Ok(join_handle)
 }
 
-fn shutdown_workers(workers: &mut [WorkerHandle]) {
-    for worker in workers.iter() {
-        let _ = worker.command_tx.send(WorkerCommand::Shutdown);
+fn shutdown_workers(command_tx: &Sender<WorkerCommand>, workers: &mut Vec<JoinHandle<()>>) {
+    for _ in 0..workers.len() {
+        let _ = command_tx.send(WorkerCommand::Shutdown);
     }
 
-    for worker in workers.iter_mut() {
-        if let Some(join_handle) = worker.join_handle.take() {
-            let _ = join_handle.join();
+    for join_handle in workers.drain(..) {
+        let _ = join_handle.join();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::CUSTOM_CODE_TYPE_EXTENSION_URL;
+    use crate::providers::deno_embedded::tests::{MockClient, TestCtx};
+    use haste_fhir_client::request::{FHIRInvokeSystemRequest, Operation};
+    use haste_fhir_model::r4::generated::types::{Extension, ExtensionValueTypeChoice, FHIRString};
+
+    /// Runs several jobs back-to-back on a single-worker pool -- forcing
+    /// every job after the first to consume a runtime the *previous* job's
+    /// tail-end pre-warmed -- and checks each one still gets the correct,
+    /// independent result. This is the property that actually matters here:
+    /// pre-warming must never let one call observe another's state.
+    #[tokio::test]
+    async fn sequential_jobs_on_one_worker_each_get_independent_results() {
+        let pool = DenoPool::new(1).expect("pool should start");
+
+        for i in 0..5 {
+            let result = pool
+                .execute(
+                    TestCtx,
+                    Arc::new(MockClient),
+                    PluginCodeType::JavaScript,
+                    format!("export default async function () {{ return {{ n: {i} }}; }}"),
+                    json!({}),
+                )
+                .await
+                .expect("job should succeed")
+                .expect("job should return a value");
+
+            assert_eq!(result, json!({ "n": i }));
         }
+    }
+
+    fn operation_definition_with_code(code: &str) -> OperationDefinition {
+        let type_extension = Extension {
+            url: CUSTOM_CODE_TYPE_EXTENSION_URL.to_string(),
+            value: Some(ExtensionValueTypeChoice::String(Box::new(FHIRString {
+                value: Some("javascript".to_string()),
+                ..Default::default()
+            }))),
+            ..Default::default()
+        };
+
+        let code_extension = Extension {
+            url: CUSTOM_CODE_EXTENSION_URL.to_string(),
+            value: Some(ExtensionValueTypeChoice::String(Box::new(FHIRString {
+                value: Some(code.to_string()),
+                ..Default::default()
+            }))),
+            extension: Some(vec![type_extension]),
+            ..Default::default()
+        };
+
+        OperationDefinition {
+            extension: Some(vec![code_extension]),
+            ..Default::default()
+        }
+    }
+
+    #[tokio::test]
+    async fn oversized_custom_operation_code_is_rejected() {
+        let pool = DenoPool::new(1).expect("pool should start");
+        let oversized_code = "a".repeat(MAX_CUSTOM_OPERATION_CODE_BYTES + 1);
+        let operation = operation_definition_with_code(&oversized_code);
+        let request = InvocationRequest::System(FHIRInvokeSystemRequest {
+            operation: Operation::new("test-op"),
+            parameters: Parameters::default(),
+        });
+
+        let result = pool
+            .execute_operation(TestCtx, Arc::new(MockClient), &operation, &request)
+            .await;
+
+        assert!(
+            result.is_err(),
+            "oversized custom operation code must be rejected before execution"
+        );
     }
 }
