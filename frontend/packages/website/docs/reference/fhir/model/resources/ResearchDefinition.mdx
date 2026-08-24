@@ -1,6 +1,7 @@
 ---
 id: ResearchDefinition
 title: ResearchDefinition
+description: "ResearchDefinition (FHIR R4 resource): Reference documentation for the FHIR R4 ResearchDefinition resource: structure, elements, and search parameters."
 hide_table_of_contents: true
 tags:
   - fhir
@@ -8,6 +9,7 @@ tags:
   - hl7
   - healthcare it
   - interoperability
+  - ResearchDefinition
 ---
 
 import TabItem from "@theme/TabItem";
@@ -20,14 +22,26 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 The ResearchDefinition resource describes the conditional state %28population and any exposures being compared within the population%29 and outcome %28if specified%29 that the knowledge %28evidence, assertion, recommendation%29 is about.
 
 <head>
-  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <title>ResearchDefinition — FHIR R4 Resource Reference | Haste Health</title>
+  <meta name="description" content="ResearchDefinition (FHIR R4 resource): Reference documentation for the FHIR R4 ResearchDefinition resource: structure, elements, and search parameters." />
+  <meta name="keywords" content="ResearchDefinition, FHIR ResearchDefinition, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/ResearchDefinition" />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org/',
-      '@type': 'Organization',
-      name: 'Haste Health',
-      url: 'https://haste.health',
-      logo: 'https://haste.health/img/logo.svg',
+      '@type': 'DefinedTerm',
+      name: 'ResearchDefinition',
+      description: "ResearchDefinition (FHIR R4 resource): Reference documentation for the FHIR R4 ResearchDefinition resource: structure, elements, and search parameters.",
+      url: 'https://haste.health/docs/reference/fhir/model/resources/ResearchDefinition',
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'FHIR R4 Resource Reference',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Haste Health',
+          url: 'https://haste.health',
+        },
+      },
     })}
   </script>
 </head>
@@ -45,11 +59,11 @@ The ResearchDefinition resource describes the conditional state %28population an
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">title</span> <span> (string)</span>
+            <span class="font-semibold">jurisdiction</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The human-friendly name of the research definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Intended jurisdiction for the research definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.title</code>
+              <code>ResearchDefinition.jurisdiction</code>
             </div>
     </div>
     
@@ -57,11 +71,11 @@ The ResearchDefinition resource describes the conditional state %28population an
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_id</span> <span> (token)</span>
+            <span class="font-semibold">_tag</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.id</code>
+              <code>Resource.meta.tag</code>
             </div>
     </div>
     
@@ -69,11 +83,11 @@ The ResearchDefinition resource describes the conditional state %28population an
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">context</span> <span> (token)</span>
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context assigned to the research definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
         <div class="line-clamp-3 truncate">
-              <code>(ResearchDefinition.useContext.value.ofType(CodeableConcept))</code>
+              <code>Resource.meta.lastUpdated</code>
             </div>
     </div>
     
@@ -81,45 +95,11 @@ The ResearchDefinition resource describes the conditional state %28population an
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_query</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">version</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The business version of the research definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.version</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">predecessor</span> <span> (reference)</span>
+            <span class="font-semibold">depends-on</span> <span> (reference)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.relatedArtifact.where(type='predecessor').resource</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">date</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The research definition publication date</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.date</code>
+              <code>ResearchDefinition.relatedArtifact.where(type='depends-on').resource / ResearchDefinition.library</code>
             </div>
     </div>
     
@@ -139,10 +119,92 @@ The ResearchDefinition resource describes the conditional state %28population an
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
+            <span class="font-semibold">_query</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
         
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">topic</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Topics associated with the ResearchDefinition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchDefinition.topic</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">version</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The business version of the research definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchDefinition.version</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">url</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The uri that identifies the research definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchDefinition.url</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">derived-from</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchDefinition.relatedArtifact.where(type='derived-from').resource</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>External identifier for the research definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchDefinition.identifier</code>
+            </div>
     </div>
     
 
@@ -173,132 +235,10 @@ The ResearchDefinition resource describes the conditional state %28population an
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">url</span> <span> (uri)</span>
+            <span class="font-semibold">_content</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The uri that identifies the research definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.url</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">topic</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Topics associated with the ResearchDefinition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.topic</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">composed-of</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.relatedArtifact.where(type='composed-of').resource</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">jurisdiction</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Intended jurisdiction for the research definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.jurisdiction</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_tag</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.tag</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">depends-on</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.relatedArtifact.where(type='depends-on').resource / ResearchDefinition.library</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.lastUpdated</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">identifier</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>External identifier for the research definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.identifier</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">effective</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The time during which the research definition is intended to be in use</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.effectivePeriod</code>
-            </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
     </div>
     
 
@@ -310,42 +250,6 @@ The ResearchDefinition resource describes the conditional state %28population an
         <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
         <div class="line-clamp-3 truncate">
               <code>ResearchDefinition.relatedArtifact.where(type='successor').resource</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">description</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The description of the research definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.description</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">context-type</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A type of use context assigned to the research definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.useContext.code</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">context-type-quantity</span> <span> (composite)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context type and quantity- or range-based value assigned to the research definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.useContext</code>
             </div>
     </div>
     
@@ -365,6 +269,30 @@ The ResearchDefinition resource describes the conditional state %28population an
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
+            <span class="font-semibold">context-type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A type of use context assigned to the research definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchDefinition.useContext.code</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
             <span class="font-semibold">name</span> <span> (string)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Computationally friendly name of the research definition</span></div>
@@ -377,11 +305,11 @@ The ResearchDefinition resource describes the conditional state %28population an
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">derived-from</span> <span> (reference)</span>
+            <span class="font-semibold">_type</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>ResearchDefinition.relatedArtifact.where(type='derived-from').resource</code>
+              <code>$this.type().name</code>
             </div>
     </div>
     
@@ -389,10 +317,60 @@ The ResearchDefinition resource describes the conditional state %28population an
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
+            <span class="font-semibold">date</span> <span> (date)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The research definition publication date</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchDefinition.date</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">title</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The human-friendly name of the research definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchDefinition.title</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">composed-of</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchDefinition.relatedArtifact.where(type='composed-of').resource</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">description</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The description of the research definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchDefinition.description</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context-type-quantity</span> <span> (composite)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context type and quantity- or range-based value assigned to the research definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchDefinition.useContext</code>
+            </div>
     </div>
     
 
@@ -411,11 +389,47 @@ The ResearchDefinition resource describes the conditional state %28population an
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
+            <span class="font-semibold">effective</span> <span> (date)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The time during which the research definition is intended to be in use</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
+              <code>ResearchDefinition.effectivePeriod</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">predecessor</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>ResearchDefinition.relatedArtifact.where(type='predecessor').resource</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context assigned to the research definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>(ResearchDefinition.useContext.value.ofType(CodeableConcept))</code>
             </div>
     </div>
     

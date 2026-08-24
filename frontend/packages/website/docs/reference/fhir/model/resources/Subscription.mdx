@@ -1,6 +1,7 @@
 ---
 id: Subscription
 title: Subscription
+description: "Subscription (FHIR R4 resource): Reference documentation for the FHIR R4 Subscription resource: structure, elements, and search parameters."
 hide_table_of_contents: true
 tags:
   - fhir
@@ -8,6 +9,7 @@ tags:
   - hl7
   - healthcare it
   - interoperability
+  - Subscription
 ---
 
 import TabItem from "@theme/TabItem";
@@ -20,14 +22,26 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 The subscription resource is used to define a push-based subscription from a server to another system. Once a subscription is registered with the server, the server checks every resource that is created or updated, and if the resource matches the given criteria, it sends a message on the defined "channel" so that another system can take an appropriate action.
 
 <head>
-  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <title>Subscription — FHIR R4 Resource Reference | Haste Health</title>
+  <meta name="description" content="Subscription (FHIR R4 resource): Reference documentation for the FHIR R4 Subscription resource: structure, elements, and search parameters." />
+  <meta name="keywords" content="Subscription, FHIR Subscription, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/Subscription" />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org/',
-      '@type': 'Organization',
-      name: 'Haste Health',
-      url: 'https://haste.health',
-      logo: 'https://haste.health/img/logo.svg',
+      '@type': 'DefinedTerm',
+      name: 'Subscription',
+      description: "Subscription (FHIR R4 resource): Reference documentation for the FHIR R4 Subscription resource: structure, elements, and search parameters.",
+      url: 'https://haste.health/docs/reference/fhir/model/resources/Subscription',
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'FHIR R4 Resource Reference',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Haste Health',
+          url: 'https://haste.health',
+        },
+      },
     })}
   </script>
 </head>
@@ -45,79 +59,11 @@ The subscription resource is used to define a push-based subscription from a ser
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">payload</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The mime-type of the notification payload</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Subscription.channel.payload</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_id</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.id</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_query</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
             <span class="font-semibold">SubscriptionCustomChannelSearchParameter</span> <span> (token)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>This SearchParameter enables query of subscriptions by additional channel type.</span></div>
         <div class="line-clamp-3 truncate">
               <code>extension('http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-channel-type').value.ofType(Coding)</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">SubscriptionPayloadTypeSearchParameter</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>This SearchParameter enables query of subscriptions by payload type.</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>extension('http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-payload-content').value.ofType(code)</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">url</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The uri that will receive the notifications</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Subscription.channel.endpoint</code>
             </div>
     </div>
     
@@ -137,11 +83,11 @@ The subscription resource is used to define a push-based subscription from a ser
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
         <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
+              <code>Resource.meta.lastUpdated</code>
             </div>
     </div>
     
@@ -149,11 +95,33 @@ The subscription resource is used to define a push-based subscription from a ser
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
+            <span class="font-semibold">payload</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The mime-type of the notification payload</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
+              <code>Subscription.channel.payload</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">SubscriptionIdentifierSearchParameter</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>This SearchParameter enables query of subscriptions by identifier.</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>extension('http://hl7.org/fhir/5.0/StructureDefinition/extension-Subscription.identifier').value.ofType(Identifier)</code>
             </div>
     </div>
     
@@ -173,11 +141,11 @@ The subscription resource is used to define a push-based subscription from a ser
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+            <span class="font-semibold">_id</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.lastUpdated</code>
+              <code>Resource.id</code>
             </div>
     </div>
     
@@ -185,59 +153,11 @@ The subscription resource is used to define a push-based subscription from a ser
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">contact</span> <span> (token)</span>
+            <span class="font-semibold">SubscriptionPayloadTypeSearchParameter</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Contact details for the subscription</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>This SearchParameter enables query of subscriptions by payload type.</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Subscription.contact</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">SubscriptionIdentifierSearchParameter</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>This SearchParameter enables query of subscriptions by identifier.</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>extension('http://hl7.org/fhir/5.0/StructureDefinition/extension-Subscription.identifier').value.ofType(Identifier)</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">SubscriptionTopicSearchParameter</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>This SearchParameter enables query of subscriptions by canonical topic url.</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Subscription.criteria</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">status</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The current state of the subscription</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Subscription.status</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">criteria</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The search rules used to determine when to send a notification</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Subscription.criteria</code>
+              <code>extension('http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-payload-content').value.ofType(code)</code>
             </div>
     </div>
     
@@ -255,12 +175,10 @@ The subscription resource is used to define a push-based subscription from a ser
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+            <span class="font-semibold">_content</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
-            </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
     </div>
     
 
@@ -291,11 +209,107 @@ The subscription resource is used to define a push-based subscription from a ser
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
+            <span class="font-semibold">contact</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Contact details for the subscription</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Subscription.contact</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">url</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The uri that will receive the notifications</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Subscription.channel.endpoint</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">status</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The current state of the subscription</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Subscription.status</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
             <span class="font-semibold">_source</span> <span> (uri)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
         <div class="line-clamp-3 truncate">
               <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">criteria</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The search rules used to determine when to send a notification</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Subscription.criteria</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">SubscriptionTopicSearchParameter</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>This SearchParameter enables query of subscriptions by canonical topic url.</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Subscription.criteria</code>
             </div>
     </div>
     

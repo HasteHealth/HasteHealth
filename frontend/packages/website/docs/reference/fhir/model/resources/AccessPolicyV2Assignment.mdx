@@ -1,7 +1,7 @@
 ---
-id: Linkage
-title: Linkage
-description: "Linkage (FHIR R4 resource): Reference documentation for the FHIR R4 Linkage resource: structure, elements, and search parameters."
+id: AccessPolicyV2Assignment
+title: AccessPolicyV2Assignment
+description: "AccessPolicyV2Assignment (FHIR R4 resource): Links an AccessPolicyV2 to the resource it applies to. Replaces AccessPolicyV2.target as its own resource so…"
 hide_table_of_contents: true
 tags:
   - fhir
@@ -9,7 +9,7 @@ tags:
   - hl7
   - healthcare it
   - interoperability
-  - Linkage
+  - AccessPolicyV2Assignment
 ---
 
 import TabItem from "@theme/TabItem";
@@ -17,22 +17,22 @@ import Tabs from "@theme/Tabs";
 import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 
-# Linkage
+# AccessPolicyV2Assignment
 
-Identifies two or more records %28resource instances%29 that refer to the same real-world "occurrence".
+A set of rules that govern how a system resource is accessed and used.
 
 <head>
-  <title>Linkage — FHIR R4 Resource Reference | Haste Health</title>
-  <meta name="description" content="Linkage (FHIR R4 resource): Reference documentation for the FHIR R4 Linkage resource: structure, elements, and search parameters." />
-  <meta name="keywords" content="Linkage, FHIR Linkage, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
-  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/Linkage" />
+  <title>AccessPolicyV2Assignment — FHIR R4 Resource Reference | Haste Health</title>
+  <meta name="description" content="AccessPolicyV2Assignment (FHIR R4 resource): Links an AccessPolicyV2 to the resource it applies to. Replaces AccessPolicyV2.target as its own resource so…" />
+  <meta name="keywords" content="AccessPolicyV2Assignment, FHIR AccessPolicyV2Assignment, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/AccessPolicyV2Assignment" />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org/',
       '@type': 'DefinedTerm',
-      name: 'Linkage',
-      description: "Linkage (FHIR R4 resource): Reference documentation for the FHIR R4 Linkage resource: structure, elements, and search parameters.",
-      url: 'https://haste.health/docs/reference/fhir/model/resources/Linkage',
+      name: 'AccessPolicyV2Assignment',
+      description: "AccessPolicyV2Assignment (FHIR R4 resource): Links an AccessPolicyV2 to the resource it applies to. Replaces AccessPolicyV2.target as its own resource so…",
+      url: 'https://haste.health/docs/reference/fhir/model/resources/AccessPolicyV2Assignment',
       inDefinedTermSet: {
         '@type': 'DefinedTermSet',
         name: 'FHIR R4 Resource Reference',
@@ -50,25 +50,13 @@ Identifies two or more records %28resource instances%29 that refer to the same r
   <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
   <div className="col-span-2">
   ## Structure
-  <BrowserOnly> {() => <StructureDefinitionDisplay sd="Linkage" />}</BrowserOnly>
+  <BrowserOnly> {() => <StructureDefinitionDisplay sd="AccessPolicyV2Assignment" />}</BrowserOnly>
   </div>
   
  
   <div>
   ## Search Parameters
 <div class="space-y-4"> 
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">source</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Matches on any item in the Linkage with a type of 'source'</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Linkage.item.resource</code>
-            </div>
-    </div>
-    
-
-   
     <div class="text-xs space-y-1">
         <div class="text-sm">
             <span class="font-semibold">_tag</span> <span> (token)</span>
@@ -161,18 +149,6 @@ Identifies two or more records %28resource instances%29 that refer to the same r
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">item</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Matches on any item in the Linkage</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Linkage.item.resource</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
             <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
@@ -190,18 +166,6 @@ Identifies two or more records %28resource instances%29 that refer to the same r
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
         <div class="line-clamp-3 truncate">
               <code>Resource.meta.profile</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">author</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Author of the Linkage</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Linkage.author</code>
             </div>
     </div>
     

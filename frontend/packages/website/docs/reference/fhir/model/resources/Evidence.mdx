@@ -1,6 +1,7 @@
 ---
 id: Evidence
 title: Evidence
+description: "Evidence (FHIR R4 resource): Reference documentation for the FHIR R4 Evidence resource: structure, elements, and search parameters."
 hide_table_of_contents: true
 tags:
   - fhir
@@ -8,6 +9,7 @@ tags:
   - hl7
   - healthcare it
   - interoperability
+  - Evidence
 ---
 
 import TabItem from "@theme/TabItem";
@@ -20,14 +22,26 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 The Evidence resource describes the conditional state %28population and any exposures being compared within the population%29 and outcome %28if specified%29 that the knowledge %28evidence, assertion, recommendation%29 is about.
 
 <head>
-  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <title>Evidence — FHIR R4 Resource Reference | Haste Health</title>
+  <meta name="description" content="Evidence (FHIR R4 resource): Reference documentation for the FHIR R4 Evidence resource: structure, elements, and search parameters." />
+  <meta name="keywords" content="Evidence, FHIR Evidence, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/Evidence" />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org/',
-      '@type': 'Organization',
-      name: 'Haste Health',
-      url: 'https://haste.health',
-      logo: 'https://haste.health/img/logo.svg',
+      '@type': 'DefinedTerm',
+      name: 'Evidence',
+      description: "Evidence (FHIR R4 resource): Reference documentation for the FHIR R4 Evidence resource: structure, elements, and search parameters.",
+      url: 'https://haste.health/docs/reference/fhir/model/resources/Evidence',
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'FHIR R4 Resource Reference',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Haste Health',
+          url: 'https://haste.health',
+        },
+      },
     })}
   </script>
 </head>
@@ -45,11 +59,11 @@ The Evidence resource describes the conditional state %28population and any expo
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">context-type-quantity</span> <span> (composite)</span>
+            <span class="font-semibold">_tag</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context type and quantity- or range-based value assigned to the evidence</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Evidence.useContext</code>
+              <code>Resource.meta.tag</code>
             </div>
     </div>
     
@@ -57,11 +71,23 @@ The Evidence resource describes the conditional state %28population and any expo
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_id</span> <span> (token)</span>
+            <span class="font-semibold">identifier</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>External identifier for the evidence</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.id</code>
+              <code>Evidence.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
             </div>
     </div>
     
@@ -91,11 +117,11 @@ The Evidence resource describes the conditional state %28population and any expo
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">predecessor</span> <span> (reference)</span>
+            <span class="font-semibold">successor</span> <span> (reference)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Evidence.relatedArtifact.where(type='predecessor').resource</code>
+              <code>Evidence.relatedArtifact.where(type='successor').resource</code>
             </div>
     </div>
     
@@ -103,12 +129,46 @@ The Evidence resource describes the conditional state %28population and any expo
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">date</span> <span> (date)</span>
+            <span class="font-semibold">_id</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The evidence publication date</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Evidence.date</code>
+              <code>Resource.id</code>
             </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">url</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The uri that identifies the evidence</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Evidence.url</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context assigned to the evidence</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>(Evidence.useContext.value.ofType(CodeableConcept))</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
     </div>
     
 
@@ -120,6 +180,42 @@ The Evidence resource describes the conditional state %28population and any expo
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Topics associated with the Evidence</span></div>
         <div class="line-clamp-3 truncate">
               <code>Evidence.topic</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context-type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A type of use context assigned to the evidence</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Evidence.useContext.code</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">jurisdiction</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Intended jurisdiction for the evidence</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Evidence.jurisdiction</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">publisher</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Name of the publisher of the evidence</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Evidence.publisher</code>
             </div>
     </div>
     
@@ -149,107 +245,11 @@ The Evidence resource describes the conditional state %28population and any expo
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">jurisdiction</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Intended jurisdiction for the evidence</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Evidence.jurisdiction</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_tag</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.tag</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">context-quantity</span> <span> (quantity)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A quantity- or range-valued use context assigned to the evidence</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>(Evidence.useContext.value.ofType(Quantity)) / (Evidence.useContext.value.ofType(Range))</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.lastUpdated</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">status</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The current status of the evidence</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Evidence.status</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">effective</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The time during which the evidence is intended to be in use</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Evidence.effectivePeriod</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">successor</span> <span> (reference)</span>
+            <span class="font-semibold">predecessor</span> <span> (reference)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Evidence.relatedArtifact.where(type='successor').resource</code>
+              <code>Evidence.relatedArtifact.where(type='predecessor').resource</code>
             </div>
     </div>
     
@@ -269,11 +269,11 @@ The Evidence resource describes the conditional state %28population and any expo
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">depends-on</span> <span> (reference)</span>
+            <span class="font-semibold">_security</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Evidence.relatedArtifact.where(type='depends-on').resource</code>
+              <code>Resource.meta.security</code>
             </div>
     </div>
     
@@ -281,11 +281,11 @@ The Evidence resource describes the conditional state %28population and any expo
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">publisher</span> <span> (string)</span>
+            <span class="font-semibold">effective</span> <span> (date)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Name of the publisher of the evidence</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The time during which the evidence is intended to be in use</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Evidence.publisher</code>
+              <code>Evidence.effectivePeriod</code>
             </div>
     </div>
     
@@ -305,11 +305,11 @@ The Evidence resource describes the conditional state %28population and any expo
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">context-type</span> <span> (token)</span>
+            <span class="font-semibold">_type</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A type of use context assigned to the evidence</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Evidence.useContext.code</code>
+              <code>$this.type().name</code>
             </div>
     </div>
     
@@ -317,11 +317,11 @@ The Evidence resource describes the conditional state %28population and any expo
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">context</span> <span> (token)</span>
+            <span class="font-semibold">context-type-quantity</span> <span> (composite)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context assigned to the evidence</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A use context type and quantity- or range-based value assigned to the evidence</span></div>
         <div class="line-clamp-3 truncate">
-              <code>(Evidence.useContext.value.ofType(CodeableConcept))</code>
+              <code>Evidence.useContext</code>
             </div>
     </div>
     
@@ -329,11 +329,47 @@ The Evidence resource describes the conditional state %28population and any expo
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">url</span> <span> (uri)</span>
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The uri that identifies the evidence</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Evidence.url</code>
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">date</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The evidence publication date</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Evidence.date</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context-quantity</span> <span> (quantity)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A quantity- or range-valued use context assigned to the evidence</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>(Evidence.useContext.value.ofType(Quantity)) / (Evidence.useContext.value.ofType(Range))</code>
             </div>
     </div>
     
@@ -353,33 +389,11 @@ The Evidence resource describes the conditional state %28population and any expo
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
+            <span class="font-semibold">_source</span> <span> (uri)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
+              <code>Resource.meta.source</code>
             </div>
     </div>
     
@@ -399,11 +413,11 @@ The Evidence resource describes the conditional state %28population and any expo
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">identifier</span> <span> (token)</span>
+            <span class="font-semibold">status</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>External identifier for the evidence</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The current status of the evidence</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Evidence.identifier</code>
+              <code>Evidence.status</code>
             </div>
     </div>
     
@@ -411,11 +425,11 @@ The Evidence resource describes the conditional state %28population and any expo
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_source</span> <span> (uri)</span>
+            <span class="font-semibold">depends-on</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>What resource is being referenced</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.source</code>
+              <code>Evidence.relatedArtifact.where(type='depends-on').resource</code>
             </div>
     </div>
     
