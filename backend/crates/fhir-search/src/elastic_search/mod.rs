@@ -1,7 +1,7 @@
 use crate::{
     IndexFailure, IndexOutcome, IndexResource, ParameterLevel, ResolvedParameter, SearchEngine,
     SearchOptions, SearchParameterResolve, SearchReturn,
-    indexing_conversion::{self, InsertableIndex},
+    indexing_conversion::{self, DynamicParameterEntry, InsertableIndex},
 };
 use elasticsearch::{
     BulkOperation, BulkParts, Elasticsearch,
@@ -457,7 +457,7 @@ async fn resource_to_elastic_index(
     resource: &Resource,
 ) -> Result<HashMap<String, InsertableIndex>, OperationOutcomeError> {
     let mut map = HashMap::new();
-    let mut dynamic_parameters = HashMap::new();
+    let mut dynamic_parameters = Vec::new();
     for param in parameters {
         if let Some(expression) = param
             .search_parameter
@@ -489,9 +489,17 @@ async fn resource_to_elastic_index(
                 ParameterLevel::System => {
                     map.insert(flatten_parameter_field_name(url), result_vec);
                 }
-                // Project Parameters are indexed using a single JS Object which gets indexed to
+                // Project (user-submitted) parameters are indexed under a single
+                // nested field with the URL stored as a plain value, since an
+                // arbitrary user-supplied URL can't safely become an
+                // Elasticsearch field name.
                 ParameterLevel::Project => {
-                    dynamic_parameters.insert(url.clone(), result_vec);
+                    let type_ = param.search_parameter.type_.as_str().unwrap_or("string");
+                    if let Some(entry) =
+                        DynamicParameterEntry::from_leaf(url.clone(), type_, result_vec)
+                    {
+                        dynamic_parameters.push(entry);
+                    }
                 }
             }
         }

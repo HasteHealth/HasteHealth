@@ -236,12 +236,27 @@ fn parameter_to_elasticsearch_clauses(
 
     match parameter.level {
         ParameterLevel::System => Ok(elastic_clause),
-        ParameterLevel::Project => Ok(json!({
-            "nested": {
-                "path": DYNAMIC_PARAMETER_INDEX_FIELD,
-                "query": elastic_clause
-            }
-        })),
+        // The `url` match and the type-specific value match must both land
+        // inside this one `nested` query's `bool.must`, so Elasticsearch
+        // requires them to be satisfied by the *same* `dynamic_parameters`
+        // entry rather than by any two entries independently.
+        ParameterLevel::Project => {
+            let url = search_param.url.value.as_deref().unwrap_or("");
+            let url_field = format!("{DYNAMIC_PARAMETER_INDEX_FIELD}.url");
+            Ok(json!({
+                "nested": {
+                    "path": DYNAMIC_PARAMETER_INDEX_FIELD,
+                    "query": {
+                        "bool": {
+                            "must": [
+                                { "term": { url_field: url } },
+                                elastic_clause
+                            ]
+                        }
+                    }
+                }
+            }))
+        }
     }
 }
 

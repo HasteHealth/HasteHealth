@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 /// Reference of conversions found here <https://www.hl7.org/fhir/R4/search.html#table>
 use haste_fhir_model::r4::{
     datetime::{Date, DateTime, Instant},
@@ -57,6 +55,91 @@ pub struct ReferenceIndex {
     uri: Option<String>,
 }
 
+/// The typed value slot of a project-level (user-submitted) search parameter,
+/// matching the fixed `dynamic_parameters.value.*` schema declared in the
+/// Elasticsearch mapping. Exactly one field is set, matching the parameter's
+/// `SearchParamType`. Unlike system-level parameters, a user-submitted
+/// parameter's URL is arbitrary and can't safely become an Elasticsearch
+/// field name (mapping explosion, plus Elasticsearch would silently collapse
+/// any dot in that URL into a nested object path) - so it's stored as the
+/// plain string value of the `url` field instead. See [`DynamicParameterEntry`].
+#[derive(Debug, Serialize, Deserialize, Default)]
+pub struct DynamicParameterValue {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub string: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub number: Option<Vec<f64>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub uri: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub token: Option<Vec<TokenIndex>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub date: Option<Vec<DateRange>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference: Option<Vec<ReferenceIndex>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub quantity: Option<Vec<QuantityRange>>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DynamicParameterEntry {
+    pub url: String,
+    #[serde(rename = "type")]
+    pub type_: String,
+    pub value: DynamicParameterValue,
+}
+
+impl DynamicParameterEntry {
+    /// Builds an entry from a search parameter's URL, its FHIR search
+    /// parameter type code (e.g. `"string"`, `"token"`), and the leaf
+    /// `InsertableIndex` produced for it. Returns `None` for the internal
+    /// (`Meta`, `Composite`, `Special`, `DynamicParameters`) variants, which
+    /// never occur as a single parameter's evaluated value.
+    #[must_use]
+    pub fn from_leaf(url: String, type_: &str, leaf: InsertableIndex) -> Option<Self> {
+        let value = match leaf {
+            InsertableIndex::String(v) => DynamicParameterValue {
+                string: Some(v),
+                ..Default::default()
+            },
+            InsertableIndex::Number(v) => DynamicParameterValue {
+                number: Some(v),
+                ..Default::default()
+            },
+            InsertableIndex::URI(v) => DynamicParameterValue {
+                uri: Some(v),
+                ..Default::default()
+            },
+            InsertableIndex::Token(v) => DynamicParameterValue {
+                token: Some(v),
+                ..Default::default()
+            },
+            InsertableIndex::Date(v) => DynamicParameterValue {
+                date: Some(v),
+                ..Default::default()
+            },
+            InsertableIndex::Reference(v) => DynamicParameterValue {
+                reference: Some(v),
+                ..Default::default()
+            },
+            InsertableIndex::Quantity(v) => DynamicParameterValue {
+                quantity: Some(v),
+                ..Default::default()
+            },
+            InsertableIndex::Meta(_)
+            | InsertableIndex::Composite(_)
+            | InsertableIndex::Special(_)
+            | InsertableIndex::DynamicParameters(_) => return None,
+        };
+
+        Some(DynamicParameterEntry {
+            url,
+            type_: type_.to_string(),
+            value,
+        })
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InsertableIndex {
@@ -72,7 +155,7 @@ pub enum InsertableIndex {
     Quantity(Vec<QuantityRange>),
     Composite(Vec<String>),
     Special(Vec<String>),
-    DynamicParameters(HashMap<String, InsertableIndex>),
+    DynamicParameters(Vec<DynamicParameterEntry>),
 }
 
 #[derive(OperationOutcomeError, Debug)]
