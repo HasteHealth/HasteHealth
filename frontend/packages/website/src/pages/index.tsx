@@ -261,10 +261,28 @@ export default function Home(): ReactNode {
   return (
     <Layout
       wrapperClassName="bg-background"
-      title={`Haste Health`}
-      description="The headless EHR: an open-source FHIR R4 platform that normalizes every healthcare data source into one API, built for AI agents, self-hosted under Apache-2.0."
+      title="Headless EHR & FHIR Clinical Data Repository"
+      description="The headless EHR: an open-source FHIR R4 clinical data repository that normalizes every healthcare data source into one API, built for AI agents via MCP, with OAuth2/SMART on FHIR built in. Self-hosted under Apache-2.0."
     >
       <meta name="algolia-site-verification" content="A94F28B6A640A6FE" />
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "Haste Health",
+          applicationCategory: "HealthApplication",
+          operatingSystem: "Linux, macOS, Windows (Docker)",
+          description:
+            "Open-source, self-hosted headless EHR and FHIR R4 clinical data repository that normalizes Epic, Cerner, HL7v2, and other healthcare data sources into one API for apps and AI agents. Built-in OAuth2 / SMART on FHIR authorization and MCP tools for AI agent access.",
+          url: "https://haste.health",
+          license: "https://www.apache.org/licenses/LICENSE-2.0",
+          offers: {
+            "@type": "Offer",
+            price: "0",
+            priceCurrency: "USD",
+          },
+        })}
+      </script>
       <main
         id="tw-scope"
         className="container mx-auto px-4 py-8 md:py-14 text-brand-950"

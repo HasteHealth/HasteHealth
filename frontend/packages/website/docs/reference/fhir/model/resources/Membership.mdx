@@ -1,6 +1,7 @@
 ---
 id: Membership
 title: Membership
+description: "Membership (FHIR R4 resource): A Membership resource is used to represent a user's membership in a project. This resource can link to an AccessPolicy reso…"
 hide_table_of_contents: true
 tags:
   - fhir
@@ -8,6 +9,7 @@ tags:
   - hl7
   - healthcare it
   - interoperability
+  - Membership
 ---
 
 import TabItem from "@theme/TabItem";
@@ -20,14 +22,26 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 
 
 <head>
-  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <title>Membership — FHIR R4 Resource Reference | Haste Health</title>
+  <meta name="description" content="Membership (FHIR R4 resource): A Membership resource is used to represent a user's membership in a project. This resource can link to an AccessPolicy reso…" />
+  <meta name="keywords" content="Membership, FHIR Membership, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/Membership" />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org/',
-      '@type': 'Organization',
-      name: 'Haste Health',
-      url: 'https://haste.health',
-      logo: 'https://haste.health/img/logo.svg',
+      '@type': 'DefinedTerm',
+      name: 'Membership',
+      description: "Membership (FHIR R4 resource): A Membership resource is used to represent a user's membership in a project. This resource can link to an AccessPolicy reso…",
+      url: 'https://haste.health/docs/reference/fhir/model/resources/Membership',
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'FHIR R4 Resource Reference',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Haste Health',
+          url: 'https://haste.health',
+        },
+      },
     })}
   </script>
 </head>
@@ -45,32 +59,12 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_id</span> <span> (token)</span>
+            <span class="font-semibold">Link</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>What/Who is associated with a given Membership.</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.id</code>
+              <code>Membership.link</code>
             </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_query</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
     </div>
     
 
@@ -82,30 +76,6 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
               <code>Resource.meta.tag</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
             </div>
     </div>
     
@@ -125,12 +95,10 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">Link</span> <span> (reference)</span>
+            <span class="font-semibold">_query</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>What/Who is associated with a given Membership.</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Membership.link</code>
-            </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
     </div>
     
 
@@ -149,10 +117,56 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
             <span class="font-semibold">_text</span> <span> (string)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
         
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
     </div>
     
 
@@ -171,11 +185,11 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
+              <code>Resource.meta.profile</code>
             </div>
     </div>
     

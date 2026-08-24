@@ -1,6 +1,7 @@
 ---
 id: Specimen
 title: Specimen
+description: "Specimen (FHIR R4 resource): Reference documentation for the FHIR R4 Specimen resource: structure, elements, and search parameters."
 hide_table_of_contents: true
 tags:
   - fhir
@@ -8,6 +9,7 @@ tags:
   - hl7
   - healthcare it
   - interoperability
+  - Specimen
 ---
 
 import TabItem from "@theme/TabItem";
@@ -20,14 +22,26 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 A sample to be used for analysis.
 
 <head>
-  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <title>Specimen — FHIR R4 Resource Reference | Haste Health</title>
+  <meta name="description" content="Specimen (FHIR R4 resource): Reference documentation for the FHIR R4 Specimen resource: structure, elements, and search parameters." />
+  <meta name="keywords" content="Specimen, FHIR Specimen, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/Specimen" />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org/',
-      '@type': 'Organization',
-      name: 'Haste Health',
-      url: 'https://haste.health',
-      logo: 'https://haste.health/img/logo.svg',
+      '@type': 'DefinedTerm',
+      name: 'Specimen',
+      description: "Specimen (FHIR R4 resource): Reference documentation for the FHIR R4 Specimen resource: structure, elements, and search parameters.",
+      url: 'https://haste.health/docs/reference/fhir/model/resources/Specimen',
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'FHIR R4 Resource Reference',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Haste Health',
+          url: 'https://haste.health',
+        },
+      },
     })}
   </script>
 </head>
@@ -45,127 +59,11 @@ A sample to be used for analysis.
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_id</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.id</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">collected</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The date the specimen was collected</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Specimen.collection.collected</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_query</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">parent</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The parent of the specimen</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Specimen.parent</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">status</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>available / unavailable / unsatisfactory / entered-in-error</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Specimen.status</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">container</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The kind of specimen container</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Specimen.container.type</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
             <span class="font-semibold">container-id</span> <span> (token)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>The unique identifier associated with the specimen container</span></div>
         <div class="line-clamp-3 truncate">
               <code>Specimen.container.identifier</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">collector</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Who collected the specimen</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Specimen.collection.collector</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">bodysite</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The code for the body site from where the specimen originated</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Specimen.collection.bodySite</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">subject</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The subject of the specimen</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Specimen.subject</code>
             </div>
     </div>
     
@@ -185,54 +83,6 @@ A sample to be used for analysis.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">accession</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The accession number associated with the specimen</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Specimen.accessionIdentifier</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">type</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The specimen type</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Specimen.type</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
             <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
@@ -245,11 +95,11 @@ A sample to be used for analysis.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">identifier</span> <span> (token)</span>
+            <span class="font-semibold">collector</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The unique identifier associated with the specimen</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Who collected the specimen</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Specimen.identifier</code>
+              <code>Specimen.collection.collector</code>
             </div>
     </div>
     
@@ -257,11 +107,21 @@ A sample to be used for analysis.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">patient</span> <span> (reference)</span>
+            <span class="font-semibold">_query</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The patient the specimen comes from</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Specimen.subject.where(resolve() is Patient)</code>
+              <code>Resource.id</code>
             </div>
     </div>
     
@@ -279,11 +139,45 @@ A sample to be used for analysis.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+            <span class="font-semibold">container</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The kind of specimen container</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+              <code>Specimen.container.type</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">collected</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The date the specimen was collected</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Specimen.collection.collected</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The unique identifier associated with the specimen</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Specimen.identifier</code>
             </div>
     </div>
     
@@ -303,11 +197,131 @@ A sample to be used for analysis.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">bodysite</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The code for the body site from where the specimen originated</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Specimen.collection.bodySite</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">parent</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The parent of the specimen</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Specimen.parent</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The specimen type</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Specimen.type</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">status</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>available / unavailable / unsatisfactory / entered-in-error</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Specimen.status</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">patient</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The patient the specimen comes from</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Specimen.subject.where(resolve() is Patient)</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">accession</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The accession number associated with the specimen</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Specimen.accessionIdentifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
             <span class="font-semibold">_source</span> <span> (uri)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
         <div class="line-clamp-3 truncate">
               <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">subject</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The subject of the specimen</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Specimen.subject</code>
             </div>
     </div>
     

@@ -1,4 +1,8 @@
 {
     "label": "Terminology",
-    "key": "api-rest-api-terminology"
+    "key": "api-rest-api-terminology",
+    "link": {
+        "type": "generated-index",
+        "description": "Reference for FHIR terminology operations, including ValueSet expansion and code validation."
+    }
 }

@@ -44,7 +44,7 @@ export default function Contact(): ReactNode {
     <Layout
       wrapperClassName="bg-background"
       title="Contact"
-      description="Get in touch with the Haste Health team."
+      description="Get in touch with the Haste Health team about business partnerships, developer support for the open-source FHIR server and MCP tools, or security disclosures."
     >
       <main
         id="tw-scope"

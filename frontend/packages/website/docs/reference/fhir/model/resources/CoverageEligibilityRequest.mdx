@@ -1,6 +1,7 @@
 ---
 id: CoverageEligibilityRequest
 title: CoverageEligibilityRequest
+description: "CoverageEligibilityRequest (FHIR R4 resource): Reference documentation for the FHIR R4 CoverageEligibilityRequest resource: structure, elements, and searc…"
 hide_table_of_contents: true
 tags:
   - fhir
@@ -8,6 +9,7 @@ tags:
   - hl7
   - healthcare it
   - interoperability
+  - CoverageEligibilityRequest
 ---
 
 import TabItem from "@theme/TabItem";
@@ -20,14 +22,26 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 The CoverageEligibilityRequest provides patient and insurance coverage information to an insurer for them to respond, in the form of an CoverageEligibilityResponse, with information regarding whether the stated coverage is valid and in-force and optionally to provide the insurance details of the policy.
 
 <head>
-  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <title>CoverageEligibilityRequest — FHIR R4 Resource Reference | Haste Health</title>
+  <meta name="description" content="CoverageEligibilityRequest (FHIR R4 resource): Reference documentation for the FHIR R4 CoverageEligibilityRequest resource: structure, elements, and searc…" />
+  <meta name="keywords" content="CoverageEligibilityRequest, FHIR CoverageEligibilityRequest, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/CoverageEligibilityRequest" />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org/',
-      '@type': 'Organization',
-      name: 'Haste Health',
-      url: 'https://haste.health',
-      logo: 'https://haste.health/img/logo.svg',
+      '@type': 'DefinedTerm',
+      name: 'CoverageEligibilityRequest',
+      description: "CoverageEligibilityRequest (FHIR R4 resource): Reference documentation for the FHIR R4 CoverageEligibilityRequest resource: structure, elements, and searc…",
+      url: 'https://haste.health/docs/reference/fhir/model/resources/CoverageEligibilityRequest',
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'FHIR R4 Resource Reference',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Haste Health',
+          url: 'https://haste.health',
+        },
+      },
     })}
   </script>
 </head>
@@ -45,91 +59,11 @@ The CoverageEligibilityRequest provides patient and insurance coverage informati
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_id</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.id</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_query</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
             <span class="font-semibold">provider</span> <span> (reference)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>The reference to the provider</span></div>
         <div class="line-clamp-3 truncate">
               <code>CoverageEligibilityRequest.provider</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_tag</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.tag</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.lastUpdated</code>
             </div>
     </div>
     
@@ -149,11 +83,89 @@ The CoverageEligibilityRequest provides patient and insurance coverage informati
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">enterer</span> <span> (reference)</span>
+            <span class="font-semibold">_tag</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The party who is responsible for the request</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>CoverageEligibilityRequest.enterer</code>
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">created</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The creation date for the EOB</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CoverageEligibilityRequest.created</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
             </div>
     </div>
     
@@ -173,11 +185,11 @@ The CoverageEligibilityRequest provides patient and insurance coverage informati
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">facility</span> <span> (reference)</span>
+            <span class="font-semibold">_type</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Facility responsible for the goods and services</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>CoverageEligibilityRequest.facility</code>
+              <code>$this.type().name</code>
             </div>
     </div>
     
@@ -185,21 +197,11 @@ The CoverageEligibilityRequest provides patient and insurance coverage informati
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
+            <span class="font-semibold">enterer</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">identifier</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The business identifier of the Eligibility</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The party who is responsible for the request</span></div>
         <div class="line-clamp-3 truncate">
-              <code>CoverageEligibilityRequest.identifier</code>
+              <code>CoverageEligibilityRequest.enterer</code>
             </div>
     </div>
     
@@ -219,11 +221,11 @@ The CoverageEligibilityRequest provides patient and insurance coverage informati
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">created</span> <span> (date)</span>
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The creation date for the EOB</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
         <div class="line-clamp-3 truncate">
-              <code>CoverageEligibilityRequest.created</code>
+              <code>Resource.meta.profile</code>
             </div>
     </div>
     
@@ -231,11 +233,11 @@ The CoverageEligibilityRequest provides patient and insurance coverage informati
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
+            <span class="font-semibold">identifier</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The business identifier of the Eligibility</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
+              <code>CoverageEligibilityRequest.identifier</code>
             </div>
     </div>
     
@@ -248,6 +250,18 @@ The CoverageEligibilityRequest provides patient and insurance coverage informati
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
         <div class="line-clamp-3 truncate">
               <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">facility</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Facility responsible for the goods and services</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CoverageEligibilityRequest.facility</code>
             </div>
     </div>
     

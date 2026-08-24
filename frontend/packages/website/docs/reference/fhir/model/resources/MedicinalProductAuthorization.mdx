@@ -1,6 +1,7 @@
 ---
 id: MedicinalProductAuthorization
 title: MedicinalProductAuthorization
+description: "MedicinalProductAuthorization (FHIR R4 resource): Reference documentation for the FHIR R4 MedicinalProductAuthorization resource: structure, elements, and…"
 hide_table_of_contents: true
 tags:
   - fhir
@@ -8,6 +9,7 @@ tags:
   - hl7
   - healthcare it
   - interoperability
+  - MedicinalProductAuthorization
 ---
 
 import TabItem from "@theme/TabItem";
@@ -20,14 +22,26 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 The regulatory authorization of a medicinal product.
 
 <head>
-  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <title>MedicinalProductAuthorization — FHIR R4 Resource Reference | Haste Health</title>
+  <meta name="description" content="MedicinalProductAuthorization (FHIR R4 resource): Reference documentation for the FHIR R4 MedicinalProductAuthorization resource: structure, elements, and…" />
+  <meta name="keywords" content="MedicinalProductAuthorization, FHIR MedicinalProductAuthorization, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/MedicinalProductAuthorization" />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org/',
-      '@type': 'Organization',
-      name: 'Haste Health',
-      url: 'https://haste.health',
-      logo: 'https://haste.health/img/logo.svg',
+      '@type': 'DefinedTerm',
+      name: 'MedicinalProductAuthorization',
+      description: "MedicinalProductAuthorization (FHIR R4 resource): Reference documentation for the FHIR R4 MedicinalProductAuthorization resource: structure, elements, and…",
+      url: 'https://haste.health/docs/reference/fhir/model/resources/MedicinalProductAuthorization',
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'FHIR R4 Resource Reference',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Haste Health',
+          url: 'https://haste.health',
+        },
+      },
     })}
   </script>
 </head>
@@ -45,55 +59,11 @@ The regulatory authorization of a medicinal product.
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_id</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.id</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_query</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
             <span class="font-semibold">subject</span> <span> (reference)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>The medicinal product that is being authorized</span></div>
         <div class="line-clamp-3 truncate">
               <code>MedicinalProductAuthorization.subject</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">status</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The status of the marketing authorization</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>MedicinalProductAuthorization.status</code>
             </div>
     </div>
     
@@ -113,11 +83,11 @@ The regulatory authorization of a medicinal product.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
         <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
+              <code>Resource.meta.lastUpdated</code>
             </div>
     </div>
     
@@ -125,12 +95,44 @@ The regulatory authorization of a medicinal product.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
+            <span class="font-semibold">_query</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">status</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The status of the marketing authorization</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
+              <code>MedicinalProductAuthorization.status</code>
             </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
     </div>
     
 
@@ -149,11 +151,45 @@ The regulatory authorization of a medicinal product.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+            <span class="font-semibold">_content</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.lastUpdated</code>
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
             </div>
     </div>
     
@@ -173,45 +209,23 @@ The regulatory authorization of a medicinal product.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
             <span class="font-semibold">identifier</span> <span> (token)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Business identifier for the marketing authorization, as assigned by a regulator</span></div>
         <div class="line-clamp-3 truncate">
               <code>MedicinalProductAuthorization.identifier</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
             </div>
     </div>
     

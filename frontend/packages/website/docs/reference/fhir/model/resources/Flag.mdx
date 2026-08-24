@@ -1,6 +1,7 @@
 ---
 id: Flag
 title: Flag
+description: "Flag (FHIR R4 resource): Reference documentation for the FHIR R4 Flag resource: structure, elements, and search parameters."
 hide_table_of_contents: true
 tags:
   - fhir
@@ -8,6 +9,7 @@ tags:
   - hl7
   - healthcare it
   - interoperability
+  - Flag
 ---
 
 import TabItem from "@theme/TabItem";
@@ -20,14 +22,26 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 Prospective warnings of potential issues when providing care to the patient.
 
 <head>
-  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <title>Flag — FHIR R4 Resource Reference | Haste Health</title>
+  <meta name="description" content="Flag (FHIR R4 resource): Reference documentation for the FHIR R4 Flag resource: structure, elements, and search parameters." />
+  <meta name="keywords" content="Flag, FHIR Flag, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/Flag" />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org/',
-      '@type': 'Organization',
-      name: 'Haste Health',
-      url: 'https://haste.health',
-      logo: 'https://haste.health/img/logo.svg',
+      '@type': 'DefinedTerm',
+      name: 'Flag',
+      description: "Flag (FHIR R4 resource): Reference documentation for the FHIR R4 Flag resource: structure, elements, and search parameters.",
+      url: 'https://haste.health/docs/reference/fhir/model/resources/Flag',
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'FHIR R4 Resource Reference',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Haste Health',
+          url: 'https://haste.health',
+        },
+      },
     })}
   </script>
 </head>
@@ -45,11 +59,47 @@ Prospective warnings of potential issues when providing care to the patient.
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_id</span> <span> (token)</span>
+            <span class="font-semibold">identifier</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Business identifier</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.id</code>
+              <code>Flag.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">encounter</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BComposition%5D%28composition.html%29: Context of the Composition* %5BDeviceRequest%5D%28devicerequest.html%29: Encounter during which request was created* %5BDiagnosticReport%5D%28diagnosticreport.html%29: The Encounter when the order was made* %5BDocumentReference%5D%28documentreference.html%29: Context of the document  content* %5BFlag%5D%28flag.html%29: Alert relevant during encounter* %5BList%5D%28list.html%29: Context in which list created* %5BNutritionOrder%5D%28nutritionorder.html%29: Return nutrition orders with this encounter identifier* %5BObservation%5D%28observation.html%29: Encounter related to the observation* %5BProcedure%5D%28procedure.html%29: Encounter created as part of* %5BRiskAssessment%5D%28riskassessment.html%29: Where was assessment performed?* %5BServiceRequest%5D%28servicerequest.html%29: An encounter in which this request is made* %5BVisionPrescription%5D%28visionprescription.html%29: Return prescriptions with this encounter identifier</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Composition.encounter / DeviceRequest.encounter / DiagnosticReport.encounter / DocumentReference.context.encounter / Flag.encounter / List.encounter / NutritionOrder.encounter / Observation.encounter / Procedure.encounter / RiskAssessment.encounter / ServiceRequest.encounter / VisionPrescription.encounter</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
             </div>
     </div>
     
@@ -67,11 +117,11 @@ Prospective warnings of potential issues when providing care to the patient.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">patient</span> <span> (reference)</span>
+            <span class="font-semibold">_id</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BAllergyIntolerance%5D%28allergyintolerance.html%29: Who the sensitivity is for* %5BCarePlan%5D%28careplan.html%29: Who the care plan is for* %5BCareTeam%5D%28careteam.html%29: Who care team is for* %5BClinicalImpression%5D%28clinicalimpression.html%29: Patient or group assessed* %5BComposition%5D%28composition.html%29: Who and/or what the composition is about* %5BCondition%5D%28condition.html%29: Who has the condition?* %5BConsent%5D%28consent.html%29: Who the consent applies to* %5BDetectedIssue%5D%28detectedissue.html%29: Associated patient* %5BDeviceRequest%5D%28devicerequest.html%29: Individual the service is ordered for* %5BDeviceUseStatement%5D%28deviceusestatement.html%29: Search by subject - a patient* %5BDiagnosticReport%5D%28diagnosticreport.html%29: The subject of the report if a patient* %5BDocumentManifest%5D%28documentmanifest.html%29: The subject of the set of documents* %5BDocumentReference%5D%28documentreference.html%29: Who/what is the subject of the document* %5BEncounter%5D%28encounter.html%29: The patient or group present at the encounter* %5BEpisodeOfCare%5D%28episodeofcare.html%29: The patient who is the focus of this episode of care* %5BFamilyMemberHistory%5D%28familymemberhistory.html%29: The identity of a subject to list family member history items for* %5BFlag%5D%28flag.html%29: The identity of a subject to list flags for* %5BGoal%5D%28goal.html%29: Who this goal is intended for* %5BImagingStudy%5D%28imagingstudy.html%29: Who the study is about* %5BImmunization%5D%28immunization.html%29: The patient for the vaccination record* %5BList%5D%28list.html%29: If all resources have the same subject* %5BMedicationAdministration%5D%28medicationadministration.html%29: The identity of a patient to list administrations  for* %5BMedicationDispense%5D%28medicationdispense.html%29: The identity of a patient to list dispenses  for* %5BMedicationRequest%5D%28medicationrequest.html%29: Returns prescriptions for a specific patient* %5BMedicationStatement%5D%28medicationstatement.html%29: Returns statements for a specific patient.* %5BNutritionOrder%5D%28nutritionorder.html%29: The identity of the person who requires the diet, formula or nutritional supplement* %5BObservation%5D%28observation.html%29: The subject that the observation is about %28if patient%29* %5BProcedure%5D%28procedure.html%29: Search by subject - a patient* %5BRiskAssessment%5D%28riskassessment.html%29: Who/what does assessment apply to?* %5BServiceRequest%5D%28servicerequest.html%29: Search by subject - a patient* %5BSupplyDelivery%5D%28supplydelivery.html%29: Patient for whom the item is supplied* %5BVisionPrescription%5D%28visionprescription.html%29: The identity of a patient to list dispenses for</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
         <div class="line-clamp-3 truncate">
-              <code>AllergyIntolerance.patient / CarePlan.subject.where(resolve() is Patient) / CareTeam.subject.where(resolve() is Patient) / ClinicalImpression.subject.where(resolve() is Patient) / Composition.subject.where(resolve() is Patient) / Condition.subject.where(resolve() is Patient) / Consent.patient / DetectedIssue.patient / DeviceRequest.subject.where(resolve() is Patient) / DeviceUseStatement.subject / DiagnosticReport.subject.where(resolve() is Patient) / DocumentManifest.subject.where(resolve() is Patient) / DocumentReference.subject.where(resolve() is Patient) / Encounter.subject.where(resolve() is Patient) / EpisodeOfCare.patient / FamilyMemberHistory.patient / Flag.subject.where(resolve() is Patient) / Goal.subject.where(resolve() is Patient) / ImagingStudy.subject.where(resolve() is Patient) / Immunization.patient / List.subject.where(resolve() is Patient) / MedicationAdministration.subject.where(resolve() is Patient) / MedicationDispense.subject.where(resolve() is Patient) / MedicationRequest.subject.where(resolve() is Patient) / MedicationStatement.subject.where(resolve() is Patient) / NutritionOrder.patient / Observation.subject.where(resolve() is Patient) / Procedure.subject.where(resolve() is Patient) / RiskAssessment.subject.where(resolve() is Patient) / ServiceRequest.subject.where(resolve() is Patient) / SupplyDelivery.patient / VisionPrescription.patient</code>
+              <code>Resource.id</code>
             </div>
     </div>
     
@@ -79,11 +129,21 @@ Prospective warnings of potential issues when providing care to the patient.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">identifier</span> <span> (token)</span>
+            <span class="font-semibold">_text</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Business identifier</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">author</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Flag creator</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Flag.identifier</code>
+              <code>Flag.author</code>
             </div>
     </div>
     
@@ -113,23 +173,11 @@ Prospective warnings of potential issues when providing care to the patient.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_tag</span> <span> (token)</span>
+            <span class="font-semibold">_security</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.tag</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">date</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BAllergyIntolerance%5D%28allergyintolerance.html%29: Date first version of the resource instance was recorded* %5BCarePlan%5D%28careplan.html%29: Time period plan covers* %5BCareTeam%5D%28careteam.html%29: Time period team covers* %5BClinicalImpression%5D%28clinicalimpression.html%29: When the assessment was documented* %5BComposition%5D%28composition.html%29: Composition editing time* %5BConsent%5D%28consent.html%29: When this Consent was created or indexed* %5BDiagnosticReport%5D%28diagnosticreport.html%29: The clinically relevant time of the report* %5BEncounter%5D%28encounter.html%29: A date within the period the Encounter lasted* %5BEpisodeOfCare%5D%28episodeofcare.html%29: The provided date search value falls within the episode of care's period* %5BFamilyMemberHistory%5D%28familymemberhistory.html%29: When history was recorded or last updated* %5BFlag%5D%28flag.html%29: Time period when flag is active* %5BImmunization%5D%28immunization.html%29: Vaccination  %28non%29-Administration Date* %5BList%5D%28list.html%29: When the list was prepared* %5BObservation%5D%28observation.html%29: Obtained date/time. If the obtained element is a period, a date that falls in the period* %5BProcedure%5D%28procedure.html%29: When the procedure was performed* %5BRiskAssessment%5D%28riskassessment.html%29: When was assessment made?* %5BSupplyRequest%5D%28supplyrequest.html%29: When the request was made</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>AllergyIntolerance.recordedDate / CarePlan.period / CareTeam.period / ClinicalImpression.date / Composition.date / Consent.dateTime / DiagnosticReport.effective / Encounter.period / EpisodeOfCare.period / FamilyMemberHistory.date / Flag.period / Immunization.occurrence / List.date / Observation.effective / Procedure.performed / (RiskAssessment.occurrence.ofType(dateTime)) / SupplyRequest.authoredOn</code>
+              <code>Resource.meta.security</code>
             </div>
     </div>
     
@@ -149,64 +197,6 @@ Prospective warnings of potential issues when providing care to the patient.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">author</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Flag creator</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Flag.author</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.lastUpdated</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">encounter</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BComposition%5D%28composition.html%29: Context of the Composition* %5BDeviceRequest%5D%28devicerequest.html%29: Encounter during which request was created* %5BDiagnosticReport%5D%28diagnosticreport.html%29: The Encounter when the order was made* %5BDocumentReference%5D%28documentreference.html%29: Context of the document  content* %5BFlag%5D%28flag.html%29: Alert relevant during encounter* %5BList%5D%28list.html%29: Context in which list created* %5BNutritionOrder%5D%28nutritionorder.html%29: Return nutrition orders with this encounter identifier* %5BObservation%5D%28observation.html%29: Encounter related to the observation* %5BProcedure%5D%28procedure.html%29: Encounter created as part of* %5BRiskAssessment%5D%28riskassessment.html%29: Where was assessment performed?* %5BServiceRequest%5D%28servicerequest.html%29: An encounter in which this request is made* %5BVisionPrescription%5D%28visionprescription.html%29: Return prescriptions with this encounter identifier</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Composition.encounter / DeviceRequest.encounter / DiagnosticReport.encounter / DocumentReference.context.encounter / Flag.encounter / List.encounter / NutritionOrder.encounter / Observation.encounter / Procedure.encounter / RiskAssessment.encounter / ServiceRequest.encounter / VisionPrescription.encounter</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
             <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
@@ -219,11 +209,23 @@ Prospective warnings of potential issues when providing care to the patient.
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">date</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BAllergyIntolerance%5D%28allergyintolerance.html%29: Date first version of the resource instance was recorded* %5BCarePlan%5D%28careplan.html%29: Time period plan covers* %5BCareTeam%5D%28careteam.html%29: Time period team covers* %5BClinicalImpression%5D%28clinicalimpression.html%29: When the assessment was documented* %5BComposition%5D%28composition.html%29: Composition editing time* %5BConsent%5D%28consent.html%29: When this Consent was created or indexed* %5BDiagnosticReport%5D%28diagnosticreport.html%29: The clinically relevant time of the report* %5BEncounter%5D%28encounter.html%29: A date within the period the Encounter lasted* %5BEpisodeOfCare%5D%28episodeofcare.html%29: The provided date search value falls within the episode of care's period* %5BFamilyMemberHistory%5D%28familymemberhistory.html%29: When history was recorded or last updated* %5BFlag%5D%28flag.html%29: Time period when flag is active* %5BImmunization%5D%28immunization.html%29: Vaccination  %28non%29-Administration Date* %5BList%5D%28list.html%29: When the list was prepared* %5BObservation%5D%28observation.html%29: Obtained date/time. If the obtained element is a period, a date that falls in the period* %5BProcedure%5D%28procedure.html%29: When the procedure was performed* %5BRiskAssessment%5D%28riskassessment.html%29: When was assessment made?* %5BSupplyRequest%5D%28supplyrequest.html%29: When the request was made</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AllergyIntolerance.recordedDate / CarePlan.period / CareTeam.period / ClinicalImpression.date / Composition.date / Consent.dateTime / DiagnosticReport.effective / Encounter.period / EpisodeOfCare.period / FamilyMemberHistory.date / Flag.period / Immunization.occurrence / List.date / Observation.effective / Procedure.performed / (RiskAssessment.occurrence.ofType(dateTime)) / SupplyRequest.authoredOn</code>
             </div>
     </div>
     
@@ -236,6 +238,18 @@ Prospective warnings of potential issues when providing care to the patient.
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
         <div class="line-clamp-3 truncate">
               <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">patient</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BAllergyIntolerance%5D%28allergyintolerance.html%29: Who the sensitivity is for* %5BCarePlan%5D%28careplan.html%29: Who the care plan is for* %5BCareTeam%5D%28careteam.html%29: Who care team is for* %5BClinicalImpression%5D%28clinicalimpression.html%29: Patient or group assessed* %5BComposition%5D%28composition.html%29: Who and/or what the composition is about* %5BCondition%5D%28condition.html%29: Who has the condition?* %5BConsent%5D%28consent.html%29: Who the consent applies to* %5BDetectedIssue%5D%28detectedissue.html%29: Associated patient* %5BDeviceRequest%5D%28devicerequest.html%29: Individual the service is ordered for* %5BDeviceUseStatement%5D%28deviceusestatement.html%29: Search by subject - a patient* %5BDiagnosticReport%5D%28diagnosticreport.html%29: The subject of the report if a patient* %5BDocumentManifest%5D%28documentmanifest.html%29: The subject of the set of documents* %5BDocumentReference%5D%28documentreference.html%29: Who/what is the subject of the document* %5BEncounter%5D%28encounter.html%29: The patient or group present at the encounter* %5BEpisodeOfCare%5D%28episodeofcare.html%29: The patient who is the focus of this episode of care* %5BFamilyMemberHistory%5D%28familymemberhistory.html%29: The identity of a subject to list family member history items for* %5BFlag%5D%28flag.html%29: The identity of a subject to list flags for* %5BGoal%5D%28goal.html%29: Who this goal is intended for* %5BImagingStudy%5D%28imagingstudy.html%29: Who the study is about* %5BImmunization%5D%28immunization.html%29: The patient for the vaccination record* %5BList%5D%28list.html%29: If all resources have the same subject* %5BMedicationAdministration%5D%28medicationadministration.html%29: The identity of a patient to list administrations  for* %5BMedicationDispense%5D%28medicationdispense.html%29: The identity of a patient to list dispenses  for* %5BMedicationRequest%5D%28medicationrequest.html%29: Returns prescriptions for a specific patient* %5BMedicationStatement%5D%28medicationstatement.html%29: Returns statements for a specific patient.* %5BNutritionOrder%5D%28nutritionorder.html%29: The identity of the person who requires the diet, formula or nutritional supplement* %5BObservation%5D%28observation.html%29: The subject that the observation is about %28if patient%29* %5BProcedure%5D%28procedure.html%29: Search by subject - a patient* %5BRiskAssessment%5D%28riskassessment.html%29: Who/what does assessment apply to?* %5BServiceRequest%5D%28servicerequest.html%29: Search by subject - a patient* %5BSupplyDelivery%5D%28supplydelivery.html%29: Patient for whom the item is supplied* %5BVisionPrescription%5D%28visionprescription.html%29: The identity of a patient to list dispenses for</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AllergyIntolerance.patient / CarePlan.subject.where(resolve() is Patient) / CareTeam.subject.where(resolve() is Patient) / ClinicalImpression.subject.where(resolve() is Patient) / Composition.subject.where(resolve() is Patient) / Condition.subject.where(resolve() is Patient) / Consent.patient / DetectedIssue.patient / DeviceRequest.subject.where(resolve() is Patient) / DeviceUseStatement.subject / DiagnosticReport.subject.where(resolve() is Patient) / DocumentManifest.subject.where(resolve() is Patient) / DocumentReference.subject.where(resolve() is Patient) / Encounter.subject.where(resolve() is Patient) / EpisodeOfCare.patient / FamilyMemberHistory.patient / Flag.subject.where(resolve() is Patient) / Goal.subject.where(resolve() is Patient) / ImagingStudy.subject.where(resolve() is Patient) / Immunization.patient / List.subject.where(resolve() is Patient) / MedicationAdministration.subject.where(resolve() is Patient) / MedicationDispense.subject.where(resolve() is Patient) / MedicationRequest.subject.where(resolve() is Patient) / MedicationStatement.subject.where(resolve() is Patient) / NutritionOrder.patient / Observation.subject.where(resolve() is Patient) / Procedure.subject.where(resolve() is Patient) / RiskAssessment.subject.where(resolve() is Patient) / ServiceRequest.subject.where(resolve() is Patient) / SupplyDelivery.patient / VisionPrescription.patient</code>
             </div>
     </div>
     

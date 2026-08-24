@@ -1,4 +1,8 @@
 {
     "label": "Authentication",
-    "key": "api-authentication"
+    "key": "api-authentication",
+    "link": {
+        "type": "generated-index",
+        "description": "Documentation on OAuth 2.0 authentication, client registration, federated login, and SMART on FHIR in Haste Health."
+    }
 }

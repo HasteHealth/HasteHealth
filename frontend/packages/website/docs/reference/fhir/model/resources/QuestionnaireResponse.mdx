@@ -1,6 +1,7 @@
 ---
 id: QuestionnaireResponse
 title: QuestionnaireResponse
+description: "QuestionnaireResponse (FHIR R4 resource): Reference documentation for the FHIR R4 QuestionnaireResponse resource: structure, elements, and search paramete…"
 hide_table_of_contents: true
 tags:
   - fhir
@@ -8,6 +9,7 @@ tags:
   - hl7
   - healthcare it
   - interoperability
+  - QuestionnaireResponse
 ---
 
 import TabItem from "@theme/TabItem";
@@ -20,14 +22,26 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 A structured set of questions and their answers. The questions are ordered and grouped into coherent subsets, corresponding to the structure of the grouping of the questionnaire being responded to.
 
 <head>
-  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <title>QuestionnaireResponse — FHIR R4 Resource Reference | Haste Health</title>
+  <meta name="description" content="QuestionnaireResponse (FHIR R4 resource): Reference documentation for the FHIR R4 QuestionnaireResponse resource: structure, elements, and search paramete…" />
+  <meta name="keywords" content="QuestionnaireResponse, FHIR QuestionnaireResponse, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/QuestionnaireResponse" />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org/',
-      '@type': 'Organization',
-      name: 'Haste Health',
-      url: 'https://haste.health',
-      logo: 'https://haste.health/img/logo.svg',
+      '@type': 'DefinedTerm',
+      name: 'QuestionnaireResponse',
+      description: "QuestionnaireResponse (FHIR R4 resource): Reference documentation for the FHIR R4 QuestionnaireResponse resource: structure, elements, and search paramete…",
+      url: 'https://haste.health/docs/reference/fhir/model/resources/QuestionnaireResponse',
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'FHIR R4 Resource Reference',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Haste Health',
+          url: 'https://haste.health',
+        },
+      },
     })}
   </script>
 </head>
@@ -45,11 +59,35 @@ A structured set of questions and their answers. The questions are ordered and g
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_id</span> <span> (token)</span>
+            <span class="font-semibold">authored</span> <span> (date)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the questionnaire response was last changed</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.id</code>
+              <code>QuestionnaireResponse.authored</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
             </div>
     </div>
     
@@ -79,57 +117,11 @@ A structured set of questions and their answers. The questions are ordered and g
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
+            <span class="font-semibold">source</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">status</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The status of the questionnaire response</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The individual providing the information reflected in the questionnaire respose</span></div>
         <div class="line-clamp-3 truncate">
-              <code>QuestionnaireResponse.status</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">authored</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the questionnaire response was last changed</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>QuestionnaireResponse.authored</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">encounter</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Encounter associated with the questionnaire response</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>QuestionnaireResponse.encounter</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_tag</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.tag</code>
+              <code>QuestionnaireResponse.source</code>
             </div>
     </div>
     
@@ -149,11 +141,11 @@ A structured set of questions and their answers. The questions are ordered and g
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
+            <span class="font-semibold">_id</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
         <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
+              <code>Resource.id</code>
             </div>
     </div>
     
@@ -161,60 +153,10 @@ A structured set of questions and their answers. The questions are ordered and g
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
+            <span class="font-semibold">_text</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.lastUpdated</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">subject</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The subject of the questionnaire response</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>QuestionnaireResponse.subject</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">source</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The individual providing the information reflected in the questionnaire respose</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>QuestionnaireResponse.source</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">questionnaire</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The questionnaire the answers are provided for</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>QuestionnaireResponse.questionnaire</code>
-            </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
     </div>
     
 
@@ -226,6 +168,28 @@ A structured set of questions and their answers. The questions are ordered and g
         <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the questionnaire response</span></div>
         <div class="line-clamp-3 truncate">
               <code>QuestionnaireResponse.author</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
             </div>
     </div>
     
@@ -245,11 +209,11 @@ A structured set of questions and their answers. The questions are ordered and g
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">patient</span> <span> (reference)</span>
+            <span class="font-semibold">_type</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The patient that is the subject of the questionnaire response</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
         <div class="line-clamp-3 truncate">
-              <code>QuestionnaireResponse.subject.where(resolve() is Patient)</code>
+              <code>$this.type().name</code>
             </div>
     </div>
     
@@ -257,10 +221,12 @@ A structured set of questions and their answers. The questions are ordered and g
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
+            <span class="font-semibold">status</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The status of the questionnaire response</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>QuestionnaireResponse.status</code>
+            </div>
     </div>
     
 
@@ -279,11 +245,47 @@ A structured set of questions and their answers. The questions are ordered and g
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
+            <span class="font-semibold">patient</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The patient that is the subject of the questionnaire response</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
+              <code>QuestionnaireResponse.subject.where(resolve() is Patient)</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">subject</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The subject of the questionnaire response</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>QuestionnaireResponse.subject</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">encounter</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Encounter associated with the questionnaire response</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>QuestionnaireResponse.encounter</code>
             </div>
     </div>
     
@@ -296,6 +298,18 @@ A structured set of questions and their answers. The questions are ordered and g
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
         <div class="line-clamp-3 truncate">
               <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">questionnaire</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The questionnaire the answers are provided for</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>QuestionnaireResponse.questionnaire</code>
             </div>
     </div>
     

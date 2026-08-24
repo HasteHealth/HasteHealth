@@ -1,6 +1,7 @@
 ---
 id: Group
 title: Group
+description: "Group (FHIR R4 resource): Reference documentation for the FHIR R4 Group resource: structure, elements, and search parameters."
 hide_table_of_contents: true
 tags:
   - fhir
@@ -8,6 +9,7 @@ tags:
   - hl7
   - healthcare it
   - interoperability
+  - Group
 ---
 
 import TabItem from "@theme/TabItem";
@@ -20,14 +22,26 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 Represents a defined collection of entities that may be discussed or acted upon collectively but which are not expected to act collectively, and are not formally or legally recognized; i.e. a collection of entities that isn't an Organization.
 
 <head>
-  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <title>Group — FHIR R4 Resource Reference | Haste Health</title>
+  <meta name="description" content="Group (FHIR R4 resource): Reference documentation for the FHIR R4 Group resource: structure, elements, and search parameters." />
+  <meta name="keywords" content="Group, FHIR Group, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/Group" />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org/',
-      '@type': 'Organization',
-      name: 'Haste Health',
-      url: 'https://haste.health',
-      logo: 'https://haste.health/img/logo.svg',
+      '@type': 'DefinedTerm',
+      name: 'Group',
+      description: "Group (FHIR R4 resource): Reference documentation for the FHIR R4 Group resource: structure, elements, and search parameters.",
+      url: 'https://haste.health/docs/reference/fhir/model/resources/Group',
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'FHIR R4 Resource Reference',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Haste Health',
+          url: 'https://haste.health',
+        },
+      },
     })}
   </script>
 </head>
@@ -45,79 +59,11 @@ Represents a defined collection of entities that may be discussed or acted upon 
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_id</span> <span> (token)</span>
+            <span class="font-semibold">exclude</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Group includes or excludes</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.id</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">code</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The kind of resources contained</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Group.code</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_query</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_content</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">value</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Value held by characteristic</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>(Group.characteristic.value.ofType(CodeableConcept)) / (Group.characteristic.value.ofType(boolean))</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_tag</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.tag</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">actual</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Descriptive or actual</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Group.actual</code>
+              <code>Group.characteristic.exclude</code>
             </div>
     </div>
     
@@ -137,11 +83,11 @@ Represents a defined collection of entities that may be discussed or acted upon 
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_type</span> <span> (token)</span>
+            <span class="font-semibold">member</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Reference to the group member</span></div>
         <div class="line-clamp-3 truncate">
-              <code>$this.type().name</code>
+              <code>Group.member.entity</code>
             </div>
     </div>
     
@@ -149,23 +95,11 @@ Represents a defined collection of entities that may be discussed or acted upon 
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
+            <span class="font-semibold">_tag</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">identifier</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Unique id</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Group.identifier</code>
+              <code>Resource.meta.tag</code>
             </div>
     </div>
     
@@ -185,6 +119,96 @@ Represents a defined collection of entities that may be discussed or acted upon 
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">actual</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Descriptive or actual</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Group.actual</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">code</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The kind of resources contained</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Group.code</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
             <span class="font-semibold">managing-entity</span> <span> (reference)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Entity that is the custodian of the Group's definition</span></div>
@@ -197,11 +221,11 @@ Represents a defined collection of entities that may be discussed or acted upon 
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">characteristic-value</span> <span> (composite)</span>
+            <span class="font-semibold">value</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A composite of both characteristic and value</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Value held by characteristic</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Group.characteristic</code>
+              <code>(Group.characteristic.value.ofType(CodeableConcept)) / (Group.characteristic.value.ofType(boolean))</code>
             </div>
     </div>
     
@@ -209,11 +233,11 @@ Represents a defined collection of entities that may be discussed or acted upon 
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">member</span> <span> (reference)</span>
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Reference to the group member</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Group.member.entity</code>
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
             </div>
     </div>
     
@@ -233,21 +257,11 @@ Represents a defined collection of entities that may be discussed or acted upon 
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+              <code>Resource.meta.profile</code>
             </div>
     </div>
     
@@ -255,23 +269,11 @@ Represents a defined collection of entities that may be discussed or acted upon 
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
+            <span class="font-semibold">characteristic-value</span> <span> (composite)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A composite of both characteristic and value</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">exclude</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Group includes or excludes</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Group.characteristic.exclude</code>
+              <code>Group.characteristic</code>
             </div>
     </div>
     
@@ -284,6 +286,18 @@ Represents a defined collection of entities that may be discussed or acted upon 
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
         <div class="line-clamp-3 truncate">
               <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Unique id</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Group.identifier</code>
             </div>
     </div>
     

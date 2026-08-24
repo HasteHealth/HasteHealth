@@ -1,0 +1,185 @@
+---
+id: AccessPolicyV2Assignment
+title: AccessPolicyV2Assignment
+description: "AccessPolicyV2Assignment (FHIR R4 resource): Links an AccessPolicyV2 to the resource it applies to. Replaces AccessPolicyV2.target as its own resource so…"
+hide_table_of_contents: true
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+  - AccessPolicyV2Assignment
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
+# AccessPolicyV2Assignment
+
+A set of rules that govern how a system resource is accessed and used.
+
+<head>
+  <title>AccessPolicyV2Assignment — FHIR R4 Resource Reference | Haste Health</title>
+  <meta name="description" content="AccessPolicyV2Assignment (FHIR R4 resource): Links an AccessPolicyV2 to the resource it applies to. Replaces AccessPolicyV2.target as its own resource so…" />
+  <meta name="keywords" content="AccessPolicyV2Assignment, FHIR AccessPolicyV2Assignment, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/AccessPolicyV2Assignment" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'DefinedTerm',
+      name: 'AccessPolicyV2Assignment',
+      description: "AccessPolicyV2Assignment (FHIR R4 resource): Links an AccessPolicyV2 to the resource it applies to. Replaces AccessPolicyV2.target as its own resource so…",
+      url: 'https://haste.health/docs/reference/fhir/model/resources/AccessPolicyV2Assignment',
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'FHIR R4 Resource Reference',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Haste Health',
+          url: 'https://haste.health',
+        },
+      },
+    })}
+  </script>
+</head>
+
+  
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div className="col-span-2">
+  ## Structure
+  <BrowserOnly> {() => <StructureDefinitionDisplay sd="AccessPolicyV2Assignment" />}</BrowserOnly>
+  </div>
+  
+ 
+  <div>
+  ## Search Parameters
+<div class="space-y-4"> 
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_source</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   </div></div> </div>

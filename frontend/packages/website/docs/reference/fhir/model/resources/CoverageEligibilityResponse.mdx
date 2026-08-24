@@ -1,6 +1,7 @@
 ---
 id: CoverageEligibilityResponse
 title: CoverageEligibilityResponse
+description: "CoverageEligibilityResponse (FHIR R4 resource): Reference documentation for the FHIR R4 CoverageEligibilityResponse resource: structure, elements, and sea…"
 hide_table_of_contents: true
 tags:
   - fhir
@@ -8,6 +9,7 @@ tags:
   - hl7
   - healthcare it
   - interoperability
+  - CoverageEligibilityResponse
 ---
 
 import TabItem from "@theme/TabItem";
@@ -20,14 +22,26 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 This resource provides eligibility and plan details from the processing of an CoverageEligibilityRequest resource.
 
 <head>
-  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <title>CoverageEligibilityResponse — FHIR R4 Resource Reference | Haste Health</title>
+  <meta name="description" content="CoverageEligibilityResponse (FHIR R4 resource): Reference documentation for the FHIR R4 CoverageEligibilityResponse resource: structure, elements, and sea…" />
+  <meta name="keywords" content="CoverageEligibilityResponse, FHIR CoverageEligibilityResponse, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="https://haste.health/docs/reference/fhir/model/resources/CoverageEligibilityResponse" />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org/',
-      '@type': 'Organization',
-      name: 'Haste Health',
-      url: 'https://haste.health',
-      logo: 'https://haste.health/img/logo.svg',
+      '@type': 'DefinedTerm',
+      name: 'CoverageEligibilityResponse',
+      description: "CoverageEligibilityResponse (FHIR R4 resource): Reference documentation for the FHIR R4 CoverageEligibilityResponse resource: structure, elements, and sea…",
+      url: 'https://haste.health/docs/reference/fhir/model/resources/CoverageEligibilityResponse',
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'FHIR R4 Resource Reference',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Haste Health',
+          url: 'https://haste.health',
+        },
+      },
     })}
   </script>
 </head>
@@ -45,11 +59,69 @@ This resource provides eligibility and plan details from the processing of an Co
 <div class="space-y-4"> 
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">patient</span> <span> (reference)</span>
+            <span class="font-semibold">_tag</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The reference to the patient</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>CoverageEligibilityResponse.patient</code>
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">outcome</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The processing outcome</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CoverageEligibilityResponse.outcome</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The business identifier</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CoverageEligibilityResponse.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">request</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The EligibilityRequest reference</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CoverageEligibilityResponse.request</code>
             </div>
     </div>
     
@@ -81,58 +153,10 @@ This resource provides eligibility and plan details from the processing of an Co
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">created</span> <span> (date)</span>
+            <span class="font-semibold">_text</span> <span> (string)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The creation date</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>CoverageEligibilityResponse.created</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">disposition</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The contents of the disposition message</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>CoverageEligibilityResponse.disposition</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_query</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
         
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">outcome</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The processing outcome</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>CoverageEligibilityResponse.outcome</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">requestor</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The EligibilityRequest provider</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>CoverageEligibilityResponse.requestor</code>
-            </div>
     </div>
     
 
@@ -149,11 +173,11 @@ This resource provides eligibility and plan details from the processing of an Co
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_tag</span> <span> (token)</span>
+            <span class="font-semibold">_security</span> <span> (token)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.tag</code>
+              <code>Resource.meta.security</code>
             </div>
     </div>
     
@@ -173,70 +197,12 @@ This resource provides eligibility and plan details from the processing of an Co
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_profile</span> <span> (uri)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.profile</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">identifier</span> <span> (token)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The business identifier</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>CoverageEligibilityResponse.identifier</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>Resource.meta.lastUpdated</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
             <span class="font-semibold">insurer</span> <span> (reference)</span>
         </div>
         <div class="text-brand-900 line-clamp-3 truncate"> <span>The organization which generated this resource</span></div>
         <div class="line-clamp-3 truncate">
               <code>CoverageEligibilityResponse.insurer</code>
             </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">request</span> <span> (reference)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>The EligibilityRequest reference</span></div>
-        <div class="line-clamp-3 truncate">
-              <code>CoverageEligibilityResponse.request</code>
-            </div>
-    </div>
-    
-
-   
-    <div class="text-xs space-y-1">
-        <div class="text-sm">
-            <span class="font-semibold">_text</span> <span> (string)</span>
-        </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
-        
     </div>
     
 
@@ -255,11 +221,35 @@ This resource provides eligibility and plan details from the processing of an Co
    
     <div class="text-xs space-y-1">
         <div class="text-sm">
-            <span class="font-semibold">_security</span> <span> (token)</span>
+            <span class="font-semibold">created</span> <span> (date)</span>
         </div>
-        <div class="text-brand-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The creation date</span></div>
         <div class="line-clamp-3 truncate">
-              <code>Resource.meta.security</code>
+              <code>CoverageEligibilityResponse.created</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">requestor</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The EligibilityRequest provider</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CoverageEligibilityResponse.requestor</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
             </div>
     </div>
     
@@ -272,6 +262,30 @@ This resource provides eligibility and plan details from the processing of an Co
         <div class="text-brand-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
         <div class="line-clamp-3 truncate">
               <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">patient</span> <span> (reference)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The reference to the patient</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CoverageEligibilityResponse.patient</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">disposition</span> <span> (string)</span>
+        </div>
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>The contents of the disposition message</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CoverageEligibilityResponse.disposition</code>
             </div>
     </div>
     

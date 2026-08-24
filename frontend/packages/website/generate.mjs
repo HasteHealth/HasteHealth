@@ -95,6 +95,29 @@ function escapeLinks(v) {
     .replaceAll("]", "%5D");
 }
 
+// JSON.stringify produces a double-quoted string with the same escaping
+// rules YAML uses for double-quoted scalars, so it's a safe way to drop
+// free-text (colons, quotes, newlines) into frontmatter.
+function yamlString(v) {
+  return JSON.stringify(v ?? "");
+}
+
+function metaDescription(sd) {
+  const kindLabel =
+    sd.kind === "resource" ? "resource" : "data type";
+  const raw = (sd.description ?? "")
+    .replace(/(\r\n|\n|\r)/gm, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const fallback = `Reference documentation for the FHIR R4 ${sd.name} ${kindLabel}: structure, elements, and search parameters.`;
+  const base = raw || fallback;
+  const prefix = `${sd.name} (FHIR R4 ${kindLabel}): `;
+  const budget = 155 - prefix.length;
+  const body =
+    base.length > budget ? `${base.slice(0, budget - 1).trimEnd()}…` : base;
+  return `${prefix}${body}`;
+}
+
 function metaProperties(sd) {
   return `
 |Property|Value|
@@ -117,9 +140,17 @@ async function processStructureDefinition(artifacts, structureDefinition) {
         r.base.includes("DomainResource"),
     );
 
+  const description = metaDescription(structureDefinition);
+  const kindLabel =
+    structureDefinition.kind === "resource" ? "Resource" : "Data Type";
+  const collection =
+    structureDefinition.kind === "resource" ? "resources" : "types";
+  const canonicalUrl = `https://haste.health/docs/reference/fhir/model/${collection}/${structureDefinition.name}`;
+
   let doc = `---
 id: ${structureDefinition.id}
 title: ${structureDefinition.name}
+description: ${yamlString(description)}
 hide_table_of_contents: true
 tags:
   - fhir
@@ -127,6 +158,7 @@ tags:
   - hl7
   - healthcare it
   - interoperability
+  - ${structureDefinition.name}
 ---
 
 import TabItem from "@theme/TabItem";
@@ -138,14 +170,26 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 ${escapeLinks(structureDefinition.snapshot?.element[0]?.definition ?? "")}
 
 <head>
-  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <title>${structureDefinition.name} — FHIR R4 ${kindLabel} Reference | Haste Health</title>
+  <meta name="description" content="${description.replaceAll('"', "'")}" />
+  <meta name="keywords" content="${structureDefinition.name}, FHIR ${structureDefinition.name}, FHIR R4, HL7 FHIR, fhir, hl7, interoperability, healthcare, clinical data repository" />
+  <link rel="canonical" href="${canonicalUrl}" />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org/',
-      '@type': 'Organization',
-      name: 'Haste Health',
-      url: 'https://haste.health',
-      logo: 'https://haste.health/img/logo.svg',
+      '@type': 'DefinedTerm',
+      name: '${structureDefinition.name}',
+      description: ${yamlString(description)},
+      url: '${canonicalUrl}',
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'FHIR R4 ${kindLabel} Reference',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Haste Health',
+          url: 'https://haste.health',
+        },
+      },
     })}
   </script>
 </head>
