@@ -1,4 +1,8 @@
 {
     "label": "Rest API",
-    "key": "api-rest-api"
+    "key": "api-rest-api",
+    "link": {
+        "type": "generated-index",
+        "description": "REST API reference for FHIR CRUD operations, terminology services, and the Model Context Protocol endpoint."
+    }
 }

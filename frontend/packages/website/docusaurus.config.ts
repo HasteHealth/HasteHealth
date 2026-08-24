@@ -8,7 +8,8 @@ import autoprefixer from "autoprefixer";
 
 const config: Config = {
   title: "Haste Health",
-  tagline: "Documentation Site",
+  tagline:
+    "The Headless EHR & FHIR Clinical Data Repository, Built for AI Agents",
   favicon: "/img/favicon.ico",
   trailingSlash: false,
 
@@ -19,6 +20,23 @@ const config: Config = {
         name: "algolia-site-verification",
         content: "2EFDB046F281A382",
       },
+    },
+    // Site-wide Organization structured data (schema.org). Individual pages
+    // should NOT repeat this block — see generate.mjs for the per-resource
+    // structured data used on generated FHIR reference pages instead.
+    {
+      tagName: "script",
+      attributes: { type: "application/ld+json" },
+      innerHTML: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: "Haste Health",
+        url: "https://haste.health",
+        logo: "https://haste.health/img/logo.svg",
+        description:
+          "Haste Health is an open-source, self-hosted headless EHR and FHIR R4 clinical data repository that normalizes Epic, Cerner, HL7v2, and other healthcare data sources into one API for apps and AI agents.",
+        sameAs: ["https://github.com/hastehealth/hastehealth"],
+      }),
     },
   ],
 
@@ -79,10 +97,8 @@ const config: Config = {
         },
         docs: {
           sidebarPath: "./sidebars.ts",
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
           editUrl:
-            "https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/",
+            "https://github.com/hastehealth/hastehealth/tree/main/frontend/packages/website/",
         },
         gtag: {
           trackingID: "G-HH00J38YZ5",
@@ -110,6 +126,27 @@ const config: Config = {
   ],
 
   themeConfig: {
+    // Default social card (og:image / twitter:image) for any page that
+    // doesn't set its own `image` in Layout/frontmatter. TODO: swap for a
+    // dedicated 1200x630 branded social card — this is a product screenshot
+    // used as an interim placeholder because it's the closest asset on hand
+    // to the recommended aspect ratio.
+    image: "img/admin_app.png",
+    // Global <meta> tags injected on every page. Per-page title/description
+    // (set via Layout props or frontmatter) always take precedence over
+    // these defaults, but keywords/robots/twitter card have no per-page
+    // equivalent in Docusaurus, so they're set once here.
+    metadata: [
+      {
+        name: "keywords",
+        content:
+          "headless EHR, FHIR server, FHIR clinical data repository, FHIR CDR, HL7 FHIR R4 API, SMART on FHIR, OAuth2 provider, healthcare interoperability, MCP AI agents, self-hosted EHR, open source FHIR server",
+      },
+      { name: "robots", content: "index, follow" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:site_name", content: "Haste Health" },
+      { property: "og:type", content: "website" },
+    ],
     colorMode: {
       defaultMode: "light",
       disableSwitch: true,

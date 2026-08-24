@@ -1,4 +1,8 @@
 {
     "label": "SDKs",
-    "key": "api-sdks"
+    "key": "api-sdks",
+    "link": {
+        "type": "generated-index",
+        "description": "Client library reference for building FHIR applications with Haste Health's TypeScript, Rust, and React SDKs."
+    }
 }

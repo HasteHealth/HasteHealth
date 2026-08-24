@@ -1,4 +1,8 @@
 {
     "label": "API Reference",
-    "key": "api"
+    "key": "api",
+    "link": {
+        "type": "generated-index",
+        "description": "REST API and SDK reference documentation for the Haste Health FHIR platform."
+    }
 }
