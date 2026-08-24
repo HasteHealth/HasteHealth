@@ -105,6 +105,13 @@ pub struct ElasticsearchConfig {
     pub username: String,
     #[derivative(Debug = "ignore")]
     pub password: String,
+    /// Allows `migrate search` to rebuild the index when a search parameter
+    /// is removed, dropping its column and already-indexed data.
+    /// Elasticsearch mappings are append-only, so dropping a column requires
+    /// reindexing into a fresh index.  By default this is set to false and will
+    /// only log which parameters would be dropped.
+    #[serde(default)]
+    pub prune_removed_search_parameters: bool,
 }
 
 #[derive(Derivative, Clone, Deserialize, Serialize)]
@@ -185,6 +192,7 @@ impl Default for ElasticsearchConfig {
             url: "http://localhost:9200".into(),
             username: "elastic".into(),
             password: "elastic".into(),
+            prune_removed_search_parameters: false,
         }
     }
 }

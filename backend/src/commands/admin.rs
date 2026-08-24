@@ -210,8 +210,8 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
             MigrationCommands::Repo {} => migrate_repo(config).await,
             MigrationCommands::Search {} => migrate_search(config).await,
             MigrationCommands::All => {
-                migrate_repo(config.clone()).await?;
                 migrate_search(config.clone()).await?;
+                migrate_repo(config.clone()).await?;
                 migrate_artifacts(config).await?;
                 Ok(())
             }

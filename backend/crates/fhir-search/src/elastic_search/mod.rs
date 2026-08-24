@@ -1,7 +1,7 @@
 use crate::{
     IndexFailure, IndexOutcome, IndexResource, ParameterLevel, ResolvedParameter, SearchEngine,
     SearchOptions, SearchParameterResolve, SearchReturn,
-    indexing_conversion::{self, InsertableIndex},
+    indexing_conversion::{self, DynamicParameterEntry, InsertableIndex},
 };
 use elasticsearch::{
     BulkOperation, BulkParts, Elasticsearch,
@@ -38,6 +38,19 @@ struct SearchEntryPrivate {
 
 static DYNAMIC_PARAMETER_INDEX_FIELD: &str = "dynamic_parameters";
 
+/// Elasticsearch treats a literal `.` in a mapped field name as an object
+/// path separator: e.g. mapping the field
+/// `http://hl7.org/fhir/SearchParameter/Patient-name` silently produces
+/// nested objects (`http://hl7` -> `org/fhir/SearchParameter/Patient-name`),
+/// even though `/` is left alone. Search parameter canonical URLs almost
+/// always contain a dotted domain, so every active (top-level) search
+/// parameter needs its dots stripped to stay a genuinely flat field
+/// consistently in the index mapping, in the documents written to it, and in
+/// queries built against it.
+fn flatten_parameter_field_name(url: &str) -> String {
+    url.replace('.', "_")
+}
+
 #[derive(OperationOutcomeError, Debug)]
 pub enum SearchError {
     #[fatal(
@@ -57,7 +70,7 @@ pub enum SearchError {
     Fatal(u16),
     #[fatal(
         code = "exception",
-        diagnostic = "Elasticsearch server failed to index."
+        diagnostic = "Elasticsearch server failed to index: '{arg0}'"
     )]
     ElasticsearchError(#[from] elasticsearch::Error),
     #[fatal(
@@ -89,6 +102,11 @@ pub struct ElasticSearchEngine<SearchParameterResolver: SearchParameterResolve +
     parameter_resolver: Arc<SearchParameterResolver>,
     fp_engine: Arc<FPEngine>,
     client: Arc<Elasticsearch>,
+    /// Whether `migrate` is allowed to rebuild the index (briefly making it
+    /// unavailable) to drop columns for search parameters that no longer
+    /// exist. When `false`, `migrate` only logs which parameters would be
+    /// dropped.
+    prune_removed_search_parameters: bool,
 }
 
 /// Creates an Elasticsearch client using the provided URL and credentials.
@@ -215,11 +233,13 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
         parameter_resolver: Arc<SearchParameterResolver>,
         fp_engine: Arc<FPEngine>,
         es_client: Arc<Elasticsearch>,
+        prune_removed_search_parameters: bool,
     ) -> Self {
         ElasticSearchEngine {
             parameter_resolver,
             fp_engine,
             client: es_client,
+            prune_removed_search_parameters,
         }
     }
 
@@ -437,7 +457,7 @@ async fn resource_to_elastic_index(
     resource: &Resource,
 ) -> Result<HashMap<String, InsertableIndex>, OperationOutcomeError> {
     let mut map = HashMap::new();
-    let mut dynamic_parameters = HashMap::new();
+    let mut dynamic_parameters = Vec::new();
     for param in parameters {
         if let Some(expression) = param
             .search_parameter
@@ -467,11 +487,19 @@ async fn resource_to_elastic_index(
 
             match param.level {
                 ParameterLevel::System => {
-                    map.insert(url.clone(), result_vec);
+                    map.insert(flatten_parameter_field_name(url), result_vec);
                 }
-                // Project Parameters are indexed using a single JS Object which gets indexed to
+                // Project (user-submitted) parameters are indexed under a single
+                // nested field with the URL stored as a plain value, since an
+                // arbitrary user-supplied URL can't safely become an
+                // Elasticsearch field name.
                 ParameterLevel::Project => {
-                    dynamic_parameters.insert(url.clone(), result_vec);
+                    let type_ = param.search_parameter.type_.as_str().unwrap_or("string");
+                    if let Some(entry) =
+                        DynamicParameterEntry::from_leaf(url.clone(), type_, result_vec)
+                    {
+                        dynamic_parameters.push(entry);
+                    }
                 }
             }
         }
@@ -486,11 +514,13 @@ async fn resource_to_elastic_index(
     Ok(map)
 }
 
-static R4_FHIR_INDEX: &str = "r4_search_index";
+#[allow(dead_code)]
+static R4_FHIR_INDEX_V1: &str = "r4_search_index";
+static R4_FHIR_INDEX_V2: &str = "r4_search_index_v2";
 
 #[must_use]
 pub const fn get_index_name() -> &'static str {
-    R4_FHIR_INDEX
+    R4_FHIR_INDEX_V2
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -600,8 +630,30 @@ impl<SearchParameterResolver: SearchParameterResolve> SearchEngine
             self.parameter_resolver.clone(),
             &self.client,
             get_index_name(),
+            self.prune_removed_search_parameters,
         )
         .await?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn flatten_parameter_field_name_strips_dots_only() {
+        assert_eq!(
+            flatten_parameter_field_name("http://hl7.org/fhir/SearchParameter/Patient-name"),
+            "http://hl7_org/fhir/SearchParameter/Patient-name"
+        );
+    }
+
+    #[test]
+    fn flatten_parameter_field_name_handles_multiple_dots() {
+        assert_eq!(
+            flatten_parameter_field_name("https://sub.acme.io/v1.2/x"),
+            "https://sub_acme_io/v1_2/x"
+        );
     }
 }

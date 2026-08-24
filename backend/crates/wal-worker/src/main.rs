@@ -118,6 +118,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Arc::new(ElasticSearchParameterResolver::new(es_client.clone(), pool)),
         Arc::new(haste_fhirpath::FPEngine::new()),
         es_client,
+        // This worker only indexes documents; it never calls `migrate`.
+        false,
     );
 
     let config = PipelineConfig {
