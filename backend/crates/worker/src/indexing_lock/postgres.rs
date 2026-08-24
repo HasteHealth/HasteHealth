@@ -19,7 +19,7 @@ pub enum TenantLockIndexError {
 pub struct TenantLockIndex {
     #[allow(dead_code)]
     pub id: TenantId,
-    pub index_sequence_position: i64,
+    pub index_sequence_position_v2: i64,
 }
 
 impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
@@ -37,7 +37,7 @@ impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
                 // Implementation for retrieving available locks from PostgreSQL
 
                 let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
-                    "SELECT id, index_sequence_position FROM tenants WHERE id IN ( ",
+                    "SELECT id, index_sequence_position_v2 FROM tenants WHERE id IN ( ",
                 );
 
                 let mut separated = query_builder.separated(", ");
@@ -74,8 +74,8 @@ impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
                     .map_err(TenantLockIndexError::from)?;
                 // Implementation for retrieving available locks from PostgreSQL
                 sqlx::query!(
-                    "UPDATE tenants SET index_sequence_position = $1 WHERE id = $2",
-                    model.index_sequence_position,
+                    "UPDATE tenants SET index_sequence_position_v2 = $1 WHERE id = $2",
+                    model.index_sequence_position_v2,
                     tenant_id.as_ref()
                 )
                 .execute(conn)

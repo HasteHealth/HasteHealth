@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE tenants SET index_sequence_position = $1 WHERE id = $2",
+  "query": "UPDATE tenants SET index_sequence_position_v2 = $1 WHERE id = $2",
   "describe": {
     "columns": [],
     "parameters": {
@@ -11,5 +11,5 @@
     },
     "nullable": []
   },
-  "hash": "7b2539c4134584a5a42ef846ecbe55bd7fccfd703a214c734f0c423d868b8927"
+  "hash": "d010592337b62cd5d890c412a93a0d67d1ec8915aadb5bb4bf125cc0cb5b195a"
 }

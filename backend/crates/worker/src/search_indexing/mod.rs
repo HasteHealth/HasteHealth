@@ -170,7 +170,7 @@ async fn update_lock_sequence_position<
         tenant_id,
         TenantLockIndex {
             id: tenant_id.clone(),
-            index_sequence_position: last_polling_value.sequence,
+            index_sequence_position_v2: last_polling_value.sequence,
         },
     )
     .await?;
@@ -212,13 +212,13 @@ async fn index_tenant_next_sequence<
     tracing::trace!(
         "Acquired lock for tenant '{}', starting indexing from sequence {}.",
         tenant_id,
-        tenant_locks[0].index_sequence_position
+        tenant_locks[0].index_sequence_position_v2
     );
 
     let resources = repo
         .get_sequence(
             tenant_id,
-            tenant_locks[0].index_sequence_position.cast_unsigned(),
+            tenant_locks[0].index_sequence_position_v2.cast_unsigned(),
             Some(max_concurrent_limit),
         )
         .await?;
