@@ -15,6 +15,10 @@ export function deriveProjectId(): ProjectId {
   return projectId as ProjectId;
 }
 
+export function fhirResourceDocsUrl(resourceType: string): string {
+  return `https://haste.health/docs/reference/fhir/model/resources/${resourceType}`;
+}
+
 export function getErrorMessage(error: any): string {
   if ("response" in error) {
     const message = (error.response.body as OperationOutcome).issue

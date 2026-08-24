@@ -1,4 +1,5 @@
 import {
+  BookOpenIcon,
   ClockIcon,
   ChevronRightIcon,
   HomeIcon,
@@ -33,7 +34,7 @@ import {
 import { HasteHealthInviteUser } from "@haste-health/generated-ops/r4";
 
 import { getClient } from "../../db/client";
-import { getErrorMessage } from "../../utilities";
+import { fhirResourceDocsUrl, getErrorMessage } from "../../utilities";
 
 function InviteModal({
   refresh,
@@ -178,6 +179,23 @@ function ResourceTypeHeader({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            className="font-medium"
+            buttonSize="small"
+            buttonType="secondary"
+            onClick={() =>
+              window.open(
+                fhirResourceDocsUrl(resourceType),
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
+          >
+            <div className="flex items-center justify-center">
+              <BookOpenIcon className="mr-1 h-4 w-4" />
+              <span>Docs</span>
+            </div>
+          </Button>
           <Button
             className="font-medium"
             buttonSize="small"

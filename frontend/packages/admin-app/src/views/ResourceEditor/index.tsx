@@ -1,9 +1,13 @@
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { generatePath, useNavigate, useParams } from "react-router";
-import { ChevronRightIcon, HomeIcon } from "@heroicons/react/24/outline";
+import {
+  BookOpenIcon,
+  ChevronRightIcon,
+  HomeIcon,
+} from "@heroicons/react/24/outline";
 
-import { Toaster } from "@haste-health/components";
+import { Button, Toaster } from "@haste-health/components";
 import {
   AccessPolicyV2,
   Bundle,
@@ -21,7 +25,7 @@ import { R4 } from "@haste-health/fhir-types/versions";
 
 import ResourceEditorComponent from "../../components/ResourceEditor";
 import { getClient } from "../../db/client";
-import { getErrorMessage } from "../../utilities";
+import { fhirResourceDocsUrl, getErrorMessage } from "../../utilities";
 import AccessPolicyView from "./AccessPolicy";
 import IdentityProviderView from "./IdentityProvider";
 import OperationDefinitionView from "./OperationDefinition";
@@ -304,21 +308,42 @@ export default function ResourceEditor() {
           </span>
         </div>
 
-        <h1 className="text-2xl font-semibold text-slate-900">
-          {displayResourceType} Editor
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          {displayId === "new"
-            ? `Create a new ${displayResourceType} and save it to your project.`
-            : `Review and update ${displayResourceType}/${displayId}.`}
-        </p>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
-            Status: {structureDefinition?.status ?? "unknown"}
-          </span>
-          <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
-            Version: {structureDefinition?.version ?? "n/a"}
-          </span>
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold text-slate-900">
+              {displayResourceType} Editor
+            </h1>
+            <p className="text-sm text-slate-500">
+              {displayId === "new"
+                ? `Create a new ${displayResourceType} and save it to your project.`
+                : `Review and update ${displayResourceType}/${displayId}.`}
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
+                Status: {structureDefinition?.status ?? "unknown"}
+              </span>
+              <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
+                Version: {structureDefinition?.version ?? "n/a"}
+              </span>
+            </div>
+          </div>
+          <Button
+            className="font-medium"
+            buttonSize="small"
+            buttonType="secondary"
+            onClick={() =>
+              window.open(
+                fhirResourceDocsUrl(displayResourceType),
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
+          >
+            <div className="flex items-center justify-center">
+              <BookOpenIcon className="mr-1 h-4 w-4" />
+              <span>Docs</span>
+            </div>
+          </Button>
         </div>
       </header>
 
