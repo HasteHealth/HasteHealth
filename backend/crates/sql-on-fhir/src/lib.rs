@@ -109,7 +109,7 @@ async fn get_resources_to_process<
         Ok(input_resources)
     } else {
         let since = input
-            ._since
+            .since
             .as_ref()
             .and_then(|since| since.value.clone())
             .unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
@@ -523,7 +523,7 @@ async fn process_view_definition<
 ) -> Result<Binary, OperationOutcomeError> {
     let variables = Arc::new(build_hashmap_fp_variables(view_definition));
     let _limit = input
-        ._limit
+        .limit
         .as_ref()
         .and_then(|limit| limit.value)
         .unwrap_or(1000);
@@ -640,7 +640,7 @@ pub async fn view_definition_run<
     input: &ViewDefinitionRun::Input,
 ) -> Result<ViewDefinitionRun::Output, OperationOutcomeError> {
     let output_format = input
-        ._format
+        .format
         .as_ref()
         .and_then(|v| v.value.as_ref())
         .and_then(|s| BoundCode::<OutputFormatCodes>::new(s))
