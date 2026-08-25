@@ -518,7 +518,7 @@ export function ViewDefinitionSqlRunner({
       title: "Raw Output",
       content: (
         <textarea
-          className="h-full w-full rounded border border-slate-200 bg-white p-3 text-xs text-slate-700"
+          className="min-h-[24rem] w-full flex-1 rounded border border-slate-200 bg-white p-3 text-xs text-slate-700"
           value={rawOutput}
           readOnly
         />
