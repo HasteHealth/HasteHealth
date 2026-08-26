@@ -4,6 +4,8 @@ import { ViewDefinitionRun } from "@haste-health/generated-ops/r4";
 import {
   code,
   instant,
+  integer,
+  Reference,
   Resource,
   ViewDefinition,
 } from "@haste-health/fhir-types/r4/types";
@@ -181,12 +183,100 @@ function parseResults(format: ExportFormat, raw: string): ParsedResults {
   }
 }
 
+function ScopeControls({
+  patientReference,
+  setPatientReference,
+  groupReferences,
+  setGroupReferences,
+  limit,
+  setLimit,
+  includeHeader,
+  setIncludeHeader,
+  isRunning,
+}: {
+  patientReference: string;
+  setPatientReference: (value: string) => void;
+  groupReferences: string;
+  setGroupReferences: (value: string) => void;
+  limit: string;
+  setLimit: (value: string) => void;
+  includeHeader: boolean;
+  setIncludeHeader: (value: boolean) => void;
+  isRunning: boolean;
+}) {
+  return (
+    <details className="border-b border-slate-200 px-4 py-2 text-xs text-slate-600">
+      <summary className="cursor-pointer select-none font-medium text-slate-700">
+        Scope &amp; output options
+      </summary>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <label className="flex flex-col gap-1">
+          <span>Patient reference</span>
+          <input
+            type="text"
+            className="rounded border border-slate-300 bg-white px-2 py-1 text-xs"
+            placeholder="Patient/123"
+            value={patientReference}
+            onChange={(event) => setPatientReference(event.target.value)}
+            disabled={isRunning}
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span>Group reference(s)</span>
+          <input
+            type="text"
+            className="rounded border border-slate-300 bg-white px-2 py-1 text-xs"
+            placeholder="Group/1, Group/2"
+            value={groupReferences}
+            onChange={(event) => setGroupReferences(event.target.value)}
+            disabled={isRunning}
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span>Row limit</span>
+          <input
+            type="number"
+            min={0}
+            className="rounded border border-slate-300 bg-white px-2 py-1 text-xs"
+            placeholder="No limit"
+            value={limit}
+            onChange={(event) => setLimit(event.target.value)}
+            disabled={isRunning}
+          />
+        </label>
+        <label className="flex items-end gap-2 pb-1">
+          <input
+            type="checkbox"
+            checked={includeHeader}
+            onChange={(event) => setIncludeHeader(event.target.checked)}
+            disabled={isRunning}
+          />
+          <span>Include CSV header</span>
+        </label>
+      </div>
+      <p className="mt-2 text-[11px] text-slate-500">
+        Restricting to a patient or group only applies when the
+        ViewDefinition's resource type is part of the Patient compartment
+        (e.g. Observation, Condition) or is Patient itself.
+      </p>
+    </details>
+  );
+}
+
 function EditorPane({
   extensions = [basicSetup],
   viewDefinition,
   setViewDefinition,
   exportFormat,
   setExportFormat,
+  patientReference,
+  setPatientReference,
+  groupReferences,
+  setGroupReferences,
+  limit,
+  setLimit,
+  includeHeader,
+  setIncludeHeader,
   onRun,
   onReset,
   isRunning,
@@ -196,6 +286,14 @@ function EditorPane({
   setViewDefinition: (value: ViewDefinition) => void;
   exportFormat: ExportFormat;
   setExportFormat: (format: ExportFormat) => void;
+  patientReference: string;
+  setPatientReference: (value: string) => void;
+  groupReferences: string;
+  setGroupReferences: (value: string) => void;
+  limit: string;
+  setLimit: (value: string) => void;
+  includeHeader: boolean;
+  setIncludeHeader: (value: boolean) => void;
   onRun: () => void;
   onReset: () => void;
   isRunning: boolean;
@@ -244,6 +342,17 @@ function EditorPane({
           </Button>
         </div>
       </header>
+      <ScopeControls
+        patientReference={patientReference}
+        setPatientReference={setPatientReference}
+        groupReferences={groupReferences}
+        setGroupReferences={setGroupReferences}
+        limit={limit}
+        setLimit={setLimit}
+        includeHeader={includeHeader}
+        setIncludeHeader={setIncludeHeader}
+        isRunning={isRunning}
+      />
       <div className="flex flex-1 overflow-hidden p-3">
         <div className="h-full w-full overflow-hidden rounded border border-slate-200">
           <CodeMirror
@@ -433,22 +542,46 @@ export function ViewDefinitionSqlRunner({
   const [error, setError] = useState<string>();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(defaultPageSize);
+  const [patientReference, setPatientReference] = useState("");
+  const [groupReferences, setGroupReferences] = useState("");
+  const [limit, setLimit] = useState("");
+  const [includeHeader, setIncludeHeader] = useState(true);
 
   async function runViewDefinition() {
     setIsLoading(true);
     setError(undefined);
 
     try {
+      const trimmedPatientReference = patientReference.trim();
+      const groupReferenceList = groupReferences
+        .split(/[\n,]+/)
+        .map((reference) => reference.trim())
+        .filter((reference) => reference.length > 0);
+      const parsedLimit = limit.trim() ? Number(limit) : undefined;
+
       const binary = await client.invoke_system(
         ViewDefinitionRun.Op,
         {},
         fhirVersion,
         {
           _format: exportFormat as code,
-          header: true,
+          header: includeHeader,
           viewResource: viewDefinition,
           resource: resources,
           _since: since,
+          patient: trimmedPatientReference
+            ? ({ reference: trimmedPatientReference } as Reference)
+            : undefined,
+          group:
+            groupReferenceList.length > 0
+              ? groupReferenceList.map(
+                  (reference) => ({ reference }) as Reference,
+                )
+              : undefined,
+          _limit:
+            parsedLimit !== undefined && !Number.isNaN(parsedLimit)
+              ? (parsedLimit as integer)
+              : undefined,
         },
       );
 
@@ -491,6 +624,14 @@ export function ViewDefinitionSqlRunner({
           setViewDefinition={setViewDefinition}
           exportFormat={exportFormat}
           setExportFormat={setExportFormat}
+          patientReference={patientReference}
+          setPatientReference={setPatientReference}
+          groupReferences={groupReferences}
+          setGroupReferences={setGroupReferences}
+          limit={limit}
+          setLimit={setLimit}
+          includeHeader={includeHeader}
+          setIncludeHeader={setIncludeHeader}
           onRun={runViewDefinition}
           onReset={resetEditor}
           isRunning={isLoading}
