@@ -6,9 +6,9 @@ use haste_fhir_generated_ops::generated::ViewDefinitionRun;
 use haste_fhir_model::r4::{
     self,
     generated::{
-        resources::{Binary, Resource, ResourceType, ViewDefinition, ViewDefinitionSelect},
+        resources::{Binary, Bundle, Resource, ResourceType, ViewDefinition, ViewDefinitionSelect},
         terminology::{BoundCode, IssueType, OutputFormatCodes},
-        types::{FHIRBase64Binary, FHIRBoolean},
+        types::{FHIRBase64Binary, FHIRBoolean, Reference},
     },
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -21,8 +21,80 @@ use std::{borrow::Cow, collections::HashMap, sync::Arc};
 
 use crate::conversions::primitives::PrimitiveValue;
 
+mod compartment;
 mod conversions;
 mod output;
+
+fn reference_value(reference: &Reference) -> Result<String, OperationOutcomeError> {
+    reference
+        .reference
+        .as_ref()
+        .and_then(|r| r.value.clone())
+        .ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::invalid(),
+                "Reference.reference is required".to_string(),
+            )
+        })
+}
+
+/// Resolves the `patient` and `group` input parameters into a flat,
+/// de-duplicated list of patient reference strings (e.g. `"Patient/123"`).
+/// `group` members that aren't Patient references are skipped, since
+/// non-Patient compartments (Practitioner, Device, RelatedPerson) aren't
+/// supported yet.
+async fn resolve_patient_references<
+    CTX: Send + Sync + Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
+    context: CTX,
+    client: &Client,
+    input: &ViewDefinitionRun::Input,
+) -> Result<Vec<String>, OperationOutcomeError> {
+    let mut references = Vec::new();
+
+    if let Some(patient) = input.patient.as_ref() {
+        references.push(reference_value(patient)?);
+    }
+
+    for group_reference in input.group.as_ref().into_iter().flatten() {
+        let group_reference_value = reference_value(group_reference)?;
+        let group_id = group_reference_value
+            .rsplit('/')
+            .next()
+            .unwrap_or(&group_reference_value)
+            .to_string();
+
+        let group = client
+            .read(context.clone(), ResourceType::Group, group_id.clone())
+            .await?
+            .ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::not_found(),
+                    format!("Group not found with id '{group_id}'"),
+                )
+            })?;
+
+        let Resource::Group(group) = group else {
+            return Err(OperationOutcomeError::error(
+                IssueType::invalid(),
+                format!("Reference '{group_reference_value}' does not point to a Group resource"),
+            ));
+        };
+
+        for member in group.member.into_iter().flatten() {
+            let entity_reference = reference_value(&member.entity)?;
+            if entity_reference.starts_with("Patient/") {
+                references.push(entity_reference);
+            }
+        }
+    }
+
+    references.sort_unstable();
+    references.dedup();
+
+    Ok(references)
+}
 
 async fn resolve_view_definition<
     'a,
@@ -96,6 +168,30 @@ async fn resolve_view_definition<
     }
 }
 
+/// Page size used both for the unfiltered `_since` history scan and for
+/// following its pagination to completion.
+const HISTORY_PAGE_SIZE: u32 = 1000;
+
+/// Hard cap on the number of resources fetched for a single run when there's
+/// no `patient`/`group` scoping to naturally bound the working set (e.g. a
+/// view over an entire resource type's history). Without this, a client that
+/// omits `_limit` would cause the full history of a resource type to be
+/// pulled into memory before any filtering happens. A client that wants more
+/// than one page's worth of matching rows should page through results by
+/// re-running with `_since` set to the last-seen `lastUpdated` value.
+const MAX_RESOURCES_PER_RUN: usize = 50_000;
+
+/// The client-requested `_limit`, if any. Used both to bound how many
+/// resources are fetched (see `MAX_RESOURCES_PER_RUN`) and to truncate the
+/// final output rows.
+fn requested_limit(input: &ViewDefinitionRun::Input) -> Option<usize> {
+    input
+        ._limit
+        .as_ref()
+        .and_then(|limit| limit.value)
+        .and_then(|limit| usize::try_from(limit).ok())
+}
+
 async fn get_resources_to_process<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
@@ -106,42 +202,90 @@ async fn get_resources_to_process<
     input: &ViewDefinitionRun::Input,
 ) -> Result<Vec<Resource>, OperationOutcomeError> {
     if let Some(input_resources) = input.resource.clone() {
-        Ok(input_resources)
-    } else {
-        let since = input
-            ._since
+        return Ok(input_resources);
+    }
+
+    let Some(resource_type) = view_definition.resource.as_str() else {
+        return Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            "ViewDefinition.resource is required".to_string(),
+        ));
+    };
+
+    let resource_type = ResourceType::try_from(resource_type).map_err(|e| {
+        OperationOutcomeError::error(IssueType::invalid(), format!("Invalid resource type: {e}"))
+    })?;
+
+    let since_instant = input._since.as_ref().and_then(|since| since.value.clone());
+
+    let patient_references = resolve_patient_references(context.clone(), client, input).await?;
+
+    if !patient_references.is_empty() {
+        let last_updated_filter = since_instant
             .as_ref()
-            .and_then(|since| since.value.clone())
-            .unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
+            .map(|since| format!("gt{}", since.to_string()));
 
-        let Some(resource_type) = view_definition.resource.as_str() else {
-            return Err(OperationOutcomeError::error(
-                IssueType::invalid(),
-                "ViewDefinition.resource is required".to_string(),
-            ));
-        };
+        return compartment::resources_for_patients(
+            context,
+            client,
+            resource_type,
+            &patient_references,
+            last_updated_filter.as_deref(),
+        )
+        .await;
+    }
 
-        let resource_type = ResourceType::try_from(resource_type).map_err(|e| {
-            OperationOutcomeError::error(
-                IssueType::invalid(),
-                format!("Invalid resource type: {e}"),
-            )
-        })?;
+    let since = since_instant.unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
 
-        let result = client
+    let resource_limit = requested_limit(input)
+        .map(|limit| limit.min(MAX_RESOURCES_PER_RUN))
+        .unwrap_or(MAX_RESOURCES_PER_RUN);
+
+    let mut combined: Option<Bundle> = None;
+    let mut offset = 0u32;
+    let mut total_fetched = 0usize;
+
+    loop {
+        let mut page = client
             .history_type(
-                context,
-                resource_type,
+                context.clone(),
+                resource_type.clone(),
                 vec![
                     ("_since".to_string(), vec![since.to_string()]),
-                    ("_count".to_string(), vec!["1000".to_string()]),
+                    ("_count".to_string(), vec![HISTORY_PAGE_SIZE.to_string()]),
+                    ("_offset".to_string(), vec![offset.to_string()]),
                 ]
                 .into(),
             )
             .await?;
 
-        Ok(vec![Resource::Bundle(result)])
+        let entry_count = page.entry.as_ref().map_or(0, Vec::len);
+        total_fetched += entry_count;
+
+        match combined.as_mut() {
+            Some(accumulated) => accumulated
+                .entry
+                .get_or_insert_with(Vec::new)
+                .extend(page.entry.take().into_iter().flatten()),
+            None => combined = Some(page),
+        }
+
+        if entry_count < HISTORY_PAGE_SIZE as usize || total_fetched >= resource_limit {
+            break;
+        }
+
+        offset += HISTORY_PAGE_SIZE;
     }
+
+    let mut combined = combined.unwrap_or_default();
+
+    // Guards against the last loop execution which could be an additional
+    // 999 resources that may have been fetched in the last loop iteration.
+    if let Some(entries) = combined.entry.as_mut() {
+        entries.truncate(resource_limit);
+    }
+
+    Ok(vec![Resource::Bundle(combined)])
 }
 
 fn build_hashmap_fp_variables(viewdefinition: &ViewDefinition) -> HashMap<String, &dyn MetaValue> {
@@ -522,11 +666,7 @@ async fn process_view_definition<
     input: &ViewDefinitionRun::Input,
 ) -> Result<Binary, OperationOutcomeError> {
     let variables = Arc::new(build_hashmap_fp_variables(view_definition));
-    let _limit = input
-        ._limit
-        .as_ref()
-        .and_then(|limit| limit.value)
-        .unwrap_or(1000);
+    let limit = requested_limit(input);
 
     let input_ = flatten_results(
         get_resources_to_process(context.clone(), client.as_ref(), view_definition, input).await?,
@@ -572,11 +712,21 @@ async fn process_view_definition<
         results.push(result?);
     }
 
-    let results = results.into_iter().flatten().collect::<Vec<_>>();
+    let mut results = results.into_iter().flatten().collect::<Vec<_>>();
+
+    if let Some(limit) = limit {
+        results.truncate(limit);
+    }
+
+    let include_header = input
+        .header
+        .as_ref()
+        .and_then(|header| header.value)
+        .unwrap_or(true);
 
     match output_format {
         binding if binding == &OutputFormatCodes::csv() => {
-            let data = output::csv::csv(&results)?;
+            let data = output::csv::csv(&results, include_header)?;
 
             let base64_string: String = general_purpose::STANDARD.encode(&data);
 

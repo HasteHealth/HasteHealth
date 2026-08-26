@@ -19,7 +19,10 @@ fn append_primitive_value(buffer: &mut String, value: &PrimitiveValue) {
     }
 }
 
-pub fn csv(results: &[OrderMap<String, OutputResults>]) -> Result<Vec<u8>, OperationOutcomeError> {
+pub fn csv(
+    results: &[OrderMap<String, OutputResults>],
+    include_header: bool,
+) -> Result<Vec<u8>, OperationOutcomeError> {
     let mut byte_vector = Vec::new();
     let mut writer = csv::WriterBuilder::new()
         .has_headers(false)
@@ -29,12 +32,14 @@ pub fn csv(results: &[OrderMap<String, OutputResults>]) -> Result<Vec<u8>, Opera
     if let Some(header_col) = results.first() {
         column_names = header_col.keys().cloned().collect();
 
-        writer.write_record(column_names.iter()).map_err(|_e| {
-            OperationOutcomeError::error(
-                IssueType::processing(),
-                "Failed to write CSV header".to_string(),
-            )
-        })?;
+        if include_header {
+            writer.write_record(column_names.iter()).map_err(|_e| {
+                OperationOutcomeError::error(
+                    IssueType::processing(),
+                    "Failed to write CSV header".to_string(),
+                )
+            })?;
+        }
     }
 
     let mut row = csv::StringRecord::new();

@@ -2904,6 +2904,7 @@ dependencies = [
  "chrono",
  "csv",
  "futures",
+ "haste-artifacts",
  "haste-fhir-client",
  "haste-fhir-generated-ops",
  "haste-fhir-model",
