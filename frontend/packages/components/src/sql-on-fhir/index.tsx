@@ -193,7 +193,7 @@ function ScopeControls({
   includeHeader,
   setIncludeHeader,
   isRunning,
-}: {
+}: Readonly<{
   patientReference: string;
   setPatientReference: (value: string) => void;
   groupReferences: string;
@@ -203,7 +203,7 @@ function ScopeControls({
   includeHeader: boolean;
   setIncludeHeader: (value: boolean) => void;
   isRunning: boolean;
-}) {
+}>) {
   return (
     <details className="border-b border-slate-200 px-4 py-2 text-xs text-slate-600">
       <summary className="cursor-pointer select-none font-medium text-slate-700">
@@ -255,9 +255,9 @@ function ScopeControls({
         </label>
       </div>
       <p className="mt-2 text-[11px] text-slate-500">
-        Restricting to a patient or group only applies when the
-        ViewDefinition's resource type is part of the Patient compartment
-        (e.g. Observation, Condition) or is Patient itself.
+        Restricting to a patient or group only applies when the ViewDefinition's
+        resource type is part of the Patient compartment (e.g. Observation,
+        Condition) or is Patient itself.
       </p>
     </details>
   );

@@ -7,13 +7,12 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::{collections::HashSet, sync::LazyLock};
 
-static PATIENT_COMPARTMENT: LazyLock<Option<&'static CompartmentDefinition>> =
-    LazyLock::new(|| {
-        ARTIFACT_RESOURCES.iter().find_map(|r| match r {
-            Resource::CompartmentDefinition(c) if c.code == CompartmentType::patient() => Some(c),
-            _ => None,
-        })
-    });
+static PATIENT_COMPARTMENT: LazyLock<Option<&CompartmentDefinition>> = LazyLock::new(|| {
+    ARTIFACT_RESOURCES.iter().find_map(|r| match r {
+        Resource::CompartmentDefinition(c) if c.code == CompartmentType::patient() => Some(c),
+        _ => None,
+    })
+});
 
 fn patient_search_param_names(target_resource_type: &str) -> Vec<String> {
     let Some(compartment) = *PATIENT_COMPARTMENT else {
