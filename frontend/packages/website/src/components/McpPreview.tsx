@@ -30,7 +30,7 @@ const request = `{
     "resourceType": "Observation",
     "code": "85354-9",
     "date": "ge2026-07-19",
-    "patient": "xufn84vpa69b…998c1"
+    "patient": "kin5pxcy85546rjhqjwzk9l9bn"
   }
 }`;
 
@@ -41,7 +41,7 @@ const response = `{
   "entry": [{
     "resource": {
       "resourceType": "Observation",
-      "id": "bp-8f2a1c",
+      "id": "bp-ob",
       "meta": { "profile": [
         "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure"
       ] },
@@ -52,15 +52,15 @@ const response = `{
       "code": { "coding": [
         { "system": "http://loinc.org", "code": "85354-9" }
       ] },
-      "subject": { "reference": "Patient/xufn84vpa69b…998c1" },
-      "effectiveDateTime": "2026-08-12T09:14:00Z",
+      "subject": { "reference": "Patient/kin5pxcy85546rjhqjwzk9l9bn" },
+      "effectiveDateTime": "2026-08-15T10:25:00Z",
       "component": [
         {
           "code": { "coding": [
             { "system": "http://loinc.org", "code": "8480-6" }
           ] },
           "valueQuantity": {
-            "value": 128, "unit": "mmHg",
+            "value": 124, "unit": "mmHg",
             "system": "http://unitsofmeasure.org", "code": "mm[Hg]"
           }
         }
@@ -87,14 +87,23 @@ export default function McpPreview() {
             Agent asks
           </p>
           <p className="mb-4 rounded-lg bg-white/5 p-3 text-sm italic text-white leading-relaxed">
-            "Find this patient's blood pressure readings from the last 30
-            days."
+            "Find this patient's blood pressure readings from the last 30 days."
           </p>
           <pre
             className="overflow-x-auto text-xs leading-6"
-            style={{ background: "transparent", margin: 0, padding: 0, border: 0 }}
+            style={{
+              background: "transparent",
+              margin: 0,
+              padding: 0,
+              border: 0,
+            }}
           >
-            <code style={{ background: "transparent", color: "var(--color-brand-100)" }}>
+            <code
+              style={{
+                background: "transparent",
+                color: "var(--color-brand-100)",
+              }}
+            >
               <ColorizedJson code={request} />
             </code>
           </pre>
@@ -105,9 +114,19 @@ export default function McpPreview() {
           </p>
           <pre
             className="overflow-x-auto text-xs leading-6"
-            style={{ background: "transparent", margin: 0, padding: 0, border: 0 }}
+            style={{
+              background: "transparent",
+              margin: 0,
+              padding: 0,
+              border: 0,
+            }}
           >
-            <code style={{ background: "transparent", color: "var(--color-brand-100)" }}>
+            <code
+              style={{
+                background: "transparent",
+                color: "var(--color-brand-100)",
+              }}
+            >
               <ColorizedJson code={response} />
             </code>
           </pre>

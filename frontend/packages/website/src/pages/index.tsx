@@ -102,7 +102,7 @@ const COMMAND_SEGMENTS: CommandSegment[] = [
   { text: " haste-health api search-type " },
   { text: "Patient", highlight: true },
   { text: " " },
-  { text: '"name=chen&_count=1"', highlight: true },
+  { text: '"name=williams&_count=1"', highlight: true },
 ];
 
 const COMMAND_LENGTH = COMMAND_SEGMENTS.reduce(
@@ -172,12 +172,13 @@ function ResponseBody(props: Readonly<{ visible: boolean }>) {
       <span className="text-brand-300">"resourceType"</span>: "Patient",
       {"\n"}
       {"      "}
-      <span className="text-brand-300">"id"</span>: "xufn84vpa69b_998c1",
+      <span className="text-brand-300">"id"</span>:
+      "kin5pxcy85546rjhqjwzk9l9bn",
       {"\n"}
       {"      "}
       <span className="text-brand-300">"name"</span>: [{"{"}{" "}
-      <span className="text-brand-300">"family"</span>: "Chen",{" "}
-      <span className="text-brand-300">"given"</span>: ["Maya"] {"}"}]{"\n"}
+      <span className="text-brand-300">"family"</span>: "Williams",{" "}
+      <span className="text-brand-300">"given"</span>: ["David"] {"}"}]{"\n"}
       {"    "}
       {"}"}
       {"\n"}
