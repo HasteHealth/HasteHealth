@@ -11,7 +11,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_reflect::MetaValue;
 use http::{HeaderMap, StatusCode};
 
-fn add_resource_headers(headers: &mut HeaderMap, resource: &Resource) -> () {
+fn add_resource_headers(headers: &mut HeaderMap, resource: &Resource) {
     let _id = resource
         .get_field("id")
         .and_then(|id| id.as_any().downcast_ref::<String>());
@@ -40,7 +40,7 @@ fn add_resource_headers(headers: &mut HeaderMap, resource: &Resource) -> () {
     if let Some(version_id) = version_id {
         headers.insert(
             axum::http::header::ETAG,
-            format!("W/\"{}\"", version_id).parse().unwrap(),
+            format!("W/\"{version_id}\"").parse().unwrap(),
         );
     }
 }
@@ -71,7 +71,7 @@ fn add_headers(response: &FHIRResponse) -> HeaderMap {
             add_resource_headers(&mut header, &fhirpatch_response.resource);
         }
         _ => {}
-    };
+    }
 
     header
 }
@@ -81,157 +81,111 @@ impl IntoResponse for FHIRResponse {
         let header = add_headers(&self);
 
         match self {
-            FHIRResponse::Create(response) => (
-                StatusCode::CREATED,
-                header,
-                // Unwrap should be safe here.
-                serde_json::to_string(&response.resource).unwrap(),
-            )
-                .into_response(),
-            FHIRResponse::Read(response) => {
-                if let Some(resource) = response.resource {
-                    (
-                        StatusCode::OK,
-                        header,
-                        // Unwrap should be safe here.
-                        serde_json::to_string(&resource).unwrap(),
-                    )
-                        .into_response()
-                } else {
-                    OperationOutcomeError::error(
-                        IssueType::not_found(),
-                        "Resource not found.".to_string(),
-                    )
-                    .into_response()
-                }
+            FHIRResponse::Create(response) => {
+                FHIRResponse::created_json(header, &response.resource)
             }
-            FHIRResponse::VersionRead(response) => (
-                StatusCode::OK,
-                header,
-                // Unwrap should be safe here.
-                serde_json::to_string(&response.resource).unwrap(),
-            )
-                .into_response(),
-            FHIRResponse::Update(response) => (
-                StatusCode::OK,
-                header,
-                // Unwrap should be safe here.
-                serde_json::to_string(&response.resource).unwrap(),
-            )
-                .into_response(),
-            FHIRResponse::Capabilities(response) => (
-                StatusCode::OK,
-                header,
-                // Unwrap should be safe here.
-                serde_json::to_string(&response.capabilities).unwrap(),
-            )
-                .into_response(),
-            FHIRResponse::History(history_response) => match history_response {
-                HistoryResponse::Instance(response) => (
-                    StatusCode::OK,
-                    header,
-                    // Unwrap should be safe here.
-                    serde_json::to_string(&response.bundle).unwrap(),
-                )
-                    .into_response(),
-                HistoryResponse::Type(response) => (
-                    StatusCode::OK,
-                    header,
-                    // Unwrap should be safe here.
-                    serde_json::to_string(&response.bundle).unwrap(),
-                )
-                    .into_response(),
-                HistoryResponse::System(response) => (
-                    StatusCode::OK,
-                    header,
-                    // Unwrap should be safe here.
-                    serde_json::to_string(&response.bundle).unwrap(),
-                )
-                    .into_response(),
-            },
-            FHIRResponse::Search(search_response) => match search_response {
-                SearchResponse::Type(response) => (
-                    StatusCode::OK,
-                    header,
-                    // Unwrap should be safe here.
-                    serde_json::to_string(&response.bundle).unwrap(),
-                )
-                    .into_response(),
-                SearchResponse::System(response) => (
-                    StatusCode::OK,
-                    header,
-                    // Unwrap should be safe here.
-                    serde_json::to_string(&response.bundle).unwrap(),
-                )
-                    .into_response(),
-            },
-            FHIRResponse::Batch(response) => {
-                (
-                    StatusCode::OK,
-                    header,
-                    // Unwrap should be safe here.
-                    serde_json::to_string(&response.resource).unwrap(),
-                )
-                    .into_response()
-            }
-            FHIRResponse::Invoke(invoke_response) => match invoke_response {
-                InvokeResponse::Instance(invoke_response) => {
-                    (
-                        StatusCode::OK,
-                        header,
-                        // Unwrap should be safe here.
-                        serde_json::to_string(&invoke_response.resource).unwrap(),
-                    )
-                        .into_response()
-                }
-                InvokeResponse::Type(invoke_response) => {
-                    (
-                        StatusCode::OK,
-                        header,
-                        // Unwrap should be safe here.
-                        serde_json::to_string(&invoke_response.resource).unwrap(),
-                    )
-                        .into_response()
-                }
-                InvokeResponse::System(invoke_response) => {
-                    (
-                        StatusCode::OK,
-                        header,
-                        // Unwrap should be safe here.
-                        serde_json::to_string(&invoke_response.resource).unwrap(),
-                    )
-                        .into_response()
-                }
+
+            FHIRResponse::Read(response) => match response.resource {
+                Some(resource) => FHIRResponse::ok_json(header, &resource),
+                None => FHIRResponse::not_found(),
             },
 
-            FHIRResponse::Delete(delete_response) => match delete_response {
-                DeleteResponse::Instance(instance_delete) => (
-                    StatusCode::OK,
-                    header,
-                    serde_json::to_string(&instance_delete.resource).unwrap(),
-                )
-                    .into_response(),
-                DeleteResponse::Type(_) => (StatusCode::NO_CONTENT, header, "").into_response(),
-                DeleteResponse::System(_) => (StatusCode::NO_CONTENT, header, "").into_response(),
-            },
-
-            FHIRResponse::Patch(fhirpatch_response) => (
-                StatusCode::OK,
-                header,
-                // Unwrap should be safe here.
-                serde_json::to_string(&fhirpatch_response.resource).unwrap(),
-            )
-                .into_response(),
-
-            FHIRResponse::Transaction(fhirtransaction_response) => {
-                (
-                    StatusCode::OK,
-                    header,
-                    // Unwrap should be safe here.
-                    serde_json::to_string(&fhirtransaction_response.resource).unwrap(),
-                )
-                    .into_response()
+            FHIRResponse::VersionRead(response) => {
+                FHIRResponse::ok_json(header, &response.resource)
             }
+
+            FHIRResponse::Update(response) => FHIRResponse::ok_json(header, &response.resource),
+
+            FHIRResponse::Capabilities(response) => {
+                FHIRResponse::ok_json(header, &response.capabilities)
+            }
+
+            FHIRResponse::History(history_response) => {
+                FHIRResponse::history_response(header, history_response)
+            }
+
+            FHIRResponse::Search(search_response) => {
+                FHIRResponse::search_response(header, search_response)
+            }
+
+            FHIRResponse::Batch(response) => FHIRResponse::ok_json(header, &response.resource),
+
+            FHIRResponse::Invoke(invoke_response) => {
+                FHIRResponse::invoke_response(header, invoke_response)
+            }
+
+            FHIRResponse::Delete(delete_response) => {
+                FHIRResponse::delete_response(header, delete_response)
+            }
+
+            FHIRResponse::Patch(response) => FHIRResponse::ok_json(header, &response.resource),
+
+            FHIRResponse::Transaction(response) => {
+                FHIRResponse::ok_json(header, &response.resource)
+            }
+        }
+    }
+}
+
+impl FHIRResponse {
+    fn json_response<T: serde::Serialize>(
+        status: StatusCode,
+        header: HeaderMap,
+        value: &T,
+    ) -> axum::response::Response {
+        (
+            status,
+            header,
+            // Unwrap should be safe here.
+            serde_json::to_string(value).unwrap(),
+        )
+            .into_response()
+    }
+
+    fn ok_json<T: serde::Serialize>(header: HeaderMap, value: &T) -> axum::response::Response {
+        Self::json_response(StatusCode::OK, header, value)
+    }
+
+    fn created_json<T: serde::Serialize>(header: HeaderMap, value: &T) -> axum::response::Response {
+        Self::json_response(StatusCode::CREATED, header, value)
+    }
+
+    fn no_content(header: HeaderMap) -> axum::response::Response {
+        (StatusCode::NO_CONTENT, header, "").into_response()
+    }
+
+    fn not_found() -> axum::response::Response {
+        OperationOutcomeError::error(IssueType::not_found(), "Resource not found.".to_string())
+            .into_response()
+    }
+
+    fn history_response(header: HeaderMap, response: HistoryResponse) -> axum::response::Response {
+        match response {
+            HistoryResponse::Instance(response) => Self::ok_json(header, &response.bundle),
+            HistoryResponse::Type(response) => Self::ok_json(header, &response.bundle),
+            HistoryResponse::System(response) => Self::ok_json(header, &response.bundle),
+        }
+    }
+
+    fn search_response(header: HeaderMap, response: SearchResponse) -> axum::response::Response {
+        match response {
+            SearchResponse::Type(response) => Self::ok_json(header, &response.bundle),
+            SearchResponse::System(response) => Self::ok_json(header, &response.bundle),
+        }
+    }
+
+    fn invoke_response(header: HeaderMap, response: InvokeResponse) -> axum::response::Response {
+        match response {
+            InvokeResponse::Instance(response) => Self::ok_json(header, &response.resource),
+            InvokeResponse::Type(response) => Self::ok_json(header, &response.resource),
+            InvokeResponse::System(response) => Self::ok_json(header, &response.resource),
+        }
+    }
+
+    fn delete_response(header: HeaderMap, response: DeleteResponse) -> axum::response::Response {
+        match response {
+            DeleteResponse::Instance(response) => Self::ok_json(header, &response.resource),
+            DeleteResponse::Type(_) | DeleteResponse::System(_) => Self::no_content(header),
         }
     }
 }
