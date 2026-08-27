@@ -10,9 +10,16 @@ fn append_primitive_value(buffer: &mut String, value: &PrimitiveValue) {
         PrimitiveValue::Boolean(b) => {
             let _ = write!(buffer, "{b}");
         }
-        PrimitiveValue::Number(n) => {
-            let _ = write!(buffer, "{n}");
+        PrimitiveValue::U64(u) => {
+            let _ = write!(buffer, "{u}");
         }
+        PrimitiveValue::I64(i) => {
+            let _ = write!(buffer, "{i}");
+        }
+        PrimitiveValue::F64(f) => {
+            let _ = write!(buffer, "{f}");
+        }
+
         PrimitiveValue::String(s) => {
             buffer.push_str(s);
         }

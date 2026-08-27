@@ -41,7 +41,7 @@ fn reference_value(reference: &Reference) -> Result<String, OperationOutcomeErro
 /// Resolves the `patient` and `group` input parameters into a flat,
 /// de-duplicated list of patient reference strings (e.g. `"Patient/123"`).
 /// `group` members that aren't Patient references are skipped, since
-/// non-Patient compartments (Practitioner, Device, RelatedPerson) aren't
+/// non-Patient compartments `(Practitioner, Device, RelatedPerson)` aren't
 /// supported yet.
 async fn resolve_patient_references<
     CTX: Send + Sync + Clone + 'static,
@@ -221,9 +221,7 @@ async fn get_resources_to_process<
     let patient_references = resolve_patient_references(context.clone(), client, input).await?;
 
     if !patient_references.is_empty() {
-        let last_updated_filter = since_instant
-            .as_ref()
-            .map(|since| format!("gt{}", since.to_string()));
+        let last_updated_filter = since_instant.as_ref().map(|since| format!("gt{since:?}"));
 
         return compartment::resources_for_patients(
             context,
@@ -237,9 +235,9 @@ async fn get_resources_to_process<
 
     let since = since_instant.unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
 
-    let resource_limit = requested_limit(input)
-        .map(|limit| limit.min(MAX_RESOURCES_PER_RUN))
-        .unwrap_or(MAX_RESOURCES_PER_RUN);
+    let resource_limit = requested_limit(input).map_or(MAX_RESOURCES_PER_RUN, |limit| {
+        limit.min(MAX_RESOURCES_PER_RUN)
+    });
 
     let mut combined: Option<Bundle> = None;
     let mut offset = 0u32;
