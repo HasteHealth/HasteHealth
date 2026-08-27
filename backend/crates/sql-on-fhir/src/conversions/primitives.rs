@@ -17,7 +17,9 @@ use serde::{Deserialize, Serialize};
 #[serde(untagged)]
 pub enum PrimitiveValue {
     Boolean(bool),
-    Number(f64),
+    U64(u64),
+    I64(i64),
+    F64(f64),
     String(String),
 }
 
@@ -119,16 +121,13 @@ fn convert_fhir_primitive(
                 .map(|date_time| PrimitiveValue::String(date_time.to_string()))
         }),
         "decimal" => convert_with::<FHIRDecimal, _, _>(value, "decimal", |primitive| {
-            primitive.value.map(PrimitiveValue::Number)
+            primitive.value.map(PrimitiveValue::F64)
         }),
         "boolean" => convert_with::<FHIRBoolean, _, _>(value, "boolean", |primitive| {
             primitive.value.map(PrimitiveValue::Boolean)
         }),
         "integer" => convert_with::<FHIRInteger, _, _>(value, "integer", |primitive| {
-            primitive
-                .value
-                // FIXME: Do not convert to f64.
-                .map(|number| PrimitiveValue::Number(number as f64))
+            primitive.value.map(PrimitiveValue::I64)
         }),
         "string" => convert_with::<FHIRString, _, _>(value, "string", |primitive| {
             primitive.value.clone().map(PrimitiveValue::String)
@@ -152,16 +151,10 @@ fn convert_fhir_primitive(
             primitive.value.clone().map(PrimitiveValue::String)
         }),
         "unsignedInt" => convert_with::<FHIRUnsignedInt, _, _>(value, "unsignedInt", |primitive| {
-            primitive
-                .value
-                // FIXME: Do not convert to f64.
-                .map(|number| PrimitiveValue::Number(number as f64))
+            primitive.value.map(PrimitiveValue::U64)
         }),
         "positiveInt" => convert_with::<FHIRPositiveInt, _, _>(value, "positiveInt", |primitive| {
-            primitive
-                .value
-                // FIXME: Do not convert to f64.
-                .map(|number| PrimitiveValue::Number(number as f64))
+            primitive.value.map(PrimitiveValue::U64)
         }),
         "markdown" => convert_with::<FHIRMarkdown, _, _>(value, "markdown", |primitive| {
             primitive.value.clone().map(PrimitiveValue::String)
@@ -204,13 +197,12 @@ fn convert_fhirpath_system_type(
             .as_any()
             .downcast_ref::<i64>()
             .copied()
-            // FIXME: Do not convert to f64.
-            .map(|number| PrimitiveValue::Number(number as f64))),
+            .map(PrimitiveValue::I64)),
         "http://hl7.org/fhirpath/System.Decimal" => Ok(value
             .as_any()
             .downcast_ref::<f64>()
             .copied()
-            .map(PrimitiveValue::Number)),
+            .map(PrimitiveValue::F64)),
         "http://hl7.org/fhirpath/System.Date" => Ok(value
             .as_any()
             .downcast_ref::<Date>()
