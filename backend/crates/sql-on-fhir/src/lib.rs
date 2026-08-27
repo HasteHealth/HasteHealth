@@ -223,7 +223,7 @@ async fn get_resources_to_process<
     if !patient_references.is_empty() {
         let last_updated_filter = since_instant
             .as_ref()
-            .map(|since| format!("gt{since}"));
+            .map(|since| format!("gt{since:?}"));
 
         return compartment::resources_for_patients(
             context,
