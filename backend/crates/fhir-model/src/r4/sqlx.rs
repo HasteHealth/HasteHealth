@@ -37,7 +37,8 @@ where
 
 // More effecient impl to avoid cloning the value. No need to own as writing bytes and non mutating.
 pub struct FHIRJsonRef<'a, T: ?Sized>(pub &'a T);
-impl<'a, T> sqlx::Type<Postgres> for FHIRJsonRef<'a, T>
+
+impl<T> sqlx::Type<Postgres> for FHIRJsonRef<'_, T>
 where
     T: serde::Serialize + serde::de::DeserializeOwned,
 {
@@ -68,7 +69,7 @@ where
         buf.push(1);
 
         // the JSON data written to the buffer is the same regardless of parameter type
-        serde_json::to_writer(&mut **buf, &*self.0)?;
+        serde_json::to_writer(&mut **buf, self.0)?;
 
         Ok(IsNull::No)
     }
@@ -86,12 +87,12 @@ where
     }
 }
 
-impl<'r> Encode<'r, Postgres> for ResourceType {
+impl Encode<'_, Postgres> for ResourceType {
     fn encode_by_ref(
         &self,
         buf: &mut PgArgumentBuffer,
     ) -> Result<sqlx::encode::IsNull, sqlx::error::BoxDynError> {
-        buf.write(self.as_ref().as_bytes())?;
+        buf.write_all(self.as_ref().as_bytes())?;
         Ok(sqlx::encode::IsNull::No)
     }
 }

@@ -11,7 +11,7 @@ impl MetaValue for Time {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
@@ -19,7 +19,7 @@ impl MetaValue for Time {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
@@ -48,7 +48,7 @@ impl MetaValue for DateTime {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
@@ -56,7 +56,7 @@ impl MetaValue for DateTime {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
@@ -85,7 +85,7 @@ impl MetaValue for Date {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
@@ -93,7 +93,7 @@ impl MetaValue for Date {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
@@ -122,7 +122,7 @@ impl MetaValue for Instant {
         None
     }
 
-    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+    fn get_index(&self, _index: usize) -> Option<&dyn MetaValue> {
         None
     }
 
@@ -130,7 +130,7 @@ impl MetaValue for Instant {
         None
     }
 
-    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+    fn get_index_mut(&mut self, _index: usize) -> Option<&mut dyn MetaValue> {
         None
     }
 
