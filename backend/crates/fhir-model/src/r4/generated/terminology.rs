@@ -131657,7 +131657,7 @@ impl IdentityProviderAccessType {
 pub struct IdentityProviderPkceChallengeMethod;
 impl ValueSetDef for IdentityProviderPkceChallengeMethod {
     const URL: &str = "https://haste.health/fhir/ValueSet/IdentityProviderPKCEChallengeMethod";
-    const CODES: &[&str] = &["S256", "plain"];
+    const CODES: &[&str] = &["S256"];
 }
 impl IdentityProviderPkceChallengeMethod {
     #[inline]
@@ -131665,12 +131665,6 @@ impl IdentityProviderPkceChallengeMethod {
     #[doc = "S256"]
     pub fn s256() -> BoundCode<Self> {
         BoundCode::from_index(0u16)
-    }
-    #[inline]
-    #[must_use]
-    #[doc = "plain"]
-    pub fn plain() -> BoundCode<Self> {
-        BoundCode::from_index(1u16)
     }
     #[inline]
     #[must_use]

@@ -190,8 +190,6 @@ fn oidc_pkce_challenge_method(
 ) -> Option<PKCECodeChallengeMethod> {
     if challenge == &IdentityProviderPkceChallengeMethod::s256() {
         Some(PKCECodeChallengeMethod::S256)
-    } else if challenge == &IdentityProviderPkceChallengeMethod::plain() {
-        Some(PKCECodeChallengeMethod::Plain)
     } else {
         None
     }
