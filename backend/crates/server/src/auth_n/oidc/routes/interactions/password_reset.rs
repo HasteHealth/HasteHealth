@@ -26,7 +26,7 @@ use haste_repository::{
     Repository,
     admin::{ProjectModelAdmin, TenantModelAdmin},
     types::{
-        authorization_code::CreateAuthorizationCode,
+        authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
         user::{AuthMethod, CreateUser, UserSearchClauses},
     },
 };
@@ -145,6 +145,12 @@ pub async fn password_reset_verify_get<
     )
     .await?
     {
+        if code.kind != AuthorizationCodeKind::PasswordReset {
+            return Err(OperationOutcomeError::error(
+                IssueType::not_found(),
+                "Invalid Password reset code.".to_string(),
+            ));
+        }
         if code.is_expired.unwrap_or(true) {
             return Err(OperationOutcomeError::fatal(
                 IssueType::invalid(),
@@ -221,6 +227,12 @@ pub async fn password_reset_verify_post<
     )
     .await?
     {
+        if code.kind != AuthorizationCodeKind::PasswordReset {
+            return Err(OperationOutcomeError::error(
+                IssueType::not_found(),
+                "Invalid Password reset code.".to_string(),
+            ));
+        }
         ProjectModelAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
             &*state.repo,
             &tenant,
