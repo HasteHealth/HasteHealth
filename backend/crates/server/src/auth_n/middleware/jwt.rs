@@ -1,6 +1,12 @@
 use crate::{
-    auth_n::certificates, config::ServerConfig, extract::bearer_token::AuthBearer,
-    route_path::project_path, services::ServerState,
+    auth_n::certificates,
+    config::ServerConfig,
+    extract::{
+        bearer_token::AuthBearer,
+        path_tenant::{ProjectIdentifier, TenantIdentifier},
+    },
+    route_path::{api_fhir_root_url, project_path},
+    services::ServerState,
 };
 use axum::{
     extract::{OriginalUri, Request, State},
@@ -8,6 +14,7 @@ use axum::{
     middleware::Next,
     response::{IntoResponse as _, Response},
 };
+use axum_extra::extract::Cached;
 use derivative::Derivative;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -16,10 +23,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
 use haste_repository::Repository;
 use jsonwebtoken::Validation;
-use std::{
-    path::PathBuf,
-    sync::{Arc, LazyLock},
-};
+use std::{path::PathBuf, sync::Arc};
 use url::Url;
 
 #[derive(Derivative)]
@@ -31,13 +35,12 @@ pub struct User {
     pub claims: haste_jwt::claims::UserTokenClaims,
 }
 
-static VALIDATION_CONFIG: LazyLock<Validation> = LazyLock::new(|| {
-    let mut config = Validation::new(jsonwebtoken::Algorithm::RS256);
-    config.validate_aud = false;
-    config
-});
-
-fn validate_jwt(config: &ServerConfig, token: &str) -> Result<UserTokenClaims, StatusCode> {
+fn validate_jwt(
+    config: &ServerConfig,
+    tenant: &TenantId,
+    project: &ProjectId,
+    token: &str,
+) -> Result<UserTokenClaims, StatusCode> {
     let header = jsonwebtoken::decode_header(token).map_err(|_| StatusCode::UNAUTHORIZED)?;
 
     let kid = header.kid.ok_or(StatusCode::UNAUTHORIZED)?;
@@ -48,12 +51,17 @@ fn validate_jwt(config: &ServerConfig, token: &str) -> Result<UserTokenClaims, S
         .decoding_key(kid.as_str())
         .map_err(|_| StatusCode::UNAUTHORIZED)?;
 
-    let result = jsonwebtoken::decode::<UserTokenClaims>(
-        token,
-        &decoding_key.decoding_key,
-        &VALIDATION_CONFIG,
-    )
-    .map_err(|_| StatusCode::UNAUTHORIZED)?;
+    // Per SMART on FHIR, `aud` identifies the FHIR resource server a token was
+    // minted for, binding the token to this tenant/project's FHIR endpoint.
+    let expected_audience = api_fhir_root_url(&config.api_uri, tenant, project)
+        .map_err(|_| StatusCode::UNAUTHORIZED)?;
+
+    let mut validation = Validation::new(jsonwebtoken::Algorithm::RS256);
+    validation.set_audience(&[expected_audience.as_str()]);
+
+    let result =
+        jsonwebtoken::decode::<UserTokenClaims>(token, &decoding_key.decoding_key, &validation)
+            .map_err(|_| StatusCode::UNAUTHORIZED)?;
 
     Ok(result.claims)
 }
@@ -146,6 +154,8 @@ pub async fn token_verifcation<
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     // run the `HeaderMap` extractor
     AuthBearer(token): AuthBearer,
     // you can also add more extractors here but the last
@@ -163,7 +173,7 @@ pub async fn token_verifcation<
         ));
     };
 
-    match validate_jwt(state.config.as_ref(), &token) {
+    match validate_jwt(state.config.as_ref(), &tenant, &project, &token) {
         Ok(claims) => {
             request.extensions_mut().insert(Arc::new(User {
                 token: Some(token),
