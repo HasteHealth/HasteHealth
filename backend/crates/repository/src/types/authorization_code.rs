@@ -19,8 +19,6 @@ pub enum AuthorizationCodeKind {
 #[sqlx(type_name = "pkce_method")] // only for PostgreSQL to match a type definition
 pub enum PKCECodeChallengeMethod {
     S256,
-    #[sqlx(rename = "plain")]
-    Plain,
 }
 
 impl<'a> TryFrom<&'a str> for PKCECodeChallengeMethod {
@@ -29,7 +27,6 @@ impl<'a> TryFrom<&'a str> for PKCECodeChallengeMethod {
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         match value {
             "S256" => Ok(PKCECodeChallengeMethod::S256),
-            "plain" => Ok(PKCECodeChallengeMethod::Plain),
             _ => Err(OperationOutcomeError::error(
                 IssueType::invalid(),
                 "Invalid PKCE code challenge method.".to_string(),
@@ -42,7 +39,6 @@ impl From<PKCECodeChallengeMethod> for String {
     fn from(method: PKCECodeChallengeMethod) -> Self {
         match method {
             PKCECodeChallengeMethod::S256 => "S256".to_string(),
-            PKCECodeChallengeMethod::Plain => "plain".to_string(),
         }
     }
 }

@@ -23,10 +23,6 @@
                     {
                         "code": "S256",
                         "display": "S256"
-                    },
-                    {
-                        "code": "plain",
-                        "display": "plain"
                     }
                 ]
             }

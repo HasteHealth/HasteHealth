@@ -21,22 +21,17 @@ pub fn generate_code_verifier() -> String {
 
 pub fn generate_code_challenge(
     code_verifier: &str,
-    method: &PKCECodeChallengeMethod,
+    _method: &PKCECodeChallengeMethod,
 ) -> Result<String, OperationOutcomeError> {
-    match method {
-        PKCECodeChallengeMethod::S256 => {
-            let mut hasher = Sha256::new();
-            hasher.update(code_verifier.as_bytes());
-            let hashed = hasher.finalize();
+    let mut hasher = Sha256::new();
+    hasher.update(code_verifier.as_bytes());
+    let hashed = hasher.finalize();
 
-            let mut computed_challenge = URL_SAFE.encode(hashed);
-            // Remove last character which is an equal.
-            computed_challenge.pop();
+    let mut computed_challenge = URL_SAFE.encode(hashed);
+    // Remove last character which is an equal.
+    computed_challenge.pop();
 
-            Ok(computed_challenge)
-        }
-        PKCECodeChallengeMethod::Plain => Ok(code_verifier.to_string()),
-    }
+    Ok(computed_challenge)
 }
 
 pub fn verify_code_verifier(
