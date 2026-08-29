@@ -11,6 +11,7 @@ use crate::{
     },
     config::ServerConfig,
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
+    route_path::api_fhir_root_url,
     services::ServerState,
 };
 use axum::{
@@ -97,6 +98,11 @@ async fn create_token_response<Repo: Repository>(
     grant_type_used: &schemas::token_body::OAuth2TokenBodyGrantType,
     args: TokenResponseArguments,
 ) -> Result<TokenResponse, OIDCError> {
+    // Per SMART on FHIR, `aud` identifies the FHIR resource server the token is
+    // valid for, binding the token to this tenant/project's FHIR endpoint.
+    let audience = api_fhir_root_url(&config.api_uri, &args.tenant, &args.project)
+        .map_err(|e| OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None))?;
+
     let cert_provider = get_certification_provider(config);
     let encoding_key = cert_provider.encoding_key().map_err(|_e| {
         OIDCError::new(
@@ -136,7 +142,7 @@ async fn create_token_response<Repo: Repository>(
             sub: AuthorId::new(args.user_id.clone()),
             exp: (chrono::Utc::now() + chrono::Duration::seconds(TOKEN_EXPIRATION as i64))
                 .timestamp() as usize,
-            aud: args.client_id.clone(),
+            aud: audience.to_string(),
             scope: args.scopes.clone(),
             tenant: args.tenant.clone(),
             subscription_tier: SubscriptionTier::try_from(tenant.subscription_tier).map_err(
