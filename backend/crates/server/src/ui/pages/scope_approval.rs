@@ -23,17 +23,15 @@ pub fn scope_approval_html(
     branding: Option<&TenantName>,
 ) -> Markup {
     let project_id = project.id.clone().map(ProjectId::new).unwrap();
-    let project_name = project
-        .name
-        .value
-        .as_ref()
-        .map(|s| Cow::Borrowed(s.as_str()))
-        .unwrap_or_else(|| Cow::Owned(project_id.as_ref().to_string()));
+    let project_name = project.name.value.as_ref().map_or_else(
+        || Cow::Owned(project_id.as_ref().to_string()),
+        |s| Cow::Borrowed(s.as_str()),
+    );
 
     let scope_route = oidc_route_string(tenant, &project_id, "auth/scope");
     let scope_route_str = scope_route.to_str().expect("Could not create scope route");
 
-    page_html(html! {
+    page_html(&html! {
             (page_banner(tenant.as_ref(), Some(&project_name), branding))
             div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow  md:mt-0  xl:p-0" {
                 div class="p-6 space-y-4 md:space-y-6 sm:p-8" {

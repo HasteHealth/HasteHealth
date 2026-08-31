@@ -103,7 +103,7 @@ pub async fn password_reset_initiate_post<
         Ok(message_html(
             Some(&tenant),
             Some(&project_resource.0),
-            html! {"An email will arrive in the next few minutes with the next steps to reset your password."},
+            &html! {"An email will arrive in the next few minutes with the next steps to reset your password."},
             Some(&branding),
         ))
     } else {
@@ -160,7 +160,7 @@ pub async fn password_reset_verify_get<
         Ok(message_html(
             Some(&tenant),
             Some(&project_resource),
-            html! {
+            &html! {
                 div {}
                 h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl "{
                     "Set your password"}
@@ -271,7 +271,7 @@ pub async fn password_reset_verify_post<
         Ok(message_html(
             Some(&tenant),
             Some(&project_resource),
-            html! { span {
+            &html! { span {
                     "Password has been reset successfully. "
                     @if let Some(admin_app_url) = admin_app_url {
                         "Go to the Admin App "

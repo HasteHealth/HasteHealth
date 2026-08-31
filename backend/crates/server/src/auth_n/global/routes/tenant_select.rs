@@ -30,7 +30,7 @@ pub async fn tenant_select_get<
     let signup_url = "/auth/signup";
     let action_url = "/auth/tenant-select";
 
-    Ok(page_html(html! {
+    Ok(page_html(&html! {
         (banner("Enter your tenant identifier", None))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {

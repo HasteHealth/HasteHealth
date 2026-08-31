@@ -26,7 +26,7 @@ where
             .and_then(|v| v.to_str().ok())
             .unwrap_or("");
 
-        let bytes = to_bytes(body, 1000000).await.map_err(|_e| {
+        let bytes = to_bytes(body, 1_000_000).await.map_err(|_e| {
             OperationOutcomeError::fatal(
                 IssueType::exception(),
                 "Failed to extract request body".to_string(),

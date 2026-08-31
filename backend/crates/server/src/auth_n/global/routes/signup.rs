@@ -41,12 +41,12 @@ pub async fn global_signup_get<
     CSRFToken(csrf_token): CSRFToken,
     State(_app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Response, OperationOutcomeError> {
-    Ok(page_html(html! {
+    Ok(page_html(&html! {
         (banner("Sign up", None))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow  md:mt-0  xl:p-0 " {
             form class="space-y-4 p-6 sm:p-8" action=("/auth/signup") method="POST" {
                 input type="hidden" name="csrf_token" value=(csrf_token) {}
-                div class="grid grid-cols-4 gap-1 space-y-1" {                
+                div class="grid grid-cols-4 gap-1 space-y-1" {
                     div class="col-span-4" {
                         label for="email" class="block text-sm font-medium text-slate-600 dark:text-white" {
                             "Email address"
@@ -181,7 +181,7 @@ pub async fn global_signup_post<
     Ok(message_html(
 None,
         None,
-        html! {
+        &html! {
             div {
                 span {
                     "Welcome to Haste Health"
