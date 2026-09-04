@@ -2,7 +2,7 @@ use maud::{Markup, html};
 
 use crate::static_assets::asset_route;
 
-pub fn page_html(children: Markup) -> Markup {
+pub fn page_html(children: &Markup) -> Markup {
     html! {
         head {
             meta charset="utf-8" {}

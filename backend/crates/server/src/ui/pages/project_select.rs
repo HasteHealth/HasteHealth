@@ -20,7 +20,7 @@ pub fn project_select_html(
     projects: &[Project],
     branding: Option<&TenantName>,
 ) -> Result<Markup, OperationOutcomeError> {
-    Ok(page_html(html! {
+    Ok(page_html(&html! {
         (page_banner(tenant.as_ref(), None, branding))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
             @if projects.is_empty() {
@@ -34,7 +34,7 @@ pub fn project_select_html(
                             @for project
                             in projects.iter() {
                                 div {
-                                    a href=(admin_app::redirect_url(config, tenant, &get_project_id(project)?).unwrap_or("".to_string()))
+                                    a href=(admin_app::redirect_url(config, tenant, &get_project_id(project)?).unwrap_or_default())
                                     class="block w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-900 transition-colors hover:bg-brand-50 hover:border-brand-200" {
                                         (project.name.value.as_ref().unwrap_or(&project.id.clone().unwrap_or_else(|| "Unnamed Project".to_string())))
                                     }

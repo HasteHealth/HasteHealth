@@ -126,7 +126,7 @@ pub async fn send_password_reset_email<
         &Uri::try_from(api_url.as_str()).map_err(|_| {
             OperationOutcomeError::fatal(IssueType::exception(), "API Url is invalid".to_string())
         })?,
-        html! {
+        &html! {
             @if let Some(message) = message.body {
                 div style="padding-top: 24px;" {
                     (message)

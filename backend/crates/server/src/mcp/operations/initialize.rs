@@ -12,9 +12,7 @@ use haste_fhir_client::FHIRClient;
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
-pub async fn initialize<
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->(
+pub fn initialize<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static>(
     _ctx: Arc<ServerCTX<Client>>,
     _request: &InitializeRequest,
 ) -> Result<InitializeResult, MCPError<serde_json::Value>> {

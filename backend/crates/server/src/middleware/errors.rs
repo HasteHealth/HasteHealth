@@ -50,7 +50,7 @@ pub async fn operation_outcome_error_handle(
             let issue = outcome.issue.first();
             let body_html = error_html(
                 &tenant,
-                html! {
+                &html! {
                     div class ="text-xl font-semibold text-red-600 mb-4" {
                        (issue.as_ref().map(|i| &i.code)
                             .and_then(|s| s.as_str())

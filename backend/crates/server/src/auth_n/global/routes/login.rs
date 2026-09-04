@@ -40,7 +40,7 @@ pub async fn global_login_get(
     let global_login_post_uri = "/auth/login";
     let signup_url = "/auth/signup";
 
-    Ok(page_html(html! {
+    Ok(page_html(&html! {
             (banner("Login", None))
             div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow  md:mt-0  xl:p-0" {
                 form class="space-y-4 md:space-y-6" action=(global_login_post_uri) method="POST" {
@@ -103,7 +103,7 @@ pub async fn global_login_post<
         &Uri::try_from(api_url.as_str()).map_err(|_| {
             OperationOutcomeError::fatal(IssueType::exception(), "API Url is invalid".to_string())
         })?,
-        html! {
+        &html! {
             div style="padding-top: 24px;" {
                 "We received a request to log in to your account. If you made this request, click one of the tenants we found associated with your email."
             }
@@ -139,7 +139,7 @@ pub async fn global_login_post<
     Ok(message_html(
         None,
         None,
-        html! { div class="space-y-4 text-slate-900" {
+        &html! { div class="space-y-4 text-slate-900" {
 
                 r#"An email has been sent to your email address "#
                 span class="underline text-brand-600" { (&login_data.email) }

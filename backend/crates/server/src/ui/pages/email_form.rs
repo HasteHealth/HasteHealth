@@ -16,9 +16,9 @@ pub fn email_form_html(
     let project_name = project
         .and_then(|p| p.name.value.as_ref())
         .or_else(|| project.and_then(|p| p.id.as_ref()))
-        .map(|s| s.as_str());
+        .map(std::string::String::as_str);
 
-    page_html(html! {
+    page_html(&html! {
         (page_banner(tenant.as_ref(), project_name, branding))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow  md:mt-0  xl:p-0 " {
             form class="space-y-4 md:space-y-6" action=(email_information.continue_url) method="POST" {

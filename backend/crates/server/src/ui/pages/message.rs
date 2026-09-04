@@ -6,7 +6,7 @@ use std::borrow::Cow;
 pub fn message_html(
     tenant: Option<&TenantId>,
     project: Option<&haste_fhir_model::r4::generated::resources::Project>,
-    message: Markup,
+    message: &Markup,
     branding: Option<&TenantName>,
 ) -> Markup {
     let project_id = project.map(|project| project.id.clone().map(ProjectId::new).unwrap());
@@ -15,8 +15,8 @@ pub fn message_html(
         .map(|s| Cow::Borrowed(s.as_str()))
         .or_else(|| project_id.map(|p_id| Cow::Owned(p_id.as_ref().to_string())));
 
-    page_html(html! {
-        (page_banner(tenant.map(|t| t.as_ref()).unwrap_or(""), project_name.as_ref().map(|p| p.as_ref()), branding))
+    page_html(&html! {
+        (page_banner(tenant.map_or("", |t| t.as_ref()), project_name.as_deref(), branding))
         div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow  md:mt-0  xl:p-0" {
             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                 (message)

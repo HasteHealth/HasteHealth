@@ -59,7 +59,7 @@ pub async fn mcp_handler<
 
     match mcp_request {
         MCPRequest::Initialize(initialize_request) => {
-            let result = operations::initialize(ctx, &initialize_request).await?;
+            let result = operations::initialize(ctx, &initialize_request)?;
             Ok(Json(JSONRPCResult {
                 id: initialize_request.id.clone(),
                 result: ServerResult::Initialize(result),

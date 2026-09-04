@@ -27,8 +27,8 @@ static OPERATION_POINTS: LazyLock<OperationScoringPoints> =
 
 // Per day Limits
 static DEFAULT_FREE_TIER: usize = 25000;
-static DEFAULT_PRO_TIER: usize = 1000000;
-static DEFAULT_TEAM_TIER: usize = 5000000;
+static DEFAULT_PRO_TIER: usize = 1_000_000;
+static DEFAULT_TEAM_TIER: usize = 5_000_000;
 
 struct SubscriptionTiers {
     free: usize,

@@ -244,7 +244,7 @@ pub async fn activate_post<
     Ok(message_html(
         Some(&tenant),
         None,
-        html! { span {
+        &html! { span {
                 "MFA has been activated successfully. You can close this window."
             }
         },

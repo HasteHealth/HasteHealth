@@ -53,9 +53,8 @@ impl<
                 UserRole::Admin | UserRole::Owner => {
                     if let Some(next) = next {
                         return next(state, context).await;
-                    } else {
-                        Ok(context)
                     }
+                    Ok(context)
                 }
                 UserRole::Member => {
                     let policies = state
