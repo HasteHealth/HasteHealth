@@ -66,6 +66,7 @@ argon2 = { version = "0.5.3", default-features = false, features = [
 ] }
 axum = { version = "0.8.9", default-features = false }
 base64 = { version = "0.22.1", default-features = false }
+bytes = { version = "1.12.1", default-features = false }
 chrono = { version = "0.4.45", default-features = false, features = ["clock"] }
 clap = { version = "4.6.6", default-features = false }
 criterion = { version = "0.8", default-features = false }

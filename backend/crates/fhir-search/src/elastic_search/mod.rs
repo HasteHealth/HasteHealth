@@ -3,12 +3,14 @@ use crate::{
     SearchOptions, SearchParameterResolve, SearchReturn,
     indexing_conversion::{self, DynamicParameterEntry, InsertableIndex},
 };
+use bytes::{Bytes, BytesMut};
 use elasticsearch::{
     BulkOperation, BulkParts, Elasticsearch,
     auth::Credentials,
     cert::CertificateValidation,
     http::{
         Url,
+        request::Body,
         transport::{BuildError, SingleNodeConnectionPool, TransportBuilder},
     },
 };
@@ -134,18 +136,87 @@ pub fn create_es_client(
     Ok(Arc::new(elasticsearch_client))
 }
 
-type Tasks = tokio::task::JoinHandle<(
-    IndexResource,
-    Result<BulkOperation<HashMap<String, InsertableIndex>>, OperationOutcomeError>,
-)>;
+type Tasks = tokio::task::JoinHandle<(IndexResource, Result<Bytes, OperationOutcomeError>)>;
+
+/// Target size, in bytes, for a single Elasticsearch `_bulk` request body.
+/// Kept mid-range of the recommended 5-15MB window.
+const TARGET_BULK_BATCH_BYTES: usize = 10 * 1024 * 1024;
+
+/// Serializes a bulk operation into the exact NDJSON bytes (`{"index":{...}}\n{...}\n`,
+/// or the `delete` equivalent with no second line) that would be sent to
+/// Elasticsearch. Doing this once, here, rather than letting the client
+/// serialize it later, means: (1) a document's exact size is known for
+/// byte-based batching instead of estimated, and (2) it's only JSON-encoded
+/// once -- the resulting `Bytes` is what actually gets sent, since `Bytes`
+/// implements [`Body`] as a raw passthrough (see `send_bulk_operations`).
+fn serialize_bulk_operation(
+    op: &BulkOperation<HashMap<String, InsertableIndex>>,
+) -> Result<Bytes, OperationOutcomeError> {
+    let mut buf = BytesMut::new();
+    op.write(&mut buf).map_err(SearchError::from)?;
+    Ok(buf.freeze())
+}
 
 struct CollectedOperations {
-    bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>>,
-    /// Parallel to `bulk_ops` (same order) - the resource each bulk op was
+    /// Each resource's operation, pre-serialized to the exact bytes that will
+    /// be sent to Elasticsearch. `Bytes::len()` is this batch's byte-size
+    /// accounting; the same bytes are the `_bulk` request body, so a
+    /// document is JSON-encoded exactly once.
+    bulk_lines: Vec<Bytes>,
+    /// Parallel to `bulk_lines` (same order) - the resource each line was
     /// built from, kept so a failed Elasticsearch bulk item can be attributed
     /// back to the resource that produced it.
     sent_resources: Vec<IndexResource>,
     failed: Vec<IndexFailure>,
+}
+
+/// Groups indices `0..sizes.len()` into batches whose cumulative `sizes` stay
+/// within `target_bytes`, returning each batch's length
+fn batch_lengths_by_size(sizes: &[usize], target_bytes: usize) -> Vec<usize> {
+    let mut batch_lengths = Vec::new();
+    let mut current_len = 0usize;
+    let mut current_size = 0usize;
+
+    for &size in sizes {
+        if current_len > 0 && current_size + size > target_bytes {
+            batch_lengths.push(current_len);
+            current_len = 0;
+            current_size = 0;
+        }
+
+        current_len += 1;
+        current_size += size;
+    }
+
+    if current_len > 0 {
+        batch_lengths.push(current_len);
+    }
+
+    batch_lengths
+}
+
+/// Splits collected bulk operation lines (and their matching resources) into
+/// batches sized by `batch_lengths_by_size`, so a `_bulk` request's actual
+/// document count varies with how large those documents are.
+fn batch_by_byte_size(
+    bulk_lines: Vec<Bytes>,
+    sent_resources: Vec<IndexResource>,
+    target_bytes: usize,
+) -> Vec<(Vec<Bytes>, Vec<IndexResource>)> {
+    let sizes: Vec<usize> = bulk_lines.iter().map(Bytes::len).collect();
+
+    let mut lines_iter = bulk_lines.into_iter();
+    let mut resources_iter = sent_resources.into_iter();
+
+    batch_lengths_by_size(&sizes, target_bytes)
+        .into_iter()
+        .map(|len| {
+            (
+                (&mut lines_iter).take(len).collect(),
+                (&mut resources_iter).take(len).collect(),
+            )
+        })
+        .collect()
 }
 
 /// See <https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-bulk>
@@ -269,10 +340,10 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
     async fn send_bulk_operations(
         &self,
         search_index_name: &'static str,
-        bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>>,
+        bulk_lines: Vec<Bytes>,
         sent_resources: Vec<IndexResource>,
     ) -> Result<IndexOutcome, OperationOutcomeError> {
-        if bulk_ops.is_empty() {
+        if bulk_lines.is_empty() {
             return Ok(IndexOutcome {
                 succeeded: 0,
                 failed: Vec::new(),
@@ -282,7 +353,7 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
         let res = self
             .client
             .bulk(BulkParts::Index(search_index_name))
-            .body(bulk_ops)
+            .body(bulk_lines)
             .send()
             .await
             .map_err(SearchError::from)?;
@@ -328,7 +399,7 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
     ) -> Result<CollectedOperations, OperationOutcomeError> {
         tracing::trace!("Awaiting {} indexing tasks.", tasks.len());
 
-        let mut bulk_ops = Vec::with_capacity(tasks.len());
+        let mut bulk_lines = Vec::with_capacity(tasks.len());
         let mut sent_resources = Vec::with_capacity(tasks.len());
         let mut failed = Vec::new();
 
@@ -338,16 +409,16 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
                 .map_err(|e| OperationOutcomeError::fatal(IssueType::exception(), e.to_string()))?;
 
             match result {
-                Ok(bulk_op) => {
+                Ok(bytes) => {
                     sent_resources.push(resource);
-                    bulk_ops.push(bulk_op);
+                    bulk_lines.push(bytes);
                 }
                 Err(error) => failed.push(IndexFailure { resource, error }),
             }
         }
 
         Ok(CollectedOperations {
-            bulk_ops,
+            bulk_lines,
             sent_resources,
             failed,
         })
@@ -358,10 +429,7 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
         parameter_resolver: Arc<ParameterResolver>,
         resource: IndexResource,
         search_index_name: &'static str,
-    ) -> (
-        IndexResource,
-        Result<BulkOperation<HashMap<String, InsertableIndex>>, OperationOutcomeError>,
-    ) {
+    ) -> (IndexResource, Result<Bytes, OperationOutcomeError>) {
         let result = match &resource.fhir_method {
             FHIRMethod::Create | FHIRMethod::Update => {
                 Self::build_index_operation(
@@ -373,14 +441,20 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
                 .await
             }
 
-            FHIRMethod::Delete => Ok(BulkOperation::delete(unique_index_id(
-                &resource.tenant,
-                &resource.project,
-                &resource.resource_type,
-                &resource.id,
-            ))
-            .index(search_index_name)
-            .into()),
+            FHIRMethod::Delete => {
+                let index_id = unique_index_id(
+                    &resource.tenant,
+                    &resource.project,
+                    &resource.resource_type,
+                    &resource.id,
+                );
+                let op: BulkOperation<HashMap<String, InsertableIndex>> =
+                    BulkOperation::delete(index_id)
+                        .index(search_index_name)
+                        .into();
+
+                serialize_bulk_operation(&op)
+            }
 
             method @ FHIRMethod::Read => Err(OperationOutcomeError::from(
                 SearchError::UnsupportedFHIRMethod((*method).clone()),
@@ -395,7 +469,7 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
         parameter_resolver: Arc<ParameterResolver>,
         resource: &IndexResource,
         search_index_name: &'static str,
-    ) -> Result<BulkOperation<HashMap<String, InsertableIndex>>, OperationOutcomeError> {
+    ) -> Result<Bytes, OperationOutcomeError> {
         // Id is not sufficient because different Resourcetypes may have the same id.
         // Additionally should be namespaced by tenant and project to avoid conflicts across tenants and projects.
         let index_id = unique_index_id(
@@ -414,10 +488,12 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
 
         Self::add_index_metadata(&mut elastic_index, resource);
 
-        Ok(BulkOperation::index(elastic_index)
+        let op = BulkOperation::index(elastic_index)
             .id(index_id)
             .index(search_index_name)
-            .into())
+            .into();
+
+        serialize_bulk_operation(&op)
     }
 
     fn add_index_metadata(
@@ -628,20 +704,34 @@ impl<SearchParameterResolver: SearchParameterResolve> SearchEngine
 
         let tasks = self.spawn_index_tasks(resources, search_index_name);
         let CollectedOperations {
-            bulk_ops,
+            bulk_lines,
             sent_resources,
             mut failed,
         } = self.collect_bulk_operations(tasks).await?;
 
+        let built_count = bulk_lines.len();
+        let batches = batch_by_byte_size(bulk_lines, sent_resources, TARGET_BULK_BATCH_BYTES);
+
         tracing::trace!(
-            "Bulk indexing {} resources into index: '{}'",
-            bulk_ops.len(),
-            search_index_name
+            "Bulk indexing {} resources into index '{}' across {} byte-sized batch(es)",
+            built_count,
+            search_index_name,
+            batches.len()
         );
 
-        let mut outcome = self
-            .send_bulk_operations(search_index_name, bulk_ops, sent_resources)
-            .await?;
+        let mut outcome = IndexOutcome {
+            succeeded: 0,
+            failed: Vec::new(),
+        };
+
+        for (batch_lines, batch_resources) in batches {
+            let batch_outcome = self
+                .send_bulk_operations(search_index_name, batch_lines, batch_resources)
+                .await?;
+            outcome.succeeded += batch_outcome.succeeded;
+            outcome.failed.extend(batch_outcome.failed);
+        }
+
         outcome.failed.append(&mut failed);
 
         Ok(outcome)
@@ -680,5 +770,76 @@ mod tests {
             flatten_parameter_field_name("https://sub.acme.io/v1.2/x"),
             "https://sub_acme_io/v1_2/x"
         );
+    }
+
+    #[test]
+    fn batch_lengths_by_size_empty() {
+        assert_eq!(batch_lengths_by_size(&[], 100), Vec::<usize>::new());
+    }
+
+    #[test]
+    fn batch_lengths_by_size_all_fit_in_one_batch() {
+        assert_eq!(batch_lengths_by_size(&[10, 20, 30], 100), vec![3]);
+    }
+
+    #[test]
+    fn batch_lengths_by_size_splits_when_target_exceeded() {
+        // 40 + 40 = 80 fits; +40 would be 120 > 100, so it starts a new batch.
+        assert_eq!(batch_lengths_by_size(&[40, 40, 40], 100), vec![2, 1]);
+    }
+
+    #[test]
+    fn batch_lengths_by_size_oversized_single_item_gets_its_own_batch() {
+        // A single item larger than the target must still be sent, alone,
+        // rather than blocking forever waiting to "fit".
+        assert_eq!(batch_lengths_by_size(&[5, 500, 5], 100), vec![1, 1, 1]);
+    }
+
+    #[test]
+    fn batch_lengths_by_size_exact_fit_does_not_split_early() {
+        assert_eq!(batch_lengths_by_size(&[50, 50], 100), vec![2]);
+    }
+
+    #[test]
+    fn serialize_bulk_operation_index_produces_header_and_source_lines() {
+        let mut doc = HashMap::new();
+        doc.insert(
+            "resource_type".to_string(),
+            InsertableIndex::Meta("Patient".to_string()),
+        );
+
+        let op: BulkOperation<HashMap<String, InsertableIndex>> = BulkOperation::index(doc)
+            .id("t/p/Patient/1")
+            .index("r4_search_index_v2")
+            .into();
+
+        let bytes = serialize_bulk_operation(&op).unwrap();
+        let text = std::str::from_utf8(&bytes).unwrap();
+        let lines: Vec<&str> = text.lines().collect();
+
+        // Header line + source line, each newline-terminated -- this is what
+        // `batch_by_byte_size`/`send_bulk_operations` measure and send
+        // directly, with no re-serialization.
+        assert_eq!(lines.len(), 2);
+        assert!(lines[0].contains(r#""index""#));
+        assert!(lines[0].contains(r#""_id":"t/p/Patient/1""#));
+        assert!(text.ends_with('\n'));
+    }
+
+    #[test]
+    fn serialize_bulk_operation_delete_produces_only_a_header_line() {
+        let op: BulkOperation<HashMap<String, InsertableIndex>> =
+            BulkOperation::delete("t/p/Patient/1")
+                .index("r4_search_index_v2")
+                .into();
+
+        let bytes = serialize_bulk_operation(&op).unwrap();
+        let text = std::str::from_utf8(&bytes).unwrap();
+        let lines: Vec<&str> = text.lines().collect();
+
+        // No document body for a delete -- just the action line.
+        assert_eq!(lines.len(), 1);
+        assert!(lines[0].contains(r#""delete""#));
+        assert!(text.ends_with('\n'));
     }
 }
