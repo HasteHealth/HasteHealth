@@ -579,6 +579,7 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
     // rebuilt `index` afterward so it doesn't stay under-replicated.
     let original_replicas = fetch_replica_count(elastic_search, index).await;
 
+    // create Staging Index
     create_index(
         elastic_search,
         &staging_index,
@@ -588,10 +589,12 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
     .await;
     reindex(elastic_search, index, &staging_index, Some(&expected_keys)).await;
 
+    // Remove old index and create new one with updated mapping, then reindex from staging
     delete_index(elastic_search, index).await;
     create_index(elastic_search, index, &expected_mapping_body, Some(0)).await;
     reindex(elastic_search, &staging_index, index, None).await;
 
+    // Restore the original replica count and delete the staging index
     set_replica_count(elastic_search, index, original_replicas).await;
     delete_index(elastic_search, &staging_index).await;
 
