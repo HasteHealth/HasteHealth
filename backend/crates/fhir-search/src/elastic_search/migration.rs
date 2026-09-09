@@ -225,10 +225,8 @@ fn diff_property_keys(
     (added, removed)
 }
 
-/// `number_of_replicas` is only set when the caller passes a bulk-load
-/// override (e.g. `Some(0)` while rebuilding an index during migration) --
-/// omitted, the index keeps the cluster/template default for normal,
-/// long-lived indices.
+/// Constructs the body for creating an Elasticsearch index, including settings
+/// for nested and total fields limits, and optionally the number of replicas.
 fn index_creation_body(mapping_body: &Value, number_of_replicas: Option<u32>) -> Value {
     let mut index_settings = json!({
         "mapping": {
@@ -405,10 +403,12 @@ async fn set_replica_count(elastic_search: &Elasticsearch, index: &str, number_o
     }
 }
 
-async fn fetch_mapping_properties(
-    elastic_search: &Elasticsearch,
-    index: &str,
-) -> Map<String, Value> {
+struct CurrentMapping {
+    properties: Map<String, Value>,
+    dynamic_is_strict: bool,
+}
+
+async fn fetch_current_mapping(elastic_search: &Elasticsearch, index: &str) -> CurrentMapping {
     let res = elastic_search
         .indices()
         .get_mapping(IndicesGetMappingParts::Index(&[index]))
@@ -426,13 +426,23 @@ async fn fetch_mapping_properties(
     }
 
     let body: Value = res.json().await.unwrap();
+    let mappings = body.get(index).and_then(|v| v.get("mappings"));
 
-    body.get(index)
-        .and_then(|v| v.get("mappings"))
+    let properties = mappings
         .and_then(|v| v.get("properties"))
         .and_then(Value::as_object)
         .cloned()
-        .unwrap_or_default()
+        .unwrap_or_default();
+
+    let dynamic_is_strict = mappings
+        .and_then(|v| v.get("dynamic"))
+        .and_then(Value::as_str)
+        == Some("strict");
+
+    CurrentMapping {
+        properties,
+        dynamic_is_strict,
+    }
 }
 
 /// Merges newly-added search parameter columns into an existing index's
@@ -499,11 +509,20 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
         .cloned()
         .unwrap_or_default();
 
-    let current_properties = fetch_mapping_properties(elastic_search, index).await;
+    let current_mapping = fetch_current_mapping(elastic_search, index).await;
 
-    let (added, removed) = diff_property_keys(&expected_properties, &current_properties);
+    let (added, removed) = diff_property_keys(&expected_properties, &current_mapping.properties);
 
     if added.is_empty() && removed.is_empty() {
+        if !current_mapping.dynamic_is_strict {
+            tracing::info!(
+                "Elasticsearch mapping for index '{}' has matching columns but is not yet 'dynamic: strict' -- updating.",
+                index
+            );
+            apply_additive_mapping(elastic_search, index, &expected_mapping_body).await;
+            return Ok(());
+        }
+
         tracing::info!(
             "Elasticsearch mapping for index '{}' already in sync with search parameters.",
             index
@@ -555,12 +574,18 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
     let expected_keys: Vec<String> = expected_properties.keys().cloned().collect();
     let staging_index = format!("{}_migrate_{}", index, chrono::Utc::now().timestamp());
 
-    // Replicas are dropped to 0 for both rebuild copies -- neither is
-    // read-facing until the final swap below -- and restored on the
+    // Replicas are dropped to 0 for both rebuild copies neither is
+    // read-facing until the final swap below and restored on the
     // rebuilt `index` afterward so it doesn't stay under-replicated.
     let original_replicas = fetch_replica_count(elastic_search, index).await;
 
-    create_index(elastic_search, &staging_index, &expected_mapping_body, Some(0)).await;
+    create_index(
+        elastic_search,
+        &staging_index,
+        &expected_mapping_body,
+        Some(0),
+    )
+    .await;
     reindex(elastic_search, index, &staging_index, Some(&expected_keys)).await;
 
     delete_index(elastic_search, index).await;
