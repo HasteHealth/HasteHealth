@@ -10,6 +10,7 @@ overrides:
   sharp: '>=0.35.4'
   webpackbar: '^7.0.0'
 allowBuilds:
+  '@swc/core': false
   core-js: true
   core-js-pure: true
   esbuild: true
