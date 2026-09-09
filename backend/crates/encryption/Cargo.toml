@@ -17,6 +17,6 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
     "derive",
 ] }
 
-aes-gcm = { version = "0.11.0", default-features = false, features = ["aes", "alloc", "getrandom"] }
+aes-gcm = { version = "0.11.1", default-features = false, features = ["aes", "alloc", "getrandom"] }
 base64 = { workspace = true, features = ["alloc"] }
 tracing = { workspace = true }

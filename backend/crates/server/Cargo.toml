@@ -79,12 +79,12 @@ sentry = { workspace = true, features = [
     "backtrace",
 ] }
 serde = { workspace = true }
-serde_html_form = { version = "0.4.0", default-features = false, features = [
+serde_html_form = { version = "0.4.1", default-features = false, features = [
     "de",
     "std",
 ] }
 serde_json = { workspace = true }
-sha1 = { version = "0.10.6", default-features = false }
+sha1 = { version = "0.10.7", default-features = false }
 sha2 = { version = "0.10.9", default-features = false }
 sqlx = { workspace = true, features = [
     "runtime-tokio",

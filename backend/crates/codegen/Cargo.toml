@@ -16,7 +16,7 @@ haste-fhir-serialization-json = { path = "../fhir-serialization-json", version =
 haste-fhir-terminology = { path = "../fhir-terminology", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
 
-indexmap = { version = "2.14.0", default-features = false, features = ["std"] }
+indexmap = { version = "2.14.2", default-features = false, features = ["std"] }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
 regex = { workspace = true }

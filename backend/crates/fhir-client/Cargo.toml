@@ -22,7 +22,7 @@ haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
 axum = { workspace = true, optional = true }
 bytes = { version = "1", default-features = false }
 derivative = { workspace = true }
-http = { version = "1.4.0", default-features = false, features = ["std"] }
+http = { version = "1.5.0", default-features = false, features = ["std"] }
 json-patch = { workspace = true }
 reqwest = { workspace = true, optional = true }
 serde = { workspace = true }
