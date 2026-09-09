@@ -66,8 +66,8 @@ argon2 = { version = "0.5.3", default-features = false, features = [
 ] }
 axum = { version = "0.8.9", default-features = false }
 base64 = { version = "0.22.1", default-features = false }
-chrono = { version = "0.4.44", default-features = false, features = ["clock"] }
-clap = { version = "4.6.1", default-features = false }
+chrono = { version = "0.4.45", default-features = false, features = ["clock"] }
+clap = { version = "4.6.6", default-features = false }
 criterion = { version = "0.8", default-features = false }
 derivative = { version = "2.2.0", default-features = false }
 dotenvy = { version = "0.15.7", default-features = false }
@@ -80,10 +80,10 @@ jsonwebtoken = { version = "10.4.0", default-features = false, features = [
     "use_pem",
 ] }
 mimalloc = { version = "0.1.52", default-features = false }
-moka = { version = "0.12.15", default-features = false }
-quote = { version = "1.0.46", default-features = false }
-proc-macro2 = { version = "1.0.106", default-features = false }
-regex = { version = "1.12.3", default-features = false, features = [
+moka = { version = "0.12.16", default-features = false }
+quote = { version = "1.0.47", default-features = false }
+proc-macro2 = { version = "1.0.107", default-features = false }
+regex = { version = "1.13.1", default-features = false, features = [
     "std",
     "perf",
     "unicode-perl",
@@ -91,8 +91,8 @@ regex = { version = "1.12.3", default-features = false, features = [
 reqwest = { version = "0.13", default-features = false }
 rust-embed = { version = "8.12.0", default-features = false }
 sentry = { version = "0.46.2", default-features = false }
-serde = { version = "1.0.228", default-features = false, features = ["alloc"] }
-serde_json = { version = "1.0.149", default-features = false, features = [
+serde = { version = "1.0.229", default-features = false, features = ["alloc"] }
+serde_json = { version = "1.0.151", default-features = false, features = [
     "alloc",
 ] }
 sqlx = { version = "0.8", default-features = false, features = [
@@ -101,9 +101,9 @@ sqlx = { version = "0.8", default-features = false, features = [
     "migrate",
 ] }
 sqlx-postgres = { version = "0.8.6", default-features = false }
-syn = { version = "2.0.117", default-features = false }
-thiserror = { version = "2.0.18", default-features = false }
-tokio = { version = "1.52.3", default-features = false }
+syn = { version = "2.0.119", default-features = false }
+thiserror = { version = "2.0.20", default-features = false }
+tokio = { version = "1.53.1", default-features = false }
 tracing = { version = "0.1.44", default-features = false }
 walkdir = { version = "2.5.0", default-features = false }
 

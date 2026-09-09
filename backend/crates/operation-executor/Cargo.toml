@@ -16,7 +16,7 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
 
-deno_ast = { version = "0.53.2", default-features = false, features = [
+deno_ast = { version = "0.53.3", default-features = false, features = [
     "transpiling",
 ] }
 deno_core = { version = "=0.409.0", default-features = false, features = [
@@ -24,7 +24,7 @@ deno_core = { version = "=0.409.0", default-features = false, features = [
 ] }
 deno_error = { version = "0.7.1", default-features = false }
 tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }
-crossbeam-channel = "0.5.16"
+crossbeam-channel = "0.5.17"
 tracing = { workspace = true }
 json-patch = { workspace = true }
 serde = { workspace = true }
