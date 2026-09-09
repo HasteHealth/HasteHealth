@@ -113,14 +113,9 @@ pub fn create_elasticsearch_searchparameter_mappings(parameters: &[ResolvedParam
                 param_type if param_type == &SearchParamType::quantity() => {
                     property_mapping.insert(field_name, quantity_index_mapping());
                 }
-                // Not Supported yet
-                param_type
-                    if param_type == &SearchParamType::composite()
-                        || param_type == &SearchParamType::special()
-                        || param_type == &SearchParamType::null() =>
-                {
-                    tracing::warn!("Unsupported search parameter type");
-                }
+                // `is_mapped_search_parameter_type` is what
+                // keeps `resource_to_elastic_index` from ever writing one of
+                // these fields, so it must stay in sync with the arms above.
                 _ => {
                     tracing::warn!("Unsupported search parameter type");
                 }

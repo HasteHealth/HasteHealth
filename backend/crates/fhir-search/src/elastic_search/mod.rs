@@ -15,7 +15,7 @@ use elasticsearch::{
 use haste_fhir_client::request::SearchRequest;
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType},
-    terminology::IssueType,
+    terminology::{BoundCode, IssueType, SearchParamType},
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_fhirpath::FPEngine;
@@ -451,6 +451,21 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
     }
 }
 
+/// Whether `type_` gets a dedicated field in [`migration::create_elasticsearch_searchparameter_mappings`]
+/// (used for every `System`-level parameter's mapping). `composite`/`special`/anything
+/// else has no mapping entry there, so a `System`-level parameter of one of
+/// those types must never be written -- under `dynamic: "strict"`, writing an
+/// unmapped field name fails the whole bulk item.
+pub(crate) fn is_mapped_search_parameter_type(type_: &BoundCode<SearchParamType>) -> bool {
+    type_ == &SearchParamType::number()
+        || type_ == &SearchParamType::string()
+        || type_ == &SearchParamType::uri()
+        || type_ == &SearchParamType::token()
+        || type_ == &SearchParamType::date()
+        || type_ == &SearchParamType::reference()
+        || type_ == &SearchParamType::quantity()
+}
+
 async fn resource_to_elastic_index(
     fp_engine: Arc<FPEngine>,
     parameters: &[ResolvedParameter],
@@ -466,6 +481,16 @@ async fn resource_to_elastic_index(
             .and_then(|e| e.value.as_ref())
             && let Some(url) = param.search_parameter.url.value.as_ref()
         {
+            // A `System`-level parameter of an unmapped type (composite,
+            // special, ...) has nowhere to be written -- skip it rather than
+            // evaluating FHIRPath for a value that would just get dropped
+            // (or, under strict mapping, reject the whole document).
+            if matches!(param.level, ParameterLevel::System)
+                && !is_mapped_search_parameter_type(&param.search_parameter.type_)
+            {
+                continue;
+            }
+
             let result = fp_engine
                 .evaluate(expression, vec![resource])
                 .await
