@@ -23,7 +23,10 @@ use haste_repository::{
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, query_as, types::time::OffsetDateTime};
 use std::{sync::Arc, time::Instant};
-use tokio::{sync::Mutex, task::JoinHandle};
+use tokio::{
+    sync::{Mutex, Semaphore},
+    task::JoinHandle,
+};
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum IndexingWorkerError {
@@ -329,30 +332,9 @@ async fn index_for_tenant<
     }
 }
 
-pub enum IndexingWorkerEnvironmentVariables {
-    DatabaseURL,
-    ElasticSearchURL,
-    ElasticSearchUsername,
-    ElasticSearchPassword,
-}
-
-impl From<IndexingWorkerEnvironmentVariables> for String {
-    fn from(value: IndexingWorkerEnvironmentVariables) -> Self {
-        match value {
-            IndexingWorkerEnvironmentVariables::DatabaseURL => "DATABASE_URL".to_string(),
-            IndexingWorkerEnvironmentVariables::ElasticSearchURL => "ELASTICSEARCH_URL".to_string(),
-            IndexingWorkerEnvironmentVariables::ElasticSearchUsername => {
-                "ELASTICSEARCH_USERNAME".to_string()
-            }
-            IndexingWorkerEnvironmentVariables::ElasticSearchPassword => {
-                "ELASTICSEARCH_PASSWORD".to_string()
-            }
-        }
-    }
-}
-
 pub struct IndexingWorker {
     max_concurrent_limit: Option<u64>,
+    tenant_concurrency: Option<u64>,
     running: Arc<tokio::sync::Mutex<bool>>,
     repo: Arc<PGConnection>,
     search_engine: Arc<ElasticSearchEngine<ElasticSearchParameterResolver<PGConnection>>>,
@@ -362,6 +344,8 @@ pub struct IndexingWorker {
 #[serde(default)]
 pub struct WorkerEnvironment {
     pub max_concurrent_limit: Option<u64>,
+    /// Maximum number of tenants indexed concurrently within one poll.
+    pub tenant_concurrency: Option<u64>,
     pub repo: RepoConfig,
     pub search: SearchConfig,
 }
@@ -397,6 +381,8 @@ impl Default for WorkerEnvironment {
     fn default() -> Self {
         Self {
             max_concurrent_limit: Some(1000),
+            // Matches `PostgresConfig::default`'s `max_connections`.
+            tenant_concurrency: Some(10),
             repo: RepoConfig::default(),
             search: SearchConfig::default(),
         }
@@ -516,6 +502,7 @@ impl IndexingWorker {
 
         Ok(Self {
             max_concurrent_limit: config.max_concurrent_limit,
+            tenant_concurrency: config.tenant_concurrency,
             running: Arc::new(tokio::sync::Mutex::new(true)),
             repo,
             search_engine,
@@ -537,6 +524,9 @@ impl Worker for IndexingWorker {
             self.search_engine.clone();
         let running = self.running.clone();
         let max_concurrent_limit = self.max_concurrent_limit.unwrap_or(1000);
+        let tenant_semaphore = Arc::new(Semaphore::new(
+            usize::try_from(self.tenant_concurrency.unwrap_or(10).max(1)).unwrap_or(usize::MAX),
+        ));
 
         let spawned = tokio::spawn(async move {
             while *running.lock().await {
@@ -554,22 +544,51 @@ impl Worker for IndexingWorker {
                             cursor = tenants_to_check[0].created_at;
                         }
 
-                        for tenant in tenants_to_check {
-                            tracing::trace!("Indexing tenant: '{}'", &tenant.id);
+                        let handles: Vec<_> = tenants_to_check
+                            .into_iter()
+                            .map(|tenant| {
+                                let repo = repo.clone();
+                                let search_engine = search_engine.clone();
+                                let semaphore = tenant_semaphore.clone();
 
-                            let result = index_for_tenant(
-                                max_concurrent_limit,
-                                repo.clone(),
-                                search_engine.clone(),
-                                &tenant.id,
-                            )
-                            .await;
+                                tokio::spawn(async move {
+                                    let _permit = match semaphore.acquire_owned().await {
+                                        Ok(permit) => permit,
+                                        Err(_closed) => {
+                                            tracing::warn!(
+                                                "Tenant semaphore closed; skipping indexing for tenant '{}'.",
+                                                &tenant.id
+                                            );
+                                            return;
+                                        }
+                                    };
 
-                            if let Err(error) = result {
+                                    tracing::trace!("Indexing tenant: '{}'", &tenant.id);
+
+                                    let result = index_for_tenant(
+                                        max_concurrent_limit,
+                                        repo,
+                                        search_engine,
+                                        &tenant.id,
+                                    )
+                                    .await;
+
+                                    if let Err(error) = result {
+                                        tracing::error!(
+                                            "Failed to index tenant: '{}' cause: '{:?}'",
+                                            &tenant.id,
+                                            error
+                                        );
+                                    }
+                                })
+                            })
+                            .collect();
+
+                        for handle in handles {
+                            if let Err(join_error) = handle.await {
                                 tracing::error!(
-                                    "Failed to index tenant: '{}' cause: '{:?}'",
-                                    &tenant.id,
-                                    error
+                                    "Tenant indexing task panicked: '{:?}'",
+                                    join_error
                                 );
                             }
                         }
