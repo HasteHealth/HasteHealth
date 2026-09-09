@@ -45,6 +45,10 @@ const config: Config = {
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
+    // Disabled: the eager Git VCS strategy (enabled by v4's faster defaults)
+    // throws a hard error when the site isn't built inside a Git worktree
+    // (e.g. a Docker image that only copies the frontend/ subtree, with no .git).
+    experimental_vcs: false,
   },
 
   // Set the production url of your site here
