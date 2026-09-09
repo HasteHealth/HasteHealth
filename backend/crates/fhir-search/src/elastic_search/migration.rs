@@ -1,7 +1,8 @@
 use elasticsearch::{
     Elasticsearch,
     indices::{
-        IndicesCreateParts, IndicesDeleteParts, IndicesGetMappingParts, IndicesPutMappingParts,
+        IndicesCreateParts, IndicesDeleteParts, IndicesGetMappingParts, IndicesGetSettingsParts,
+        IndicesPutMappingParts, IndicesPutSettingsParts,
     },
     params::Slices,
 };
@@ -187,8 +188,15 @@ pub fn create_elasticsearch_searchparameter_mappings(parameters: &[ResolvedParam
         }),
     );
 
+    // Safe because every document field name comes from one of two sources:
+    // System-level parameters, flattened into their own top-level field below
+    // (and enumerated here via `ParameterLevel::System`, which only
+    // `R4_SEARCH_PARAMETERS_INDEX` ever produces), or Project-level (tenant
+    // custom) parameters, which always route through the single
+    // `dynamic_parameters` nested field mapped below rather than getting a
+    // field name of their own. No write can introduce an unmapped key.
     json!({
-        "dynamic": true,
+        "dynamic": "strict",
         "properties" : property_mapping
     })
 }
@@ -217,29 +225,44 @@ fn diff_property_keys(
     (added, removed)
 }
 
-fn index_creation_body(mapping_body: &Value) -> Value {
+/// `number_of_replicas` is only set when the caller passes a bulk-load
+/// override (e.g. `Some(0)` while rebuilding an index during migration) --
+/// omitted, the index keeps the cluster/template default for normal,
+/// long-lived indices.
+fn index_creation_body(mapping_body: &Value, number_of_replicas: Option<u32>) -> Value {
+    let mut index_settings = json!({
+        "mapping": {
+            "nested_fields": {
+                "limit": 2000
+            },
+            "total_fields": {
+                "limit": 10000
+            }
+        }
+    });
+
+    if let Some(replicas) = number_of_replicas {
+        index_settings["number_of_replicas"] = json!(replicas);
+    }
+
     json!({
        "settings": {
-           "index": {
-                "mapping": {
-                    "nested_fields": {
-                        "limit": 2000
-                    },
-                    "total_fields": {
-                        "limit": 10000
-                    }
-                }
-           }
+           "index": index_settings
        },
        "mappings": mapping_body
     })
 }
 
-async fn create_index(elastic_search: &Elasticsearch, index: &str, mapping_body: &Value) {
+async fn create_index(
+    elastic_search: &Elasticsearch,
+    index: &str,
+    mapping_body: &Value,
+    number_of_replicas: Option<u32>,
+) {
     let res = elastic_search
         .indices()
         .create(IndicesCreateParts::Index(index))
-        .body(index_creation_body(mapping_body))
+        .body(index_creation_body(mapping_body, number_of_replicas))
         .send()
         .await
         .unwrap();
@@ -317,6 +340,64 @@ async fn reindex(
             "Failed to reindex '{}' into '{}': {:?}",
             from_index,
             to_index,
+            res
+        );
+        tracing::error!("Response: {:?}", res.text().await.unwrap());
+        panic!();
+    }
+}
+
+/// Reads the index's current `number_of_replicas` so a bulk rebuild can
+/// restore it afterward instead of leaving the index under-replicated.
+/// Falls back to `1` (Elasticsearch's own default) if the setting can't be
+/// read, since that's a safer failure mode than leaving replicas at 0.
+async fn fetch_replica_count(elastic_search: &Elasticsearch, index: &str) -> u32 {
+    let res = elastic_search
+        .indices()
+        .get_settings(IndicesGetSettingsParts::Index(&[index]))
+        .send()
+        .await
+        .unwrap();
+
+    if !res.status_code().is_success() {
+        tracing::error!(
+            "Failed to fetch Elasticsearch settings for index '{}': {:?}",
+            index,
+            res
+        );
+        return 1;
+    }
+
+    let body: Value = res.json().await.unwrap();
+
+    body.get(index)
+        .and_then(|v| v.get("settings"))
+        .and_then(|v| v.get("index"))
+        .and_then(|v| v.get("number_of_replicas"))
+        .and_then(Value::as_str)
+        .and_then(|s| s.parse::<u32>().ok())
+        .unwrap_or(1)
+}
+
+async fn set_replica_count(elastic_search: &Elasticsearch, index: &str, number_of_replicas: u32) {
+    let res = elastic_search
+        .indices()
+        .put_settings(IndicesPutSettingsParts::Index(&[index]))
+        .body(json!({ "index": { "number_of_replicas": number_of_replicas } }))
+        .send()
+        .await
+        .unwrap();
+
+    if res.status_code().is_success() {
+        tracing::info!(
+            "Restored 'number_of_replicas' to {} on index '{}'.",
+            number_of_replicas,
+            index
+        );
+    } else {
+        tracing::error!(
+            "Failed to restore 'number_of_replicas' on index '{}': {:?}",
+            index,
             res
         );
         tracing::error!("Response: {:?}", res.text().await.unwrap());
@@ -408,7 +489,7 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
     let index_exists = exists_res.status_code().is_success();
 
     if !index_exists {
-        create_index(elastic_search, index, &expected_mapping_body).await;
+        create_index(elastic_search, index, &expected_mapping_body, None).await;
         return Ok(());
     }
 
@@ -474,13 +555,19 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
     let expected_keys: Vec<String> = expected_properties.keys().cloned().collect();
     let staging_index = format!("{}_migrate_{}", index, chrono::Utc::now().timestamp());
 
-    create_index(elastic_search, &staging_index, &expected_mapping_body).await;
+    // Replicas are dropped to 0 for both rebuild copies -- neither is
+    // read-facing until the final swap below -- and restored on the
+    // rebuilt `index` afterward so it doesn't stay under-replicated.
+    let original_replicas = fetch_replica_count(elastic_search, index).await;
+
+    create_index(elastic_search, &staging_index, &expected_mapping_body, Some(0)).await;
     reindex(elastic_search, index, &staging_index, Some(&expected_keys)).await;
 
     delete_index(elastic_search, index).await;
-    create_index(elastic_search, index, &expected_mapping_body).await;
+    create_index(elastic_search, index, &expected_mapping_body, Some(0)).await;
     reindex(elastic_search, &staging_index, index, None).await;
 
+    set_replica_count(elastic_search, index, original_replicas).await;
     delete_index(elastic_search, &staging_index).await;
 
     tracing::info!(
