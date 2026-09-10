@@ -339,7 +339,10 @@ async fn read_by_version_ids<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
-    let bound_version_ids: Vec<&str> = version_ids.iter().map(|v| v.as_ref()).collect();
+    let bound_version_ids: Vec<&str> = version_ids
+        .iter()
+        .map(std::convert::AsRef::as_ref)
+        .collect();
 
     // Fetched as raw `PgRow`s (not `query_as` into a `FromRow` struct) so the
     // JSON body can be decoded straight out of each row's own buffer.
