@@ -39,6 +39,7 @@ pub async fn setup_transaction_context<
                     search: state.search.clone(),
                     terminology: state.terminology.clone(),
                     config: state.config.clone(),
+                    deno_pool: state.deno_pool.clone(),
                 }))
             }
         }

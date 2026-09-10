@@ -37,6 +37,7 @@ use haste_jwt::{
         SmartResourceScopePermissions, SmartResourceScopeUser, SmartScope,
     },
 };
+use haste_operation_executor::providers::deno_embedded::pool::DenoPool;
 use haste_repository::{Repository, types::SupportedFHIRVersions};
 use std::{
     fmt::Debug,
@@ -182,6 +183,7 @@ struct ClientState<
     terminology: Arc<Terminology>,
     audit_repo: Option<Arc<Repo>>,
     config: Arc<ServerConfig>,
+    deno_pool: Arc<DenoPool>,
 }
 
 pub struct Route<State, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> {
@@ -303,6 +305,7 @@ pub struct ServerClientConfig<
     pub terminology: Arc<Terminology>,
     pub mutate_artifacts: bool,
     pub config: Arc<ServerConfig>,
+    pub deno_pool: Arc<DenoPool>,
 }
 
 impl<
@@ -316,6 +319,7 @@ impl<
         search: Arc<Search>,
         terminology: Arc<Terminology>,
         config: Arc<ServerConfig>,
+        deno_pool: Arc<DenoPool>,
     ) -> Self {
         ServerClientConfig {
             repo,
@@ -324,6 +328,7 @@ impl<
             terminology,
             mutate_artifacts: false,
             config,
+            deno_pool,
         }
     }
 
@@ -389,7 +394,7 @@ impl<
                     _ => false,
                 }),
                 middleware: Middleware::new(vec![Box::new(
-                    middleware::operations::Middleware::new(&config.config),
+                    middleware::operations::Middleware::new(config.deno_pool.clone()),
                 )]),
             },
             // Authentication routes.
@@ -437,6 +442,7 @@ impl<
                 search: config.search,
                 terminology: config.terminology,
                 config: config.config,
+                deno_pool: config.deno_pool,
             }),
             middleware: Middleware::new(vec![
                 Box::new(middleware::auditing::Middleware::new()),
@@ -450,6 +456,15 @@ impl<
                 Box::new(middleware::capabilities::Middleware::new()),
             ]),
         }
+    }
+
+    /// The `DenoPool` backing this client's custom-operations middleware.
+    ///
+    /// Used to hand the same pool to derived clients (transaction-scoped,
+    /// batch-scoped, etc.) instead of each one spinning up its own set of
+    /// worker threads.
+    pub fn deno_pool(&self) -> Arc<DenoPool> {
+        self.state.deno_pool.clone()
     }
 }
 

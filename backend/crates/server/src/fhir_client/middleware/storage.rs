@@ -723,6 +723,7 @@ impl<
                                 state.search.clone(),
                                 state.terminology.clone(),
                                 state.config.clone(),
+                                state.deno_pool.clone(),
                             )
                             .with_audit_repo(state.audit_repo.clone()),
                         );
@@ -775,6 +776,7 @@ impl<
                         state.search.clone(),
                         state.terminology.clone(),
                         state.config.clone(),
+                        state.deno_pool.clone(),
                     ));
 
                     let batch_context =

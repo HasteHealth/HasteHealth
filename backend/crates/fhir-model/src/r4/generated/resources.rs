@@ -46521,552 +46521,722 @@ pub enum ResourceType {
     ViewDefinition,
 }
 impl ResourceType {
-    pub fn deserialize(
+    pub fn deserialize<D: AsRef<[u8]>>(
         &self,
-        data: &str,
+        data: D,
     ) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
         match self {
-            ResourceType::AccessPolicyV2 => Ok(Resource::AccessPolicyV2(serde_json::from_str::<
-                AccessPolicyV2,
-            >(data)?)),
-            ResourceType::AccessPolicyV2Assignment => {
-                Ok(Resource::AccessPolicyV2Assignment(serde_json::from_str::<
-                    AccessPolicyV2Assignment,
-                >(data)?))
+            ResourceType::AccessPolicyV2 => {
+                Ok(Resource::AccessPolicyV2(serde_json::from_slice::<
+                    AccessPolicyV2,
+                >(data.as_ref())?))
             }
+            ResourceType::AccessPolicyV2Assignment => Ok(Resource::AccessPolicyV2Assignment(
+                serde_json::from_slice::<AccessPolicyV2Assignment>(data.as_ref())?,
+            )),
             ResourceType::ClientApplication => {
-                Ok(Resource::ClientApplication(serde_json::from_str::<
+                Ok(Resource::ClientApplication(serde_json::from_slice::<
                     ClientApplication,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::HL7V2 => Ok(Resource::HL7V2(serde_json::from_str::<HL7V2>(data)?)),
+            ResourceType::HL7V2 => Ok(Resource::HL7V2(serde_json::from_slice::<HL7V2>(
+                data.as_ref(),
+            )?)),
             ResourceType::IdentityProvider => {
-                Ok(Resource::IdentityProvider(serde_json::from_str::<
+                Ok(Resource::IdentityProvider(serde_json::from_slice::<
                     IdentityProvider,
-                >(data)?))
+                >(data.as_ref())?))
             }
-            ResourceType::Membership => Ok(Resource::Membership(
-                serde_json::from_str::<Membership>(data)?,
-            )),
-            ResourceType::Project => Ok(Resource::Project(serde_json::from_str::<Project>(data)?)),
-            ResourceType::User => Ok(Resource::User(serde_json::from_str::<User>(data)?)),
-            ResourceType::Account => Ok(Resource::Account(serde_json::from_str::<Account>(data)?)),
+            ResourceType::Membership => Ok(Resource::Membership(serde_json::from_slice::<
+                Membership,
+            >(data.as_ref())?)),
+            ResourceType::Project => Ok(Resource::Project(serde_json::from_slice::<Project>(
+                data.as_ref(),
+            )?)),
+            ResourceType::User => Ok(Resource::User(serde_json::from_slice::<User>(
+                data.as_ref(),
+            )?)),
+            ResourceType::Account => Ok(Resource::Account(serde_json::from_slice::<Account>(
+                data.as_ref(),
+            )?)),
             ResourceType::ActivityDefinition => {
-                Ok(Resource::ActivityDefinition(serde_json::from_str::<
+                Ok(Resource::ActivityDefinition(serde_json::from_slice::<
                     ActivityDefinition,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::AdverseEvent => Ok(Resource::AdverseEvent(serde_json::from_str::<
+            ResourceType::AdverseEvent => Ok(Resource::AdverseEvent(serde_json::from_slice::<
                 AdverseEvent,
-            >(data)?)),
+            >(data.as_ref())?)),
             ResourceType::AllergyIntolerance => {
-                Ok(Resource::AllergyIntolerance(serde_json::from_str::<
+                Ok(Resource::AllergyIntolerance(serde_json::from_slice::<
                     AllergyIntolerance,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::Appointment => Ok(Resource::Appointment(serde_json::from_str::<
+            ResourceType::Appointment => Ok(Resource::Appointment(serde_json::from_slice::<
                 Appointment,
-            >(data)?)),
+            >(data.as_ref())?)),
             ResourceType::AppointmentResponse => {
-                Ok(Resource::AppointmentResponse(serde_json::from_str::<
+                Ok(Resource::AppointmentResponse(serde_json::from_slice::<
                     AppointmentResponse,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::AuditEvent => Ok(Resource::AuditEvent(
-                serde_json::from_str::<AuditEvent>(data)?,
-            )),
-            ResourceType::Basic => Ok(Resource::Basic(serde_json::from_str::<Basic>(data)?)),
-            ResourceType::Binary => Ok(Resource::Binary(serde_json::from_str::<Binary>(data)?)),
+            ResourceType::AuditEvent => Ok(Resource::AuditEvent(serde_json::from_slice::<
+                AuditEvent,
+            >(data.as_ref())?)),
+            ResourceType::Basic => Ok(Resource::Basic(serde_json::from_slice::<Basic>(
+                data.as_ref(),
+            )?)),
+            ResourceType::Binary => Ok(Resource::Binary(serde_json::from_slice::<Binary>(
+                data.as_ref(),
+            )?)),
             ResourceType::BiologicallyDerivedProduct => Ok(Resource::BiologicallyDerivedProduct(
-                serde_json::from_str::<BiologicallyDerivedProduct>(data)?,
+                serde_json::from_slice::<BiologicallyDerivedProduct>(data.as_ref())?,
             )),
-            ResourceType::BodyStructure => Ok(Resource::BodyStructure(serde_json::from_str::<
-                BodyStructure,
-            >(data)?)),
-            ResourceType::Bundle => Ok(Resource::Bundle(serde_json::from_str::<Bundle>(data)?)),
+            ResourceType::BodyStructure => {
+                Ok(Resource::BodyStructure(serde_json::from_slice::<
+                    BodyStructure,
+                >(data.as_ref())?))
+            }
+            ResourceType::Bundle => Ok(Resource::Bundle(serde_json::from_slice::<Bundle>(
+                data.as_ref(),
+            )?)),
             ResourceType::CapabilityStatement => {
-                Ok(Resource::CapabilityStatement(serde_json::from_str::<
+                Ok(Resource::CapabilityStatement(serde_json::from_slice::<
                     CapabilityStatement,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::CarePlan => {
-                Ok(Resource::CarePlan(serde_json::from_str::<CarePlan>(data)?))
-            }
-            ResourceType::CareTeam => {
-                Ok(Resource::CareTeam(serde_json::from_str::<CareTeam>(data)?))
-            }
-            ResourceType::CatalogEntry => Ok(Resource::CatalogEntry(serde_json::from_str::<
+            ResourceType::CarePlan => Ok(Resource::CarePlan(serde_json::from_slice::<CarePlan>(
+                data.as_ref(),
+            )?)),
+            ResourceType::CareTeam => Ok(Resource::CareTeam(serde_json::from_slice::<CareTeam>(
+                data.as_ref(),
+            )?)),
+            ResourceType::CatalogEntry => Ok(Resource::CatalogEntry(serde_json::from_slice::<
                 CatalogEntry,
-            >(data)?)),
-            ResourceType::ChargeItem => Ok(Resource::ChargeItem(
-                serde_json::from_str::<ChargeItem>(data)?,
-            )),
+            >(data.as_ref())?)),
+            ResourceType::ChargeItem => Ok(Resource::ChargeItem(serde_json::from_slice::<
+                ChargeItem,
+            >(data.as_ref())?)),
             ResourceType::ChargeItemDefinition => {
-                Ok(Resource::ChargeItemDefinition(serde_json::from_str::<
+                Ok(Resource::ChargeItemDefinition(serde_json::from_slice::<
                     ChargeItemDefinition,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::Claim => Ok(Resource::Claim(serde_json::from_str::<Claim>(data)?)),
-            ResourceType::ClaimResponse => Ok(Resource::ClaimResponse(serde_json::from_str::<
-                ClaimResponse,
-            >(data)?)),
+            ResourceType::Claim => Ok(Resource::Claim(serde_json::from_slice::<Claim>(
+                data.as_ref(),
+            )?)),
+            ResourceType::ClaimResponse => {
+                Ok(Resource::ClaimResponse(serde_json::from_slice::<
+                    ClaimResponse,
+                >(data.as_ref())?))
+            }
             ResourceType::ClinicalImpression => {
-                Ok(Resource::ClinicalImpression(serde_json::from_str::<
+                Ok(Resource::ClinicalImpression(serde_json::from_slice::<
                     ClinicalImpression,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::CodeSystem => Ok(Resource::CodeSystem(
-                serde_json::from_str::<CodeSystem>(data)?,
-            )),
-            ResourceType::Communication => Ok(Resource::Communication(serde_json::from_str::<
-                Communication,
-            >(data)?)),
+            ResourceType::CodeSystem => Ok(Resource::CodeSystem(serde_json::from_slice::<
+                CodeSystem,
+            >(data.as_ref())?)),
+            ResourceType::Communication => {
+                Ok(Resource::Communication(serde_json::from_slice::<
+                    Communication,
+                >(data.as_ref())?))
+            }
             ResourceType::CommunicationRequest => {
-                Ok(Resource::CommunicationRequest(serde_json::from_str::<
+                Ok(Resource::CommunicationRequest(serde_json::from_slice::<
                     CommunicationRequest,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::CompartmentDefinition => {
-                Ok(Resource::CompartmentDefinition(serde_json::from_str::<
+                Ok(Resource::CompartmentDefinition(serde_json::from_slice::<
                     CompartmentDefinition,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::Composition => Ok(Resource::Composition(serde_json::from_str::<
+            ResourceType::Composition => Ok(Resource::Composition(serde_json::from_slice::<
                 Composition,
-            >(data)?)),
-            ResourceType::ConceptMap => Ok(Resource::ConceptMap(
-                serde_json::from_str::<ConceptMap>(data)?,
+            >(data.as_ref())?)),
+            ResourceType::ConceptMap => Ok(Resource::ConceptMap(serde_json::from_slice::<
+                ConceptMap,
+            >(data.as_ref())?)),
+            ResourceType::Condition => Ok(Resource::Condition(
+                serde_json::from_slice::<Condition>(data.as_ref())?,
             )),
-            ResourceType::Condition => Ok(Resource::Condition(serde_json::from_str::<Condition>(
-                data,
+            ResourceType::Consent => Ok(Resource::Consent(serde_json::from_slice::<Consent>(
+                data.as_ref(),
             )?)),
-            ResourceType::Consent => Ok(Resource::Consent(serde_json::from_str::<Consent>(data)?)),
-            ResourceType::Contract => {
-                Ok(Resource::Contract(serde_json::from_str::<Contract>(data)?))
-            }
-            ResourceType::Coverage => {
-                Ok(Resource::Coverage(serde_json::from_str::<Coverage>(data)?))
-            }
+            ResourceType::Contract => Ok(Resource::Contract(serde_json::from_slice::<Contract>(
+                data.as_ref(),
+            )?)),
+            ResourceType::Coverage => Ok(Resource::Coverage(serde_json::from_slice::<Coverage>(
+                data.as_ref(),
+            )?)),
             ResourceType::CoverageEligibilityRequest => Ok(Resource::CoverageEligibilityRequest(
-                serde_json::from_str::<CoverageEligibilityRequest>(data)?,
+                serde_json::from_slice::<CoverageEligibilityRequest>(data.as_ref())?,
             )),
             ResourceType::CoverageEligibilityResponse => Ok(Resource::CoverageEligibilityResponse(
-                serde_json::from_str::<CoverageEligibilityResponse>(data)?,
+                serde_json::from_slice::<CoverageEligibilityResponse>(data.as_ref())?,
             )),
-            ResourceType::DetectedIssue => Ok(Resource::DetectedIssue(serde_json::from_str::<
-                DetectedIssue,
-            >(data)?)),
-            ResourceType::Device => Ok(Resource::Device(serde_json::from_str::<Device>(data)?)),
-            ResourceType::DeviceDefinition => {
-                Ok(Resource::DeviceDefinition(serde_json::from_str::<
-                    DeviceDefinition,
-                >(data)?))
+            ResourceType::DetectedIssue => {
+                Ok(Resource::DetectedIssue(serde_json::from_slice::<
+                    DetectedIssue,
+                >(data.as_ref())?))
             }
-            ResourceType::DeviceMetric => Ok(Resource::DeviceMetric(serde_json::from_str::<
+            ResourceType::Device => Ok(Resource::Device(serde_json::from_slice::<Device>(
+                data.as_ref(),
+            )?)),
+            ResourceType::DeviceDefinition => {
+                Ok(Resource::DeviceDefinition(serde_json::from_slice::<
+                    DeviceDefinition,
+                >(data.as_ref())?))
+            }
+            ResourceType::DeviceMetric => Ok(Resource::DeviceMetric(serde_json::from_slice::<
                 DeviceMetric,
-            >(data)?)),
-            ResourceType::DeviceRequest => Ok(Resource::DeviceRequest(serde_json::from_str::<
-                DeviceRequest,
-            >(data)?)),
+            >(data.as_ref())?)),
+            ResourceType::DeviceRequest => {
+                Ok(Resource::DeviceRequest(serde_json::from_slice::<
+                    DeviceRequest,
+                >(data.as_ref())?))
+            }
             ResourceType::DeviceUseStatement => {
-                Ok(Resource::DeviceUseStatement(serde_json::from_str::<
+                Ok(Resource::DeviceUseStatement(serde_json::from_slice::<
                     DeviceUseStatement,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::DiagnosticReport => {
-                Ok(Resource::DiagnosticReport(serde_json::from_str::<
+                Ok(Resource::DiagnosticReport(serde_json::from_slice::<
                     DiagnosticReport,
-                >(data)?))
+                >(data.as_ref())?))
             }
             ResourceType::DocumentManifest => {
-                Ok(Resource::DocumentManifest(serde_json::from_str::<
+                Ok(Resource::DocumentManifest(serde_json::from_slice::<
                     DocumentManifest,
-                >(data)?))
+                >(data.as_ref())?))
             }
             ResourceType::DocumentReference => {
-                Ok(Resource::DocumentReference(serde_json::from_str::<
+                Ok(Resource::DocumentReference(serde_json::from_slice::<
                     DocumentReference,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::EffectEvidenceSynthesis => {
-                Ok(Resource::EffectEvidenceSynthesis(serde_json::from_str::<
+                Ok(Resource::EffectEvidenceSynthesis(serde_json::from_slice::<
                     EffectEvidenceSynthesis,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::Encounter => Ok(Resource::Encounter(serde_json::from_str::<Encounter>(
-                data,
+            ResourceType::Encounter => Ok(Resource::Encounter(
+                serde_json::from_slice::<Encounter>(data.as_ref())?,
+            )),
+            ResourceType::Endpoint => Ok(Resource::Endpoint(serde_json::from_slice::<Endpoint>(
+                data.as_ref(),
             )?)),
-            ResourceType::Endpoint => {
-                Ok(Resource::Endpoint(serde_json::from_str::<Endpoint>(data)?))
-            }
             ResourceType::EnrollmentRequest => {
-                Ok(Resource::EnrollmentRequest(serde_json::from_str::<
+                Ok(Resource::EnrollmentRequest(serde_json::from_slice::<
                     EnrollmentRequest,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::EnrollmentResponse => {
-                Ok(Resource::EnrollmentResponse(serde_json::from_str::<
+                Ok(Resource::EnrollmentResponse(serde_json::from_slice::<
                     EnrollmentResponse,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::EpisodeOfCare => Ok(Resource::EpisodeOfCare(serde_json::from_str::<
-                EpisodeOfCare,
-            >(data)?)),
-            ResourceType::EventDefinition => Ok(Resource::EventDefinition(serde_json::from_str::<
-                EventDefinition,
-            >(data)?)),
-            ResourceType::Evidence => {
-                Ok(Resource::Evidence(serde_json::from_str::<Evidence>(data)?))
+            ResourceType::EpisodeOfCare => {
+                Ok(Resource::EpisodeOfCare(serde_json::from_slice::<
+                    EpisodeOfCare,
+                >(data.as_ref())?))
             }
+            ResourceType::EventDefinition => {
+                Ok(Resource::EventDefinition(serde_json::from_slice::<
+                    EventDefinition,
+                >(data.as_ref())?))
+            }
+            ResourceType::Evidence => Ok(Resource::Evidence(serde_json::from_slice::<Evidence>(
+                data.as_ref(),
+            )?)),
             ResourceType::EvidenceVariable => {
-                Ok(Resource::EvidenceVariable(serde_json::from_str::<
+                Ok(Resource::EvidenceVariable(serde_json::from_slice::<
                     EvidenceVariable,
-                >(data)?))
+                >(data.as_ref())?))
             }
-            ResourceType::ExampleScenario => Ok(Resource::ExampleScenario(serde_json::from_str::<
-                ExampleScenario,
-            >(data)?)),
+            ResourceType::ExampleScenario => {
+                Ok(Resource::ExampleScenario(serde_json::from_slice::<
+                    ExampleScenario,
+                >(data.as_ref())?))
+            }
             ResourceType::ExplanationOfBenefit => {
-                Ok(Resource::ExplanationOfBenefit(serde_json::from_str::<
+                Ok(Resource::ExplanationOfBenefit(serde_json::from_slice::<
                     ExplanationOfBenefit,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::FamilyMemberHistory => {
-                Ok(Resource::FamilyMemberHistory(serde_json::from_str::<
+                Ok(Resource::FamilyMemberHistory(serde_json::from_slice::<
                     FamilyMemberHistory,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::Flag => Ok(Resource::Flag(serde_json::from_str::<Flag>(data)?)),
-            ResourceType::Goal => Ok(Resource::Goal(serde_json::from_str::<Goal>(data)?)),
-            ResourceType::GraphDefinition => Ok(Resource::GraphDefinition(serde_json::from_str::<
-                GraphDefinition,
-            >(data)?)),
-            ResourceType::Group => Ok(Resource::Group(serde_json::from_str::<Group>(data)?)),
+            ResourceType::Flag => Ok(Resource::Flag(serde_json::from_slice::<Flag>(
+                data.as_ref(),
+            )?)),
+            ResourceType::Goal => Ok(Resource::Goal(serde_json::from_slice::<Goal>(
+                data.as_ref(),
+            )?)),
+            ResourceType::GraphDefinition => {
+                Ok(Resource::GraphDefinition(serde_json::from_slice::<
+                    GraphDefinition,
+                >(data.as_ref())?))
+            }
+            ResourceType::Group => Ok(Resource::Group(serde_json::from_slice::<Group>(
+                data.as_ref(),
+            )?)),
             ResourceType::GuidanceResponse => {
-                Ok(Resource::GuidanceResponse(serde_json::from_str::<
+                Ok(Resource::GuidanceResponse(serde_json::from_slice::<
                     GuidanceResponse,
-                >(data)?))
+                >(data.as_ref())?))
             }
             ResourceType::HealthcareService => {
-                Ok(Resource::HealthcareService(serde_json::from_str::<
+                Ok(Resource::HealthcareService(serde_json::from_slice::<
                     HealthcareService,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::ImagingStudy => Ok(Resource::ImagingStudy(serde_json::from_str::<
+            ResourceType::ImagingStudy => Ok(Resource::ImagingStudy(serde_json::from_slice::<
                 ImagingStudy,
-            >(data)?)),
-            ResourceType::Immunization => Ok(Resource::Immunization(serde_json::from_str::<
+            >(data.as_ref())?)),
+            ResourceType::Immunization => Ok(Resource::Immunization(serde_json::from_slice::<
                 Immunization,
-            >(data)?)),
+            >(data.as_ref())?)),
             ResourceType::ImmunizationEvaluation => {
-                Ok(Resource::ImmunizationEvaluation(serde_json::from_str::<
+                Ok(Resource::ImmunizationEvaluation(serde_json::from_slice::<
                     ImmunizationEvaluation,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::ImmunizationRecommendation => Ok(Resource::ImmunizationRecommendation(
-                serde_json::from_str::<ImmunizationRecommendation>(data)?,
+                serde_json::from_slice::<ImmunizationRecommendation>(data.as_ref())?,
             )),
             ResourceType::ImplementationGuide => {
-                Ok(Resource::ImplementationGuide(serde_json::from_str::<
+                Ok(Resource::ImplementationGuide(serde_json::from_slice::<
                     ImplementationGuide,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::InsurancePlan => Ok(Resource::InsurancePlan(serde_json::from_str::<
-                InsurancePlan,
-            >(data)?)),
-            ResourceType::Invoice => Ok(Resource::Invoice(serde_json::from_str::<Invoice>(data)?)),
-            ResourceType::Library => Ok(Resource::Library(serde_json::from_str::<Library>(data)?)),
-            ResourceType::Linkage => Ok(Resource::Linkage(serde_json::from_str::<Linkage>(data)?)),
-            ResourceType::List => Ok(Resource::List(serde_json::from_str::<List>(data)?)),
-            ResourceType::Location => {
-                Ok(Resource::Location(serde_json::from_str::<Location>(data)?))
+            ResourceType::InsurancePlan => {
+                Ok(Resource::InsurancePlan(serde_json::from_slice::<
+                    InsurancePlan,
+                >(data.as_ref())?))
             }
-            ResourceType::Measure => Ok(Resource::Measure(serde_json::from_str::<Measure>(data)?)),
-            ResourceType::MeasureReport => Ok(Resource::MeasureReport(serde_json::from_str::<
-                MeasureReport,
-            >(data)?)),
-            ResourceType::Media => Ok(Resource::Media(serde_json::from_str::<Media>(data)?)),
-            ResourceType::Medication => Ok(Resource::Medication(
-                serde_json::from_str::<Medication>(data)?,
+            ResourceType::Invoice => Ok(Resource::Invoice(serde_json::from_slice::<Invoice>(
+                data.as_ref(),
+            )?)),
+            ResourceType::Library => Ok(Resource::Library(serde_json::from_slice::<Library>(
+                data.as_ref(),
+            )?)),
+            ResourceType::Linkage => Ok(Resource::Linkage(serde_json::from_slice::<Linkage>(
+                data.as_ref(),
+            )?)),
+            ResourceType::List => Ok(Resource::List(serde_json::from_slice::<List>(
+                data.as_ref(),
+            )?)),
+            ResourceType::Location => Ok(Resource::Location(serde_json::from_slice::<Location>(
+                data.as_ref(),
+            )?)),
+            ResourceType::Measure => Ok(Resource::Measure(serde_json::from_slice::<Measure>(
+                data.as_ref(),
+            )?)),
+            ResourceType::MeasureReport => {
+                Ok(Resource::MeasureReport(serde_json::from_slice::<
+                    MeasureReport,
+                >(data.as_ref())?))
+            }
+            ResourceType::Media => Ok(Resource::Media(serde_json::from_slice::<Media>(
+                data.as_ref(),
+            )?)),
+            ResourceType::Medication => Ok(Resource::Medication(serde_json::from_slice::<
+                Medication,
+            >(data.as_ref())?)),
+            ResourceType::MedicationAdministration => Ok(Resource::MedicationAdministration(
+                serde_json::from_slice::<MedicationAdministration>(data.as_ref())?,
             )),
-            ResourceType::MedicationAdministration => {
-                Ok(Resource::MedicationAdministration(serde_json::from_str::<
-                    MedicationAdministration,
-                >(data)?))
-            }
             ResourceType::MedicationDispense => {
-                Ok(Resource::MedicationDispense(serde_json::from_str::<
+                Ok(Resource::MedicationDispense(serde_json::from_slice::<
                     MedicationDispense,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::MedicationKnowledge => {
-                Ok(Resource::MedicationKnowledge(serde_json::from_str::<
+                Ok(Resource::MedicationKnowledge(serde_json::from_slice::<
                     MedicationKnowledge,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::MedicationRequest => {
-                Ok(Resource::MedicationRequest(serde_json::from_str::<
+                Ok(Resource::MedicationRequest(serde_json::from_slice::<
                     MedicationRequest,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::MedicationStatement => {
-                Ok(Resource::MedicationStatement(serde_json::from_str::<
+                Ok(Resource::MedicationStatement(serde_json::from_slice::<
                     MedicationStatement,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::MedicinalProduct => {
-                Ok(Resource::MedicinalProduct(serde_json::from_str::<
+                Ok(Resource::MedicinalProduct(serde_json::from_slice::<
                     MedicinalProduct,
-                >(data)?))
+                >(data.as_ref())?))
             }
             ResourceType::MedicinalProductAuthorization => {
                 Ok(Resource::MedicinalProductAuthorization(
-                    serde_json::from_str::<MedicinalProductAuthorization>(data)?,
+                    serde_json::from_slice::<MedicinalProductAuthorization>(data.as_ref())?,
                 ))
             }
             ResourceType::MedicinalProductContraindication => {
                 Ok(Resource::MedicinalProductContraindication(
-                    serde_json::from_str::<MedicinalProductContraindication>(data)?,
+                    serde_json::from_slice::<MedicinalProductContraindication>(data.as_ref())?,
                 ))
             }
             ResourceType::MedicinalProductIndication => Ok(Resource::MedicinalProductIndication(
-                serde_json::from_str::<MedicinalProductIndication>(data)?,
+                serde_json::from_slice::<MedicinalProductIndication>(data.as_ref())?,
             )),
             ResourceType::MedicinalProductIngredient => Ok(Resource::MedicinalProductIngredient(
-                serde_json::from_str::<MedicinalProductIngredient>(data)?,
+                serde_json::from_slice::<MedicinalProductIngredient>(data.as_ref())?,
             )),
             ResourceType::MedicinalProductInteraction => Ok(Resource::MedicinalProductInteraction(
-                serde_json::from_str::<MedicinalProductInteraction>(data)?,
+                serde_json::from_slice::<MedicinalProductInteraction>(data.as_ref())?,
             )),
             ResourceType::MedicinalProductManufactured => {
                 Ok(Resource::MedicinalProductManufactured(
-                    serde_json::from_str::<MedicinalProductManufactured>(data)?,
+                    serde_json::from_slice::<MedicinalProductManufactured>(data.as_ref())?,
                 ))
             }
-            ResourceType::MedicinalProductPackaged => {
-                Ok(Resource::MedicinalProductPackaged(serde_json::from_str::<
-                    MedicinalProductPackaged,
-                >(data)?))
-            }
+            ResourceType::MedicinalProductPackaged => Ok(Resource::MedicinalProductPackaged(
+                serde_json::from_slice::<MedicinalProductPackaged>(data.as_ref())?,
+            )),
             ResourceType::MedicinalProductPharmaceutical => {
                 Ok(Resource::MedicinalProductPharmaceutical(
-                    serde_json::from_str::<MedicinalProductPharmaceutical>(data)?,
+                    serde_json::from_slice::<MedicinalProductPharmaceutical>(data.as_ref())?,
                 ))
             }
             ResourceType::MedicinalProductUndesirableEffect => {
                 Ok(Resource::MedicinalProductUndesirableEffect(
-                    serde_json::from_str::<MedicinalProductUndesirableEffect>(data)?,
+                    serde_json::from_slice::<MedicinalProductUndesirableEffect>(data.as_ref())?,
                 ))
             }
             ResourceType::MessageDefinition => {
-                Ok(Resource::MessageDefinition(serde_json::from_str::<
+                Ok(Resource::MessageDefinition(serde_json::from_slice::<
                     MessageDefinition,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::MessageHeader => Ok(Resource::MessageHeader(serde_json::from_str::<
-                MessageHeader,
-            >(data)?)),
+            ResourceType::MessageHeader => {
+                Ok(Resource::MessageHeader(serde_json::from_slice::<
+                    MessageHeader,
+                >(data.as_ref())?))
+            }
             ResourceType::MolecularSequence => {
-                Ok(Resource::MolecularSequence(serde_json::from_str::<
+                Ok(Resource::MolecularSequence(serde_json::from_slice::<
                     MolecularSequence,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::NamingSystem => Ok(Resource::NamingSystem(serde_json::from_str::<
+            ResourceType::NamingSystem => Ok(Resource::NamingSystem(serde_json::from_slice::<
                 NamingSystem,
-            >(data)?)),
-            ResourceType::NutritionOrder => Ok(Resource::NutritionOrder(serde_json::from_str::<
-                NutritionOrder,
-            >(data)?)),
-            ResourceType::Observation => Ok(Resource::Observation(serde_json::from_str::<
+            >(data.as_ref())?)),
+            ResourceType::NutritionOrder => {
+                Ok(Resource::NutritionOrder(serde_json::from_slice::<
+                    NutritionOrder,
+                >(data.as_ref())?))
+            }
+            ResourceType::Observation => Ok(Resource::Observation(serde_json::from_slice::<
                 Observation,
-            >(data)?)),
+            >(data.as_ref())?)),
             ResourceType::ObservationDefinition => {
-                Ok(Resource::ObservationDefinition(serde_json::from_str::<
+                Ok(Resource::ObservationDefinition(serde_json::from_slice::<
                     ObservationDefinition,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::OperationDefinition => {
-                Ok(Resource::OperationDefinition(serde_json::from_str::<
+                Ok(Resource::OperationDefinition(serde_json::from_slice::<
                     OperationDefinition,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::OperationOutcome => {
-                Ok(Resource::OperationOutcome(serde_json::from_str::<
+                Ok(Resource::OperationOutcome(serde_json::from_slice::<
                     OperationOutcome,
-                >(data)?))
+                >(data.as_ref())?))
             }
-            ResourceType::Organization => Ok(Resource::Organization(serde_json::from_str::<
+            ResourceType::Organization => Ok(Resource::Organization(serde_json::from_slice::<
                 Organization,
-            >(data)?)),
+            >(data.as_ref())?)),
             ResourceType::OrganizationAffiliation => {
-                Ok(Resource::OrganizationAffiliation(serde_json::from_str::<
+                Ok(Resource::OrganizationAffiliation(serde_json::from_slice::<
                     OrganizationAffiliation,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::Parameters => Ok(Resource::Parameters(
-                serde_json::from_str::<Parameters>(data)?,
-            )),
-            ResourceType::Patient => Ok(Resource::Patient(serde_json::from_str::<Patient>(data)?)),
-            ResourceType::PaymentNotice => Ok(Resource::PaymentNotice(serde_json::from_str::<
-                PaymentNotice,
-            >(data)?)),
-            ResourceType::PaymentReconciliation => {
-                Ok(Resource::PaymentReconciliation(serde_json::from_str::<
-                    PaymentReconciliation,
-                >(data)?))
-            }
-            ResourceType::Person => Ok(Resource::Person(serde_json::from_str::<Person>(data)?)),
-            ResourceType::PlanDefinition => Ok(Resource::PlanDefinition(serde_json::from_str::<
-                PlanDefinition,
-            >(data)?)),
-            ResourceType::Practitioner => Ok(Resource::Practitioner(serde_json::from_str::<
-                Practitioner,
-            >(data)?)),
-            ResourceType::PractitionerRole => {
-                Ok(Resource::PractitionerRole(serde_json::from_str::<
-                    PractitionerRole,
-                >(data)?))
-            }
-            ResourceType::Procedure => Ok(Resource::Procedure(serde_json::from_str::<Procedure>(
-                data,
+            ResourceType::Parameters => Ok(Resource::Parameters(serde_json::from_slice::<
+                Parameters,
+            >(data.as_ref())?)),
+            ResourceType::Patient => Ok(Resource::Patient(serde_json::from_slice::<Patient>(
+                data.as_ref(),
             )?)),
-            ResourceType::Provenance => Ok(Resource::Provenance(
-                serde_json::from_str::<Provenance>(data)?,
+            ResourceType::PaymentNotice => {
+                Ok(Resource::PaymentNotice(serde_json::from_slice::<
+                    PaymentNotice,
+                >(data.as_ref())?))
+            }
+            ResourceType::PaymentReconciliation => {
+                Ok(Resource::PaymentReconciliation(serde_json::from_slice::<
+                    PaymentReconciliation,
+                >(
+                    data.as_ref()
+                )?))
+            }
+            ResourceType::Person => Ok(Resource::Person(serde_json::from_slice::<Person>(
+                data.as_ref(),
+            )?)),
+            ResourceType::PlanDefinition => {
+                Ok(Resource::PlanDefinition(serde_json::from_slice::<
+                    PlanDefinition,
+                >(data.as_ref())?))
+            }
+            ResourceType::Practitioner => Ok(Resource::Practitioner(serde_json::from_slice::<
+                Practitioner,
+            >(data.as_ref())?)),
+            ResourceType::PractitionerRole => {
+                Ok(Resource::PractitionerRole(serde_json::from_slice::<
+                    PractitionerRole,
+                >(data.as_ref())?))
+            }
+            ResourceType::Procedure => Ok(Resource::Procedure(
+                serde_json::from_slice::<Procedure>(data.as_ref())?,
             )),
-            ResourceType::Questionnaire => Ok(Resource::Questionnaire(serde_json::from_str::<
-                Questionnaire,
-            >(data)?)),
+            ResourceType::Provenance => Ok(Resource::Provenance(serde_json::from_slice::<
+                Provenance,
+            >(data.as_ref())?)),
+            ResourceType::Questionnaire => {
+                Ok(Resource::Questionnaire(serde_json::from_slice::<
+                    Questionnaire,
+                >(data.as_ref())?))
+            }
             ResourceType::QuestionnaireResponse => {
-                Ok(Resource::QuestionnaireResponse(serde_json::from_str::<
+                Ok(Resource::QuestionnaireResponse(serde_json::from_slice::<
                     QuestionnaireResponse,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::RelatedPerson => Ok(Resource::RelatedPerson(serde_json::from_str::<
-                RelatedPerson,
-            >(data)?)),
-            ResourceType::RequestGroup => Ok(Resource::RequestGroup(serde_json::from_str::<
+            ResourceType::RelatedPerson => {
+                Ok(Resource::RelatedPerson(serde_json::from_slice::<
+                    RelatedPerson,
+                >(data.as_ref())?))
+            }
+            ResourceType::RequestGroup => Ok(Resource::RequestGroup(serde_json::from_slice::<
                 RequestGroup,
-            >(data)?)),
+            >(data.as_ref())?)),
             ResourceType::ResearchDefinition => {
-                Ok(Resource::ResearchDefinition(serde_json::from_str::<
+                Ok(Resource::ResearchDefinition(serde_json::from_slice::<
                     ResearchDefinition,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::ResearchElementDefinition => {
-                Ok(Resource::ResearchElementDefinition(serde_json::from_str::<
-                    ResearchElementDefinition,
-                >(data)?))
+            ResourceType::ResearchElementDefinition => Ok(Resource::ResearchElementDefinition(
+                serde_json::from_slice::<ResearchElementDefinition>(data.as_ref())?,
+            )),
+            ResourceType::ResearchStudy => {
+                Ok(Resource::ResearchStudy(serde_json::from_slice::<
+                    ResearchStudy,
+                >(data.as_ref())?))
             }
-            ResourceType::ResearchStudy => Ok(Resource::ResearchStudy(serde_json::from_str::<
-                ResearchStudy,
-            >(data)?)),
-            ResourceType::ResearchSubject => Ok(Resource::ResearchSubject(serde_json::from_str::<
-                ResearchSubject,
-            >(data)?)),
-            ResourceType::RiskAssessment => Ok(Resource::RiskAssessment(serde_json::from_str::<
-                RiskAssessment,
-            >(data)?)),
+            ResourceType::ResearchSubject => {
+                Ok(Resource::ResearchSubject(serde_json::from_slice::<
+                    ResearchSubject,
+                >(data.as_ref())?))
+            }
+            ResourceType::RiskAssessment => {
+                Ok(Resource::RiskAssessment(serde_json::from_slice::<
+                    RiskAssessment,
+                >(data.as_ref())?))
+            }
             ResourceType::RiskEvidenceSynthesis => {
-                Ok(Resource::RiskEvidenceSynthesis(serde_json::from_str::<
+                Ok(Resource::RiskEvidenceSynthesis(serde_json::from_slice::<
                     RiskEvidenceSynthesis,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::Schedule => {
-                Ok(Resource::Schedule(serde_json::from_str::<Schedule>(data)?))
+            ResourceType::Schedule => Ok(Resource::Schedule(serde_json::from_slice::<Schedule>(
+                data.as_ref(),
+            )?)),
+            ResourceType::SearchParameter => {
+                Ok(Resource::SearchParameter(serde_json::from_slice::<
+                    SearchParameter,
+                >(data.as_ref())?))
             }
-            ResourceType::SearchParameter => Ok(Resource::SearchParameter(serde_json::from_str::<
-                SearchParameter,
-            >(data)?)),
-            ResourceType::ServiceRequest => Ok(Resource::ServiceRequest(serde_json::from_str::<
-                ServiceRequest,
-            >(data)?)),
-            ResourceType::Slot => Ok(Resource::Slot(serde_json::from_str::<Slot>(data)?)),
-            ResourceType::Specimen => {
-                Ok(Resource::Specimen(serde_json::from_str::<Specimen>(data)?))
+            ResourceType::ServiceRequest => {
+                Ok(Resource::ServiceRequest(serde_json::from_slice::<
+                    ServiceRequest,
+                >(data.as_ref())?))
             }
+            ResourceType::Slot => Ok(Resource::Slot(serde_json::from_slice::<Slot>(
+                data.as_ref(),
+            )?)),
+            ResourceType::Specimen => Ok(Resource::Specimen(serde_json::from_slice::<Specimen>(
+                data.as_ref(),
+            )?)),
             ResourceType::SpecimenDefinition => {
-                Ok(Resource::SpecimenDefinition(serde_json::from_str::<
+                Ok(Resource::SpecimenDefinition(serde_json::from_slice::<
                     SpecimenDefinition,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::StructureDefinition => {
-                Ok(Resource::StructureDefinition(serde_json::from_str::<
+                Ok(Resource::StructureDefinition(serde_json::from_slice::<
                     StructureDefinition,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::StructureMap => Ok(Resource::StructureMap(serde_json::from_str::<
+            ResourceType::StructureMap => Ok(Resource::StructureMap(serde_json::from_slice::<
                 StructureMap,
-            >(data)?)),
-            ResourceType::Subscription => Ok(Resource::Subscription(serde_json::from_str::<
+            >(data.as_ref())?)),
+            ResourceType::Subscription => Ok(Resource::Subscription(serde_json::from_slice::<
                 Subscription,
-            >(data)?)),
-            ResourceType::Substance => Ok(Resource::Substance(serde_json::from_str::<Substance>(
-                data,
-            )?)),
+            >(data.as_ref())?)),
+            ResourceType::Substance => Ok(Resource::Substance(
+                serde_json::from_slice::<Substance>(data.as_ref())?,
+            )),
             ResourceType::SubstanceNucleicAcid => {
-                Ok(Resource::SubstanceNucleicAcid(serde_json::from_str::<
+                Ok(Resource::SubstanceNucleicAcid(serde_json::from_slice::<
                     SubstanceNucleicAcid,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::SubstancePolymer => {
-                Ok(Resource::SubstancePolymer(serde_json::from_str::<
+                Ok(Resource::SubstancePolymer(serde_json::from_slice::<
                     SubstancePolymer,
-                >(data)?))
+                >(data.as_ref())?))
             }
             ResourceType::SubstanceProtein => {
-                Ok(Resource::SubstanceProtein(serde_json::from_str::<
+                Ok(Resource::SubstanceProtein(serde_json::from_slice::<
                     SubstanceProtein,
-                >(data)?))
+                >(data.as_ref())?))
             }
             ResourceType::SubstanceReferenceInformation => {
                 Ok(Resource::SubstanceReferenceInformation(
-                    serde_json::from_str::<SubstanceReferenceInformation>(data)?,
+                    serde_json::from_slice::<SubstanceReferenceInformation>(data.as_ref())?,
                 ))
             }
             ResourceType::SubstanceSourceMaterial => {
-                Ok(Resource::SubstanceSourceMaterial(serde_json::from_str::<
+                Ok(Resource::SubstanceSourceMaterial(serde_json::from_slice::<
                     SubstanceSourceMaterial,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::SubstanceSpecification => {
-                Ok(Resource::SubstanceSpecification(serde_json::from_str::<
+                Ok(Resource::SubstanceSpecification(serde_json::from_slice::<
                     SubstanceSpecification,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::SupplyDelivery => Ok(Resource::SupplyDelivery(serde_json::from_str::<
-                SupplyDelivery,
-            >(data)?)),
-            ResourceType::SupplyRequest => Ok(Resource::SupplyRequest(serde_json::from_str::<
-                SupplyRequest,
-            >(data)?)),
-            ResourceType::Task => Ok(Resource::Task(serde_json::from_str::<Task>(data)?)),
+            ResourceType::SupplyDelivery => {
+                Ok(Resource::SupplyDelivery(serde_json::from_slice::<
+                    SupplyDelivery,
+                >(data.as_ref())?))
+            }
+            ResourceType::SupplyRequest => {
+                Ok(Resource::SupplyRequest(serde_json::from_slice::<
+                    SupplyRequest,
+                >(data.as_ref())?))
+            }
+            ResourceType::Task => Ok(Resource::Task(serde_json::from_slice::<Task>(
+                data.as_ref(),
+            )?)),
             ResourceType::TerminologyCapabilities => {
-                Ok(Resource::TerminologyCapabilities(serde_json::from_str::<
+                Ok(Resource::TerminologyCapabilities(serde_json::from_slice::<
                     TerminologyCapabilities,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::TestReport => Ok(Resource::TestReport(
-                serde_json::from_str::<TestReport>(data)?,
-            )),
-            ResourceType::TestScript => Ok(Resource::TestScript(
-                serde_json::from_str::<TestScript>(data)?,
-            )),
-            ResourceType::ValueSet => {
-                Ok(Resource::ValueSet(serde_json::from_str::<ValueSet>(data)?))
-            }
+            ResourceType::TestReport => Ok(Resource::TestReport(serde_json::from_slice::<
+                TestReport,
+            >(data.as_ref())?)),
+            ResourceType::TestScript => Ok(Resource::TestScript(serde_json::from_slice::<
+                TestScript,
+            >(data.as_ref())?)),
+            ResourceType::ValueSet => Ok(Resource::ValueSet(serde_json::from_slice::<ValueSet>(
+                data.as_ref(),
+            )?)),
             ResourceType::VerificationResult => {
-                Ok(Resource::VerificationResult(serde_json::from_str::<
+                Ok(Resource::VerificationResult(serde_json::from_slice::<
                     VerificationResult,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
             ResourceType::VisionPrescription => {
-                Ok(Resource::VisionPrescription(serde_json::from_str::<
+                Ok(Resource::VisionPrescription(serde_json::from_slice::<
                     VisionPrescription,
-                >(data)?))
+                >(
+                    data.as_ref()
+                )?))
             }
-            ResourceType::ViewDefinition => Ok(Resource::ViewDefinition(serde_json::from_str::<
-                ViewDefinition,
-            >(data)?)),
+            ResourceType::ViewDefinition => {
+                Ok(Resource::ViewDefinition(serde_json::from_slice::<
+                    ViewDefinition,
+                >(data.as_ref())?))
+            }
         }
     }
 }
