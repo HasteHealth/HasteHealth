@@ -34,6 +34,11 @@ pub enum StoreError {
     FailedCommitTransaction,
     #[error(code = "exception", diagnostic = "Failed to hash password.")]
     PasswordHashError(argon2::password_hash::Error),
+    #[error(
+        code = "exception",
+        diagnostic = "Failed to deserialize resource: '{arg0}'"
+    )]
+    DeserializeError(String),
 }
 
 /// Connection types supported by the repository traits.

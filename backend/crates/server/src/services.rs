@@ -94,6 +94,7 @@ impl<
                     self.search.clone(),
                     self.terminology.clone(),
                     self.config.clone(),
+                    self.fhir_client.deno_pool(),
                 ))),
                 config: self.config.clone(),
             }
@@ -162,12 +163,23 @@ pub async fn create_services(
 
     let search_engine = create_search_engine(config.as_ref(), pool.clone())?;
 
+    // [TODO] refactor later into generic operation executor.
+    // Cannot just rebuild in each request because it would create multiple DenoPools,
+    // which is expensive and can exhaust system resources.
+    let deno_pool = Arc::new(
+        haste_operation_executor::providers::deno_embedded::pool::DenoPool::new(
+            config.operations.deno_pool_threads,
+        )
+        .expect("Failed to create DenoPool"),
+    );
+
     let fhir_client = Arc::new(FHIRServerClient::new(
         ServerClientConfig::new(
             pool.clone(),
             search_engine.clone(),
             terminology.clone(),
             config.clone(),
+            deno_pool,
         )
         .with_mutate_artifacts(config.allow_artifact_mutations)
         .with_audit_repo(if config.monitoring.audit_enabled {

@@ -86,6 +86,16 @@ where
     }
 }
 
+impl sqlx::Type<Postgres> for ResourceType {
+    fn type_info() -> PgTypeInfo {
+        <&str as sqlx::Type<Postgres>>::type_info()
+    }
+
+    fn compatible(ty: &PgTypeInfo) -> bool {
+        <&str as sqlx::Type<Postgres>>::compatible(ty)
+    }
+}
+
 impl<'r> Encode<'r, Postgres> for ResourceType {
     fn encode_by_ref(
         &self,

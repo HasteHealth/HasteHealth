@@ -7,8 +7,8 @@ publish = false
 license = "Apache-2.0"
 
 [profile.release]
-lto = false
-codegen-units = 1
+lto = "thin"
+codegen-units = 16
 
 [workspace]
 resolver = "3"

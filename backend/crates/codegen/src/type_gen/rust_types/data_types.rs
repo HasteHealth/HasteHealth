@@ -692,7 +692,7 @@ fn generate_resource_type(resource_types: &[ResourceTypeInfo]) -> TokenStream {
         let struct_name = format_ident!("{}", generate::capitalize(&resource_type_info.rust_type_name));
 
         quote! {
-            ResourceType::#struct_name => Ok(Resource::#struct_name(serde_json::from_str::<#struct_name>(#data_ident)?)),
+            ResourceType::#struct_name => Ok(Resource::#struct_name(serde_json::from_slice::<#struct_name>(#data_ident.as_ref())?)),
         }
     });
 
@@ -755,7 +755,7 @@ fn generate_resource_type(resource_types: &[ResourceTypeInfo]) -> TokenStream {
         }
 
         impl ResourceType {
-            pub fn deserialize(&self, #data_ident: &str) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
+            pub fn deserialize<D: AsRef<[u8]>>(&self, #data_ident: D) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
                 match self {
                     #(#get_resource_deserialize_variant)*
                 }

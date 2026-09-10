@@ -1,11 +1,8 @@
-use crate::{
-    config::ServerConfig,
-    fhir_client::{
-        ServerCTX,
-        middleware::{
-            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-            ServerMiddlewareState,
-        },
+use crate::fhir_client::{
+    ServerCTX,
+    middleware::{
+        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+        ServerMiddlewareState,
     },
 };
 use haste_fhir_client::{
@@ -136,13 +133,13 @@ impl<
     Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 > Middleware<ServerMiddlewareState<Repo, Search, Terminology>, Client>
 {
-    pub fn new(config: &ServerConfig) -> Self {
+    /// `deno_executor` should be a pool shared across all routes/clients derived
+    /// from the same server rather than a freshly-constructed one -- see
+    /// [`crate::fhir_client::ServerClientConfig::new`].
+    pub fn new(deno_executor: Arc<DenoPool>) -> Self {
         Middleware {
             operations: ServerOperations::new(),
-            deno_executor: Arc::new(
-                DenoPool::new(config.operations.deno_pool_threads)
-                    .expect("Failed to create DenoPool"),
-            ),
+            deno_executor,
         }
     }
 }
