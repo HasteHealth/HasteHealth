@@ -37,3 +37,6 @@ sqlx = { workspace = true, features = [
 ] }
 sqlx-postgres = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }

@@ -55,7 +55,7 @@ async fn check_rate_limit_remote(
 ) -> Result<i32, haste_rate_limit::RateLimitError> {
     match &pg {
         PGConnection::Pool(_pool, _) => {
-            let tx = create_transaction(&pg, true)
+            let tx = create_transaction(&pg, false)
                 .await
                 .map_err(|e| RateLimitError::Error(e.to_string()))?;
             let res = {
