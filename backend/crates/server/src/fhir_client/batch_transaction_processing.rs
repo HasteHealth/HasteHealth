@@ -211,6 +211,22 @@ struct SortedTransactionEntry {
     idx: usize,
 }
 
+fn collect_references<'a>(value: &'a dyn MetaValue, out: &mut Vec<&'a Reference>) {
+    for field in value.fields() {
+        let Some(child_field) = value.get_field(field) else {
+            continue;
+        };
+
+        for child in child_field.flatten() {
+            if let Some(reference) = child.as_any().downcast_ref::<Reference>() {
+                out.push(reference);
+            }
+
+            collect_references(child, out);
+        }
+    }
+}
+
 pub struct SortedTransaction<'a> {
     graph: DiGraph<Option<SortedTransactionEntry>, Option<Pin<&'a mut Reference>>>,
     topo_sort_ordering: Vec<NodeIndex>,
@@ -219,8 +235,6 @@ pub struct SortedTransaction<'a> {
 pub async fn build_sorted_transaction_graph<'a>(
     request_bundle_entries: Vec<BundleEntry>,
 ) -> Result<SortedTransaction<'a>, OperationOutcomeError> {
-    let fp_engine = haste_fhirpath::FPEngine::new();
-
     let mut graph =
         DiGraph::<Option<SortedTransactionEntry>, Option<Pin<&'a mut Reference>>>::new();
     // Used for index lookup when mutating.
@@ -246,17 +260,14 @@ pub async fn build_sorted_transaction_graph<'a>(
     let mut edges = vec![];
     for cur_index in graph.node_indices() {
         if let Some(sorted_transaction_entry) = &graph[cur_index] {
-            let fp_result = fp_engine
-                .evaluate(
-                    "$this.descendants().ofType(Reference)",
-                    vec![&sorted_transaction_entry.entry as &dyn MetaValue],
-                )
-                .await
-                .unwrap();
+            let mut references = Vec::new();
+            collect_references(
+                &sorted_transaction_entry.entry as &dyn MetaValue,
+                &mut references,
+            );
 
-            let edge_refs = fp_result
-                .iter()
-                .filter_map(|mv| mv.as_any().downcast_ref::<Reference>())
+            let edge_refs = references
+                .into_iter()
                 .filter_map(|reference| {
                     if let Some(reference_string) =
                         reference.reference.as_ref().and_then(|r| r.value.as_ref())
@@ -395,4 +406,61 @@ pub async fn process_transaction_bundle<
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use super::*;
+    use haste_fhir_model::r4::generated::{
+        resources::{Patient, PatientContact},
+        types::FHIRString,
+    };
+
+    #[test]
+    fn collect_references_finds_direct_and_nested_references() {
+        let entry = BundleEntry {
+            resource: Some(Box::new(Resource::Patient(Patient {
+                generalPractitioner: Some(vec![Reference {
+                    reference: Some(Box::new(FHIRString {
+                        value: Some("Practitioner/123".to_string()),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                }]),
+                contact: Some(vec![PatientContact {
+                    organization: Some(Box::new(Reference {
+                        reference: Some(Box::new(FHIRString {
+                            value: Some("Organization/456".to_string()),
+                            ..Default::default()
+                        })),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                }]),
+                ..Default::default()
+            }))),
+            ..Default::default()
+        };
+
+        let mut references = Vec::new();
+        collect_references(&entry as &dyn MetaValue, &mut references);
+
+        let mut found = references
+            .iter()
+            .filter_map(|r| r.reference.as_ref().and_then(|s| s.value.clone()))
+            .collect::<Vec<_>>();
+        found.sort();
+
+        assert_eq!(found, vec!["Organization/456", "Practitioner/123"]);
+    }
+
+    #[test]
+    fn collect_references_returns_empty_when_no_references_present() {
+        let entry = BundleEntry {
+            resource: Some(Box::new(Resource::Patient(Patient::default()))),
+            ..Default::default()
+        };
+
+        let mut references = Vec::new();
+        collect_references(&entry as &dyn MetaValue, &mut references);
+
+        assert!(references.is_empty());
+    }
+}
