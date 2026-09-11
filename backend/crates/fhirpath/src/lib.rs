@@ -29,9 +29,9 @@ use std::{
 mod allocators;
 use allocators::AllocatorTrait;
 
-async fn evaluate_literal<'b>(
+fn evaluate_literal<'b>(
     literal: &Literal,
-    context: Context<'b>,
+    context: &Context<'b>,
 ) -> Result<Context<'b>, FHIRPathError> {
     match literal {
         Literal::String(string) => Ok(context.new_context_from(vec![context.allocate_literal(
@@ -117,7 +117,7 @@ async fn evaluate_term<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match term {
-        Term::Literal(literal) => evaluate_literal(literal, context).await,
+        Term::Literal(literal) => evaluate_literal(literal, &context),
         Term::ExternalConstant(constant) => {
             resolve_external_constant(
                 constant,
@@ -318,18 +318,18 @@ async fn evaluate_function<'a>(
         "resolve" => Ok(context),
         "where" => evaluate_where(function, context, config).await,
         "ofType" | "as" => evaluate_of_type(function, &context),
-        "count" => evaluate_count(function, context).await,
-        "upper" | "lower" => evaluate_case(function, context).await,
-        "empty" => evaluate_empty(function, context).await,
+        "count" => evaluate_count(function, &context),
+        "upper" | "lower" => evaluate_case(function, &context),
+        "empty" => evaluate_empty(function, &context),
         "join" => evaluate_join(function, context, config).await,
         "exists" => evaluate_exists(function, context, config).await,
         "children" => evaluate_children(function, &context),
         "repeat" => evaluate_repeat(function, context, config).await,
         "descendants" => evaluate_descendants(context, config).await,
-        "type" => evaluate_type(function, context).await,
+        "type" => evaluate_type(function, &context),
         "first" => evaluate_first(function, &context),
-        "getReferenceKey" => evaluate_get_reference_key(function, context).await,
-        "getResourceKey" => evaluate_get_resource_key(function, context, config).await,
+        "getReferenceKey" => evaluate_get_reference_key(function, &context),
+        "getResourceKey" => evaluate_get_resource_key(function, &context, config),
 
         _ => Err(FHIRPathError::NotImplemented(format!(
             "Function '{}' is not implemented",
@@ -382,9 +382,9 @@ fn evaluate_of_type<'a>(
     Ok(filter_by_type(&type_name, context))
 }
 
-async fn evaluate_count<'a>(
+fn evaluate_count<'a>(
     function: &FunctionInvocation,
-    context: Context<'a>,
+    context: &Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Zero)?;
 
@@ -402,9 +402,9 @@ async fn evaluate_count<'a>(
     )
 }
 
-async fn evaluate_case<'a>(
+fn evaluate_case<'a>(
     function: &FunctionInvocation,
-    context: Context<'a>,
+    context: &Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Zero)?;
 
@@ -434,9 +434,9 @@ async fn evaluate_case<'a>(
     )
 }
 
-async fn evaluate_empty<'a>(
+fn evaluate_empty<'a>(
     function: &FunctionInvocation,
-    context: Context<'a>,
+    context: &Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Zero)?;
 
@@ -606,9 +606,9 @@ async fn evaluate_descendants<'a>(
     Ok(result)
 }
 
-async fn evaluate_type<'a>(
+fn evaluate_type<'a>(
     function: &FunctionInvocation,
-    context: Context<'a>,
+    context: &Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Zero)?;
 
@@ -637,9 +637,9 @@ fn evaluate_first<'a>(
     }
 }
 
-async fn evaluate_get_reference_key<'a>(
+fn evaluate_get_reference_key<'a>(
     function: &FunctionInvocation,
-    context: Context<'a>,
+    context: &Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Custom(0, 1))?;
 
@@ -685,9 +685,9 @@ async fn evaluate_get_reference_key<'a>(
     Ok(context.new_context_from(next_context))
 }
 
-async fn evaluate_get_resource_key<'a>(
+fn evaluate_get_resource_key<'a>(
     function: &FunctionInvocation,
-    context: Context<'a>,
+    context: &Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Zero)?;
