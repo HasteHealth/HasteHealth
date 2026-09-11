@@ -160,7 +160,10 @@ async fn max_safe_seq_reports_minimum_across_concurrent_registrants(
         .bind("test_multi_seq")
         .fetch_one(&pool)
         .await?;
-    assert_eq!(safe_both_open, 0, "must report the oldest open registration");
+    assert_eq!(
+        safe_both_open, 0,
+        "must report the oldest open registration"
+    );
 
     sqlx::query("COMMIT").execute(&mut *writer_a).await?;
 
