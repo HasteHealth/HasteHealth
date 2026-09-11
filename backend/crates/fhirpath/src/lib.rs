@@ -23,50 +23,41 @@ use haste_reflect_derive::Reflect;
 use std::pin::Pin;
 use std::{
     collections::HashMap,
-    sync::{Arc, LazyLock},
+    sync::{Arc, LazyLock, Mutex},
 };
-use tokio::sync::Mutex;
 
 mod allocators;
 use allocators::AllocatorTrait;
 
-async fn evaluate_literal<'b>(
+fn evaluate_literal<'b>(
     literal: &Literal,
-    context: Context<'b>,
+    context: &Context<'b>,
 ) -> Result<Context<'b>, FHIRPathError> {
     match literal {
-        Literal::String(string) => Ok(context.new_context_from(vec![
-            context
-                .allocate_literal(FHIRString {
-                    value: Some(string.clone()),
-                    ..Default::default()
-                })
-                .await,
-        ])),
-        Literal::Integer(int) => Ok(context.new_context_from(vec![
-            context
-                .allocate_literal(FHIRInteger {
-                    value: Some(*int),
-                    ..Default::default()
-                })
-                .await,
-        ])),
-        Literal::Float(decimal) => Ok(context.new_context_from(vec![
-            context
-                .allocate_literal(FHIRDecimal {
-                    value: Some(*decimal),
-                    ..Default::default()
-                })
-                .await,
-        ])),
-        Literal::Boolean(bool) => Ok(context.new_context_from(vec![
-            context
-                .allocate_literal(FHIRBoolean {
-                    value: Some(*bool),
-                    ..Default::default()
-                })
-                .await,
-        ])),
+        Literal::String(string) => Ok(context.new_context_from(vec![context.allocate_literal(
+            FHIRString {
+                value: Some(string.clone()),
+                ..Default::default()
+            },
+        )])),
+        Literal::Integer(int) => Ok(context.new_context_from(vec![context.allocate_literal(
+            FHIRInteger {
+                value: Some(*int),
+                ..Default::default()
+            },
+        )])),
+        Literal::Float(decimal) => Ok(context.new_context_from(vec![context.allocate_literal(
+            FHIRDecimal {
+                value: Some(*decimal),
+                ..Default::default()
+            },
+        )])),
+        Literal::Boolean(bool) => Ok(context.new_context_from(vec![context.allocate_literal(
+            FHIRBoolean {
+                value: Some(*bool),
+                ..Default::default()
+            },
+        )])),
         Literal::Null => Ok(context.new_context_from(vec![])),
         _ => Err(FHIRPathError::InvalidLiteral(literal.to_owned())),
     }
@@ -126,7 +117,7 @@ async fn evaluate_term<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match term {
-        Term::Literal(literal) => evaluate_literal(literal, context).await,
+        Term::Literal(literal) => evaluate_literal(literal, &context),
         Term::ExternalConstant(constant) => {
             resolve_external_constant(
                 constant,
@@ -327,18 +318,18 @@ async fn evaluate_function<'a>(
         "resolve" => Ok(context),
         "where" => evaluate_where(function, context, config).await,
         "ofType" | "as" => evaluate_of_type(function, &context),
-        "count" => evaluate_count(function, context).await,
-        "upper" | "lower" => evaluate_case(function, context).await,
-        "empty" => evaluate_empty(function, context).await,
+        "count" => evaluate_count(function, &context),
+        "upper" | "lower" => evaluate_case(function, &context),
+        "empty" => evaluate_empty(function, &context),
         "join" => evaluate_join(function, context, config).await,
         "exists" => evaluate_exists(function, context, config).await,
         "children" => evaluate_children(function, &context),
         "repeat" => evaluate_repeat(function, context, config).await,
         "descendants" => evaluate_descendants(context, config).await,
-        "type" => evaluate_type(function, context).await,
+        "type" => evaluate_type(function, &context),
         "first" => evaluate_first(function, &context),
-        "getReferenceKey" => evaluate_get_reference_key(function, context).await,
-        "getResourceKey" => evaluate_get_resource_key(function, context, config).await,
+        "getReferenceKey" => evaluate_get_reference_key(function, &context),
+        "getResourceKey" => evaluate_get_resource_key(function, &context, config),
 
         _ => Err(FHIRPathError::NotImplemented(format!(
             "Function '{}' is not implemented",
@@ -391,9 +382,9 @@ fn evaluate_of_type<'a>(
     Ok(filter_by_type(&type_name, context))
 }
 
-async fn evaluate_count<'a>(
+fn evaluate_count<'a>(
     function: &FunctionInvocation,
-    context: Context<'a>,
+    context: &Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Zero)?;
 
@@ -403,19 +394,17 @@ async fn evaluate_count<'a>(
         .try_into()
         .map_err(|_| FHIRPathError::OperationError(OperationError::SizeOverflow))?;
 
-    Ok(context.new_context_from(vec![
-        context
-            .allocate_literal(FHIRInteger {
-                value: Some(count),
-                ..Default::default()
-            })
-            .await,
-    ]))
+    Ok(
+        context.new_context_from(vec![context.allocate_literal(FHIRInteger {
+            value: Some(count),
+            ..Default::default()
+        })]),
+    )
 }
 
-async fn evaluate_case<'a>(
+fn evaluate_case<'a>(
     function: &FunctionInvocation,
-    context: Context<'a>,
+    context: &Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Zero)?;
 
@@ -437,30 +426,26 @@ async fn evaluate_case<'a>(
         _ => unreachable!(),
     };
 
-    Ok(context.new_context_from(vec![
-        context
-            .allocate_literal(FHIRString {
-                value: Some(transformed),
-                ..Default::default()
-            })
-            .await,
-    ]))
+    Ok(
+        context.new_context_from(vec![context.allocate_literal(FHIRString {
+            value: Some(transformed),
+            ..Default::default()
+        })]),
+    )
 }
 
-async fn evaluate_empty<'a>(
+fn evaluate_empty<'a>(
     function: &FunctionInvocation,
-    context: Context<'a>,
+    context: &Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Zero)?;
 
-    Ok(context.new_context_from(vec![
-        context
-            .allocate_literal(FHIRBoolean {
-                value: Some(context.values.is_empty()),
-                ..Default::default()
-            })
-            .await,
-    ]))
+    Ok(
+        context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
+            value: Some(context.values.is_empty()),
+            ..Default::default()
+        })]),
+    )
 }
 
 async fn evaluate_join<'a>(
@@ -492,14 +477,12 @@ async fn evaluate_join<'a>(
         .collect::<Result<Vec<_>, _>>()?
         .join(&separator);
 
-    Ok(context.new_context_from(vec![
-        context
-            .allocate_literal(FHIRString {
-                value: Some(joined),
-                ..Default::default()
-            })
-            .await,
-    ]))
+    Ok(
+        context.new_context_from(vec![context.allocate_literal(FHIRString {
+            value: Some(joined),
+            ..Default::default()
+        })]),
+    )
 }
 
 async fn evaluate_exists<'a>(
@@ -533,35 +516,29 @@ async fn evaluate_exists<'a>(
             }
 
             if !result.values.is_empty() && downcast_bool(result.values[0])? {
-                return Ok(context.new_context_from(vec![
-                    context
-                        .allocate_literal(FHIRBoolean {
-                            value: Some(true),
-                            ..Default::default()
-                        })
-                        .await,
-                ]));
+                return Ok(
+                    context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
+                        value: Some(true),
+                        ..Default::default()
+                    })]),
+                );
             }
         }
 
-        return Ok(context.new_context_from(vec![
-            context
-                .allocate_literal(FHIRBoolean {
-                    value: Some(false),
-                    ..Default::default()
-                })
-                .await,
-        ]));
+        return Ok(
+            context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
+                value: Some(false),
+                ..Default::default()
+            })]),
+        );
     }
 
-    Ok(context.new_context_from(vec![
-        context
-            .allocate_literal(FHIRBoolean {
-                value: Some(!context.values.is_empty()),
-                ..Default::default()
-            })
-            .await,
-    ]))
+    Ok(
+        context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
+            value: Some(!context.values.is_empty()),
+            ..Default::default()
+        })]),
+    )
 }
 
 fn evaluate_children<'a>(
@@ -629,9 +606,9 @@ async fn evaluate_descendants<'a>(
     Ok(result)
 }
 
-async fn evaluate_type<'a>(
+fn evaluate_type<'a>(
     function: &FunctionInvocation,
-    context: Context<'a>,
+    context: &Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Zero)?;
 
@@ -640,13 +617,9 @@ async fn evaluate_type<'a>(
     for value in &context.values {
         let type_name = value.fhir_type();
 
-        next_ctx.push(
-            context
-                .allocate_literal(Reflection {
-                    name: type_name.to_string(),
-                })
-                .await,
-        );
+        next_ctx.push(context.allocate_literal(Reflection {
+            name: type_name.to_string(),
+        }));
     }
 
     Ok(context.new_context_from(next_ctx))
@@ -664,9 +637,9 @@ fn evaluate_first<'a>(
     }
 }
 
-async fn evaluate_get_reference_key<'a>(
+fn evaluate_get_reference_key<'a>(
     function: &FunctionInvocation,
-    context: Context<'a>,
+    context: &Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Custom(0, 1))?;
 
@@ -706,15 +679,15 @@ async fn evaluate_get_reference_key<'a>(
     let mut next_context = Vec::with_capacity(ids.len());
 
     for id in ids {
-        next_context.push(context.allocate_literal(id).await);
+        next_context.push(context.allocate_literal(id));
     }
 
     Ok(context.new_context_from(next_context))
 }
 
-async fn evaluate_get_resource_key<'a>(
+fn evaluate_get_resource_key<'a>(
     function: &FunctionInvocation,
-    context: Context<'a>,
+    context: &Context<'a>,
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     validate_arguments(&function.arguments, &Cardinality::Zero)?;
@@ -730,7 +703,7 @@ async fn evaluate_get_resource_key<'a>(
         ..Default::default()
     };
 
-    Ok(context.new_context_from(vec![context.allocate_literal(resource_key).await]))
+    Ok(context.new_context_from(vec![context.allocate_literal(resource_key)]))
 }
 
 fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<bool, FHIRPathError> {
@@ -829,26 +802,24 @@ async fn evaluate_add<'a>(
                 let left_value = downcast_number(left.values[0])?;
                 let right_value = downcast_number(right.values[0])?;
 
-                Ok(left.new_context_from(vec![
-                    left.allocate_literal(FHIRDecimal {
+                Ok(
+                    left.new_context_from(vec![left.allocate_literal(FHIRDecimal {
                         value: Some(left_value + right_value),
                         ..Default::default()
-                    })
-                    .await,
-                ]))
+                    })]),
+                )
             } else if STRING_TYPES.contains(left.values[0].fhir_type())
                 && STRING_TYPES.contains(right.values[0].fhir_type())
             {
                 let left_string = downcast_string(left.values[0])?;
                 let right_string = downcast_string(right.values[0])?;
 
-                Ok(left.new_context_from(vec![
-                    left.allocate_literal(FHIRString {
+                Ok(
+                    left.new_context_from(vec![left.allocate_literal(FHIRString {
                         value: Some(left_string + &right_string),
                         ..Default::default()
-                    })
-                    .await,
-                ]))
+                    })]),
+                )
             } else {
                 Err(FHIRPathError::OperationError(OperationError::TypeMismatch(
                     left.values[0].fhir_type(),
@@ -875,13 +846,12 @@ where
             let left_value = downcast_number(left.values[0])?;
             let right_value = downcast_number(right.values[0])?;
 
-            Ok(left.new_context_from(vec![
-                left.allocate_literal(FHIRDecimal {
+            Ok(
+                left.new_context_from(vec![left.allocate_literal(FHIRDecimal {
                     value: Some(op(left_value, right_value)),
                     ..Default::default()
-                })
-                .await,
-            ]))
+                })]),
+            )
         })
     })
     .await
@@ -902,13 +872,12 @@ where
             let left_value = downcast_number(left.values[0])?;
             let right_value = downcast_number(right.values[0])?;
 
-            Ok(left.new_context_from(vec![
-                left.allocate_literal(FHIRBoolean {
+            Ok(
+                left.new_context_from(vec![left.allocate_literal(FHIRBoolean {
                     value: Some(op(left_value, right_value)),
                     ..Default::default()
-                })
-                .await,
-            ]))
+                })]),
+            )
         })
     })
     .await
@@ -991,13 +960,12 @@ where
             let l = downcast_bool(left.values[0])?;
             let r = downcast_bool(right.values[0])?;
 
-            Ok(left.new_context_from(vec![
-                left.allocate_literal(FHIRBoolean {
+            Ok(
+                left.new_context_from(vec![left.allocate_literal(FHIRBoolean {
                     value: Some(op(l, r)),
                     ..Default::default()
-                })
-                .await,
-            ]))
+                })]),
+            )
         })
     })
     .await
@@ -1045,13 +1013,12 @@ async fn evaluate_equality<'a>(
                 result = !result;
             }
 
-            Ok(left.new_context_from(vec![
-                left.allocate_literal(FHIRBoolean {
+            Ok(
+                left.new_context_from(vec![left.allocate_literal(FHIRBoolean {
                     value: Some(result),
                     ..Default::default()
-                })
-                .await,
-            ]))
+                })]),
+            )
         })
     })
     .await
@@ -1115,13 +1082,12 @@ async fn evaluate_type_operation<'a>(
     if return_context {
         Ok(filtered)
     } else {
-        Ok(left.new_context_from(vec![
-            left.allocate_literal(FHIRBoolean {
+        Ok(
+            left.new_context_from(vec![left.allocate_literal(FHIRBoolean {
                 value: Some(!filtered.values.is_empty()),
                 ..Default::default()
-            })
-            .await,
-        ]))
+            })]),
+        )
     }
 }
 
@@ -1224,11 +1190,7 @@ async fn resolve_external_constant<'a>(
         Some(ExternalConstantResolver::Function(func)) => {
             let result = func(name.to_string()).await;
 
-            if let Some(result) = result {
-                Some(context.allocate(result).await)
-            } else {
-                None
-            }
+            result.map(|result| context.allocate(result))
         }
         Some(ExternalConstantResolver::Variable(map)) => map.get(name).copied(),
         None => None,
@@ -1265,12 +1227,18 @@ impl<'a> Context<'a> {
             values,
         }
     }
-    async fn allocate(&self, value: ResolvedValue) -> &'a dyn MetaValue {
-        self.allocator.lock().await.allocate_resolved(value)
+    fn allocate(&self, value: ResolvedValue) -> &'a dyn MetaValue {
+        self.allocator
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .allocate_resolved(value)
     }
 
-    async fn allocate_literal<T: MetaValue>(&self, value: T) -> &'a dyn MetaValue {
-        self.allocator.lock().await.allocate_literal(value)
+    fn allocate_literal<T: MetaValue>(&self, value: T) -> &'a dyn MetaValue {
+        self.allocator
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .allocate_literal(value)
     }
     #[must_use]
     pub fn iter(&'a self) -> Box<dyn Iterator<Item = &'a dyn MetaValue> + 'a> {
@@ -1289,22 +1257,17 @@ impl Clone for Context<'_> {
 
 pub struct FPEngine {}
 
-static AST: LazyLock<Arc<DashMap<String, Expression>>> = LazyLock::new(|| Arc::new(DashMap::new()));
+static AST: LazyLock<DashMap<String, Arc<Expression>>> = LazyLock::new(DashMap::new);
 
-fn get_ast(
-    path: &str,
-) -> Result<dashmap::mapref::one::Ref<'static, String, Expression>, FHIRPathError> {
-    let ast: dashmap::mapref::one::Ref<'_, String, Expression> =
-        if let Some(expression_ast) = AST.get(path) {
-            expression_ast
-        } else {
-            AST.insert(path.to_string(), parser::parse(path)?);
-            AST.get(path).ok_or_else(|| {
-                FHIRPathError::InternalError("Failed to find path post insert".to_string())
-            })?
-        };
+fn get_ast(path: &str) -> Result<Arc<Expression>, FHIRPathError> {
+    if let Some(expression_ast) = AST.get(path) {
+        return Ok(expression_ast.clone());
+    }
 
-    Ok(ast)
+    let expression_ast = Arc::new(parser::parse(path)?);
+    AST.insert(path.to_string(), expression_ast.clone());
+
+    Ok(expression_ast)
 }
 
 impl Default for FPEngine {
