@@ -66,7 +66,28 @@ jobs:
           -- -Dclippy::all -Dclippy::pedantic
 
   unit-tests:
+    services:
+      postgres:
+        image: postgres:18.1
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_DB: haste_health
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+
     runs-on: ubuntu-latest
+
+    env:
+      # Admin-capable connection used by #[sqlx::test] to create/drop an
+      # ephemeral, migrated database per test (see haste-repository's
+      # tests/sequence_functions.rs).
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/haste_health
 
     steps:
       - uses: actions/checkout@v7
