@@ -1,0 +1,1 @@
+DATABASE_URL=postgresql://postgres:postgres@127.0.0.1/haste_health cargo test -p haste-repository --test sequence_functions
