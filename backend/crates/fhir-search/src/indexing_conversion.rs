@@ -24,11 +24,30 @@ pub struct TokenIndex {
     code: Option<String>,
 }
 
+impl TokenIndex {
+    pub fn system(&self) -> Option<&str> {
+        self.system.as_deref()
+    }
+
+    pub fn code(&self) -> Option<&str> {
+        self.code.as_deref()
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 enum RangeValue {
     Number(f64),
     Infinity,
+}
+
+impl RangeValue {
+    fn as_f64(&self) -> f64 {
+        match self {
+            RangeValue::Number(n) => *n,
+            RangeValue::Infinity => f64::INFINITY,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -39,6 +58,32 @@ pub struct QuantityRange {
     end_value: RangeValue,
     end_code: Option<String>,
     end_system: Option<String>,
+}
+
+impl QuantityRange {
+    pub fn start_value(&self) -> f64 {
+        self.start_value.as_f64()
+    }
+
+    pub fn start_code(&self) -> Option<&str> {
+        self.start_code.as_deref()
+    }
+
+    pub fn start_system(&self) -> Option<&str> {
+        self.start_system.as_deref()
+    }
+
+    pub fn end_value(&self) -> f64 {
+        self.end_value.as_f64()
+    }
+
+    pub fn end_code(&self) -> Option<&str> {
+        self.end_code.as_deref()
+    }
+
+    pub fn end_system(&self) -> Option<&str> {
+        self.end_system.as_deref()
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -53,6 +98,20 @@ pub struct ReferenceIndex {
     id: Option<String>,
     resource_type: Option<String>,
     uri: Option<String>,
+}
+
+impl ReferenceIndex {
+    pub fn id(&self) -> Option<&str> {
+        self.id.as_deref()
+    }
+
+    pub fn resource_type(&self) -> Option<&str> {
+        self.resource_type.as_deref()
+    }
+
+    pub fn uri(&self) -> Option<&str> {
+        self.uri.as_deref()
+    }
 }
 
 /// The typed value slot of a project-level (user-submitted) search parameter,

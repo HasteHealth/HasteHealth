@@ -95,6 +95,15 @@ pub struct PostgresConfig {
 #[serde(tag = "backend", rename_all = "snake_case")]
 pub enum SearchConfig {
     Elasticsearch(ElasticsearchConfig),
+    Postgres(PostgresSearchConfig),
+}
+
+#[derive(Derivative, Clone, Deserialize, Serialize)]
+#[derivative(Debug)]
+pub struct PostgresSearchConfig {
+    #[derivative(Debug = "ignore")]
+    pub database_url: String,
+    pub max_connections: u32,
 }
 
 #[derive(Derivative, Clone, Deserialize, Serialize)]
@@ -193,6 +202,15 @@ impl Default for ElasticsearchConfig {
             username: "elastic".into(),
             password: "elastic".into(),
             prune_removed_search_parameters: false,
+        }
+    }
+}
+
+impl Default for PostgresSearchConfig {
+    fn default() -> Self {
+        Self {
+            database_url: "postgresql://postgres:postgres@localhost:5432/haste_search".into(),
+            max_connections: 10,
         }
     }
 }
