@@ -124,6 +124,19 @@ impl ResourceTypeSchema {
     pub fn columns_for(&self, code: &str) -> Option<&ParamColumns> {
         self.parameters.get(code)
     }
+
+    /// The position of a column within `columns`.
+    ///
+    /// Batched inserts bind one fixed column list per statement, so a
+    /// resource's values are collected into a slot per position rather than
+    /// into a per-resource list of names. `columns` is sorted by name, which
+    /// is what makes the lookup a binary search.
+    #[must_use]
+    pub fn column_index(&self, name: &str) -> Option<usize> {
+        self.columns
+            .binary_search_by(|column| column.name.as_str().cmp(name))
+            .ok()
+    }
 }
 
 /// All generated per-resource-type schemas, keyed by resource type name.
@@ -627,25 +640,5 @@ mod tests {
                 );
             }
         }
-    }
-}
-
-#[cfg(test)]
-mod sql_preview {
-    use super::*;
-    use crate::SearchParameterResolve;
-    use crate::memory::R4_SEARCH_PARAMETERS_INDEX;
-    use haste_jwt::{ProjectId, TenantId};
-
-    #[tokio::test]
-    #[ignore = "prints generated DDL for manual inspection"]
-    async fn print_patient_ddl() {
-        let parameters = R4_SEARCH_PARAMETERS_INDEX
-            .all(&TenantId::System, &ProjectId::System)
-            .await
-            .unwrap();
-        let registry = generate_schemas(&parameters);
-        let schema = registry.get("Patient").unwrap();
-        println!("{}", crate::pg_search::migration::preview_ddl(schema));
     }
 }

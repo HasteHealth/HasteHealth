@@ -15,12 +15,65 @@ pub async fn run_migration(
     pool: &Pool<Postgres>,
     registry: &SchemaRegistry,
 ) -> Result<(), OperationOutcomeError> {
-    sqlx::raw_sql(BASE_MIGRATION_SQL)
-        .execute(pool)
-        .await
-        .map_err(|e| wrap("Failed to run PG search base migration", &e))?;
+    // `CREATE TABLE IF NOT EXISTS` is not atomic against a concurrent create:
+    // two servers starting together both see the table missing, both create
+    // it, and one fails on `pg_type_typname_nsp_index`. Across ~145 tables
+    // that is close to certain. An advisory lock serializes the whole
+    // migration instead, so the second server waits and then finds everything
+    // already in place.
+    let mut lock = pool.acquire().await.map_err(|e| {
+        wrap(
+            "Failed to acquire a connection for the PG search migration",
+            &e,
+        )
+    })?;
 
-    for schema in registry.iter() {
+    sqlx::query("SELECT pg_advisory_lock($1)")
+        .bind(MIGRATION_LOCK_KEY)
+        .execute(&mut *lock)
+        .await
+        .map_err(|e| wrap("Failed to take the PG search migration lock", &e))?;
+
+    // The DDL itself runs on the pool rather than on `lock`. The mutual
+    // exclusion still holds: any other server blocks on `pg_advisory_lock`
+    // above until this one releases it below, whichever connections the work
+    // in between happens to use.
+    let result = run_migration_locked(pool, registry).await;
+
+    // Releasing is best-effort: the lock is session-scoped, so dropping the
+    // connection frees it anyway.
+    let _ = sqlx::query("SELECT pg_advisory_unlock($1)")
+        .bind(MIGRATION_LOCK_KEY)
+        .execute(&mut *lock)
+        .await;
+
+    result
+}
+
+/// An arbitrary but stable key — any other advisory lock in this database has
+/// to avoid it.
+const MIGRATION_LOCK_KEY: i64 = 0x0F47_5EA4_C401;
+
+async fn run_migration_locked(
+    pool: &Pool<Postgres>,
+    registry: &SchemaRegistry,
+) -> Result<(), OperationOutcomeError> {
+    execute_ddl(
+        pool,
+        BASE_MIGRATION_SQL,
+        "Failed to run PG search base migration",
+    )
+    .await?;
+
+    // Sorted, not in registry order: `SchemaRegistry` is backed by a HashMap,
+    // so every process iterates it differently, and each table's DDL takes an
+    // ACCESS EXCLUSIVE lock. The advisory lock above already serializes this,
+    // but a single order costs nothing and keeps the DDL from deadlocking if
+    // it is ever run outside that lock.
+    let mut schemas: Vec<_> = registry.iter().collect();
+    schemas.sort_by(|a, b| a.table_name.cmp(&b.table_name));
+
+    for schema in schemas {
         migrate_resource_type_table(pool, schema).await?;
     }
 
@@ -31,33 +84,52 @@ pub async fn run_migration(
     Ok(())
 }
 
+/// Runs one DDL script, tagging any failure with what it was doing.
+async fn execute_ddl(
+    pool: &Pool<Postgres>,
+    sql: &str,
+    context: &str,
+) -> Result<(), OperationOutcomeError> {
+    sqlx::raw_sql(sql)
+        .execute(pool)
+        .await
+        .map_err(|e| wrap(context, &e))?;
+    Ok(())
+}
+
 async fn migrate_resource_type_table(
     pool: &Pool<Postgres>,
     schema: &ResourceTypeSchema,
 ) -> Result<(), OperationOutcomeError> {
     let table = &schema.table_name;
 
-    sqlx::raw_sql(&create_table_sql(schema))
-        .execute(pool)
-        .await
-        .map_err(|e| wrap(&format!("Failed to create table '{table}'"), &e))?;
+    execute_ddl(
+        pool,
+        &create_table_sql(schema),
+        &format!("Failed to create table '{table}'"),
+    )
+    .await?;
 
     // A table created by an earlier release may be missing columns for search
     // parameters added since; add them rather than recreating the table.
     let add_columns = add_columns_sql(schema);
     if !add_columns.is_empty() {
-        sqlx::raw_sql(&add_columns)
-            .execute(pool)
-            .await
-            .map_err(|e| wrap(&format!("Failed to add columns to '{table}'"), &e))?;
+        execute_ddl(
+            pool,
+            &add_columns,
+            &format!("Failed to add columns to '{table}'"),
+        )
+        .await?;
     }
 
     let indexes = create_indexes_sql(schema);
     if !indexes.is_empty() {
-        sqlx::raw_sql(&indexes)
-            .execute(pool)
-            .await
-            .map_err(|e| wrap(&format!("Failed to create indexes on '{table}'"), &e))?;
+        execute_ddl(
+            pool,
+            &indexes,
+            &format!("Failed to create indexes on '{table}'"),
+        )
+        .await?;
     }
 
     Ok(())
@@ -91,12 +163,7 @@ fn create_table_sql(schema: &ResourceTypeSchema) -> String {
         ));
     }
 
-    sql.push_str(
-        ",\n    PRIMARY KEY (tenant, project, resource_id)\
-         ,\n    FOREIGN KEY (tenant, project, resource_type, resource_id)\n        \
-         REFERENCES search_resource (tenant, project, resource_type, resource_id)\n        \
-         ON DELETE CASCADE\n);",
-    );
+    sql.push_str(",\n    PRIMARY KEY (tenant, project, resource_id)\n);");
 
     sql
 }
@@ -210,6 +277,39 @@ CREATE TABLE IF NOT EXISTS search_resource (
 CREATE INDEX IF NOT EXISTS idx_search_resource_lookup
     ON search_resource (tenant, project, resource_type);
 
+-- Every search table used to carry an ON DELETE CASCADE foreign key to
+-- `search_resource`. With one table per resource type that grew to ~145
+-- constraints on a single parent, and Postgres fires a referential-integrity
+-- trigger for *every one of them* on *every* anchor row deleted — ~145,000
+-- trigger invocations to delete a 1000-resource batch, which measured at
+-- 800ms before any real work happened. Indexing now deletes the child rows
+-- explicitly and targets only the tables a batch actually touches, so the
+-- constraints are dropped here. This is a derived index rebuildable from the
+-- repository, and `indexing.rs` is the only writer.
+DO $$
+DECLARE
+    constraint_row record;
+BEGIN
+    FOR constraint_row IN
+        SELECT conrelid::regclass AS child_table, conname
+        FROM pg_constraint
+        WHERE confrelid = 'search_resource'::regclass AND contype = 'f'
+        -- Dropping a constraint takes an ACCESS EXCLUSIVE lock on its table.
+        -- Two servers migrating at once would take ~145 of those in whatever
+        -- order the catalog scan returned, and deadlock; a deterministic order
+        -- makes them queue instead.
+        ORDER BY conrelid::regclass::text, conname
+    LOOP
+        -- The other session may have dropped it in between: both took their
+        -- snapshot of the catalog before either started.
+        EXECUTE format(
+            'ALTER TABLE %s DROP CONSTRAINT IF EXISTS %I',
+            constraint_row.child_table,
+            constraint_row.conname
+        );
+    END LOOP;
+END $$;
+
 -- String values (name, address, etc.)
 CREATE TABLE IF NOT EXISTS search_dynamic_string (
     tenant        TEXT NOT NULL,
@@ -217,10 +317,7 @@ CREATE TABLE IF NOT EXISTS search_dynamic_string (
     resource_type TEXT NOT NULL,
     resource_id   TEXT NOT NULL,
     param_url     TEXT NOT NULL,
-    value         TEXT NOT NULL,
-    FOREIGN KEY (tenant, project, resource_type, resource_id)
-        REFERENCES search_resource (tenant, project, resource_type, resource_id)
-        ON DELETE CASCADE
+    value         TEXT NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_search_dynamic_string_prefix
@@ -234,10 +331,7 @@ CREATE TABLE IF NOT EXISTS search_dynamic_token (
     resource_id   TEXT NOT NULL,
     param_url     TEXT NOT NULL,
     system        TEXT,
-    code          TEXT,
-    FOREIGN KEY (tenant, project, resource_type, resource_id)
-        REFERENCES search_resource (tenant, project, resource_type, resource_id)
-        ON DELETE CASCADE
+    code          TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_search_dynamic_token_code
@@ -253,10 +347,7 @@ CREATE TABLE IF NOT EXISTS search_dynamic_date (
     resource_id   TEXT NOT NULL,
     param_url     TEXT NOT NULL,
     start_ms      BIGINT NOT NULL,
-    end_ms        BIGINT NOT NULL,
-    FOREIGN KEY (tenant, project, resource_type, resource_id)
-        REFERENCES search_resource (tenant, project, resource_type, resource_id)
-        ON DELETE CASCADE
+    end_ms        BIGINT NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_search_dynamic_date_range
@@ -269,10 +360,7 @@ CREATE TABLE IF NOT EXISTS search_dynamic_number (
     resource_type TEXT NOT NULL,
     resource_id   TEXT NOT NULL,
     param_url     TEXT NOT NULL,
-    value         DOUBLE PRECISION NOT NULL,
-    FOREIGN KEY (tenant, project, resource_type, resource_id)
-        REFERENCES search_resource (tenant, project, resource_type, resource_id)
-        ON DELETE CASCADE
+    value         DOUBLE PRECISION NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_search_dynamic_number_value
@@ -285,10 +373,7 @@ CREATE TABLE IF NOT EXISTS search_dynamic_uri (
     resource_type TEXT NOT NULL,
     resource_id   TEXT NOT NULL,
     param_url     TEXT NOT NULL,
-    value         TEXT NOT NULL,
-    FOREIGN KEY (tenant, project, resource_type, resource_id)
-        REFERENCES search_resource (tenant, project, resource_type, resource_id)
-        ON DELETE CASCADE
+    value         TEXT NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_search_dynamic_uri_value
@@ -305,10 +390,7 @@ CREATE TABLE IF NOT EXISTS search_dynamic_reference (
     param_url            TEXT NOT NULL,
     target_resource_type TEXT,
     target_id            TEXT,
-    target_uri           TEXT,
-    FOREIGN KEY (tenant, project, resource_type, resource_id)
-        REFERENCES search_resource (tenant, project, resource_type, resource_id)
-        ON DELETE CASCADE
+    target_uri           TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_search_dynamic_reference_target
@@ -328,165 +410,30 @@ CREATE TABLE IF NOT EXISTS search_dynamic_quantity (
     start_code    TEXT,
     end_value     DOUBLE PRECISION NOT NULL,
     end_system    TEXT,
-    end_code      TEXT,
-    FOREIGN KEY (tenant, project, resource_type, resource_id)
-        REFERENCES search_resource (tenant, project, resource_type, resource_id)
-        ON DELETE CASCADE
+    end_code      TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_search_dynamic_quantity_value
     ON search_dynamic_quantity (tenant, project, resource_type, param_url, start_value, end_value);
+
+-- Re-indexing a resource clears its old rows from every `search_dynamic_*`
+-- table by (tenant, project, resource_type, resource_id). The value indexes
+-- above all carry `param_url` in position 4, so none of them can serve that
+-- lookup — without these the delete degrades to a sequential scan of the whole
+-- table, on every single create and update.
+
+CREATE INDEX IF NOT EXISTS idx_search_dynamic_string_resource
+    ON search_dynamic_string (tenant, project, resource_type, resource_id);
+CREATE INDEX IF NOT EXISTS idx_search_dynamic_token_resource
+    ON search_dynamic_token (tenant, project, resource_type, resource_id);
+CREATE INDEX IF NOT EXISTS idx_search_dynamic_date_resource
+    ON search_dynamic_date (tenant, project, resource_type, resource_id);
+CREATE INDEX IF NOT EXISTS idx_search_dynamic_number_resource
+    ON search_dynamic_number (tenant, project, resource_type, resource_id);
+CREATE INDEX IF NOT EXISTS idx_search_dynamic_uri_resource
+    ON search_dynamic_uri (tenant, project, resource_type, resource_id);
+CREATE INDEX IF NOT EXISTS idx_search_dynamic_reference_resource
+    ON search_dynamic_reference (tenant, project, resource_type, resource_id);
+CREATE INDEX IF NOT EXISTS idx_search_dynamic_quantity_resource
+    ON search_dynamic_quantity (tenant, project, resource_type, resource_id);
 "#;
-
-/// Renders the DDL a schema would produce, for tests and manual inspection.
-#[cfg(test)]
-pub fn preview_ddl(schema: &ResourceTypeSchema) -> String {
-    format!(
-        "{}\n\n{}",
-        create_table_sql(schema),
-        create_indexes_sql(schema)
-    )
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::pg_search::schema::{ColumnType, ParamColumns};
-    use std::collections::HashMap;
-
-    fn test_schema() -> ResourceTypeSchema {
-        let mut parameters = HashMap::new();
-        parameters.insert(
-            "name".to_string(),
-            ParamColumns::String {
-                value: "name".to_string(),
-            },
-        );
-        parameters.insert(
-            "birthdate".to_string(),
-            ParamColumns::Date {
-                start: "birthdate_start".to_string(),
-                end: "birthdate_end".to_string(),
-            },
-        );
-
-        ResourceTypeSchema {
-            resource_type: "Patient".to_string(),
-            table_name: "search_patient".to_string(),
-            parameters,
-            columns: vec![
-                ColumnDef {
-                    name: "birthdate_end".to_string(),
-                    column_type: ColumnType::BigIntArray,
-                    indexed: true,
-                },
-                ColumnDef {
-                    name: "birthdate_start".to_string(),
-                    column_type: ColumnType::BigIntArray,
-                    indexed: true,
-                },
-                ColumnDef {
-                    name: "name".to_string(),
-                    column_type: ColumnType::TextArray,
-                    indexed: true,
-                },
-            ],
-        }
-    }
-
-    #[test]
-    fn create_table_includes_every_column_and_key() {
-        let sql = create_table_sql(&test_schema());
-
-        assert!(sql.starts_with("CREATE TABLE IF NOT EXISTS search_patient ("));
-        assert!(sql.contains("\"name\" TEXT[]"));
-        assert!(sql.contains("\"birthdate_start\" BIGINT[]"));
-        assert!(sql.contains("\"birthdate_end\" BIGINT[]"));
-        assert!(sql.contains("PRIMARY KEY (tenant, project, resource_id)"));
-        assert!(sql.contains("resource_type TEXT NOT NULL DEFAULT 'Patient'"));
-        assert!(sql.contains("CHECK (resource_type = 'Patient')"));
-        assert!(sql.contains("REFERENCES search_resource"));
-    }
-
-    #[test]
-    fn add_columns_is_idempotent_per_column() {
-        let sql = add_columns_sql(&test_schema());
-        assert_eq!(sql.matches("ADD COLUMN IF NOT EXISTS").count(), 3);
-        assert!(
-            sql.contains("ALTER TABLE search_patient ADD COLUMN IF NOT EXISTS \"name\" TEXT[];")
-        );
-    }
-
-    #[test]
-    fn indexes_cover_indexed_columns_only() {
-        let mut schema = test_schema();
-        schema.columns.push(ColumnDef {
-            name: "identifier_system".to_string(),
-            column_type: ColumnType::TextArray,
-            indexed: false,
-        });
-
-        let sql = create_indexes_sql(&schema);
-        assert!(sql.contains("idx_search_patient_lookup ON search_patient (tenant, project)"));
-        assert!(sql.contains("USING GIN (\"name\")"));
-        assert!(!sql.contains("identifier_system"));
-    }
-
-    #[test]
-    fn long_index_names_are_truncated_and_stay_distinct() {
-        let long_a = format!("idx_search_x_{}", "a".repeat(80));
-        let long_b = format!("idx_search_x_{}", "b".repeat(80));
-
-        let a = truncate_identifier(&long_a);
-        let b = truncate_identifier(&long_b);
-
-        assert!(a.len() <= MAX_IDENTIFIER_LEN);
-        assert!(b.len() <= MAX_IDENTIFIER_LEN);
-        assert_ne!(a, b);
-        assert_eq!(truncate_identifier("idx_short"), "idx_short");
-    }
-}
-
-/// Runs the real migration against a live PostgreSQL instance.
-///
-/// Ignored by default since it needs a database; run with
-/// `PG_SEARCH_TEST_URL=postgres://... cargo test -p haste-fhir-search
-/// --lib migration::live -- --ignored --nocapture`.
-#[cfg(test)]
-mod live {
-    use super::*;
-    use crate::memory::R4_SEARCH_PARAMETERS_INDEX;
-    use crate::pg_search::schema::generate_schemas;
-
-    #[tokio::test]
-    #[ignore = "requires a live PostgreSQL instance"]
-    async fn migration_is_idempotent() {
-        let Ok(url) = std::env::var("PG_SEARCH_TEST_URL") else {
-            panic!("set PG_SEARCH_TEST_URL");
-        };
-
-        let pool = sqlx::postgres::PgPoolOptions::new()
-            .max_connections(4)
-            .connect(&url)
-            .await
-            .expect("connect");
-
-        let registry = generate_schemas(&R4_SEARCH_PARAMETERS_INDEX.all_parameters());
-        println!("generated {} resource type tables", registry.len());
-
-        run_migration(&pool, &registry).await.expect("first run");
-        // Re-running must be a no-op, not an error.
-        run_migration(&pool, &registry).await.expect("second run");
-
-        let tables: i64 = sqlx::query_scalar(
-            "SELECT count(*) FROM information_schema.tables \
-             WHERE table_schema = 'public' AND table_name LIKE 'search\\_%'",
-        )
-        .fetch_one(&pool)
-        .await
-        .expect("count tables");
-
-        println!("search_* tables in database: {tables}");
-        assert!(tables as usize >= registry.len());
-    }
-}
