@@ -53,11 +53,9 @@ pub fn token_clause(
 
 fn token_columns(columns: &ParamColumns) -> Result<(&str, &str), QueryBuildError> {
     match columns {
-        ParamColumns::Token { system, code } => Ok((system.as_str(), code.as_str())),
-        // A quantity indexed under a token search reuses the unit's
-        // system/code pair, which is what FHIR's token search on a quantity
-        // means.
-        ParamColumns::Quantity { system, code, .. } => Ok((system.as_str(), code.as_str())),
+        ParamColumns::Token { system, code } | ParamColumns::Quantity { system, code, .. } => {
+            Ok((system.as_str(), code.as_str()))
+        }
         _ => Err(QueryBuildError::UnsupportedParameter(
             "token search parameter is not backed by token columns".to_string(),
         )),
