@@ -5,11 +5,34 @@ use haste_fhir_model::r4::generated::{
     terminology::{BundleType, HttpVerb, IssueType, ReportResultCodes},
     types::FHIRUri,
 };
+use haste_fhir_client::http::{HeaderMap, HttpRequestHeaders, WithRequestHeaders};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_testscript_runner::TestRunnerOptions;
 use std::{path::Path, sync::Arc};
 use tokio::{sync::Mutex, task::JoinSet};
 use tracing::{error, info};
+
+/// Per-operation client context for a TestScript run.
+///
+/// Carries the headers declared by an operation's `requestHeader` entries so they
+/// reach the outgoing HTTP request. Commands that never set headers use `()` instead.
+#[derive(Debug, Default, Clone)]
+pub(crate) struct TestScriptContext {
+    headers: Option<HeaderMap>,
+}
+
+impl HttpRequestHeaders for TestScriptContext {
+    fn request_headers(&self) -> Option<&HeaderMap> {
+        self.headers.as_ref()
+    }
+}
+
+impl WithRequestHeaders for TestScriptContext {
+    fn with_request_headers(mut self, headers: HeaderMap) -> Self {
+        self.headers = Some(headers);
+        self
+    }
+}
 
 /// Run FHIR TestScript resources against the active profile's server.
 #[derive(Subcommand, Debug)]
@@ -139,7 +162,7 @@ pub(crate) async fn run(
                         test_runs.spawn(async move {
                             let result = haste_testscript_runner::run(
                                 fhir_client.as_ref(),
-                                (),
+                                TestScriptContext::default(),
                                 testscript,
                                 testrunner_options,
                             )

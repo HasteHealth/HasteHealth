@@ -1,6 +1,7 @@
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
 use haste_fhir_client::{
     FHIRClient,
+    http::{HeaderMap, HeaderName, HeaderValue, WithRequestHeaders},
     request::{
         DeleteRequest, FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest,
         FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest, FHIRDeleteTypeRequest,
@@ -913,7 +914,53 @@ async fn parsed_parameters(
     })
 }
 
-async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+/// Builds the headers declared by an operation's `requestHeader` entries.
+///
+/// Values are variable-evaluated first, so a TestScript may parameterize a header
+/// the same way it parameterizes a URL or a search query.
+async fn testscript_request_headers(
+    state: &TestState,
+    pointer: &TypedPointer<TestScript, TestScriptSetupActionOperation>,
+    operation: &TestScriptSetupActionOperation,
+) -> Result<Option<HeaderMap>, TestScriptError> {
+    let Some(request_headers) = operation.requestHeader.as_ref() else {
+        return Ok(None);
+    };
+
+    let mut headers = HeaderMap::with_capacity(request_headers.len());
+
+    for request_header in request_headers {
+        let field = request_header.field.value.as_deref().ok_or_else(|| {
+            TestScriptError::ExecutionError(format!(
+                "Missing requestHeader field for operation at '{}'.",
+                pointer.path()
+            ))
+        })?;
+
+        let raw_value = request_header.value.value.as_deref().unwrap_or_default();
+        let value = evaluate_variable(state, pointer.root(), raw_value).await?;
+
+        let name = HeaderName::try_from(field).map_err(|e| {
+            TestScriptError::ExecutionError(format!(
+                "Invalid requestHeader field '{field}' for operation at '{}': {e}",
+                pointer.path()
+            ))
+        })?;
+
+        let value = HeaderValue::from_str(&value).map_err(|e| {
+            TestScriptError::ExecutionError(format!(
+                "Invalid requestHeader value for '{field}' for operation at '{}': {e}",
+                pointer.path()
+            ))
+        })?;
+
+        headers.insert(name, value);
+    }
+
+    Ok((!headers.is_empty()).then_some(headers))
+}
+
+async fn run_operation<CTX: WithRequestHeaders, Client: FHIRClient<CTX, OperationOutcomeError>>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -929,6 +976,12 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
 
     let mut state_guard = state.lock().await;
     let fhir_request = testscript_operation_to_fhir_request(&state_guard, &pointer).await?;
+
+    let ctx = match testscript_request_headers(&state_guard, &pointer, operation).await? {
+        Some(headers) => ctx.with_request_headers(headers),
+        None => ctx,
+    };
+
     let fhir_response = client.request(ctx, fhir_request.clone()).await;
     if let Some(wait_duration) = options.wait_between_operations {
         tokio::time::sleep(wait_duration).await;
@@ -1300,7 +1353,7 @@ async fn evaluate_expression_assertion(
     )))
 }
 
-async fn run_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+async fn run_action<CTX: WithRequestHeaders, Client: FHIRClient<CTX, OperationOutcomeError>>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1363,7 +1416,10 @@ async fn run_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     }
 }
 
-async fn run_setup_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+async fn run_setup_action<
+    CTX: WithRequestHeaders,
+    Client: FHIRClient<CTX, OperationOutcomeError>,
+>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1427,7 +1483,10 @@ async fn run_setup_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     }
 }
 
-async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
+async fn setup_fixtures<
+    CTX: Clone + WithRequestHeaders,
+    Client: FHIRClient<CTX, OperationOutcomeError>,
+>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1523,7 +1582,10 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
     Ok(state)
 }
 
-async fn run_setup<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
+async fn run_setup<
+    CTX: Clone + WithRequestHeaders,
+    Client: FHIRClient<CTX, OperationOutcomeError>,
+>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1575,7 +1637,10 @@ async fn run_setup<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     })
 }
 
-async fn run_teardown<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
+async fn run_teardown<
+    CTX: Clone + WithRequestHeaders,
+    Client: FHIRClient<CTX, OperationOutcomeError>,
+>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1639,7 +1704,10 @@ async fn run_teardown<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>
     })
 }
 
-async fn run_test<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
+async fn run_test<
+    CTX: Clone + WithRequestHeaders,
+    Client: FHIRClient<CTX, OperationOutcomeError>,
+>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1691,7 +1759,10 @@ async fn run_test<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     })
 }
 
-async fn run_tests<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
+async fn run_tests<
+    CTX: Clone + WithRequestHeaders,
+    Client: FHIRClient<CTX, OperationOutcomeError>,
+>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1762,7 +1833,10 @@ pub struct TestRunnerOptions {
         testscript.url = test_script.url.value.as_deref().unwrap_or("<no-url>"),
     )
 )]
-pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
+pub async fn run<
+    CTX: Clone + WithRequestHeaders,
+    Client: FHIRClient<CTX, OperationOutcomeError>,
+>(
     client: &Client,
     ctx: CTX,
     test_script: Arc<TestScript>,
