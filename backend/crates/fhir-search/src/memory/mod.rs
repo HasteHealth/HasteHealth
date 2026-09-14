@@ -19,6 +19,19 @@ pub struct SearchParametersIndex {
     by_resource_type: HashMap<String, HashMap<String, ResolvedParameter>>,
 }
 
+impl SearchParametersIndex {
+    /// Every indexed parameter, resolved synchronously.
+    ///
+    /// `SearchParameterResolve::all` is async only to accommodate resolvers
+    /// that hit a database; this index is pure in-memory, so callers that run
+    /// outside a runtime (a `LazyLock` initializer, for instance) can read it
+    /// directly.
+    #[must_use]
+    pub fn all_parameters(&self) -> Vec<ResolvedParameter> {
+        self.by_url.values().cloned().collect()
+    }
+}
+
 impl SearchParameterResolve for SearchParametersIndex {
     fn by_resource_type(
         &self,
@@ -79,7 +92,7 @@ impl SearchParameterResolve for SearchParametersIndex {
         _tenant: &TenantId,
         _project: &ProjectId,
     ) -> impl Future<Output = Result<Vec<ResolvedParameter>, OperationOutcomeError>> {
-        std::future::ready(Ok(self.by_url.values().cloned().collect::<Vec<_>>()))
+        std::future::ready(Ok(self.all_parameters()))
     }
 }
 

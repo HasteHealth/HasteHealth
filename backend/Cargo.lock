@@ -2635,6 +2635,8 @@ dependencies = [
  "moka",
  "serde",
  "serde_json",
+ "sqlx",
+ "sqlx-postgres",
  "tokio",
  "tracing",
 ]
