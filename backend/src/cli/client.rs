@@ -8,6 +8,7 @@ use crate::cli::{
 };
 use haste_fhir_client::http::{
     BasicCredentials, FHIRHttpAuthenticationMethod, FHIRHttpClient, FHIRHttpState,
+    HttpRequestHeaders,
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -323,11 +324,14 @@ async fn config_to_fhir_http_state(
     Ok(http_state)
 }
 
-pub(crate) async fn fhir_client(
+pub(crate) async fn fhir_client<CTX>(
     state: Arc<Mutex<CliState>>,
-) -> Result<Arc<FHIRHttpClient<()>>, OperationOutcomeError> {
+) -> Result<Arc<FHIRHttpClient<CTX>>, OperationOutcomeError>
+where
+    CTX: 'static + Send + Sync + std::fmt::Debug + HttpRequestHeaders,
+{
     let http_state = config_to_fhir_http_state(state).await?;
-    let fhir_client = Arc::new(FHIRHttpClient::<()>::new(http_state));
+    let fhir_client = Arc::new(FHIRHttpClient::<CTX>::new(http_state));
 
     Ok(fhir_client)
 }

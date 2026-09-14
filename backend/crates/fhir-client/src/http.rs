@@ -24,7 +24,7 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_jwt::VersionId;
-use http::HeaderValue;
+pub use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::{Request, RequestBuilder, Url};
 use std::future::Future;
 use std::{fmt::Debug, pin::Pin, sync::Arc};
@@ -47,6 +47,27 @@ type GetBasicCredentials = dyn Fn() -> Pin<
 pub enum FHIRHttpAuthenticationMethod {
     BearerToken(Arc<AccessToken>),
     Basic(Arc<GetBasicCredentials>),
+}
+
+/// Supplies additional HTTP headers to apply to an outgoing request.
+///
+/// Implemented on the client's context type rather than on [`FHIRHttpState`] so
+/// that headers may vary per call instead of being fixed for the lifetime of the
+/// client.
+pub trait HttpRequestHeaders {
+    /// Headers to apply to the request, or `None` to send it unchanged.
+    fn request_headers(&self) -> Option<&HeaderMap>;
+}
+
+pub trait WithRequestHeaders: HttpRequestHeaders + Sized {
+    #[must_use]
+    fn with_request_headers(self, headers: HeaderMap) -> Self;
+}
+
+impl HttpRequestHeaders for () {
+    fn request_headers(&self) -> Option<&HeaderMap> {
+        None
+    }
 }
 
 #[derive(Derivative)]
@@ -859,7 +880,7 @@ impl HTTPMiddleware {
         HTTPMiddleware {}
     }
 }
-impl<CTX: Send + 'static + Debug>
+impl<CTX: Send + 'static + Debug + HttpRequestHeaders>
     MiddlewareChain<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, OperationOutcomeError>
     for HTTPMiddleware
 {
@@ -884,7 +905,19 @@ impl<CTX: Send + 'static + Debug>
         >,
     > {
         Box::pin(async move {
-            let http_request = fhir_request_to_http_request(&state, &context.request).await?;
+            let mut http_request = fhir_request_to_http_request(&state, &context.request).await?;
+
+            // Applied after the request is built so a caller-supplied header takes
+            // precedence over the configured authentication and the default
+            // `Accept`/`Content-Type`. `insert` replaces rather than appends, so a
+            // repeated name overwrites instead of stacking values.
+            if let Some(headers) = context.ctx.request_headers() {
+                let request_headers = http_request.headers_mut();
+                for (name, value) in headers {
+                    request_headers.insert(name, value.clone());
+                }
+            }
+
             let response = state
                 .client
                 .execute(http_request)
@@ -901,7 +934,7 @@ impl<CTX: Send + 'static + Debug>
     }
 }
 
-impl<CTX: 'static + Send + Sync + Debug> FHIRHttpClient<CTX> {
+impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRHttpClient<CTX> {
     #[must_use]
     pub fn new(state: FHIRHttpState) -> Self {
         let middleware = Middleware::new(vec![Box::new(HTTPMiddleware::new())]);
@@ -912,7 +945,7 @@ impl<CTX: 'static + Send + Sync + Debug> FHIRHttpClient<CTX> {
     }
 }
 
-impl<CTX: 'static + Send + Sync + Debug> FHIRClient<CTX, OperationOutcomeError>
+impl<CTX: 'static + Send + Sync + Debug + HttpRequestHeaders> FHIRClient<CTX, OperationOutcomeError>
     for FHIRHttpClient<CTX>
 {
     async fn request(
