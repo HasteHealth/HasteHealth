@@ -916,7 +916,7 @@ async fn parsed_parameters(
 
 /// Builds the headers declared by an operation's `requestHeader` entries.
 ///
-/// Values are variable-evaluated first, so a TestScript may parameterize a header
+/// Values are variable-evaluated first, so a `TestScript` may parameterize a header
 /// the same way it parameterizes a URL or a search query.
 async fn testscript_request_headers(
     state: &TestState,
