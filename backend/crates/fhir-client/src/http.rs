@@ -14,6 +14,7 @@ use crate::{
     },
     url::{ParsedParameter, ParsedParameters},
 };
+use base64::{Engine as _, engine::general_purpose::STANDARD};
 use derivative::Derivative;
 use haste_fhir_model::r4::generated::{
     resources::{
@@ -32,6 +33,22 @@ type AccessToken = dyn Fn() -> Pin<Box<dyn Future<Output = Result<String, Operat
     + Sync
     + Send;
 
+pub struct BasicCredentials {
+    pub username: String,
+    pub password: String,
+}
+
+type GetBasicCredentials = dyn Fn() -> Pin<
+        Box<dyn Future<Output = Result<BasicCredentials, OperationOutcomeError>> + Send + Sync>,
+    > + Sync
+    + Send;
+
+#[derive(Clone)]
+pub enum FHIRHttpAuthenticationMethod {
+    BearerToken(Arc<AccessToken>),
+    Basic(Arc<GetBasicCredentials>),
+}
+
 #[derive(Derivative)]
 #[derivative(Debug)]
 pub struct FHIRHttpState {
@@ -39,7 +56,7 @@ pub struct FHIRHttpState {
     client: reqwest::Client,
     api_url: Url,
     #[derivative(Debug = "ignore")]
-    get_access_token: Option<Arc<AccessToken>>,
+    http_authentication_method: Option<FHIRHttpAuthenticationMethod>,
 }
 
 impl FHIRHttpState {
@@ -51,7 +68,7 @@ impl FHIRHttpState {
     /// or if the client cannot be initialized.
     pub fn new(
         api_url: &str,
-        get_access_token: Option<Arc<AccessToken>>,
+        http_authentication_method: Option<FHIRHttpAuthenticationMethod>,
     ) -> Result<Self, OperationOutcomeError> {
         let mut url =
             Url::parse(api_url).map_err(|_| FHIRHTTPError::UrlParseError(api_url.to_string()))?;
@@ -63,7 +80,7 @@ impl FHIRHttpState {
         Ok(FHIRHttpState {
             client: reqwest::Client::new(),
             api_url: url,
-            get_access_token,
+            http_authentication_method,
         })
     }
 }
@@ -187,18 +204,40 @@ fn fhir_request_to_http_request<'a>(
 
         let mut request = request?;
 
-        if let Some(get_access_token) = state.get_access_token.as_ref() {
-            let token = get_access_token().await?;
+        if let Some(http_authentication_method) = state.http_authentication_method.as_ref() {
+            match http_authentication_method {
+                FHIRHttpAuthenticationMethod::BearerToken(get_access_token) => {
+                    let token = get_access_token().await?;
 
-            request.headers_mut().insert(
-                "Authorization",
-                HeaderValue::from_str(&format!("Bearer {token}")).map_err(|_| {
-                    OperationOutcomeError::error(
-                        IssueType::invalid(),
-                        "Failed to create Authorization header.".to_string(),
-                    )
-                })?,
-            );
+                    request.headers_mut().insert(
+                        "Authorization",
+                        HeaderValue::from_str(&format!("Bearer {token}")).map_err(|_| {
+                            OperationOutcomeError::error(
+                                IssueType::invalid(),
+                                "Failed to create Authorization header.".to_string(),
+                            )
+                        })?,
+                    );
+                }
+                FHIRHttpAuthenticationMethod::Basic(get_basic_credentials) => {
+                    let credentials = get_basic_credentials().await?;
+
+                    let basic_credentials = STANDARD
+                        .encode(format!("{}:{}", credentials.username, credentials.password));
+
+                    request.headers_mut().insert(
+                        "Authorization",
+                        HeaderValue::from_str(&format!("Basic {basic_credentials}")).map_err(
+                            |_| {
+                                OperationOutcomeError::error(
+                                    IssueType::invalid(),
+                                    "Failed to create Authorization header.".to_string(),
+                                )
+                            },
+                        )?,
+                    );
+                }
+            }
         }
 
         Ok(request)
@@ -238,7 +277,7 @@ fn request_from_compartment<'a>(
         let compartment_state = FHIRHttpState {
             api_url: compartment_url,
             client: state.client.clone(),
-            get_access_token: state.get_access_token.clone(),
+            http_authentication_method: state.http_authentication_method.clone(),
         };
 
         fhir_request_to_http_request(&compartment_state, &compartment_request.request).await

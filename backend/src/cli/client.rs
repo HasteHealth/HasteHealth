@@ -6,7 +6,9 @@ use crate::cli::{
     secrets::StoredTokens,
     state::{CliState, SECRETS_LOCATION},
 };
-use haste_fhir_client::http::{FHIRHttpClient, FHIRHttpState};
+use haste_fhir_client::http::{
+    BasicCredentials, FHIRHttpAuthenticationMethod, FHIRHttpClient, FHIRHttpState,
+};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
@@ -176,118 +178,144 @@ async fn config_to_fhir_http_state(
                     ));
                 };
 
-                Some(Arc::new(move || {
-                    let state = state.clone();
-                    let client_id = client_id.clone();
-                    let client_secret = client_secret.clone();
-                    Box::pin(async move {
-                        {
-                            let current_state = state.lock().await;
-                            if let Some(token) = current_state.access_token.clone() {
-                                return Ok(token);
+                Some(FHIRHttpAuthenticationMethod::BearerToken(Arc::new(
+                    move || {
+                        let state = state.clone();
+                        let client_id = client_id.clone();
+                        let client_secret = client_secret.clone();
+                        Box::pin(async move {
+                            {
+                                let current_state = state.lock().await;
+                                if let Some(token) = current_state.access_token.clone() {
+                                    return Ok(token);
+                                }
                             }
-                        }
 
-                        let well_known_document = fetch_discovery_document(&state).await?;
+                            let well_known_document = fetch_discovery_document(&state).await?;
 
-                        // Post for JWT Token
-                        let params = [
-                            ("grant_type", "client_credentials"),
-                            ("client_id", &client_id),
-                            ("client_secret", &client_secret),
-                            ("scope", "openid system/*.*"),
-                        ];
+                            // Post for JWT Token
+                            let params = [
+                                ("grant_type", "client_credentials"),
+                                ("client_id", &client_id),
+                                ("client_secret", &client_secret),
+                                ("scope", "openid system/*.*"),
+                            ];
 
-                        let res: reqwest::Response = reqwest::Client::new()
-                            .post(&well_known_document.token_endpoint)
-                            .form(&params)
-                            .send()
-                            .await
-                            .map_err(|e| {
-                                OperationOutcomeError::error(
-                                    IssueType::exception(),
-                                    format!("Failed to fetch access token: {}", e),
-                                )
-                            })?;
+                            let res: reqwest::Response = reqwest::Client::new()
+                                .post(&well_known_document.token_endpoint)
+                                .form(&params)
+                                .send()
+                                .await
+                                .map_err(|e| {
+                                    OperationOutcomeError::error(
+                                        IssueType::exception(),
+                                        format!("Failed to fetch access token: {}", e),
+                                    )
+                                })?;
 
-                        if !res.status().is_success() {
-                            return Err(OperationOutcomeError::error(
-                                IssueType::forbidden(),
-                                format!("Failed to fetch access token: HTTP '{}'", res.status(),),
-                            ));
-                        }
+                            if !res.status().is_success() {
+                                return Err(OperationOutcomeError::error(
+                                    IssueType::forbidden(),
+                                    format!(
+                                        "Failed to fetch access token: HTTP '{}'",
+                                        res.status(),
+                                    ),
+                                ));
+                            }
 
-                        let token_response: serde_json::Value = res.json().await.map_err(|e| {
-                            OperationOutcomeError::error(
-                                IssueType::exception(),
-                                format!("Failed to parse access token response: {}", e),
-                            )
-                        })?;
+                            let token_response: serde_json::Value =
+                                res.json().await.map_err(|e| {
+                                    OperationOutcomeError::error(
+                                        IssueType::exception(),
+                                        format!("Failed to parse access token response: {}", e),
+                                    )
+                                })?;
 
-                        let access_token = token_response
-                            .get("access_token")
-                            .and_then(|v| v.as_str())
-                            .ok_or_else(|| {
-                                OperationOutcomeError::error(
-                                    IssueType::exception(),
-                                    "No access_token field in token response".to_string(),
-                                )
-                            })?
-                            .to_string();
+                            let access_token = token_response
+                                .get("access_token")
+                                .and_then(|v| v.as_str())
+                                .ok_or_else(|| {
+                                    OperationOutcomeError::error(
+                                        IssueType::exception(),
+                                        "No access_token field in token response".to_string(),
+                                    )
+                                })?
+                                .to_string();
 
-                        state.lock().await.access_token = Some(access_token.clone());
+                            state.lock().await.access_token = Some(access_token.clone());
 
-                        Ok(access_token)
-                    })
-                }))
+                            Ok(access_token)
+                        })
+                    },
+                )))
             }
             ProfileAuth::AuthorizationCode {
                 client_id,
                 redirect_uri: _,
                 scope: _,
             } => {
-                Some(Arc::new(move || {
-                    let state = state.clone();
-                    let client_id = client_id.clone();
-                    let profile_name = profile_name.clone();
-                    Box::pin(async move {
-                        if let Some(token) = state.lock().await.access_token.clone() {
-                            return Ok(token);
-                        }
+                Some(FHIRHttpAuthenticationMethod::BearerToken(Arc::new(
+                    move || {
+                        let state = state.clone();
+                        let client_id = client_id.clone();
+                        let profile_name = profile_name.clone();
+                        Box::pin(async move {
+                            if let Some(token) = state.lock().await.access_token.clone() {
+                                return Ok(token);
+                            }
 
-                        let stored_tokens = {
-                            let current_state = state.lock().await;
-                            current_state
-                                .secrets
-                                .profile(&profile_name)
-                                .and_then(|s| s.tokens.clone())
-                        };
+                            let stored_tokens = {
+                                let current_state = state.lock().await;
+                                current_state
+                                    .secrets
+                                    .profile(&profile_name)
+                                    .and_then(|s| s.tokens.clone())
+                            };
 
-                        let Some(tokens) = stored_tokens else {
-                            return Err(OperationOutcomeError::error(
-                                IssueType::forbidden(),
-                                "Not logged in. Run `haste-health login` first.".to_string(),
-                            ));
-                        };
+                            let Some(tokens) = stored_tokens else {
+                                return Err(OperationOutcomeError::error(
+                                    IssueType::forbidden(),
+                                    "Not logged in. Run `haste-health login` first.".to_string(),
+                                ));
+                            };
 
-                        // Small buffer so a token doesn't expire mid-request.
-                        if tokens.expires_at > unix_now() + 30 {
-                            state.lock().await.access_token = Some(tokens.access_token.clone());
-                            return Ok(tokens.access_token);
-                        }
+                            // Small buffer so a token doesn't expire mid-request.
+                            if tokens.expires_at > unix_now() + 30 {
+                                state.lock().await.access_token = Some(tokens.access_token.clone());
+                                return Ok(tokens.access_token);
+                            }
 
-                        let Some(refresh_token) = tokens.refresh_token else {
-                            return Err(OperationOutcomeError::error(
-                                IssueType::forbidden(),
-                                "Login session expired. Run `haste-health login` again."
-                                    .to_string(),
-                            ));
-                        };
+                            let Some(refresh_token) = tokens.refresh_token else {
+                                return Err(OperationOutcomeError::error(
+                                    IssueType::forbidden(),
+                                    "Login session expired. Run `haste-health login` again."
+                                        .to_string(),
+                                ));
+                            };
 
-                        refresh_access_token(&state, &client_id, &profile_name, &refresh_token)
-                            .await
-                    })
-                }))
+                            refresh_access_token(&state, &client_id, &profile_name, &refresh_token)
+                                .await
+                        })
+                    },
+                )))
+            }
+            ProfileAuth::Basic { username } => {
+                let Some(password) = client_secret else {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::invalid(),
+                        format!(
+                            "No password stored for profile '{}'. Recreate it with `haste-health config create-profile`.",
+                            profile_name
+                        ),
+                    ));
+                };
+
+                Some(FHIRHttpAuthenticationMethod::Basic(Arc::new(move || {
+                    let username = username.clone();
+                    let password = password.clone();
+
+                    Box::pin(async move { Ok(BasicCredentials { username, password }) })
+                })))
             }
         },
     )?;

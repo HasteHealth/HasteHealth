@@ -40,13 +40,18 @@ pub(crate) struct Profile {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) enum ProfileAuth {
     /// A confidential (server-to-server) client authenticated with a client secret.
-    ClientCredentails { client_id: String },
+    ClientCredentails {
+        client_id: String,
+    },
     /// A public (no secret) OIDC client authenticated by a human via the browser-based
     /// authorization_code + PKCE flow. Run `haste-health login` to obtain tokens.
     AuthorizationCode {
         client_id: String,
         redirect_uri: String,
         scope: String,
+    },
+    Basic {
+        username: String,
     },
     /// No authentication; requests are sent unauthenticated.
     Public {},
