@@ -1,11 +1,11 @@
 use crate::cli::state::CliState;
 use clap::Subcommand;
+use haste_fhir_client::http::{HeaderMap, HttpRequestHeaders, WithRequestHeaders};
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, BundleEntryRequest, Resource, TestScript},
     terminology::{BundleType, HttpVerb, IssueType, ReportResultCodes},
     types::FHIRUri,
 };
-use haste_fhir_client::http::{HeaderMap, HttpRequestHeaders, WithRequestHeaders};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_testscript_runner::TestRunnerOptions;
 use std::{path::Path, sync::Arc};
