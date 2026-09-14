@@ -608,7 +608,7 @@ impl TextRows {
             .bind(&self.value)
             .execute(conn)
             .await
-            .map_err(wrap_sqlx)?;
+            .map_err(PgSearchError::from)?;
         Ok(())
     }
 }
@@ -635,7 +635,7 @@ impl NumberRows {
             .bind(&self.value)
             .execute(conn)
             .await
-            .map_err(wrap_sqlx)?;
+            .map_err(PgSearchError::from)?;
         Ok(())
     }
 }
@@ -668,7 +668,7 @@ impl TokenRows {
             .bind(&self.code)
             .execute(conn)
             .await
-            .map_err(wrap_sqlx)?;
+            .map_err(PgSearchError::from)?;
         Ok(())
     }
 }
@@ -701,7 +701,7 @@ impl DateRows {
             .bind(&self.end_ms)
             .execute(conn)
             .await
-            .map_err(wrap_sqlx)?;
+            .map_err(PgSearchError::from)?;
         Ok(())
     }
 }
@@ -742,7 +742,7 @@ impl ReferenceRows {
             .bind(&self.target_uri)
             .execute(conn)
             .await
-            .map_err(wrap_sqlx)?;
+            .map_err(PgSearchError::from)?;
         Ok(())
     }
 }
@@ -797,7 +797,7 @@ impl QuantityRows {
             .bind(&self.end_code)
             .execute(conn)
             .await
-            .map_err(wrap_sqlx)?;
+            .map_err(PgSearchError::from)?;
         Ok(())
     }
 }
@@ -1068,7 +1068,7 @@ async fn delete_previous_versions(
             .bind(sqlx::query(&sql))
             .execute(&mut *conn)
             .await
-            .map_err(wrap_sqlx)?;
+            .map_err(PgSearchError::from)?;
     }
 
     // The per-resource-type tables, one statement each for the types this
@@ -1105,7 +1105,7 @@ async fn delete_previous_versions(
         .bind(&keys.resource_id)
         .execute(&mut *conn)
         .await
-        .map_err(wrap_sqlx)?;
+        .map_err(PgSearchError::from)?;
     }
 
     anchors
@@ -1118,7 +1118,7 @@ async fn delete_previous_versions(
         ))
         .execute(conn)
         .await
-        .map_err(wrap_sqlx)?;
+        .map_err(PgSearchError::from)?;
 
     Ok(())
 }
@@ -1154,7 +1154,7 @@ async fn insert_anchors(
         .bind(&version_id)
         .execute(conn)
         .await
-        .map_err(wrap_sqlx)?;
+        .map_err(PgSearchError::from)?;
 
     Ok(())
 }
@@ -1254,12 +1254,5 @@ fn system_insert_sql(
     format!(
         "INSERT INTO {} ({column_list}) VALUES {values}",
         schema.table_name
-    )
-}
-
-fn wrap_sqlx(e: sqlx::Error) -> OperationOutcomeError {
-    OperationOutcomeError::fatal(
-        IssueType::exception(),
-        format!("PG search indexing failed: {e}"),
     )
 }

@@ -1,3 +1,5 @@
+use std::fmt::Write as _;
+
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use sqlx::{Pool, Postgres};
@@ -11,6 +13,12 @@ use super::schema::{ColumnDef, ResourceTypeSchema, SchemaRegistry};
 /// the existing tables via `ADD COLUMN IF NOT EXISTS`, so an upgrade never
 /// requires a reindex to *add* a parameter (existing rows keep NULL until the
 /// resource is next indexed).
+///
+/// # Errors
+///
+/// Returns an error if the migration lock cannot be taken, or if any of the
+/// DDL fails — a connection drop, or a table an earlier release left in a
+/// shape this one cannot reconcile.
 pub async fn run_migration(
     pool: &Pool<Postgres>,
     registry: &SchemaRegistry,
@@ -156,11 +164,12 @@ fn create_table_sql(schema: &ResourceTypeSchema) -> String {
     );
 
     for column in &schema.columns {
-        sql.push_str(&format!(
+        let _ = write!(
+            sql,
             ",\n    {} {}",
             quote_ident(&column.name),
             column.column_type.sql_type()
-        ));
+        );
     }
 
     sql.push_str(",\n    PRIMARY KEY (tenant, project, resource_id)\n);");
@@ -173,12 +182,13 @@ fn create_table_sql(schema: &ResourceTypeSchema) -> String {
 fn add_columns_sql(schema: &ResourceTypeSchema) -> String {
     let mut sql = String::new();
     for column in &schema.columns {
-        sql.push_str(&format!(
-            "ALTER TABLE {} ADD COLUMN IF NOT EXISTS {} {};\n",
+        let _ = writeln!(
+            sql,
+            "ALTER TABLE {} ADD COLUMN IF NOT EXISTS {} {};",
             schema.table_name,
             quote_ident(&column.name),
             column.column_type.sql_type()
-        ));
+        );
     }
     sql
 }

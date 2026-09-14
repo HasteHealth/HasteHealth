@@ -423,8 +423,8 @@ fn build_final_query(
 
     let limit_idx = all_params.len() + 1;
     let offset_idx = all_params.len() + 2;
-    all_params.push(SqlParam::Int64(state.max_count as i64));
-    all_params.push(SqlParam::Int64(state.offset as i64));
+    all_params.push(SqlParam::Int64(state.max_count.cast_signed()));
+    all_params.push(SqlParam::Int64(state.offset.cast_signed()));
 
     let sql = format!(
         "SELECT sr.resource_id, sr.resource_type, sr.version_id, sr.project{total_col} \
@@ -480,8 +480,10 @@ fn sort_expression(entry: &SortEntry, all_params: &mut Vec<SqlParam>) -> Option<
                     }
                 }
                 ("string", ParamColumns::String { value } | ParamColumns::Uri { value }) => value,
-                ("token",
-ParamColumns::Token { code, .. } | ParamColumns::Quantity { code, .. }) => code,
+                (
+                    "token",
+                    ParamColumns::Token { code, .. } | ParamColumns::Quantity { code, .. },
+                ) => code,
                 _ => return None,
             };
 

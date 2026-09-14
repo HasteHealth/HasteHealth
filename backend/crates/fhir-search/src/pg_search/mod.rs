@@ -66,6 +66,11 @@ static R4_SCHEMA_REGISTRY: LazyLock<Arc<SchemaRegistry>> = LazyLock::new(|| {
 });
 
 /// Creates a separate PostgreSQL connection pool for the search index database.
+///
+/// # Errors
+///
+/// Returns an error if the pool cannot open its first connection — an
+/// unreachable host, bad credentials, or a malformed `database_url`.
 pub async fn create_pg_search_pool(
     database_url: &str,
     max_connections: u32,
