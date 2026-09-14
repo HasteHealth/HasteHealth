@@ -24,6 +24,8 @@ pub(crate) enum AuthModeChoice {
     /// A public client a human logs into via the browser (authorization_code + PKCE).
     /// Use `haste-health login` afterwards to obtain tokens.
     AuthorizationCode,
+    /// Basic authentication with a username and password.
+    BasicAuth,
 }
 
 /// Manage named server connection profiles.
@@ -194,6 +196,23 @@ pub(crate) async fn run(
             };
 
             let (auth, client_secret) = match auth_mode {
+                AuthModeChoice::BasicAuth => {
+                    let password: String = if let Some(secret) = secret {
+                        secret.clone()
+                    } else {
+                        Password::with_theme(&ColorfulTheme::default())
+                            .with_prompt("Password")
+                            .interact()
+                            .unwrap()
+                    };
+
+                    (
+                        ProfileAuth::Basic {
+                            username: client_id.clone(),
+                        },
+                        Some(password),
+                    )
+                }
                 AuthModeChoice::ClientCredentials => {
                     let client_secret: String = if let Some(secret) = secret {
                         secret.clone()

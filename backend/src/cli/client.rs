@@ -6,7 +6,9 @@ use crate::cli::{
     secrets::StoredTokens,
     state::{CliState, SECRETS_LOCATION},
 };
-use haste_fhir_client::http::{FHIRHttpAuthenticationMethod, FHIRHttpClient, FHIRHttpState};
+use haste_fhir_client::http::{
+    BasicCredentials, FHIRHttpAuthenticationMethod, FHIRHttpClient, FHIRHttpState,
+};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
@@ -296,6 +298,24 @@ async fn config_to_fhir_http_state(
                         })
                     },
                 )))
+            }
+            ProfileAuth::Basic { username } => {
+                let Some(password) = client_secret else {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::invalid(),
+                        format!(
+                            "No password stored for profile '{}'. Recreate it with `haste-health config create-profile`.",
+                            profile_name
+                        ),
+                    ));
+                };
+
+                Some(FHIRHttpAuthenticationMethod::Basic(Arc::new(move || {
+                    let username = username.clone();
+                    let password = password.clone();
+
+                    Box::pin(async move { Ok(BasicCredentials { username, password }) })
+                })))
             }
         },
     )?;
