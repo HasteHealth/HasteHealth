@@ -349,7 +349,7 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
 }
 
 /// Assembles the final SQL query string and a flat params list from the
-/// individual per-parameter clauses plus context (tenant, project, resource_type).
+/// individual per-parameter clauses plus context (tenant, project, `resource_type`).
 fn build_final_query(
     where_clauses: &[SqlClause],
     tenant: &TenantId,
@@ -479,10 +479,9 @@ fn sort_expression(entry: &SortEntry, all_params: &mut Vec<SqlParam>) -> Option<
                         end
                     }
                 }
-                ("string", ParamColumns::String { value })
-                | ("string", ParamColumns::Uri { value }) => value,
-                ("token", ParamColumns::Token { code, .. })
-                | ("token", ParamColumns::Quantity { code, .. }) => code,
+                ("string", ParamColumns::String { value } | ParamColumns::Uri { value }) => value,
+                ("token",
+ParamColumns::Token { code, .. } | ParamColumns::Quantity { code, .. }) => code,
                 _ => return None,
             };
 

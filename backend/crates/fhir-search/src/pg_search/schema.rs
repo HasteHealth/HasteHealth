@@ -176,7 +176,7 @@ const UNIVERSAL_BASES: [&str; 2] = ["Resource", "DomainResource"];
 const SKIPPED_CODES: [&str; 1] = ["_id"];
 
 /// The fixed columns every per-resource-type table carries. A search parameter
-/// whose generated name lands on one of these (ImplementationGuide's
+/// whose generated name lands on one of these (`ImplementationGuide`'s
 /// `resource` reference becomes `resource_id`, for instance) can't have a
 /// column of its own and falls back to the dynamic tables.
 const RESERVED_COLUMNS: [&str; 5] = [
@@ -187,7 +187,7 @@ const RESERVED_COLUMNS: [&str; 5] = [
     "resource_type",
 ];
 
-/// Converts a SearchParameter `code` into a safe PostgreSQL column base name:
+/// Converts a `SearchParameter` `code` into a safe PostgreSQL column base name:
 /// lowercased, with every character outside `[a-z0-9_]` folded to `_`.
 ///
 /// FHIR codes are already restricted to a conservative character set, but

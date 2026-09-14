@@ -3,7 +3,7 @@
 //! Indexing runs in two phases, which is what keeps a batch from degenerating
 //! into per-row round-trips:
 //!
-//! 1. **Convert** — every resource's FHIRPath expressions are evaluated and
+//! 1. **Convert** — every resource's `FHIRPath` expressions are evaluated and
 //!    flattened into the exact rows it will occupy, in parallel across the
 //!    runtime and with no database involved. Everything that can fail for a
 //!    single resource fails here, where it can be attributed to that resource
@@ -250,7 +250,7 @@ async fn resolve_parameter_sets<Resolver: SearchParameterResolve>(
 }
 
 /// Converts every resource in parallel, keeping a single resource's failure
-/// (a bad FHIRPath expression, an unsupported method) attributed to it rather
+/// (a bad `FHIRPath` expression, an unsupported method) attributed to it rather
 /// than aborting the batch.
 ///
 /// A `JoinError` — the task itself panicked — has no resource to attribute the
@@ -528,7 +528,7 @@ fn collect_column_values(
 // A resource builds its own `DynamicBatch` during conversion (in parallel),
 // and the write phase merges them by concatenating the arrays.
 
-/// The (tenant, project, resource_type, resource_id, param_url) prefix every
+/// The (tenant, project, `resource_type`, `resource_id`, `param_url`) prefix every
 /// `search_dynamic_*` row carries.
 #[derive(Default)]
 struct KeyColumns {

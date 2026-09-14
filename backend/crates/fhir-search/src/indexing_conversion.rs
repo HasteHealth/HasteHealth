@@ -25,10 +25,12 @@ pub struct TokenIndex {
 }
 
 impl TokenIndex {
+    #[must_use]
     pub fn system(&self) -> Option<&str> {
         self.system.as_deref()
     }
 
+    #[must_use]
     pub fn code(&self) -> Option<&str> {
         self.code.as_deref()
     }
@@ -61,26 +63,32 @@ pub struct QuantityRange {
 }
 
 impl QuantityRange {
+    #[must_use]
     pub fn start_value(&self) -> f64 {
         self.start_value.as_f64()
     }
 
+    #[must_use]
     pub fn start_code(&self) -> Option<&str> {
         self.start_code.as_deref()
     }
 
+    #[must_use]
     pub fn start_system(&self) -> Option<&str> {
         self.start_system.as_deref()
     }
 
+    #[must_use]
     pub fn end_value(&self) -> f64 {
         self.end_value.as_f64()
     }
 
+    #[must_use]
     pub fn end_code(&self) -> Option<&str> {
         self.end_code.as_deref()
     }
 
+    #[must_use]
     pub fn end_system(&self) -> Option<&str> {
         self.end_system.as_deref()
     }
@@ -101,14 +109,17 @@ pub struct ReferenceIndex {
 }
 
 impl ReferenceIndex {
+    #[must_use]
     pub fn id(&self) -> Option<&str> {
         self.id.as_deref()
     }
 
+    #[must_use]
     pub fn resource_type(&self) -> Option<&str> {
         self.resource_type.as_deref()
     }
 
+    #[must_use]
     pub fn uri(&self) -> Option<&str> {
         self.uri.as_deref()
     }

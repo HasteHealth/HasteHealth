@@ -34,7 +34,7 @@ impl<Repo: Repository + Send + Sync> PgSearchParameterResolver<Repo> {
     }
 }
 
-/// Finds active SearchParameter resources in the PG search index and builds
+/// Finds active `SearchParameter` resources in the PG search index and builds
 /// a project-level search parameter index from them.
 async fn create_project_sp_index<Repo: Repository + Send + Sync>(
     pool: &Pool<Postgres>,

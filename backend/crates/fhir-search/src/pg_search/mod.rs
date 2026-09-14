@@ -58,7 +58,7 @@ pub struct PgSearchEngine<SearchParameterResolver: SearchParameterResolve + 'sta
 
 /// The per-resource-type schemas for the R4 base search parameters. Built once
 /// and shared by every engine instance — deriving them walks every HL7
-/// SearchParameter, which is wasted work to repeat.
+/// `SearchParameter`, which is wasted work to repeat.
 static R4_SCHEMA_REGISTRY: LazyLock<Arc<SchemaRegistry>> = LazyLock::new(|| {
     Arc::new(generate_schemas(
         &R4_SEARCH_PARAMETERS_INDEX.all_parameters(),
@@ -111,7 +111,7 @@ pub(crate) struct ResourceSearchIndex {
     pub dynamic_entries: Vec<(String, InsertableIndex)>,
 }
 
-/// Evaluates FHIRPath expressions for all applicable search parameters and
+/// Evaluates `FHIRPath` expressions for all applicable search parameters and
 /// converts results into `InsertableIndex` values.
 ///
 /// Backend-agnostic beyond the routing: reuses

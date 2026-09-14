@@ -248,7 +248,7 @@ fn wrap(context: &str, error: &sqlx::Error) -> OperationOutcomeError {
 /// per-resource-type columns. The rename is done first, so a database created
 /// by the earlier schema carries its rows forward instead of silently starting
 /// over with empty tables.
-static BASE_MIGRATION_SQL: &str = r#"
+static BASE_MIGRATION_SQL: &str = r"
 -- Migrate pre-hybrid EAV tables to their new names. `search_resource` is
 -- unchanged, so a renamed table keeps its foreign key intact.
 DO $$
@@ -436,4 +436,4 @@ CREATE INDEX IF NOT EXISTS idx_search_dynamic_reference_resource
     ON search_dynamic_reference (tenant, project, resource_type, resource_id);
 CREATE INDEX IF NOT EXISTS idx_search_dynamic_quantity_resource
     ON search_dynamic_quantity (tenant, project, resource_type, resource_id);
-"#;
+";

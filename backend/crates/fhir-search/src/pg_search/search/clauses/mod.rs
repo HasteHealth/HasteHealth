@@ -141,7 +141,7 @@ impl SqlClause {
     }
 }
 
-/// Resolves the param_url to use in dynamic (EAV) queries. Project-level
+/// Resolves the `param_url` to use in dynamic (EAV) queries. Project-level
 /// parameters are keyed by their canonical URL.
 pub fn resolve_param_url(
     search_param: &haste_fhir_model::r4::generated::resources::SearchParameter,
