@@ -35,11 +35,11 @@ jobs:
       - uses: docker/setup-buildx-action@v3
       - name: Pull Docker Image from GHCR
         run: |
-          docker pull ghcr.io/hastehealth/hastehealth/hastehealth:latest
+          docker pull ghcr.io/hastehealth/hastehealth/admin-app:latest
       - name: Scan admin-app image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ghcr.io/hastehealth/hastehealth/hastehealth:latest
+          image-ref: ghcr.io/hastehealth/hastehealth/admin-app:latest
           severity: "CRITICAL,HIGH"
           ignore-unfixed: true
           exit-code: "1"

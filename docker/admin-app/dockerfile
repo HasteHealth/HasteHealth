@@ -7,7 +7,9 @@ RUN corepack enable
 RUN pnpm install
 RUN pnpm -r run build
 
-FROM nginx:1.29.3
+FROM nginx:1.31.6-alpine
+
+RUN apk upgrade --no-cache
 
 COPY docker/admin-app/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=node  /app/packages/admin-app/dist /usr/share/nginx/html
