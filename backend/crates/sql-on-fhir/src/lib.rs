@@ -186,7 +186,7 @@ const MAX_RESOURCES_PER_RUN: usize = 50_000;
 /// final output rows.
 fn requested_limit(input: &ViewDefinitionRun::Input) -> Option<usize> {
     input
-        ._limit
+        .limit
         .as_ref()
         .and_then(|limit| limit.value)
         .and_then(|limit| usize::try_from(limit).ok())
@@ -216,7 +216,7 @@ async fn get_resources_to_process<
         OperationOutcomeError::error(IssueType::invalid(), format!("Invalid resource type: {e}"))
     })?;
 
-    let since_instant = input._since.as_ref().and_then(|since| since.value.clone());
+    let since_instant = input.since.as_ref().and_then(|since| since.value.clone());
 
     let patient_references = resolve_patient_references(context.clone(), client, input).await?;
 
@@ -788,7 +788,7 @@ pub async fn view_definition_run<
     input: &ViewDefinitionRun::Input,
 ) -> Result<ViewDefinitionRun::Output, OperationOutcomeError> {
     let output_format = input
-        ._format
+        .format
         .as_ref()
         .and_then(|v| v.value.as_ref())
         .and_then(|s| BoundCode::<OutputFormatCodes>::new(s))

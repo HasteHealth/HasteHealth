@@ -1,3 +1,5 @@
+pub(crate) mod documentation;
+
 pub mod traversal;
 
 pub mod testscript_gen;
