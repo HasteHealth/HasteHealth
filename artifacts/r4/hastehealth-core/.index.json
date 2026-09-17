@@ -1,0 +1,365 @@
+{
+  "index-version": "1",
+  "files": [
+    {
+      "filename": "definitions/haste-health/operation-frontend-only/deploy.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation-frontend-only/encrypt.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation-frontend-only/invite-user.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation-frontend-only/message-post.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation-frontend-only/password-reset.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation-frontend-only/usage-statistics.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation/current_project.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation/current_tenant.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation/endpoint_meta.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation/evaluate-policy.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation/hl7v2_parse.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation/idp-registration-info.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation/indexing_errors.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation/refresh-tokens/delete.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation/refresh-tokens/list.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation/scopes/delete.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation/scopes/list.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/operation/tenant_customization.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/access_policy_v2/engine.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/access_policy_v2/link.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/access_policy_v2/name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/client_application/grant_type.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/client_application/name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/identity_provider/access_type.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/identity_provider/name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/identity_provider/status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/membership/link.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/membership/user.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/resource-parameters.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/user/email-verified.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/user/email.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/user/federated.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/user/name.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/user/role.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/structure_definition/access_policy_v2_assignment.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/structure_definition/access_policy_v2.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/structure_definition/client_application.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/structure_definition/hl7v2.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/structure_definition/identity_provider.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/structure_definition/membership.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/structure_definition/project.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/structure_definition/user.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v2/accesspolicy-atttribute-operation-types.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v2/accesspolicy-atttribute-operation-types.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v2/accesspolicy-effect.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v2/accesspolicy-effect.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v2/accesspolicy-engine.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v2/accesspolicy-engine.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v2/rule-combine-behavior.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v2/rule-combine-behavior.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v2/rule-condition-operators.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy-v2/rule-condition-operators.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/grant_type.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/grant_type.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/membership_role.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/membership_role.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/response_types.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/response_types.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/user_role.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/user_role.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authorization/fhir-api-level.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authorization/fhir-api-level.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authorization/fhir-api-methods.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authorization/fhir-api-methods.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authorization/fhir-api-parameters.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/authorization/fhir-api-parameters.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/message-broker/types.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/message-broker/types.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/policy-types.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/policy-types.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/resource_type.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/access-policy/resource_type.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/canonical_resources.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/canonical_resources.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/external/bcp-13-codesystem.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/external/iso-3166-codesystem.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/external/iso-4217-codesystem.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/identity-provider/accessType.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/identity-provider/accessType.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/identity-provider/pkce-challenge-method.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/identity-provider/pkce-challenge-method.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/identity-provider/status.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/identity-provider/status.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/resource_types.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/supportedFhirVersion.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/supportedFhirVersion.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/sql-on-fhir/definitions/ViewDefinition.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "definitions/sql-on-fhir/operations/ViewDefinition-run.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/sql-on-fhir/terminology/bundle.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/sql-on-fhir/terminology/bundle.json",
+      "resourceType": "CodeSystem"
+    }
+  ]
+}

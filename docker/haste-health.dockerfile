@@ -7,13 +7,16 @@ ENV NVM_DIR=/root/.nvm
 
 ENV SQLX_OFFLINE=true
 
-COPY ./backend .
+WORKDIR /build
+COPY ./artifacts ./artifacts
+COPY ./backend ./backend
+WORKDIR /build/backend
 RUN . /root/.nvm/nvm.sh --no-use && nvm install 24 && nvm use 24 && nvm alias default 24 && node -v && cargo build --locked --release
 
 
 FROM debian:bookworm-slim
 
-COPY --from=builder /target/release/haste-health /haste-health
+COPY --from=builder /build/backend/target/release/haste-health /haste-health
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y ca-certificates openssl pkg-config libssl-dev && apt-get clean && rm -rf /var/lib/apt/lists/*
 

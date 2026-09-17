@@ -100,7 +100,7 @@ mod tests {
     fn test_traversal() {
         let bundle = serde_json::from_str::<Bundle>(
             &std::fs::read_to_string(
-                "../artifacts/artifacts/r4/hl7/minified/profiles-resources.min.json",
+                "../../../artifacts/r4/hl7-core/definitions/hl7/profiles-resources.min.json",
             )
             .unwrap(),
         )

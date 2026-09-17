@@ -1,0 +1,233 @@
+{
+  "index-version": "1",
+  "files": [
+    {
+      "filename": "CodeSystem-backport-content-code-system.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/conceptmaps.json",
+      "resourceType": "ConceptMap"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/conceptmaps.min.json",
+      "resourceType": "ConceptMap"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/dataelements.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/dataelements.min.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/extension-definitions.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/extension-definitions.min.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/profiles-others.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/profiles-others.min.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/profiles-resources.json",
+      "resourceType": "CapabilityStatement"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/profiles-resources.json",
+      "resourceType": "CompartmentDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/profiles-resources.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/profiles-resources.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/profiles-resources.min.json",
+      "resourceType": "CapabilityStatement"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/profiles-resources.min.json",
+      "resourceType": "CompartmentDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/profiles-resources.min.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/profiles-resources.min.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/profiles-types.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/profiles-types.min.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/search-parameters.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/search-parameters.min.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/v2-tables.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/v2-tables.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/v2-tables.min.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/v2-tables.min.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/v3-codesystems.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/v3-codesystems.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/v3-codesystems.min.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/v3-codesystems.min.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/valuesets.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/valuesets.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/valuesets.min.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "node_modules/@haste-health/hl7.fhir.r4.core/definitions/hl7/valuesets.min.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "operation_definition/OperationDefinition-backport-subscription-events.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "operation_definition/OperationDefinition-backport-subscription-get-ws-binding-token.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "operation_definition/OperationDefinition-backport-subscription-resend.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "operation_definition/OperationDefinition-backport-subscription-status.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "parameters/SearchParameter-Subscription-custom-channel.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "parameters/SearchParameter-Subscription-filter-criteria.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "parameters/SearchParameter-Subscription-identifier.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "parameters/SearchParameter-Subscription-payload-type.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "parameters/SearchParameter-Subscription-topic.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "profiles/StructureDefinition-backport-channel-type.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "profiles/StructureDefinition-backport-filter-criteria.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "profiles/StructureDefinition-backport-heartbeat-period.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "profiles/StructureDefinition-backport-identifier.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "profiles/StructureDefinition-backport-max-count.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "profiles/StructureDefinition-backport-payload-content.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "profiles/StructureDefinition-backport-related-query.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "profiles/StructureDefinition-backport-subscription-notification-r4.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "profiles/StructureDefinition-backport-subscription-notification.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "profiles/StructureDefinition-backport-subscription-status-r4.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "profiles/StructureDefinition-backport-subscription.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "profiles/StructureDefinition-backport-timeout.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "profiles/StructureDefinition-capabilitystatement-subscriptiontopic-canonical.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "profiles/StructureDefinition-notification-authorization-hint.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "ValueSet-backport-content-value-set.json",
+      "resourceType": "ValueSet"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 packages:
   # - "."
-  - "artifacts/r4/*"
-  - "artifacts/r4b/*"
+  - "../artifacts/r4/*"
+  - "../artifacts/r4b/*"
   - "packages/*"
 overrides:
   undici: '^7.29.0'

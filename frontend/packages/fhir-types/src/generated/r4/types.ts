@@ -4467,6 +4467,14 @@ resourceType: "HL7V2"
    */
   meta?: Meta;
   /** 
+   * Field separator
+   */
+  fieldSeparator: string;
+  /** 
+   * Field separator
+   */
+  _fieldSeparator?: Element
+  /** 
    * Message segments
    */
   segments?: Array<HL7V2Segments>;

@@ -336,8 +336,9 @@ mod test {
     use super::*;
 
     static RESOURCE_SDS: LazyLock<Vec<StructureDefinition>> = LazyLock::new(|| {
-        let sd_str =
-            include_str!("../../artifacts/artifacts/r4/hl7/minified/profiles-resources.min.json");
+        let sd_str = include_str!(
+            "../../../../artifacts/r4/hl7-core/definitions/hl7/profiles-resources.min.json"
+        );
 
         let bundle: Bundle =
             serde_json::from_str(sd_str).expect("Failed to parse StructureDefinitions");
@@ -369,8 +370,9 @@ mod test {
     /// can resolve them the same way production does - via `$ref`, not `$defs`.
     pub static FHIR_COMPLEX_TYPE_DEFINITIONS: LazyLock<HashMap<String, serde_json::Value>> =
         LazyLock::new(|| {
-            let sd_str =
-                include_str!("../../artifacts/artifacts/r4/hl7/minified/profiles-types.min.json");
+            let sd_str = include_str!(
+                "../../../../artifacts/r4/hl7-core/definitions/hl7/profiles-types.min.json"
+            );
 
             let bundle: Bundle =
                 serde_json::from_str(sd_str).expect("Failed to parse StructureDefinitions");

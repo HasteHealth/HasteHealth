@@ -16,11 +16,13 @@ function flattenData(data) {
 }
 
 function loadUSCoreProfiles() {
-  const artifactsDir = join(
-    __dirname,
-    "../crates/artifacts/artifacts/r4/us-core",
+  const artifactsDir = join(__dirname, "../../artifacts/r4/hl7.fhir.us.core");
+  // The artifact directory is also an npm package, so skip its metadata files:
+  // they are .json but not FHIR resources.
+  const packageMetadata = new Set([".index.json", "package.json"]);
+  const files = readdirSync(artifactsDir).filter(
+    (f) => f.endsWith(".json") && !packageMetadata.has(f),
   );
-  const files = readdirSync(artifactsDir).filter((f) => f.endsWith(".json"));
 
   const entries = files.flatMap((filename) => {
     const resource = JSON.parse(

@@ -1,75 +1,5 @@
 import type * as fhirTypes from "@haste-health/fhir-types/r4/types";
 import { Operation, IOperation } from "@haste-health/operation-execution";
-export namespace ProjectInformation {
-  export type Input = Record<string, never>;
-  export type Output = { project: fhirTypes.Project };
-  export type IOp = IOperation<Input, Output>;
-  export const Op: IOp = new Operation<Input, Output>({
-    resourceType: "OperationDefinition",
-    id: "project-information",
-    url: "https://haste.health/OperationDefinition/project-information",
-    version: "4.0.1",
-    name: "Current Project Information",
-    status: "draft",
-    kind: "operation",
-    date: "2023-11-16T09:29:23+11:00",
-    publisher: "HasteHealth",
-    description: "Get Project resource for the current project.",
-    code: "current-project",
-    system: true,
-    type: false,
-    instance: false,
-    parameter: [
-      {
-        name: "project",
-        use: "out",
-        min: 1,
-        max: "1",
-        documentation: "Users current project.",
-        type: "Project",
-      },
-    ],
-  } as fhirTypes.OperationDefinition);
-}
-export namespace TenantInformation {
-  export type Input = Record<string, never>;
-  export type Output = { id: fhirTypes.string; subscription: fhirTypes.code };
-  export type IOp = IOperation<Input, Output>;
-  export const Op: IOp = new Operation<Input, Output>({
-    resourceType: "OperationDefinition",
-    id: "tenant-information",
-    url: "https://haste.health/OperationDefinition/tenant-information",
-    version: "4.0.1",
-    name: "Current Tenant Information",
-    status: "draft",
-    kind: "operation",
-    date: "2023-11-16T09:29:23+11:00",
-    publisher: "HasteHealth",
-    description: "Get tenant information for the current tenant.",
-    code: "current-tenant",
-    system: true,
-    type: false,
-    instance: false,
-    parameter: [
-      {
-        name: "id",
-        use: "out",
-        min: 1,
-        max: "1",
-        documentation: "tenant id",
-        type: "string",
-      },
-      {
-        name: "subscription",
-        use: "out",
-        min: 1,
-        max: "1",
-        documentation: "tenant subscription level",
-        type: "code",
-      },
-    ],
-  } as fhirTypes.OperationDefinition);
-}
 export namespace HasteHealthDeployOperation {
   export type Input = {
     code: fhirTypes.string;
@@ -152,6 +82,327 @@ export namespace HasteHealthEncrypt {
         max: "1",
         documentation: "Value that has been encrypted",
         type: "string",
+      },
+    ],
+  } as fhirTypes.OperationDefinition);
+}
+export namespace HasteHealthInviteUser {
+  export type Input = {
+    email: fhirTypes.string;
+    role: fhirTypes.code;
+    accessPolicy?: fhirTypes.Reference;
+  };
+  export type Output = fhirTypes.OperationOutcome;
+  export type IOp = IOperation<Input, Output>;
+  export const Op: IOp = new Operation<Input, Output>({
+    resourceType: "OperationDefinition",
+    id: "haste-health-invite-user",
+    url: "https://haste.health/OperationDefinition/invite-user",
+    version: "4.0.1",
+    name: "Invite a user and send an email.",
+    status: "draft",
+    kind: "operation",
+    date: "2023-11-16T09:29:23+11:00",
+    publisher: "HasteHealth",
+    description: "Invite a user to join tenant and send an email for invite.",
+    code: "invite-user",
+    system: false,
+    type: true,
+    instance: false,
+    resource: ["Membership"],
+    parameter: [
+      {
+        name: "email",
+        use: "in",
+        min: 1,
+        max: "1",
+        documentation: "Email for new user",
+        type: "string",
+      },
+      {
+        name: "role",
+        use: "in",
+        min: 1,
+        max: "1",
+        documentation: "Role for new user",
+        type: "code",
+      },
+      {
+        name: "accessPolicy",
+        use: "in",
+        min: 0,
+        max: "1",
+        documentation: "Access Policy for user.",
+        type: "Reference",
+      },
+      {
+        name: "return",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "The result of the operation.",
+        type: "OperationOutcome",
+      },
+    ],
+  } as fhirTypes.OperationDefinition);
+}
+export namespace HasteHealthMessagePost {
+  export type Input = { input: fhirTypes.Resource };
+  export type Output = fhirTypes.OperationOutcome;
+  export type IOp = IOperation<Input, Output>;
+  export const Op: IOp = new Operation<Input, Output>({
+    resourceType: "OperationDefinition",
+    id: "haste-health-message-post",
+    url: "https://haste.health/OperationDefinition/message-post",
+    version: "4.0.1",
+    name: "Send a message to a given topic.",
+    status: "draft",
+    kind: "operation",
+    date: "2024-05-01T09:29:23+11:00",
+    publisher: "HasteHealth",
+    description: "Posts a message to a given topic.",
+    code: "message-post",
+    system: false,
+    type: false,
+    instance: true,
+    resource: ["MessageTopic"],
+    parameter: [
+      {
+        name: "input",
+        use: "in",
+        min: 1,
+        max: "1",
+        documentation: "Value to encrypt",
+        type: "Resource",
+      },
+      {
+        name: "return",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "Result of the message post operation.",
+        type: "OperationOutcome",
+      },
+    ],
+  } as fhirTypes.OperationDefinition);
+}
+export namespace HasteHealthPasswordReset {
+  export type Input = {
+    email: {
+      subject: fhirTypes.string;
+      body: fhirTypes.string;
+      acceptText: fhirTypes.string;
+    };
+  };
+  export type Output = fhirTypes.OperationOutcome;
+  export type IOp = IOperation<Input, Output>;
+  export const Op: IOp = new Operation<Input, Output>({
+    resourceType: "OperationDefinition",
+    id: "haste-health-password-reset",
+    url: "https://haste.health/OperationDefinition/password-reset",
+    version: "4.0.1",
+    name: "Password Reset",
+    status: "draft",
+    kind: "operation",
+    date: "2025-01-08T09:29:23+11:00",
+    publisher: "HasteHealth",
+    description: "Password Reset for a user.",
+    code: "password-reset",
+    system: false,
+    type: false,
+    instance: true,
+    resource: ["Membership"],
+    parameter: [
+      {
+        name: "email",
+        use: "in",
+        min: 1,
+        max: "1",
+        documentation: "email content",
+        part: [
+          {
+            name: "subject",
+            use: "in",
+            min: 1,
+            max: "1",
+            documentation: "Subject for the email.",
+            type: "string",
+          },
+          {
+            name: "body",
+            use: "in",
+            min: 1,
+            max: "1",
+            documentation: "Body for the email.",
+            type: "string",
+          },
+          {
+            name: "acceptText",
+            use: "in",
+            min: 1,
+            max: "1",
+            documentation: "Button text for the password reset.",
+            type: "string",
+          },
+        ],
+      },
+      {
+        name: "return",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "The result of the operation.",
+        type: "OperationOutcome",
+      },
+    ],
+  } as fhirTypes.OperationDefinition);
+}
+export namespace HasteHealthUsageStatistics {
+  export type Input = Record<string, never>;
+  export type Output = {
+    statistics?: Array<{
+      name: fhirTypes.string;
+      version: fhirTypes.string;
+      limit: fhirTypes.integer;
+      usage: fhirTypes.integer;
+      description: fhirTypes.string;
+    }>;
+  };
+  export type IOp = IOperation<Input, Output>;
+  export const Op: IOp = new Operation<Input, Output>({
+    resourceType: "OperationDefinition",
+    id: "haste-health-usage-statistics",
+    url: "https://haste.health/OperationDefinition/usage-statistics",
+    version: "4.0.1",
+    name: "HasteHealth Usage Statistics",
+    status: "draft",
+    kind: "operation",
+    date: "2024-05-16T09:29:23+11:00",
+    publisher: "HasteHealth",
+    description: "Get current tenants limitations and usage.",
+    code: "usage-statistics",
+    system: true,
+    type: false,
+    instance: false,
+    parameter: [
+      {
+        name: "statistics",
+        use: "out",
+        min: 0,
+        max: "*",
+        documentation: "The result of the operation.",
+        part: [
+          {
+            name: "name",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation: "The name of the limit.",
+            type: "string",
+          },
+          {
+            name: "version",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation: "The fhir version for the limit.",
+            type: "string",
+          },
+          {
+            name: "limit",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation: "Value of the limit.",
+            type: "integer",
+          },
+          {
+            name: "usage",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation: "The current usage.",
+            type: "integer",
+          },
+          {
+            name: "description",
+            use: "out",
+            min: 1,
+            max: "1",
+            documentation: "The description of the limit.",
+            type: "string",
+          },
+        ],
+      },
+    ],
+  } as fhirTypes.OperationDefinition);
+}
+export namespace ProjectInformation {
+  export type Input = Record<string, never>;
+  export type Output = { project: fhirTypes.Project };
+  export type IOp = IOperation<Input, Output>;
+  export const Op: IOp = new Operation<Input, Output>({
+    resourceType: "OperationDefinition",
+    id: "project-information",
+    url: "https://haste.health/OperationDefinition/project-information",
+    version: "4.0.1",
+    name: "Current Project Information",
+    status: "draft",
+    kind: "operation",
+    date: "2023-11-16T09:29:23+11:00",
+    publisher: "HasteHealth",
+    description: "Get Project resource for the current project.",
+    code: "current-project",
+    system: true,
+    type: false,
+    instance: false,
+    parameter: [
+      {
+        name: "project",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "Users current project.",
+        type: "Project",
+      },
+    ],
+  } as fhirTypes.OperationDefinition);
+}
+export namespace TenantInformation {
+  export type Input = Record<string, never>;
+  export type Output = { id: fhirTypes.string; subscription: fhirTypes.code };
+  export type IOp = IOperation<Input, Output>;
+  export const Op: IOp = new Operation<Input, Output>({
+    resourceType: "OperationDefinition",
+    id: "tenant-information",
+    url: "https://haste.health/OperationDefinition/tenant-information",
+    version: "4.0.1",
+    name: "Current Tenant Information",
+    status: "draft",
+    kind: "operation",
+    date: "2023-11-16T09:29:23+11:00",
+    publisher: "HasteHealth",
+    description: "Get tenant information for the current tenant.",
+    code: "current-tenant",
+    system: true,
+    type: false,
+    instance: false,
+    parameter: [
+      {
+        name: "id",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "tenant id",
+        type: "string",
+      },
+      {
+        name: "subscription",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "tenant subscription level",
+        type: "code",
       },
     ],
   } as fhirTypes.OperationDefinition);
@@ -520,177 +771,6 @@ export namespace HasteHealthIndexingErrors {
     ],
   } as fhirTypes.OperationDefinition);
 }
-export namespace HasteHealthInviteUser {
-  export type Input = {
-    email: fhirTypes.string;
-    role: fhirTypes.code;
-    accessPolicy?: fhirTypes.Reference;
-  };
-  export type Output = fhirTypes.OperationOutcome;
-  export type IOp = IOperation<Input, Output>;
-  export const Op: IOp = new Operation<Input, Output>({
-    resourceType: "OperationDefinition",
-    id: "haste-health-invite-user",
-    url: "https://haste.health/OperationDefinition/invite-user",
-    version: "4.0.1",
-    name: "Invite a user and send an email.",
-    status: "draft",
-    kind: "operation",
-    date: "2023-11-16T09:29:23+11:00",
-    publisher: "HasteHealth",
-    description: "Invite a user to join tenant and send an email for invite.",
-    code: "invite-user",
-    system: false,
-    type: true,
-    instance: false,
-    resource: ["Membership"],
-    parameter: [
-      {
-        name: "email",
-        use: "in",
-        min: 1,
-        max: "1",
-        documentation: "Email for new user",
-        type: "string",
-      },
-      {
-        name: "role",
-        use: "in",
-        min: 1,
-        max: "1",
-        documentation: "Role for new user",
-        type: "code",
-      },
-      {
-        name: "accessPolicy",
-        use: "in",
-        min: 0,
-        max: "1",
-        documentation: "Access Policy for user.",
-        type: "Reference",
-      },
-      {
-        name: "return",
-        use: "out",
-        min: 1,
-        max: "1",
-        documentation: "The result of the operation.",
-        type: "OperationOutcome",
-      },
-    ],
-  } as fhirTypes.OperationDefinition);
-}
-export namespace HasteHealthMessagePost {
-  export type Input = { input: fhirTypes.Resource };
-  export type Output = fhirTypes.OperationOutcome;
-  export type IOp = IOperation<Input, Output>;
-  export const Op: IOp = new Operation<Input, Output>({
-    resourceType: "OperationDefinition",
-    id: "haste-health-message-post",
-    url: "https://haste.health/OperationDefinition/message-post",
-    version: "4.0.1",
-    name: "Send a message to a given topic.",
-    status: "draft",
-    kind: "operation",
-    date: "2024-05-01T09:29:23+11:00",
-    publisher: "HasteHealth",
-    description: "Posts a message to a given topic.",
-    code: "message-post",
-    system: false,
-    type: false,
-    instance: true,
-    resource: ["MessageTopic"],
-    parameter: [
-      {
-        name: "input",
-        use: "in",
-        min: 1,
-        max: "1",
-        documentation: "Value to encrypt",
-        type: "Resource",
-      },
-      {
-        name: "return",
-        use: "out",
-        min: 1,
-        max: "1",
-        documentation: "Result of the message post operation.",
-        type: "OperationOutcome",
-      },
-    ],
-  } as fhirTypes.OperationDefinition);
-}
-export namespace HasteHealthPasswordReset {
-  export type Input = {
-    email: {
-      subject: fhirTypes.string;
-      body: fhirTypes.string;
-      acceptText: fhirTypes.string;
-    };
-  };
-  export type Output = fhirTypes.OperationOutcome;
-  export type IOp = IOperation<Input, Output>;
-  export const Op: IOp = new Operation<Input, Output>({
-    resourceType: "OperationDefinition",
-    id: "haste-health-password-reset",
-    url: "https://haste.health/OperationDefinition/password-reset",
-    version: "4.0.1",
-    name: "Password Reset",
-    status: "draft",
-    kind: "operation",
-    date: "2025-01-08T09:29:23+11:00",
-    publisher: "HasteHealth",
-    description: "Password Reset for a user.",
-    code: "password-reset",
-    system: false,
-    type: false,
-    instance: true,
-    resource: ["Membership"],
-    parameter: [
-      {
-        name: "email",
-        use: "in",
-        min: 1,
-        max: "1",
-        documentation: "email content",
-        part: [
-          {
-            name: "subject",
-            use: "in",
-            min: 1,
-            max: "1",
-            documentation: "Subject for the email.",
-            type: "string",
-          },
-          {
-            name: "body",
-            use: "in",
-            min: 1,
-            max: "1",
-            documentation: "Body for the email.",
-            type: "string",
-          },
-          {
-            name: "acceptText",
-            use: "in",
-            min: 1,
-            max: "1",
-            documentation: "Button text for the password reset.",
-            type: "string",
-          },
-        ],
-      },
-      {
-        name: "return",
-        use: "out",
-        min: 1,
-        max: "1",
-        documentation: "The result of the operation.",
-        type: "OperationOutcome",
-      },
-    ],
-  } as fhirTypes.OperationDefinition);
-}
 export namespace HasteHealthDeleteRefreshToken {
   export type Input = {
     client_id: fhirTypes.id;
@@ -980,86 +1060,6 @@ export namespace HasteHealthTenantBranding {
         max: "1",
         documentation: "Logo for the tenant, if one has been set.",
         type: "Attachment",
-      },
-    ],
-  } as fhirTypes.OperationDefinition);
-}
-export namespace HasteHealthUsageStatistics {
-  export type Input = Record<string, never>;
-  export type Output = {
-    statistics?: Array<{
-      name: fhirTypes.string;
-      version: fhirTypes.string;
-      limit: fhirTypes.integer;
-      usage: fhirTypes.integer;
-      description: fhirTypes.string;
-    }>;
-  };
-  export type IOp = IOperation<Input, Output>;
-  export const Op: IOp = new Operation<Input, Output>({
-    resourceType: "OperationDefinition",
-    id: "haste-health-usage-statistics",
-    url: "https://haste.health/OperationDefinition/usage-statistics",
-    version: "4.0.1",
-    name: "HasteHealth Usage Statistics",
-    status: "draft",
-    kind: "operation",
-    date: "2024-05-16T09:29:23+11:00",
-    publisher: "HasteHealth",
-    description: "Get current tenants limitations and usage.",
-    code: "usage-statistics",
-    system: true,
-    type: false,
-    instance: false,
-    parameter: [
-      {
-        name: "statistics",
-        use: "out",
-        min: 0,
-        max: "*",
-        documentation: "The result of the operation.",
-        part: [
-          {
-            name: "name",
-            use: "out",
-            min: 1,
-            max: "1",
-            documentation: "The name of the limit.",
-            type: "string",
-          },
-          {
-            name: "version",
-            use: "out",
-            min: 1,
-            max: "1",
-            documentation: "The fhir version for the limit.",
-            type: "string",
-          },
-          {
-            name: "limit",
-            use: "out",
-            min: 1,
-            max: "1",
-            documentation: "Value of the limit.",
-            type: "integer",
-          },
-          {
-            name: "usage",
-            use: "out",
-            min: 1,
-            max: "1",
-            documentation: "The current usage.",
-            type: "integer",
-          },
-          {
-            name: "description",
-            use: "out",
-            min: 1,
-            max: "1",
-            documentation: "The description of the limit.",
-            type: "string",
-          },
-        ],
       },
     ],
   } as fhirTypes.OperationDefinition);

@@ -1,0 +1,19 @@
+{
+  "name": "@haste-health/hl7.fhir.r4.test-data",
+  "version": "0.3.0",
+  "homepage": "https://haste.health",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HasteHealth/HasteHealth.git"
+  },
+  "fhirVersions": [
+    "4.0.1"
+  ],
+  "scripts": {
+    "generate-index": "pnpm node ../../../frontend/packages/cli/lib/hastehealth.js generate index-file -p . -r examples-json"
+  },
+  "files": [
+    ".index.json",
+    "examples-json/**"
+  ]
+}
