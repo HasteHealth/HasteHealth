@@ -188,7 +188,7 @@ async fn derive_resource_data_arg_file_arg_or_stdin<Type: serde::de::Deserialize
             )
         })
     } else if let Some(file_path) = file_path {
-        let file_content = std::fs::read_to_string(file_path).map_err(|e| {
+        let file_content = tokio::fs::read_to_string(file_path).await.map_err(|e| {
             OperationOutcomeError::error(
                 IssueType::exception(),
                 format!("Failed to read transaction file: {}", e),
@@ -283,7 +283,7 @@ pub(crate) async fn run(
             file,
         } => {
             let patches = if let Some(file) = file {
-                let file_content = std::fs::read_to_string(file).map_err(|e| {
+                let file_content = tokio::fs::read_to_string(file).await.map_err(|e| {
                     OperationOutcomeError::error(
                         IssueType::exception(),
                         format!("Failed to read transaction file: {}", e),

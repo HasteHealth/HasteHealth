@@ -16,7 +16,7 @@ pub(crate) async fn run(output: &str) -> Result<(), OperationOutcomeError> {
 
     let markdown = format!("{top_string}\n\n{markdown}");
 
-    std::fs::write(output, markdown).map_err(|e| {
+    tokio::fs::write(output, markdown).await.map_err(|e| {
         OperationOutcomeError::error(
             haste_fhir_model::r4::generated::terminology::IssueType::exception(),
             e.to_string(),

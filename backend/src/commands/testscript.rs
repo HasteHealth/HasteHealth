@@ -236,7 +236,7 @@ pub(crate) async fn run(
             };
 
             if let Some(output) = output {
-                std::fs::write(
+                tokio::fs::write(
                     output,
                     serde_json::to_string(&testreport_bundle).map_err(|e| {
                         OperationOutcomeError::fatal(
@@ -245,6 +245,7 @@ pub(crate) async fn run(
                         )
                     })?,
                 )
+                .await
                 .expect("Failed to write TestReport bundle to file");
             } else {
                 println!(
