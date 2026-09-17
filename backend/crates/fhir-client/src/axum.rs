@@ -32,7 +32,7 @@ fn add_resource_headers(headers: &mut HeaderMap, resource: &Resource) {
         headers.insert(
             axum::http::header::LAST_MODIFIED,
             last_modified
-                .format("%a, %d %b %G %H:%M:%S GMT")
+                .format("%a, %d %b %Y %H:%M:%S GMT")
                 .parse()
                 .unwrap(),
         );
