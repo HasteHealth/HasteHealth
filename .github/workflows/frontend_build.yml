@@ -6,10 +6,12 @@ on:
     branches: [main]
     paths:
       - "frontend/**"
+      - "artifacts/**"
   pull_request:
     branches: [main]
     paths:
       - "frontend/**"
+      - "artifacts/**"
 
 jobs:
   pnpm:

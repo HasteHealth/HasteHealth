@@ -3,6 +3,7 @@
   "packageManager": "pnpm@11.9.0",
   "scripts": {
     "generate-documentation": "pnpm typedoc",
+    "generate-indexes": "pnpm --recursive --if-present run generate-index",
     "ci:publish": "pnpm publish -r",
     "ci:build": "pnpm --recursive run build"
   },

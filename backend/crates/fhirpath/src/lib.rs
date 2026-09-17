@@ -1380,8 +1380,9 @@ mod tests {
     }
 
     fn load_search_parameters() -> Vec<SearchParameter> {
-        let json =
-            include_str!("../../artifacts/artifacts/r4/hl7/minified/search-parameters.min.json");
+        let json = include_str!(
+            "../../../../artifacts/r4/hl7-core/definitions/hl7/search-parameters.min.json"
+        );
         let bundle = serde_json::from_str::<Bundle>(json).unwrap();
 
         bundle

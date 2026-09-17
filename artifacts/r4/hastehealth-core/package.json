@@ -1,0 +1,31 @@
+{
+  "name": "@haste-health/haste-health.fhir.r4.core",
+  "version": "0.8.0",
+  "homepage": "https://haste.health",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HasteHealth/HasteHealth.git"
+  },
+  "canonical": "https://haste.health/fhir/ImplementationGuide/haste-health.fhir.r4.core",
+  "url": "https://haste.health/fhir/ImplementationGuide/haste-health.fhir.r4.core",
+  "title": "HasteHealth Core resources",
+  "description": "HasteHealth package that contains core haste-health R4 resources.",
+  "fhirVersions": [
+    "4.0.1"
+  ],
+  "author": "HasteHealth",
+  "maintainers": [
+    {
+      "name": "HasteHealth",
+      "email": "dev@haste.health"
+    }
+  ],
+  "scripts": {
+    "generate-index": "pnpm node ../../../frontend/packages/cli/lib/hastehealth.js generate index-file -p . -r definitions"
+  },
+  "files": [
+    "definitions/**",
+    ".index.json",
+    "README.md"
+  ]
+}

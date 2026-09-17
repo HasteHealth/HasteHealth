@@ -1,11 +1,11 @@
 #!/bin/bash
 cargo run generate types \
-    -i ./crates/artifacts/artifacts/r4/haste_health/structure_definition \
-    -i ./crates/artifacts/artifacts/r4/haste_health/terminology \
-    -i ./crates/artifacts/artifacts/r4/hl7/original/profiles-types.json \
-    -i ./crates/artifacts/artifacts/r4/hl7/original/profiles-resources.json \
-    -i ./crates/artifacts/artifacts/r4/hl7/original/valuesets.json \
-    -i ./crates/artifacts/artifacts/r4/hl7/original/v3-codesystems.json \
-    -i ./crates/artifacts/artifacts/universal/sql-on-fhir/definitions/ViewDefinition.json \
-    -i ./crates/artifacts/artifacts/universal/sql-on-fhir/terminology \
+    -i ../artifacts/r4/hastehealth-core/definitions/haste-health/structure_definition \
+    -i ../artifacts/r4/hastehealth-core/definitions/haste-health/terminology \
+    -i ../artifacts/r4/hl7-core/definitions/hl7/profiles-types.json \
+    -i ../artifacts/r4/hl7-core/definitions/hl7/profiles-resources.json \
+    -i ../artifacts/r4/hl7-core/definitions/hl7/valuesets.json \
+    -i ../artifacts/r4/hl7-core/definitions/hl7/v3-codesystems.json \
+    -i ../artifacts/r4/hastehealth-core/definitions/sql-on-fhir/definitions/ViewDefinition.json \
+    -i ../artifacts/r4/hastehealth-core/definitions/sql-on-fhir/terminology \
     -o ./crates/fhir-model/src/r4/generated

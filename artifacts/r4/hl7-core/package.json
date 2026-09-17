@@ -1,0 +1,33 @@
+{
+  "name": "@haste-health/hl7.fhir.r4.core",
+  "version": "0.5.0",
+  "homepage": "https://haste.health",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HasteHealth/HasteHealth.git"
+  },
+  "canonical": "https://haste.health/fhir/ImplementationGuide/haste-health.hl7.fhir.r4.core",
+  "url": "https://haste.health/fhir/ImplementationGuide/haste-health.hl7.fhir.r4.core",
+  "title": "Hl7 Core resources",
+  "description": "HasteHealth package that contains core hl7 R4 resources.",
+  "fhirVersions": [
+    "4.0.1"
+  ],
+  "author": "HasteHealth",
+  "maintainers": [
+    {
+      "name": "HasteHealth",
+      "email": "dev@haste.health"
+    }
+  ],
+  "scripts": {
+    "minify": "pnpm node ../../../frontend/packages/cli/lib/hastehealth.js minimize artifacts -d definitions",
+    "generate-index-nonmin": "pnpm node ../../../frontend/packages/cli/lib/hastehealth.js generate index-file --extension json -p . -r definitions --ignore \\*.min.json",
+    "generate-index": "pnpm node ../../../frontend/packages/cli/lib/hastehealth.js generate index-file --extension .min.json -p . -r definitions"
+  },
+  "files": [
+    "definitions/**",
+    ".index.json",
+    "README.md"
+  ]
+}

@@ -18,7 +18,7 @@ function flattenData(data) {
 function loadUSCoreProfiles() {
   const artifactsDir = join(
     __dirname,
-    "../crates/artifacts/artifacts/r4/us-core",
+    "../../artifacts/r4/hl7.fhir.us.core",
   );
   const files = readdirSync(artifactsDir).filter((f) => f.endsWith(".json"));
 
