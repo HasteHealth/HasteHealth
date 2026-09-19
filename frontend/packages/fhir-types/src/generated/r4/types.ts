@@ -4626,6 +4626,16 @@ resourceType: "Membership"
   user: Reference;
 }
 
+export interface ProjectIdentityProviderSetting {
+  /** 
+   * The identity provider these settings apply to.
+   */
+  identityProvider: Reference;
+  /** 
+   * Access policies assigned on a user's first sign-in.
+   */
+  defaultAccessPolicy?: Array<Reference>;
+}
 export interface Project {
 resourceType: "Project"
   /** 
@@ -4656,6 +4666,10 @@ resourceType: "Project"
    * A Given projects identity providers.
    */
   identityProvider?: Array<Reference>;
+  /** 
+   * Per identity provider sign-in settings.
+   */
+  identityProviderSetting?: Array<ProjectIdentityProviderSetting>;
 }
 
 export interface User {

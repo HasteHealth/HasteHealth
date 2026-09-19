@@ -72,6 +72,36 @@ sequenceDiagram
     Browser->>User: Display authenticated app
 ```
 
+## Assigning access on first sign-in
+
+The first time a user signs in through an identity provider, Haste Health creates a `User` and a `Membership` for them. Without an access policy, that user can't read or write anything until an administrator assigns one.
+
+A project can assign policies automatically with `Project.identityProviderSetting`:
+
+```json
+{
+  "resourceType": "Project",
+  "id": "my-project",
+  "name": "My Project",
+  "fhirVersion": "4.0.1",
+  "identityProvider": [{ "reference": "IdentityProvider/okta" }],
+  "identityProviderSetting": [
+    {
+      "identityProvider": { "reference": "IdentityProvider/okta" },
+      "defaultAccessPolicy": [
+        { "reference": "AccessPolicyV2/clinician-read" }
+      ]
+    }
+  ]
+}
+```
+
+When a user first signs in through `IdentityProvider/okta`, one `AccessPolicyV2Assignment` is created per listed policy, linked to that user's new `Membership`, in the same transaction that creates the user. The policies apply as soon as the user gets a token.
+
+This runs only when the user is created. Later sign-ins don't change existing assignments, so an assignment an administrator removes is not recreated, and changing `defaultAccessPolicy` does not affect users who have already signed in.
+
+The identity provider must also be listed in `Project.identityProvider`; a setting for any other provider is ignored.
+
 ## Setup Guides
 - [Okta Integration Guide](/docs/integration/identity_providers/okta)
 - [Azure AD Integration Guide](/docs/integration/identity_providers/azure)
