@@ -63,20 +63,17 @@ Without a Membership (unless a user is a super-admin or owner of a tenant), user
 
 ## AccessPolicyV2 Association
 
-Memberships can be linked to **AccessPolicyV2** which determine what resources a user has access too within a project.
+Memberships are assigned **AccessPolicyV2** resources, which determine what resources a user has access to within a project, through `AccessPolicyV2Assignment`:
 
 ```json
 {
-  "resourceType": "AccessPolicyV2",
-  "name": "Admin",
-  "engine": "full-access",
-  "target": [
-    {
-      "link": {
-        "reference": "Membership/qo4zgl99-eaw4wu17nub1zy79n"
-      }
-    }
-  ]
+  "resourceType": "AccessPolicyV2Assignment",
+  "accessPolicy": {
+    "reference": "AccessPolicyV2/admin"
+  },
+  "link": {
+    "reference": "Membership/qo4zgl99-eaw4wu17nub1zy79n"
+  }
 }
 ```
 

@@ -272,29 +272,43 @@ After registering a client, you may need to configure access policies to grant p
 <Tabs>
 <TabItem value="confidential" label="Client Credentials Flow">
 
-For machine-to-machine (M2M) using client credentials flow, you must create `AccessPolicyV2` resources to define what the client can access.
+For machine-to-machine (M2M) using client credentials flow, you must create an `AccessPolicyV2` resource to define what the client can access, and an `AccessPolicyV2Assignment` to assign it to the client.
 
 ### Example: Grant Client Full Access
 
 ```json
 {
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
       "fullUrl": "access-policy",
       "resource": {
         "resourceType": "AccessPolicyV2",
         "name": "ADMIN",
-        "engine": "full-access",
-        "target": [
-          {
-            "link": {
-              "reference": "ClientApplication/my-backend-service"
-            }
-          }
-        ]
+        "engine": "full-access"
       },
       "request": {
         "method": "POST",
         "url": "AccessPolicyV2"
       }
+    },
+    {
+      "resource": {
+        "resourceType": "AccessPolicyV2Assignment",
+        "accessPolicy": {
+          "reference": "access-policy"
+        },
+        "link": {
+          "reference": "ClientApplication/my-backend-service"
+        }
+      },
+      "request": {
+        "method": "POST",
+        "url": "AccessPolicyV2Assignment"
+      }
+    }
+  ]
 }
 ```
 </TabItem>

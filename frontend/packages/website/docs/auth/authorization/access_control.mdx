@@ -18,7 +18,7 @@ AccessPolicyV2 resources define authorization policies that evaluate against API
 ### Key Fields
 
 - **engine**: Evaluation engine (`full-access`, `rule-engine`)
-- **target.link**: Reference to User or Membership this policy applies to
+- **target.link** (deprecated): Who the policy applies to. Use `AccessPolicyV2Assignment` instead
 - **rule**: Array of authorization rules with actions, resources, and conditions
 - **name**: Human-readable policy description
 
@@ -43,12 +43,22 @@ Grants unrestricted access to all resources and operations. The simplest engineâ
 ```json
 {
   "resourceType": "AccessPolicyV2",
+  "id": "admin-full-access",
   "name": "Admin Full Access",
-  "engine": "full-access",
-  "target": {
-    "link": {
-      "reference": "Membership/admin-membership"
-    }
+  "engine": "full-access"
+}
+```
+
+Assign it with an `AccessPolicyV2Assignment` (see [Associating Policies with Users](#associating-policies-with-users)):
+
+```json
+{
+  "resourceType": "AccessPolicyV2Assignment",
+  "accessPolicy": {
+    "reference": "AccessPolicyV2/admin-full-access"
+  },
+  "link": {
+    "reference": "Membership/admin-membership"
   }
 }
 ```
@@ -147,7 +157,7 @@ Multiple policies can apply to a single user (via Membership). The system uses a
 
 ## Associating Policies with Users
 
-Policies link to resources via the `target.link` field.
+Policies are linked to the resources they apply to with `AccessPolicyV2Assignment` resources. Each assignment has an `accessPolicy` reference and a `link` reference to a `Membership`, `ClientApplication` or `OperationDefinition`. Assignments can be created and removed without editing the policy itself.
 
 ```json
 {
@@ -159,23 +169,28 @@ Policies link to resources via the `target.link` field.
 }
 ```
 
-Then reference the Membership in the policy:
+Then assign the policy to the Membership:
 
 ```json
 {
-  "resourceType": "AccessPolicyV2",
-  "target": {
-    "link": {
-      "reference": "Membership/membership-id"
-    }
+  "resourceType": "AccessPolicyV2Assignment",
+  "accessPolicy": {
+    "reference": "AccessPolicyV2/policy-id"
+  },
+  "link": {
+    "reference": "Membership/membership-id"
   }
 }
 ```
 
 During authentication, the system:
-1. Finds user's Memberships
-2. Searches for AccessPolicyV2 where `target.link` references those Memberships
+1. Finds the user's Membership (or the ClientApplication, for client credentials)
+2. Searches for `AccessPolicyV2Assignment` resources whose `link` references it, and loads the policies they point to
 3. Includes policy version IDs in access token
+
+:::warning Deprecated
+`AccessPolicyV2.target.link` is deprecated. Policies that still use it continue to apply, but new policies should use `AccessPolicyV2Assignment`.
+:::
 
 **[Learn more about Membership â†’](/docs/auth/authorization/membership)**
 

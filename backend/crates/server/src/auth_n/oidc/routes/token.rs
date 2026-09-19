@@ -362,25 +362,22 @@ fn verify_client(
     Ok(())
 }
 
-async fn find_users_access_policy_version_ids<Search: SearchEngine>(
+async fn search_version_ids<Search: SearchEngine>(
     search: &Search,
     tenant: &TenantId,
     project: &ProjectId,
-    user_id: &str,
-    user_type: &ResourceType,
+    resource_type: ResourceType,
+    parameter: &str,
+    values: Vec<String>,
 ) -> Result<Vec<VersionId>, OIDCError> {
-    let access_policies = search
+    let result = search
         .search(
             &SupportedFHIRVersions::R4,
             tenant,
             project,
             &SearchRequest::Type(FHIRSearchTypeRequest {
-                resource_type: ResourceType::AccessPolicyV2,
-                parameters: vec![(
-                    "link".to_string(),
-                    vec![format!("{}/{}", user_type.as_ref(), user_id)],
-                )]
-                .into(),
+                resource_type,
+                parameters: vec![(parameter.to_string(), values)].into(),
             }),
             None,
         )
@@ -393,11 +390,95 @@ async fn find_users_access_policy_version_ids<Search: SearchEngine>(
             )
         })?;
 
-    Ok(access_policies
-        .entries
+    Ok(result.entries.into_iter().map(|e| e.version_id).collect())
+}
+
+/// Version ids of the access policies that apply to `user_type/user_id`.
+///
+/// Policies are assigned through `AccessPolicyV2Assignment` resources. Policies
+/// that still name the user in the deprecated `AccessPolicyV2.target` are
+/// included too, so existing policies keep applying until they are migrated.
+async fn find_users_access_policy_version_ids<Repo: Repository, Search: SearchEngine>(
+    repo: &Repo,
+    search: &Search,
+    tenant: &TenantId,
+    project: &ProjectId,
+    user_id: &str,
+    user_type: &ResourceType,
+) -> Result<Vec<VersionId>, OIDCError> {
+    let user_reference = format!("{}/{}", user_type.as_ref(), user_id);
+
+    let assignment_version_ids = search_version_ids(
+        search,
+        tenant,
+        project,
+        ResourceType::AccessPolicyV2Assignment,
+        "link",
+        vec![user_reference.clone()],
+    )
+    .await?;
+
+    let assigned_policy_ids = repo
+        .read_by_version_ids(
+            tenant,
+            project,
+            &assignment_version_ids.iter().collect::<Vec<_>>(),
+            haste_repository::fhir::CachePolicy::NoCache,
+        )
+        .await
+        .map_err(|_e| {
+            OIDCError::new(
+                OIDCErrorCode::ServerError,
+                Some("Failed to read user's access policy assignments.".to_string()),
+                None,
+            )
+        })?
         .into_iter()
-        .map(|ap| ap.version_id)
-        .collect())
+        .filter_map(|resource| match resource {
+            Resource::AccessPolicyV2Assignment(assignment) => assignment
+                .accessPolicy
+                .reference
+                .and_then(|reference| reference.value)
+                .and_then(|reference| {
+                    reference
+                        .strip_prefix("AccessPolicyV2/")
+                        .map(ToString::to_string)
+                }),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+
+    let mut version_ids = if assigned_policy_ids.is_empty() {
+        vec![]
+    } else {
+        search_version_ids(
+            search,
+            tenant,
+            project,
+            ResourceType::AccessPolicyV2,
+            "_id",
+            assigned_policy_ids,
+        )
+        .await?
+    };
+
+    // Deprecated: AccessPolicyV2.target.link.
+    version_ids.extend(
+        search_version_ids(
+            search,
+            tenant,
+            project,
+            ResourceType::AccessPolicyV2,
+            "link",
+            vec![user_reference],
+        )
+        .await?,
+    );
+
+    let mut seen = std::collections::HashSet::new();
+    version_ids.retain(|version_id| seen.insert(version_id.clone()));
+
+    Ok(version_ids)
 }
 
 async fn get_fhir_user_from_membership_link<
@@ -539,6 +620,7 @@ pub async fn client_credentials_to_token_response<
             membership: None,
             fhir_user: None,
             access_policy_version_ids: find_users_access_policy_version_ids(
+                state.repo.as_ref(),
                 state.search.as_ref(),
                 tenant,
                 project,
@@ -701,6 +783,7 @@ pub async fn token<
                     access_policy_version_ids: match code.membership.as_ref() {
                         Some(membership) => {
                             find_users_access_policy_version_ids(
+                                state.repo.as_ref(),
                                 state.search.as_ref(),
                                 &tenant,
                                 &project,
@@ -859,6 +942,7 @@ pub async fn token<
                     access_policy_version_ids: match code.membership.as_ref() {
                         Some(membership) => {
                             find_users_access_policy_version_ids(
+                                state.repo.as_ref(),
                                 state.search.as_ref(),
                                 &tenant,
                                 &project,

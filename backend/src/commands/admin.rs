@@ -6,7 +6,7 @@ use figment::{
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::{
-        AccessPolicyV2, AccessPolicyV2Target, Bundle, BundleEntry, BundleEntryRequest,
+        AccessPolicyV2, AccessPolicyV2Assignment, Bundle, BundleEntry, BundleEntryRequest,
         ClientApplication, Resource,
     },
     terminology::{
@@ -386,7 +386,7 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                     services.rate_limit.clone(),
                 ));
 
-                let mut entries = Vec::with_capacity(2);
+                let mut entries = Vec::with_capacity(3);
 
                 // Authorization-code clients are used by humans and rely on whatever
                 // access policy is attached to the authenticating user, so only
@@ -411,7 +411,28 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                                 ..Default::default()
                             }),
                             engine: AccessPolicyv2Engine::full_access(),
-                            target: Some(vec![AccessPolicyV2Target {
+                            ..Default::default()
+                        }))),
+                        ..Default::default()
+                    });
+                    entries.push(BundleEntry {
+                        request: Some(BundleEntryRequest {
+                            method: HttpVerb::post(),
+                            url: Box::new(FHIRUri {
+                                value: Some("AccessPolicyV2Assignment".to_string()),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        }),
+                        resource: Some(Box::new(Resource::AccessPolicyV2Assignment(
+                            AccessPolicyV2Assignment {
+                                accessPolicy: Box::new(Reference {
+                                    reference: Some(Box::new(FHIRString {
+                                        value: Some("access-policy".to_string()),
+                                        ..Default::default()
+                                    })),
+                                    ..Default::default()
+                                }),
                                 link: Box::new(Reference {
                                     reference: Some(Box::new(FHIRString {
                                         value: Some("client-app".to_string()),
@@ -419,9 +440,9 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                                     })),
                                     ..Default::default()
                                 }),
-                            }]),
-                            ..Default::default()
-                        }))),
+                                ..Default::default()
+                            },
+                        ))),
                         ..Default::default()
                     });
                 }

@@ -74,6 +74,14 @@
       "resourceType": "OperationDefinition"
     },
     {
+      "filename": "definitions/haste-health/search_parameter/access_policy_v2_assignment/access-policy.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "definitions/haste-health/search_parameter/access_policy_v2_assignment/link.json",
+      "resourceType": "SearchParameter"
+    },
+    {
       "filename": "definitions/haste-health/search_parameter/access_policy_v2/engine.json",
       "resourceType": "SearchParameter"
     },

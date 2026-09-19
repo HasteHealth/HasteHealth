@@ -343,9 +343,15 @@
             },
             {
                 "id": "AccessPolicyV2.target",
+                "extension": [
+                    {
+                        "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+                        "valueCode": "deprecated"
+                    }
+                ],
                 "path": "AccessPolicyV2.target",
-                "definition": "Who the access policy applies to.",
-                "short": "Who the access policy applies to.",
+                "definition": "Deprecated: use `AccessPolicyV2Assignment` instead. Who the access policy applies to.",
+                "short": "Deprecated: use AccessPolicyV2Assignment. Who the access policy applies to.",
                 "type": [
                     {
                         "code": "BackboneElement"
@@ -356,9 +362,15 @@
             },
             {
                 "id": "AccessPolicyV2.target.link",
+                "extension": [
+                    {
+                        "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+                        "valueCode": "deprecated"
+                    }
+                ],
                 "path": "AccessPolicyV2.target.link",
-                "definition": "Who the access policy applies to.",
-                "short": "The target reference of the access policy applies to.",
+                "definition": "Deprecated: use `AccessPolicyV2Assignment.link` instead. Who the access policy applies to.",
+                "short": "Deprecated: use AccessPolicyV2Assignment.link. The target reference of the access policy applies to.",
                 "type": [
                     {
                         "code": "Reference",
