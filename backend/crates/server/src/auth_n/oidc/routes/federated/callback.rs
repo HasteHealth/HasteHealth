@@ -7,8 +7,8 @@ use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::{
-        Bundle, BundleEntry, BundleEntryRequest, IdentityProvider, Membership, Resource,
-        ResourceType, User,
+        AccessPolicyV2Assignment, Bundle, BundleEntry, BundleEntryRequest, IdentityProvider,
+        Membership, Resource, ResourceType, User,
     },
     terminology::{BundleType, HttpVerb, IssueType, UserRole},
     types::{FHIRString, FHIRUri, Reference},
@@ -160,6 +160,61 @@ fn user_federated_id(idp: &IdentityProvider, sub: &str) -> Result<String, Operat
     Ok(format!("{}|{}", id_prefix, hashed_user_sub_claim))
 }
 
+/// Access policies the project assigns to users signing in through `idp`, from
+/// `Project.identityProviderSetting`.
+///
+/// A project can also assign policies with its own logic; that hook is not
+/// implemented yet (see issue #939), and would run alongside these.
+async fn default_access_policies<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
+    app_state: &Arc<ServerState<Repo, Search, Terminology>>,
+    tenant: &TenantId,
+    target_project: &ProjectId,
+    idp: &IdentityProvider,
+) -> Result<Vec<Reference>, OperationOutcomeError> {
+    let Some(idp_id) = idp.id.as_ref() else {
+        return Ok(vec![]);
+    };
+    let idp_reference = format!("{}/{}", ResourceType::IdentityProvider.as_ref(), idp_id);
+
+    // Projects live in the tenant's system project.
+    let project = app_state
+        .fhir_client
+        .read(
+            Arc::new(ServerCTX::system(
+                tenant.clone(),
+                ProjectId::System,
+                app_state.fhir_client.clone(),
+                app_state.rate_limit.clone(),
+            )),
+            ResourceType::Project,
+            target_project.as_ref().to_string(),
+        )
+        .await?;
+
+    let Some(Resource::Project(project)) = project else {
+        return Ok(vec![]);
+    };
+
+    Ok(project
+        .identityProviderSetting
+        .unwrap_or_default()
+        .into_iter()
+        .filter(|setting| {
+            setting
+                .identityProvider
+                .reference
+                .as_ref()
+                .and_then(|r| r.value.as_ref())
+                .is_some_and(|reference| reference == &idp_reference)
+        })
+        .flat_map(|setting| setting.defaultAccessPolicy.unwrap_or_default())
+        .collect())
+}
+
 async fn create_user_if_not_exists<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -305,6 +360,39 @@ async fn create_user_if_not_exists<
                     }),
                 )
                 .await?;
+
+            // Policies the project assigns to users of this identity provider.
+            // Only done here, on first sign-in, so assignments an administrator
+            // later removes are not recreated on the next sign-in.
+            for policy in default_access_policies(app_state, tenant, target_project, idp).await? {
+                transaction
+                    .fhir_client
+                    .create(
+                        Arc::new(ServerCTX::system(
+                            tenant.clone(),
+                            target_project.clone(),
+                            transaction.fhir_client.clone(),
+                            transaction.rate_limit.clone(),
+                        )),
+                        ResourceType::AccessPolicyV2Assignment,
+                        Resource::AccessPolicyV2Assignment(AccessPolicyV2Assignment {
+                            accessPolicy: Box::new(policy),
+                            link: Box::new(Reference {
+                                reference: Some(Box::new(FHIRString {
+                                    value: Some(format!(
+                                        "{}/{}",
+                                        ResourceType::Membership.as_ref(),
+                                        user_id.clone()
+                                    )),
+                                    ..Default::default()
+                                })),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        }),
+                    )
+                    .await?;
+            }
 
             user
         };

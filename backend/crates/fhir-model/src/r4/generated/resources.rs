@@ -638,6 +638,25 @@ impl Membership {
     haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
     haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
 )]
+#[fhir_type = "BackboneElement"]
+#[fhir_serialize_type = "complex"]
+#[doc = "Settings applied to users who sign in through one of the project's identity providers."]
+pub struct ProjectIdentityProviderSetting {
+    # [reference (targets = ["IdentityProvider"])]
+    #[doc = "The identity provider these settings apply to. It must also be listed in Project.identityProvider."]
+    pub identityProvider: Box<Reference>,
+    # [reference (targets = ["AccessPolicyV2"])]
+    #[doc = "Access policies assigned to a user the first time they sign in through this identity provider. One AccessPolicyV2Assignment is created per policy, linked to the user's new Membership. Later sign-ins do not change existing assignments, so assignments removed by an administrator are not recreated."]
+    pub defaultAccessPolicy: Option<Vec<Reference>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeSerialize,
+    haste_fhir_serialization_json :: derive :: FHIRSerdeDeserialize,
+)]
 #[fhir_type = "Project"]
 #[fhir_serialize_type = "resource"]
 #[doc = "Project"]
@@ -656,11 +675,23 @@ pub struct Project {
     # [reference (targets = ["IdentityProvider"])]
     #[doc = "Project.identityProvider"]
     pub identityProvider: Option<Vec<Reference>>,
+    #[cardinality(max = 3u64)]
+    #[doc = "Settings applied to users who sign in through one of the project's identity providers."]
+    pub identityProviderSetting: Option<Vec<ProjectIdentityProviderSetting>>,
 }
 impl Project {
     pub fn filter(self, fields: &[&str]) -> Result<Self, FilterFieldsError> {
         for field in fields {
-            if !(["id", "meta", "name", "fhirVersion", "identityProvider"]).contains(field) {
+            if !([
+                "id",
+                "meta",
+                "name",
+                "fhirVersion",
+                "identityProvider",
+                "identityProviderSetting",
+            ])
+            .contains(field)
+            {
                 return Err(FilterFieldsError::UnknownField(
                     field.to_string(),
                     "Project".to_string(),
@@ -674,6 +705,9 @@ impl Project {
         out.fhirVersion = self.fhirVersion;
         if fields.contains(&"identityProvider") {
             out.identityProvider = self.identityProvider;
+        }
+        if fields.contains(&"identityProviderSetting") {
+            out.identityProviderSetting = self.identityProviderSetting;
         }
         Ok(out)
     }
