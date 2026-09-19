@@ -4,7 +4,10 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use serde_json::Value;
 use similar::{ChangeTag, TextDiff};
-use std::path::{Path, PathBuf};
+use std::{
+    fmt::Write,
+    path::{Path, PathBuf},
+};
 
 /// Patch externally provided (HL7) artifacts without editing the upstream files.
 #[derive(Subcommand, Debug)]
@@ -64,11 +67,18 @@ fn print_text_diff(before: &str, after: &str) {
     for change in TextDiff::from_words(before, after).iter_all_changes() {
         match change.tag() {
             ChangeTag::Equal => marked.push_str(change.value()),
-            ChangeTag::Delete => marked.push_str(&format!("[-{}-]", change.value())),
-            ChangeTag::Insert => marked.push_str(&format!("{{+{}+}}", change.value())),
+            ChangeTag::Delete => {
+                let _ = write!(marked, "[-{}-]", change.value());
+            }
+            ChangeTag::Insert => {
+                let _ = write!(marked, "{{+{}+}}", change.value());
+            }
         }
     }
-    for line in marked.lines().filter(|l| l.contains("[-") || l.contains("{+")) {
+    for line in marked
+        .lines()
+        .filter(|l| l.contains("[-") || l.contains("{+"))
+    {
         println!("    ~ {line}");
     }
 }
@@ -160,7 +170,11 @@ pub(crate) async fn run(command: &ArtifactCommands) -> Result<(), OperationOutco
                 let changes = result
                     .changes
                     .iter()
-                    .filter(|c| resource.as_ref().is_none_or(|r| c.resource.contains(r.as_str())))
+                    .filter(|c| {
+                        resource
+                            .as_ref()
+                            .is_none_or(|r| c.resource.contains(r.as_str()))
+                    })
                     .filter(|c| {
                         origin
                             .as_ref()

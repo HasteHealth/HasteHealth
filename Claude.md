@@ -57,6 +57,12 @@
 - artifacts/r4/** and artifacts/r4b/**. One directory per FHIR package. Each is
   both an npm package (package.json + .index.json, part of the frontend pnpm
   workspace) and a source of embedded resources for the haste-artifacts crate.
+- Upstream (HL7) files are never edited. A package with patches/manifest.toml (e.g.
+  artifacts/r4/hl7-core/patches) builds its .min.json outputs - which the server,
+  codegen and frontend load - from the upstream .json plus JSON Patch files and
+  Rust rules (backend/crates/artifact-patcher). From backend/:
+  build `cargo run artifacts build <manifest>`, list every change `cargo run artifacts diff <manifest>`.
+  After changing a patch or rule, rebuild, then run the Code generation steps.
 - artifacts/r4/hastehealth-core/definitions/haste-health/operation-frontend-only -
   OperationDefinitions used only by the TypeScript packages; excluded from the
   backend's generated ops and embedded resources on purpose.
