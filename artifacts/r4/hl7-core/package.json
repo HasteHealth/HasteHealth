@@ -21,8 +21,7 @@
     }
   ],
   "scripts": {
-    "minify": "cd ../../../backend && cargo run artifacts build ../artifacts/r4/hl7-core/patches/manifest.toml",
-    "generate-index-nonmin": "pnpm node ../../../frontend/packages/cli/lib/hastehealth.js generate index-file --extension json -p . -r definitions --ignore \\*.min.json",
+    "patch": "cd ../../../backend && cargo run artifacts build ../artifacts/r4/hl7-core/patches/manifest.toml",
     "generate-index": "pnpm node ../../../frontend/packages/cli/lib/hastehealth.js generate index-file --extension .min.json -p . -r definitions"
   },
   "files": [
