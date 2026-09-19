@@ -110,7 +110,29 @@ The identity provider must also be listed in `Project.identityProvider`; a setti
 - [Keycloak Integration Guide](/docs/integration/identity_providers/keycloak)
 - [Haste Health Integration Guide](/docs/integration/identity_providers/haste-health)
 
+## Scopes
+
+`IdentityProvider.oidc.scopes` is sent to the provider's authorization endpoint.
+`openid` is always requested, whether or not it is listed, because the callback
+identifies the user from the `sub` claim of the id token and a provider only
+returns an id token for an OIDC request.
+
+The client registered with the provider must also be allowed those scopes. A
+provider that refuses one of them sends the user back to the callback with an
+error instead of a code, and the sign-in fails with that error.
+
+Add `profile` and `email` to store the user's name and email address on the
+`User` resource. They are read from the id token when the user is first created;
+without them the user is created with only its federated id.
+
 ## Troubleshooting
+
+### No id token returned
+
+**Error**: Identity provider did not return an id token
+
+**Solution**: Register the provider's client for the `openid` scope. Some
+providers only return an id token when the client is explicitly allowed it.
 
 ### Token Validation Failed
 

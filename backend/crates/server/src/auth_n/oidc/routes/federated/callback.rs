@@ -11,7 +11,7 @@ use haste_fhir_model::r4::generated::{
         Membership, Resource, ResourceType, User,
     },
     terminology::{BundleType, HttpVerb, IssueType, UserRole},
-    types::{FHIRString, FHIRUri, Reference},
+    types::{FHIRBoolean, FHIRString, FHIRUri, HumanName, Reference},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
@@ -63,18 +63,33 @@ struct FederatedTokenBodyRequest {
 #[derive(Deserialize)]
 struct FederatedTokenBodyResponse {
     // pub access_token: String,
-    pub id_token: String,
+    /// Absent when the authorization request was not an OIDC one, which is
+    /// what a provider configured without the `openid` scope returns.
+    pub id_token: Option<String>,
 }
 
 #[derive(Deserialize)]
 pub struct CallbackQueryParams {
-    pub code: String,
-    pub state: String,
+    pub code: Option<String>,
+    pub state: Option<String>,
+    /// Set instead of `code` when the provider rejects the authorization
+    /// request, for instance because the client is not allowed a requested
+    /// scope.
+    pub error: Option<String>,
+    pub error_description: Option<String>,
 }
 
 #[derive(Deserialize)]
 struct FederatedTokenClaims {
     pub sub: String,
+    /// Returned when `email` is in scope; without it the user is created
+    /// without an email address.
+    pub email: Option<String>,
+    pub email_verified: Option<bool>,
+    /// Returned when `profile` is in scope.
+    pub name: Option<String>,
+    pub given_name: Option<String>,
+    pub family_name: Option<String>,
 }
 
 async fn decode_using_jwk(
@@ -215,6 +230,37 @@ async fn default_access_policies<
         .collect())
 }
 
+/// The user's name from the id token, when the provider returned one. Only the
+/// `profile` scope gets these claims, so a federated user can legitimately have
+/// no name.
+fn federated_user_name(claims: &FederatedTokenClaims) -> Option<HumanName> {
+    if claims.name.is_none() && claims.given_name.is_none() && claims.family_name.is_none() {
+        return None;
+    }
+
+    Some(HumanName {
+        text: claims.name.clone().map(|name| {
+            Box::new(FHIRString {
+                value: Some(name),
+                ..Default::default()
+            })
+        }),
+        given: claims.given_name.clone().map(|given| {
+            vec![FHIRString {
+                value: Some(given),
+                ..Default::default()
+            }]
+        }),
+        family: claims.family_name.clone().map(|family| {
+            Box::new(FHIRString {
+                value: Some(family),
+                ..Default::default()
+            })
+        }),
+        ..Default::default()
+    })
+}
+
 async fn create_user_if_not_exists<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -224,11 +270,11 @@ async fn create_user_if_not_exists<
     tenant: &TenantId,
     target_project: &ProjectId,
     idp: &IdentityProvider,
-    sub_claim: &str,
+    claims: &FederatedTokenClaims,
 ) -> Result<haste_fhir_model::r4::generated::resources::User, OperationOutcomeError> {
-    let user_id = user_federated_id(idp, sub_claim)?;
+    let user_id = user_federated_id(idp, &claims.sub)?;
 
-    let mut existing_user = app_state
+    let existing_user = app_state
         .fhir_client
         .batch(
             Arc::new(ServerCTX::system(
@@ -275,26 +321,32 @@ async fn create_user_if_not_exists<
         )
         .await?;
 
-    if let Some(Resource::User(user)) = existing_user
-        .entry
-        .as_mut()
-        .and_then(|entries| entries.pop())
-        .and_then(|e| e.resource)
-        .map(|r| *r)
-        && let Some(Resource::Membership(_project_membership)) = existing_user
-            .entry
-            .as_ref()
-            .and_then(|entries| entries.first())
-            .and_then(|e| e.resource.as_ref())
-            .and_then(|r| match r.as_ref() {
-                Resource::Bundle(bundle) => bundle
-                    .entry
-                    .as_ref()
-                    .and_then(|entries| entries.first())
-                    .and_then(|e| e.resource.as_ref())
-                    .map(|r| r.as_ref()),
-                _ => None,
-            })
+    // Batch responses come back in request order: the User read, then the
+    // Membership search.
+    let mut entries = existing_user.entry.unwrap_or_default().into_iter();
+
+    let user_resource = entries
+        .next()
+        .and_then(|entry| entry.resource)
+        .and_then(|resource| match *resource {
+            Resource::User(user) => Some(user),
+            _ => None,
+        });
+
+    let has_membership = entries
+        .next()
+        .and_then(|entry| entry.resource)
+        .and_then(|resource| match *resource {
+            Resource::Bundle(bundle) => bundle
+                .entry
+                .and_then(|entries| entries.into_iter().next())
+                .and_then(|entry| entry.resource),
+            _ => None,
+        })
+        .is_some_and(|resource| matches!(*resource, Resource::Membership(_)));
+
+    if let Some(user) = user_resource
+        && has_membership
     {
         Ok(user)
     } else {
@@ -315,6 +367,19 @@ async fn create_user_if_not_exists<
                     user_id.clone(),
                     Resource::User(User {
                         id: Some(user_id.clone()),
+                        email: claims.email.clone().map(|email| {
+                            Box::new(FHIRString {
+                                value: Some(email),
+                                ..Default::default()
+                            })
+                        }),
+                        emailVerified: claims.email_verified.map(|verified| {
+                            Box::new(FHIRBoolean {
+                                value: Some(verified),
+                                ..Default::default()
+                            })
+                        }),
+                        name: federated_user_name(claims).map(Box::new),
                         role: UserRole::member(),
                         federated: Some(Box::new(Reference {
                             reference: Some(Box::new(FHIRString {
@@ -419,7 +484,12 @@ pub async fn federated_callback<
     FederatedInitiate {
         identity_provider_id,
     }: FederatedInitiate,
-    Query(CallbackQueryParams { code, state }): Query<CallbackQueryParams>,
+    Query(CallbackQueryParams {
+        code,
+        state,
+        error,
+        error_description,
+    }): Query<CallbackQueryParams>,
     State(app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
@@ -453,12 +523,42 @@ pub async fn federated_callback<
         .and_then(|oidc| oidc.client.secret.as_ref())
         .and_then(|secret| secret.value.as_ref());
 
-    if state != idp_session_info.state {
+    // The provider sends `error` instead of `code` when it rejects the
+    // authorization request, for instance when the client is not registered for
+    // one of the scopes in `IdentityProvider.oidc.scopes`.
+    if let Some(error) = error {
+        tracing::error!(
+            "Identity provider '{}' returned error '{}': {}",
+            identity_provider_id,
+            error,
+            error_description.as_deref().unwrap_or("no description")
+        );
+
+        return Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            format!(
+                "Identity provider returned an error: {}{}",
+                error,
+                error_description
+                    .map(|description| format!(" ({})", description))
+                    .unwrap_or_default()
+            ),
+        ));
+    }
+
+    if state.as_ref() != Some(&idp_session_info.state) {
         return Err(OperationOutcomeError::error(
             IssueType::invalid(),
             "State parameter does not match the stored session state.".to_string(),
         ));
     }
+
+    let Some(code) = code else {
+        return Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            "Identity provider callback is missing the authorization code.".to_string(),
+        ));
+    };
 
     if project != ProjectId::System && idp_session_info.project != project {
         return Err(OperationOutcomeError::error(
@@ -547,7 +647,15 @@ pub async fn federated_callback<
             )
         })?;
 
-    let id_token = token_response_body.id_token;
+    // A provider only returns an id token for an OIDC request, so this is what a
+    // missing `openid` scope looks like: the user has authenticated, but there
+    // is nothing to identify them by.
+    let Some(id_token) = token_response_body.id_token else {
+        return Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            "Identity provider did not return an id token. Check that its client is registered for the 'openid' scope.".to_string(),
+        ));
+    };
 
     let claims = decode_using_jwk(&id_token, jwk_url).await?;
 
@@ -556,7 +664,7 @@ pub async fn federated_callback<
         &tenant,
         &idp_session_info.project,
         &identity_provider,
-        &claims.sub,
+        &claims,
     )
     .await?;
 

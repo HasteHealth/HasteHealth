@@ -272,6 +272,34 @@ export function HasteHealthProvider({
             return;
           }
 
+          const payload = await exchangeAuthCodeForToken({
+            parameters,
+            token_endpoint: well_known.token_endpoint,
+            redirect_uri: redirectUrl,
+            clientId,
+          });
+
+          // The token endpoint returns an error object on failure, and leaves
+          // out id_token when openid was not one of the requested scopes.
+          // Neither can be turned into a session, so report it rather than
+          // leaving the app unauthenticated with no explanation, which sends
+          // it back to authorize on the next render.
+          if ("error" in payload || !payload.id_token) {
+            window.history.replaceState(null, "", location.pathname);
+            dispatch({
+              type: "ON_ERROR",
+              error: String(
+                ("error" in payload && payload.error) || "invalid_scope",
+              ),
+              error_description: String(
+                ("error_description" in payload && payload.error_description) ||
+                  "The token response contained no id token. Check that 'openid' is one of the scopes this application requests and is allowed by its client application.",
+              ),
+            });
+            console.error("Failed to authenticate");
+            return;
+          }
+
           dispatch({
             type: "ON_SUCCESS",
 
@@ -281,12 +309,7 @@ export function HasteHealthProvider({
             tenant,
             project,
             clientId,
-            payload: await exchangeAuthCodeForToken({
-              parameters,
-              token_endpoint: well_known.token_endpoint,
-              redirect_uri: redirectUrl,
-              clientId,
-            }),
+            payload,
             reAuthenticate: async (state: HasteHealthContextState) => {
               if (!state.payload) {
                 throw new Error("Payload is missing");
