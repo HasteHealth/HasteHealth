@@ -1,5 +1,6 @@
 pub(crate) mod admin;
 pub(crate) mod api;
+pub(crate) mod artifacts;
 pub(crate) mod codegen;
 pub(crate) mod config;
 pub(crate) mod doc;
@@ -23,6 +24,7 @@ pub(crate) async fn run(
         CliCommand::Doc { output } => doc::run(output).await,
         CliCommand::FHIRPath { fhirpath } => fhirpath::run(fhirpath).await,
         CliCommand::Generate { command } => codegen::run(command).await,
+        CliCommand::Artifacts { command } => artifacts::run(command).await,
         CliCommand::Server { command } => server::run(command).await,
         CliCommand::Worker { command } => worker::run(command).await,
         CliCommand::Config { command } => config::run(state, command).await,

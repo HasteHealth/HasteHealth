@@ -78968,8 +78968,6 @@
       "compose" : {
         "include" : [{
           "system" : "http://hl7.org/fhir/resource-types"
-        }, {
-          "system": "https://haste.health/fhir/resource-types"
         }]
       }
     }
@@ -148043,8 +148041,6 @@
         },
         {
           "system" : "http://hl7.org/fhir/abstract-types"
-        }, {
-          "system": "https://haste.health/fhir/resource-types"
         }]
       }
     }

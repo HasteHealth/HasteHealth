@@ -42,6 +42,11 @@ enum CliCommand {
         #[command(subcommand)]
         command: commands::codegen::CodeGen,
     },
+    /// Patch externally provided (HL7) artifacts without editing the upstream files.
+    Artifacts {
+        #[command(subcommand)]
+        command: commands::artifacts::ArtifactCommands,
+    },
     /// Run the FHIR server.
     Server {
         #[command(subcommand)]
