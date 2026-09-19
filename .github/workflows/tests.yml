@@ -30,6 +30,7 @@ jobs:
         run: |
           cargo clippy --no-deps \
           -p haste-access-control \
+          -p haste-artifact-patcher \
           -p haste-artifacts \
           -p haste-codegen \
           -p haste-config \

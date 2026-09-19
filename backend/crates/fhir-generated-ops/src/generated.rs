@@ -667,7 +667,7 @@ pub mod ActivityDefinitionApply {
     pub struct Input {
         #[doc = "The activity definition to apply. If the operation is invoked on an instance, this parameter is not allowed. If the operation is invoked at the type level, this parameter is required"]
         pub activityDefinition: Option<ActivityDefinition>,
-        #[doc = "The subject(s) that is/are the target of the activity definition to be applied. The subject may be a Patient, Practitioner, Organization, Location, Device, or Group. Subjects provided in this parameter will be resolved as the subject of the PlanDefinition based on the type of the subject. If multiple subjects of the same type are provided, the behavior is implementation-defined"]
+        #[doc = "The subject(s) that is/are the target of the activity definition to be applied. The subject may be a Patient, Practitioner, Organization, Location, Device, or Group. Subjects provided in this parameter will be resolved as the subject of the `PlanDefinition` based on the type of the subject. If multiple subjects of the same type are provided, the behavior is implementation-defined"]
         pub subject: Vec<FHIRString>,
         #[doc = "The encounter in context, if any"]
         pub encounter: Option<FHIRString>,
@@ -758,12 +758,12 @@ pub mod CapabilityStatementConforms {
     }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
-        #[doc = "Outcome of the CapabilityStatement test"]
+        #[doc = "Outcome of the `CapabilityStatement` test"]
         pub issues: OperationOutcome,
-        #[doc = "The intersection of the functionality described by the CapabilityStatement resources"]
+        #[doc = "The intersection of the functionality described by the `CapabilityStatement` resources"]
         #[parameter_rename = "union"]
         pub union_: Option<CapabilityStatement>,
-        #[doc = "The union of the functionality described by the CapabilityStatement resources"]
+        #[doc = "The union of the functionality described by the `CapabilityStatement` resources"]
         pub intersection: Option<CapabilityStatement>,
     }
     impl From<Output> for Resource {
@@ -800,7 +800,7 @@ pub mod CapabilityStatementImplements {
     }
     #[derive(Debug, FromParameters)]
     pub struct Output {
-        #[doc = "Outcome of the CapabilityStatement test"]
+        #[doc = "Outcome of the `CapabilityStatement` test"]
         #[parameter_rename = "return"]
         pub return_: OperationOutcome,
     }
@@ -810,7 +810,7 @@ pub mod CapabilityStatementImplements {
         }
     }
 }
-#[doc = "This operation asks the server to return a subset of the CapabilityStatement resource - just the REST parts that relate to a set of nominated resources - the resources that the client is interested in"]
+#[doc = "This operation asks the server to return a subset of the `CapabilityStatement` resource - just the REST parts that relate to a set of nominated resources - the resources that the client is interested in"]
 pub mod CapabilityStatementSubset {
     use super::*;
     pub const CODE: &str = "subset";
@@ -832,7 +832,7 @@ pub mod CapabilityStatementSubset {
     }
     #[derive(Debug, FromParameters)]
     pub struct Output {
-        #[doc = "The subsetted CapabilityStatement resource that is returned. This should be tagged with the SUBSETTED code"]
+        #[doc = "The subsetted `CapabilityStatement` resource that is returned. This should be tagged with the SUBSETTED code"]
         #[parameter_rename = "return"]
         pub return_: CapabilityStatement,
     }
@@ -880,7 +880,7 @@ pub mod ChargeItemDefinitionApply {
     pub const CODE: &str = "apply";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
-        #[doc = "The ChargeItem on which the definition is to ba applies"]
+        #[doc = "The `ChargeItem` on which the definition is to ba applies"]
         pub chargeItem: Reference,
         #[doc = "The account in context, if any"]
         pub account: Option<Reference>,
@@ -906,7 +906,7 @@ pub mod ChargeItemDefinitionApply {
         }
     }
 }
-#[doc = "This operation is used to submit a Claim, Pre-Authorization or Pre-Determination (all instances of Claim resources) for adjudication either as a single Claim resource instance or as a Bundle containing the Claim and other referenced resources, or Bundle containing a batch of Claim resources, either as single Claims resources or Bundle resources, for processing. The only input parameter is the single Claim or Bundle resource and the only output is a single ClaimResponse, Bundle of ClaimResponses or an OperationOutcome resource."]
+#[doc = "This operation is used to submit a Claim, Pre-Authorization or Pre-Determination (all instances of Claim resources) for adjudication either as a single Claim resource instance or as a Bundle containing the Claim and other referenced resources, or Bundle containing a batch of Claim resources, either as single Claims resources or Bundle resources, for processing. The only input parameter is the single Claim or Bundle resource and the only output is a single `ClaimResponse`, Bundle of `ClaimResponses` or an `OperationOutcome` resource."]
 pub mod ClaimSubmit {
     use super::*;
     pub const CODE: &str = "submit";
@@ -926,7 +926,7 @@ pub mod ClaimSubmit {
     }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
-        #[doc = "A ClaimResponse resource or Bundle of claim responses, either as individual ClaimResponse resources or as Bundles each containing a single ClaimResponse plus referenced resources."]
+        #[doc = "A `ClaimResponse` resource or Bundle of claim responses, either as individual `ClaimResponse` resources or as Bundles each containing a single `ClaimResponse` plus referenced resources."]
         #[parameter_rename = "return"]
         pub return_: Resource,
     }
@@ -1216,7 +1216,7 @@ pub mod CodeSystemSubsumes {
     }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
-        #[doc = "The subsumption relationship between code/Coding \"A\" and code/Coding \"B\". There are 4 possible codes to be returned (equivalent, subsumes, subsumed-by, and not-subsumed) as defined in the concept-subsumption-outcome value set.  If the server is unable to determine the relationship between the codes/Codings, then it returns an error response with an OperationOutcome."]
+        #[doc = "The subsumption relationship between code/Coding \"A\" and code/Coding \"B\". There are 4 possible codes to be returned (equivalent, subsumes, subsumed-by, and not-subsumed) as defined in the concept-subsumption-outcome value set.  If the server is unable to determine the relationship between the codes/Codings, then it returns an error response with an `OperationOutcome`."]
         pub outcome: FHIRCode,
     }
     impl From<Output> for Resource {
@@ -1235,7 +1235,7 @@ pub mod CodeSystemValidateCode {
     pub const CODE: &str = "validate-code";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
-        #[doc = "CodeSystem URL. The server must know the code system (e.g. it is defined explicitly in the server'scode systems, or it is known implicitly by the server"]
+        #[doc = "`CodeSystem` URL. The server must know the code system (e.g. it is defined explicitly in the server'scode systems, or it is known implicitly by the server"]
         pub url: Option<FHIRUri>,
         #[doc = "The codeSystem is provided directly as part of the request. Servers may choose not to accept code systems in this fashion. This parameter is used when the client wants the server to check against a code system that is not stored on the server"]
         pub codeSystem: Option<CodeSystem>,
@@ -1295,7 +1295,7 @@ pub mod CompositionDocument {
         pub id: Option<FHIRUri>,
         #[doc = "Whether to store the document at the bundle end-point (/Bundle) or not once it is generated. Value = true or false (default is for the server to decide). If the document is stored, it's location can be inferred from the Bundle.id, but it SHOULD be provided explicitly in the HTTP Location header in the response"]
         pub persist: Option<FHIRBoolean>,
-        #[doc = "Canonical reference to a GraphDefinition. If a URL is provided, it is the canonical reference to a [GraphDefinition](graphdefinition.html) that it controls what resources are to be added to the bundle when building the document. The GraphDefinition can also specify profiles that apply to the various resources"]
+        #[doc = "Canonical reference to a `GraphDefinition`. If a URL is provided, it is the canonical reference to a [`GraphDefinition`](graphdefinition.html) that it controls what resources are to be added to the bundle when building the document. The `GraphDefinition` can also specify profiles that apply to the various resources"]
         pub graph: Option<FHIRUri>,
     }
     impl From<Input> for Resource {
@@ -1430,7 +1430,7 @@ pub mod ConceptMapTranslate {
     }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct OutputMatch {
-        #[doc = "A code indicating the equivalence of the translation, using values from [ConceptMapEquivalence](valueset-concept-map-equivalence.html)"]
+        #[doc = "A code indicating the equivalence of the translation, using values from [`ConceptMapEquivalence`](valueset-concept-map-equivalence.html)"]
         pub equivalence: Option<FHIRCode>,
         #[doc = "The translation outcome. Note that this would never have userSelected = true, since the process of translations implies that the user is not selecting the code (and only the client could know differently)"]
         pub concept: Option<Coding>,
@@ -1470,13 +1470,13 @@ pub mod ConceptMapTranslate {
         }
     }
 }
-#[doc = "This operation is used to submit an EligibilityRequest for assessment either as a single EligibilityRequest resource instance or as a Bundle containing the EligibilityRequest and other referenced resources, or Bundle containing a batch of EligibilityRequest resources, either as single EligibilityRequests resources or Bundle resources, for processing. The only input parameter is the single EligibilityRequest or Bundle resource and the only output is a single EligibilityResponse, Bundle of EligibilityResponses or an OperationOutcome resource."]
+#[doc = "This operation is used to submit an `EligibilityRequest` for assessment either as a single `EligibilityRequest` resource instance or as a Bundle containing the `EligibilityRequest` and other referenced resources, or Bundle containing a batch of `EligibilityRequest` resources, either as single `EligibilityRequests` resources or Bundle resources, for processing. The only input parameter is the single `EligibilityRequest` or Bundle resource and the only output is a single `EligibilityResponse`, Bundle of `EligibilityResponses` or an `OperationOutcome` resource."]
 pub mod CoverageEligibilityRequestSubmit {
     use super::*;
     pub const CODE: &str = "submit";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
-        #[doc = "An EligibilityRequest resource or Bundle of EligibilityRequests, either as individual EligibilityRequest resources or as Bundles each containing a single EligibilityRequest plus referenced resources."]
+        #[doc = "An `EligibilityRequest` resource or Bundle of `EligibilityRequests`, either as individual `EligibilityRequest` resources or as Bundles each containing a single `EligibilityRequest` plus referenced resources."]
         pub resource: Resource,
     }
     impl From<Input> for Resource {
@@ -1490,7 +1490,7 @@ pub mod CoverageEligibilityRequestSubmit {
     }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
-        #[doc = "An EligibilityResponse resource or Bundle of EligibilityResponse responses, either as individual EligibilityResponse resources or as Bundles each containing a single EligibilityResponse plus referenced resources."]
+        #[doc = "An `EligibilityResponse` resource or Bundle of `EligibilityResponse` responses, either as individual `EligibilityResponse` resources or as Bundles each containing a single `EligibilityResponse` plus referenced resources."]
         #[parameter_rename = "return"]
         pub return_: Resource,
     }
@@ -1504,7 +1504,7 @@ pub mod CoverageEligibilityRequestSubmit {
         }
     }
 }
-#[doc = "This operation is used to return all the information related to an encounter described in the resource on which this operation is invoked. The response is a bundle of type \"searchset\". At a minimum, the encounter resource itself is returned, along with any other resources that the server has available for the given encounter for the user. The server also returns whatever resources are needed to support the records - e.g. linked practitioners, locations, organizations etc. The principle intended use for this operation is to provide a patient with access to their record, or to allow a client to retrieve everything for an encounter for efficient display).\r\rThe server SHOULD return all resources it has that:\r\r* are included in the encounter compartment for the identified encounter (have a reference to the encounter)\r* are referenced by the standard extenstion for associating an encounter (where no reference element exists) http://hl7.org/fhir/StructureDefinition/encounter-associatedEncounter\r* the server believes are relevant to the context of the encounter for any other reason (internally defined/decided)\r* any resource referenced by the above, including binaries and attachments (to make a more complete package)\r\rIn the US Realm, at a mimimum, the resources returned SHALL include all the data covered by the meaningful use common data elements (see [DAF](http://hl7.org/fhir/us/daf) for further guidance). Other applicable implementation guides may make additional rules about the information that is returned.   Note that for many resources, the exact nature of the link to encounter can be ambiguous (e.g. for a DiagnosticReport, is it the encounter when it was initiated, or when it was reported?)"]
+#[doc = "This operation is used to return all the information related to an encounter described in the resource on which this operation is invoked. The response is a bundle of type \"searchset\". At a minimum, the encounter resource itself is returned, along with any other resources that the server has available for the given encounter for the user. The server also returns whatever resources are needed to support the records - e.g. linked practitioners, locations, organizations etc. The principle intended use for this operation is to provide a patient with access to their record, or to allow a client to retrieve everything for an encounter for efficient display).\r\rThe server SHOULD return all resources it has that:\r\r* are included in the encounter compartment for the identified encounter (have a reference to the encounter)\r* are referenced by the standard extenstion for associating an encounter (where no reference element exists) <http://hl7.org/fhir/StructureDefinition/encounter-associatedEncounter>\r* the server believes are relevant to the context of the encounter for any other reason (internally defined/decided)\r* any resource referenced by the above, including binaries and attachments (to make a more complete package)\r\rIn the US Realm, at a mimimum, the resources returned SHALL include all the data covered by the meaningful use common data elements (see [DAF](http://hl7.org/fhir/us/daf) for further guidance). Other applicable implementation guides may make additional rules about the information that is returned.   Note that for many resources, the exact nature of the link to encounter can be ambiguous (e.g. for a `DiagnosticReport`, is it the encounter when it was initiated, or when it was reported?)"]
 pub mod EncounterEverything {
     use super::*;
     pub const CODE: &str = "everything";
@@ -1606,7 +1606,7 @@ pub mod LibraryDataRequirements {
         }
     }
 }
-#[doc = "This operation allows a client to find an identified list for a particular function by its function. The operation takes two parameters, the identity of a patient, and the name of a functional list.     The list of defined functional lists can be found at [Current Resource Lists](lifecycle.html#lists). Applications are not required to support all the lists, and may define additional lists of their own.   If the system is able to locate a list that serves the identified purpose, it returns it as the body of the response with a 200 OK status. If the resource cannot be located, the server returns a 404 not found (optionally with an OperationOutcome resource)"]
+#[doc = "This operation allows a client to find an identified list for a particular function by its function. The operation takes two parameters, the identity of a patient, and the name of a functional list.     The list of defined functional lists can be found at [Current Resource Lists](lifecycle.html#lists). Applications are not required to support all the lists, and may define additional lists of their own.   If the system is able to locate a list that serves the identified purpose, it returns it as the body of the response with a 200 OK status. If the resource cannot be located, the server returns a 404 not found (optionally with an `OperationOutcome` resource)"]
 pub mod ListFind {
     use super::*;
     pub const CODE: &str = "find";
@@ -1664,7 +1664,7 @@ pub mod MeasureCareGaps {
     }
     #[derive(Debug, FromParameters)]
     pub struct Output {
-        #[doc = "The result of the care gaps report will be returned as a document bundle with a MeasureReport entry for each included measure"]
+        #[doc = "The result of the care gaps report will be returned as a document bundle with a `MeasureReport` entry for each included measure"]
         #[parameter_rename = "return"]
         pub return_: Bundle,
     }
@@ -1704,7 +1704,7 @@ pub mod MeasureCollectData {
     }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
-        #[doc = "A MeasureReport of type data-collection detailing the results of the operation"]
+        #[doc = "A `MeasureReport` of type data-collection detailing the results of the operation"]
         pub measureReport: MeasureReport,
         #[doc = "The result resources that make up the data-of-interest for the measure"]
         pub resource: Option<Vec<Resource>>,
@@ -1783,7 +1783,7 @@ pub mod MeasureEvaluateMeasure {
     }
     #[derive(Debug, FromParameters)]
     pub struct Output {
-        #[doc = "The results of the measure calculation. See the MeasureReport resource for a complete description of the output of this operation. Note that implementations may choose to return a MeasureReport with a status of pending to indicate that the report is still being generated. In this case, the client can use a polling method to continually request the MeasureReport until the status is updated to complete"]
+        #[doc = "The results of the measure calculation. See the `MeasureReport` resource for a complete description of the output of this operation. Note that implementations may choose to return a `MeasureReport` with a status of pending to indicate that the report is still being generated. In this case, the client can use a polling method to continually request the `MeasureReport` until the status is updated to complete"]
         #[parameter_rename = "return"]
         pub return_: MeasureReport,
     }
@@ -1857,7 +1857,7 @@ pub mod MedicinalProductEverything {
         }
     }
 }
-#[doc = "This operation accepts a message, processes it according to the definition of the event in the message header, and returns one or more response messages.  \n\nIn addition to processing the message event, a server may choose to retain all or some the resources and make them available on a RESTful interface, but is not required to do so."]
+#[doc = "This operation accepts a message, processes it according to the definition of the event in the message header, and returns one or more response messages.  \n\nIn addition to processing the message event, a server may choose to retain all or some the resources and make them available on a `RESTful` interface, but is not required to do so."]
 pub mod MessageHeaderProcessMessage {
     use super::*;
     pub const CODE: &str = "process-message";
@@ -1893,7 +1893,7 @@ pub mod MessageHeaderProcessMessage {
         }
     }
 }
-#[doc = "This operation returns the preferred identifiers for identifiers, and terminologies. The operation takes 2 parameters:     \n\n* a system identifier - either a URI, an OID, or a v2 table 0396 (other) code  \n* a code for what kind of identifier is desired (URI, OID, v2 table 0396 identifier)    \n\nand returns either the requested identifier, or an HTTP errors response with an OperationOutcome because either the provided identifier was not recognized, or the requested identiifer type is not known.    \n\nThe principle use of this operation is when converting between v2, CDA and FHIR Identifier/CX/II and CodeableConcepts/C(N/W)E/CD but the operation may also find use when converting metadata such as profiles."]
+#[doc = "This operation returns the preferred identifiers for identifiers, and terminologies. The operation takes 2 parameters:     \n\n* a system identifier - either a URI, an OID, or a v2 table 0396 (other) code  \n* a code for what kind of identifier is desired (URI, OID, v2 table 0396 identifier)    \n\nand returns either the requested identifier, or an HTTP errors response with an `OperationOutcome` because either the provided identifier was not recognized, or the requested identiifer type is not known.    \n\nThe principle use of this operation is when converting between v2, CDA and FHIR Identifier/CX/II and CodeableConcepts/C(N/W)E/CD but the operation may also find use when converting metadata such as profiles."]
 pub mod NamingSystemPreferredId {
     use super::*;
     pub const CODE: &str = "preferred-id";
@@ -1929,7 +1929,7 @@ pub mod NamingSystemPreferredId {
         }
     }
 }
-#[doc = "The *lastn query* meets the common need for searching for the most recent or last n=number of observations for a subject. For example, retrieving the last 5 temperatures for a patient to view trends or fetching the most recent laboratory results or vitals signs. To ask a server to return the last n=number of observations, the *lastn* query uses the [normal search parameters](observation.html#search) defined for the Observation resource.  However, rather than their normal use, they are interpreted as inputs - i.e.. instead of requiring that the resources literally contain the search parameters, they are passed to a server algorithm of some kind that uses them to determine the most appropriate matches.\n\nThe request for a lastn query SHALL include:\n\n* A `$lastn` operation parameter\n*  A subject using either the `patient` or `subject`  search parameter\n*  A `category` parameter and/or a search parameter that contains a code element in its FHIRpath expression.  ( e.g., `code` or `code-value-concept`)\n\nThe request for a lastn query MAY include:\n\n* Other Observation search parameters and modifiers\n\nThe response from a lastn query is a set of observations:\n\n*  Filtered by additional parameters\n   * If not explicitly filtered by status then will include statuses of 'entered-in-error'\n* 'GROUP BY' `Observation.code`\n   * Codes SHALL be considered equivalent if the `coding.value` *and* `coding.system` are the same.\n   * Text only codes SHALL be treated and grouped based on the text.\n   * For codes with translations (multiple codings), the code translations are assumed to be equal and the grouping by code SHALL follow the transitive property of equality.\n\nfor example:\n\n|Observation.code for observation a|Observation.code for observation b|Observation.code for observation c|number of groups [codes/text in each group]|    \n|---|---|---|---|     \n|a|b|c | 3 [a],[b],[c]|    \n|a|b|a,c | 2 [a.c],[b]|     \n|a|b|a,b | 1 [a,b]|    \n|'textM'|'Text'|'t e x t'|3 ['text'],['Text'],['t e x t']|\n\n* Sorted from most recent to the oldest\n* Limited to the number of requested responses per group specified by the optional *max* query parameter\n  * In case of a tie - when the effective times for >1 Observations are equal - both will be returned.  Therefore, more Observations may be returned than is specified in *max*.  For example, 4 Observations instead of 3 if the 3rd and 4th most recent observation had the same effective time.\n* If no maximum number is given then only the most recent Observation in each group is returned.\n\nThe set of returned observations should represent distinct real world observations and not the same observation with changes in status or versions. If there are no matches, the *lastn* query SHALL return an empty search set with no error, but may include an operation outcome with further advice."]
+#[doc = "The *lastn query* meets the common need for searching for the most recent or last n=number of observations for a subject. For example, retrieving the last 5 temperatures for a patient to view trends or fetching the most recent laboratory results or vitals signs. To ask a server to return the last n=number of observations, the *lastn* query uses the [normal search parameters](observation.html#search) defined for the Observation resource.  However, rather than their normal use, they are interpreted as inputs - i.e.. instead of requiring that the resources literally contain the search parameters, they are passed to a server algorithm of some kind that uses them to determine the most appropriate matches.\n\nThe request for a lastn query SHALL include:\n\n* A `$lastn` operation parameter\n*  A subject using either the `patient` or `subject`  search parameter\n*  A `category` parameter and/or a search parameter that contains a code element in its `FHIRpath` expression.  ( e.g., `code` or `code-value-concept`)\n\nThe request for a lastn query MAY include:\n\n* Other Observation search parameters and modifiers\n\nThe response from a lastn query is a set of observations:\n\n*  Filtered by additional parameters\n   * If not explicitly filtered by status then will include statuses of 'entered-in-error'\n* 'GROUP BY' `Observation.code`\n   * Codes SHALL be considered equivalent if the `coding.value` *and* `coding.system` are the same.\n   * Text only codes SHALL be treated and grouped based on the text.\n   * For codes with translations (multiple codings), the code translations are assumed to be equal and the grouping by code SHALL follow the transitive property of equality.\n\nfor example:\n\n|Observation.code for observation a|Observation.code for observation b|Observation.code for observation c|number of groups [codes/text in each group]|    \n|---|---|---|---|     \n|a|b|c | 3 [a],[b],[c]|    \n|a|b|a,c | 2 [a.c],[b]|     \n|a|b|a,b | 1 [a,b]|    \n|'textM'|'Text'|'t e x t'|3 ['text'],['Text'],['t e x t']|\n\n* Sorted from most recent to the oldest\n* Limited to the number of requested responses per group specified by the optional *max* query parameter\n  * In case of a tie - when the effective times for >1 Observations are equal - both will be returned.  Therefore, more Observations may be returned than is specified in *max*.  For example, 4 Observations instead of 3 if the 3rd and 4th most recent observation had the same effective time.\n* If no maximum number is given then only the most recent Observation in each group is returned.\n\nThe set of returned observations should represent distinct real world observations and not the same observation with changes in status or versions. If there are no matches, the *lastn* query SHALL return an empty search set with no error, but may include an operation outcome with further advice."]
 pub mod ObservationLastn {
     use super::*;
     pub const CODE: &str = "lastn";
@@ -1959,7 +1959,7 @@ pub mod ObservationLastn {
         }
     }
 }
-#[doc = "The Statistics operation performs a set of statistical calculations on a set of clinical measurements such as a blood pressure as stored on the server.  This operation evaluates [Observation](observation.html) resources having valueQuantity elements that have UCUM unit codes. Observations with a status of 'entered-in-error' will be excluded from the calculations.  \r\rThe set of Observations is defined by 4 parameters:\r\r*  the subject of the observations for which the statistics are being generated (`subject`)\r* which observations to generate statistics for (`code` and `system`, or `coding`)\r* the time period over which to generate statistics 'duration` or `period`)\r* the set of statistical analyses to return (`statistic`)\r\rPossible statistical analyses (see [StatisticsCode](valueset-observation-statistics.html)):\r\r - **average** (\"Average\"): The [mean](https://en.wikipedia.org/wiki/Arithmetic_mean) of N measurements over the stated period.\r\n - **maximum** (\"Maximum\"): The [maximum](https://en.wikipedia.org/wiki/Maximal_element) value of N measurements over the stated period.\r\n - **minimum** (\"Minimum\"): The [minimum](https://en.wikipedia.org/wiki/Minimal_element) value of N measurements over the stated period.\r\n - **count** (\"Count\"): The [number] of valid measurements over the stated period that contributed to the other statistical outputs.\r\n - **total-count** (\"Total Count\"): The total [number] of valid measurements over the stated period, including observations that were ignored because they did not contain valid result values.\r\n - **median** (\"Median\"): The [median](https://en.wikipedia.org/wiki/Median) of N measurements over the stated period.\r\n - **std-dev** (\"Standard Deviation\"): The [standard deviation](https://en.wikipedia.org/wiki/Standard_deviation) of N measurements over the stated period.\r\n - **sum** (\"Sum\"): The [sum](https://en.wikipedia.org/wiki/Summation) of N measurements over the stated period.\r\n - **variance** (\"Variance\"): The [variance](https://en.wikipedia.org/wiki/Variance) of N measurements over the stated period.\r\n - **20-percent** (\"20th Percentile\"): The 20th [Percentile](https://en.wikipedia.org/wiki/Percentile) of N measurements over the stated period.\r\n - **80-percent** (\"80th Percentile\"): The 80th [Percentile](https://en.wikipedia.org/wiki/Percentile) of N measurements over the stated period.\r\n - **4-lower** (\"Lower Quartile\"): The lower [Quartile](https://en.wikipedia.org/wiki/Quartile) Boundary of N measurements over the stated period.\r\n - **4-upper** (\"Upper Quartile\"): The upper [Quartile](https://en.wikipedia.org/wiki/Quartile) Boundary of N measurements over the stated period.\r\n - **4-dev** (\"Quartile Deviation\"): The difference between the upper and lower [Quartiles](https://en.wikipedia.org/wiki/Quartile) is called the Interquartile range. (IQR = Q3-Q1) Quartile deviation or Semi-interquartile range is one-half the difference between the first and the third quartiles.\r\n - **5-1** (\"1st Quintile\"): The lowest of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **5-2** (\"2nd Quintile\"): The second of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **5-3** (\"3rd Quintile\"): The third of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **5-4** (\"4th Quintile\"): The fourth of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **skew** (\"Skew\"): Skewness is a measure of the asymmetry of the probability distribution of a real-valued random variable about its mean. The skewness value can be positive or negative, or even undefined.  Source: [Wikipedia](https://en.wikipedia.org/wiki/Skewness).\r\n - **kurtosis** (\"Kurtosis\"): Kurtosis  is a measure of the \"tailedness\" of the probability distribution of a real-valued random variable.   Source: [Wikipedia](https://en.wikipedia.org/wiki/Kurtosis).\r\n - **regression** (\"Regression\"): Linear regression is an approach for modeling two-dimensional sample points with one independent variable and one dependent variable (conventionally, the x and y coordinates in a Cartesian coordinate system) and finds a linear function (a non-vertical straight line) that, as accurately as possible, predicts the dependent variable values as a function of the independent variables. Source: [Wikipedia](https://en.wikipedia.org/wiki/Simple_linear_regression)  This Statistic code will return both a gradient and an intercept value.\r\n\r\rIf successful, the operation returns an Observation resource for each code with the results of the statistical calculations as component value pairs where the component code = the statistical code. The Observation also contains the input parameters `patient`,`code` and `duration` parameters. If unsuccessful, an [OperationOutcome](operationoutcome.html) with an error message will be returned.\r\rThe client can request that all the observations on which the statistics are based be returned as well, using the include parameter. If an include parameter is specified, a limit may also be specified; the sources observations are subsetted at the server's discretion if count > limit. This functionality is included with the intent of supporting graphical presentation"]
+#[doc = "The Statistics operation performs a set of statistical calculations on a set of clinical measurements such as a blood pressure as stored on the server.  This operation evaluates [Observation](observation.html) resources having valueQuantity elements that have UCUM unit codes. Observations with a status of 'entered-in-error' will be excluded from the calculations.  \r\rThe set of Observations is defined by 4 parameters:\r\r*  the subject of the observations for which the statistics are being generated (`subject`)\r* which observations to generate statistics for (`code` and `system`, or `coding`)\r* the time period over which to generate statistics 'duration` or `period`)\r* the set of statistical analyses to return (`statistic`)\r\rPossible statistical analyses (see [`StatisticsCode`](valueset-observation-statistics.html)):\r\r - **average** (\"Average\"): The [mean](https://en.wikipedia.org/wiki/Arithmetic_mean) of N measurements over the stated period.\r\n - **maximum** (\"Maximum\"): The [maximum](https://en.wikipedia.org/wiki/Maximal_element) value of N measurements over the stated period.\r\n - **minimum** (\"Minimum\"): The [minimum](https://en.wikipedia.org/wiki/Minimal_element) value of N measurements over the stated period.\r\n - **count** (\"Count\"): The [number] of valid measurements over the stated period that contributed to the other statistical outputs.\r\n - **total-count** (\"Total Count\"): The total [number] of valid measurements over the stated period, including observations that were ignored because they did not contain valid result values.\r\n - **median** (\"Median\"): The [median](https://en.wikipedia.org/wiki/Median) of N measurements over the stated period.\r\n - **std-dev** (\"Standard Deviation\"): The [standard deviation](https://en.wikipedia.org/wiki/Standard_deviation) of N measurements over the stated period.\r\n - **sum** (\"Sum\"): The [sum](https://en.wikipedia.org/wiki/Summation) of N measurements over the stated period.\r\n - **variance** (\"Variance\"): The [variance](https://en.wikipedia.org/wiki/Variance) of N measurements over the stated period.\r\n - **20-percent** (\"20th Percentile\"): The 20th [Percentile](https://en.wikipedia.org/wiki/Percentile) of N measurements over the stated period.\r\n - **80-percent** (\"80th Percentile\"): The 80th [Percentile](https://en.wikipedia.org/wiki/Percentile) of N measurements over the stated period.\r\n - **4-lower** (\"Lower Quartile\"): The lower [Quartile](https://en.wikipedia.org/wiki/Quartile) Boundary of N measurements over the stated period.\r\n - **4-upper** (\"Upper Quartile\"): The upper [Quartile](https://en.wikipedia.org/wiki/Quartile) Boundary of N measurements over the stated period.\r\n - **4-dev** (\"Quartile Deviation\"): The difference between the upper and lower [Quartiles](https://en.wikipedia.org/wiki/Quartile) is called the Interquartile range. (IQR = Q3-Q1) Quartile deviation or Semi-interquartile range is one-half the difference between the first and the third quartiles.\r\n - **5-1** (\"1st Quintile\"): The lowest of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **5-2** (\"2nd Quintile\"): The second of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **5-3** (\"3rd Quintile\"): The third of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **5-4** (\"4th Quintile\"): The fourth of four values that divide the N measurements into a frequency distribution of five classes with each containing one fifth of the total population.\r\n - **skew** (\"Skew\"): Skewness is a measure of the asymmetry of the probability distribution of a real-valued random variable about its mean. The skewness value can be positive or negative, or even undefined.  Source: [Wikipedia](https://en.wikipedia.org/wiki/Skewness).\r\n - **kurtosis** (\"Kurtosis\"): Kurtosis  is a measure of the \"tailedness\" of the probability distribution of a real-valued random variable.   Source: [Wikipedia](https://en.wikipedia.org/wiki/Kurtosis).\r\n - **regression** (\"Regression\"): Linear regression is an approach for modeling two-dimensional sample points with one independent variable and one dependent variable (conventionally, the x and y coordinates in a Cartesian coordinate system) and finds a linear function (a non-vertical straight line) that, as accurately as possible, predicts the dependent variable values as a function of the independent variables. Source: [Wikipedia](https://en.wikipedia.org/wiki/Simple_linear_regression)  This Statistic code will return both a gradient and an intercept value.\r\n\r\rIf successful, the operation returns an Observation resource for each code with the results of the statistical calculations as component value pairs where the component code = the statistical code. The Observation also contains the input parameters `patient`,`code` and `duration` parameters. If unsuccessful, an [`OperationOutcome`](operationoutcome.html) with an error message will be returned.\r\rThe client can request that all the observations on which the statistics are based be returned as well, using the include parameter. If an include parameter is specified, a limit may also be specified; the sources observations are subsetted at the server's discretion if count > limit. This functionality is included with the intent of supporting graphical presentation"]
 pub mod ObservationStats {
     use super::*;
     pub const CODE: &str = "stats";
@@ -2072,7 +2072,7 @@ pub mod PatientMatch {
     }
     #[derive(Debug, FromParameters)]
     pub struct Output {
-        #[doc = "A bundle contain a set of Patient records that represent possible matches, optionally it may also contain an OperationOutcome with further information about the search results (such as warnings or information messages, such as a count of records that were close but eliminated)  If the operation was unsuccessful, then an OperationOutcome may be returned along with a BadRequest status Code (e.g. security issue, or insufficient properties in patient fragment - check against profile)"]
+        #[doc = "A bundle contain a set of Patient records that represent possible matches, optionally it may also contain an `OperationOutcome` with further information about the search results (such as warnings or information messages, such as a count of records that were close but eliminated)  If the operation was unsuccessful, then an `OperationOutcome` may be returned along with a `BadRequest` status Code (e.g. security issue, or insufficient properties in patient fragment - check against profile)"]
         #[parameter_rename = "return"]
         pub return_: Bundle,
     }
@@ -2082,7 +2082,7 @@ pub mod PatientMatch {
         }
     }
 }
-#[doc = "The apply operation applies a PlanDefinition to a given context"]
+#[doc = "The apply operation applies a `PlanDefinition` to a given context"]
 pub mod PlanDefinitionApply {
     use super::*;
     pub const CODE: &str = "apply";
@@ -2090,7 +2090,7 @@ pub mod PlanDefinitionApply {
     pub struct Input {
         #[doc = "The plan definition to be applied. If the operation is invoked at the instance level, this parameter is not allowed; if the operation is invoked at the type level, this parameter is required"]
         pub planDefinition: Option<PlanDefinition>,
-        #[doc = "The subject(s) that is/are the target of the plan to be applied. The subject may be a Patient, Practitioner, Organization, Location, Device, or Group. Subjects provided in this parameter will be resolved as the subject of the PlanDefinition based on the type of the subject. If multiple subjects of the same type are provided, the behavior is implementation-defined"]
+        #[doc = "The subject(s) that is/are the target of the plan to be applied. The subject may be a Patient, Practitioner, Organization, Location, Device, or Group. Subjects provided in this parameter will be resolved as the subject of the `PlanDefinition` based on the type of the subject. If multiple subjects of the same type are provided, the behavior is implementation-defined"]
         pub subject: Vec<FHIRString>,
         #[doc = "The encounter in context, if any"]
         pub encounter: Option<FHIRString>,
@@ -2120,7 +2120,7 @@ pub mod PlanDefinitionApply {
     }
     #[derive(Debug, FromParameters)]
     pub struct Output {
-        #[doc = "The CarePlan that is the result of applying the plan definition"]
+        #[doc = "The `CarePlan` that is the result of applying the plan definition"]
         #[parameter_rename = "return"]
         pub return_: CarePlan,
     }
@@ -2190,7 +2190,7 @@ pub mod ResourceConvert {
         }
     }
 }
-#[doc = "Return an entire graph of resources based on a [GraphDefinition](graphdefinition.html). The operation is invoked on a specific instance of a resource, and the graph definition tells the server what other resources to return in the same packaage"]
+#[doc = "Return an entire graph of resources based on a [`GraphDefinition`](graphdefinition.html). The operation is invoked on a specific instance of a resource, and the graph definition tells the server what other resources to return in the same packaage"]
 pub mod ResourceGraph {
     use super::*;
     pub const CODE: &str = "graph";
@@ -2355,7 +2355,7 @@ pub mod ResourceMetaDelete {
         }
     }
 }
-#[doc = "The validate operation checks whether the attached content would be acceptable either generally, as a create, an update or as a delete to an existing resource.  The action the server takes depends on the mode parameter:  \n\n* [mode not provided]: The server checks the content of the resource against any schema, constraint rules, and other general terminology rules \n* create: The server checks the content, and then checks that the content would be acceptable as a create (e.g. that the content would not violate any uniqueness constraints) \n* update: The server checks the content, and then checks that it would accept it as an update against the nominated specific resource (e.g. that there are no changes to immutable fields the server does not allow to change, and checking version integrity if appropriate) \n* delete: The server ignores the content, and checks that the nominated resource is allowed to be deleted (e.g. checking referential integrity rules)  \n\nModes update and delete can only be used when the operation is invoked at the resource instance level.   The return from this operation is an [OperationOutcome](operationoutcome.html)\n\nNote that this operation is not the only way to validate resources - see [Validating Resources](validation.html) for further information."]
+#[doc = "The validate operation checks whether the attached content would be acceptable either generally, as a create, an update or as a delete to an existing resource.  The action the server takes depends on the mode parameter:  \n\n* [mode not provided]: The server checks the content of the resource against any schema, constraint rules, and other general terminology rules \n* create: The server checks the content, and then checks that the content would be acceptable as a create (e.g. that the content would not violate any uniqueness constraints) \n* update: The server checks the content, and then checks that it would accept it as an update against the nominated specific resource (e.g. that there are no changes to immutable fields the server does not allow to change, and checking version integrity if appropriate) \n* delete: The server ignores the content, and checks that the nominated resource is allowed to be deleted (e.g. checking referential integrity rules)  \n\nModes update and delete can only be used when the operation is invoked at the resource instance level.   The return from this operation is an [`OperationOutcome`](operationoutcome.html)\n\nNote that this operation is not the only way to validate resources - see [Validating Resources](validation.html) for further information."]
 pub mod ResourceValidate {
     use super::*;
     pub const CODE: &str = "validate";
@@ -2389,20 +2389,20 @@ pub mod ResourceValidate {
         }
     }
 }
-#[doc = "Generates a [Questionnaire](questionnaire.html) instance  based on a specified [StructureDefinition](structuredefinition.html), creating questions for each core element or extension element found in the [StructureDefinition](structuredefinition.html).    \n\nIf the operation is not called at the instance level, one of the *identifier*, *profile* or *url* 'in' parameters must be provided. If more than one is specified, servers may raise an error or may resolve with the parameter of their choice. If called at the instance level, these parameters will be ignored. The response will contain a [Questionnaire](questionnaire.html) instance based on the specified [StructureDefinition](structuredefinition.html) and/or an [OperationOutcome](operationoutcome.html) resource with errors or warnings.  Nested groups are used to handle complex structures and data types.  If the 'supportedOnly' parameter is set to true, only those elements marked as \"must support\" will be included.  \n\nThis operation is intended to enable auto-generation of simple interfaces for arbitrary profiles.  The 'questionnaire' approach to data entry has limitations that will make it less optimal than custom-defined interfaces.  However, this function may be useful for simple applications or for systems that wish to support \"non-core\" resources with minimal development effort."]
+#[doc = "Generates a [Questionnaire](questionnaire.html) instance  based on a specified [`StructureDefinition`](structuredefinition.html), creating questions for each core element or extension element found in the [`StructureDefinition`](structuredefinition.html).    \n\nIf the operation is not called at the instance level, one of the *identifier*, *profile* or *url* 'in' parameters must be provided. If more than one is specified, servers may raise an error or may resolve with the parameter of their choice. If called at the instance level, these parameters will be ignored. The response will contain a [Questionnaire](questionnaire.html) instance based on the specified [`StructureDefinition`](structuredefinition.html) and/or an [`OperationOutcome`](operationoutcome.html) resource with errors or warnings.  Nested groups are used to handle complex structures and data types.  If the 'supportedOnly' parameter is set to true, only those elements marked as \"must support\" will be included.  \n\nThis operation is intended to enable auto-generation of simple interfaces for arbitrary profiles.  The 'questionnaire' approach to data entry has limitations that will make it less optimal than custom-defined interfaces.  However, this function may be useful for simple applications or for systems that wish to support \"non-core\" resources with minimal development effort."]
 pub mod StructureDefinitionQuestionnaire {
     use super::*;
     pub const CODE: &str = "questionnaire";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
-        #[doc = "A logical identifier (i.e. 'StructureDefinition.identifier''). The server must know the StructureDefinition or be able to retrieve it from other known repositories."]
+        #[doc = "A logical identifier (i.e. 'StructureDefinition.identifier''). The server must know the `StructureDefinition` or be able to retrieve it from other known repositories."]
         #[parameter_rename = "identifier"]
         pub identifier_: Option<FHIRCanonical>,
-        #[doc = "The [StructureDefinition](structuredefinition.html) is provided directly as part of the request. Servers may choose not to accept profiles in this fashion"]
+        #[doc = "The [`StructureDefinition`](structuredefinition.html) is provided directly as part of the request. Servers may choose not to accept profiles in this fashion"]
         pub profile: Option<FHIRString>,
-        #[doc = "The StructureDefinition's official URL (i.e. 'StructureDefinition.url'). The server must know the StructureDefinition or be able to retrieve it from other known repositories."]
+        #[doc = "The `StructureDefinition`'s official URL (i.e. 'StructureDefinition.url'). The server must know the `StructureDefinition` or be able to retrieve it from other known repositories."]
         pub url: Option<FHIRCanonical>,
-        #[doc = "If true, the questionnaire will only include those elements marked as \"mustSupport='true'\" in the StructureDefinition."]
+        #[doc = "If true, the questionnaire will only include those elements marked as \"mustSupport='true'\" in the `StructureDefinition`."]
         pub supportedOnly: Option<FHIRBoolean>,
     }
     impl From<Input> for Resource {
@@ -2416,7 +2416,7 @@ pub mod StructureDefinitionQuestionnaire {
     }
     #[derive(Debug, FromParameters)]
     pub struct Output {
-        #[doc = "The questionnaire form generated based on the StructureDefinition."]
+        #[doc = "The questionnaire form generated based on the `StructureDefinition`."]
         #[parameter_rename = "return"]
         pub return_: Questionnaire,
     }
@@ -2426,15 +2426,15 @@ pub mod StructureDefinitionQuestionnaire {
         }
     }
 }
-#[doc = "Generates a [StructureDefinition](structuredefinition.html) instance  with  a snapshot, based on a differential in a specified [StructureDefinition](structuredefinition.html).   \n\nIf the operation is not called at the instance level, either *definition* or *url* 'in' parameters must be provided. If more than one is specified, servers may raise an error or may resolve with the parameter of their choice. If called at the instance level, these parameters will be ignored."]
+#[doc = "Generates a [`StructureDefinition`](structuredefinition.html) instance  with  a snapshot, based on a differential in a specified [`StructureDefinition`](structuredefinition.html).   \n\nIf the operation is not called at the instance level, either *definition* or *url* 'in' parameters must be provided. If more than one is specified, servers may raise an error or may resolve with the parameter of their choice. If called at the instance level, these parameters will be ignored."]
 pub mod StructureDefinitionSnapshot {
     use super::*;
     pub const CODE: &str = "snapshot";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
-        #[doc = "The [StructureDefinition](structuredefinition.html) is provided directly as part of the request. Servers may choose not to accept profiles in this fashion"]
+        #[doc = "The [`StructureDefinition`](structuredefinition.html) is provided directly as part of the request. Servers may choose not to accept profiles in this fashion"]
         pub definition: Option<StructureDefinition>,
-        #[doc = "The StructureDefinition's canonical URL (i.e. 'StructureDefinition.url'). The server must know the structure definition, or be able to retrieve it from other known repositories."]
+        #[doc = "The `StructureDefinition`'s canonical URL (i.e. 'StructureDefinition.url'). The server must know the structure definition, or be able to retrieve it from other known repositories."]
         pub url: Option<FHIRString>,
     }
     impl From<Input> for Resource {
@@ -2494,7 +2494,7 @@ pub mod StructureMapTransform {
         }
     }
 }
-#[doc = "The definition of a value set is used to create a simple collection of codes suitable for use for data entry or validation. \n\nIf the operation is not called at the instance level, one of the in parameters url, context or valueSet must be provided.  An expanded value set will be returned, or an OperationOutcome with an error message."]
+#[doc = "The definition of a value set is used to create a simple collection of codes suitable for use for data entry or validation. \n\nIf the operation is not called at the instance level, one of the in parameters url, context or valueSet must be provided.  An expanded value set will be returned, or an `OperationOutcome` with an error message."]
 pub mod ValueSetExpand {
     use super::*;
     pub const CODE: &str = "expand";
@@ -2506,11 +2506,11 @@ pub mod ValueSetExpand {
         pub valueSet: Option<ValueSet>,
         #[doc = "The identifier that is used to identify a specific version of the value set to be used when generating the expansion. This is an arbitrary value managed by the value set author and is not expected to be globally unique. For example, it might be a timestamp (e.g. yyyymmdd) if a managed version is not available."]
         pub valueSetVersion: Option<FHIRString>,
-        #[doc = "The context of the value set, so that the server can resolve this to a value set to expand. The recommended format for this URI is [Structure Definition URL]#[name or path into structure definition] e.g. http://hl7.org/fhir/StructureDefinition/observation-hspc-height-hspcheight#Observation.interpretation. Other forms may be used but are not defined. This form is only usable if the terminology server also has access to the conformance registry that the server is using, but can be used to delegate the mapping from an application context to a binding at run-time"]
+        #[doc = "The context of the value set, so that the server can resolve this to a value set to expand. The recommended format for this URI is [Structure Definition URL]#[name or path into structure definition] e.g. <http://hl7.org/fhir/StructureDefinition/observation-hspc-height-hspcheight#Observation.interpretation>. Other forms may be used but are not defined. This form is only usable if the terminology server also has access to the conformance registry that the server is using, but can be used to delegate the mapping from an application context to a binding at run-time"]
         pub context: Option<FHIRUri>,
         #[doc = "If a context is provided, a context direction may also be provided. Valid values are: \n\n* 'incoming': the codes a client can use for PUT/POST operations,  and \n* 'outgoing', the codes a client might receive from the server.\n\nThe purpose is to inform the server whether to use the value set associated with the context for reading or writing purposes (note: for most elements, this is the same value set, but there are a few elements where the reading and writing value sets are different)"]
         pub contextDirection: Option<FHIRCode>,
-        #[doc = "A text filter that is applied to restrict the codes that are returned (this is useful in a UI context). The interpretation of this is delegated to the server in order to allow to determine the most optimal search approach for the context. The server can document the way this parameter works in [TerminologyCapabilities](terminologycapabilities.html)..expansion.textFilter. Typical usage of this parameter includes functionality like:\n\n* using left matching e.g. \"acut ast\"\n* allowing for wild cards such as %, &, ?\n* searching on definition as well as display(s)\n* allowing for search conditions (and / or / exclusions)\n\nText Search engines such as Lucene or Solr, long with their considerable functionality, might also be used. The optional text search might also be code system specific, and servers might have different implementations for different code systems"]
+        #[doc = "A text filter that is applied to restrict the codes that are returned (this is useful in a UI context). The interpretation of this is delegated to the server in order to allow to determine the most optimal search approach for the context. The server can document the way this parameter works in [`TerminologyCapabilities`](terminologycapabilities.html)..expansion.textFilter. Typical usage of this parameter includes functionality like:\n\n* using left matching e.g. \"acut ast\"\n* allowing for wild cards such as %, &, ?\n* searching on definition as well as display(s)\n* allowing for search conditions (and / or / exclusions)\n\nText Search engines such as Lucene or Solr, long with their considerable functionality, might also be used. The optional text search might also be code system specific, and servers might have different implementations for different code systems"]
         pub filter: Option<FHIRString>,
         #[doc = "The date for which the expansion should be generated.  if a date is provided, it means that the server should use the value set / code system definitions as they were on the given date, or return an error if this is not possible.  Normally, the date is the current conditions (which is the default value) but under some circumstances, systems need to generate an expansion as it would have been in the past. A typical example of this would be where code selection is constrained to the set of codes that were available when the patient was treated, not when the record is being edited. Note that which date is appropriate is a matter for implementation policy."]
         pub date: Option<FHIRDateTime>,
@@ -2576,7 +2576,7 @@ pub mod ValueSetValidateCode {
     pub struct Input {
         #[doc = "Value set Canonical URL. The server must know the value set (e.g. it is defined explicitly in the server's value sets, or it is defined implicitly by some code system known to the server"]
         pub url: Option<FHIRUri>,
-        #[doc = "The context of the value set, so that the server can resolve this to a value set to validate against. The recommended format for this URI is [Structure Definition URL]#[name or path into structure definition] e.g. http://hl7.org/fhir/StructureDefinition/observation-hspc-height-hspcheight#Observation.interpretation. Other forms may be used but are not defined. This form is only usable if the terminology server also has access to the conformance registry that the server is using, but can be used to delegate the mapping from an application context to a binding at run-time"]
+        #[doc = "The context of the value set, so that the server can resolve this to a value set to validate against. The recommended format for this URI is [Structure Definition URL]#[name or path into structure definition] e.g. <http://hl7.org/fhir/StructureDefinition/observation-hspc-height-hspcheight#Observation.interpretation>. Other forms may be used but are not defined. This form is only usable if the terminology server also has access to the conformance registry that the server is using, but can be used to delegate the mapping from an application context to a binding at run-time"]
         pub context: Option<FHIRUri>,
         #[doc = "The value set is provided directly as part of the request. Servers may choose not to accept value sets in this fashion. This parameter is used when the client wants the server to expand a value set that is not stored on the server"]
         pub valueSet: Option<ValueSet>,

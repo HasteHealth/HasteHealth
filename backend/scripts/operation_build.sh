@@ -14,6 +14,6 @@
 cargo run generate operations \
     -i ../artifacts/r4/r5-subscription-backport/operation_definition \
     -i ../artifacts/r4/hastehealth-core/definitions/haste-health/operation \
-    -i ../artifacts/r4/hl7-core/definitions/hl7/profiles-resources.json \
+    -i ../artifacts/r4/hl7-core/definitions/hl7/profiles-resources.min.json \
     -i ../artifacts/r4/hastehealth-core/definitions/sql-on-fhir/operations \
     -o ./crates/fhir-generated-ops/src/generated.rs

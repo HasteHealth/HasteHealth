@@ -18,6 +18,9 @@ This document contains the help content for the `haste-health` command-line prog
 * [`haste-health generate types`↴](#haste-health-generate-types)
 * [`haste-health generate operations`↴](#haste-health-generate-operations)
 * [`haste-health generate test-scripts`↴](#haste-health-generate-test-scripts)
+* [`haste-health artifacts`↴](#haste-health-artifacts)
+* [`haste-health artifacts build`↴](#haste-health-artifacts-build)
+* [`haste-health artifacts diff`↴](#haste-health-artifacts-diff)
 * [`haste-health server`↴](#haste-health-server)
 * [`haste-health server start`↴](#haste-health-server-start)
 * [`haste-health api`↴](#haste-health-api)
@@ -79,6 +82,7 @@ Haste Health binary.
 
 * `fhir-path` — Evaluate a FHIRPath expression against a FHIR resource read from stdin
 * `generate` — Code generators (Rust FHIR types, operations, TestScripts) used to build this crate
+* `artifacts` — Patch externally provided (HL7) artifacts without editing the upstream files
 * `server` — Run the FHIR server
 * `api` — Make FHIR REST API calls against the active profile's server
 * `config` — Manage named server connection profiles used by other commands
@@ -157,6 +161,53 @@ Generate FHIR TestScript resources
 
 * `-i`, `--input <INPUT>` — Input file(s) or directories describing the TestScripts to generate. Repeatable
 * `-o`, `--output <OUTPUT>` — Output directory for the generated TestScript JSON files
+
+
+
+## `haste-health artifacts`
+
+Patch externally provided (HL7) artifacts without editing the upstream files
+
+**Usage:** `haste-health artifacts <COMMAND>`
+
+###### **Subcommands:**
+
+* `build` — Apply a package's patches and rules to its upstream files and write the `.min.json` outputs
+* `diff` — List every change the patches and rules make to the upstream resources
+
+
+
+## `haste-health artifacts build`
+
+Apply a package's patches and rules to its upstream files and write the `.min.json` outputs
+
+**Usage:** `haste-health artifacts build [OPTIONS] <MANIFEST>...`
+
+###### **Arguments:**
+
+* `<MANIFEST>` — Patch manifest(s), e.g. `../artifacts/r4/hl7-core/patches/manifest.toml`
+
+###### **Options:**
+
+* `--check` — Fail if any output is out of date instead of writing it
+
+
+
+## `haste-health artifacts diff`
+
+List every change the patches and rules make to the upstream resources
+
+**Usage:** `haste-health artifacts diff [OPTIONS] <MANIFEST>...`
+
+###### **Arguments:**
+
+* `<MANIFEST>` — Patch manifest(s), e.g. `../artifacts/r4/hl7-core/patches/manifest.toml`
+
+###### **Options:**
+
+* `-r`, `--resource <RESOURCE>` — Only show resources whose `ResourceType/id` contains this text
+* `-o`, `--origin <ORIGIN>` — Only show changes whose origin (`patch <file>` or `rule <name>`) contains this text
+* `--summary` — Print a count of changes per origin instead of the changes
 
 
 
@@ -534,6 +585,8 @@ Create a new profile and set it as active. Prompts interactively for any option 
     A confidential (server-to-server) client authenticated with a client secret
   - `authorization-code`:
     A public client a human logs into via the browser (authorization_code + PKCE). Use `haste-health login` afterwards to obtain tokens
+  - `basic-auth`:
+    Basic authentication with a username and password
 
 * `-i`, `--id <ID>` — OIDC client ID
 * `-s`, `--secret <SECRET>` — Client secret. Required for --auth-mode client-credentials, ignored otherwise. Stored in the secrets file, not the profile itself

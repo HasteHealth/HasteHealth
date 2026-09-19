@@ -1,0 +1,19 @@
+{
+  "description": "Include Haste Health's own resource types (artifacts/r4/hastehealth-core/definitions/haste-health/terminology/resource_types.json) wherever FHIR resource types are allowed.",
+  "patches": [
+    {
+      "target": { "resourceType": "ValueSet", "id": "resource-types" },
+      "operations": [
+        { "op": "test", "path": "/compose/include/0/system", "value": "http://hl7.org/fhir/resource-types" },
+        { "op": "add", "path": "/compose/include/-", "value": { "system": "https://haste.health/fhir/resource-types" } }
+      ]
+    },
+    {
+      "target": { "resourceType": "ValueSet", "id": "all-types" },
+      "operations": [
+        { "op": "test", "path": "/compose/include/1/system", "value": "http://hl7.org/fhir/resource-types" },
+        { "op": "add", "path": "/compose/include/-", "value": { "system": "https://haste.health/fhir/resource-types" } }
+      ]
+    }
+  ]
+}
