@@ -29,6 +29,7 @@ import ResourceEditorComponent, {
 } from "../../components/ResourceEditor";
 import { getClient } from "../../db/client";
 import { getErrorMessage } from "../../utilities";
+import AccessPolicyAssignments from "./AccessPolicyAssignments";
 
 interface AccessPolicyV2EditorProps extends AdditionalContent {
   resource: AccessPolicyV2 | undefined;
@@ -234,6 +235,18 @@ export default function AccessPolicyView({
             resourceType={resourceType as ResourceType}
             resource={resource}
             onChange={onChange}
+            rightTabs={[
+              {
+                id: "assignments",
+                title: "Assignments",
+                content: (
+                  <AccessPolicyAssignments
+                    policy={resource}
+                    onChange={onChange}
+                  />
+                ),
+              },
+            ]}
           />
         )}
       </Modal>
