@@ -7,7 +7,7 @@
     "status": "draft",
     "experimental": false,
     "publisher": "haste-health",
-    "description": "What/Who is associated with a given access policy.",
+    "description": "Deprecated: search AccessPolicyV2Assignment by link instead. What/Who is associated with a given access policy through AccessPolicyV2.target.",
     "code": "link",
     "base": [
         "AccessPolicyV2"

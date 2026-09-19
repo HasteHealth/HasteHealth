@@ -4248,7 +4248,7 @@ export interface AccessPolicyV2Rule {
 }
 export interface AccessPolicyV2Target {
   /** 
-   * The target reference of the access policy applies to.
+   * Deprecated: use AccessPolicyV2Assignment.link. The target reference of the access policy applies to.
    */
   link: Reference;
 }
@@ -4295,7 +4295,7 @@ resourceType: "AccessPolicyV2"
    */
   rule?: Array<AccessPolicyV2Rule>;
   /** 
-   * Who the access policy applies to.
+   * Deprecated: use AccessPolicyV2Assignment. Who the access policy applies to.
    */
   target?: Array<AccessPolicyV2Target>;
 }

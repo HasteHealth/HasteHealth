@@ -115,10 +115,10 @@ pub struct AccessPolicyV2Rule {
 )]
 #[fhir_type = "BackboneElement"]
 #[fhir_serialize_type = "complex"]
-#[doc = "Who the access policy applies to."]
+#[doc = "Deprecated: use `AccessPolicyV2Assignment` instead. Who the access policy applies to."]
 pub struct AccessPolicyV2Target {
     # [reference (targets = ["ClientApplication" , "Membership" , "OperationDefinition"])]
-    #[doc = "Who the access policy applies to."]
+    #[doc = "Deprecated: use `AccessPolicyV2Assignment.link` instead. Who the access policy applies to."]
     pub link: Box<Reference>,
 }
 #[derive(
@@ -151,7 +151,7 @@ pub struct AccessPolicyV2 {
     pub attribute: Option<Vec<AccessPolicyV2Attribute>>,
     #[doc = "The rules that govern how the access policy is applied."]
     pub rule: Option<Vec<AccessPolicyV2Rule>>,
-    #[doc = "Who the access policy applies to."]
+    #[doc = "Deprecated: use `AccessPolicyV2Assignment` instead. Who the access policy applies to."]
     pub target: Option<Vec<AccessPolicyV2Target>>,
 }
 impl AccessPolicyV2 {
