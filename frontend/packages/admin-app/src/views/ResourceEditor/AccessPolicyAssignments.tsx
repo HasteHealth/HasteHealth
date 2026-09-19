@@ -68,10 +68,10 @@ function describe(resource: Resource | undefined): string | undefined {
 function AssignmentTarget({
   reference,
   resolved,
-}: {
+}: Readonly<{
   reference: Reference;
   resolved: Record<string, Resource | undefined>;
-}) {
+}>) {
   const { resourceType, resourceId } = splitReference(reference);
   const target = reference.reference
     ? resolved[reference.reference]
@@ -112,9 +112,9 @@ function AssignmentTarget({
 
 function AddAssignment({
   onAdd,
-}: {
+}: Readonly<{
   onAdd: (link: Reference) => Promise<unknown>;
-}) {
+}>) {
   const client = useAtomValue(getClient);
   const [link, setLink] = useState<Reference | undefined>();
 
@@ -157,10 +157,10 @@ function AddAssignment({
 export default function AccessPolicyAssignments({
   policy,
   onChange,
-}: {
+}: Readonly<{
   policy: AccessPolicyV2 | undefined;
   onChange: React.Dispatch<React.SetStateAction<Resource | undefined>>;
-}) {
+}>) {
   const client = useAtomValue(getClient);
   const [loading, setLoading] = useState(true);
   // True while waiting for a write to show up in search results.
@@ -242,7 +242,7 @@ export default function AccessPolicyAssignments({
           .map((r) => r.reference)
           .filter((r): r is string => !!r && r.includes("/")),
       ),
-    ).sort(),
+    ).sort((a, b) => a.localeCompare(b)),
   );
 
   useEffect(() => {
