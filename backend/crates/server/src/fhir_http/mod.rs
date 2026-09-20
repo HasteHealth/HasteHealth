@@ -1,3 +1,4 @@
+use axum::body::Bytes;
 use axum::http::Method;
 use haste_fhir_client::request::{
     CompartmentRequest, DeleteRequest, FHIRBatchRequest, FHIRConditionalUpdateRequest,
@@ -23,7 +24,7 @@ use std::collections::HashMap;
 
 #[derive(Debug)]
 pub enum HTTPBody {
-    String(String),
+    Bytes(Bytes),
     Resource(Resource),
 }
 
@@ -87,7 +88,7 @@ fn get_resource(
 ) -> Result<Resource, FHIRRequestParsingError> {
     let resource = match req.body {
         HTTPBody::Resource(resource) => resource,
-        HTTPBody::String(body) => resource_type.deserialize(&body)?,
+        HTTPBody::Bytes(body) => resource_type.deserialize(&body)?,
     };
     Ok(resource)
 }
@@ -101,7 +102,7 @@ fn get_parameters(req: HTTPRequest) -> Result<Parameters, FHIRRequestParsingErro
                 return Err(FHIRRequestParsingError::InvalidBody);
             }
         }
-        HTTPBody::String(body) => serde_json::from_str::<Parameters>(&body),
+        HTTPBody::Bytes(body) => serde_json::from_slice::<Parameters>(&body),
     }?;
     Ok(params)
 }
@@ -115,7 +116,7 @@ fn get_bundle(req: HTTPRequest) -> Result<Bundle, FHIRRequestParsingError> {
                 return Err(FHIRRequestParsingError::InvalidBody);
             }
         }
-        HTTPBody::String(body) => serde_json::from_str::<Bundle>(&body),
+        HTTPBody::Bytes(body) => serde_json::from_slice::<Bundle>(&body),
     }?;
     Ok(bundle)
 }
@@ -370,7 +371,7 @@ fn parse_request_2(
                 resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
                 id: url_chunks[1].to_string(),
                 patch: match req.body {
-                    HTTPBody::String(body) => serde_json::from_str::<Patch>(&body)?,
+                    HTTPBody::Bytes(body) => serde_json::from_slice::<Patch>(&body)?,
                     _ => Err(FHIRRequestParsingError::Unsupported(
                         "PATCH requests must have a JSON body".to_string(),
                     ))?,
