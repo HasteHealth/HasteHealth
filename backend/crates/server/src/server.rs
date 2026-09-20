@@ -17,7 +17,7 @@ use axum::{
     body::Body,
     extract::{DefaultBodyLimit, OriginalUri, Path, State},
     http::Request,
-    http::{HeaderName, HeaderValue, Method, Uri},
+    http::{HeaderName, HeaderValue, Method},
     middleware::from_fn,
     response::{IntoResponse, Response},
     routing::{any, get, post},
@@ -58,95 +58,20 @@ struct FHIRHandlerPath {
     tenant: TenantId,
     project: ProjectId,
     fhir_version: SupportedFHIRVersions,
+    /// Not captured by the FHIR root route, which has nothing after the
+    /// version, so serde leaves it as `None` there.
     fhir_location: Option<String>,
 }
 
+/// The project a route addresses, for handlers that do not act on a FHIR
+/// location within it.
 #[derive(Deserialize)]
-struct FHIRRootHandlerPath {
+struct ProjectPath {
     tenant: TenantId,
     project: ProjectId,
-    fhir_version: SupportedFHIRVersions,
 }
 
 async fn fhir_handler<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
->(
-    user: Arc<User>,
-    method: Method,
-    uri: Uri,
-    path: FHIRHandlerPath,
-    state: Arc<ServerState<Repo, Search, Terminology>>,
-    body: String,
-) -> Result<Response, OperationOutcomeError> {
-    let fhir_location = path.fhir_location.unwrap_or_default();
-
-    async {
-        let http_req = HTTPRequest::new(
-            method,
-            fhir_location,
-            HTTPBody::String(body),
-            uri.query()
-                .map(|q| {
-                    url::form_urlencoded::parse(q.as_bytes())
-                        .into_owned()
-                        .collect()
-                })
-                .unwrap_or_default(),
-        );
-
-        let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, http_req)?;
-
-        let ctx = ServerCTX::new(
-            path.tenant,
-            path.project,
-            path.fhir_version,
-            user.clone(),
-            state.fhir_client.clone(),
-            state.rate_limit.clone(),
-        )
-        .with_tracing_id(Some(format!("rest-{}", generate_id(Some(8)))));
-
-        let ctx = Arc::new(ctx);
-
-        let response = state.fhir_client.request(ctx, fhir_request).await?;
-
-        let http_response = response.into_response();
-        Ok(http_response)
-    }
-    .await
-}
-
-async fn fhir_root_handler<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
->(
-    method: Method,
-    Extension(user): Extension<Arc<User>>,
-    OriginalUri(uri): OriginalUri,
-    Path(path): Path<FHIRRootHandlerPath>,
-    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
-    body: String,
-) -> Result<Response, OperationOutcomeError> {
-    fhir_handler(
-        user,
-        method,
-        uri,
-        FHIRHandlerPath {
-            tenant: path.tenant,
-            project: path.project,
-            fhir_version: path.fhir_version,
-            fhir_location: None,
-        },
-        state,
-        body,
-    )
-    .await
-}
-
-async fn fhir_type_handler<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
@@ -158,7 +83,36 @@ async fn fhir_type_handler<
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
-    fhir_handler(user, method, uri, path, state, body).await
+    let http_req = HTTPRequest::new(
+        method,
+        path.fhir_location.unwrap_or_default(),
+        HTTPBody::String(body),
+        uri.query()
+            .map(|q| {
+                url::form_urlencoded::parse(q.as_bytes())
+                    .into_owned()
+                    .collect()
+            })
+            .unwrap_or_default(),
+    );
+
+    let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, http_req)?;
+
+    let ctx = Arc::new(
+        ServerCTX::new(
+            path.tenant,
+            path.project,
+            path.fhir_version,
+            user,
+            state.fhir_client.clone(),
+            state.rate_limit.clone(),
+        )
+        .with_tracing_id(Some(format!("rest-{}", generate_id(Some(8))))),
+    );
+
+    let response = state.fhir_client.request(ctx, fhir_request).await?;
+
+    Ok(response.into_response())
 }
 
 async fn public_metadata_handler<
@@ -166,7 +120,7 @@ async fn public_metadata_handler<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    Path(path): Path<FHIRRootHandlerPath>,
+    Path(path): Path<ProjectPath>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Response, OperationOutcomeError> {
     let ctx = Arc::new(ServerCTX::system(
@@ -201,9 +155,12 @@ pub async fn server(
 
     let shared_state = create_services(config.clone()).await?;
 
+    // Two routes because a wildcard does not match an empty segment: the first
+    // is the FHIR root (system level interactions), the second everything under
+    // it. Both are the same handler.
     let fhir_router = Router::new()
-        .route("/{fhir_version}", any(fhir_root_handler))
-        .route("/{fhir_version}/{*fhir_location}", any(fhir_type_handler));
+        .route("/{fhir_version}", any(fhir_handler))
+        .route("/{fhir_version}/{*fhir_location}", any(fhir_handler));
 
     let protected_resources_router = Router::new()
         .nest("/fhir", fhir_router)
