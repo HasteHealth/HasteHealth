@@ -33,7 +33,7 @@ pub enum SupportedFHIRVersions {
 impl SupportedFHIRVersions {
     /// Every version a project can be served as, in the order routes are
     /// registered for them.
-    pub const ALL: &'static [SupportedFHIRVersions] = &[SupportedFHIRVersions::R4];
+    pub const ALL: &[SupportedFHIRVersions] = &[SupportedFHIRVersions::R4];
 
     /// The version as it appears in a URL.
     #[must_use]
