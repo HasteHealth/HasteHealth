@@ -27,6 +27,14 @@ function getParsedParameters(): Record<string, string> {
   return parameters;
 }
 
+/**
+ * What the token endpoint returns in place of tokens when the request fails.
+ */
+type TokenErrorResponse = {
+  error: string;
+  error_description?: string;
+};
+
 async function exchangeAuthCodeForToken({
   token_endpoint,
   redirect_uri,
@@ -37,7 +45,7 @@ async function exchangeAuthCodeForToken({
   token_endpoint: string;
   parameters: Record<string, string>;
   clientId: string;
-}): Promise<AccessTokenResponse> {
+}): Promise<AccessTokenResponse | TokenErrorResponse> {
   const code_verifier = window.sessionStorage.getItem(
     pkce_code_verifier_key(clientId),
   );
@@ -57,20 +65,23 @@ async function exchangeAuthCodeForToken({
 
   window.history.replaceState(null, "", location.pathname);
 
-  const response: AccessTokenResponse = await fetch(token_endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+  const response: AccessTokenResponse | TokenErrorResponse = await fetch(
+    token_endpoint,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
 
-    body: JSON.stringify({
-      grant_type: "authorization_code",
-      code_verifier,
-      redirect_uri,
-      code: parameters.code,
-      client_id: clientId,
-    }),
-  }).then((v) => v.json());
+      body: JSON.stringify({
+        grant_type: "authorization_code",
+        code_verifier,
+        redirect_uri,
+        code: parameters.code,
+        client_id: clientId,
+      }),
+    },
+  ).then((v) => v.json());
   return response;
 }
 
@@ -279,22 +290,26 @@ export function HasteHealthProvider({
             clientId,
           });
 
-          // The token endpoint returns an error object on failure, and leaves
-          // out id_token when openid was not one of the requested scopes.
-          // Neither can be turned into a session, so report it rather than
-          // leaving the app unauthenticated with no explanation, which sends
-          // it back to authorize on the next render.
-          if ("error" in payload || !payload.id_token) {
+          if ("error" in payload) {
             window.history.replaceState(null, "", location.pathname);
             dispatch({
               type: "ON_ERROR",
-              error: String(
-                ("error" in payload && payload.error) || "invalid_scope",
-              ),
-              error_description: String(
-                ("error_description" in payload && payload.error_description) ||
-                  "The token response contained no id token. Check that 'openid' is one of the scopes this application requests and is allowed by its client application.",
-              ),
+              error: payload.error,
+              error_description:
+                payload.error_description ??
+                "The token endpoint rejected the authorization code.",
+            });
+            console.error("Failed to authenticate");
+            return;
+          }
+
+          if (!payload.id_token) {
+            window.history.replaceState(null, "", location.pathname);
+            dispatch({
+              type: "ON_ERROR",
+              error: "invalid_scope",
+              error_description:
+                "The token response contained no id token. Check that 'openid' is one of the scopes this application requests and is allowed by its client application.",
             });
             console.error("Failed to authenticate");
             return;
