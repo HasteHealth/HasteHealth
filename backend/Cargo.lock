@@ -2790,6 +2790,7 @@ dependencies = [
  "haste-fhir-operation-error",
  "haste-reflect",
  "serde",
+ "serde_json",
  "sqlx",
 ]
 

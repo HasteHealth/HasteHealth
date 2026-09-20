@@ -10,7 +10,7 @@ use crate::{
             ServerMiddlewareState,
         },
     },
-    route_path::api_fhir_root_url,
+    route_path::{api_fhir_root_url, append_path_segments},
 };
 use haste_fhir_client::{
     FHIRClient,
@@ -78,15 +78,12 @@ pub fn to_bundle_entry(
         });
     }
 
-    entry.fullUrl = fhir_api_url
-        .join(&format!("{}/{}", resource_type.as_ref(), id))
-        .ok()
-        .map(|url| {
-            Box::new(FHIRUri {
-                value: Some(url.to_string()),
-                ..Default::default()
-            })
-        });
+    entry.fullUrl = append_path_segments(fhir_api_url, [resource_type.as_ref(), id]).map(|url| {
+        Box::new(FHIRUri {
+            value: Some(url.to_string()),
+            ..Default::default()
+        })
+    });
 
     entry.resource = Some(Box::new(resource));
 
@@ -906,5 +903,33 @@ impl<
             next_context.response = response;
             Ok(next_context)
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use haste_fhir_model::r4::generated::resources::Patient;
+
+    /// `fullUrl` has to address the resource under the FHIR root. The root's
+    /// last segment is `fhir`, which `Url::join` would treat as the document to
+    /// resolve against and drop.
+    #[test]
+    fn bundle_entry_full_url_addresses_the_resource() {
+        let root = Url::parse("https://api.haste.health/w/acme/default/api/v1/fhir").unwrap();
+
+        let entry = to_bundle_entry(
+            &root,
+            Resource::Patient(Patient {
+                id: Some("123".to_string()),
+                ..Default::default()
+            }),
+            None,
+        );
+
+        assert_eq!(
+            entry.fullUrl.and_then(|url| url.value).as_deref(),
+            Some("https://api.haste.health/w/acme/default/api/v1/fhir/Patient/123")
+        );
     }
 }

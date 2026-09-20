@@ -68,7 +68,7 @@ console.log('Operation result:', result);
 Invoke the `$registration-info` operation on a IdentityProvider resource using cURL:
 
 ```bash
-curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/IdentityProvider/my-id/\$registration-info" \
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/IdentityProvider/my-id/\$registration-info" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{"resourceType": "Parameters", "parameter":[]}'

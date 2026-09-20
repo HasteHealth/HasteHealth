@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Bundle, id } from "@haste-health/fhir-types/r4/types";
 import * as r4b from "@haste-health/fhir-types/r4b/types";
-import { FHIR_VERSION, R4, R4B } from "@haste-health/fhir-types/versions";
+import { FHIR_VERSION } from "@haste-health/fhir-types/versions";
 import { OperationError, outcomeError } from "@haste-health/operation-outcomes";
 
 import { AsynchronousClient } from "../index.js";
@@ -38,36 +38,6 @@ function parametersToQueryString(
     .join("&");
 }
 
-const pathJoin = (parts: string[], sep = "/") =>
-  parts.join(sep).replace(new RegExp(sep + "{1,}", "g"), sep);
-
-function fhirUrlChunk(version: string) {
-  switch (version) {
-    case R4:
-      return "r4";
-    case R4B:
-      return "r4b";
-    default:
-      return version;
-  }
-}
-
-/**
- * Used as default and for display purposes in admin app.
- * @param domain HasteHealth Domain
- * @param fhirVersion FHIRVersion
- * @returns HasteHealth VersionedURL.
- */
-export const deriveHasteHealthVersionedURL = (
-  domain: string,
-  fhirVersion: FHIR_VERSION
-) => {
-  return new URL(
-    pathJoin([new URL(domain).pathname, `/${fhirUrlChunk(fhirVersion)}`]),
-    domain
-  ).toString();
-};
-
 async function toHTTPRequest(
   state: HTTPClientState,
   context: HTTPContext,
@@ -83,10 +53,11 @@ async function toHTTPRequest(
     ...context.headers,
   };
 
+  // A string base URL is the FHIR root and is used as given. The FHIR version
+  // belongs to the project, so it is not appended to the path; pass a function
+  // if a deployment needs the URL to vary by version.
   let FHIRUrl =
-    typeof state.url === "string"
-      ? deriveHasteHealthVersionedURL(state.url, request.fhirVersion)
-      : state.url(request.fhirVersion);
+    typeof state.url === "string" ? state.url : state.url(request.fhirVersion);
   if (!FHIRUrl.endsWith("/")) {
     FHIRUrl = FHIRUrl + "/";
   }

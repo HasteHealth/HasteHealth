@@ -16,6 +16,46 @@ Haste Health leverages FHIR to provide a robust and flexible platform for health
 allowing healthcare organizations to integrate their systems seamlessly and access patient data in real-time. 
 This enables providers to deliver more personalized care, streamline workflows, and enhance overall operational efficiency.
 
+## Base URL
+
+A project's FHIR endpoint is:
+
+```
+https://[host]/w/[tenant]/[project]/api/v1/fhir
+```
+
+Everything below it is a FHIR path: `.../api/v1/fhir/Patient/12345`,
+`.../api/v1/fhir/metadata`, and so on.
+
+### The FHIR version is not part of the URL
+
+A project is created with one FHIR version, recorded on its `Project` resource,
+and that version cannot be changed afterwards. The server reads it from the
+project, so the URL does not need to carry it.
+
+The older form with the version in the path still works and will keep working:
+
+```
+https://[host]/w/[tenant]/[project]/api/v1/fhir/r4/Patient/12345
+```
+
+It is deprecated for new integrations. A request that names a version the
+project is not served as is rejected rather than answered in the wrong version.
+
+The version-less base is also the identifier used everywhere else the endpoint
+is named: the `aud` of an access token, the `iss` and `aud` of a SMART launch,
+and the `fullUrl` of entries in search and history bundles. See
+[SMART on FHIR](/docs/auth/authentication/smart_on_fhir).
+
+:::warning Breaking change
+
+The `aud` of an access token changed from `.../api/v1/fhir/r4` to
+`.../api/v1/fhir`. Tokens issued before the change fail validation, so clients
+must obtain a new one; a refresh is enough. SMART apps that have the versioned
+URL registered as their audience need it updated.
+
+:::
+
 For further reading on FHIR, consider exploring the following resources:
 * [HL7 FHIR Official Website](https://www.hl7.org/fhir/)
 * [FHIR Specification](https://hl7.org/fhir/R4/index.html)

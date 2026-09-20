@@ -15,6 +15,51 @@ pub mod scopes;
 // Reserved keyword for system tenant, author and project.
 static SYSTEM: &str = "system";
 
+/// The FHIR versions a project can be served as.
+///
+/// A project's version is fixed when it is created and cannot be changed
+/// afterwards, so it is safe to cache and to carry in an access token.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Deserialize, Serialize)]
+#[cfg_attr(feature = "sqlx", derive(::sqlx::Type))]
+#[cfg_attr(
+    feature = "sqlx",
+    sqlx(type_name = "fhir_version", rename_all = "lowercase")
+)]
+#[serde(rename_all = "lowercase")]
+pub enum SupportedFHIRVersions {
+    R4,
+}
+
+impl SupportedFHIRVersions {
+    /// Every version a project can be served as, in the order routes are
+    /// registered for them.
+    pub const ALL: &[SupportedFHIRVersions] = &[SupportedFHIRVersions::R4];
+
+    /// The version as it appears in a URL.
+    #[must_use]
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            SupportedFHIRVersions::R4 => "r4",
+        }
+    }
+
+    /// The version a URL segment names, if it names one at all. Used to tell a
+    /// leading version segment apart from a resource type.
+    #[must_use]
+    pub fn from_url_segment(segment: &str) -> Option<SupportedFHIRVersions> {
+        SupportedFHIRVersions::ALL
+            .iter()
+            .find(|version| version.as_str() == segment)
+            .cloned()
+    }
+}
+
+impl Display for SupportedFHIRVersions {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, PartialOrd, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum UserRole {

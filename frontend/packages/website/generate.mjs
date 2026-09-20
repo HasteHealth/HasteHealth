@@ -16,7 +16,7 @@ if (!HASTE_HEALTH_USERNAME || !HASTE_HEALTH_PASSWORD) {
   );
 }
 
-const fhirBaseUrl = `${HASTE_HEALTH_URL}/w/${HASTE_HEALTH_TENANT}/${HASTE_HEALTH_PROJECT}/api/v1/fhir/r4`;
+const fhirBaseUrl = `${HASTE_HEALTH_URL}/w/${HASTE_HEALTH_TENANT}/${HASTE_HEALTH_PROJECT}/api/v1/fhir`;
 const credentials = `${HASTE_HEALTH_USERNAME}:${HASTE_HEALTH_PASSWORD}`;
 const authHeader = `Basic ${Buffer.from(credentials).toString("base64")}`;
 
@@ -103,8 +103,7 @@ function yamlString(v) {
 }
 
 function metaDescription(sd) {
-  const kindLabel =
-    sd.kind === "resource" ? "resource" : "data type";
+  const kindLabel = sd.kind === "resource" ? "resource" : "data type";
   const raw = (sd.description ?? "")
     .replace(/(\r\n|\n|\r)/gm, " ")
     .replace(/\s+/g, " ")

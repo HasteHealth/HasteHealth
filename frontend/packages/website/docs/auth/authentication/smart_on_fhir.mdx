@@ -77,7 +77,7 @@ sequenceDiagram
 **Launch URL Format:**
 ```
 https://app.example.com/launch?
-  iss=https://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4
+  iss=https://api.haste.health/w/{tenant}/{project}/api/v1/fhir
   &launch=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
@@ -89,7 +89,7 @@ GET /w/{tenant}/{project}/api/v1/oidc/auth/authorize?
   redirect_uri=https://app.example.com/callback&
   scope=launch patient/*.read&
   state=random-state&
-  aud=https://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4&
+  aud=https://api.haste.health/w/{tenant}/{project}/api/v1/fhir&
   launch=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
