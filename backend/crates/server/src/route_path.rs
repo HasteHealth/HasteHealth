@@ -54,6 +54,26 @@ pub fn api_v1_oidc_auth_path(tenant: &TenantId, project: &ProjectId) -> PathBuf 
     api_v1_oidc_path
 }
 
+/// Appends path segments to a URL: `…/api/v1/fhir` and `["Patient", "1"]` give
+/// `…/api/v1/fhir/Patient/1`.
+///
+/// Not `Url::join`, which resolves its argument relative to the URL's last path
+/// segment and would drop `fhir`. Also tolerates a trailing slash on the base,
+/// and escapes the segments.
+pub fn append_path_segments<'a>(
+    url: &Url,
+    segments: impl IntoIterator<Item = &'a str>,
+) -> Option<Url> {
+    let mut url = url.clone();
+
+    url.path_segments_mut()
+        .ok()?
+        .pop_if_empty()
+        .extend(segments);
+
+    Some(url)
+}
+
 pub fn api_fhir_root_url(
     api_url_string: &str,
     tenant: &TenantId,
@@ -83,6 +103,31 @@ pub fn api_fhir_root_url(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn segments_are_appended_under_the_last_path_segment() {
+        let root = Url::parse("https://api.haste.health/w/acme/default/api/v1/fhir").unwrap();
+
+        assert_eq!(
+            append_path_segments(&root, ["Patient", "123"])
+                .as_ref()
+                .map(Url::as_str),
+            Some("https://api.haste.health/w/acme/default/api/v1/fhir/Patient/123")
+        );
+    }
+
+    /// A base given with a trailing slash addresses the same thing, without
+    /// doubling the separator.
+    #[test]
+    fn a_trailing_slash_on_the_base_is_ignored() {
+        let with = Url::parse("https://api.haste.health/w/acme/default/api/v1/fhir/").unwrap();
+        let without = Url::parse("https://api.haste.health/w/acme/default/api/v1/fhir").unwrap();
+
+        assert_eq!(
+            append_path_segments(&with, ["metadata"]),
+            append_path_segments(&without, ["metadata"])
+        );
+    }
 
     /// The FHIR endpoint carries no version: it is a property of the project.
     /// This string is also the token `aud`, so a change here invalidates every

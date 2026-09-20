@@ -10,7 +10,7 @@ use crate::{
             ServerMiddlewareState,
         },
     },
-    route_path::api_fhir_root_url,
+    route_path::{api_fhir_root_url, append_path_segments},
 };
 use haste_fhir_client::{
     FHIRClient,
@@ -27,7 +27,7 @@ use haste_fhir_client::{
     url::{ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Bundle, BundleEntry, BundleEntryRequest, Resource, ResourceType},
+    resources::{Bundle, BundleEntry, BundleEntryRequest, Resource},
     terminology::{BoundCode, BundleType, HttpVerb, IssueType},
     types::{FHIRUnsignedInt, FHIRUri},
 };
@@ -45,18 +45,6 @@ impl Middleware {
     pub fn new() -> Self {
         Middleware {}
     }
-}
-
-/// The absolute URL of a resource under a FHIR root. This is constructed by appending the resource type and ID to the FHIR root URL.
-fn resource_url(fhir_api_url: &Url, resource_type: &ResourceType, id: &str) -> Option<Url> {
-    let mut url = fhir_api_url.clone();
-
-    url.path_segments_mut()
-        .ok()?
-        .pop_if_empty()
-        .extend([resource_type.as_ref(), id]);
-
-    Some(url)
 }
 
 pub fn to_bundle_entry(
@@ -90,7 +78,7 @@ pub fn to_bundle_entry(
         });
     }
 
-    entry.fullUrl = resource_url(fhir_api_url, &resource_type, id).map(|url| {
+    entry.fullUrl = append_path_segments(fhir_api_url, [resource_type.as_ref(), id]).map(|url| {
         Box::new(FHIRUri {
             value: Some(url.to_string()),
             ..Default::default()
@@ -941,25 +929,6 @@ mod tests {
 
         assert_eq!(
             entry.fullUrl.and_then(|url| url.value).as_deref(),
-            Some("https://api.haste.health/w/acme/default/api/v1/fhir/Patient/123")
-        );
-    }
-
-    /// A root given with a trailing slash addresses the same resource, without
-    /// doubling the separator.
-    #[test]
-    fn resource_url_ignores_a_trailing_slash_on_the_root() {
-        let with = Url::parse("https://api.haste.health/w/acme/default/api/v1/fhir/").unwrap();
-        let without = Url::parse("https://api.haste.health/w/acme/default/api/v1/fhir").unwrap();
-
-        assert_eq!(
-            resource_url(&with, &ResourceType::Patient, "123"),
-            resource_url(&without, &ResourceType::Patient, "123")
-        );
-        assert_eq!(
-            resource_url(&with, &ResourceType::Patient, "123")
-                .as_ref()
-                .map(Url::as_str),
             Some("https://api.haste.health/w/acme/default/api/v1/fhir/Patient/123")
         );
     }

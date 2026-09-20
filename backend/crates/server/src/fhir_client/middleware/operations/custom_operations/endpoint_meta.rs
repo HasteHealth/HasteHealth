@@ -7,7 +7,7 @@ use crate::{
         ServerCTX,
         middleware::{ServerMiddlewareState, operations::ServerOperationContext},
     },
-    route_path::{api_fhir_root_url, api_v1_mcp_path},
+    route_path::{api_fhir_root_url, api_v1_mcp_path, append_path_segments},
 };
 use haste_fhir_client::{FHIRClient, request::InvocationRequest};
 use haste_fhir_generated_ops::generated::TenantEndpointInformation;
@@ -75,13 +75,14 @@ pub fn endpoint_metadata_op<
                             )
                         })?;
 
-                    let fhir_meta_url = fhir_url.join("metadata").map_err(|e| {
-                        tracing::error!("Failed to derive FHIR Metadata URL: {:?}", e);
-                        OperationOutcomeError::error(
-                            IssueType::invalid(),
-                            "Invalid API URL configured".to_string(),
-                        )
-                    })?;
+                    let fhir_meta_url =
+                        append_path_segments(&fhir_url, ["metadata"]).ok_or_else(|| {
+                            tracing::error!("Failed to derive FHIR Metadata URL");
+                            OperationOutcomeError::error(
+                                IssueType::invalid(),
+                                "Invalid API URL configured".to_string(),
+                            )
+                        })?;
 
                     let mcp_endpiont = api_url
                         .join(api_v1_mcp_path(&tenant, &project).to_str().unwrap())
