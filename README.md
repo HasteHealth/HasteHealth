@@ -120,7 +120,7 @@ Using `wrk` for performance testing.
 ### Example
 
 ```bash
-wrk --latency -s crates/server/benchmarks/transaction.lua -t10 -c10 -d10s http://localhost:3000/w/ohio-health/zb154qm9/api/v1/fhir/r4/
+wrk --latency -s crates/server/benchmarks/transaction.lua -t10 -c10 -d10s http://localhost:3000/w/ohio-health/zb154qm9/api/v1/fhir/
 ```
 
 #### M3 Macbook Air Local 10 threads Postgres 18

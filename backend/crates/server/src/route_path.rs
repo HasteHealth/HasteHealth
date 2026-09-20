@@ -68,12 +68,7 @@ pub fn api_fhir_root_url(
     })?;
 
     let fhir_url = api_url
-        .join(
-            api_v1_fhir_path(tenant, project)
-                .join("r4")
-                .to_str()
-                .unwrap(),
-        )
+        .join(api_v1_fhir_path(tenant, project).to_str().unwrap())
         .map_err(|e| {
             tracing::error!("Failed to derive FHIR URL: {:?}", e);
             OperationOutcomeError::error(
@@ -83,4 +78,27 @@ pub fn api_fhir_root_url(
         })?;
 
     Ok(fhir_url)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The FHIR endpoint carries no version: it is a property of the project.
+    /// This string is also the token `aud`, so a change here invalidates every
+    /// token already issued.
+    #[test]
+    fn fhir_root_url_has_no_version_segment() {
+        let url = api_fhir_root_url(
+            "https://api.haste.health",
+            &TenantId::new("acme".to_string()),
+            &ProjectId::new("default".to_string()),
+        )
+        .unwrap();
+
+        assert_eq!(
+            url.as_str(),
+            "https://api.haste.health/w/acme/default/api/v1/fhir"
+        );
+    }
 }

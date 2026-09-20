@@ -44,6 +44,7 @@ use haste_repository::{
         authorization_code::{
             AuthorizationCodeKind, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
         },
+        project::CreateProject,
         scope::{ClientId, CreateScope, ScopeSearchClaims, UserId},
         tenant::CreateTenant,
         user::{User, UserRole as RepoUserRole},
@@ -133,6 +134,31 @@ async fn create_token_response<Repo: Repository>(
         )
     })?;
 
+    // Carried in the token so that a request never has to look the project up
+    // to know which FHIR version it is working in. A project's version cannot
+    // change, so the claim cannot go stale within a token's lifetime.
+    let project_fhir_version = TenantModelAdmin::<CreateProject, _, _, _, _>::read(
+        repo,
+        &args.tenant,
+        &args.project.as_ref().to_string(),
+    )
+    .await
+    .map_err(|_e| {
+        OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Failed to retrieve project.".to_string()),
+            None,
+        )
+    })?
+    .ok_or_else(|| {
+        OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Project not found.".to_string()),
+            None,
+        )
+    })?
+    .fhir_version;
+
     let mut header = Header::new(Algorithm::RS256);
     header.kid = Some(encoding_key.kid.clone());
 
@@ -155,6 +181,7 @@ async fn create_token_response<Repo: Repository>(
             resource_type: args.user_kind,
             access_policy_version_ids: args.access_policy_version_ids,
             fhir_user: args.fhir_user.clone(),
+            fhir_version: project_fhir_version,
         },
         &encoding_key.encoding_key,
     )

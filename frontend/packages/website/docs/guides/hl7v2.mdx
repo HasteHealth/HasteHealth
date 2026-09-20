@@ -91,7 +91,7 @@ The receiver writes converted resources to your FHIR API as an authenticated cli
 ```bash
 haste-health config create-profile \
   --name hl7v2-receiver \
-  --r4-url https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4 \
+  --r4-url https://api.haste.health/w/[tenant]/[project]/api/v1/fhir \
   --discovery-uri https://api.haste.health/.well-known/openid-configuration/w/[tenant]/[project] \
   --id <client_id> \
   --secret <client_secret>
@@ -106,7 +106,7 @@ haste-health config set-active-profile --name hl7v2-receiver
 To see how a message parses without running it through a template, use the `$hl7v2-parse` system operation — it returns the fully parsed segment/field/component structure as FHIR JSON:
 
 ```bash
-curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/\$hl7v2-parse" \
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/\$hl7v2-parse" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{

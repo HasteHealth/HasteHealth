@@ -1,4 +1,7 @@
-use crate::{AuthorId, AuthorKind, ProjectId, TenantId, UserRole, VersionId, scopes::Scopes};
+use crate::{
+    AuthorId, AuthorKind, ProjectId, SupportedFHIRVersions, TenantId, UserRole, VersionId,
+    scopes::Scopes,
+};
 use derivative::Derivative;
 use haste_fhir_model::r4::generated::{terminology::IssueType, types::FHIRUrl};
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -85,4 +88,11 @@ pub struct UserTokenClaims {
     #[serde(rename = "https://haste.health/membership")]
     #[derivative(Debug = "ignore")]
     pub membership: Option<String>,
+    /// The FHIR version of the project this token was issued for, so a request
+    /// does not have to look the project up to know it. Required: a token
+    /// without it is from before the claim existed, and is rejected rather than
+    /// guessed at.
+    #[serde(rename = "https://haste.health/fhir_version")]
+    #[derivative(Debug = "ignore")]
+    pub fhir_version: SupportedFHIRVersions,
 }

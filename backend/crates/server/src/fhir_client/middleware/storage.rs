@@ -27,7 +27,7 @@ use haste_fhir_client::{
     url::{ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Bundle, BundleEntry, BundleEntryRequest, Resource},
+    resources::{Bundle, BundleEntry, BundleEntryRequest, Resource, ResourceType},
     terminology::{BoundCode, BundleType, HttpVerb, IssueType},
     types::{FHIRUnsignedInt, FHIRUri},
 };
@@ -45,6 +45,18 @@ impl Middleware {
     pub fn new() -> Self {
         Middleware {}
     }
+}
+
+/// The absolute URL of a resource under a FHIR root. This is constructed by appending the resource type and ID to the FHIR root URL.
+fn resource_url(fhir_api_url: &Url, resource_type: &ResourceType, id: &str) -> Option<Url> {
+    let mut url = fhir_api_url.clone();
+
+    url.path_segments_mut()
+        .ok()?
+        .pop_if_empty()
+        .extend([resource_type.as_ref(), id]);
+
+    Some(url)
 }
 
 pub fn to_bundle_entry(
@@ -78,15 +90,12 @@ pub fn to_bundle_entry(
         });
     }
 
-    entry.fullUrl = fhir_api_url
-        .join(&format!("{}/{}", resource_type.as_ref(), id))
-        .ok()
-        .map(|url| {
-            Box::new(FHIRUri {
-                value: Some(url.to_string()),
-                ..Default::default()
-            })
-        });
+    entry.fullUrl = resource_url(fhir_api_url, &resource_type, id).map(|url| {
+        Box::new(FHIRUri {
+            value: Some(url.to_string()),
+            ..Default::default()
+        })
+    });
 
     entry.resource = Some(Box::new(resource));
 
@@ -906,5 +915,52 @@ impl<
             next_context.response = response;
             Ok(next_context)
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use haste_fhir_model::r4::generated::resources::Patient;
+
+    /// `fullUrl` has to address the resource under the FHIR root. The root's
+    /// last segment is `fhir`, which `Url::join` would treat as the document to
+    /// resolve against and drop.
+    #[test]
+    fn bundle_entry_full_url_addresses_the_resource() {
+        let root = Url::parse("https://api.haste.health/w/acme/default/api/v1/fhir").unwrap();
+
+        let entry = to_bundle_entry(
+            &root,
+            Resource::Patient(Patient {
+                id: Some("123".to_string()),
+                ..Default::default()
+            }),
+            None,
+        );
+
+        assert_eq!(
+            entry.fullUrl.and_then(|url| url.value).as_deref(),
+            Some("https://api.haste.health/w/acme/default/api/v1/fhir/Patient/123")
+        );
+    }
+
+    /// A root given with a trailing slash addresses the same resource, without
+    /// doubling the separator.
+    #[test]
+    fn resource_url_ignores_a_trailing_slash_on_the_root() {
+        let with = Url::parse("https://api.haste.health/w/acme/default/api/v1/fhir/").unwrap();
+        let without = Url::parse("https://api.haste.health/w/acme/default/api/v1/fhir").unwrap();
+
+        assert_eq!(
+            resource_url(&with, &ResourceType::Patient, "123"),
+            resource_url(&without, &ResourceType::Patient, "123")
+        );
+        assert_eq!(
+            resource_url(&with, &ResourceType::Patient, "123")
+                .as_ref()
+                .map(Url::as_str),
+            Some("https://api.haste.health/w/acme/default/api/v1/fhir/Patient/123")
+        );
     }
 }

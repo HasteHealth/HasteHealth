@@ -112,7 +112,7 @@ const binary = await client.invoke_system(
 <TabItem value="curl" label="cURL">
 
 ```bash
-curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/\$viewdefinition-run" \
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/\$viewdefinition-run" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{

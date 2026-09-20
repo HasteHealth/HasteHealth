@@ -86,7 +86,7 @@ sequenceDiagram
         User->>App: Request patient data
         App->>App: Check token expiration
         
-        App->>API: GET /w/{tenant}/{project}/api/v1/fhir/r4/Patient<br/>Authorization: Bearer ACCESS_TOKEN
+        App->>API: GET /w/{tenant}/{project}/api/v1/fhir/Patient<br/>Authorization: Bearer ACCESS_TOKEN
         
         API->>API: Validate access token<br/>Check expiration
         

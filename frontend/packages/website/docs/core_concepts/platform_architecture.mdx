@@ -174,7 +174,7 @@ User accounts associated with the tenant:
 Create a new project via the FHIR API:
 
 ```http
-POST /w/{tenant}/system/api/v1/fhir/r4/Project
+POST /w/{tenant}/system/api/v1/fhir/Project
 Content-Type: application/fhir+json
 
 {
@@ -197,10 +197,10 @@ To work with resources in different projects, change the project in the URL:
 
 ```bash
 # Access production project
-GET /w/acme-health/production/api/v1/fhir/r4/Patient
+GET /w/acme-health/production/api/v1/fhir/Patient
 
 # Access staging project
-GET /w/acme-health/staging/api/v1/fhir/r4/Patient
+GET /w/acme-health/staging/api/v1/fhir/Patient
 ```
 
 ### Listing Projects
@@ -208,7 +208,7 @@ GET /w/acme-health/staging/api/v1/fhir/r4/Patient
 Query available projects:
 
 ```http
-GET /w/{tenant}/system/api/v1/fhir/r4/Project
+GET /w/{tenant}/system/api/v1/fhir/Project
 ```
 
 ### Deleting a Project
@@ -216,7 +216,7 @@ GET /w/{tenant}/system/api/v1/fhir/r4/Project
 Delete a user-created project:
 
 ```http
-DELETE /w/{tenant}/system/api/v1/fhir/r4/Project/cardiology
+DELETE /w/{tenant}/system/api/v1/fhir/Project/cardiology
 ```
 
 **Restrictions:**
@@ -237,17 +237,17 @@ https://api.haste.health/w/{tenant}/{project}/api/v1/fhir/{version}/{resourceTyp
 
 **Patient in production project:**
 ```
-https://api.haste.health/w/acme-health/production/api/v1/fhir/r4/Patient/123
+https://api.haste.health/w/acme-health/production/api/v1/fhir/Patient/123
 ```
 
 **Get a User from the system project:**
 ```
-https://api.haste.health/w/acme-health/system/api/v1/fhir/r4/User/user-456
+https://api.haste.health/w/acme-health/system/api/v1/fhir/User/user-456
 ```
 
 **Search in specific project:**
 ```
-https://api.haste.health/w/acme-health/cardiology/api/v1/fhir/r4/Observation?patient=Patient/123
+https://api.haste.health/w/acme-health/cardiology/api/v1/fhir/Observation?patient=Patient/123
 ```
 
 ## Authentication Context
