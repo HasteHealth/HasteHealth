@@ -408,20 +408,14 @@ fn create_openapi_schema(server_root: &str, api_version: &str) -> OpenAPI {
         },
     );
 
-    fhir_server_variables.insert(
-        "fhir_version".to_string(),
-        OpenAPIServerVariable {
-            default: "r4".to_string(),
-            description: Some("FHIR version".to_string()),
-        },
-    );
-
     OpenAPI {
         openapi: "3.1.1".to_string(),
         servers: vec![OpenAPIServer {
+            // No FHIR version segment: it is a property of the project, and
+            // the endpoint answers without it.
             url: format!(
-                "{}/w/{}/{}/api/v1/fhir/{}",
-                server_root, "{tenant}", "{project}", "{fhir_version}"
+                "{}/w/{}/{}/api/v1/fhir",
+                server_root, "{tenant}", "{project}"
             ),
             description: Some("Haste Health FHIR Server".to_string()),
             variables: fhir_server_variables,
