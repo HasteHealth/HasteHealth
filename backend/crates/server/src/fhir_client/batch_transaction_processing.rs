@@ -154,7 +154,7 @@ pub fn bundle_entry_to_fhir_request(
             if let Some(body) = entry.resource {
                 fhir_http::HTTPBody::Resource(*body)
             } else {
-                fhir_http::HTTPBody::String("".to_string())
+                fhir_http::HTTPBody::Bytes(axum::body::Bytes::new())
             },
             url::form_urlencoded::parse(query.as_bytes())
                 .into_owned()

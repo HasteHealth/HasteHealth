@@ -14,7 +14,7 @@ use crate::{
 };
 use axum::{
     Extension, Router, ServiceExt,
-    body::Body,
+    body::{Body, Bytes},
     extract::{DefaultBodyLimit, OriginalUri, Path, State},
     http::Request,
     http::{HeaderName, HeaderValue, Method},
@@ -81,12 +81,12 @@ async fn fhir_handler<
     OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRHandlerPath>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
-    body: String,
+    body: Bytes,
 ) -> Result<Response, OperationOutcomeError> {
     let http_req = HTTPRequest::new(
         method,
         path.fhir_location.unwrap_or_default(),
-        HTTPBody::String(body),
+        HTTPBody::Bytes(body),
         uri.query()
             .map(|q| {
                 url::form_urlencoded::parse(q.as_bytes())
