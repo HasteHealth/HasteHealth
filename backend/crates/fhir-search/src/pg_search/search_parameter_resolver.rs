@@ -59,8 +59,8 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
              AND t.param_url = 'http://hl7.org/fhir/SearchParameter/conformance-status' \
              AND t.code = 'active' \
          LIMIT 10000",
-        resource_table = resource_table_name(SupportedFHIRVersions::R4),
-        token_table = SharedTable::Token.table_name(SupportedFHIRVersions::R4),
+        resource_table = resource_table_name(&SupportedFHIRVersions::R4),
+        token_table = SharedTable::Token.table_name(&SupportedFHIRVersions::R4),
     );
 
     let rows = sqlx::query(&sql)

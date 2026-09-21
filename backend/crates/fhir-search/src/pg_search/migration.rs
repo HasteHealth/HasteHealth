@@ -194,10 +194,9 @@ CREATE INDEX IF NOT EXISTS idx_{name}_resource
         // compares `LOWER(value)`. An index on the bare column cannot serve a
         // predicate over an expression of it.
         SharedTable::String => Some("LOWER(value) text_pattern_ops".to_string()),
-        SharedTable::Uri => Some("value".to_string()),
+        SharedTable::Uri | SharedTable::Number => Some("value".to_string()),
         SharedTable::Token => Some("code".to_string()),
         SharedTable::Date => Some("start_ms, end_ms".to_string()),
-        SharedTable::Number => Some("value".to_string()),
         SharedTable::Quantity => Some("start_value, end_value".to_string()),
         SharedTable::Reference => Some("target_id".to_string()),
     };

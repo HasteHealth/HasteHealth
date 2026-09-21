@@ -1392,7 +1392,7 @@ mod tests {
     #[test]
     fn every_shared_insert_matches_its_table_definition() {
         for table in SharedTable::ALL {
-            let name = table.table_name(SupportedFHIRVersions::R4);
+            let name = table.table_name(&SupportedFHIRVersions::R4);
             let expected: Vec<String> = IDENTITY_COLUMNS
                 .iter()
                 .map(|column| (*column).to_string())

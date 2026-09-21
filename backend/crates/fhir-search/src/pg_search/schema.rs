@@ -253,7 +253,7 @@ impl SharedTable {
     /// (`r4_patient_idx`): a resource type name has no underscore, so no
     /// resource type can ever produce one of these names.
     #[must_use]
-    pub fn table_name(self, version: SupportedFHIRVersions) -> String {
+    pub fn table_name(self, version: &SupportedFHIRVersions) -> String {
         format!("{version}_param_{}_idx", self.kind())
     }
 
@@ -355,13 +355,13 @@ impl SchemaRegistry {
     /// selects from and every other table hangs off.
     #[must_use]
     pub fn resource_table_name(&self) -> String {
-        resource_table_name(self.version.clone())
+        resource_table_name(&self.version)
     }
 
     /// The name of a shared table in this registry's FHIR version.
     #[must_use]
     pub fn shared_table_name(&self, table: SharedTable) -> String {
-        table.table_name(self.version.clone())
+        table.table_name(&self.version)
     }
 
     #[must_use]
@@ -407,13 +407,13 @@ pub fn code_to_column_base(code: &str) -> String {
 
 /// The anchor table for a FHIR version: one row per indexed resource.
 #[must_use]
-pub fn resource_table_name(version: SupportedFHIRVersions) -> String {
+pub fn resource_table_name(version: &SupportedFHIRVersions) -> String {
     format!("{version}_resource_idx")
 }
 
 /// `r4_patient_idx` — one table per resource type.
 #[must_use]
-pub fn resource_type_to_table(version: SupportedFHIRVersions, resource_type: &str) -> String {
+pub fn resource_type_to_table(version: &SupportedFHIRVersions, resource_type: &str) -> String {
     format!("{version}_{}_idx", resource_type.to_ascii_lowercase())
 }
 
@@ -524,12 +524,81 @@ fn column_defs(columns: &ParamColumns) -> Vec<ColumnDef> {
     }
 }
 
-/// Builds a table per resource type from the singular system-level parameters.
+/// The columns for `parameter`, or `None` when it cannot have any.
 ///
 /// A parameter is given a column only when it is known to produce at most one
 /// value. Everything else — repeating parameters, project-level parameters,
 /// anything the cardinality analysis could not settle — is left out, and
 /// resolves through the shared tables instead.
+fn singular_columns(parameter: &ResolvedParameter) -> Option<(&str, ParamColumns)> {
+    if !matches!(parameter.level, ParameterLevel::System) {
+        return None;
+    }
+
+    let search_parameter = &parameter.search_parameter;
+    let code = search_parameter.code.value.as_deref()?;
+
+    // Without an expression nothing is ever evaluated into the column.
+    search_parameter
+        .expression
+        .as_ref()
+        .and_then(|e| e.value.as_deref())?;
+
+    // The compiled classification is the gate: a column is only safe for a
+    // parameter that cannot produce a second value to drop.
+    let url = search_parameter.url.value.as_deref()?;
+    if !search_parameter_cardinality::is_single_valued(url) {
+        return None;
+    }
+
+    let columns = columns_for_type(&code_to_column_base(code), &search_parameter.type_)?;
+    Some((code, columns))
+}
+
+/// Lays out one table from its parameters, in order.
+///
+/// Names already taken on the table are seeded with the fixed columns. Two
+/// parameters can also normalize to colliding names; first writer wins and the
+/// loser resolves through the shared tables, which have no such constraint.
+fn build_table_schema(
+    table_name: String,
+    resource_type: String,
+    entries: &[(String, ParamColumns)],
+) -> ResourceTypeSchema {
+    let mut schema = ResourceTypeSchema {
+        table_name,
+        resource_type,
+        parameters: HashMap::new(),
+        columns: Vec::new(),
+    };
+
+    let mut claimed: HashSet<String> = RESERVED_COLUMNS.iter().map(|c| (*c).to_string()).collect();
+
+    for (code, columns) in entries {
+        let names = columns.column_names();
+        if names.iter().any(|name| claimed.contains(*name)) {
+            tracing::warn!(
+                "PG search: '{code}' on '{}' collides with an existing column; \
+                 it resolves through the shared tables instead.",
+                schema.table_name,
+            );
+            continue;
+        }
+
+        for name in names {
+            claimed.insert(name.to_string());
+        }
+
+        schema.columns.extend(column_defs(columns));
+        schema.parameters.insert(code.clone(), columns.clone());
+    }
+
+    schema.columns.sort_by(|a, b| a.name.cmp(&b.name));
+    schema
+}
+
+/// Builds a table per resource type from the singular system-level
+/// parameters, plus the anchor's columns for the resource-level ones.
 #[must_use]
 pub fn generate_schemas(
     version: SupportedFHIRVersions,
@@ -537,136 +606,42 @@ pub fn generate_schemas(
 ) -> SchemaRegistry {
     let mut universal: Vec<(String, ParamColumns)> = Vec::new();
     let mut per_type: HashMap<String, Vec<(String, ParamColumns)>> = HashMap::new();
-    let mut resource_types: HashSet<String> = HashSet::new();
 
     for parameter in parameters {
-        if !matches!(parameter.level, ParameterLevel::System) {
-            continue;
-        }
-
-        let search_parameter = &parameter.search_parameter;
-
-        let Some(code) = search_parameter.code.value.as_deref() else {
+        let Some((code, columns)) = singular_columns(parameter) else {
             continue;
         };
 
-        // Without an expression nothing is ever evaluated into the column.
-        if search_parameter
-            .expression
-            .as_ref()
-            .and_then(|e| e.value.as_deref())
-            .is_none()
-        {
-            continue;
-        }
-
-        // The compiled classification is the gate: a column is only safe for a
-        // parameter that cannot produce a second value to drop.
-        let Some(url) = search_parameter.url.value.as_deref() else {
-            continue;
-        };
-        if !search_parameter_cardinality::is_single_valued(url) {
-            continue;
-        }
-
-        let column_base = code_to_column_base(code);
-        let Some(columns) = columns_for_type(&column_base, &search_parameter.type_) else {
-            continue;
-        };
-
-        for base in &search_parameter.base {
-            let Some(base) = base.as_str() else {
-                continue;
+        for base in parameter.search_parameter.base.iter().filter_map(|b| b.as_str()) {
+            let entries = if UNIVERSAL_BASES.contains(&base) {
+                &mut universal
+            } else {
+                per_type.entry(base.to_string()).or_default()
             };
 
-            if UNIVERSAL_BASES.contains(&base) {
-                if !universal.iter().any(|(existing, _)| existing == code) {
-                    universal.push((code.to_string(), columns.clone()));
-                }
-            } else {
-                resource_types.insert(base.to_string());
-                let entries = per_type.entry(base.to_string()).or_default();
-                if !entries.iter().any(|(existing, _)| existing == code) {
-                    entries.push((code.to_string(), columns.clone()));
-                }
+            if !entries.iter().any(|(existing, _)| existing == code) {
+                entries.push((code.to_string(), columns.clone()));
             }
         }
     }
 
-    let mut anchor = ResourceTypeSchema {
-        table_name: resource_table_name(version.clone()),
-        resource_type: "Resource".to_string(),
-        parameters: HashMap::new(),
-        columns: Vec::new(),
-    };
+    let anchor = build_table_schema(
+        resource_table_name(&version),
+        "Resource".to_string(),
+        &universal,
+    );
 
-    {
-        let mut claimed: HashSet<String> =
-            RESERVED_COLUMNS.iter().map(|c| (*c).to_string()).collect();
-
-        for (code, columns) in &universal {
-            let names = columns.column_names();
-            if names.iter().any(|name| claimed.contains(*name)) {
-                tracing::warn!(
-                    "PG search: resource-level '{code}' collides with a fixed column on the \
-                     anchor table; it resolves through the shared tables instead.",
-                );
-                continue;
-            }
-
-            for name in names {
-                claimed.insert(name.to_string());
-            }
-
-            anchor.columns.extend(column_defs(columns));
-            anchor.parameters.insert(code.clone(), columns.clone());
-        }
-
-        anchor.columns.sort_by(|a, b| a.name.cmp(&b.name));
-    }
-
-    let mut schemas = HashMap::with_capacity(resource_types.len());
-
-    for resource_type in resource_types {
-        let mut schema = ResourceTypeSchema {
-            table_name: resource_type_to_table(version.clone(), &resource_type),
-            resource_type: resource_type.clone(),
-            parameters: HashMap::new(),
-            columns: Vec::new(),
-        };
-
-        // Names already taken on this table, seeded with the fixed columns.
-        // Two parameters can also normalize to colliding names; first writer
-        // wins and the loser resolves through the shared tables, which have no
-        // such constraint.
-        let mut claimed: HashSet<String> =
-            RESERVED_COLUMNS.iter().map(|c| (*c).to_string()).collect();
-
-        for (code, columns) in per_type
-            .get(&resource_type)
-            .map(Vec::as_slice)
-            .unwrap_or_default()
-        {
-            let names = columns.column_names();
-            if names.iter().any(|name| claimed.contains(*name)) {
-                tracing::warn!(
-                    "PG search: '{code}' on '{resource_type}' collides with an existing column; \
-                     it resolves through the shared tables instead.",
-                );
-                continue;
-            }
-
-            for name in names {
-                claimed.insert(name.to_string());
-            }
-
-            schema.columns.extend(column_defs(columns));
-            schema.parameters.insert(code.clone(), columns.clone());
-        }
-
-        schema.columns.sort_by(|a, b| a.name.cmp(&b.name));
-        schemas.insert(resource_type, schema);
-    }
+    let schemas = per_type
+        .into_iter()
+        .map(|(resource_type, entries)| {
+            let schema = build_table_schema(
+                resource_type_to_table(&version, &resource_type),
+                resource_type.clone(),
+                &entries,
+            );
+            (resource_type, schema)
+        })
+        .collect();
 
     SchemaRegistry {
         version,
@@ -698,15 +673,15 @@ mod tests {
     #[test]
     fn tables_are_named_by_version_and_purpose() {
         assert_eq!(
-            resource_type_to_table(SupportedFHIRVersions::R4, "Patient"),
+            resource_type_to_table(&SupportedFHIRVersions::R4, "Patient"),
             "r4_patient_idx"
         );
         assert_eq!(
-            SharedTable::Token.table_name(SupportedFHIRVersions::R4),
+            SharedTable::Token.table_name(&SupportedFHIRVersions::R4),
             "r4_param_token_idx"
         );
         assert_eq!(
-            resource_table_name(SupportedFHIRVersions::R4),
+            resource_table_name(&SupportedFHIRVersions::R4),
             "r4_resource_idx"
         );
     }
