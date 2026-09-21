@@ -20,6 +20,7 @@
 //! fan-out, which is why [`ResolvedPath::leaf_type`] is reported alongside.
 
 use std::collections::HashMap;
+use std::fmt::Write as _;
 
 use haste_fhir_model::r4::generated::{resources::StructureDefinition, types::ElementDefinition};
 
@@ -359,10 +360,10 @@ pub fn generate_lookup(
     urls.sort_unstable();
     urls.dedup();
 
-    let entries = urls
-        .iter()
-        .map(|url| format!("    {url:?},\n"))
-        .collect::<String>();
+    let entries = urls.iter().fold(String::new(), |mut entries, url| {
+        let _ = writeln!(entries, "    {url:?},");
+        entries
+    });
 
     format!(
         r#"//! Search parameters that produce at most one index value per resource.
