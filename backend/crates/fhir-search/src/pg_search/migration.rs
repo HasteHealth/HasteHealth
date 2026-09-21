@@ -246,9 +246,9 @@ async fn migrate_resource_type_table(
     );
 
     for column in &schema.columns {
-        let _ = write!(
+        let _ = writeln!(
             sql,
-            "ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {} {};\n",
+            "ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {} {};",
             quote_ident(&column.name),
             column.column_type.sql_type()
         );
