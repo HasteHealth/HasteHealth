@@ -29,7 +29,7 @@ use sqlx::{Pool, Postgres};
 
 use super::{
     PgSearchError, resource_to_search_index,
-    schema::{ColumnType, ParamColumns, ResourceTypeSchema, SchemaRegistry},
+    schema::{ColumnType, ParamColumns, ResourceTypeSchema, SchemaRegistry, SharedTable},
 };
 use crate::{
     IndexFailure, IndexOutcome, IndexResource, ResolvedParameter, SearchParameterResolve,
@@ -67,7 +67,7 @@ pub async fn index_resources<Resolver: SearchParameterResolve + 'static>(
 
     // A batch can carry several versions of the same resource (a create and a
     // later update land in the same sequence window). Writing them set-based
-    // would collide on `search_resource`'s primary key, and only the final
+    // would collide on the anchor table's primary key, and only the final
     // state belongs in the index anyway, so earlier versions are set aside
     // here and accounted for alongside the version that supersedes them.
     let (resources, superseded) = dedupe_keep_last(resources);
@@ -169,21 +169,23 @@ struct ConvertedWrite {
     /// resource produced no value for that column. `None` overall when the
     /// resource type has no generated table.
     system_row: Option<Vec<Option<ColumnValues>>>,
+    /// One slot per column on the anchor table, for the resource-level
+    /// parameters every resource carries.
+    anchor_row: Vec<Option<ColumnValues>>,
     /// Values bound for the shared EAV tables, each already keyed by the
     /// canonical URL those tables discriminate on — system-level references
     /// mirrored there included.
     dynamic: Vec<(String, InsertableIndex)>,
 }
 
-/// One column's worth of values, ready to bind as a PostgreSQL array.
+/// One column's value, ready to bind.
 ///
-/// `Text` carries `Option<String>` because a token's system (and a
-/// reference's type) is genuinely absent for some values, and the NULL has to
-/// stay in place so the parallel arrays keep lining up.
+/// A column exists only for a parameter that cannot repeat, so a resource has
+/// one value for it or none; the empty slot carries the absence.
 enum ColumnValues {
-    Text(Vec<Option<String>>),
-    BigInt(Vec<i64>),
-    Double(Vec<f64>),
+    Text(String),
+    BigInt(i64),
+    Double(f64),
 }
 
 /// Identifies the parameter set a resource is indexed against.
@@ -349,23 +351,35 @@ async fn convert_resource(
 
             let schema = schema_registry.get(&key.resource_type);
 
-            // System-level parameters go into dedicated columns on the
-            // per-resource-type table, one row per resource with an array per
-            // column.
+            // Singular system-level parameters go into columns on the
+            // per-resource-type table, one row per resource.
             let system_row = schema.map(|schema| system_row(schema, &index.system_entries));
+
+            // Resource-level parameters are columns on the anchor, not on the
+            // resource type's table, so they are collected against the anchor
+            // schema from the same entries.
+            let anchor_row = self::system_row(schema_registry.anchor(), &index.system_entries);
 
             // Project-level parameters go into the shared EAV tables.
             let mut dynamic = index.dynamic_entries;
 
-            // Reverse-reference lookups (`_revinclude`, chained search) scan
-            // references across resource types, which the per-type columns
-            // can't serve. Mirroring system-level references into the shared
-            // reference table keeps one place to scan. The mirror is keyed by
-            // URL like every other row there, so the code has to be resolved
-            // back to the parameter it came from — which only this phase can
-            // do, since it is the one holding the parameter set.
+            // Two cases send a system-level value to the shared tables too,
+            // keyed by URL like every other row there — so the code has to be
+            // resolved back to the parameter it came from, which only this
+            // phase can do, since it is the one holding the parameter set.
+            //
+            // - No column took it (a column-name collision, or a resource
+            //   type with no table). A search for it finds no column either
+            //   and reads the shared table, so that is where it has to be.
+            // - It is a reference. Reverse-reference lookups (`_revinclude`,
+            //   chained search) scan references across resource types, which
+            //   the per-type columns can't serve, so they are mirrored into
+            //   the shared reference table to keep one place to scan.
             for (code, insertable) in index.system_entries {
-                if matches!(insertable, InsertableIndex::Reference(_))
+                let has_column = schema_registry.anchor().columns_for(&code).is_some()
+                    || schema.is_some_and(|schema| schema.columns_for(&code).is_some());
+
+                if (!has_column || matches!(insertable, InsertableIndex::Reference(_)))
                     && let Some(param_url) = set.url_by_code.get(&code)
                 {
                     dynamic.push((param_url.clone(), insertable));
@@ -374,6 +388,7 @@ async fn convert_resource(
 
             Some(ConvertedWrite {
                 system_row,
+                anchor_row,
                 dynamic,
             })
         }
@@ -413,37 +428,42 @@ fn system_row(
     slots
 }
 
-/// A column's values, taken in the order the parallel arrays have to preserve.
-fn text_column<'a>(values: impl Iterator<Item = Option<&'a str>>) -> ColumnValues {
-    ColumnValues::Text(values.map(|v| v.map(str::to_string)).collect())
+/// The single value a column holds, or nothing when the resource produced
+/// none. Only the first value is taken: a column exists only where the
+/// cardinality analysis established there can be no second one, so a second
+/// would mean the classification and the data disagree.
+fn text_column<'a>(mut values: impl Iterator<Item = Option<&'a str>>) -> Option<ColumnValues> {
+    values
+        .next()
+        .flatten()
+        .map(|value| ColumnValues::Text(value.to_string()))
 }
 
-fn bigint_column(values: impl Iterator<Item = i64>) -> ColumnValues {
-    ColumnValues::BigInt(values.collect())
+fn bigint_column(mut values: impl Iterator<Item = i64>) -> Option<ColumnValues> {
+    values.next().map(ColumnValues::BigInt)
 }
 
-fn double_column(values: impl Iterator<Item = f64>) -> ColumnValues {
-    ColumnValues::Double(values.collect())
+fn double_column(mut values: impl Iterator<Item = f64>) -> Option<ColumnValues> {
+    values.next().map(ColumnValues::Double)
 }
 
 /// Fills the slots for one parameter's columns.
 ///
-/// Multi-part types (token, date, reference, quantity) are written as
-/// *parallel* arrays: position `i` of each column belongs to the same logical
-/// value, which is what lets queries recombine them with `unnest(a, b)`.
+/// Multi-part types (token, date, reference, quantity) write every part to
+/// its own column of the same row.
 ///
 /// A mismatch between the parameter's declared type and the evaluated value's
 /// type (which would mean the schema and the conversion disagree) writes
-/// nothing rather than a half-filled set of parallel arrays.
+/// nothing rather than a half-filled set of columns.
 fn collect_column_values(
     schema: &ResourceTypeSchema,
     param_columns: &ParamColumns,
     insertable: &InsertableIndex,
     slots: &mut [Option<ColumnValues>],
 ) {
-    let mut set = |name: &str, values: ColumnValues| {
-        if let Some(index) = schema.column_index(name) {
-            slots[index] = Some(values);
+    let mut set = |name: &str, value: Option<ColumnValues>| {
+        if let (Some(index), Some(value)) = (schema.column_index(name), value) {
+            slots[index] = Some(value);
         }
     };
 
@@ -569,13 +589,13 @@ fn bind_keys<'a>(query: PgQuery<'a>, keys: &'a KeyColumns) -> PgQuery<'a> {
 /// Every parameter is cast to its column's array type. The casts are not
 /// decoration: a column whose values are all NULL gives Postgres nothing to
 /// infer the array type from.
-fn dynamic_insert_sql(table: &str, value_columns: &[(&str, &str)]) -> String {
+fn dynamic_insert_sql(table: &str, shared_table: SharedTable) -> String {
     let mut columns = String::from("tenant, project, resource_type, resource_id, param_url");
     let mut arrays = String::from("$1::text[], $2::text[], $3::text[], $4::text[], $5::text[]");
 
-    for (offset, (name, sql_type)) in value_columns.iter().enumerate() {
-        let _ = write!(columns, ", {name}");
-        let _ = write!(arrays, ", ${}::{sql_type}[]", offset + 6);
+    for (offset, column) in shared_table.value_columns().iter().enumerate() {
+        let _ = write!(columns, ", {}", column.name);
+        let _ = write!(arrays, ", ${}::{}[]", offset + 6, column.sql_type);
     }
 
     format!("INSERT INTO {table} ({columns}) SELECT * FROM unnest({arrays})")
@@ -597,13 +617,16 @@ impl TextRows {
     async fn insert(
         &self,
         conn: &mut sqlx::PgConnection,
-        table: &str,
+        registry: &SchemaRegistry,
+        table: SharedTable,
     ) -> Result<(), OperationOutcomeError> {
         if self.keys.is_empty() {
             return Ok(());
         }
 
-        let sql = dynamic_insert_sql(table, &[("value", "text")]);
+        let name = registry.shared_table_name(table);
+
+        let sql = dynamic_insert_sql(&name, table);
         bind_keys(sqlx::query(&sql), &self.keys)
             .bind(&self.value)
             .execute(conn)
@@ -625,12 +648,19 @@ impl NumberRows {
         self.value.push(value);
     }
 
-    async fn insert(&self, conn: &mut sqlx::PgConnection) -> Result<(), OperationOutcomeError> {
+    async fn insert(
+        &self,
+        conn: &mut sqlx::PgConnection,
+        registry: &SchemaRegistry,
+        table: SharedTable,
+    ) -> Result<(), OperationOutcomeError> {
         if self.keys.is_empty() {
             return Ok(());
         }
 
-        let sql = dynamic_insert_sql("search_dynamic_number", &[("value", "float8")]);
+        let name = registry.shared_table_name(table);
+
+        let sql = dynamic_insert_sql(&name, table);
         bind_keys(sqlx::query(&sql), &self.keys)
             .bind(&self.value)
             .execute(conn)
@@ -654,15 +684,19 @@ impl TokenRows {
         self.code.push(token.code().map(str::to_string));
     }
 
-    async fn insert(&self, conn: &mut sqlx::PgConnection) -> Result<(), OperationOutcomeError> {
+    async fn insert(
+        &self,
+        conn: &mut sqlx::PgConnection,
+        registry: &SchemaRegistry,
+        table: SharedTable,
+    ) -> Result<(), OperationOutcomeError> {
         if self.keys.is_empty() {
             return Ok(());
         }
 
-        let sql = dynamic_insert_sql(
-            "search_dynamic_token",
-            &[("system", "text"), ("code", "text")],
-        );
+        let name = registry.shared_table_name(table);
+
+        let sql = dynamic_insert_sql(&name, table);
         bind_keys(sqlx::query(&sql), &self.keys)
             .bind(&self.system)
             .bind(&self.code)
@@ -687,15 +721,19 @@ impl DateRows {
         self.end_ms.push(range.end);
     }
 
-    async fn insert(&self, conn: &mut sqlx::PgConnection) -> Result<(), OperationOutcomeError> {
+    async fn insert(
+        &self,
+        conn: &mut sqlx::PgConnection,
+        registry: &SchemaRegistry,
+        table: SharedTable,
+    ) -> Result<(), OperationOutcomeError> {
         if self.keys.is_empty() {
             return Ok(());
         }
 
-        let sql = dynamic_insert_sql(
-            "search_dynamic_date",
-            &[("start_ms", "int8"), ("end_ms", "int8")],
-        );
+        let name = registry.shared_table_name(table);
+
+        let sql = dynamic_insert_sql(&name, table);
         bind_keys(sqlx::query(&sql), &self.keys)
             .bind(&self.start_ms)
             .bind(&self.end_ms)
@@ -711,7 +749,6 @@ struct ReferenceRows {
     keys: KeyColumns,
     target_resource_type: Vec<Option<String>>,
     target_id: Vec<Option<String>>,
-    target_uri: Vec<Option<String>>,
 }
 
 impl ReferenceRows {
@@ -720,26 +757,24 @@ impl ReferenceRows {
         self.target_resource_type
             .push(reference.resource_type().map(str::to_string));
         self.target_id.push(reference.id().map(str::to_string));
-        self.target_uri.push(reference.uri().map(str::to_string));
     }
 
-    async fn insert(&self, conn: &mut sqlx::PgConnection) -> Result<(), OperationOutcomeError> {
+    async fn insert(
+        &self,
+        conn: &mut sqlx::PgConnection,
+        registry: &SchemaRegistry,
+        table: SharedTable,
+    ) -> Result<(), OperationOutcomeError> {
         if self.keys.is_empty() {
             return Ok(());
         }
 
-        let sql = dynamic_insert_sql(
-            "search_dynamic_reference",
-            &[
-                ("target_resource_type", "text"),
-                ("target_id", "text"),
-                ("target_uri", "text"),
-            ],
-        );
+        let name = registry.shared_table_name(table);
+
+        let sql = dynamic_insert_sql(&name, table);
         bind_keys(sqlx::query(&sql), &self.keys)
             .bind(&self.target_resource_type)
             .bind(&self.target_id)
-            .bind(&self.target_uri)
             .execute(conn)
             .await
             .map_err(PgSearchError::from)?;
@@ -754,8 +789,6 @@ struct QuantityRows {
     start_system: Vec<Option<String>>,
     start_code: Vec<Option<String>>,
     end_value: Vec<f64>,
-    end_system: Vec<Option<String>>,
-    end_code: Vec<Option<String>>,
 }
 
 impl QuantityRows {
@@ -767,34 +800,26 @@ impl QuantityRows {
         self.start_code
             .push(quantity.start_code().map(str::to_string));
         self.end_value.push(quantity.end_value());
-        self.end_system
-            .push(quantity.end_system().map(str::to_string));
-        self.end_code.push(quantity.end_code().map(str::to_string));
     }
 
-    async fn insert(&self, conn: &mut sqlx::PgConnection) -> Result<(), OperationOutcomeError> {
+    async fn insert(
+        &self,
+        conn: &mut sqlx::PgConnection,
+        registry: &SchemaRegistry,
+        table: SharedTable,
+    ) -> Result<(), OperationOutcomeError> {
         if self.keys.is_empty() {
             return Ok(());
         }
 
-        let sql = dynamic_insert_sql(
-            "search_dynamic_quantity",
-            &[
-                ("start_value", "float8"),
-                ("start_system", "text"),
-                ("start_code", "text"),
-                ("end_value", "float8"),
-                ("end_system", "text"),
-                ("end_code", "text"),
-            ],
-        );
+        let name = registry.shared_table_name(table);
+
+        let sql = dynamic_insert_sql(&name, table);
         bind_keys(sqlx::query(&sql), &self.keys)
             .bind(&self.start_value)
+            .bind(&self.end_value)
             .bind(&self.start_system)
             .bind(&self.start_code)
-            .bind(&self.end_value)
-            .bind(&self.end_system)
-            .bind(&self.end_code)
             .execute(conn)
             .await
             .map_err(PgSearchError::from)?;
@@ -899,16 +924,32 @@ impl DynamicBatch {
 
     /// One statement per table, each binding a fixed set of arrays however
     /// many rows it carries.
-    async fn insert(&self, conn: &mut sqlx::PgConnection) -> Result<(), OperationOutcomeError> {
+    async fn insert(
+        &self,
+        conn: &mut sqlx::PgConnection,
+        registry: &SchemaRegistry,
+    ) -> Result<(), OperationOutcomeError> {
         self.string
-            .insert(&mut *conn, "search_dynamic_string")
+            .insert(&mut *conn, registry, SharedTable::String)
             .await?;
-        self.uri.insert(&mut *conn, "search_dynamic_uri").await?;
-        self.number.insert(&mut *conn).await?;
-        self.token.insert(&mut *conn).await?;
-        self.date.insert(&mut *conn).await?;
-        self.reference.insert(&mut *conn).await?;
-        self.quantity.insert(&mut *conn).await?;
+        self.uri
+            .insert(&mut *conn, registry, SharedTable::Uri)
+            .await?;
+        self.number
+            .insert(&mut *conn, registry, SharedTable::Number)
+            .await?;
+        self.token
+            .insert(&mut *conn, registry, SharedTable::Token)
+            .await?;
+        self.date
+            .insert(&mut *conn, registry, SharedTable::Date)
+            .await?;
+        self.reference
+            .insert(&mut *conn, registry, SharedTable::Reference)
+            .await?;
+        self.quantity
+            .insert(&mut *conn, registry, SharedTable::Quantity)
+            .await?;
         Ok(())
     }
 }
@@ -980,7 +1021,7 @@ async fn write_batch(
     // Clears the previous version of every resource in the batch — the
     // re-indexed ones and the deleted ones alike — before re-inserting.
     delete_previous_versions(tx.as_mut(), schema_registry, &converted).await?;
-    insert_anchors(tx.as_mut(), &converted).await?;
+    insert_anchors(tx.as_mut(), schema_registry, &converted).await?;
 
     for (resource_type, rows) in &system_rows {
         if let Some(schema) = schema_registry.get(resource_type) {
@@ -988,7 +1029,7 @@ async fn write_batch(
         }
     }
 
-    dynamic.insert(tx.as_mut()).await?;
+    dynamic.insert(tx.as_mut(), schema_registry).await?;
 
     tx.commit().await.map_err(|e| {
         OperationOutcomeError::fatal(
@@ -1030,25 +1071,12 @@ impl AnchorColumns {
     }
 }
 
-/// The seven shared EAV tables, which every resource clears the same way.
-const DYNAMIC_TABLES: [&str; 7] = [
-    "search_dynamic_string",
-    "search_dynamic_uri",
-    "search_dynamic_number",
-    "search_dynamic_token",
-    "search_dynamic_date",
-    "search_dynamic_reference",
-    "search_dynamic_quantity",
-];
-
 /// Clears every trace of the previous version of each resource in the batch:
-/// the dynamic rows, the per-resource-type row, then the anchor.
+/// the shared-table rows, the per-resource-type row, then the anchor.
 ///
-/// This used to be a single delete that let `ON DELETE CASCADE` find the
-/// children. It no longer can — the cascade fired a referential-integrity
-/// trigger for all ~145 tables referencing `search_resource` on *every* row
-/// deleted, whatever the resource's type. Targeting the tables the batch
-/// actually touches trades that for one statement per table.
+/// There are no foreign keys to cascade through: one would fire a
+/// referential-integrity trigger for all ~145 resource type tables on every
+/// deleted row. Instead each table the batch touches gets its own statement.
 async fn delete_previous_versions(
     conn: &mut sqlx::PgConnection,
     schema_registry: &SchemaRegistry,
@@ -1056,7 +1084,7 @@ async fn delete_previous_versions(
 ) -> Result<(), OperationOutcomeError> {
     let anchors = AnchorColumns::collect(converted.iter().map(|entry| &entry.key));
 
-    for table in DYNAMIC_TABLES {
+    for table in SharedTable::ALL.map(|table| schema_registry.shared_table_name(table)) {
         let sql = format!(
             "DELETE FROM {table} t \
              USING unnest($1::text[], $2::text[], $3::text[], $4::text[]) \
@@ -1108,14 +1136,17 @@ async fn delete_previous_versions(
         .map_err(PgSearchError::from)?;
     }
 
+    let sql = format!(
+        "DELETE FROM {resource_table} sr \
+         USING unnest($1::text[], $2::text[], $3::text[], $4::text[]) \
+             AS k(tenant, project, resource_type, resource_id) \
+         WHERE sr.tenant = k.tenant AND sr.project = k.project \
+             AND sr.resource_type = k.resource_type AND sr.resource_id = k.resource_id",
+        resource_table = schema_registry.resource_table_name(),
+    );
+
     anchors
-        .bind(sqlx::query(
-            "DELETE FROM search_resource sr \
-             USING unnest($1::text[], $2::text[], $3::text[], $4::text[]) \
-                 AS k(tenant, project, resource_type, resource_id) \
-             WHERE sr.tenant = k.tenant AND sr.project = k.project \
-                 AND sr.resource_type = k.resource_type AND sr.resource_id = k.resource_id",
-        ))
+        .bind(sqlx::query(&sql))
         .execute(conn)
         .await
         .map_err(PgSearchError::from)?;
@@ -1133,38 +1164,115 @@ struct TypedKeys<'a> {
 }
 
 /// Inserts the anchor rows, which every other table's rows hang off.
+///
+/// The anchor also carries the resource-level parameters' columns, so this
+/// binds them the same way the resource type insert binds its own.
 async fn insert_anchors(
     conn: &mut sqlx::PgConnection,
+    schema_registry: &SchemaRegistry,
     converted: &[Converted],
 ) -> Result<(), OperationOutcomeError> {
-    let written = converted.iter().filter(|entry| entry.write.is_some());
-    let anchors = AnchorColumns::collect(written.clone().map(|entry| &entry.key));
+    let anchor = schema_registry.anchor();
 
-    if anchors.tenant.is_empty() {
+    let rows: Vec<(&Converted, &ConvertedWrite)> = converted
+        .iter()
+        .filter_map(|entry| entry.write.as_ref().map(|write| (entry, write)))
+        .collect();
+
+    if rows.is_empty() {
         return Ok(());
     }
 
-    let version_id: Vec<&str> = written.map(|entry| entry.version_id.as_str()).collect();
+    let per_row = ANCHOR_FIXED_COLUMNS + anchor.columns.len();
 
-    anchors
-        .bind(sqlx::query(
-            "INSERT INTO search_resource (tenant, project, resource_type, resource_id, version_id) \
-             SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::text[], $5::text[])",
-        ))
-        .bind(&version_id)
-        .execute(conn)
-        .await
-        .map_err(PgSearchError::from)?;
+    let mut column_list = String::from("tenant, project, resource_type, resource_id, version_id");
+    for column in &anchor.columns {
+        let _ = write!(column_list, ", \"{}\"", column.name);
+    }
+
+    for chunk in rows.chunks((MAX_BIND_PARAMS / per_row).max(1)) {
+        let sql = format!(
+            "INSERT INTO {} ({column_list}) VALUES {}",
+            anchor.table_name,
+            values_clause(chunk.len(), per_row),
+        );
+
+        let mut query = sqlx::query(&sql);
+
+        for (entry, write) in chunk {
+            query = query
+                .bind(&entry.key.tenant)
+                .bind(&entry.key.project)
+                .bind(&entry.key.resource_type)
+                .bind(&entry.key.resource_id)
+                .bind(&entry.version_id);
+
+            query = bind_columns(query, &write.anchor_row, &anchor.columns);
+        }
+
+        query.execute(&mut *conn).await.map_err(|e| {
+            OperationOutcomeError::fatal(
+                IssueType::exception(),
+                format!(
+                    "Failed to insert anchor rows into {}: {e}",
+                    anchor.table_name
+                ),
+            )
+        })?;
+    }
 
     Ok(())
 }
 
-/// Writes every resource of one type as a single multi-row insert.
+/// `tenant, project, resource_type, resource_id, version_id` — the columns the
+/// anchor carries ahead of its generated ones.
+const ANCHOR_FIXED_COLUMNS: usize = 5;
+
+/// Binds one row's generated column values, in schema order.
 ///
-/// This is the one statement that binds per row rather than per column: the
-/// value columns are already arrays, and `unnest` cannot produce a ragged
-/// array of arrays, so the rows go in as a `VALUES` list — chunked to stay
-/// under the bind-parameter cap.
+/// An absent value still has to carry the column's type, or Postgres cannot
+/// infer the parameter.
+fn bind_columns<'q>(
+    mut query: sqlx::query::Query<'q, sqlx::Postgres, sqlx::postgres::PgArguments>,
+    slots: &'q [Option<ColumnValues>],
+    columns: &[super::schema::ColumnDef],
+) -> sqlx::query::Query<'q, sqlx::Postgres, sqlx::postgres::PgArguments> {
+    for (slot, column) in slots.iter().zip(columns) {
+        query = match slot {
+            Some(ColumnValues::Text(value)) => query.bind(value),
+            Some(ColumnValues::BigInt(value)) => query.bind(*value),
+            Some(ColumnValues::Double(value)) => query.bind(*value),
+            None => match column.column_type {
+                ColumnType::Text => query.bind(None::<String>),
+                ColumnType::BigInt => query.bind(None::<i64>),
+                ColumnType::Double => query.bind(None::<f64>),
+            },
+        };
+    }
+    query
+}
+
+/// `($1, $2, ...), ($n, ...)` for a multi-row `VALUES` insert.
+fn values_clause(rows: usize, per_row: usize) -> String {
+    let mut values = String::new();
+
+    for row in 0..rows {
+        if row > 0 {
+            values.push_str(", ");
+        }
+        values.push('(');
+        for offset in 0..per_row {
+            if offset > 0 {
+                values.push_str(", ");
+            }
+            let _ = write!(values, "${}", row * per_row + offset + 1);
+        }
+        values.push(')');
+    }
+
+    values
+}
+
 async fn insert_system_rows(
     conn: &mut sqlx::PgConnection,
     schema: &ResourceTypeSchema,
@@ -1188,21 +1296,7 @@ async fn insert_system_rows(
                 .bind(&row.key.resource_id)
                 .bind(row.version_id);
 
-            for (slot, column) in row.slots.iter().zip(&schema.columns) {
-                query = match slot {
-                    Some(ColumnValues::Text(values)) => query.bind(values),
-                    Some(ColumnValues::BigInt(values)) => query.bind(values),
-                    Some(ColumnValues::Double(values)) => query.bind(values),
-                    // A parameter this resource produced no entry for. The
-                    // NULL still has to carry the column's type, or Postgres
-                    // rejects the parameter.
-                    None => match column.column_type {
-                        ColumnType::TextArray => query.bind(None::<Vec<Option<String>>>),
-                        ColumnType::BigIntArray => query.bind(None::<Vec<i64>>),
-                        ColumnType::DoubleArray => query.bind(None::<Vec<f64>>),
-                    },
-                };
-            }
+            query = bind_columns(query, row.slots, &schema.columns);
         }
 
         query.execute(&mut *conn).await.map_err(|e| {
@@ -1255,4 +1349,85 @@ fn system_insert_sql(
         "INSERT INTO {} ({column_list}) VALUES {values}",
         schema.table_name
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use haste_repository::types::SupportedFHIRVersions;
+
+    const IDENTITY_COLUMNS: [&str; 5] = [
+        "tenant",
+        "project",
+        "resource_type",
+        "resource_id",
+        "param_url",
+    ];
+
+    /// The columns of `INSERT INTO <table> (...)`.
+    fn inserted_columns(sql: &str) -> Vec<String> {
+        let open = sql.find('(').expect("insert names its columns");
+        let close = sql[open..].find(')').expect("unterminated column list") + open;
+        sql[open + 1..close]
+            .split(',')
+            .map(|column| column.trim().to_string())
+            .collect()
+    }
+
+    /// The columns of the `CREATE TABLE`, which is the first statement in the
+    /// DDL (the `CREATE INDEX`es follow it).
+    fn declared_columns(ddl: &str) -> Vec<String> {
+        let open = ddl.find('(').expect("create table names its columns");
+        let close = ddl.find("\n);").expect("unterminated create table");
+        ddl[open + 1..close]
+            .split(',')
+            .filter_map(|line| line.split_whitespace().next().map(str::to_string))
+            .collect()
+    }
+
+    /// The insert and the `CREATE TABLE` must name exactly the same columns in
+    /// the same order. Hardcoding a list on either side — which is how
+    /// `target_uri` once came to be written to a table that had no such
+    /// column — fails here rather than on the first resource indexed.
+    #[test]
+    fn every_shared_insert_matches_its_table_definition() {
+        for table in SharedTable::ALL {
+            let name = table.table_name(&SupportedFHIRVersions::R4);
+            let expected: Vec<String> = IDENTITY_COLUMNS
+                .iter()
+                .map(|column| (*column).to_string())
+                .chain(
+                    table
+                        .value_columns()
+                        .iter()
+                        .map(|column| column.name.to_string()),
+                )
+                .collect();
+
+            assert_eq!(
+                inserted_columns(&dynamic_insert_sql(&name, table)),
+                expected,
+                "{name}: the insert's columns"
+            );
+            assert_eq!(
+                declared_columns(&crate::pg_search::migration::shared_table_sql_for_test(
+                    SupportedFHIRVersions::R4,
+                    table,
+                )),
+                expected,
+                "{name}: the table's columns"
+            );
+
+            // Each value column is bound as an array of its declared type;
+            // the identity columns take $1..$5.
+            let sql = dynamic_insert_sql(&name, table);
+            for (offset, column) in table.value_columns().iter().enumerate() {
+                assert!(
+                    sql.contains(&format!("${}::{}[]", offset + 6, column.sql_type)),
+                    "{name}: {} is bound at the wrong position or type",
+                    column.name
+                );
+            }
+        }
+    }
 }

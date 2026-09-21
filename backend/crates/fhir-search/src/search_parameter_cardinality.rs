@@ -12,7 +12,7 @@
 //! values in a scalar column keeps the first and drops the rest.
 
 /// Canonical URLs of the single-valued parameters, sorted for binary search.
-static SINGLE_VALUED: [&str; 596] = [
+static SINGLE_VALUED: [&str; 607] = [
     "http://hl7.org/fhir/SearchParameter/Account-name",
     "http://hl7.org/fhir/SearchParameter/Account-owner",
     "http://hl7.org/fhir/SearchParameter/Account-period",
@@ -594,7 +594,18 @@ static SINGLE_VALUED: [&str; 596] = [
     "http://hl7.org/fhir/SearchParameter/VisionPrescription-datewritten",
     "http://hl7.org/fhir/SearchParameter/VisionPrescription-prescriber",
     "http://hl7.org/fhir/SearchParameter/VisionPrescription-status",
+    "http://hl7.org/fhir/SearchParameter/conformance-date",
+    "http://hl7.org/fhir/SearchParameter/conformance-description",
+    "http://hl7.org/fhir/SearchParameter/conformance-name",
+    "http://hl7.org/fhir/SearchParameter/conformance-publisher",
+    "http://hl7.org/fhir/SearchParameter/conformance-status",
+    "http://hl7.org/fhir/SearchParameter/conformance-title",
+    "http://hl7.org/fhir/SearchParameter/conformance-url",
+    "http://hl7.org/fhir/SearchParameter/conformance-version",
+    "http://hl7.org/fhir/SearchParameter/individual-birthdate",
+    "http://hl7.org/fhir/SearchParameter/individual-gender",
     "http://hl7.org/fhir/SearchParameter/medications-encounter",
+    "http://hl7.org/fhir/SearchParameter/medications-status",
     "https://haste.health/fhir/SearchParameter/AccessPolicyV2-engine",
     "https://haste.health/fhir/SearchParameter/AccessPolicyV2-name",
     "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-access-policy",

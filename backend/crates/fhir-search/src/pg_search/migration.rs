@@ -4,7 +4,7 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use sqlx::{Pool, Postgres};
 
-use super::schema::{ColumnDef, ResourceTypeSchema, SchemaRegistry};
+use super::schema::{ColumnDef, IndexKind, ResourceTypeSchema, SchemaRegistry, SharedTable};
 
 /// Creates the shared tables, then a per-resource-type table for every schema
 /// in `registry`. Idempotent — safe to re-run on an existing database.
@@ -17,8 +17,7 @@ use super::schema::{ColumnDef, ResourceTypeSchema, SchemaRegistry};
 /// # Errors
 ///
 /// Returns an error if the migration lock cannot be taken, or if any of the
-/// DDL fails — a connection drop, or a table an earlier release left in a
-/// shape this one cannot reconcile.
+/// DDL fails.
 pub async fn run_migration(
     pool: &Pool<Postgres>,
     registry: &SchemaRegistry,
@@ -68,7 +67,7 @@ async fn run_migration_locked(
 ) -> Result<(), OperationOutcomeError> {
     execute_ddl(
         pool,
-        BASE_MIGRATION_SQL,
+        &base_migration_sql(registry),
         "Failed to run PG search base migration",
     )
     .await?;
@@ -105,177 +104,15 @@ async fn execute_ddl(
     Ok(())
 }
 
-async fn migrate_resource_type_table(
-    pool: &Pool<Postgres>,
-    schema: &ResourceTypeSchema,
-) -> Result<(), OperationOutcomeError> {
-    let table = &schema.table_name;
-
-    execute_ddl(
-        pool,
-        &create_table_sql(schema),
-        &format!("Failed to create table '{table}'"),
-    )
-    .await?;
-
-    // A table created by an earlier release may be missing columns for search
-    // parameters added since; add them rather than recreating the table.
-    let add_columns = add_columns_sql(schema);
-    if !add_columns.is_empty() {
-        execute_ddl(
-            pool,
-            &add_columns,
-            &format!("Failed to add columns to '{table}'"),
-        )
-        .await?;
-    }
-
-    let indexes = create_indexes_sql(schema);
-    if !indexes.is_empty() {
-        execute_ddl(
-            pool,
-            &indexes,
-            &format!("Failed to create indexes on '{table}'"),
-        )
-        .await?;
-    }
-
-    Ok(())
-}
-
-/// The `CREATE TABLE IF NOT EXISTS` statement for one resource type.
-///
-/// `resource_type` is a constant on this table — it exists only so the
-/// foreign key can match `search_resource`'s composite primary key — so it
-/// defaults to the table's resource type and is pinned there by a CHECK. The
-/// table's own primary key is just `(tenant, project, resource_id)`.
-fn create_table_sql(schema: &ResourceTypeSchema) -> String {
-    let mut sql = format!(
-        "CREATE TABLE IF NOT EXISTS {table} (\n    \
-         tenant        TEXT NOT NULL,\n    \
-         project       TEXT NOT NULL,\n    \
-         resource_id   TEXT NOT NULL,\n    \
-         version_id    TEXT NOT NULL,\n    \
-         resource_type TEXT NOT NULL DEFAULT '{resource_type}'\n        \
-         CONSTRAINT {constraint} CHECK (resource_type = '{resource_type}')",
-        table = schema.table_name,
-        resource_type = schema.resource_type,
-        constraint = truncate_identifier(&format!("chk_{}_resource_type", schema.table_name)),
-    );
-
-    for column in &schema.columns {
-        let _ = write!(
-            sql,
-            ",\n    {} {}",
-            quote_ident(&column.name),
-            column.column_type.sql_type()
-        );
-    }
-
-    sql.push_str(",\n    PRIMARY KEY (tenant, project, resource_id)\n);");
-
-    sql
-}
-
-/// `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` for every value column, so an
-/// existing table picks up parameters added after it was created.
-fn add_columns_sql(schema: &ResourceTypeSchema) -> String {
+/// The tables that do not depend on which search parameters exist: the anchor,
+/// and one shared table per value type for the repeating parameters.
+fn base_migration_sql(registry: &SchemaRegistry) -> String {
+    let resource_table = registry.resource_table_name();
     let mut sql = String::new();
-    for column in &schema.columns {
-        let _ = writeln!(
-            sql,
-            "ALTER TABLE {} ADD COLUMN IF NOT EXISTS {} {};",
-            schema.table_name,
-            quote_ident(&column.name),
-            column.column_type.sql_type()
-        );
-    }
-    sql
-}
 
-/// GIN indexes for the selective value columns, plus the tenant/project
-/// lookup index used by every query's join.
-fn create_indexes_sql(schema: &ResourceTypeSchema) -> String {
-    let table = &schema.table_name;
-    let mut sql =
-        format!("CREATE INDEX IF NOT EXISTS idx_{table}_lookup ON {table} (tenant, project);\n");
-
-    for column in &schema.columns {
-        if !column.indexed {
-            continue;
-        }
-        sql.push_str(&index_sql(table, column));
-    }
-
-    sql
-}
-
-fn index_sql(table: &str, column: &ColumnDef) -> String {
-    // Index names are capped at 63 bytes by PostgreSQL and silently truncated
-    // past that, which would make two long parameter names collide.
-    let index_name = truncate_identifier(&format!("idx_{table}_{}", column.name));
-    format!(
-        "CREATE INDEX IF NOT EXISTS {index_name} ON {table} USING GIN ({});\n",
-        quote_ident(&column.name)
-    )
-}
-
-/// PostgreSQL's identifier limit (`NAMEDATALEN - 1`).
-const MAX_IDENTIFIER_LEN: usize = 63;
-
-fn truncate_identifier(name: &str) -> String {
-    if name.len() <= MAX_IDENTIFIER_LEN {
-        return name.to_string();
-    }
-
-    // Keep the prefix readable but append a hash of the full name so two
-    // truncated-to-identical names stay distinct.
-    let hash = name.bytes().fold(0u64, |acc, b| {
-        acc.wrapping_mul(31).wrapping_add(u64::from(b))
-    });
-    let suffix = format!("_{hash:x}");
-    let keep = MAX_IDENTIFIER_LEN - suffix.len();
-    format!("{}{suffix}", &name[..keep])
-}
-
-/// Double-quotes an identifier so a generated column name is never parsed as a
-/// keyword. Column names come from `code_to_column_base`, which already
-/// restricts them to `[a-z0-9_]`, so escaping embedded quotes is unnecessary —
-/// but the quoting keeps codes like `_source` unambiguous.
-fn quote_ident(name: &str) -> String {
-    format!("\"{name}\"")
-}
-
-fn wrap(context: &str, error: &sqlx::Error) -> OperationOutcomeError {
-    OperationOutcomeError::fatal(IssueType::exception(), format!("{context}: {error}"))
-}
-
-/// Shared tables: the resource anchor plus the EAV tables backing
-/// project-level (dynamic) search parameters.
-///
-/// The `search_dynamic_*` names replace the earlier `search_*` EAV tables,
-/// which held *all* parameters before system-level ones moved to dedicated
-/// per-resource-type columns. The rename is done first, so a database created
-/// by the earlier schema carries its rows forward instead of silently starting
-/// over with empty tables.
-static BASE_MIGRATION_SQL: &str = r"
--- Migrate pre-hybrid EAV tables to their new names. `search_resource` is
--- unchanged, so a renamed table keeps its foreign key intact.
-DO $$
-DECLARE
-    legacy TEXT;
-BEGIN
-    FOREACH legacy IN ARRAY ARRAY['string', 'token', 'date', 'number', 'uri', 'reference', 'quantity']
-    LOOP
-        IF to_regclass('search_' || legacy) IS NOT NULL
-           AND to_regclass('search_dynamic_' || legacy) IS NULL THEN
-            EXECUTE format('ALTER TABLE %I RENAME TO %I', 'search_' || legacy, 'search_dynamic_' || legacy);
-        END IF;
-    END LOOP;
-END $$;
-
--- Core resource identity table (one row per indexed resource)
-CREATE TABLE IF NOT EXISTS search_resource (
+    let _ = write!(
+        sql,
+        "CREATE TABLE IF NOT EXISTS {resource_table} (
     tenant        TEXT NOT NULL,
     project       TEXT NOT NULL,
     resource_type TEXT NOT NULL,
@@ -284,166 +121,253 @@ CREATE TABLE IF NOT EXISTS search_resource (
     PRIMARY KEY (tenant, project, resource_type, resource_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_search_resource_lookup
-    ON search_resource (tenant, project, resource_type);
+-- `:contains` is an unanchored LIKE, which no B-tree can answer. Trigrams
+-- can; `btree_gin` lets the tenant and project lead that same index.
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS btree_gin;
+"
+    );
 
--- Every search table used to carry an ON DELETE CASCADE foreign key to
--- `search_resource`. With one table per resource type that grew to ~145
--- constraints on a single parent, and Postgres fires a referential-integrity
--- trigger for *every one of them* on *every* anchor row deleted — ~145,000
--- trigger invocations to delete a 1000-resource batch, which measured at
--- 800ms before any real work happened. Indexing now deletes the child rows
--- explicitly and targets only the tables a batch actually touches, so the
--- constraints are dropped here. This is a derived index rebuildable from the
--- repository, and `indexing.rs` is the only writer.
-DO $$
-DECLARE
-    constraint_row record;
-BEGIN
-    FOR constraint_row IN
-        SELECT conrelid::regclass AS child_table, conname
-        FROM pg_constraint
-        WHERE confrelid = 'search_resource'::regclass AND contype = 'f'
-        -- Dropping a constraint takes an ACCESS EXCLUSIVE lock on its table.
-        -- Two servers migrating at once would take ~145 of those in whatever
-        -- order the catalog scan returned, and deadlock; a deterministic order
-        -- makes them queue instead.
-        ORDER BY conrelid::regclass::text, conname
-    LOOP
-        -- The other session may have dropped it in between: both took their
-        -- snapshot of the catalog before either started.
-        EXECUTE format(
-            'ALTER TABLE %s DROP CONSTRAINT IF EXISTS %I',
-            constraint_row.child_table,
-            constraint_row.conname
+    // Resource-level parameters live here rather than on every resource type
+    // table, so a search that names no type can still read them.
+    let anchor = registry.anchor();
+    for column in &anchor.columns {
+        let _ = writeln!(
+            sql,
+            "ALTER TABLE {resource_table} ADD COLUMN IF NOT EXISTS {} {};",
+            quote_ident(&column.name),
+            column.column_type.sql_type()
         );
-    END LOOP;
-END $$;
+    }
+    for column in &anchor.columns {
+        sql.push_str(&index_sql(&resource_table, column, ANCHOR_SCOPE));
+    }
 
--- String values (name, address, etc.)
-CREATE TABLE IF NOT EXISTS search_dynamic_string (
+    for table in SharedTable::ALL {
+        sql.push_str(&shared_table_sql(registry, table));
+    }
+
+    sql
+}
+
+/// One shared table per value type, holding the repeating parameters.
+///
+/// Every row carries the parameter's canonical URL, because one table holds
+/// values for many parameters. The value columns are scalars, so the same
+/// B-tree that serves a column on a resource type table serves these.
+fn shared_table_sql(registry: &SchemaRegistry, table: SharedTable) -> String {
+    let name = registry.shared_table_name(table);
+
+    // Declared from the same list the batch inserts bind through, so the two
+    // cannot drift apart.
+    let value_columns = table
+        .value_columns()
+        .iter()
+        .map(|column| {
+            let null = if column.nullable { "" } else { " NOT NULL" };
+            format!("    {} {}{null}", column.name, column.sql_type)
+        })
+        .collect::<Vec<_>>()
+        .join(",\n");
+
+    let mut sql = format!(
+        "CREATE TABLE IF NOT EXISTS {name} (
     tenant        TEXT NOT NULL,
     project       TEXT NOT NULL,
     resource_type TEXT NOT NULL,
     resource_id   TEXT NOT NULL,
     param_url     TEXT NOT NULL,
-    value         TEXT NOT NULL
+{value_columns}
 );
 
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_string_prefix
-    ON search_dynamic_string (tenant, project, resource_type, param_url, value text_pattern_ops);
+-- Correlating a row back to its resource is what every clause does after it
+-- has matched, so the key leads with the identity columns.
+CREATE INDEX IF NOT EXISTS idx_{name}_resource
+    ON {name} (tenant, project, resource_type, resource_id, param_url);
+"
+    );
 
--- Token values (code, system|code pairs)
-CREATE TABLE IF NOT EXISTS search_dynamic_token (
-    tenant        TEXT NOT NULL,
-    project       TEXT NOT NULL,
-    resource_type TEXT NOT NULL,
-    resource_id   TEXT NOT NULL,
-    param_url     TEXT NOT NULL,
-    system        TEXT,
-    code          TEXT
+    // The lookup index: identity down to the parameter, then the value the
+    // clause compares.
+    let value_key = match table {
+        // Lowered, because a FHIR string search is case-insensitive and so
+        // compares `LOWER(value)`. An index on the bare column cannot serve a
+        // predicate over an expression of it.
+        SharedTable::String => Some("LOWER(value) text_pattern_ops".to_string()),
+        SharedTable::Uri | SharedTable::Number => Some("value".to_string()),
+        SharedTable::Token => Some("code".to_string()),
+        SharedTable::Date => Some("start_ms, end_ms".to_string()),
+        SharedTable::Quantity => Some("start_value, end_value".to_string()),
+        SharedTable::Reference => Some("target_id".to_string()),
+    };
+
+    if let Some(value_key) = value_key {
+        let _ = write!(
+            sql,
+            "CREATE INDEX IF NOT EXISTS idx_{name}_value
+    ON {name} (tenant, project, resource_type, param_url, {value_key});
+"
+        );
+    }
+
+    if matches!(table, SharedTable::String) {
+        let _ = write!(
+            sql,
+            "CREATE INDEX IF NOT EXISTS idx_{name}_contains
+    ON {name} USING GIN (tenant, project, resource_type, param_url, LOWER(value) gin_trgm_ops);
+"
+        );
+    }
+
+    sql
+}
+
+/// Creates or extends one resource type's table of singular parameters.
+///
+/// A release that classifies a new parameter as singular adds a column here;
+/// existing rows keep NULL for it until the resource is next indexed, which is
+/// the same as the parameter simply having no value.
+async fn migrate_resource_type_table(
+    pool: &Pool<Postgres>,
+    schema: &ResourceTypeSchema,
+) -> Result<(), OperationOutcomeError> {
+    let table = &schema.table_name;
+
+    let mut sql = format!(
+        "CREATE TABLE IF NOT EXISTS {table} (
+    tenant      TEXT NOT NULL,
+    project     TEXT NOT NULL,
+    resource_id TEXT NOT NULL,
+    version_id  TEXT NOT NULL,
+    PRIMARY KEY (tenant, project, resource_id)
 );
+"
+    );
 
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_token_code
-    ON search_dynamic_token (tenant, project, resource_type, param_url, code);
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_token_system_code
-    ON search_dynamic_token (tenant, project, resource_type, param_url, system, code);
+    for column in &schema.columns {
+        let _ = writeln!(
+            sql,
+            "ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {} {};",
+            quote_ident(&column.name),
+            column.column_type.sql_type()
+        );
+    }
 
--- Date values (ranges stored as milliseconds-since-epoch)
-CREATE TABLE IF NOT EXISTS search_dynamic_date (
-    tenant        TEXT NOT NULL,
-    project       TEXT NOT NULL,
-    resource_type TEXT NOT NULL,
-    resource_id   TEXT NOT NULL,
-    param_url     TEXT NOT NULL,
-    start_ms      BIGINT NOT NULL,
-    end_ms        BIGINT NOT NULL
-);
+    for column in &schema.columns {
+        // `resource_type` is a constant on this table, so the tenant and
+        // project are the whole scope.
+        sql.push_str(&index_sql(table, column, TENANT_SCOPE));
+    }
 
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_date_range
-    ON search_dynamic_date (tenant, project, resource_type, param_url, start_ms, end_ms);
+    execute_ddl(
+        pool,
+        &sql,
+        &format!("Failed to migrate PG search table '{table}'"),
+    )
+    .await?;
 
--- Number values
-CREATE TABLE IF NOT EXISTS search_dynamic_number (
-    tenant        TEXT NOT NULL,
-    project       TEXT NOT NULL,
-    resource_type TEXT NOT NULL,
-    resource_id   TEXT NOT NULL,
-    param_url     TEXT NOT NULL,
-    value         DOUBLE PRECISION NOT NULL
-);
+    Ok(())
+}
 
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_number_value
-    ON search_dynamic_number (tenant, project, resource_type, param_url, value);
+/// Every query is scoped to one tenant and project, so those lead every
+/// index. Without them a predicate like `kind_code = 'resource'` scans the
+/// matching rows of *every* tenant and discards all but one's.
+const TENANT_SCOPE: &[&str] = &["tenant", "project"];
 
--- URI values
-CREATE TABLE IF NOT EXISTS search_dynamic_uri (
-    tenant        TEXT NOT NULL,
-    project       TEXT NOT NULL,
-    resource_type TEXT NOT NULL,
-    resource_id   TEXT NOT NULL,
-    param_url     TEXT NOT NULL,
-    value         TEXT NOT NULL
-);
+/// The anchor holds all resource types in one table, and a type-scoped search
+/// — which is nearly all of them — constrains `resource_type` as a constant
+/// beside the tenant and project. A search that names no type still gets the
+/// tenant and project as the index's leading columns.
+const ANCHOR_SCOPE: &[&str] = &["tenant", "project", "resource_type"];
 
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_uri_value
-    ON search_dynamic_uri (tenant, project, resource_type, param_url, value);
+/// The index for one column, or nothing when the column is only ever read
+/// beside an indexed sibling on the same row.
+///
+/// `scope` is the equality-constrained key the index leads with.
+fn index_sql(table: &str, column: &ColumnDef, scope: &[&str]) -> String {
+    let name = truncate_identifier(&format!("idx_{table}_{}", column.name));
+    let ident = quote_ident(&column.name);
+    let lead = scope.join(", ");
 
--- Reference values. Also backs reverse-reference lookups for system-level
--- parameters, which is why every reference is written here in addition to the
--- per-resource-type columns.
-CREATE TABLE IF NOT EXISTS search_dynamic_reference (
-    tenant               TEXT NOT NULL,
-    project              TEXT NOT NULL,
-    resource_type        TEXT NOT NULL,
-    resource_id          TEXT NOT NULL,
-    param_url            TEXT NOT NULL,
-    target_resource_type TEXT,
-    target_id            TEXT,
-    target_uri           TEXT
-);
+    match column.index {
+        IndexKind::None => String::new(),
+        IndexKind::BTree => {
+            format!("CREATE INDEX IF NOT EXISTS {name} ON {table} ({lead}, {ident});\n")
+        }
+        // The B-tree answers `LIKE 'abc%'` (anchored) and the trigram index
+        // `LIKE '%abc%'` (unanchored). `btree_gin` is what lets the tenant and
+        // project sit in front of the trigram column.
+        IndexKind::LoweredPrefix => format!(
+            "CREATE INDEX IF NOT EXISTS {name} \
+             ON {table} ({lead}, LOWER({ident}) text_pattern_ops);\n\
+             CREATE INDEX IF NOT EXISTS {name}_ct \
+             ON {table} USING GIN ({lead}, LOWER({ident}) gin_trgm_ops);\n"
+        ),
+    }
+}
 
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_reference_target
-    ON search_dynamic_reference (tenant, project, resource_type, param_url, target_resource_type, target_id);
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_reference_reverse
-    ON search_dynamic_reference (tenant, project, target_resource_type, target_id);
+/// PostgreSQL's identifier limit (`NAMEDATALEN - 1`). Past it names are
+/// silently truncated, which would make two long parameter names collide.
+const MAX_IDENTIFIER_LEN: usize = 63;
 
--- Quantity values (ranges with unit info)
-CREATE TABLE IF NOT EXISTS search_dynamic_quantity (
-    tenant        TEXT NOT NULL,
-    project       TEXT NOT NULL,
-    resource_type TEXT NOT NULL,
-    resource_id   TEXT NOT NULL,
-    param_url     TEXT NOT NULL,
-    start_value   DOUBLE PRECISION NOT NULL,
-    start_system  TEXT,
-    start_code    TEXT,
-    end_value     DOUBLE PRECISION NOT NULL,
-    end_system    TEXT,
-    end_code      TEXT
-);
+fn truncate_identifier(name: &str) -> String {
+    if name.len() <= MAX_IDENTIFIER_LEN {
+        return name.to_string();
+    }
 
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_quantity_value
-    ON search_dynamic_quantity (tenant, project, resource_type, param_url, start_value, end_value);
+    name.chars().take(MAX_IDENTIFIER_LEN).collect()
+}
 
--- Re-indexing a resource clears its old rows from every `search_dynamic_*`
--- table by (tenant, project, resource_type, resource_id). The value indexes
--- above all carry `param_url` in position 4, so none of them can serve that
--- lookup — without these the delete degrades to a sequential scan of the whole
--- table, on every single create and update.
+fn quote_ident(name: &str) -> String {
+    format!("\"{}\"", name.replace('"', "\"\""))
+}
 
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_string_resource
-    ON search_dynamic_string (tenant, project, resource_type, resource_id);
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_token_resource
-    ON search_dynamic_token (tenant, project, resource_type, resource_id);
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_date_resource
-    ON search_dynamic_date (tenant, project, resource_type, resource_id);
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_number_resource
-    ON search_dynamic_number (tenant, project, resource_type, resource_id);
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_uri_resource
-    ON search_dynamic_uri (tenant, project, resource_type, resource_id);
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_reference_resource
-    ON search_dynamic_reference (tenant, project, resource_type, resource_id);
-CREATE INDEX IF NOT EXISTS idx_search_dynamic_quantity_resource
-    ON search_dynamic_quantity (tenant, project, resource_type, resource_id);
-";
+fn wrap(context: &str, error: &sqlx::Error) -> OperationOutcomeError {
+    OperationOutcomeError::fatal(IssueType::exception(), format!("{context}: {error}"))
+}
+
+/// The `CREATE TABLE` for one shared table, so the indexing module can assert
+/// its inserts name the same columns. An empty parameter set is enough: the
+/// shared tables' shape does not depend on the registered parameters.
+#[cfg(test)]
+pub(crate) fn shared_table_sql_for_test(
+    version: haste_repository::types::SupportedFHIRVersions,
+    table: SharedTable,
+) -> String {
+    shared_table_sql(&super::schema::generate_schemas(version, &[]), table)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::pg_search::schema::ColumnType;
+
+    fn column(name: &str, index: IndexKind) -> ColumnDef {
+        ColumnDef {
+            name: name.to_string(),
+            column_type: ColumnType::Text,
+            index,
+        }
+    }
+
+    /// Every search is scoped to one tenant and project, so an index that does
+    /// not lead with them makes Postgres scan the matching rows of every
+    /// tenant and throw all but one's away.
+    #[test]
+    fn every_index_leads_with_the_tenant_scope() {
+        for (scope, lead) in [
+            (TENANT_SCOPE, "(tenant, project, "),
+            (ANCHOR_SCOPE, "(tenant, project, resource_type, "),
+        ] {
+            for index in [IndexKind::BTree, IndexKind::LoweredPrefix] {
+                let sql = index_sql("t", &column("code", index), scope);
+                for statement in sql.lines().filter(|line| line.contains("CREATE INDEX")) {
+                    assert!(
+                        statement.contains(lead),
+                        "index does not lead with {lead}: {statement}"
+                    );
+                }
+            }
+        }
+    }
+}

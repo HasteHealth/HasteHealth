@@ -4,6 +4,9 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
+
+use super::schema::{SharedTable, resource_table_name};
+use haste_repository::types::SupportedFHIRVersions;
 use haste_repository::{Repository, fhir::CachePolicy};
 use moka::future::{Cache, CacheBuilder};
 use sqlx::{Pool, Postgres, Row};
@@ -42,29 +45,35 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
     tenant: &TenantId,
     project: &ProjectId,
 ) -> Result<SearchParametersIndex, OperationOutcomeError> {
-    // `SearchParameter.status` is an HL7 base parameter, so it lives in a
-    // dedicated column on the per-resource-type table rather than in the
-    // dynamic EAV tables.
-    let rows = sqlx::query(
+    // `SearchParameter.status` comes from `conformance-status`, whose
+    // expression is a union across every conformance resource. A union can
+    // yield more than one value, so the parameter has no column of its own and
+    // is read from the shared token table like any other repeating parameter.
+    let sql = format!(
         "SELECT sr.resource_id, sr.version_id \
-         FROM search_resource sr \
-         JOIN search_searchparameter rt ON rt.tenant = sr.tenant AND rt.project = sr.project \
-             AND rt.resource_id = sr.resource_id \
+         FROM {resource_table} sr \
+         JOIN {token_table} t ON t.tenant = sr.tenant AND t.project = sr.project \
+             AND t.resource_type = sr.resource_type AND t.resource_id = sr.resource_id \
          WHERE sr.tenant = $1 AND sr.project = $2 \
              AND sr.resource_type = 'SearchParameter' \
-             AND 'active' = ANY(rt.status_code) \
+             AND t.param_url = 'http://hl7.org/fhir/SearchParameter/conformance-status' \
+             AND t.code = 'active' \
          LIMIT 10000",
-    )
-    .bind(tenant.as_ref())
-    .bind(project.as_ref())
-    .fetch_all(pool)
-    .await
-    .map_err(|e| {
-        OperationOutcomeError::fatal(
-            IssueType::exception(),
-            format!("Failed to query PG search for SearchParameters: {e}"),
-        )
-    })?;
+        resource_table = resource_table_name(&SupportedFHIRVersions::R4),
+        token_table = SharedTable::Token.table_name(&SupportedFHIRVersions::R4),
+    );
+
+    let rows = sqlx::query(&sql)
+        .bind(tenant.as_ref())
+        .bind(project.as_ref())
+        .fetch_all(pool)
+        .await
+        .map_err(|e| {
+            OperationOutcomeError::fatal(
+                IssueType::exception(),
+                format!("Failed to query PG search for SearchParameters: {e}"),
+            )
+        })?;
 
     let version_ids: Vec<haste_jwt::VersionId> = rows
         .iter()

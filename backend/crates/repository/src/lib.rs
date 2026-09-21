@@ -20,6 +20,7 @@ use crate::{
 };
 
 pub mod admin;
+pub mod config;
 pub mod failed_indexing;
 pub mod fhir;
 pub mod pg;

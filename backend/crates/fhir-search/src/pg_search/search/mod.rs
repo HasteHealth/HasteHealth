@@ -15,10 +15,12 @@ use sqlx::{Pool, Postgres, Row};
 use crate::{
     ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions, SearchParameterResolve,
     SearchReturn,
-    pg_search::schema::{ParamColumns, ResourceTypeSchema, SchemaRegistry},
+    pg_search::schema::{ParamColumns, ResourceTypeSchema, SchemaRegistry, SharedTable},
 };
 
-use clauses::{ClauseTarget, RESOURCE_TABLE_ALIAS, SqlClause, SqlParam, resolve_param_url};
+use clauses::{
+    ANCHOR_TABLE_ALIAS, ClauseTarget, RESOURCE_TABLE_ALIAS, SqlClause, SqlParam, resolve_param_url,
+};
 
 pub(crate) mod clauses;
 
@@ -104,32 +106,23 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
         sort: Vec::new(),
     };
 
+    let scope = SearchScope {
+        parameter_resolver: &parameter_resolver,
+        registry: schema_registry,
+        schema,
+        tenant,
+        project,
+        resource_type,
+    };
+
     // Process each search parameter.
     for parameter in parameters.parameters() {
         match parameter {
             ParsedParameter::Resource(resource_param) => {
-                let clause = build_resource_clause(
-                    &parameter_resolver,
-                    schema,
-                    tenant,
-                    project,
-                    resource_type,
-                    resource_param,
-                )
-                .await?;
-                where_clauses.push(clause);
+                where_clauses.push(build_resource_clause(&scope, resource_param).await?);
             }
             ParsedParameter::Result(result_param) => {
-                handle_result_parameter(
-                    &parameter_resolver,
-                    schema,
-                    tenant,
-                    project,
-                    resource_type,
-                    result_param,
-                    &mut state,
-                )
-                .await?;
+                handle_result_parameter(&scope, result_param, &mut state).await?;
             }
         }
     }
@@ -137,6 +130,7 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
     // Build and execute the query.
     let (sql, all_params) = build_final_query(
         &where_clauses,
+        schema_registry,
         tenant,
         project,
         resource_type,
@@ -174,20 +168,39 @@ struct SortEntry {
     direction: &'static str,
 }
 
+/// What every parameter of one search is resolved against: who is searching,
+/// which resource type, and the schema its columns come from.
+struct SearchScope<'a, ParameterResolver> {
+    parameter_resolver: &'a Arc<ParameterResolver>,
+    registry: &'a SchemaRegistry,
+    /// The resource type's table, or `None` for a system-level search.
+    schema: Option<&'a ResourceTypeSchema>,
+    tenant: &'a TenantId,
+    project: &'a ProjectId,
+    resource_type: Option<&'a ResourceType>,
+}
+
+impl<ParameterResolver: SearchParameterResolve> SearchScope<'_, ParameterResolver> {
+    /// The search parameter `name` refers to in this scope.
+    async fn resolve(&self, name: &str) -> Result<ResolvedParameter, OperationOutcomeError> {
+        Ok(self
+            .parameter_resolver
+            .by_name(self.tenant, self.project, self.resource_type, name)
+            .await?
+            .ok_or_else(|| QueryBuildError::MissingParameter(name.to_string()))?)
+    }
+
+    fn clause_target(&self, parameter: &ResolvedParameter) -> ClauseTarget {
+        clause_target(parameter, self.registry, self.schema)
+    }
+}
+
 async fn build_resource_clause<ParameterResolver: SearchParameterResolve>(
-    parameter_resolver: &Arc<ParameterResolver>,
-    schema: Option<&ResourceTypeSchema>,
-    tenant: &TenantId,
-    project: &ProjectId,
-    resource_type: Option<&ResourceType>,
+    scope: &SearchScope<'_, ParameterResolver>,
     resource_param: &Parameter,
 ) -> Result<SqlClause, OperationOutcomeError> {
-    let parameter = parameter_resolver
-        .by_name(tenant, project, resource_type, &resource_param.name)
-        .await?
-        .ok_or_else(|| QueryBuildError::MissingParameter(resource_param.name.clone()))?;
-
-    let target = clause_target(&parameter, schema);
+    let parameter = scope.resolve(&resource_param.name).await?;
+    let target = scope.clause_target(&parameter);
 
     Ok(parameter_to_sql_clause(
         &parameter,
@@ -198,26 +211,49 @@ async fn build_resource_clause<ParameterResolver: SearchParameterResolve>(
 
 /// Decides where a resolved parameter's values are read from.
 ///
-/// A system-level parameter has dedicated columns on the per-resource-type
-/// table — but only when this search is scoped to a resource type *and* the
-/// generated schema actually claimed a column for it (a name collision can
-/// send even a system parameter to the dynamic tables). Everything else falls
-/// back to the EAV lookup, which can serve any parameter.
+/// A parameter reads its own column only when the search is scoped to a
+/// resource type *and* the generated schema claimed a column for it — which
+/// happens only for parameters known to produce a single value. Everything
+/// else reads the shared table for its value type, which can serve any
+/// parameter.
 fn clause_target(
     parameter: &ResolvedParameter,
+    registry: &SchemaRegistry,
     schema: Option<&ResourceTypeSchema>,
 ) -> ClauseTarget {
     let search_param = parameter.search_parameter.as_ref();
 
+    let code = search_param.code.value.as_deref();
+
     if matches!(parameter.level, ParameterLevel::System)
-        && let Some(schema) = schema
-        && let Some(code) = search_param.code.value.as_deref()
-        && let Some(columns) = schema.columns_for(code)
+        && let Some(code) = code
     {
-        return ClauseTarget::DirectColumn(columns.clone());
+        // Resource-level parameters are columns on the anchor, which every
+        // search reads whether or not it names a resource type.
+        if let Some(columns) = registry.anchor().columns_for(code) {
+            return ClauseTarget::DirectColumn {
+                alias: ANCHOR_TABLE_ALIAS,
+                columns: columns.clone(),
+            };
+        }
+
+        if let Some(columns) = schema.and_then(|schema| schema.columns_for(code)) {
+            return ClauseTarget::DirectColumn {
+                alias: RESOURCE_TABLE_ALIAS,
+                columns: columns.clone(),
+            };
+        }
     }
 
+    // No column for it, so it resolves through the shared table for its
+    // value type. A parameter type with no table there cannot be searched at
+    // all, and the clause builder rejects it by name.
+    let table = SharedTable::for_param_type(&search_param.type_)
+        .map(|table| registry.shared_table_name(table))
+        .unwrap_or_default();
+
     ClauseTarget::Dynamic {
+        table,
         param_url: resolve_param_url(search_param),
     }
 }
@@ -247,11 +283,7 @@ fn parameter_to_sql_clause(
 }
 
 async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
-    parameter_resolver: &Arc<ParameterResolver>,
-    schema: Option<&ResourceTypeSchema>,
-    tenant: &TenantId,
-    project: &ProjectId,
-    resource_type: Option<&ResourceType>,
+    scope: &SearchScope<'_, ParameterResolver>,
     result_param: &Parameter,
     state: &mut QueryState,
 ) -> Result<(), OperationOutcomeError> {
@@ -310,10 +342,7 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
                     "ASC"
                 };
 
-                let parameter = parameter_resolver
-                    .by_name(tenant, project, resource_type, param_name)
-                    .await?
-                    .ok_or_else(|| QueryBuildError::MissingParameter(param_name.to_string()))?;
+                let parameter = scope.resolve(param_name).await?;
 
                 let sp = parameter.search_parameter.as_ref();
                 let param_type = sp.type_.as_str().unwrap_or("string").to_string();
@@ -331,7 +360,7 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
                 }
 
                 state.sort.push(SortEntry {
-                    target: clause_target(&parameter, schema),
+                    target: scope.clause_target(&parameter),
                     param_type,
                     direction,
                 });
@@ -352,6 +381,7 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
 /// individual per-parameter clauses plus context (tenant, project, `resource_type`).
 fn build_final_query(
     where_clauses: &[SqlClause],
+    registry: &SchemaRegistry,
     tenant: &TenantId,
     project: &ProjectId,
     resource_type: Option<&ResourceType>,
@@ -428,11 +458,12 @@ fn build_final_query(
 
     let sql = format!(
         "SELECT sr.resource_id, sr.resource_type, sr.version_id, sr.project{total_col} \
-         FROM search_resource sr \
+         FROM {resource_table} sr \
          {join_sql}\
          WHERE {where_sql}\
          {order_by} \
-         LIMIT ${limit_idx} OFFSET ${offset_idx}"
+         LIMIT ${limit_idx} OFFSET ${offset_idx}",
+        resource_table = registry.resource_table_name(),
     );
 
     (sql, all_params)
@@ -440,10 +471,9 @@ fn build_final_query(
 
 /// Builds the ORDER BY clause.
 ///
-/// A system-level sort reads the per-resource-type column directly, picking
-/// the minimum value in the array so a resource with several values sorts by
-/// its earliest/lowest one. A dynamic sort uses a correlated subquery against
-/// the matching EAV table.
+/// A sort on a column reads it directly. A sort on a shared table uses a
+/// correlated subquery picking the minimum value, so a resource with several
+/// values sorts by its earliest/lowest one.
 fn build_order_by(sort_entries: &[SortEntry], all_params: &mut Vec<SqlParam>) -> String {
     if sort_entries.is_empty() {
         return String::new();
@@ -468,7 +498,10 @@ fn build_order_by(sort_entries: &[SortEntry], all_params: &mut Vec<SqlParam>) ->
 /// parameter's type has no sortable representation.
 fn sort_expression(entry: &SortEntry, all_params: &mut Vec<SqlParam>) -> Option<String> {
     match &entry.target {
-        ClauseTarget::DirectColumn(columns) => {
+        ClauseTarget::DirectColumn { alias, columns } => {
+            // A scalar column is the sort key itself, so the ORDER BY reads it
+            // directly and a B-tree on it can supply the order — no per-row
+            // subquery for the planner to compute over every candidate.
             let column = match (entry.param_type.as_str(), columns) {
                 // Descending date sorts read the period's end so the latest
                 // period wins, matching the ascending case reading its start.
@@ -479,7 +512,8 @@ fn sort_expression(entry: &SortEntry, all_params: &mut Vec<SqlParam>) -> Option<
                         end
                     }
                 }
-                ("string", ParamColumns::String { value } | ParamColumns::Uri { value }) => value,
+                ("string", ParamColumns::String { value } | ParamColumns::Uri { value })
+                | ("number", ParamColumns::Number { value }) => value,
                 (
                     "token",
                     ParamColumns::Token { code, .. } | ParamColumns::Quantity { code, .. },
@@ -487,11 +521,9 @@ fn sort_expression(entry: &SortEntry, all_params: &mut Vec<SqlParam>) -> Option<
                 _ => return None,
             };
 
-            Some(format!(
-                "(SELECT MIN(v) FROM unnest({RESOURCE_TABLE_ALIAS}.\"{column}\") AS u(v))"
-            ))
+            Some(format!("{alias}.\"{column}\""))
         }
-        ClauseTarget::Dynamic { param_url } => {
+        ClauseTarget::Dynamic { table, param_url } => {
             let idx = all_params.len() + 1;
 
             let subquery = match entry.param_type.as_str() {
@@ -502,20 +534,20 @@ fn sort_expression(entry: &SortEntry, all_params: &mut Vec<SqlParam>) -> Option<
                         "end_ms"
                     };
                     format!(
-                        "(SELECT MIN(sd.{col}) FROM search_dynamic_date sd \
+                        "(SELECT MIN(sd.{col}) FROM {table} sd \
                          WHERE sd.tenant = sr.tenant AND sd.project = sr.project \
                          AND sd.resource_type = sr.resource_type AND sd.resource_id = sr.resource_id \
                          AND sd.param_url = ${idx})"
                     )
                 }
                 "string" => format!(
-                    "(SELECT MIN(ss.value) FROM search_dynamic_string ss \
+                    "(SELECT MIN(ss.value) FROM {table} ss \
                      WHERE ss.tenant = sr.tenant AND ss.project = sr.project \
                      AND ss.resource_type = sr.resource_type AND ss.resource_id = sr.resource_id \
                      AND ss.param_url = ${idx})"
                 ),
                 "token" => format!(
-                    "(SELECT MIN(st.code) FROM search_dynamic_token st \
+                    "(SELECT MIN(st.code) FROM {table} st \
                      WHERE st.tenant = sr.tenant AND st.project = sr.project \
                      AND st.resource_type = sr.resource_type AND st.resource_id = sr.resource_id \
                      AND st.param_url = ${idx})"

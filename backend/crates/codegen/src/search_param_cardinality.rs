@@ -131,6 +131,37 @@ fn sole_type(element: &ElementDefinition) -> Option<&str> {
 /// lets a recursive structure like `Questionnaire.item.item` resolve.
 #[must_use]
 pub fn analyze_path(index: &SnapshotIndex, expression: &str) -> PathAnalysis {
+    // A union of plain paths is still answerable: a base search parameter is
+    // routinely written `Patient.birthDate | Person.birthDate | ...`, one
+    // branch per resource type it applies to. Whichever branch a given
+    // resource takes, the parameter is singular only if none of them repeats,
+    // so the union is as repeating as its most repeating branch.
+    if expression.contains('|') {
+        let mut repeats = false;
+        let mut leaf_types = Vec::new();
+
+        for branch in expression.split('|') {
+            match analyze_path(index, branch.trim()) {
+                PathAnalysis::Resolved(path) => {
+                    repeats |= path.repeats;
+                    leaf_types.push(path.leaf_type);
+                }
+                // One unanalyzable branch leaves the whole union unanswered.
+                other => return other,
+            }
+        }
+
+        // Only report a leaf type the whole union agrees on; a caller applies
+        // fan-out rules to it, and disagreeing branches have no single answer.
+        let leaf_type = leaf_types
+            .first()
+            .filter(|first| leaf_types.iter().all(|leaf| leaf == *first))
+            .cloned()
+            .flatten();
+
+        return PathAnalysis::Resolved(ResolvedPath { repeats, leaf_type });
+    }
+
     if !is_plain_path(expression) {
         return PathAnalysis::NotAPlainPath;
     }
@@ -518,12 +549,28 @@ mod tests {
         );
     }
 
+    /// A base parameter written as one branch per resource type is singular
+    /// when no branch repeats.
+    #[test]
+    fn a_union_of_singular_paths_is_singular() {
+        let birthdate = resolved("Patient.birthDate | Person.birthDate | RelatedPerson.birthDate");
+
+        assert!(!birthdate.repeats);
+        assert_eq!(birthdate.leaf_type.as_deref(), Some("date"));
+    }
+
+    /// One repeating branch makes the whole union repeating, because a
+    /// resource taking that branch would have values to drop.
+    #[test]
+    fn a_union_with_a_repeating_branch_repeats() {
+        assert!(resolved("Patient.birthDate | Patient.name.family").repeats);
+    }
+
     #[test]
     fn expressions_needing_the_engine_are_declined() {
         for expression in [
             "Patient.name.where(use='official')",
             "Patient.deceased.ofType(dateTime)",
-            "Patient.birthDate | Patient.deceased",
             "(Observation.value as Quantity)",
             "Patient.extension[0]",
         ] {

@@ -1,6 +1,6 @@
 use haste_fhir_client::url::Parameter;
 
-use super::{ClauseTarget, SqlClause, SqlParam, direct_exists, dynamic_exists};
+use super::{ClauseTarget, SqlClause, SqlParam, direct_column, direct_predicate, dynamic_exists};
 use crate::pg_search::{schema::ParamColumns, search::QueryBuildError};
 
 pub fn token_clause(
@@ -22,29 +22,28 @@ pub fn token_clause(
     }
 
     match target {
-        ClauseTarget::DirectColumn(columns) => {
+        ClauseTarget::DirectColumn { alias, columns } => {
             let (system_column, code_column) = token_columns(columns)?;
-            // The two columns are parallel arrays, so unnesting them together
-            // keeps each system paired with the code it was indexed beside.
-            let mut params = Vec::new();
-            let or_expr = build_or_expr(parsed_parameter, "sys", "cod", &mut params)?;
 
-            Ok(SqlClause::new(
-                direct_exists(
-                    &[(system_column, "sys"), (code_column, "cod")],
-                    negate,
-                    &or_expr,
-                ),
-                params,
-            ))
+            // Both halves sit on the same row, so the system stays with its
+            // own code with nothing to recombine.
+            let mut params = Vec::new();
+            let or_expr = build_or_expr(
+                parsed_parameter,
+                &direct_column(alias, system_column),
+                &direct_column(alias, code_column),
+                &mut params,
+            )?;
+
+            Ok(SqlClause::new(direct_predicate(negate, &or_expr), params))
         }
-        ClauseTarget::Dynamic { param_url } => {
+        ClauseTarget::Dynamic { table, param_url } => {
             // $1 is the param_url discriminator.
             let mut params = vec![SqlParam::Text(param_url.clone())];
             let or_expr = build_or_expr(parsed_parameter, "st.system", "st.code", &mut params)?;
 
             Ok(SqlClause::new(
-                dynamic_exists("token", "st", negate, Some(&or_expr)),
+                dynamic_exists(table, "st", negate, Some(&or_expr)),
                 params,
             ))
         }

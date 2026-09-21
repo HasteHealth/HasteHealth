@@ -8,6 +8,7 @@ use haste_jwt::{ProjectId, TenantId};
 use haste_repository::types::{FHIRMethod, SupportedFHIRVersions};
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 
+use crate::search_parameter_cardinality;
 use crate::{
     IndexOutcome, IndexResource, ParameterLevel, ResolvedParameter, SearchEngine, SearchOptions,
     SearchParameterResolve, SearchReturn,
@@ -61,9 +62,31 @@ pub struct PgSearchEngine<SearchParameterResolver: SearchParameterResolve + 'sta
 /// `SearchParameter`, which is wasted work to repeat.
 static R4_SCHEMA_REGISTRY: LazyLock<Arc<SchemaRegistry>> = LazyLock::new(|| {
     Arc::new(generate_schemas(
+        SupportedFHIRVersions::R4,
         &R4_SEARCH_PARAMETERS_INDEX.all_parameters(),
     ))
 });
+
+impl<Resolver: SearchParameterResolve> PgSearchEngine<Resolver> {
+    /// Whether the search database answers, for a caller that waits on it at
+    /// startup.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the pool cannot serve a statement.
+    pub async fn is_connected(&self) -> Result<(), OperationOutcomeError> {
+        sqlx::query("SELECT 1")
+            .execute(&self.pool)
+            .await
+            .map(|_| ())
+            .map_err(|e| {
+                OperationOutcomeError::fatal(
+                    haste_fhir_model::r4::generated::terminology::IssueType::exception(),
+                    format!("PG search database is not reachable: {e}"),
+                )
+            })
+    }
+}
 
 /// Creates a separate PostgreSQL connection pool for the search index database.
 ///
@@ -108,11 +131,12 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
 /// schema stores them.
 pub(crate) struct ResourceSearchIndex {
     /// System-level parameters, keyed by search parameter `code`. These land
-    /// in dedicated columns on the per-resource-type table, which is looked up
-    /// by code rather than by URL.
+    /// Singular parameters, which have a column on the resource type's own
+    /// table and are looked up by code rather than by URL.
     pub system_entries: Vec<(String, InsertableIndex)>,
-    /// Project-level parameters, keyed by canonical URL. These land in the
-    /// `search_dynamic_*` EAV tables, where `param_url` discriminates them.
+    /// Everything that may repeat, keyed by canonical URL. These land in the
+    /// shared `{version}_param_{type}_idx` tables, where `param_url` discriminates
+    /// them.
     pub dynamic_entries: Vec<(String, InsertableIndex)>,
 }
 
@@ -167,12 +191,16 @@ pub(crate) async fn resource_to_search_index(
             match &param.level {
                 // Keyed by code: the per-resource-type table's columns are
                 // derived from the code, not the URL.
-                ParameterLevel::System => {
+                // A column exists only for a parameter that cannot produce a
+                // second value to drop, so that — not the parameter's level —
+                // is what decides where its values go. Everything else lands
+                // in the shared table for its value type, keyed by URL.
+                ParameterLevel::System if search_parameter_cardinality::is_single_valued(url) => {
                     if let Some(code) = param.search_parameter.code.value.as_ref() {
                         system_entries.push((code.clone(), insertable));
                     }
                 }
-                ParameterLevel::Project => {
+                ParameterLevel::System | ParameterLevel::Project => {
                     dynamic_entries.push((url.clone(), insertable));
                 }
             }

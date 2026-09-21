@@ -1,6 +1,6 @@
 use haste_fhir_client::url::Parameter;
 
-use super::{ClauseTarget, SqlClause, SqlParam, direct_exists, dynamic_exists};
+use super::{ClauseTarget, SqlClause, SqlParam, direct_column, direct_predicate, dynamic_exists};
 use crate::pg_search::{schema::ParamColumns, search::QueryBuildError};
 
 pub fn reference_clause(
@@ -14,23 +14,20 @@ pub fn reference_clause(
     }
 
     match target {
-        ClauseTarget::DirectColumn(columns) => {
+        ClauseTarget::DirectColumn { alias, columns } => {
             let (type_column, id_column) = reference_columns(columns)?;
-            // Parallel arrays, so a `Type/id` match can't pair the type of one
-            // reference with the id of another.
-            let mut params = Vec::new();
-            let or_expr = build_or_expr(parsed_parameter, "rtype", "rid", &mut params)?;
 
-            Ok(SqlClause::new(
-                direct_exists(
-                    &[(type_column, "rtype"), (id_column, "rid")],
-                    false,
-                    &or_expr,
-                ),
-                params,
-            ))
+            let mut params = Vec::new();
+            let or_expr = build_or_expr(
+                parsed_parameter,
+                &direct_column(alias, type_column),
+                &direct_column(alias, id_column),
+                &mut params,
+            )?;
+
+            Ok(SqlClause::new(direct_predicate(false, &or_expr), params))
         }
-        ClauseTarget::Dynamic { param_url } => {
+        ClauseTarget::Dynamic { table, param_url } => {
             // $1 is the param_url discriminator.
             let mut params = vec![SqlParam::Text(param_url.clone())];
             let or_expr = build_or_expr(
@@ -41,7 +38,7 @@ pub fn reference_clause(
             )?;
 
             Ok(SqlClause::new(
-                dynamic_exists("reference", "sref", false, Some(&or_expr)),
+                dynamic_exists(table, "sref", false, Some(&or_expr)),
                 params,
             ))
         }
