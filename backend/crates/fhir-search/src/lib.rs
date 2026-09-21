@@ -11,6 +11,7 @@ pub mod elastic_search;
 pub mod indexing_conversion;
 pub mod memory;
 pub mod pg_search;
+pub mod search_parameter_cardinality;
 
 #[derive(Clone)]
 pub struct IndexResource {
