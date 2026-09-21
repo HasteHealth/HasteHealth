@@ -229,6 +229,174 @@ fn step<'a>(
     })
 }
 
+/// Datatypes whose conversion to index values emits more than one entry for a
+/// single value, so a path that selects exactly one of them still produces
+/// several index entries.
+///
+/// This mirrors the per-type arms of `indexing_conversion` in
+/// `haste-fhir-search`: a `HumanName` becomes its text, family, every given,
+/// every prefix and every suffix; a `CodeableConcept` becomes one token per
+/// coding. Changing a converter to fan out — encoding an `Identifier` as both
+/// `system|value` and bare `value`, say — means adding its type here, or the
+/// generated table starts claiming parameters are singular when their values
+/// are being dropped.
+pub const FANNING_OUT_TYPES: [&str; 4] = ["HumanName", "Address", "CodeableConcept", "Timing"];
+
+/// Whether a parameter produces at most one index entry per resource.
+///
+/// Both halves have to hold: the path selects at most one value, *and* that
+/// value converts to at most one index entry. Anything the walker could not
+/// resolve, or that needs the engine, is not single — the cost of being wrong
+/// that way is slower storage, and the cost of being wrong the other way is
+/// silently dropping values.
+#[must_use]
+pub fn is_single_valued(index: &SnapshotIndex, expression: &str) -> bool {
+    match analyze_path(index, expression) {
+        PathAnalysis::Resolved(path) => {
+            !path.repeats
+                && !path
+                    .leaf_type
+                    .as_deref()
+                    .is_some_and(|leaf| FANNING_OUT_TYPES.contains(&leaf))
+        }
+        PathAnalysis::Unresolved { .. } | PathAnalysis::NotAPlainPath => false,
+    }
+}
+
+/// Reads every `StructureDefinition` under the given files or directories,
+/// following the same JSON-file walk the other generators use. Bundles are
+/// unwrapped, so a `profiles-resources.min.json` can be passed directly.
+///
+/// # Errors
+///
+/// Returns an error if a path cannot be read or a file is not valid JSON.
+pub fn load_definitions(paths: &[String]) -> Result<Vec<StructureDefinition>, String> {
+    load_resources(paths, |resource| match resource {
+        haste_fhir_model::r4::generated::resources::Resource::StructureDefinition(sd) => Some(sd),
+        _ => None,
+    })
+}
+
+/// Reads every `SearchParameter` under the given files or directories.
+///
+/// # Errors
+///
+/// Returns an error if a path cannot be read or a file is not valid JSON.
+pub fn load_search_parameters(
+    paths: &[String],
+) -> Result<Vec<haste_fhir_model::r4::generated::resources::SearchParameter>, String> {
+    load_resources(paths, |resource| match resource {
+        haste_fhir_model::r4::generated::resources::Resource::SearchParameter(sp) => Some(sp),
+        _ => None,
+    })
+}
+
+fn load_resources<T>(
+    paths: &[String],
+    pick: impl Fn(haste_fhir_model::r4::generated::resources::Resource) -> Option<T> + Copy,
+) -> Result<Vec<T>, String> {
+    use haste_fhir_model::r4::generated::resources::Resource;
+
+    let mut collected = Vec::new();
+
+    for path in paths {
+        for entry in walkdir::WalkDir::new(path)
+            .sort_by_file_name()
+            .into_iter()
+            .filter_map(Result::ok)
+            .filter(|e| e.metadata().is_ok_and(|m| m.is_file()))
+            .filter(|e| e.path().extension().is_some_and(|ext| ext == "json"))
+        {
+            let contents = std::fs::read_to_string(entry.path())
+                .map_err(|e| format!("{}: {e}", entry.path().display()))?;
+
+            let resource: Resource = serde_json::from_str(&contents)
+                .map_err(|e| format!("{}: {e}", entry.path().display()))?;
+
+            match resource {
+                // A bundle of definitions, as the HL7 packages ship them.
+                Resource::Bundle(bundle) => {
+                    collected.extend(
+                        bundle
+                            .entry
+                            .unwrap_or_default()
+                            .into_iter()
+                            .filter_map(|e| e.resource)
+                            .filter_map(|r| pick(*r)),
+                    );
+                }
+                resource => collected.extend(pick(resource)),
+            }
+        }
+    }
+
+    Ok(collected)
+}
+
+/// Emits the Rust source for the compiled lookup table.
+///
+/// The table is the sorted set of canonical URLs whose parameters are single
+/// valued, so a lookup is a binary search over static data with no
+/// initialisation. Absence means "not known to be single", which is the answer
+/// a caller should act on anyway for a URL it has never heard of.
+#[must_use]
+pub fn generate_lookup(
+    definitions: &[StructureDefinition],
+    search_parameters: &[haste_fhir_model::r4::generated::resources::SearchParameter],
+) -> String {
+    let index = SnapshotIndex::new(definitions.iter());
+
+    let mut urls: Vec<&str> = search_parameters
+        .iter()
+        .filter_map(|parameter| {
+            let url = parameter.url.value.as_deref()?;
+            let expression = parameter.expression.as_ref()?.value.as_deref()?;
+
+            is_single_valued(&index, expression).then_some(url)
+        })
+        .collect();
+
+    urls.sort_unstable();
+    urls.dedup();
+
+    let entries = urls
+        .iter()
+        .map(|url| format!("    {url:?},\n"))
+        .collect::<String>();
+
+    format!(
+        r#"//! Search parameters that produce at most one index value per resource.
+//!
+//! @generated by `bash scripts/search_param_cardinality_build.sh` — do not edit.
+//!
+//! A parameter listed here selects at most one value and converts to at most
+//! one index entry, so it can be stored as a scalar column, which is what lets
+//! an index answer an ordered comparison, a prefix match or a sort.
+//!
+//! Absence means "not known to be single". A parameter whose expression needs
+//! the `FHIRPath` engine to resolve, or that the schema walk could not follow,
+//! is absent for the same reason a genuinely repeating one is: storing several
+//! values in a scalar column keeps the first and drops the rest.
+
+/// Canonical URLs of the single-valued parameters, sorted for binary search.
+static SINGLE_VALUED: [&str; {count}] = [
+{entries}];
+
+/// Whether `url` names a parameter that produces at most one index value.
+///
+/// Unknown URLs answer `false`, which is the safe direction: a caller that
+/// treats an unclassified parameter as multi valued is slower, one that treats
+/// it as single loses data.
+#[must_use]
+pub fn is_single_valued(url: &str) -> bool {{
+    SINGLE_VALUED.binary_search(&url).is_ok()
+}}
+"#,
+        count = urls.len(),
+        entries = entries,
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -364,6 +532,45 @@ mod tests {
                 "{expression}",
             );
         }
+    }
+
+    /// The committed table is generated from these same artifacts, so it has
+    /// to match what the generator produces now. Without this, a change to the
+    /// walker, the fan-out list or the HL7 package silently leaves a stale
+    /// table behind — and a stale table is one that may call a parameter
+    /// single-valued when it is not.
+    #[test]
+    fn the_committed_table_is_up_to_date() {
+        let expected = generate_lookup(&DEFINITIONS, &SEARCH_PARAMETERS);
+        let committed = include_str!("../../fhir-search/src/search_parameter_cardinality.rs");
+
+        // The committed file has been through rustfmt; compare on content
+        // rather than layout.
+        let normalize = |source: &str| {
+            source
+                .lines()
+                .map(str::trim)
+                .filter(|line| !line.is_empty())
+                .collect::<Vec<_>>()
+                .join("\n")
+        };
+
+        assert_eq!(
+            normalize(&expected),
+            normalize(committed),
+            "run `bash scripts/search_param_cardinality_build.sh`",
+        );
+    }
+
+    /// A parameter selecting one `CodeableConcept` is not single valued, even
+    /// though its path does not repeat, because the conversion fans it out.
+    #[test]
+    fn fanning_out_types_are_not_single_valued() {
+        let index = index();
+
+        assert!(!is_single_valued(&index, "Observation.code"));
+        assert!(is_single_valued(&index, "Observation.subject"));
+        assert!(is_single_valued(&index, "Patient.birthDate"));
     }
 
     /// Runs the whole HL7 base corpus, so a change in the walker or the
