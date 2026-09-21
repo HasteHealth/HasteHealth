@@ -177,9 +177,11 @@ pub(crate) async fn run(command: &CodeGen) -> Result<(), OperationOutcomeError> 
 
             match output {
                 Some(output_path) => {
-                    tokio::fs::write(output_path, &generated).await.map_err(|e| {
-                        OperationOutcomeError::error(IssueType::exception(), e.to_string())
-                    })?;
+                    tokio::fs::write(output_path, &generated)
+                        .await
+                        .map_err(|e| {
+                            OperationOutcomeError::error(IssueType::exception(), e.to_string())
+                        })?;
                     println!("Search parameter cardinality table written to: {output_path}");
                 }
                 None => println!("{generated}"),
