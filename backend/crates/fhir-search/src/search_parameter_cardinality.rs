@@ -12,7 +12,7 @@
 //! values in a scalar column keeps the first and drops the rest.
 
 /// Canonical URLs of the single-valued parameters, sorted for binary search.
-static SINGLE_VALUED: [&str; 582] = [
+static SINGLE_VALUED: [&str; 596] = [
     "http://hl7.org/fhir/SearchParameter/Account-name",
     "http://hl7.org/fhir/SearchParameter/Account-owner",
     "http://hl7.org/fhir/SearchParameter/Account-period",
@@ -595,6 +595,20 @@ static SINGLE_VALUED: [&str; 582] = [
     "http://hl7.org/fhir/SearchParameter/VisionPrescription-prescriber",
     "http://hl7.org/fhir/SearchParameter/VisionPrescription-status",
     "http://hl7.org/fhir/SearchParameter/medications-encounter",
+    "https://haste.health/fhir/SearchParameter/AccessPolicyV2-engine",
+    "https://haste.health/fhir/SearchParameter/AccessPolicyV2-name",
+    "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-access-policy",
+    "https://haste.health/fhir/SearchParameter/AccessPolicyV2Assignment-link",
+    "https://haste.health/fhir/SearchParameter/ClientApplication-name",
+    "https://haste.health/fhir/SearchParameter/IdentityProvider-accessType",
+    "https://haste.health/fhir/SearchParameter/IdentityProvider-name",
+    "https://haste.health/fhir/SearchParameter/IdentityProvider-status",
+    "https://haste.health/fhir/SearchParameter/Membership-link",
+    "https://haste.health/fhir/SearchParameter/Membership-user",
+    "https://haste.health/fhir/SearchParameter/User-email",
+    "https://haste.health/fhir/SearchParameter/User-email-verified",
+    "https://haste.health/fhir/SearchParameter/User-federated-identityProvider",
+    "https://haste.health/fhir/SearchParameter/User-role",
 ];
 
 /// Whether `url` names a parameter that produces at most one index value.
