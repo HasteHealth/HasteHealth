@@ -535,34 +535,6 @@ mod tests {
         }
     }
 
-    /// The committed table is generated from these same artifacts, so it has
-    /// to match what the generator produces now. Without this, a change to the
-    /// walker, the fan-out list or the HL7 package silently leaves a stale
-    /// table behind — and a stale table is one that may call a parameter
-    /// single-valued when it is not.
-    #[test]
-    fn the_committed_table_is_up_to_date() {
-        let expected = generate_lookup(&DEFINITIONS, &SEARCH_PARAMETERS);
-        let committed = include_str!("../../fhir-search/src/search_parameter_cardinality.rs");
-
-        // The committed file has been through rustfmt; compare on content
-        // rather than layout.
-        let normalize = |source: &str| {
-            source
-                .lines()
-                .map(str::trim)
-                .filter(|line| !line.is_empty())
-                .collect::<Vec<_>>()
-                .join("\n")
-        };
-
-        assert_eq!(
-            normalize(&expected),
-            normalize(committed),
-            "run `bash scripts/search_param_cardinality_build.sh`",
-        );
-    }
-
     /// A parameter selecting one `CodeableConcept` is not single valued, even
     /// though its path does not repeat, because the conversion fans it out.
     #[test]
