@@ -23,73 +23,82 @@ pub const RESOURCE_TABLE_ALIAS: &str = "rt";
 /// Where a search parameter's values live, and therefore how a clause has to
 /// look them up.
 ///
-/// System-level (HL7 base) parameters get dedicated array columns on the
+/// Singular system-level (HL7 base) parameters get scalar columns on the
 /// per-resource-type table, so their clauses read those columns directly.
-/// Project-level parameters share the EAV `search_dynamic_*` tables and are
-/// discriminated by `param_url`.
+/// Everything that may repeat shares the `{version}_param_{type}_idx` tables
+/// and is discriminated by `param_url`.
 #[derive(Debug, Clone)]
 pub enum ClauseTarget {
-    /// Direct array columns on the per-resource-type table, aliased
-    /// [`RESOURCE_TABLE_ALIAS`].
-    DirectColumn(ParamColumns),
-    /// EAV lookup against the `search_dynamic_*` table for this type.
-    Dynamic { param_url: String },
+    /// Columns read straight off a row: the resource type's table, or the
+    /// anchor for a resource-level parameter. The alias says which.
+    DirectColumn {
+        alias: &'static str,
+        columns: ParamColumns,
+    },
+    /// A row lookup in the shared table for this parameter's value type,
+    /// discriminated by the parameter's canonical URL.
+    Dynamic { table: String, param_url: String },
 }
 
-/// Builds the `EXISTS (SELECT 1 FROM search_dynamic_{suffix} {alias} WHERE ...)`
-/// skeleton shared by every dynamic clause: the correlation back to
-/// `search_resource`, plus the `param_url = $1` discriminator.
+/// Builds the `EXISTS (SELECT 1 FROM {table} {alias} WHERE ...)` skeleton
+/// shared by every clause reading a shared table: the correlation back to the
+/// anchor row, plus the `param_url = $1` discriminator.
 ///
 /// `predicate` is appended as an additional `AND (...)` when non-empty.
 /// `negate` prefixes the whole thing with `NOT`.
 #[must_use]
-pub fn dynamic_exists(suffix: &str, alias: &str, negate: bool, predicate: Option<&str>) -> String {
+pub fn dynamic_exists(table: &str, alias: &str, negate: bool, predicate: Option<&str>) -> String {
     let prefix = if negate { "NOT " } else { "" };
     let extra = predicate.map_or_else(String::new, |p| format!(" AND ({p})"));
 
     format!(
-        "{prefix}EXISTS (SELECT 1 FROM search_dynamic_{suffix} {alias} \
+        "{prefix}EXISTS (SELECT 1 FROM {table} {alias} \
          WHERE {alias}.tenant = sr.tenant AND {alias}.project = sr.project \
          AND {alias}.resource_type = sr.resource_type AND {alias}.resource_id = sr.resource_id \
          AND {alias}.param_url = $1{extra})"
     )
 }
 
-/// Builds an `EXISTS (SELECT 1 FROM unnest(...) ... WHERE predicate)` over one
-/// or more parallel array columns on the per-resource-type table.
-///
-/// `bindings` pairs each column name with the alias its unnested value takes
-/// in `predicate`. Passing more than one column unnests them in parallel, so
-/// index `i` of every column is visible in the same row — which is what makes
-/// `system`/`code` and `start`/`end` pairs line up.
+/// The anchor table's alias in a generated query. Resource-level parameters
+/// read their columns from here, which is also the only table a search that
+/// names no resource type has.
+pub const ANCHOR_TABLE_ALIAS: &str = "sr";
+
+/// A reference to a column on the table `alias` names.
 #[must_use]
-pub fn direct_exists(bindings: &[(&str, &str)], negate: bool, predicate: &str) -> String {
-    let columns = bindings
-        .iter()
-        .map(|(column, _)| format!("{RESOURCE_TABLE_ALIAS}.\"{column}\""))
-        .collect::<Vec<_>>()
-        .join(", ");
-
-    let aliases = bindings
-        .iter()
-        .map(|(_, alias)| (*alias).to_string())
-        .collect::<Vec<_>>()
-        .join(", ");
-
-    let prefix = if negate { "NOT " } else { "" };
-
-    format!("{prefix}EXISTS (SELECT 1 FROM unnest({columns}) AS u({aliases}) WHERE {predicate})")
+pub fn direct_column(alias: &str, column: &str) -> String {
+    format!("{alias}.\"{column}\"")
 }
 
-/// `:missing=true`/`false` against a direct column: a parameter is missing
-/// when its array column is NULL or empty.
+/// Wraps a predicate written against a resource type table's columns.
+///
+/// No `unnest` and no `EXISTS`: a column exists only for a parameter that
+/// cannot repeat, so the value is on the row and the predicate reads it
+/// directly. That is also what makes the column's index usable — a predicate
+/// over `unnest(column)` is a correlated function scan the planner cannot
+/// answer from an index.
+///
+/// Negation is `IS NOT TRUE` rather than `NOT`, because a column with no value
+/// makes the predicate NULL, and `:not` has to match a resource that does not
+/// carry the value at all.
 #[must_use]
-pub fn direct_missing(column: &str, missing: bool) -> String {
-    let col = format!("{RESOURCE_TABLE_ALIAS}.\"{column}\"");
-    if missing {
-        format!("({col} IS NULL OR cardinality({col}) = 0)")
+pub fn direct_predicate(negate: bool, predicate: &str) -> String {
+    if negate {
+        format!("(({predicate}) IS NOT TRUE)")
     } else {
-        format!("({col} IS NOT NULL AND cardinality({col}) > 0)")
+        format!("({predicate})")
+    }
+}
+
+/// `:missing=true`/`false` against a direct column: a scalar column holds the
+/// value or NULL, so absence is exactly NULL.
+#[must_use]
+pub fn direct_missing(alias: &str, column: &str, missing: bool) -> String {
+    let col = direct_column(alias, column);
+    if missing {
+        format!("{col} IS NULL")
+    } else {
+        format!("{col} IS NOT NULL")
     }
 }
 
@@ -153,42 +162,57 @@ pub fn resolve_param_url(
 mod tests {
     use super::*;
 
+    /// A scalar column is read straight off the row, which is the only shape
+    /// its B-tree can serve.
     #[test]
-    fn direct_exists_unnests_parallel_columns() {
-        let sql = direct_exists(
-            &[("identifier_system", "sys"), ("identifier_code", "cod")],
+    fn a_direct_predicate_reads_the_column_itself() {
+        let sql = direct_predicate(
             false,
-            "sys = $1 AND cod = $2",
+            &format!(
+                "{} = $1 AND {} = $2",
+                direct_column(RESOURCE_TABLE_ALIAS, "identifier_system"),
+                direct_column(RESOURCE_TABLE_ALIAS, "identifier_code")
+            ),
         );
+
         assert_eq!(
             sql,
-            "EXISTS (SELECT 1 FROM unnest(rt.\"identifier_system\", rt.\"identifier_code\") \
-             AS u(sys, cod) WHERE sys = $1 AND cod = $2)"
+            "(rt.\"identifier_system\" = $1 AND rt.\"identifier_code\" = $2)"
         );
+        assert!(!sql.contains("unnest"));
+    }
+
+    /// `:not` has to match a resource carrying no value at all, and a NULL
+    /// column makes the predicate NULL rather than false.
+    #[test]
+    fn a_negated_predicate_matches_a_missing_value() {
+        let sql = direct_predicate(
+            true,
+            &format!(
+                "{} = $1",
+                direct_column(RESOURCE_TABLE_ALIAS, "gender_code")
+            ),
+        );
+
+        assert_eq!(sql, "((rt.\"gender_code\" = $1) IS NOT TRUE)");
     }
 
     #[test]
-    fn direct_exists_negates() {
-        let sql = direct_exists(&[("name", "v")], true, "v = $1");
-        assert!(sql.starts_with("NOT EXISTS (SELECT 1 FROM unnest(rt.\"name\") AS u(v)"));
-    }
-
-    #[test]
-    fn direct_missing_checks_null_and_empty() {
+    fn direct_missing_is_a_null_check() {
         assert_eq!(
-            direct_missing("name", true),
-            "(rt.\"name\" IS NULL OR cardinality(rt.\"name\") = 0)"
+            direct_missing(RESOURCE_TABLE_ALIAS, "name", true),
+            "rt.\"name\" IS NULL"
         );
         assert_eq!(
-            direct_missing("name", false),
-            "(rt.\"name\" IS NOT NULL AND cardinality(rt.\"name\") > 0)"
+            direct_missing(RESOURCE_TABLE_ALIAS, "name", false),
+            "rt.\"name\" IS NOT NULL"
         );
     }
 
     #[test]
     fn dynamic_exists_correlates_and_discriminates() {
-        let sql = dynamic_exists("token", "st", false, Some("st.code = $2"));
-        assert!(sql.contains("FROM search_dynamic_token st"));
+        let sql = dynamic_exists("r4_param_token_idx", "st", false, Some("st.code = $2"));
+        assert!(sql.contains("FROM r4_param_token_idx st"));
         assert!(sql.contains("st.param_url = $1"));
         assert!(sql.ends_with("AND (st.code = $2))"));
     }

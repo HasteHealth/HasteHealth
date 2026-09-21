@@ -19,7 +19,7 @@ static SYSTEM: &str = "system";
 ///
 /// A project's version is fixed when it is created and cannot be changed
 /// afterwards, so it is safe to cache and to carry in an access token.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Deserialize, Serialize)]
 #[cfg_attr(feature = "sqlx", derive(::sqlx::Type))]
 #[cfg_attr(
     feature = "sqlx",
@@ -27,6 +27,7 @@ static SYSTEM: &str = "system";
 )]
 #[serde(rename_all = "lowercase")]
 pub enum SupportedFHIRVersions {
+    #[default]
     R4,
 }
 

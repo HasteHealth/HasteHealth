@@ -1,7 +1,7 @@
 use haste_fhir_client::url::{Parameter, parse_prefix};
 use haste_fhir_model::r4::datetime::parse_datetime;
 
-use super::{ClauseTarget, SqlClause, SqlParam, direct_exists, dynamic_exists};
+use super::{ClauseTarget, SqlClause, SqlParam, direct_column, direct_predicate, dynamic_exists};
 use crate::{
     indexing_conversion::date_time_range,
     pg_search::{schema::ParamColumns, search::QueryBuildError},
@@ -18,25 +18,28 @@ pub fn date_clause(
     }
 
     match target {
-        ClauseTarget::DirectColumn(columns) => {
+        ClauseTarget::DirectColumn { alias, columns } => {
             let (start_column, end_column) = date_columns(columns)?;
-            // Parallel arrays: index `i` of start pairs with index `i` of end,
-            // so a single indexed period stays intact through the unnest.
-            let mut params = Vec::new();
-            let or_expr = build_or_expr(parsed_parameter, "s", "e", &mut params)?;
 
-            Ok(SqlClause::new(
-                direct_exists(&[(start_column, "s"), (end_column, "e")], false, &or_expr),
-                params,
-            ))
+            // One period on the row, so its bounds are read directly and the
+            // B-tree on them answers the comparison.
+            let mut params = Vec::new();
+            let or_expr = build_or_expr(
+                parsed_parameter,
+                &direct_column(alias, start_column),
+                &direct_column(alias, end_column),
+                &mut params,
+            )?;
+
+            Ok(SqlClause::new(direct_predicate(false, &or_expr), params))
         }
-        ClauseTarget::Dynamic { param_url } => {
+        ClauseTarget::Dynamic { table, param_url } => {
             // $1 is the param_url discriminator.
             let mut params = vec![SqlParam::Text(param_url.clone())];
             let or_expr = build_or_expr(parsed_parameter, "sd.start_ms", "sd.end_ms", &mut params)?;
 
             Ok(SqlClause::new(
-                dynamic_exists("date", "sd", false, Some(&or_expr)),
+                dynamic_exists(table, "sd", false, Some(&or_expr)),
                 params,
             ))
         }

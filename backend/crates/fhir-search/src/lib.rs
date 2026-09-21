@@ -7,6 +7,7 @@ use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId};
 use haste_repository::types::{FHIRMethod, SupportedFHIRVersions};
 use serde::Deserialize;
 
+pub mod config;
 pub mod elastic_search;
 pub mod indexing_conversion;
 pub mod memory;

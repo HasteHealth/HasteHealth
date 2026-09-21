@@ -4,15 +4,11 @@ use crate::{
 };
 use haste_fhir_model::r4::generated::resources::ResourceTypeError;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use haste_fhir_search::{
-    IndexResource, SearchEngine,
-    elastic_search::{
-        ElasticSearchEngine, create_es_client,
-        search_parameter_resolver::ElasticSearchParameterResolver,
-    },
-};
+use haste_fhir_search::config::{SearchConfig, SearchEngineBackend};
+use haste_fhir_search::{IndexResource, SearchEngine};
 use haste_fhirpath::FHIRPathError;
 use haste_jwt::{TenantId, VersionId};
+use haste_repository::config::{RepoConfig, create_repo};
 use haste_repository::{
     failed_indexing::{FailedIndexRecord, FailedIndexingProvider},
     fhir::FHIRRepository,
@@ -337,7 +333,7 @@ pub struct IndexingWorker {
     tenant_concurrency: Option<u64>,
     running: Arc<tokio::sync::Mutex<bool>>,
     repo: Arc<PGConnection>,
-    search_engine: Arc<ElasticSearchEngine<ElasticSearchParameterResolver<PGConnection>>>,
+    search_engine: Arc<SearchEngineBackend>,
 }
 
 #[derive(Clone, Deserialize, Serialize)]
@@ -350,110 +346,14 @@ pub struct WorkerEnvironment {
     pub search: SearchConfig,
 }
 
-// Repo backend where the FHIR server stores its data/resources.
-#[derive(Clone, Deserialize, Serialize)]
-#[serde(tag = "backend", rename_all = "snake_case")]
-pub enum RepoConfig {
-    Postgres(PostgresConfig),
-}
-
-#[derive(Clone, Deserialize, Serialize)]
-pub struct PostgresConfig {
-    pub database_url: String,
-    pub max_connections: u32,
-}
-
-#[derive(Clone, Deserialize, Serialize)]
-pub struct ElasticsearchConfig {
-    pub url: String,
-    pub username: String,
-    pub password: String,
-}
-
-// Search backend where the FHIR server stores its search indices.
-#[derive(Clone, Deserialize, Serialize)]
-#[serde(tag = "backend", rename_all = "snake_case")]
-pub enum SearchConfig {
-    Elasticsearch(ElasticsearchConfig),
-}
-
 impl Default for WorkerEnvironment {
     fn default() -> Self {
         Self {
             max_concurrent_limit: Some(1000),
-            // Matches `PostgresConfig::default`'s `max_connections`.
+            // Matches `PostgresRepoConfig::default`'s `max_connections`.
             tenant_concurrency: Some(10),
             repo: RepoConfig::default(),
             search: SearchConfig::default(),
-        }
-    }
-}
-
-impl Default for RepoConfig {
-    fn default() -> Self {
-        RepoConfig::Postgres(PostgresConfig::default())
-    }
-}
-impl Default for PostgresConfig {
-    fn default() -> Self {
-        Self {
-            database_url: "postgresql://postgres:postgres@localhost:5432/haste_health".into(),
-            max_connections: 10,
-        }
-    }
-}
-impl Default for SearchConfig {
-    fn default() -> Self {
-        SearchConfig::Elasticsearch(ElasticsearchConfig::default())
-    }
-}
-impl Default for ElasticsearchConfig {
-    fn default() -> Self {
-        Self {
-            url: "http://localhost:9200".into(),
-            username: "elastic".into(),
-            password: "elastic".into(),
-        }
-    }
-}
-
-async fn create_repo(config: &RepoConfig) -> Result<Arc<PGConnection>, OperationOutcomeError> {
-    match config {
-        RepoConfig::Postgres(pg_config) => {
-            let pool = sqlx::PgPool::connect(&pg_config.database_url)
-                .await
-                .map_err(IndexingWorkerError::from)?;
-            Ok(Arc::new(PGConnection::pool(pool)))
-        }
-    }
-}
-
-fn create_search_engine(
-    config: &SearchConfig,
-    repo: &Arc<PGConnection>,
-) -> Result<
-    Arc<ElasticSearchEngine<ElasticSearchParameterResolver<PGConnection>>>,
-    OperationOutcomeError,
-> {
-    match config {
-        SearchConfig::Elasticsearch(elasticsearch_config) => {
-            let es_client = create_es_client(
-                &elasticsearch_config.url,
-                elasticsearch_config.username.clone(),
-                elasticsearch_config.password.clone(),
-            )?;
-            let search_engine = Arc::new(ElasticSearchEngine::new(
-                Arc::new(ElasticSearchParameterResolver::new(
-                    es_client.clone(),
-                    repo.clone(),
-                )),
-                Arc::new(haste_fhirpath::FPEngine::new()),
-                es_client,
-                // This worker only indexes documents; it never calls `migrate`.
-                false,
-            ));
-
-            Ok(search_engine)
         }
     }
 }
@@ -484,20 +384,25 @@ impl IndexingWorker {
     /// ready for use.
     pub async fn new(config: Arc<WorkerEnvironment>) -> Result<Self, OperationOutcomeError> {
         let repo = create_repo(&config.repo).await?;
-        let search_engine = create_search_engine(&config.search, &repo)?;
+
+        // This worker only writes documents, so it is never allowed to change
+        // the index's shape out from under a running server.
+        let search_engine =
+            haste_fhir_search::config::create_search_engine(&config.search, repo.clone(), false)
+                .await?;
 
         let mut attempts = 0;
         while search_engine.is_connected().await.is_err() && attempts < 5 {
-            tracing::error!("Elasticsearch is not connected, retrying in 5 seconds...");
+            tracing::error!(
+                "{} is not connected, retrying in 5 seconds...",
+                search_engine.name()
+            );
             tokio::time::sleep(std::time::Duration::from_secs(5)).await;
             attempts += 1;
         }
 
-        if search_engine.is_connected().await.is_err() {
-            return Err(OperationOutcomeError::fatal(
-                haste_fhir_model::r4::generated::terminology::IssueType::exception(),
-                "Elasticsearch is not connected after 5 attempts".to_string(),
-            ));
+        if let Err(error) = search_engine.is_connected().await {
+            return Err(error);
         }
 
         Ok(Self {
@@ -520,8 +425,7 @@ impl Worker for IndexingWorker {
         let mut k = *TOTAL_INDEXED.lock().await;
 
         let repo = self.repo.clone();
-        let search_engine: Arc<ElasticSearchEngine<ElasticSearchParameterResolver<PGConnection>>> =
-            self.search_engine.clone();
+        let search_engine: Arc<SearchEngineBackend> = self.search_engine.clone();
         let running = self.running.clone();
         let max_concurrent_limit = self.max_concurrent_limit.unwrap_or(1000);
         let tenant_semaphore = Arc::new(Semaphore::new(

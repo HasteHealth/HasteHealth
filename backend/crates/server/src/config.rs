@@ -1,4 +1,6 @@
 use derivative::Derivative;
+use haste_fhir_search::config::SearchConfig;
+use haste_repository::config::RepoConfig;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -75,54 +77,6 @@ pub struct FHIRConfig {
     pub delete_limit: u64,
 }
 
-// Repo backend where the FHIR server stores its data/resources.
-#[derive(Debug, Clone, Deserialize, Serialize)]
-#[serde(tag = "backend", rename_all = "snake_case")]
-pub enum RepoConfig {
-    Postgres(PostgresConfig),
-}
-
-#[derive(Derivative, Clone, Deserialize, Serialize)]
-#[derivative(Debug)]
-pub struct PostgresConfig {
-    #[derivative(Debug = "ignore")]
-    pub database_url: String,
-    pub max_connections: u32,
-}
-
-// Search backend where the FHIR server stores its search indices.
-#[derive(Debug, Clone, Deserialize, Serialize)]
-#[serde(tag = "backend", rename_all = "snake_case")]
-pub enum SearchConfig {
-    Elasticsearch(ElasticsearchConfig),
-    Postgres(PostgresSearchConfig),
-}
-
-#[derive(Derivative, Clone, Deserialize, Serialize)]
-#[derivative(Debug)]
-pub struct PostgresSearchConfig {
-    #[derivative(Debug = "ignore")]
-    pub database_url: String,
-    pub max_connections: u32,
-}
-
-#[derive(Derivative, Clone, Deserialize, Serialize)]
-#[derivative(Debug)]
-pub struct ElasticsearchConfig {
-    pub url: String,
-    #[derivative(Debug = "ignore")]
-    pub username: String,
-    #[derivative(Debug = "ignore")]
-    pub password: String,
-    /// Allows `migrate search` to rebuild the index when a search parameter
-    /// is removed, dropping its column and already-indexed data.
-    /// Elasticsearch mappings are append-only, so dropping a column requires
-    /// reindexing into a fresh index.  By default this is set to false and will
-    /// only log which parameters would be dropped.
-    #[serde(default)]
-    pub prune_removed_search_parameters: bool,
-}
-
 #[derive(Derivative, Clone, Deserialize, Serialize)]
 #[derivative(Debug)]
 #[serde(tag = "backend", rename_all = "snake_case")]
@@ -177,44 +131,6 @@ impl Default for ServerConfig {
         }
     }
 }
-impl Default for RepoConfig {
-    fn default() -> Self {
-        RepoConfig::Postgres(PostgresConfig::default())
-    }
-}
-impl Default for PostgresConfig {
-    fn default() -> Self {
-        Self {
-            database_url: "postgresql://postgres:postgres@localhost:5432/haste_health".into(),
-            max_connections: 10,
-        }
-    }
-}
-impl Default for SearchConfig {
-    fn default() -> Self {
-        SearchConfig::Elasticsearch(ElasticsearchConfig::default())
-    }
-}
-impl Default for ElasticsearchConfig {
-    fn default() -> Self {
-        Self {
-            url: "http://localhost:9200".into(),
-            username: "elastic".into(),
-            password: "elastic".into(),
-            prune_removed_search_parameters: false,
-        }
-    }
-}
-
-impl Default for PostgresSearchConfig {
-    fn default() -> Self {
-        Self {
-            database_url: "postgresql://postgres:postgres@localhost:5432/haste_search".into(),
-            max_connections: 10,
-        }
-    }
-}
-
 impl Default for RateLimitsConfig {
     fn default() -> Self {
         Self {

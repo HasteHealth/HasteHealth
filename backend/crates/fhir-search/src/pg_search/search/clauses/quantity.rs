@@ -1,6 +1,6 @@
 use haste_fhir_client::url::Parameter;
 
-use super::{ClauseTarget, SqlClause, SqlParam, direct_exists, dynamic_exists};
+use super::{ClauseTarget, SqlClause, SqlParam, direct_column, direct_predicate, dynamic_exists};
 use crate::pg_search::{schema::ParamColumns, search::QueryBuildError};
 
 /// The four SQL expressions a quantity predicate reads, in the order the
@@ -23,7 +23,7 @@ pub fn quantity_clause(
     }
 
     match target {
-        ClauseTarget::DirectColumn(columns) => {
+        ClauseTarget::DirectColumn { alias, columns } => {
             let ParamColumns::Quantity {
                 start,
                 end,
@@ -36,35 +36,26 @@ pub fn quantity_clause(
                 ));
             };
 
-            // All four are parallel arrays, so one unnest keeps each value
-            // beside its own unit.
+            // All four sit on the same row, so each value stays beside its
+            // own unit with nothing to recombine.
+            let (start, end) = (direct_column(alias, start), direct_column(alias, end));
+            let (system, code) = (direct_column(alias, system), direct_column(alias, code));
+
             let mut params = Vec::new();
             let or_expr = build_or_expr(
                 parsed_parameter,
                 &QuantityExprs {
-                    start: "qstart",
-                    end: "qend",
-                    system: "qsys",
-                    code: "qcode",
+                    start: &start,
+                    end: &end,
+                    system: &system,
+                    code: &code,
                 },
                 &mut params,
             )?;
 
-            Ok(SqlClause::new(
-                direct_exists(
-                    &[
-                        (start.as_str(), "qstart"),
-                        (end.as_str(), "qend"),
-                        (system.as_str(), "qsys"),
-                        (code.as_str(), "qcode"),
-                    ],
-                    false,
-                    &or_expr,
-                ),
-                params,
-            ))
+            Ok(SqlClause::new(direct_predicate(false, &or_expr), params))
         }
-        ClauseTarget::Dynamic { param_url } => {
+        ClauseTarget::Dynamic { table, param_url } => {
             // $1 is the param_url discriminator.
             let mut params = vec![SqlParam::Text(param_url.clone())];
             let or_expr = build_or_expr(
@@ -79,7 +70,7 @@ pub fn quantity_clause(
             )?;
 
             Ok(SqlClause::new(
-                dynamic_exists("quantity", "sq", false, Some(&or_expr)),
+                dynamic_exists(table, "sq", false, Some(&or_expr)),
                 params,
             ))
         }

@@ -1,6 +1,9 @@
 use haste_fhir_client::url::{Parameter, parse_prefix};
 
-use super::{ClauseTarget, SqlClause, SqlParam, direct_exists, direct_missing, dynamic_exists};
+use super::{
+    ClauseTarget, SqlClause, SqlParam, direct_column, direct_missing, direct_predicate,
+    dynamic_exists,
+};
 use crate::{
     indexing_conversion::get_decimal_range,
     pg_search::{schema::ParamColumns, search::QueryBuildError},
@@ -46,12 +49,12 @@ fn missing_clause(
     };
 
     match target {
-        ClauseTarget::DirectColumn(columns) => Ok(SqlClause::new(
-            direct_missing(value_column(columns)?, missing),
+        ClauseTarget::DirectColumn { alias, columns } => Ok(SqlClause::new(
+            direct_missing(alias, value_column(columns)?, missing),
             Vec::new(),
         )),
-        ClauseTarget::Dynamic { param_url } => Ok(SqlClause::new(
-            dynamic_exists("number", "sn", missing, None),
+        ClauseTarget::Dynamic { table, param_url } => Ok(SqlClause::new(
+            dynamic_exists(table, "sn", missing, None),
             vec![SqlParam::Text(param_url.clone())],
         )),
     }
@@ -68,23 +71,20 @@ fn value_clause(
     }
 
     match target {
-        ClauseTarget::DirectColumn(columns) => {
-            let column = value_column(columns)?;
+        ClauseTarget::DirectColumn { alias, columns } => {
+            let column = direct_column(alias, value_column(columns)?);
             let mut params = Vec::new();
-            let or_expr = build_or_expr(parsed_parameter, "v", &mut params)?;
+            let or_expr = build_or_expr(parsed_parameter, &column, &mut params)?;
 
-            Ok(SqlClause::new(
-                direct_exists(&[(column, "v")], false, &or_expr),
-                params,
-            ))
+            Ok(SqlClause::new(direct_predicate(false, &or_expr), params))
         }
-        ClauseTarget::Dynamic { param_url } => {
+        ClauseTarget::Dynamic { table, param_url } => {
             // $1 is the param_url discriminator.
             let mut params = vec![SqlParam::Text(param_url.clone())];
             let or_expr = build_or_expr(parsed_parameter, "sn.value", &mut params)?;
 
             Ok(SqlClause::new(
-                dynamic_exists("number", "sn", false, Some(&or_expr)),
+                dynamic_exists(table, "sn", false, Some(&or_expr)),
                 params,
             ))
         }
