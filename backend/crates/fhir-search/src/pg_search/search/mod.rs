@@ -106,34 +106,23 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
         sort: Vec::new(),
     };
 
+    let scope = SearchScope {
+        parameter_resolver: &parameter_resolver,
+        registry: schema_registry,
+        schema,
+        tenant,
+        project,
+        resource_type,
+    };
+
     // Process each search parameter.
     for parameter in parameters.parameters() {
         match parameter {
             ParsedParameter::Resource(resource_param) => {
-                let clause = build_resource_clause(
-                    &parameter_resolver,
-                    schema_registry,
-                    schema,
-                    tenant,
-                    project,
-                    resource_type,
-                    resource_param,
-                )
-                .await?;
-                where_clauses.push(clause);
+                where_clauses.push(build_resource_clause(&scope, resource_param).await?);
             }
             ParsedParameter::Result(result_param) => {
-                handle_result_parameter(
-                    &parameter_resolver,
-                    schema_registry,
-                    schema,
-                    tenant,
-                    project,
-                    resource_type,
-                    result_param,
-                    &mut state,
-                )
-                .await?;
+                handle_result_parameter(&scope, result_param, &mut state).await?;
             }
         }
     }
@@ -179,21 +168,39 @@ struct SortEntry {
     direction: &'static str,
 }
 
+/// What every parameter of one search is resolved against: who is searching,
+/// which resource type, and the schema its columns come from.
+struct SearchScope<'a, ParameterResolver> {
+    parameter_resolver: &'a Arc<ParameterResolver>,
+    registry: &'a SchemaRegistry,
+    /// The resource type's table, or `None` for a system-level search.
+    schema: Option<&'a ResourceTypeSchema>,
+    tenant: &'a TenantId,
+    project: &'a ProjectId,
+    resource_type: Option<&'a ResourceType>,
+}
+
+impl<ParameterResolver: SearchParameterResolve> SearchScope<'_, ParameterResolver> {
+    /// The search parameter `name` refers to in this scope.
+    async fn resolve(&self, name: &str) -> Result<ResolvedParameter, OperationOutcomeError> {
+        Ok(self
+            .parameter_resolver
+            .by_name(self.tenant, self.project, self.resource_type, name)
+            .await?
+            .ok_or_else(|| QueryBuildError::MissingParameter(name.to_string()))?)
+    }
+
+    fn clause_target(&self, parameter: &ResolvedParameter) -> ClauseTarget {
+        clause_target(parameter, self.registry, self.schema)
+    }
+}
+
 async fn build_resource_clause<ParameterResolver: SearchParameterResolve>(
-    parameter_resolver: &Arc<ParameterResolver>,
-    registry: &SchemaRegistry,
-    schema: Option<&ResourceTypeSchema>,
-    tenant: &TenantId,
-    project: &ProjectId,
-    resource_type: Option<&ResourceType>,
+    scope: &SearchScope<'_, ParameterResolver>,
     resource_param: &Parameter,
 ) -> Result<SqlClause, OperationOutcomeError> {
-    let parameter = parameter_resolver
-        .by_name(tenant, project, resource_type, &resource_param.name)
-        .await?
-        .ok_or_else(|| QueryBuildError::MissingParameter(resource_param.name.clone()))?;
-
-    let target = clause_target(&parameter, registry, schema);
+    let parameter = scope.resolve(&resource_param.name).await?;
+    let target = scope.clause_target(&parameter);
 
     Ok(parameter_to_sql_clause(
         &parameter,
@@ -276,12 +283,7 @@ fn parameter_to_sql_clause(
 }
 
 async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
-    parameter_resolver: &Arc<ParameterResolver>,
-    registry: &SchemaRegistry,
-    schema: Option<&ResourceTypeSchema>,
-    tenant: &TenantId,
-    project: &ProjectId,
-    resource_type: Option<&ResourceType>,
+    scope: &SearchScope<'_, ParameterResolver>,
     result_param: &Parameter,
     state: &mut QueryState,
 ) -> Result<(), OperationOutcomeError> {
@@ -340,10 +342,7 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
                     "ASC"
                 };
 
-                let parameter = parameter_resolver
-                    .by_name(tenant, project, resource_type, param_name)
-                    .await?
-                    .ok_or_else(|| QueryBuildError::MissingParameter(param_name.to_string()))?;
+                let parameter = scope.resolve(param_name).await?;
 
                 let sp = parameter.search_parameter.as_ref();
                 let param_type = sp.type_.as_str().unwrap_or("string").to_string();
@@ -361,7 +360,7 @@ async fn handle_result_parameter<ParameterResolver: SearchParameterResolve>(
                 }
 
                 state.sort.push(SortEntry {
-                    target: clause_target(&parameter, registry, schema),
+                    target: scope.clause_target(&parameter),
                     param_type,
                     direction,
                 });

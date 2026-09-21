@@ -612,7 +612,12 @@ pub fn generate_schemas(
             continue;
         };
 
-        for base in parameter.search_parameter.base.iter().filter_map(|b| b.as_str()) {
+        for base in parameter
+            .search_parameter
+            .base
+            .iter()
+            .filter_map(BoundCode::as_str)
+        {
             let entries = if UNIVERSAL_BASES.contains(&base) {
                 &mut universal
             } else {

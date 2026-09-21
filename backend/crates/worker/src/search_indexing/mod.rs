@@ -401,9 +401,7 @@ impl IndexingWorker {
             attempts += 1;
         }
 
-        if let Err(error) = search_engine.is_connected().await {
-            return Err(error);
-        }
+        search_engine.is_connected().await?;
 
         Ok(Self {
             max_concurrent_limit: config.max_concurrent_limit,
@@ -469,12 +467,14 @@ impl Worker for IndexingWorker {
 
                                     tracing::trace!("Indexing tenant: '{}'", &tenant.id);
 
-                                    let result = index_for_tenant(
+                                    // Boxed: the search engine's indexing future is
+                                    // large, and this one is spawned per tenant.
+                                    let result = Box::pin(index_for_tenant(
                                         max_concurrent_limit,
                                         repo,
                                         search_engine,
                                         &tenant.id,
-                                    )
+                                    ))
                                     .await;
 
                                     if let Err(error) = result {
