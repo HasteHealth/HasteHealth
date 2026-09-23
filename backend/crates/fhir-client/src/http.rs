@@ -628,7 +628,7 @@ fn request_from_invocation_system(
 ) -> Result<reqwest::Request, OperationOutcomeError> {
     let request_url = state
         .api_url
-        .join(invocation_request.operation.name())
+        .join(&format!("${}", invocation_request.operation.name()))
         .map_err(|_| FHIRHTTPError::UrlParseError("InvokeSystem request".to_string()))?;
 
     let body = serialize_json(&invocation_request.parameters)?;

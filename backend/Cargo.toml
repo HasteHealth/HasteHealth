@@ -1,6 +1,6 @@
 [package]
 name = "haste-health"
-version = "0.22.0"
+version = "0.23.1"
 edition = "2024"
 description = "Haste Health binary."
 publish = false
@@ -54,7 +54,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.23.0"
+version = "0.23.1"
 authors = ["Haste Health"]
 license = "Apache-2.0"
 homepage = "https://haste.health"
@@ -139,7 +139,12 @@ sha2 = { version = "0.10.9", default-features = false }
 similar = { version = "2.7.0", default-features = false, features = ["text"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
-tokio = { workspace = true, features = ["fs", "macros", "rt", "rt-multi-thread"] }
+tokio = { workspace = true, features = [
+    "fs",
+    "macros",
+    "rt",
+    "rt-multi-thread",
+] }
 toml = { version = "0.9.12", default-features = false, features = [
     "display",
     "parse",
