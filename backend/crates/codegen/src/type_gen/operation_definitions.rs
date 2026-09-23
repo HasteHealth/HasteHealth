@@ -307,7 +307,7 @@ impl OperationImports {
     fn new() -> Self {
         Self {
             resources: Vec::new(),
-            types: vec![format_ident!("FHIRString")],
+            types: Vec::new(),
         }
     }
 
@@ -401,12 +401,7 @@ fn generate_operation_definition(file_path: &Path) -> Result<TokenStream, String
 
         let operation_doc_attributes = generate_doc_attributes(&operation_description);
 
-        let mut imports = collect_imports(parameters);
-
-        if name == "ActivityDefinitionDataRequirements" || name == "PlanDefinitionDataRequirements"
-        {
-            imports.types.retain(|ident| ident != "FHIRString");
-        }
+        let imports = collect_imports(parameters);
 
         let generated_input = generate_input(parameters);
         let generated_output = generate_output(parameters);

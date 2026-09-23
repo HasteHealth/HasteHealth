@@ -138,7 +138,7 @@ pub mod BackportSubscriptionStatus {
     use haste_fhir_model::r4::generated::resources::{
         Bundle, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRCode, FHIRId, FHIRString};
+    use haste_fhir_model::r4::generated::types::{FHIRCode, FHIRId};
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "status";
@@ -181,7 +181,6 @@ pub mod ProjectInformation {
     use haste_fhir_model::r4::generated::resources::{
         Parameters, ParametersParameter, Project, Resource,
     };
-    use haste_fhir_model::r4::generated::types::FHIRString;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "current-project";
@@ -249,7 +248,7 @@ pub mod TenantInformation {
 #[doc = "Get tenant endpoint information for the current tenant."]
 pub mod TenantEndpointInformation {
     use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
-    use haste_fhir_model::r4::generated::types::{FHIRString, FHIRUri};
+    use haste_fhir_model::r4::generated::types::FHIRUri;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "endpoints";
@@ -303,7 +302,7 @@ pub mod HasteHealthEvaluatePolicy {
     use haste_fhir_model::r4::generated::resources::{
         Bundle, OperationOutcome, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRString, Reference};
+    use haste_fhir_model::r4::generated::types::Reference;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "evaluate-policy";
@@ -589,7 +588,7 @@ pub mod HasteHealthDeleteScope {
     use haste_fhir_model::r4::generated::resources::{
         OperationOutcome, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRId, FHIRString};
+    use haste_fhir_model::r4::generated::types::FHIRId;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "delete-scope";
@@ -842,7 +841,7 @@ pub mod CapabilityStatementConforms {
     use haste_fhir_model::r4::generated::resources::{
         CapabilityStatement, OperationOutcome, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRCanonical, FHIRCode, FHIRString};
+    use haste_fhir_model::r4::generated::types::{FHIRCanonical, FHIRCode};
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "conforms";
@@ -893,7 +892,7 @@ pub mod CapabilityStatementImplements {
     use haste_fhir_model::r4::generated::resources::{
         CapabilityStatement, OperationOutcome, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRCanonical, FHIRString};
+    use haste_fhir_model::r4::generated::types::FHIRCanonical;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "implements";
@@ -936,7 +935,7 @@ pub mod CapabilityStatementSubset {
     use haste_fhir_model::r4::generated::resources::{
         CapabilityStatement, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRCode, FHIRString, FHIRUri};
+    use haste_fhir_model::r4::generated::types::{FHIRCode, FHIRUri};
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "subset";
@@ -977,7 +976,7 @@ pub mod CapabilityStatementSubset {
 #[doc = "along with the default version it will use if no fhirVersion parameter is present"]
 pub mod CapabilityStatementVersions {
     use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
-    use haste_fhir_model::r4::generated::types::{FHIRCode, FHIRString};
+    use haste_fhir_model::r4::generated::types::FHIRCode;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "versions";
@@ -1012,7 +1011,7 @@ pub mod CapabilityStatementVersions {
 #[doc = "The apply operation applies a definition in a specific context"]
 pub mod ChargeItemDefinitionApply {
     use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
-    use haste_fhir_model::r4::generated::types::{FHIRString, Reference};
+    use haste_fhir_model::r4::generated::types::Reference;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "apply";
@@ -1052,7 +1051,6 @@ pub mod ChargeItemDefinitionApply {
 #[doc = "Bundle of `ClaimResponses` or an `OperationOutcome` resource."]
 pub mod ClaimSubmit {
     use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
-    use haste_fhir_model::r4::generated::types::FHIRString;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "submit";
@@ -1552,7 +1550,7 @@ pub mod CodeSystemValidateCode {
 #[doc = "already exists, then the server can return the existing one."]
 pub mod CompositionDocument {
     use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
-    use haste_fhir_model::r4::generated::types::{FHIRBoolean, FHIRString, FHIRUri};
+    use haste_fhir_model::r4::generated::types::{FHIRBoolean, FHIRUri};
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "document";
@@ -1813,7 +1811,6 @@ pub mod ConceptMapTranslate {
 #[doc = "`EligibilityResponse`, Bundle of `EligibilityResponses` or an `OperationOutcome` resource."]
 pub mod CoverageEligibilityRequestSubmit {
     use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
-    use haste_fhir_model::r4::generated::types::FHIRString;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "submit";
@@ -1874,7 +1871,7 @@ pub mod EncounterEverything {
     use haste_fhir_model::r4::generated::resources::{
         Bundle, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRCode, FHIRInstant, FHIRInteger, FHIRString};
+    use haste_fhir_model::r4::generated::types::{FHIRCode, FHIRInstant, FHIRInteger};
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "everything";
@@ -1931,9 +1928,7 @@ pub mod GroupEverything {
     use haste_fhir_model::r4::generated::resources::{
         Bundle, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{
-        FHIRCode, FHIRDate, FHIRInstant, FHIRInteger, FHIRString,
-    };
+    use haste_fhir_model::r4::generated::types::{FHIRCode, FHIRDate, FHIRInstant, FHIRInteger};
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "everything";
@@ -2028,7 +2023,7 @@ pub mod LibraryDataRequirements {
 #[doc = "resource)"]
 pub mod ListFind {
     use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
-    use haste_fhir_model::r4::generated::types::{FHIRCode, FHIRId, FHIRString};
+    use haste_fhir_model::r4::generated::types::{FHIRCode, FHIRId};
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "find";
@@ -2173,7 +2168,7 @@ pub mod MeasureDataRequirements {
     use haste_fhir_model::r4::generated::resources::{
         Library, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRDate, FHIRString};
+    use haste_fhir_model::r4::generated::types::FHIRDate;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "data-requirements";
@@ -2280,7 +2275,6 @@ pub mod MeasureSubmitData {
     use haste_fhir_model::r4::generated::resources::{
         MeasureReport, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::FHIRString;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "submit-data";
@@ -2323,7 +2317,7 @@ pub mod MedicinalProductEverything {
     use haste_fhir_model::r4::generated::resources::{
         Bundle, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRInstant, FHIRInteger, FHIRString};
+    use haste_fhir_model::r4::generated::types::{FHIRInstant, FHIRInteger};
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "everything";
@@ -2368,7 +2362,7 @@ pub mod MessageHeaderProcessMessage {
     use haste_fhir_model::r4::generated::resources::{
         Bundle, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRBoolean, FHIRString, FHIRUrl};
+    use haste_fhir_model::r4::generated::types::{FHIRBoolean, FHIRUrl};
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "process-message";
@@ -2513,7 +2507,7 @@ pub mod ObservationLastn {
     use haste_fhir_model::r4::generated::resources::{
         Bundle, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRPositiveInt, FHIRString};
+    use haste_fhir_model::r4::generated::types::FHIRPositiveInt;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "lastn";
@@ -2704,9 +2698,7 @@ pub mod PatientEverything {
     use haste_fhir_model::r4::generated::resources::{
         Bundle, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{
-        FHIRCode, FHIRDate, FHIRInstant, FHIRInteger, FHIRString,
-    };
+    use haste_fhir_model::r4::generated::types::{FHIRCode, FHIRDate, FHIRInstant, FHIRInteger};
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "everything";
@@ -2777,7 +2769,7 @@ pub mod PatientMatch {
     use haste_fhir_model::r4::generated::resources::{
         Bundle, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRBoolean, FHIRInteger, FHIRString};
+    use haste_fhir_model::r4::generated::types::{FHIRBoolean, FHIRInteger};
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "match";
@@ -2917,7 +2909,6 @@ pub mod PlanDefinitionDataRequirements {
 #[doc = "JSON or vice versa)"]
 pub mod ResourceConvert {
     use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
-    use haste_fhir_model::r4::generated::types::FHIRString;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "convert";
@@ -2957,7 +2948,7 @@ pub mod ResourceGraph {
     use haste_fhir_model::r4::generated::resources::{
         Bundle, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRString, FHIRUri};
+    use haste_fhir_model::r4::generated::types::FHIRUri;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "graph";
@@ -3044,7 +3035,7 @@ pub mod ResourceGraphql {
 #[doc = "performed on a historical version of a resource)"]
 pub mod ResourceMeta {
     use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
-    use haste_fhir_model::r4::generated::types::{FHIRString, Meta};
+    use haste_fhir_model::r4::generated::types::Meta;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "meta";
@@ -3079,7 +3070,7 @@ pub mod ResourceMeta {
 #[doc = "nominated resource"]
 pub mod ResourceMetaAdd {
     use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
-    use haste_fhir_model::r4::generated::types::{FHIRString, Meta};
+    use haste_fhir_model::r4::generated::types::Meta;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "meta-add";
@@ -3120,7 +3111,7 @@ pub mod ResourceMetaAdd {
 #[doc = "the nominated resource"]
 pub mod ResourceMetaDelete {
     use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
-    use haste_fhir_model::r4::generated::types::{FHIRString, Meta};
+    use haste_fhir_model::r4::generated::types::Meta;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "meta-delete";
@@ -3180,7 +3171,7 @@ pub mod ResourceValidate {
     use haste_fhir_model::r4::generated::resources::{
         OperationOutcome, Parameters, ParametersParameter, Resource,
     };
-    use haste_fhir_model::r4::generated::types::{FHIRCode, FHIRString, FHIRUri};
+    use haste_fhir_model::r4::generated::types::{FHIRCode, FHIRUri};
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "validate";
@@ -3327,7 +3318,7 @@ pub mod StructureDefinitionSnapshot {
 #[doc = "output."]
 pub mod StructureMapTransform {
     use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
-    use haste_fhir_model::r4::generated::types::{FHIRString, FHIRUri};
+    use haste_fhir_model::r4::generated::types::FHIRUri;
     use haste_fhir_operation_error::OperationOutcomeError;
     use haste_fhir_ops::derive::{FromParameters, ToParameters};
     pub const CODE: &str = "transform";
