@@ -1,7 +1,7 @@
 use haste_fhir_client::url::Parameter;
 
-use super::{ClauseTarget, SqlClause, SqlParam, direct_column, direct_predicate, dynamic_exists};
-use crate::pg_search::{schema::ParamColumns, search::QueryBuildError};
+use super::{ClauseTarget, SqlClause, SqlParam, require_values};
+use crate::pg_search::search::QueryBuildError;
 
 pub fn token_clause(
     parsed_parameter: &Parameter,
@@ -15,54 +15,18 @@ pub fn token_clause(
         None => false,
     };
 
-    if parsed_parameter.value.is_empty() {
-        return Err(QueryBuildError::InvalidParameterValue(
-            parsed_parameter.name.clone(),
-        ));
-    }
+    require_values(parsed_parameter)?;
 
-    match target {
-        ClauseTarget::DirectColumn { alias, columns } => {
-            let (system_column, code_column) = token_columns(columns)?;
+    // Both halves sit on the same row, so nothing has to be recombined.
+    let (system_expr, code_expr) = target.token_exprs()?;
+    let mut params = target.params();
+    let predicate = build_or_expr(parsed_parameter, &system_expr, &code_expr, &mut params)?;
 
-            // Both halves sit on the same row, so the system stays with its
-            // own code with nothing to recombine.
-            let mut params = Vec::new();
-            let or_expr = build_or_expr(
-                parsed_parameter,
-                &direct_column(alias, system_column),
-                &direct_column(alias, code_column),
-                &mut params,
-            )?;
-
-            Ok(SqlClause::new(direct_predicate(negate, &or_expr), params))
-        }
-        ClauseTarget::Dynamic { table, param_url } => {
-            // $1 is the param_url discriminator.
-            let mut params = vec![SqlParam::Text(param_url.clone())];
-            let or_expr = build_or_expr(parsed_parameter, "st.system", "st.code", &mut params)?;
-
-            Ok(SqlClause::new(
-                dynamic_exists(table, "st", negate, Some(&or_expr)),
-                params,
-            ))
-        }
-    }
+    Ok(target.finish(negate, &predicate, params))
 }
 
-fn token_columns(columns: &ParamColumns) -> Result<(&str, &str), QueryBuildError> {
-    match columns {
-        ParamColumns::Token { system, code } | ParamColumns::Quantity { system, code, .. } => {
-            Ok((system.as_str(), code.as_str()))
-        }
-        _ => Err(QueryBuildError::UnsupportedParameter(
-            "token search parameter is not backed by token columns".to_string(),
-        )),
-    }
-}
-
-/// Builds the OR-joined predicate over every supplied `[system|]code` value,
-/// pushing bind parameters onto `params` as it goes.
+/// OR-joins a predicate per supplied `[system|]code`, pushing bind parameters
+/// onto `params` as it goes.
 fn build_or_expr(
     parsed_parameter: &Parameter,
     system_expr: &str,
@@ -74,7 +38,7 @@ fn build_or_expr(
     for value in &parsed_parameter.value {
         let pieces: Vec<&str> = value.split('|').collect();
         match pieces.len() {
-            // code only — match regardless of system
+            // code — any system
             1 => {
                 let idx = params.len() + 1;
                 or_clauses.push(format!("{code_expr} = ${idx}"));
@@ -112,4 +76,58 @@ fn build_or_expr(
     }
 
     Ok(or_clauses.join(" OR "))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::pg_search::{schema::ParamColumns, search::clauses::ANCHOR_TABLE_ALIAS};
+
+    fn search(target: &ClauseTarget, values: &[&str]) -> String {
+        token_clause(
+            &Parameter {
+                name: "code".to_string(),
+                modifier: None,
+                value: values.iter().map(|v| (*v).to_string()).collect(),
+                chains: None,
+            },
+            target,
+        )
+        .expect("a token search builds")
+        .sql
+    }
+
+    /// `_id` has no system: it reads the anchor column the primary key already
+    /// indexes.
+    #[test]
+    fn an_id_search_reads_the_key_column() {
+        let target = ClauseTarget::DirectColumn {
+            alias: ANCHOR_TABLE_ALIAS,
+            columns: ParamColumns::Token {
+                system: None,
+                code: "resource_id".to_string(),
+            },
+        };
+
+        assert_eq!(
+            search(&target, &["a", "b"]),
+            r#"(sr."resource_id" = $1 OR sr."resource_id" = $2)"#
+        );
+    }
+
+    /// One indexed lookup per value, correlated back to the anchor row: the
+    /// planner can drive it either way round.
+    #[test]
+    fn a_repeating_token_reads_the_shared_table_by_identity() {
+        let target = ClauseTarget::Dynamic {
+            table: "r4_param_token_idx".to_string(),
+            param_identity: 7,
+        };
+
+        assert_eq!(
+            search(&target, &["vital-signs"]),
+            "EXISTS (SELECT 1 FROM r4_param_token_idx v \
+             WHERE v.res_key = sr.res_key AND v.param_identity = $1 AND (v.code = $2))"
+        );
+    }
 }

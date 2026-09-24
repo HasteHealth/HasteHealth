@@ -5,7 +5,10 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 
-use super::schema::{SharedTable, resource_table_name};
+use super::{
+    keys,
+    schema::{SharedTable, resource_table_name},
+};
 use haste_repository::types::SupportedFHIRVersions;
 use haste_repository::{Repository, fhir::CachePolicy};
 use moka::future::{Cache, CacheBuilder};
@@ -37,6 +40,8 @@ impl<Repo: Repository + Send + Sync> PgSearchParameterResolver<Repo> {
     }
 }
 
+const CONFORMANCE_STATUS_URL: &str = "http://hl7.org/fhir/SearchParameter/conformance-status";
+
 /// Finds active `SearchParameter` resources in the PG search index and builds
 /// a project-level search parameter index from them.
 async fn create_project_sp_index<Repo: Repository + Send + Sync>(
@@ -52,11 +57,10 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
     let sql = format!(
         "SELECT sr.resource_id, sr.version_id \
          FROM {resource_table} sr \
-         JOIN {token_table} t ON t.tenant = sr.tenant AND t.project = sr.project \
-             AND t.resource_type = sr.resource_type AND t.resource_id = sr.resource_id \
+         JOIN {token_table} t ON t.res_key = sr.res_key \
          WHERE sr.tenant = $1 AND sr.project = $2 \
              AND sr.resource_type = 'SearchParameter' \
-             AND t.param_url = 'http://hl7.org/fhir/SearchParameter/conformance-status' \
+             AND t.param_identity = $3 \
              AND t.code = 'active' \
          LIMIT 10000",
         resource_table = resource_table_name(&SupportedFHIRVersions::R4),
@@ -66,6 +70,11 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
     let rows = sqlx::query(&sql)
         .bind(tenant.as_ref())
         .bind(project.as_ref())
+        .bind(keys::param_identity(
+            tenant.as_ref(),
+            project.as_ref(),
+            CONFORMANCE_STATUS_URL,
+        ))
         .fetch_all(pool)
         .await
         .map_err(|e| {

@@ -1,64 +1,26 @@
 use haste_fhir_client::url::{Parameter, parse_prefix};
 use haste_fhir_model::r4::datetime::parse_datetime;
 
-use super::{ClauseTarget, SqlClause, SqlParam, direct_column, direct_predicate, dynamic_exists};
-use crate::{
-    indexing_conversion::date_time_range,
-    pg_search::{schema::ParamColumns, search::QueryBuildError},
-};
+use super::{ClauseTarget, SqlClause, SqlParam, require_values};
+use crate::{indexing_conversion::date_time_range, pg_search::search::QueryBuildError};
 
 pub fn date_clause(
     parsed_parameter: &Parameter,
     target: &ClauseTarget,
 ) -> Result<SqlClause, QueryBuildError> {
-    if parsed_parameter.value.is_empty() {
-        return Err(QueryBuildError::InvalidParameterValue(
-            parsed_parameter.name.clone(),
-        ));
-    }
+    require_values(parsed_parameter)?;
 
-    match target {
-        ClauseTarget::DirectColumn { alias, columns } => {
-            let (start_column, end_column) = date_columns(columns)?;
+    // One period per row: its bounds are read directly and the B-tree on them
+    // answers the comparison.
+    let (start_expr, end_expr) = target.date_exprs()?;
+    let mut params = target.params();
+    let predicate = build_or_expr(parsed_parameter, &start_expr, &end_expr, &mut params)?;
 
-            // One period on the row, so its bounds are read directly and the
-            // B-tree on them answers the comparison.
-            let mut params = Vec::new();
-            let or_expr = build_or_expr(
-                parsed_parameter,
-                &direct_column(alias, start_column),
-                &direct_column(alias, end_column),
-                &mut params,
-            )?;
-
-            Ok(SqlClause::new(direct_predicate(false, &or_expr), params))
-        }
-        ClauseTarget::Dynamic { table, param_url } => {
-            // $1 is the param_url discriminator.
-            let mut params = vec![SqlParam::Text(param_url.clone())];
-            let or_expr = build_or_expr(parsed_parameter, "sd.start_ms", "sd.end_ms", &mut params)?;
-
-            Ok(SqlClause::new(
-                dynamic_exists(table, "sd", false, Some(&or_expr)),
-                params,
-            ))
-        }
-    }
+    Ok(target.finish(false, &predicate, params))
 }
 
-fn date_columns(columns: &ParamColumns) -> Result<(&str, &str), QueryBuildError> {
-    match columns {
-        ParamColumns::Date { start, end } => Ok((start.as_str(), end.as_str())),
-        _ => Err(QueryBuildError::UnsupportedParameter(
-            "date search parameter is not backed by date columns".to_string(),
-        )),
-    }
-}
-
-/// Builds the OR-joined range predicate over every supplied date value.
-///
-/// `start_expr`/`end_expr` are the SQL expressions for the *indexed* period's
-/// bounds; each search value contributes its own bind parameters.
+/// OR-joins a range predicate per supplied date, against the indexed period's
+/// bounds.
 fn build_or_expr(
     parsed_parameter: &Parameter,
     start_expr: &str,
@@ -81,12 +43,12 @@ fn build_or_expr(
 
         match prefix {
             Some("gt") => {
-                // Indexed period starts after the search range ends.
+                // Starts after the search range ends.
                 or_clauses.push(format!("{start_expr} > ${first_idx}"));
                 params.push(SqlParam::Int64(date_range.end));
             }
             Some("lt") => {
-                // Indexed period starts before the search range begins.
+                // Starts before the search range begins.
                 or_clauses.push(format!("{start_expr} < ${first_idx}"));
                 params.push(SqlParam::Int64(date_range.start));
             }

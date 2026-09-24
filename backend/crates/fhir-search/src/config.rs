@@ -66,7 +66,8 @@ impl Default for ElasticsearchConfig {
 impl Default for PostgresSearchConfig {
     fn default() -> Self {
         Self {
-            database_url: "postgresql://postgres:postgres@127.0.0.1/haste_health".to_string(),
+            database_url: "postgresql://postgres:postgres@127.0.0.1/haste_health_search"
+                .to_string(),
             max_connections: 20,
         }
     }

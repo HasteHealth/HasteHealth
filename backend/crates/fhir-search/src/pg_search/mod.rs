@@ -19,6 +19,7 @@ use crate::{
 };
 
 mod indexing;
+pub mod keys;
 pub mod migration;
 pub mod schema;
 mod search;
@@ -51,15 +52,13 @@ pub struct PgSearchEngine<SearchParameterResolver: SearchParameterResolve + 'sta
     parameter_resolver: Arc<SearchParameterResolver>,
     fp_engine: Arc<FPEngine>,
     pool: Pool<Postgres>,
-    /// Per-resource-type table layouts for the HL7 base search parameters.
-    /// Derived once from the static R4 parameter set, which is the same source
-    /// the migration builds the tables from, so the two can't drift.
+    /// Table layouts for the HL7 base parameters, derived from the same static
+    /// R4 set the migration builds the tables from, so the two can't drift.
     schema_registry: Arc<SchemaRegistry>,
 }
 
-/// The per-resource-type schemas for the R4 base search parameters. Built once
-/// and shared by every engine instance — deriving them walks every HL7
-/// `SearchParameter`, which is wasted work to repeat.
+/// Shared by every engine instance: deriving it walks every HL7
+/// `SearchParameter`.
 static R4_SCHEMA_REGISTRY: LazyLock<Arc<SchemaRegistry>> = LazyLock::new(|| {
     Arc::new(generate_schemas(
         SupportedFHIRVersions::R4,
@@ -68,7 +67,7 @@ static R4_SCHEMA_REGISTRY: LazyLock<Arc<SchemaRegistry>> = LazyLock::new(|| {
 });
 
 impl<Resolver: SearchParameterResolve> PgSearchEngine<Resolver> {
-    /// Whether the search database answers, for a caller that waits on it at
+    /// Whether the search database answers, for callers that wait on it at
     /// startup.
     ///
     /// # Errors
@@ -88,12 +87,11 @@ impl<Resolver: SearchParameterResolve> PgSearchEngine<Resolver> {
     }
 }
 
-/// Creates a separate PostgreSQL connection pool for the search index database.
+/// Creates a separate connection pool for the search index database.
 ///
 /// # Errors
 ///
-/// Returns an error if the pool cannot open its first connection — an
-/// unreachable host, bad credentials, or a malformed `database_url`.
+/// Returns an error if the pool cannot open its first connection.
 pub async fn create_pg_search_pool(
     database_url: &str,
     max_connections: u32,
@@ -127,30 +125,24 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
     }
 }
 
-/// A single resource's evaluated search values, split the way the hybrid
-/// schema stores them.
+/// One resource's evaluated search values, split the way the schema stores
+/// them.
 pub(crate) struct ResourceSearchIndex {
-    /// System-level parameters, keyed by search parameter `code`. These land
-    /// Singular parameters, which have a column on the resource type's own
-    /// table and are looked up by code rather than by URL.
+    /// Single-valued parameters, keyed by `code`: a column on the resource
+    /// type's own table.
     pub system_entries: Vec<(String, InsertableIndex)>,
-    /// Everything that may repeat, keyed by canonical URL. These land in the
-    /// shared `{version}_param_{type}_idx` tables, where `param_url` discriminates
-    /// them.
+    /// Everything that may repeat, keyed by canonical URL: a row in the shared
+    /// `{version}_param_{type}_idx` table, discriminated by a hash of the URL.
     pub dynamic_entries: Vec<(String, InsertableIndex)>,
 }
 
-/// Evaluates `FHIRPath` expressions for all applicable search parameters and
-/// converts results into `InsertableIndex` values.
-///
-/// Backend-agnostic beyond the routing: reuses
-/// `indexing_conversion::to_insertable_index` and `FPEngine` from the shared
-/// crate, then splits the results by `ParameterLevel` so each half can be
-/// written to the storage that fits it.
+/// Evaluates every applicable parameter's `FHIRPath` expression and splits the
+/// results by where they are stored.
 pub(crate) async fn resource_to_search_index(
     fp_engine: Arc<FPEngine>,
     parameters: &[ResolvedParameter],
     resource: &Resource,
+    resource_type: &str,
 ) -> Result<ResourceSearchIndex, OperationOutcomeError> {
     let mut system_entries = Vec::new();
     let mut dynamic_entries = Vec::new();
@@ -163,9 +155,8 @@ pub(crate) async fn resource_to_search_index(
             .and_then(|e| e.value.as_ref())
             && let Some(url) = param.search_parameter.url.value.as_ref()
         {
-            // A parameter of an unmapped type (composite, special, ...) has
-            // nowhere to be written, so evaluating it would only discard the
-            // result.
+            // An unmapped type (composite, special, ...) has nowhere to be
+            // written.
             if !is_mapped_search_parameter_type(&param.search_parameter.type_) {
                 continue;
             }
@@ -189,13 +180,12 @@ pub(crate) async fn resource_to_search_index(
             )?;
 
             match &param.level {
-                // Keyed by code: the per-resource-type table's columns are
-                // derived from the code, not the URL.
-                // A column exists only for a parameter that cannot produce a
-                // second value to drop, so that — not the parameter's level —
-                // is what decides where its values go. Everything else lands
-                // in the shared table for its value type, keyed by URL.
-                ParameterLevel::System if search_parameter_cardinality::is_single_valued(url) => {
+                // A column exists only where a parameter cannot produce a
+                // second value, so cardinality — not level — decides the
+                // destination. Columns are named after the code, not the URL.
+                ParameterLevel::System
+                    if search_parameter_cardinality::is_single_valued(url, resource_type) =>
+                {
                     if let Some(code) = param.search_parameter.code.value.as_ref() {
                         system_entries.push((code.clone(), insertable));
                     }
