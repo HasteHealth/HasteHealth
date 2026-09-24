@@ -1,21 +1,18 @@
 //! Batch indexing into the PG search tables.
 //!
-//! Indexing runs in two phases, which is what keeps a batch from degenerating
-//! into per-row round-trips:
+//! Two phases, which is what keeps a batch off per-row round-trips:
 //!
 //! 1. **Convert** — every resource's `FHIRPath` expressions are evaluated and
-//!    flattened into the exact rows it will occupy, in parallel across the
-//!    runtime and with no database involved. Everything that can fail for a
-//!    single resource fails here, where it can be attributed to that resource
-//!    without touching the batch around it.
-//! 2. **Write** — the converted rows are written set-based: one statement per
-//!    table for the whole batch rather than one per row. A thousand-resource
-//!    batch is roughly fifteen statements, not ten thousand.
+//!    flattened into the rows it will occupy, in parallel and with no database
+//!    involved. Everything that can fail for one resource fails here, where it
+//!    can be attributed to that resource alone.
+//! 2. **Write** — set-based: one statement per table for the whole batch. A
+//!    thousand-resource batch is roughly fifteen statements, not ten thousand.
 //!
-//! The split is also what makes the single transaction correct. Postgres
-//! aborts a transaction on the first failed statement, so per-resource error
-//! recovery *inside* one is not possible — a failure in phase 2 fails the
-//! whole batch, and the worker retries it.
+//! The split is what makes the single transaction correct. Postgres aborts a
+//! transaction on the first failed statement, so there is no per-resource
+//! recovery inside one: a phase 2 failure fails the batch and the worker
+//! retries it.
 
 use std::collections::HashMap;
 use std::fmt::Write as _;
@@ -25,10 +22,10 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::FPEngine;
 use haste_repository::types::FHIRMethod;
-use sqlx::{Pool, Postgres};
+use sqlx::{Pool, Postgres, Row};
 
 use super::{
-    PgSearchError, resource_to_search_index,
+    PgSearchError, keys, resource_to_search_index,
     schema::{ColumnType, ParamColumns, ResourceTypeSchema, SchemaRegistry, SharedTable},
 };
 use crate::{
@@ -39,14 +36,13 @@ use crate::{
     },
 };
 
-/// Postgres caps one extended-query message at 65535 bound parameters. Only
-/// the per-resource-type insert can approach it: every other statement binds a
-/// fixed number of arrays regardless of how many rows it writes.
+/// Postgres caps one extended-query message at 65535 binds. Only the
+/// per-resource-type insert can approach it; every other statement binds a
+/// fixed number of arrays however many rows it writes.
 const MAX_BIND_PARAMS: usize = 65535;
 
-/// `tenant, project, resource_id, version_id` — the columns every
-/// per-resource-type table carries ahead of its generated value columns.
-const SYSTEM_FIXED_COLUMNS: usize = 4;
+/// `res_key, scope`, ahead of a per-resource-type table's generated columns.
+const SYSTEM_FIXED_COLUMNS: usize = 2;
 
 pub async fn index_resources<Resolver: SearchParameterResolve + 'static>(
     pool: &Pool<Postgres>,
@@ -65,16 +61,15 @@ pub async fn index_resources<Resolver: SearchParameterResolve + 'static>(
         });
     }
 
-    // A batch can carry several versions of the same resource (a create and a
-    // later update land in the same sequence window). Writing them set-based
-    // would collide on the anchor table's primary key, and only the final
-    // state belongs in the index anyway, so earlier versions are set aside
-    // here and accounted for alongside the version that supersedes them.
+    // A batch can carry several versions of one resource (a create and a later
+    // update in the same sequence window), which would collide on the anchor's
+    // primary key. Only the final state belongs in the index, so earlier
+    // versions are set aside and accounted for with the one superseding them.
     let (resources, superseded) = dedupe_keep_last(resources);
 
-    // Resolving parameters awaits, and on a cold project cache it queries the
-    // database. Doing it once per (tenant, project, resource type) group up
-    // front keeps that off the per-resource path entirely.
+    // Resolving awaits, and on a cold project cache it queries the database.
+    // Once per (tenant, project, resource type) keeps that off the per-resource
+    // path.
     let parameter_sets = resolve_parameter_sets(parameter_resolver.as_ref(), &resources).await?;
 
     let (converted, failed) = convert_batch(
@@ -106,8 +101,8 @@ pub async fn index_resources<Resolver: SearchParameterResolve + 'static>(
 // Identity
 // ---------------------------------------------------------------------------
 
-/// The identity of one indexed resource — the composite key every search
-/// table is keyed by.
+/// The anchor table's primary key, which the upsert maps to the `res_key` every
+/// other table is keyed by.
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 struct ResourceKey {
     tenant: String,
@@ -127,8 +122,8 @@ impl ResourceKey {
     }
 }
 
-/// Keeps only the last occurrence of each resource, returning the versions it
-/// displaced so they can share their survivor's outcome.
+/// Keeps each resource's last occurrence, returning the versions it displaced
+/// so they can share their survivor's outcome.
 fn dedupe_keep_last(
     resources: Vec<IndexResource>,
 ) -> (Vec<IndexResource>, HashMap<ResourceKey, Vec<IndexResource>>) {
@@ -155,33 +150,28 @@ fn dedupe_keep_last(
 // Phase 1: convert
 // ---------------------------------------------------------------------------
 
-/// One resource's rows, ready to bind. Everything fallible has already
-/// happened by the time this exists.
+/// One resource's rows, ready to bind. Everything fallible is already done.
 struct Converted {
     key: ResourceKey,
     version_id: String,
+    sequence: i64,
     /// `None` for a delete, whose row set is just the anchor removal.
     write: Option<ConvertedWrite>,
 }
 
 struct ConvertedWrite {
-    /// One slot per column in the resource type's schema, `None` where this
-    /// resource produced no value for that column. `None` overall when the
-    /// resource type has no generated table.
+    /// One slot per column in the resource type's schema, empty where the
+    /// resource produced no value. `None` when the type has no table.
     system_row: Option<Vec<Option<ColumnValues>>>,
-    /// One slot per column on the anchor table, for the resource-level
-    /// parameters every resource carries.
+    /// One slot per anchor column, for the resource-level parameters.
     anchor_row: Vec<Option<ColumnValues>>,
-    /// Values bound for the shared EAV tables, each already keyed by the
-    /// canonical URL those tables discriminate on — system-level references
-    /// mirrored there included.
+    /// Values for the shared tables, keyed by the canonical URL their identity
+    /// hashes from.
     dynamic: Vec<(String, InsertableIndex)>,
 }
 
-/// One column's value, ready to bind.
-///
-/// A column exists only for a parameter that cannot repeat, so a resource has
-/// one value for it or none; the empty slot carries the absence.
+/// One column's value, ready to bind. A column exists only where the parameter
+/// cannot repeat, so there is one value or none.
 enum ColumnValues {
     Text(String),
     BigInt(i64),
@@ -199,15 +189,15 @@ fn group_key(resource: &IndexResource) -> GroupKey {
     )
 }
 
-/// The parameter set for one (tenant, project, resource type), plus the
-/// `code` → canonical URL lookup the reference mirror needs.
+/// The parameters for one (tenant, project, resource type), plus the `code` →
+/// URL lookup that routing a column-less value to the shared tables needs.
 struct ParameterSet {
     parameters: Vec<ResolvedParameter>,
     url_by_code: HashMap<String, String>,
 }
 
-/// Resolves parameters once per distinct (tenant, project, resource type) in
-/// the batch rather than once per resource.
+/// Resolves once per distinct (tenant, project, resource type), not per
+/// resource.
 async fn resolve_parameter_sets<Resolver: SearchParameterResolve>(
     resolver: &Resolver,
     resources: &[IndexResource],
@@ -215,8 +205,8 @@ async fn resolve_parameter_sets<Resolver: SearchParameterResolve>(
     let mut sets: HashMap<GroupKey, Arc<ParameterSet>> = HashMap::new();
 
     for resource in resources {
-        // A delete never evaluates an expression, so resolving for it would
-        // only risk a database round-trip that nothing reads.
+        // A delete evaluates no expression, so resolving for it would only risk
+        // a round-trip nothing reads.
         if matches!(resource.fhir_method, FHIRMethod::Delete) {
             continue;
         }
@@ -229,6 +219,25 @@ async fn resolve_parameter_sets<Resolver: SearchParameterResolve>(
         let parameters = resolver
             .by_resource_type(&resource.tenant, &resource.project, &resource.resource_type)
             .await?;
+
+        // Shared-table rows are told apart by a hash of the parameter's URL, so
+        // two sharing one would answer each other's searches.
+        keys::check_identities(
+            resource.tenant.as_ref(),
+            resource.project.as_ref(),
+            parameters
+                .iter()
+                .filter_map(|p| p.search_parameter.url.value.as_deref()),
+        )
+        .map_err(|(first, second)| {
+            OperationOutcomeError::fatal(
+                IssueType::exception(),
+                format!(
+                    "Search parameters '{first}' and '{second}' share a PG search identity; \
+                     neither can be indexed until one is renamed."
+                ),
+            )
+        })?;
 
         let url_by_code = parameters
             .iter()
@@ -251,12 +260,10 @@ async fn resolve_parameter_sets<Resolver: SearchParameterResolve>(
     Ok(sets)
 }
 
-/// Converts every resource in parallel, keeping a single resource's failure
-/// (a bad `FHIRPath` expression, an unsupported method) attributed to it rather
-/// than aborting the batch.
-///
-/// A `JoinError` — the task itself panicked — has no resource to attribute the
-/// failure to, so it aborts the whole call.
+/// Converts every resource in parallel, keeping one resource's failure (a bad
+/// `FHIRPath` expression, an unsupported method) attributed to it rather than
+/// aborting the batch. A `JoinError` has no resource to attribute to, so it
+/// aborts the whole call.
 async fn convert_batch(
     fp_engine: Arc<FPEngine>,
     schema_registry: Arc<SchemaRegistry>,
@@ -300,9 +307,8 @@ async fn convert_batch(
             .unwrap_or_default();
 
         match result {
-            // The displaced versions are superseded by one that indexed
-            // cleanly, so the resource reached its correct final state and
-            // every version of it counts as handled.
+            // A clean index means the resource reached its final state, so the
+            // displaced versions count as handled too.
             Ok(entry) => converted.push(entry),
 
             Err(error) => {
@@ -345,43 +351,36 @@ async fn convert_resource(
                 ));
             };
 
-            let index =
-                resource_to_search_index(fp_engine.clone(), &set.parameters, &resource.resource)
-                    .await?;
+            let index = resource_to_search_index(
+                fp_engine.clone(),
+                &set.parameters,
+                &resource.resource,
+                resource.resource_type.as_ref(),
+            )
+            .await?;
 
             let schema = schema_registry.get(&key.resource_type);
 
-            // Singular system-level parameters go into columns on the
-            // per-resource-type table, one row per resource.
+            // Singular system-level parameters: one row of columns on the
+            // per-resource-type table.
             let system_row = schema.map(|schema| system_row(schema, &index.system_entries));
 
-            // Resource-level parameters are columns on the anchor, not on the
-            // resource type's table, so they are collected against the anchor
-            // schema from the same entries.
+            // Resource-level parameters are anchor columns, so they collect
+            // against the anchor schema from the same entries.
             let anchor_row = self::system_row(schema_registry.anchor(), &index.system_entries);
 
-            // Project-level parameters go into the shared EAV tables.
+            // Project-level parameters go to the shared tables.
             let mut dynamic = index.dynamic_entries;
 
-            // Two cases send a system-level value to the shared tables too,
-            // keyed by URL like every other row there — so the code has to be
-            // resolved back to the parameter it came from, which only this
-            // phase can do, since it is the one holding the parameter set.
-            //
-            // - No column took it (a column-name collision, or a resource
-            //   type with no table). A search for it finds no column either
-            //   and reads the shared table, so that is where it has to be.
-            // - It is a reference. Reverse-reference lookups (`_revinclude`,
-            //   chained search) scan references across resource types, which
-            //   the per-type columns can't serve, so they are mirrored into
-            //   the shared reference table to keep one place to scan.
+            // A single-valued parameter no column took (a name collision, or a
+            // type with no table) goes to the shared tables, which a search for
+            // it reads too. Those rows are keyed by URL, so the code has to be
+            // resolved back through the parameter set only this phase holds.
             for (code, insertable) in index.system_entries {
                 let has_column = schema_registry.anchor().columns_for(&code).is_some()
                     || schema.is_some_and(|schema| schema.columns_for(&code).is_some());
 
-                if (!has_column || matches!(insertable, InsertableIndex::Reference(_)))
-                    && let Some(param_url) = set.url_by_code.get(&code)
-                {
+                if !has_column && let Some(param_url) = set.url_by_code.get(&code) {
                     dynamic.push((param_url.clone(), insertable));
                 }
             }
@@ -405,12 +404,13 @@ async fn convert_resource(
     Ok(Converted {
         key,
         version_id,
+        sequence: resource.sequence,
         write,
     })
 }
 
-/// Lays one resource's system-level values out by column position, which is
-/// what lets the whole batch go in as one fixed-column statement.
+/// Lays one resource's system-level values out by column position, so the whole
+/// batch goes in as one fixed-column statement.
 fn system_row(
     schema: &ResourceTypeSchema,
     entries: &[(String, InsertableIndex)],
@@ -418,8 +418,7 @@ fn system_row(
     let mut slots: Vec<Option<ColumnValues>> = (0..schema.columns.len()).map(|_| None).collect();
 
     for (code, insertable) in entries {
-        // A parameter with no generated column (an unmapped type, or one that
-        // lost a column-name collision) simply has nowhere to go here.
+        // A parameter with no generated column has nowhere to go here.
         if let Some(param_columns) = schema.columns_for(code) {
             collect_column_values(schema, param_columns, insertable, &mut slots);
         }
@@ -428,9 +427,8 @@ fn system_row(
     slots
 }
 
-/// The single value a column holds, or nothing when the resource produced
-/// none. Only the first value is taken: a column exists only where the
-/// cardinality analysis established there can be no second one, so a second
+/// The single value a column holds, or nothing. Only the first is taken: a
+/// column exists only where the cardinality analysis ruled out a second, so one
 /// would mean the classification and the data disagree.
 fn text_column<'a>(mut values: impl Iterator<Item = Option<&'a str>>) -> Option<ColumnValues> {
     values
@@ -447,14 +445,11 @@ fn double_column(mut values: impl Iterator<Item = f64>) -> Option<ColumnValues> 
     values.next().map(ColumnValues::Double)
 }
 
-/// Fills the slots for one parameter's columns.
+/// Fills the slots for one parameter's columns. Multi-part types (token, date,
+/// reference, quantity) write each part to its own column of the same row.
 ///
-/// Multi-part types (token, date, reference, quantity) write every part to
-/// its own column of the same row.
-///
-/// A mismatch between the parameter's declared type and the evaluated value's
-/// type (which would mean the schema and the conversion disagree) writes
-/// nothing rather than a half-filled set of columns.
+/// A declared type that does not match the evaluated value's — the schema and
+/// the conversion disagreeing — writes nothing rather than half a row.
 fn collect_column_values(
     schema: &ResourceTypeSchema,
     param_columns: &ParamColumns,
@@ -481,7 +476,10 @@ fn collect_column_values(
         }
 
         (ParamColumns::Token { system, code }, InsertableIndex::Token(tokens)) => {
-            set(system, text_column(tokens.iter().map(TokenIndex::system)));
+            // `_id` has no system column: it reads the anchor's key.
+            if let Some(system) = system {
+                set(system, text_column(tokens.iter().map(TokenIndex::system)));
+            }
             set(code, text_column(tokens.iter().map(TokenIndex::code)));
         }
 
@@ -539,69 +537,100 @@ fn collect_column_values(
 }
 
 // ---------------------------------------------------------------------------
-// `search_dynamic_*` rows
+// Shared-table rows
 // ---------------------------------------------------------------------------
 //
-// Rows are accumulated as one array per column rather than as a list of rows,
-// because that is the shape the insert binds: a whole table's worth of rows
-// goes in as a handful of arrays through `unnest`, however many rows it holds.
-// A resource builds its own `DynamicBatch` during conversion (in parallel),
-// and the write phase merges them by concatenating the arrays.
+// Rows accumulate as one array per column, the shape the insert binds: a whole
+// table's worth goes in as a handful of arrays through `unnest`. A resource
+// builds its own `DynamicBatch` while converting, and the write phase merges
+// them by concatenating the arrays.
 
-/// The (tenant, project, `resource_type`, `resource_id`, `param_url`) prefix every
-/// `search_dynamic_*` row carries.
+/// The resource a shared-table row belongs to and the parameter it is a value
+/// of.
+#[derive(Clone, Copy)]
+struct RowKey {
+    res_key: i64,
+    param_identity: i64,
+}
+
+/// The (`res_key`, `param_identity`) prefix every shared-table row carries.
 #[derive(Default)]
 struct KeyColumns {
-    tenant: Vec<String>,
-    project: Vec<String>,
-    resource_type: Vec<String>,
-    resource_id: Vec<String>,
-    param_url: Vec<String>,
+    res_key: Vec<i64>,
+    param_identity: Vec<i64>,
 }
 
 impl KeyColumns {
-    fn push(&mut self, key: &ResourceKey, param_url: &str) {
-        self.tenant.push(key.tenant.clone());
-        self.project.push(key.project.clone());
-        self.resource_type.push(key.resource_type.clone());
-        self.resource_id.push(key.resource_id.clone());
-        self.param_url.push(param_url.to_string());
+    fn push(&mut self, key: RowKey) {
+        self.res_key.push(key.res_key);
+        self.param_identity.push(key.param_identity);
     }
 
     fn is_empty(&self) -> bool {
-        self.tenant.is_empty()
+        self.res_key.is_empty()
     }
 }
 
 type PgQuery<'a> = sqlx::query::Query<'a, Postgres, sqlx::postgres::PgArguments>;
 
-fn bind_keys<'a>(query: PgQuery<'a>, keys: &'a KeyColumns) -> PgQuery<'a> {
-    query
-        .bind(&keys.tenant)
-        .bind(&keys.project)
-        .bind(&keys.resource_type)
-        .bind(&keys.resource_id)
-        .bind(&keys.param_url)
+/// The key columns every shared-table insert leads with, bound as `$1`, `$2`.
+const SHARED_KEY_COLUMNS: [&str; 2] = ["res_key", "param_identity"];
+
+/// One shared table's rows for the whole batch, held column-wise: the shape the
+/// insert binds through `unnest`.
+trait SharedRows {
+    fn keys(&self) -> &KeyColumns;
+
+    /// Binds the value arrays, in `SharedTable::value_columns()` order.
+    fn bind<'a>(&'a self, query: PgQuery<'a>) -> PgQuery<'a>;
 }
 
 /// `INSERT INTO <table> (<keys>, <values>) SELECT * FROM unnest($1…$n)`.
 ///
-/// Every parameter is cast to its column's array type. The casts are not
-/// decoration: a column whose values are all NULL gives Postgres nothing to
-/// infer the array type from.
+/// Every bind is cast to its column's array type: an all-NULL column gives
+/// Postgres nothing to infer it from.
 fn dynamic_insert_sql(table: &str, shared_table: SharedTable) -> String {
-    let mut columns = String::from("tenant, project, resource_type, resource_id, param_url");
-    let mut arrays = String::from("$1::text[], $2::text[], $3::text[], $4::text[], $5::text[]");
+    let mut columns = SHARED_KEY_COLUMNS.join(", ");
+    let mut arrays = String::from("$1::int8[], $2::int8[]");
 
     for (offset, column) in shared_table.value_columns().iter().enumerate() {
         let _ = write!(columns, ", {}", column.name);
-        let _ = write!(arrays, ", ${}::{}[]", offset + 6, column.sql_type);
+        let _ = write!(
+            arrays,
+            ", ${}::{}[]",
+            offset + SHARED_KEY_COLUMNS.len() + 1,
+            column.sql_type
+        );
     }
 
     format!("INSERT INTO {table} ({columns}) SELECT * FROM unnest({arrays})")
 }
 
-/// `search_dynamic_string` and `search_dynamic_uri`, which share a shape.
+/// Writes one shared table's rows, or nothing when it has none.
+async fn insert_shared_rows(
+    conn: &mut sqlx::PgConnection,
+    registry: &SchemaRegistry,
+    table: SharedTable,
+    rows: &impl SharedRows,
+) -> Result<(), OperationOutcomeError> {
+    let keys = rows.keys();
+    if keys.is_empty() {
+        return Ok(());
+    }
+
+    let sql = dynamic_insert_sql(&registry.shared_table_name(table), table);
+    let query = sqlx::query(&sql)
+        .bind(&keys.res_key)
+        .bind(&keys.param_identity);
+
+    rows.bind(query)
+        .execute(conn)
+        .await
+        .map_err(PgSearchError::from)?;
+    Ok(())
+}
+
+/// The string and uri tables, which share a shape.
 #[derive(Default)]
 struct TextRows {
     keys: KeyColumns,
@@ -609,30 +638,19 @@ struct TextRows {
 }
 
 impl TextRows {
-    fn push(&mut self, key: &ResourceKey, param_url: &str, value: &str) {
-        self.keys.push(key, param_url);
+    fn push(&mut self, key: RowKey, value: &str) {
+        self.keys.push(key);
         self.value.push(value.to_string());
     }
+}
 
-    async fn insert(
-        &self,
-        conn: &mut sqlx::PgConnection,
-        registry: &SchemaRegistry,
-        table: SharedTable,
-    ) -> Result<(), OperationOutcomeError> {
-        if self.keys.is_empty() {
-            return Ok(());
-        }
+impl SharedRows for TextRows {
+    fn keys(&self) -> &KeyColumns {
+        &self.keys
+    }
 
-        let name = registry.shared_table_name(table);
-
-        let sql = dynamic_insert_sql(&name, table);
-        bind_keys(sqlx::query(&sql), &self.keys)
-            .bind(&self.value)
-            .execute(conn)
-            .await
-            .map_err(PgSearchError::from)?;
-        Ok(())
+    fn bind<'a>(&'a self, query: PgQuery<'a>) -> PgQuery<'a> {
+        query.bind(&self.value)
     }
 }
 
@@ -643,30 +661,19 @@ struct NumberRows {
 }
 
 impl NumberRows {
-    fn push(&mut self, key: &ResourceKey, param_url: &str, value: f64) {
-        self.keys.push(key, param_url);
+    fn push(&mut self, key: RowKey, value: f64) {
+        self.keys.push(key);
         self.value.push(value);
     }
+}
 
-    async fn insert(
-        &self,
-        conn: &mut sqlx::PgConnection,
-        registry: &SchemaRegistry,
-        table: SharedTable,
-    ) -> Result<(), OperationOutcomeError> {
-        if self.keys.is_empty() {
-            return Ok(());
-        }
+impl SharedRows for NumberRows {
+    fn keys(&self) -> &KeyColumns {
+        &self.keys
+    }
 
-        let name = registry.shared_table_name(table);
-
-        let sql = dynamic_insert_sql(&name, table);
-        bind_keys(sqlx::query(&sql), &self.keys)
-            .bind(&self.value)
-            .execute(conn)
-            .await
-            .map_err(PgSearchError::from)?;
-        Ok(())
+    fn bind<'a>(&'a self, query: PgQuery<'a>) -> PgQuery<'a> {
+        query.bind(&self.value)
     }
 }
 
@@ -678,32 +685,20 @@ struct TokenRows {
 }
 
 impl TokenRows {
-    fn push(&mut self, key: &ResourceKey, param_url: &str, token: &TokenIndex) {
-        self.keys.push(key, param_url);
+    fn push(&mut self, key: RowKey, token: &TokenIndex) {
+        self.keys.push(key);
         self.system.push(token.system().map(str::to_string));
         self.code.push(token.code().map(str::to_string));
     }
+}
 
-    async fn insert(
-        &self,
-        conn: &mut sqlx::PgConnection,
-        registry: &SchemaRegistry,
-        table: SharedTable,
-    ) -> Result<(), OperationOutcomeError> {
-        if self.keys.is_empty() {
-            return Ok(());
-        }
+impl SharedRows for TokenRows {
+    fn keys(&self) -> &KeyColumns {
+        &self.keys
+    }
 
-        let name = registry.shared_table_name(table);
-
-        let sql = dynamic_insert_sql(&name, table);
-        bind_keys(sqlx::query(&sql), &self.keys)
-            .bind(&self.system)
-            .bind(&self.code)
-            .execute(conn)
-            .await
-            .map_err(PgSearchError::from)?;
-        Ok(())
+    fn bind<'a>(&'a self, query: PgQuery<'a>) -> PgQuery<'a> {
+        query.bind(&self.system).bind(&self.code)
     }
 }
 
@@ -715,32 +710,20 @@ struct DateRows {
 }
 
 impl DateRows {
-    fn push(&mut self, key: &ResourceKey, param_url: &str, range: &DateRange) {
-        self.keys.push(key, param_url);
+    fn push(&mut self, key: RowKey, range: &DateRange) {
+        self.keys.push(key);
         self.start_ms.push(range.start);
         self.end_ms.push(range.end);
     }
+}
 
-    async fn insert(
-        &self,
-        conn: &mut sqlx::PgConnection,
-        registry: &SchemaRegistry,
-        table: SharedTable,
-    ) -> Result<(), OperationOutcomeError> {
-        if self.keys.is_empty() {
-            return Ok(());
-        }
+impl SharedRows for DateRows {
+    fn keys(&self) -> &KeyColumns {
+        &self.keys
+    }
 
-        let name = registry.shared_table_name(table);
-
-        let sql = dynamic_insert_sql(&name, table);
-        bind_keys(sqlx::query(&sql), &self.keys)
-            .bind(&self.start_ms)
-            .bind(&self.end_ms)
-            .execute(conn)
-            .await
-            .map_err(PgSearchError::from)?;
-        Ok(())
+    fn bind<'a>(&'a self, query: PgQuery<'a>) -> PgQuery<'a> {
+        query.bind(&self.start_ms).bind(&self.end_ms)
     }
 }
 
@@ -752,33 +735,21 @@ struct ReferenceRows {
 }
 
 impl ReferenceRows {
-    fn push(&mut self, key: &ResourceKey, param_url: &str, reference: &ReferenceIndex) {
-        self.keys.push(key, param_url);
+    fn push(&mut self, key: RowKey, reference: &ReferenceIndex) {
+        self.keys.push(key);
         self.target_resource_type
             .push(reference.resource_type().map(str::to_string));
         self.target_id.push(reference.id().map(str::to_string));
     }
+}
 
-    async fn insert(
-        &self,
-        conn: &mut sqlx::PgConnection,
-        registry: &SchemaRegistry,
-        table: SharedTable,
-    ) -> Result<(), OperationOutcomeError> {
-        if self.keys.is_empty() {
-            return Ok(());
-        }
+impl SharedRows for ReferenceRows {
+    fn keys(&self) -> &KeyColumns {
+        &self.keys
+    }
 
-        let name = registry.shared_table_name(table);
-
-        let sql = dynamic_insert_sql(&name, table);
-        bind_keys(sqlx::query(&sql), &self.keys)
-            .bind(&self.target_resource_type)
-            .bind(&self.target_id)
-            .execute(conn)
-            .await
-            .map_err(PgSearchError::from)?;
-        Ok(())
+    fn bind<'a>(&'a self, query: PgQuery<'a>) -> PgQuery<'a> {
+        query.bind(&self.target_resource_type).bind(&self.target_id)
     }
 }
 
@@ -786,44 +757,34 @@ impl ReferenceRows {
 struct QuantityRows {
     keys: KeyColumns,
     start_value: Vec<f64>,
+    end_value: Vec<f64>,
     start_system: Vec<Option<String>>,
     start_code: Vec<Option<String>>,
-    end_value: Vec<f64>,
 }
 
 impl QuantityRows {
-    fn push(&mut self, key: &ResourceKey, param_url: &str, quantity: &QuantityRange) {
-        self.keys.push(key, param_url);
+    fn push(&mut self, key: RowKey, quantity: &QuantityRange) {
+        self.keys.push(key);
         self.start_value.push(quantity.start_value());
+        self.end_value.push(quantity.end_value());
         self.start_system
             .push(quantity.start_system().map(str::to_string));
         self.start_code
             .push(quantity.start_code().map(str::to_string));
-        self.end_value.push(quantity.end_value());
+    }
+}
+
+impl SharedRows for QuantityRows {
+    fn keys(&self) -> &KeyColumns {
+        &self.keys
     }
 
-    async fn insert(
-        &self,
-        conn: &mut sqlx::PgConnection,
-        registry: &SchemaRegistry,
-        table: SharedTable,
-    ) -> Result<(), OperationOutcomeError> {
-        if self.keys.is_empty() {
-            return Ok(());
-        }
-
-        let name = registry.shared_table_name(table);
-
-        let sql = dynamic_insert_sql(&name, table);
-        bind_keys(sqlx::query(&sql), &self.keys)
+    fn bind<'a>(&'a self, query: PgQuery<'a>) -> PgQuery<'a> {
+        query
             .bind(&self.start_value)
             .bind(&self.end_value)
             .bind(&self.start_system)
             .bind(&self.start_code)
-            .execute(conn)
-            .await
-            .map_err(PgSearchError::from)?;
-        Ok(())
     }
 }
 
@@ -840,116 +801,127 @@ struct DynamicBatch {
 }
 
 impl DynamicBatch {
-    /// Routes one parameter's evaluated values to the table its type belongs in.
-    fn collect(&mut self, key: &ResourceKey, param_url: &str, insertable: &InsertableIndex) {
+    /// Routes one parameter's values to the table for its type, keyed to the
+    /// resource `res_key` identifies.
+    fn collect(
+        &mut self,
+        res_key: i64,
+        resource: &ResourceKey,
+        param_url: &str,
+        insertable: &InsertableIndex,
+    ) {
+        let key = RowKey {
+            res_key,
+            param_identity: keys::param_identity(&resource.tenant, &resource.project, param_url),
+        };
+
         match insertable {
             InsertableIndex::String(values) => {
                 for value in values {
-                    self.string.push(key, param_url, value);
+                    self.string.push(key, value);
                 }
             }
             InsertableIndex::URI(values) => {
                 for value in values {
-                    self.uri.push(key, param_url, value);
+                    self.uri.push(key, value);
                 }
             }
             InsertableIndex::Number(values) => {
                 for value in values {
-                    self.number.push(key, param_url, *value);
+                    self.number.push(key, *value);
                 }
             }
             InsertableIndex::Token(tokens) => {
                 for token in tokens {
-                    self.token.push(key, param_url, token);
+                    self.token.push(key, token);
                 }
             }
             InsertableIndex::Date(ranges) => {
                 for range in ranges {
-                    self.date.push(key, param_url, range);
+                    self.date.push(key, range);
                 }
             }
             InsertableIndex::Reference(references) => {
                 for reference in references {
-                    self.reference.push(key, param_url, reference);
+                    self.reference.push(key, reference);
                 }
             }
             InsertableIndex::Quantity(quantities) => {
                 for quantity in quantities {
-                    self.quantity.push(key, param_url, quantity);
+                    self.quantity.push(key, quantity);
                 }
             }
 
-            // A project-level parameter carries its own URL and a value slot
-            // per type, so each entry routes independently of this one's.
+            // A project-level parameter carries its own URL and a slot per
+            // type, so each entry routes independently.
             InsertableIndex::DynamicParameters(entries) => {
                 for entry in entries {
-                    self.collect_dynamic_parameter(key, entry);
+                    self.collect_dynamic_parameter(res_key, resource, entry);
                 }
             }
 
-            // Composite and Special have no PG representation yet; Meta is
-            // internal to the Elasticsearch document shape.
+            // Composite and Special have no PG representation; Meta is internal
+            // to the Elasticsearch document shape.
             InsertableIndex::Composite(_)
             | InsertableIndex::Special(_)
             | InsertableIndex::Meta(_) => {}
         }
     }
 
-    fn collect_dynamic_parameter(&mut self, key: &ResourceKey, entry: &DynamicParameterEntry) {
-        let url = entry.url.as_str();
+    fn collect_dynamic_parameter(
+        &mut self,
+        res_key: i64,
+        resource: &ResourceKey,
+        entry: &DynamicParameterEntry,
+    ) {
+        let key = RowKey {
+            res_key,
+            param_identity: keys::param_identity(&resource.tenant, &resource.project, &entry.url),
+        };
         let value = &entry.value;
 
         for item in value.string.iter().flatten() {
-            self.string.push(key, url, item);
+            self.string.push(key, item);
         }
         for item in value.uri.iter().flatten() {
-            self.uri.push(key, url, item);
+            self.uri.push(key, item);
         }
         for item in value.number.iter().flatten() {
-            self.number.push(key, url, *item);
+            self.number.push(key, *item);
         }
         for item in value.token.iter().flatten() {
-            self.token.push(key, url, item);
+            self.token.push(key, item);
         }
         for item in value.date.iter().flatten() {
-            self.date.push(key, url, item);
+            self.date.push(key, item);
         }
         for item in value.reference.iter().flatten() {
-            self.reference.push(key, url, item);
+            self.reference.push(key, item);
         }
         for item in value.quantity.iter().flatten() {
-            self.quantity.push(key, url, item);
+            self.quantity.push(key, item);
         }
     }
 
-    /// One statement per table, each binding a fixed set of arrays however
-    /// many rows it carries.
+    /// One statement per table, each binding a fixed set of arrays.
     async fn insert(
         &self,
         conn: &mut sqlx::PgConnection,
         registry: &SchemaRegistry,
     ) -> Result<(), OperationOutcomeError> {
-        self.string
-            .insert(&mut *conn, registry, SharedTable::String)
-            .await?;
-        self.uri
-            .insert(&mut *conn, registry, SharedTable::Uri)
-            .await?;
-        self.number
-            .insert(&mut *conn, registry, SharedTable::Number)
-            .await?;
-        self.token
-            .insert(&mut *conn, registry, SharedTable::Token)
-            .await?;
-        self.date
-            .insert(&mut *conn, registry, SharedTable::Date)
-            .await?;
-        self.reference
-            .insert(&mut *conn, registry, SharedTable::Reference)
-            .await?;
-        self.quantity
-            .insert(&mut *conn, registry, SharedTable::Quantity)
-            .await?;
+        insert_shared_rows(&mut *conn, registry, SharedTable::String, &self.string).await?;
+        insert_shared_rows(&mut *conn, registry, SharedTable::Uri, &self.uri).await?;
+        insert_shared_rows(&mut *conn, registry, SharedTable::Number, &self.number).await?;
+        insert_shared_rows(&mut *conn, registry, SharedTable::Token, &self.token).await?;
+        insert_shared_rows(&mut *conn, registry, SharedTable::Date, &self.date).await?;
+        insert_shared_rows(
+            &mut *conn,
+            registry,
+            SharedTable::Reference,
+            &self.reference,
+        )
+        .await?;
+        insert_shared_rows(&mut *conn, registry, SharedTable::Quantity, &self.quantity).await?;
         Ok(())
     }
 }
@@ -960,17 +932,21 @@ impl DynamicBatch {
 
 /// One resource's row on its per-resource-type table.
 struct SystemRow<'a> {
+    res_key: i64,
     key: &'a ResourceKey,
-    version_id: &'a str,
     slots: &'a [Option<ColumnValues>],
 }
 
 /// Writes the whole converted batch in one transaction.
 ///
-/// The transaction is all-or-nothing by necessity: Postgres aborts it on the
-/// first failed statement, so there is no per-resource recovery to be had
-/// here. A failure returns `Err`, the worker leaves its sequence lock where it
-/// was, and the batch is retried.
+/// The anchor goes first, since its upsert hands out each `res_key`, keeps an
+/// existing resource's, and reports whether it was already indexed. Only those
+/// and the deletes have rows elsewhere to clear, so a batch of new resources
+/// skips the deletes entirely.
+///
+/// All-or-nothing by necessity: Postgres aborts on the first failed statement,
+/// so there is no per-resource recovery. A failure returns `Err`, the worker
+/// leaves its sequence lock, and the batch is retried.
 async fn write_batch(
     pool: &Pool<Postgres>,
     schema_registry: &SchemaRegistry,
@@ -980,36 +956,13 @@ async fn write_batch(
         return Ok(());
     }
 
-    // Two batches that touch overlapping resources would otherwise take the
-    // same row locks in different orders. Sorting gives every writer one
-    // order, which is what keeps them queuing rather than deadlocking.
+    // Overlapping batches would otherwise lock the same anchor rows in
+    // different orders. One order for every writer keeps them queuing rather
+    // than deadlocking.
     converted.sort_by(|a, b| a.key.cmp(&b.key));
 
-    // Every resource's EAV values, transposed into the column arrays each
-    // table's insert binds. Only Vec pushes — the expensive part (evaluating
-    // FHIRPath) already happened in parallel.
-    let mut dynamic = DynamicBatch::default();
-    for entry in &converted {
-        for (param_url, insertable) in entry.write.iter().flat_map(|w| &w.dynamic) {
-            dynamic.collect(&entry.key, param_url, insertable);
-        }
-    }
-
-    // Grouped by resource type: each per-resource-type table has its own
-    // column list, so it needs its own statement.
-    let mut system_rows: HashMap<&str, Vec<SystemRow<'_>>> = HashMap::new();
-    for entry in &converted {
-        if let Some(slots) = entry.write.as_ref().and_then(|w| w.system_row.as_ref()) {
-            system_rows
-                .entry(entry.key.resource_type.as_str())
-                .or_default()
-                .push(SystemRow {
-                    key: &entry.key,
-                    version_id: &entry.version_id,
-                    slots,
-                });
-        }
-    }
+    let (deletes, writes): (Vec<&Converted>, Vec<&Converted>) =
+        converted.iter().partition(|entry| entry.write.is_none());
 
     let mut tx = pool.begin().await.map_err(|e| {
         OperationOutcomeError::fatal(
@@ -1018,10 +971,43 @@ async fn write_batch(
         )
     })?;
 
-    // Clears the previous version of every resource in the batch — the
-    // re-indexed ones and the deleted ones alike — before re-inserting.
-    delete_previous_versions(tx.as_mut(), schema_registry, &converted).await?;
-    insert_anchors(tx.as_mut(), schema_registry, &converted).await?;
+    // To clear: every deleted resource's rows, and every re-indexed one's
+    // previous version.
+    let mut stale = delete_anchors(tx.as_mut(), schema_registry, &deletes).await?;
+
+    let keys = upsert_anchors(tx.as_mut(), schema_registry, &writes).await?;
+    stale.extend(
+        keys.values()
+            .filter(|anchor| anchor.existed)
+            .map(|anchor| (anchor.res_key, anchor.resource_type.clone())),
+    );
+
+    clear_rows(tx.as_mut(), schema_registry, &stale).await?;
+
+    // A resource the upsert did not return already has a newer version indexed
+    // and keeps it, rows and all.
+    let mut dynamic = DynamicBatch::default();
+    let mut system_rows: HashMap<&str, Vec<SystemRow<'_>>> = HashMap::new();
+    for entry in &writes {
+        let (Some(write), Some(anchor)) = (entry.write.as_ref(), keys.get(&entry.key)) else {
+            continue;
+        };
+
+        for (param_url, insertable) in &write.dynamic {
+            dynamic.collect(anchor.res_key, &entry.key, param_url, insertable);
+        }
+
+        if let Some(slots) = write.system_row.as_ref() {
+            system_rows
+                .entry(entry.key.resource_type.as_str())
+                .or_default()
+                .push(SystemRow {
+                    res_key: anchor.res_key,
+                    key: &entry.key,
+                    slots,
+                });
+        }
+    }
 
     for (resource_type, rows) in &system_rows {
         if let Some(schema) = schema_registry.get(resource_type) {
@@ -1041,197 +1027,225 @@ async fn write_batch(
     Ok(())
 }
 
-/// The batch's resource keys, as one array per column.
-#[derive(Default)]
-struct AnchorColumns {
-    tenant: Vec<String>,
-    project: Vec<String>,
-    resource_type: Vec<String>,
-    resource_id: Vec<String>,
+/// A resource's anchor row as the upsert left it.
+struct AnchorKey {
+    res_key: i64,
+    resource_type: String,
+    /// Indexed before this batch, so its previous version's rows are still in
+    /// place.
+    existed: bool,
 }
 
-impl AnchorColumns {
-    fn collect<'a>(keys: impl Iterator<Item = &'a ResourceKey>) -> Self {
-        let mut columns = AnchorColumns::default();
-        for key in keys {
-            columns.tenant.push(key.tenant.clone());
-            columns.project.push(key.project.clone());
-            columns.resource_type.push(key.resource_type.clone());
-            columns.resource_id.push(key.resource_id.clone());
-        }
-        columns
-    }
-
-    fn bind<'a>(&'a self, query: PgQuery<'a>) -> PgQuery<'a> {
-        query
-            .bind(&self.tenant)
-            .bind(&self.project)
-            .bind(&self.resource_type)
-            .bind(&self.resource_id)
-    }
-}
-
-/// Clears every trace of the previous version of each resource in the batch:
-/// the shared-table rows, the per-resource-type row, then the anchor.
-///
-/// There are no foreign keys to cascade through: one would fire a
-/// referential-integrity trigger for all ~145 resource type tables on every
-/// deleted row. Instead each table the batch touches gets its own statement.
-async fn delete_previous_versions(
+/// Removes every deleted resource's anchor row, returning the keys whose rows
+/// elsewhere go with it. A delete older than the indexed version is a replay
+/// and leaves it in place.
+async fn delete_anchors(
     conn: &mut sqlx::PgConnection,
     schema_registry: &SchemaRegistry,
-    converted: &[Converted],
-) -> Result<(), OperationOutcomeError> {
-    let anchors = AnchorColumns::collect(converted.iter().map(|entry| &entry.key));
-
-    for table in SharedTable::ALL.map(|table| schema_registry.shared_table_name(table)) {
-        let sql = format!(
-            "DELETE FROM {table} t \
-             USING unnest($1::text[], $2::text[], $3::text[], $4::text[]) \
-                 AS k(tenant, project, resource_type, resource_id) \
-             WHERE t.tenant = k.tenant AND t.project = k.project \
-                 AND t.resource_type = k.resource_type AND t.resource_id = k.resource_id"
-        );
-        anchors
-            .bind(sqlx::query(&sql))
-            .execute(&mut *conn)
-            .await
-            .map_err(PgSearchError::from)?;
+    deletes: &[&Converted],
+) -> Result<Vec<(i64, String)>, OperationOutcomeError> {
+    if deletes.is_empty() {
+        return Ok(Vec::new());
     }
 
-    // The per-resource-type tables, one statement each for the types this
-    // batch actually carries. `resource_type` is a constant on each of these
-    // tables, so the key is (tenant, project, resource_id) — which is exactly
-    // the primary key.
-    let mut by_type: HashMap<&str, TypedKeys<'_>> = HashMap::new();
-    for entry in converted {
-        let group = by_type.entry(entry.key.resource_type.as_str()).or_default();
-        group.tenant.push(&entry.key.tenant);
-        group.project.push(&entry.key.project);
-        group.resource_id.push(&entry.key.resource_id);
-    }
-
-    for (resource_type, keys) in by_type {
-        // A resource type with no generated table has no row to clear. The
-        // registry is what decides that — probing for the table and ignoring
-        // the error would not work, because Postgres aborts the whole
-        // transaction on a failed statement.
-        let Some(schema) = schema_registry.get(resource_type) else {
-            continue;
-        };
-
-        sqlx::query(&format!(
-            "DELETE FROM {} t \
-             USING unnest($1::text[], $2::text[], $3::text[]) \
-                 AS k(tenant, project, resource_id) \
-             WHERE t.tenant = k.tenant AND t.project = k.project \
-                 AND t.resource_id = k.resource_id",
-            schema.table_name
-        ))
-        .bind(&keys.tenant)
-        .bind(&keys.project)
-        .bind(&keys.resource_id)
-        .execute(&mut *conn)
-        .await
-        .map_err(PgSearchError::from)?;
+    let mut tenant = Vec::with_capacity(deletes.len());
+    let mut project = Vec::with_capacity(deletes.len());
+    let mut resource_type = Vec::with_capacity(deletes.len());
+    let mut resource_id = Vec::with_capacity(deletes.len());
+    let mut sequence = Vec::with_capacity(deletes.len());
+    for entry in deletes {
+        tenant.push(entry.key.tenant.as_str());
+        project.push(entry.key.project.as_str());
+        resource_type.push(entry.key.resource_type.as_str());
+        resource_id.push(entry.key.resource_id.as_str());
+        sequence.push(entry.sequence);
     }
 
     let sql = format!(
-        "DELETE FROM {resource_table} sr \
-         USING unnest($1::text[], $2::text[], $3::text[], $4::text[]) \
-             AS k(tenant, project, resource_type, resource_id) \
+        "DELETE FROM {anchor} sr \
+         USING unnest($1::text[], $2::text[], $3::text[], $4::text[], $5::int8[]) \
+             AS k(tenant, project, resource_type, resource_id, sequence) \
          WHERE sr.tenant = k.tenant AND sr.project = k.project \
-             AND sr.resource_type = k.resource_type AND sr.resource_id = k.resource_id",
-        resource_table = schema_registry.resource_table_name(),
+             AND sr.resource_type = k.resource_type AND sr.resource_id = k.resource_id \
+             AND sr.sequence <= k.sequence \
+         RETURNING sr.res_key, sr.resource_type",
+        anchor = schema_registry.resource_table_name(),
     );
 
-    anchors
-        .bind(sqlx::query(&sql))
-        .execute(conn)
+    let rows = sqlx::query(&sql)
+        .bind(&tenant)
+        .bind(&project)
+        .bind(&resource_type)
+        .bind(&resource_id)
+        .bind(&sequence)
+        .fetch_all(conn)
         .await
         .map_err(PgSearchError::from)?;
 
-    Ok(())
+    Ok(rows
+        .iter()
+        .map(|row| (row.get("res_key"), row.get("resource_type")))
+        .collect())
 }
 
-/// The keys of one resource type's rows on its per-resource-type table.
-/// `resource_type` is a constant on those tables, so it is not part of the key.
-#[derive(Default)]
-struct TypedKeys<'a> {
-    tenant: Vec<&'a str>,
-    project: Vec<&'a str>,
-    resource_id: Vec<&'a str>,
-}
-
-/// Inserts the anchor rows, which every other table's rows hang off.
+/// Inserts or updates every written resource's anchor row, returning each
+/// `res_key`.
 ///
-/// The anchor also carries the resource-level parameters' columns, so this
-/// binds them the same way the resource type insert binds its own.
-async fn insert_anchors(
+/// An existing resource keeps its key, so a re-index only rewrites the rows
+/// hanging off it. A newer indexed version skips the update and drops the
+/// resource from the result, so a replay cannot roll it back; the same version
+/// passes, which is what lets a reset reindex rewrite everything.
+///
+/// The anchor also carries the resource-level parameters' columns, bound the
+/// same way the resource type insert binds its own.
+async fn upsert_anchors(
     conn: &mut sqlx::PgConnection,
     schema_registry: &SchemaRegistry,
-    converted: &[Converted],
-) -> Result<(), OperationOutcomeError> {
-    let anchor = schema_registry.anchor();
-
-    let rows: Vec<(&Converted, &ConvertedWrite)> = converted
-        .iter()
-        .filter_map(|entry| entry.write.as_ref().map(|write| (entry, write)))
-        .collect();
-
-    if rows.is_empty() {
-        return Ok(());
+    writes: &[&Converted],
+) -> Result<HashMap<ResourceKey, AnchorKey>, OperationOutcomeError> {
+    let mut keys = HashMap::with_capacity(writes.len());
+    if writes.is_empty() {
+        return Ok(keys);
     }
 
-    let per_row = ANCHOR_FIXED_COLUMNS + anchor.columns.len();
+    let anchor = schema_registry.anchor();
+    let per_row = ANCHOR_FIXED_COLUMNS.len() + anchor.columns.len();
 
-    let mut column_list = String::from("tenant, project, resource_type, resource_id, version_id");
+    let mut column_list = ANCHOR_FIXED_COLUMNS.join(", ");
+    let mut updates =
+        String::from("version_id = EXCLUDED.version_id, sequence = EXCLUDED.sequence");
     for column in &anchor.columns {
         let _ = write!(column_list, ", \"{}\"", column.name);
+        let _ = write!(updates, ", \"{0}\" = EXCLUDED.\"{0}\"", column.name);
     }
 
-    for chunk in rows.chunks((MAX_BIND_PARAMS / per_row).max(1)) {
+    for chunk in writes.chunks((MAX_BIND_PARAMS / per_row).max(1)) {
         let sql = format!(
-            "INSERT INTO {} ({column_list}) VALUES {}",
-            anchor.table_name,
-            values_clause(chunk.len(), per_row),
+            "INSERT INTO {table} ({column_list}) VALUES {values} \
+             ON CONFLICT (tenant, project, resource_type, resource_id) DO UPDATE SET {updates} \
+             WHERE {table}.sequence <= EXCLUDED.sequence \
+             RETURNING tenant, project, resource_type, resource_id, res_key, \
+                 (xmax = 0) AS inserted",
+            table = anchor.table_name,
+            values = values_clause(chunk.len(), per_row),
         );
 
         let mut query = sqlx::query(&sql);
-
-        for (entry, write) in chunk {
+        for entry in chunk {
             query = query
                 .bind(&entry.key.tenant)
                 .bind(&entry.key.project)
                 .bind(&entry.key.resource_type)
                 .bind(&entry.key.resource_id)
-                .bind(&entry.version_id);
+                .bind(&entry.version_id)
+                .bind(entry.sequence);
 
-            query = bind_columns(query, &write.anchor_row, &anchor.columns);
+            if let Some(write) = entry.write.as_ref() {
+                query = bind_columns(query, &write.anchor_row, &anchor.columns);
+            }
         }
 
-        query.execute(&mut *conn).await.map_err(|e| {
+        let rows = query.fetch_all(&mut *conn).await.map_err(|e| {
             OperationOutcomeError::fatal(
                 IssueType::exception(),
                 format!(
-                    "Failed to insert anchor rows into {}: {e}",
+                    "Failed to upsert anchor rows into {}: {e}",
                     anchor.table_name
                 ),
             )
         })?;
+
+        for row in rows {
+            let key = ResourceKey {
+                tenant: row.get("tenant"),
+                project: row.get("project"),
+                resource_type: row.get("resource_type"),
+                resource_id: row.get("resource_id"),
+            };
+            let inserted: bool = row.get("inserted");
+            keys.insert(
+                key.clone(),
+                AnchorKey {
+                    res_key: row.get("res_key"),
+                    resource_type: key.resource_type,
+                    existed: !inserted,
+                },
+            );
+        }
+    }
+
+    Ok(keys)
+}
+
+/// The anchor's own columns, ahead of its generated ones. Not `res_key`, which
+/// the anchor allocates.
+const ANCHOR_FIXED_COLUMNS: [&str; 6] = [
+    "tenant",
+    "project",
+    "resource_type",
+    "resource_id",
+    "version_id",
+    "sequence",
+];
+
+/// Clears these resources' rows outside the anchor: their shared-table rows and
+/// their per-resource-type row.
+///
+/// Every lookup is by `res_key` on a `BIGINT` index, and nothing runs when
+/// there is nothing to clear — the common case of a batch of new resources.
+///
+/// No foreign keys to cascade through: one would fire a referential-integrity
+/// trigger for ~145 tables per deleted row, so each table gets its own
+/// statement instead.
+async fn clear_rows(
+    conn: &mut sqlx::PgConnection,
+    schema_registry: &SchemaRegistry,
+    stale: &[(i64, String)],
+) -> Result<(), OperationOutcomeError> {
+    if stale.is_empty() {
+        return Ok(());
+    }
+
+    let all: Vec<i64> = stale.iter().map(|(res_key, _)| *res_key).collect();
+    for table in SharedTable::ALL {
+        delete_by_res_key(&mut *conn, &schema_registry.shared_table_name(table), &all).await?;
+    }
+
+    let mut by_type: HashMap<&str, Vec<i64>> = HashMap::new();
+    for (res_key, resource_type) in stale {
+        by_type
+            .entry(resource_type.as_str())
+            .or_default()
+            .push(*res_key);
+    }
+
+    for (resource_type, res_keys) in by_type {
+        // A resource type with no generated table has no row to clear, and the
+        // registry has to say so: probing and ignoring the error would abort
+        // the transaction.
+        if let Some(schema) = schema_registry.get(resource_type) {
+            delete_by_res_key(&mut *conn, &schema.table_name, &res_keys).await?;
+        }
     }
 
     Ok(())
 }
 
-/// `tenant, project, resource_type, resource_id, version_id` — the columns the
-/// anchor carries ahead of its generated ones.
-const ANCHOR_FIXED_COLUMNS: usize = 5;
+async fn delete_by_res_key(
+    conn: &mut sqlx::PgConnection,
+    table: &str,
+    res_keys: &[i64],
+) -> Result<(), OperationOutcomeError> {
+    sqlx::query(&format!("DELETE FROM {table} WHERE res_key = ANY($1)"))
+        .bind(res_keys)
+        .execute(conn)
+        .await
+        .map_err(PgSearchError::from)?;
+    Ok(())
+}
 
-/// Binds one row's generated column values, in schema order.
-///
-/// An absent value still has to carry the column's type, or Postgres cannot
-/// infer the parameter.
+/// Binds one row's generated column values, in schema order. An absent value
+/// still carries the column's type, or Postgres cannot infer the bind.
 fn bind_columns<'q>(
     mut query: sqlx::query::Query<'q, sqlx::Postgres, sqlx::postgres::PgArguments>,
     slots: &'q [Option<ColumnValues>],
@@ -1286,15 +1300,17 @@ async fn insert_system_rows(
     let column_list = system_column_list(schema);
 
     for chunk in rows.chunks((MAX_BIND_PARAMS / per_row).max(1)) {
-        let sql = system_insert_sql(schema, &column_list, chunk.len(), per_row);
+        let sql = format!(
+            "INSERT INTO {} ({column_list}) VALUES {}",
+            schema.table_name,
+            values_clause(chunk.len(), per_row),
+        );
         let mut query = sqlx::query(&sql);
 
         for row in chunk {
             query = query
-                .bind(&row.key.tenant)
-                .bind(&row.key.project)
-                .bind(&row.key.resource_id)
-                .bind(row.version_id);
+                .bind(row.res_key)
+                .bind(keys::scope_key(&row.key.tenant, &row.key.project));
 
             query = bind_columns(query, row.slots, &schema.columns);
         }
@@ -1314,55 +1330,19 @@ async fn insert_system_rows(
 }
 
 fn system_column_list(schema: &ResourceTypeSchema) -> String {
-    // Column names come from `code_to_column_base`, which folds everything
-    // outside `[a-z0-9_]`, so they cannot contain a quote to escape.
-    let mut list = String::from("tenant, project, resource_id, version_id");
+    // `code_to_column_base` folds everything outside `[a-z0-9_]`, so a name
+    // cannot contain a quote to escape.
+    let mut list = String::from("res_key, scope");
     for column in &schema.columns {
         let _ = write!(list, ", \"{}\"", column.name);
     }
     list
 }
 
-fn system_insert_sql(
-    schema: &ResourceTypeSchema,
-    column_list: &str,
-    rows: usize,
-    per_row: usize,
-) -> String {
-    let mut values = String::new();
-
-    for row in 0..rows {
-        if row > 0 {
-            values.push_str(", ");
-        }
-        values.push('(');
-        for offset in 0..per_row {
-            if offset > 0 {
-                values.push_str(", ");
-            }
-            let _ = write!(values, "${}", row * per_row + offset + 1);
-        }
-        values.push(')');
-    }
-
-    format!(
-        "INSERT INTO {} ({column_list}) VALUES {values}",
-        schema.table_name
-    )
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use haste_repository::types::SupportedFHIRVersions;
-
-    const IDENTITY_COLUMNS: [&str; 5] = [
-        "tenant",
-        "project",
-        "resource_type",
-        "resource_id",
-        "param_url",
-    ];
 
     /// The columns of `INSERT INTO <table> (...)`.
     fn inserted_columns(sql: &str) -> Vec<String> {
@@ -1374,8 +1354,7 @@ mod tests {
             .collect()
     }
 
-    /// The columns of the `CREATE TABLE`, which is the first statement in the
-    /// DDL (the `CREATE INDEX`es follow it).
+    /// The columns of the `CREATE TABLE`, the DDL's first statement.
     fn declared_columns(ddl: &str) -> Vec<String> {
         let open = ddl.find('(').expect("create table names its columns");
         let close = ddl.find("\n);").expect("unterminated create table");
@@ -1385,15 +1364,15 @@ mod tests {
             .collect()
     }
 
-    /// The insert and the `CREATE TABLE` must name exactly the same columns in
-    /// the same order. Hardcoding a list on either side — which is how
-    /// `target_uri` once came to be written to a table that had no such
-    /// column — fails here rather than on the first resource indexed.
+    /// The insert and the `CREATE TABLE` must name the same columns in the same
+    /// order. A list hardcoded on either side — how `target_uri` once came to
+    /// be written to a table without it — fails here, not on the first resource
+    /// indexed.
     #[test]
     fn every_shared_insert_matches_its_table_definition() {
         for table in SharedTable::ALL {
             let name = table.table_name(&SupportedFHIRVersions::R4);
-            let expected: Vec<String> = IDENTITY_COLUMNS
+            let expected: Vec<String> = SHARED_KEY_COLUMNS
                 .iter()
                 .map(|column| (*column).to_string())
                 .chain(
@@ -1418,12 +1397,16 @@ mod tests {
                 "{name}: the table's columns"
             );
 
-            // Each value column is bound as an array of its declared type;
-            // the identity columns take $1..$5.
+            // Each value column binds an array of its declared type; the keys
+            // take $1 and $2.
             let sql = dynamic_insert_sql(&name, table);
             for (offset, column) in table.value_columns().iter().enumerate() {
                 assert!(
-                    sql.contains(&format!("${}::{}[]", offset + 6, column.sql_type)),
+                    sql.contains(&format!(
+                        "${}::{}[]",
+                        offset + SHARED_KEY_COLUMNS.len() + 1,
+                        column.sql_type
+                    )),
                     "{name}: {} is bound at the wrong position or type",
                     column.name
                 );

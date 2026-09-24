@@ -241,6 +241,7 @@ async fn index_tenant_next_sequence<
                         fhir_method: r.fhir_method,
                         resource_type: r.resource_type,
                         resource: r.resource.0,
+                        sequence: r.sequence,
                     })
                     .collect(),
             )

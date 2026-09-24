@@ -1,63 +1,22 @@
 use haste_fhir_client::url::Parameter;
 
-use super::{ClauseTarget, SqlClause, SqlParam, direct_column, direct_predicate, dynamic_exists};
-use crate::pg_search::{schema::ParamColumns, search::QueryBuildError};
+use super::{ClauseTarget, SqlClause, SqlParam, require_values};
+use crate::pg_search::search::QueryBuildError;
 
 pub fn reference_clause(
     parsed_parameter: &Parameter,
     target: &ClauseTarget,
 ) -> Result<SqlClause, QueryBuildError> {
-    if parsed_parameter.value.is_empty() {
-        return Err(QueryBuildError::InvalidParameterValue(
-            parsed_parameter.name.clone(),
-        ));
-    }
+    require_values(parsed_parameter)?;
 
-    match target {
-        ClauseTarget::DirectColumn { alias, columns } => {
-            let (type_column, id_column) = reference_columns(columns)?;
+    let (type_expr, id_expr) = target.reference_exprs()?;
+    let mut params = target.params();
+    let predicate = build_or_expr(parsed_parameter, &type_expr, &id_expr, &mut params)?;
 
-            let mut params = Vec::new();
-            let or_expr = build_or_expr(
-                parsed_parameter,
-                &direct_column(alias, type_column),
-                &direct_column(alias, id_column),
-                &mut params,
-            )?;
-
-            Ok(SqlClause::new(direct_predicate(false, &or_expr), params))
-        }
-        ClauseTarget::Dynamic { table, param_url } => {
-            // $1 is the param_url discriminator.
-            let mut params = vec![SqlParam::Text(param_url.clone())];
-            let or_expr = build_or_expr(
-                parsed_parameter,
-                "sref.target_resource_type",
-                "sref.target_id",
-                &mut params,
-            )?;
-
-            Ok(SqlClause::new(
-                dynamic_exists(table, "sref", false, Some(&or_expr)),
-                params,
-            ))
-        }
-    }
+    Ok(target.finish(false, &predicate, params))
 }
 
-fn reference_columns(columns: &ParamColumns) -> Result<(&str, &str), QueryBuildError> {
-    match columns {
-        ParamColumns::Reference {
-            target_type,
-            target_id,
-        } => Ok((target_type.as_str(), target_id.as_str())),
-        _ => Err(QueryBuildError::UnsupportedParameter(
-            "reference search parameter is not backed by reference columns".to_string(),
-        )),
-    }
-}
-
-/// Builds the OR-joined predicate over every supplied `[Type/]id` value.
+/// OR-joins a predicate per supplied `[Type/]id` value.
 fn build_or_expr(
     parsed_parameter: &Parameter,
     type_expr: &str,

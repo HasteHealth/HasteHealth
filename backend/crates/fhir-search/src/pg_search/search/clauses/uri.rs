@@ -1,104 +1,27 @@
 use haste_fhir_client::url::Parameter;
 
-use super::{
-    ClauseTarget, SqlClause, SqlParam, direct_column, direct_missing, direct_predicate,
-    dynamic_exists,
-};
-use crate::pg_search::{schema::ParamColumns, search::QueryBuildError};
+use super::{ClauseTarget, SqlClause, SqlParam, missing_only, require_values};
+use crate::pg_search::search::QueryBuildError;
 
 pub fn uri_clause(
     parsed_parameter: &Parameter,
     target: &ClauseTarget,
 ) -> Result<SqlClause, QueryBuildError> {
-    match parsed_parameter.modifier.as_deref() {
-        Some("missing") => missing_clause(target, parsed_parameter),
-        Some(modifier) => Err(QueryBuildError::UnsupportedModifier(modifier.to_string())),
-        None => value_clause(target, parsed_parameter),
-    }
-}
-
-fn value_column(columns: &ParamColumns) -> Result<&str, QueryBuildError> {
-    match columns {
-        ParamColumns::Uri { value } | ParamColumns::String { value } => Ok(value.as_str()),
-        _ => Err(QueryBuildError::UnsupportedParameter(
-            "uri search parameter is not backed by a uri column".to_string(),
-        )),
-    }
-}
-
-fn missing_clause(
-    target: &ClauseTarget,
-    parsed_parameter: &Parameter,
-) -> Result<SqlClause, QueryBuildError> {
-    let value = parsed_parameter
-        .value
-        .first()
-        .ok_or_else(|| QueryBuildError::InvalidParameterValue(parsed_parameter.name.clone()))?;
-
-    let missing = match value.as_str() {
-        "true" => true,
-        "false" => false,
-        _ => {
-            return Err(QueryBuildError::InvalidParameterValue(
-                parsed_parameter.name.clone(),
-            ));
-        }
-    };
-
-    match target {
-        ClauseTarget::DirectColumn { alias, columns } => Ok(SqlClause::new(
-            direct_missing(alias, value_column(columns)?, missing),
-            Vec::new(),
-        )),
-        ClauseTarget::Dynamic { table, param_url } => Ok(SqlClause::new(
-            dynamic_exists(table, "su", missing, None),
-            vec![SqlParam::Text(param_url.clone())],
-        )),
-    }
-}
-
-fn value_clause(
-    target: &ClauseTarget,
-    parsed_parameter: &Parameter,
-) -> Result<SqlClause, QueryBuildError> {
-    if parsed_parameter.value.is_empty() {
-        return Err(QueryBuildError::InvalidParameterValue(
-            parsed_parameter.name.clone(),
-        ));
+    if missing_only(parsed_parameter)? {
+        return target.missing(parsed_parameter);
     }
 
-    match target {
-        ClauseTarget::DirectColumn { alias, columns } => {
-            let column = direct_column(alias, value_column(columns)?);
-            let mut params = Vec::new();
-            let mut or_clauses = Vec::new();
+    require_values(parsed_parameter)?;
 
-            for value in &parsed_parameter.value {
-                let idx = params.len() + 1;
-                or_clauses.push(format!("{column} = ${idx}"));
-                params.push(SqlParam::Text(value.clone()));
-            }
+    let value_expr = target.value_expr()?;
+    let mut params = target.params();
+    let mut or_clauses = Vec::new();
 
-            Ok(SqlClause::new(
-                direct_predicate(false, &or_clauses.join(" OR ")),
-                params,
-            ))
-        }
-        ClauseTarget::Dynamic { table, param_url } => {
-            // $1 is the param_url discriminator.
-            let mut params = vec![SqlParam::Text(param_url.clone())];
-            let mut or_clauses = Vec::new();
-
-            for value in &parsed_parameter.value {
-                let idx = params.len() + 1;
-                or_clauses.push(format!("su.value = ${idx}"));
-                params.push(SqlParam::Text(value.clone()));
-            }
-
-            Ok(SqlClause::new(
-                dynamic_exists(table, "su", false, Some(&or_clauses.join(" OR "))),
-                params,
-            ))
-        }
+    for value in &parsed_parameter.value {
+        let idx = params.len() + 1;
+        or_clauses.push(format!("{value_expr} = ${idx}"));
+        params.push(SqlParam::Text(value.clone()));
     }
+
+    Ok(target.finish(false, &or_clauses.join(" OR "), params))
 }

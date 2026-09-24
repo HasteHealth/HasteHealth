@@ -1,87 +1,27 @@
 use haste_fhir_client::url::Parameter;
 
-use super::{ClauseTarget, SqlClause, SqlParam, direct_column, direct_predicate, dynamic_exists};
-use crate::pg_search::{schema::ParamColumns, search::QueryBuildError};
-
-/// The four SQL expressions a quantity predicate reads, in the order the
-/// direct-column unnest binds them.
-struct QuantityExprs<'a> {
-    start: &'a str,
-    end: &'a str,
-    system: &'a str,
-    code: &'a str,
-}
+use super::{ClauseTarget, QuantityExprs, SqlClause, SqlParam, require_values};
+use crate::pg_search::search::QueryBuildError;
 
 pub fn quantity_clause(
     parsed_parameter: &Parameter,
     target: &ClauseTarget,
 ) -> Result<SqlClause, QueryBuildError> {
-    if parsed_parameter.value.is_empty() {
-        return Err(QueryBuildError::InvalidParameterValue(
-            parsed_parameter.name.clone(),
-        ));
-    }
+    require_values(parsed_parameter)?;
 
-    match target {
-        ClauseTarget::DirectColumn { alias, columns } => {
-            let ParamColumns::Quantity {
-                start,
-                end,
-                system,
-                code,
-            } = columns
-            else {
-                return Err(QueryBuildError::UnsupportedParameter(
-                    "quantity search parameter is not backed by quantity columns".to_string(),
-                ));
-            };
+    // Value and unit sit on the same row, so nothing has to be recombined.
+    let exprs = target.quantity_exprs()?;
+    let mut params = target.params();
+    let predicate = build_or_expr(parsed_parameter, &exprs, &mut params)?;
 
-            // All four sit on the same row, so each value stays beside its
-            // own unit with nothing to recombine.
-            let (start, end) = (direct_column(alias, start), direct_column(alias, end));
-            let (system, code) = (direct_column(alias, system), direct_column(alias, code));
-
-            let mut params = Vec::new();
-            let or_expr = build_or_expr(
-                parsed_parameter,
-                &QuantityExprs {
-                    start: &start,
-                    end: &end,
-                    system: &system,
-                    code: &code,
-                },
-                &mut params,
-            )?;
-
-            Ok(SqlClause::new(direct_predicate(false, &or_expr), params))
-        }
-        ClauseTarget::Dynamic { table, param_url } => {
-            // $1 is the param_url discriminator.
-            let mut params = vec![SqlParam::Text(param_url.clone())];
-            let or_expr = build_or_expr(
-                parsed_parameter,
-                &QuantityExprs {
-                    start: "sq.start_value",
-                    end: "sq.end_value",
-                    system: "sq.start_system",
-                    code: "sq.start_code",
-                },
-                &mut params,
-            )?;
-
-            Ok(SqlClause::new(
-                dynamic_exists(table, "sq", false, Some(&or_expr)),
-                params,
-            ))
-        }
-    }
+    Ok(target.finish(false, &predicate, params))
 }
 
-/// Builds the OR-joined predicate over every supplied `value|system|code`.
-/// Empty segments are simply not constrained.
+/// OR-joins a predicate per supplied `value|system|code`. Empty segments go
+/// unconstrained.
 fn build_or_expr(
     parsed_parameter: &Parameter,
-    exprs: &QuantityExprs<'_>,
+    exprs: &QuantityExprs,
     params: &mut Vec<SqlParam>,
 ) -> Result<String, QueryBuildError> {
     let mut or_clauses = Vec::new();

@@ -1,99 +1,27 @@
 use haste_fhir_client::url::{Parameter, parse_prefix};
 
-use super::{
-    ClauseTarget, SqlClause, SqlParam, direct_column, direct_missing, direct_predicate,
-    dynamic_exists,
-};
-use crate::{
-    indexing_conversion::get_decimal_range,
-    pg_search::{schema::ParamColumns, search::QueryBuildError},
-};
+use super::{ClauseTarget, SqlClause, SqlParam, missing_only, require_values};
+use crate::{indexing_conversion::get_decimal_range, pg_search::search::QueryBuildError};
 
 pub fn number_clause(
     parsed_parameter: &Parameter,
     target: &ClauseTarget,
 ) -> Result<SqlClause, QueryBuildError> {
-    match parsed_parameter.modifier.as_deref() {
-        Some("missing") => missing_clause(target, parsed_parameter),
-        Some(modifier) => Err(QueryBuildError::UnsupportedModifier(modifier.to_string())),
-        None => value_clause(target, parsed_parameter),
+    if missing_only(parsed_parameter)? {
+        return target.missing(parsed_parameter);
     }
+
+    require_values(parsed_parameter)?;
+
+    let value_expr = target.value_expr()?;
+    let mut params = target.params();
+    let predicate = build_or_expr(parsed_parameter, &value_expr, &mut params)?;
+
+    Ok(target.finish(false, &predicate, params))
 }
 
-fn value_column(columns: &ParamColumns) -> Result<&str, QueryBuildError> {
-    match columns {
-        ParamColumns::Number { value } => Ok(value.as_str()),
-        _ => Err(QueryBuildError::UnsupportedParameter(
-            "number search parameter is not backed by a number column".to_string(),
-        )),
-    }
-}
-
-fn missing_clause(
-    target: &ClauseTarget,
-    parsed_parameter: &Parameter,
-) -> Result<SqlClause, QueryBuildError> {
-    let value = parsed_parameter
-        .value
-        .first()
-        .ok_or_else(|| QueryBuildError::InvalidParameterValue(parsed_parameter.name.clone()))?;
-
-    let missing = match value.as_str() {
-        "true" => true,
-        "false" => false,
-        _ => {
-            return Err(QueryBuildError::InvalidParameterValue(
-                parsed_parameter.name.clone(),
-            ));
-        }
-    };
-
-    match target {
-        ClauseTarget::DirectColumn { alias, columns } => Ok(SqlClause::new(
-            direct_missing(alias, value_column(columns)?, missing),
-            Vec::new(),
-        )),
-        ClauseTarget::Dynamic { table, param_url } => Ok(SqlClause::new(
-            dynamic_exists(table, "sn", missing, None),
-            vec![SqlParam::Text(param_url.clone())],
-        )),
-    }
-}
-
-fn value_clause(
-    target: &ClauseTarget,
-    parsed_parameter: &Parameter,
-) -> Result<SqlClause, QueryBuildError> {
-    if parsed_parameter.value.is_empty() {
-        return Err(QueryBuildError::InvalidParameterValue(
-            parsed_parameter.name.clone(),
-        ));
-    }
-
-    match target {
-        ClauseTarget::DirectColumn { alias, columns } => {
-            let column = direct_column(alias, value_column(columns)?);
-            let mut params = Vec::new();
-            let or_expr = build_or_expr(parsed_parameter, &column, &mut params)?;
-
-            Ok(SqlClause::new(direct_predicate(false, &or_expr), params))
-        }
-        ClauseTarget::Dynamic { table, param_url } => {
-            // $1 is the param_url discriminator.
-            let mut params = vec![SqlParam::Text(param_url.clone())];
-            let or_expr = build_or_expr(parsed_parameter, "sn.value", &mut params)?;
-
-            Ok(SqlClause::new(
-                dynamic_exists(table, "sn", false, Some(&or_expr)),
-                params,
-            ))
-        }
-    }
-}
-
-/// Builds the OR-joined predicate over every supplied number value. A FHIR
-/// number carries an implicit precision range, so equality is a containment
-/// test rather than `=`.
+/// OR-joins a predicate per supplied number. A FHIR number carries an implicit
+/// precision range, so equality is containment rather than `=`.
 fn build_or_expr(
     parsed_parameter: &Parameter,
     value_expr: &str,

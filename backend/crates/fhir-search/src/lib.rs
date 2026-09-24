@@ -25,6 +25,11 @@ pub struct IndexResource {
     pub fhir_method: FHIRMethod,
     pub resource_type: ResourceType,
     pub resource: Resource,
+
+    /// The repository's write sequence for this version. Versions of one
+    /// resource are ordered by it, which is what lets an index refuse to
+    /// replace a newer version with an older one replayed after it.
+    pub sequence: i64,
 }
 
 #[derive(Deserialize, Debug)]

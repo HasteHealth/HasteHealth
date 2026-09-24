@@ -82,11 +82,13 @@ impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
                 let mut project = Cell::Null;
                 let mut resource = Cell::Null;
                 let mut fhir_method = Cell::Null;
+                let mut sequence = Cell::Null;
 
                 std::mem::swap(&mut tenant, &mut i[0]);
                 std::mem::swap(&mut project, &mut i[1]);
                 std::mem::swap(&mut resource, &mut i[3]);
                 std::mem::swap(&mut fhir_method, &mut i[9]);
+                std::mem::swap(&mut sequence, &mut i[10]);
 
                 let tenant = match tenant {
                     Cell::String(tenant) => TenantId::new(tenant),
@@ -114,6 +116,10 @@ impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
                     }
                 };
 
+                let Cell::I64(sequence) = sequence else {
+                    panic!("Unexpected cell type for sequence: {sequence:?}");
+                };
+
                 let id = resource_json
                     .get("id")
                     .and_then(|js| js.as_str().map(|s| ResourceId::new(s.to_string())));
@@ -133,6 +139,7 @@ impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
                     fhir_method,
                     resource_type: resource_type.expect("Failed to extract resource_type"),
                     resource: serde_json::from_value(resource_json).unwrap(),
+                    sequence,
                 }
             })
             .collect::<Vec<_>>();
