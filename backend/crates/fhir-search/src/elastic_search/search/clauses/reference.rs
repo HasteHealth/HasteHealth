@@ -1,4 +1,4 @@
-use crate::elastic_search::search::{QueryBuildError, clauses::namespace_parameter};
+use crate::{elastic_search::search::clauses::namespace_parameter, query::QueryBuildError};
 use haste_fhir_client::url::Parameter;
 use haste_fhir_model::r4::generated::resources::SearchParameter;
 use serde_json::json;

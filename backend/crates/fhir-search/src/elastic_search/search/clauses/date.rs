@@ -1,6 +1,8 @@
 use crate::{
-    elastic_search::search::{QueryBuildError, clauses::namespace_parameter},
+    elastic_search::search::clauses::namespace_parameter,
     indexing_conversion::date_time_range,
+    query::QueryBuildError,
+    search_ranges::{approximate_date, now_ms},
 };
 use haste_fhir_client::url::{Parameter, parse_prefix};
 use haste_fhir_model::r4::{datetime::parse_datetime, generated::resources::SearchParameter};
@@ -36,51 +38,57 @@ fn build_date_query(value: &str, column_name: &str) -> Result<serde_json::Value,
         .map_err(|_e| QueryBuildError::InvalidDateFormat(value.to_string()))?;
 
     match prefix {
-        Some("gt") => Ok(date_range_query(
+        // Starts after the search range ends.
+        Some("gt" | "sa") => Ok(date_range_query(
             column_name,
-            &json!({
-                "gt": date_range.end
-            }),
+            "start",
+            &json!({ "gt": date_range.end }),
         )),
-
         Some("lt") => Ok(date_range_query(
             column_name,
-            &json!({
-                "lt": date_range.start
-            }),
+            "start",
+            &json!({ "lt": date_range.start }),
         )),
-
+        // Ends before the search range begins.
+        Some("eb") => Ok(date_range_query(
+            column_name,
+            "end",
+            &json!({ "lt": date_range.start }),
+        )),
         Some("ge") => Ok(date_range_query(
             column_name,
-            &json!({
-                "gte": date_range.start
-            }),
+            "start",
+            &json!({ "gte": date_range.start }),
         )),
-
         Some("le") => Ok(date_range_query(
             column_name,
-            &json!({
-                "lte": date_range.end
-            }),
+            "start",
+            &json!({ "lte": date_range.end }),
         )),
-
         Some("ne") => Ok(date_not_overlapping_query(
             column_name,
             date_range.start,
             date_range.end,
         )),
-
         Some("eq") | None => Ok(date_overlapping_query(
             column_name,
             date_range.start,
             date_range.end,
         )),
-
-        Some(prefix) => Err(QueryBuildError::UnsupportedModifier(prefix.to_string())),
+        // Overlaps the search range widened by 10% of its distance from now.
+        Some("ap") => {
+            let (start, end) = approximate_date(date_range.start, date_range.end, now_ms());
+            Ok(date_overlapping_query(column_name, start, end))
+        }
+        Some(prefix) => Err(QueryBuildError::UnsupportedPrefix(prefix.to_string())),
     }
 }
 
-fn date_range_query(column_name: &str, range: &serde_json::Value) -> serde_json::Value {
+fn date_range_query(
+    column_name: &str,
+    bound: &str,
+    range: &serde_json::Value,
+) -> serde_json::Value {
     json!({
         "nested": {
             "path": column_name,
@@ -89,7 +97,7 @@ fn date_range_query(column_name: &str, range: &serde_json::Value) -> serde_json:
                     "filter": [
                         {
                             "range": {
-                                format!("{}.start", column_name): range
+                                format!("{column_name}.{bound}"): range
                             }
                         }
                     ]

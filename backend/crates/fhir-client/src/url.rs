@@ -323,17 +323,15 @@ impl TryFrom<&HashMap<String, String>> for ParsedParameters {
     }
 }
 
+/// Splits a FHIR search prefix (`eq`, `ne`, `gt`, `lt`, `ge`, `le`, `sa`, `eb`,
+/// `ap`) off a number, date or quantity value.
 #[must_use]
 pub fn parse_prefix(v: &str) -> (Option<&str>, &str) {
-    if v.len() < 3 {
-        return (None, v);
-    }
-
-    let sub_str = &v[..2];
-    let remainder = &v[2..];
-
-    match sub_str {
-        "lt" | "le" | "gt" | "ge" | "eq" | "ne" => (Some(sub_str), remainder),
+    match (v.get(..2), v.get(2..)) {
+        (
+            Some(prefix @ ("eq" | "ne" | "gt" | "lt" | "ge" | "le" | "sa" | "eb" | "ap")),
+            Some(remainder),
+        ) if !remainder.is_empty() => (Some(prefix), remainder),
         _ => (None, v),
     }
 }
@@ -351,6 +349,11 @@ mod tests {
             ("ge2.71", (Some("ge"), "2.71")),
             ("eq42", (Some("eq"), "42")),
             ("ne0", (Some("ne"), "0")),
+            ("sa2020", (Some("sa"), "2020")),
+            ("eb2020-01", (Some("eb"), "2020-01")),
+            ("ap70", (Some("ap"), "70")),
+            ("ne", (None, "ne")),
+            ("é5", (None, "é5")),
             ("5.0", (None, "5.0")),
             ("10", (None, "10")),
         ];

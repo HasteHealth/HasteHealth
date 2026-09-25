@@ -1,34 +1,17 @@
 use haste_fhir_client::url::Parameter;
 
 use super::{
-    ClauseTarget, SqlClause, SqlParam, bind, missing_clause, or_predicates, require_values,
-    target_params, value_expr, wrap_predicate,
+    ClauseTarget, SqlClause, SqlParam, bind, or_predicates, require_values, target_params,
+    value_expr, wrap_predicate,
 };
-use crate::pg_search::search::QueryBuildError;
+use crate::query::{Modifier, QueryBuildError};
 
-#[derive(Clone, Copy)]
-enum MatchKind {
-    /// `:exact`: case-sensitive equality.
-    Exact,
-    /// `:contains`: case-insensitive substring.
-    Contains,
-    /// Default: case-insensitive prefix.
-    Prefix,
-}
-
+/// `modifier` is `Exact`, `Contains` or `None` (already validated).
 pub fn string_clause(
     parsed_parameter: &Parameter,
     target: &ClauseTarget,
+    modifier: Modifier,
 ) -> Result<SqlClause, QueryBuildError> {
-    let kind = match parsed_parameter.modifier.as_deref() {
-        Some("missing") => return missing_clause(target, parsed_parameter),
-        Some("exact") => MatchKind::Exact,
-        Some("contains") => MatchKind::Contains,
-        Some(modifier) => {
-            return Err(QueryBuildError::UnsupportedModifier(modifier.to_string()));
-        }
-        None => MatchKind::Prefix,
-    };
     require_values(parsed_parameter)?;
 
     let column = value_expr(target)?;
@@ -37,7 +20,7 @@ pub fn string_clause(
         target_params(target),
         |value, params| {
             let (params, i) = bind(params, [SqlParam::Text(value.to_string())]);
-            Ok((string_predicate(kind, &column, i), params))
+            Ok((string_predicate(modifier, &column, i), params))
         },
     )?;
 
@@ -45,10 +28,13 @@ pub fn string_clause(
 }
 
 /// Compares `column` against the term bound at `$i`.
-fn string_predicate(kind: MatchKind, column: &str, i: usize) -> String {
-    match kind {
-        MatchKind::Exact => format!("{column} = ${i}"),
-        MatchKind::Contains => format!("LOWER({column}) LIKE LOWER('%' || ${i} || '%')"),
-        MatchKind::Prefix => format!("LOWER({column}) LIKE LOWER(${i} || '%')"),
+fn string_predicate(modifier: Modifier, column: &str, i: usize) -> String {
+    match modifier {
+        // Case-sensitive equality.
+        Modifier::Exact => format!("{column} = ${i}"),
+        // Case-insensitive substring.
+        Modifier::Contains => format!("LOWER({column}) LIKE LOWER('%' || ${i} || '%')"),
+        // Default: case-insensitive prefix.
+        _ => format!("LOWER({column}) LIKE LOWER(${i} || '%')"),
     }
 }
