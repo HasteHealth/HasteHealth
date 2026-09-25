@@ -17,6 +17,7 @@ This document contains the help content for the `haste-health` command-line prog
 * [`haste-health generate`↴](#haste-health-generate)
 * [`haste-health generate types`↴](#haste-health-generate-types)
 * [`haste-health generate operations`↴](#haste-health-generate-operations)
+* [`haste-health generate search-param-cardinality`↴](#haste-health-generate-search-param-cardinality)
 * [`haste-health generate test-scripts`↴](#haste-health-generate-test-scripts)
 * [`haste-health artifacts`↴](#haste-health-artifacts)
 * [`haste-health artifacts build`↴](#haste-health-artifacts-build)
@@ -117,6 +118,7 @@ Code generators (Rust FHIR types, operations, TestScripts) used to build this cr
 
 * `types` — Generate Rust structs for FHIR resources/types/terminology from StructureDefinitions
 * `operations` — Generate Rust bindings for FHIR OperationDefinitions
+* `search-param-cardinality` — Generate the compiled table of single-valued search parameters
 * `test-scripts` — Generate FHIR TestScript resources
 
 
@@ -147,6 +149,20 @@ Generate Rust bindings for FHIR OperationDefinitions
 ###### **Options:**
 
 * `-i`, `--input <INPUT>` — Input FHIR OperationDefinition file(s) or directories (JSON). Repeatable
+* `-o`, `--output <OUTPUT>` — Output Rust file path. Prints to stdout if omitted
+
+
+
+## `haste-health generate search-param-cardinality`
+
+Generate the compiled table of single-valued search parameters
+
+**Usage:** `haste-health generate search-param-cardinality [OPTIONS]`
+
+###### **Options:**
+
+* `-d`, `--definitions <DEFINITIONS>` — StructureDefinition file(s) or directories (JSON) to resolve paths against. Repeatable
+* `-p`, `--parameters <PARAMETERS>` — SearchParameter file(s) or directories (JSON) to classify. Repeatable
 * `-o`, `--output <OUTPUT>` — Output Rust file path. Prints to stdout if omitted
 
 
@@ -227,11 +243,7 @@ Run the FHIR server
 
 Start the HTTP server. Configuration is read from `haste.toml` and `HASTE_*` env vars
 
-**Usage:** `haste-health server start [OPTIONS]`
-
-###### **Options:**
-
-* `-p`, `--port <PORT>` — Port to listen on. Defaults to 3000
+**Usage:** `haste-health server start`
 
 
 
