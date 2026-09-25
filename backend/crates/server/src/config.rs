@@ -7,6 +7,10 @@ use std::path::PathBuf;
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct ServerConfig {
+    /// Port on which the server listens.
+    pub port: u16,
+    /// Whether artifact mutations are allowed. If `false`, any attempt to
+    /// create, update, or delete artifacts will be rejected.
     pub allow_artifact_mutations: bool,
     /// Used for JWT signing/verification.
     pub certification_dir: PathBuf,
@@ -115,6 +119,7 @@ impl Default for FHIRConfig {
 impl Default for ServerConfig {
     fn default() -> Self {
         Self {
+            port: 3000,
             allow_artifact_mutations: false,
             certification_dir: PathBuf::from("certifications"),
             api_uri: "http://localhost:3000".into(),
