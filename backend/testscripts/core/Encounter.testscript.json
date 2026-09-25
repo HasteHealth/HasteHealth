@@ -1,0 +1,3787 @@
+{
+    "id": "core-encounter",
+    "url": "https://haste.health/fhir/TestScript/core-encounter",
+    "title": "Core Encounter TestScript",
+    "name": "Core Encounter TestScript",
+    "status": "active",
+    "description": "CRUD and search parameter coverage for the Encounter resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "id": "crud-create-1",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patch-doc-2",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAicmVwbGFjZSIsICJwYXRoIjogIi9zdGF0dXMiLCAidmFsdWUiOiAib25sZWF2ZSJ9XQ=="
+        },
+        {
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "id": "crud-create-1-update-src"
+        },
+        {
+            "id": "core-encounter-account-target",
+            "resourceType": "Account",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "status": "active",
+            "name": "Target"
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "account": [
+                {
+                    "reference": "Account/core-encounter-account-target"
+                }
+            ],
+            "id": "encounter-account-match-2",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-account"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-encounter-appointment-target",
+            "resourceType": "Appointment",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "status": "booked",
+            "participant": [
+                {
+                    "status": "accepted"
+                }
+            ]
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "appointment": [
+                {
+                    "reference": "Appointment/core-encounter-appointment-target"
+                }
+            ],
+            "id": "encounter-appointment-match-3",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-appointment"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-encounter-basedon-target",
+            "resourceType": "ServiceRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "status": "active",
+            "intent": "order",
+            "code": {
+                "text": "Target"
+            },
+            "subject": {
+                "reference": "Patient/core-encounter-basedon-subject"
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "basedOn": [
+                {
+                    "reference": "ServiceRequest/core-encounter-basedon-target"
+                }
+            ],
+            "id": "encounter-based-on-match-4",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-based-on"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "id": "encounter-class-match-5",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-class"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "IMP"
+            },
+            "id": "encounter-class-other-6",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-class"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "period": {
+                "start": "2024-02-01"
+            },
+            "id": "encounter-date-match-7",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-date"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-encounter-diagnosis-target",
+            "resourceType": "Condition",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/core-encounter-diagnosis-subject"
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "diagnosis": [
+                {
+                    "condition": {
+                        "reference": "Condition/core-encounter-diagnosis-target"
+                    }
+                }
+            ],
+            "id": "encounter-diagnosis-match-8",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-diagnosis"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-encounter-episode-target",
+            "resourceType": "EpisodeOfCare",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "status": "active",
+            "patient": {
+                "reference": "Patient/core-encounter-episode-subject"
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "episodeOfCare": [
+                {
+                    "reference": "EpisodeOfCare/core-encounter-episode-target"
+                }
+            ],
+            "id": "encounter-episode-of-care-match-9",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-episode-of-care"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "identifier": [
+                {
+                    "system": "http://example.org/enc-id",
+                    "value": "enc-12345"
+                }
+            ],
+            "id": "encounter-identifier-match-10",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "identifier": [
+                {
+                    "system": "http://example.org/enc-id",
+                    "value": "enc-99999"
+                }
+            ],
+            "id": "encounter-identifier-other-11",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "length": {
+                "value": 45.0,
+                "unit": "min",
+                "system": "http://unitsofmeasure.org",
+                "code": "min"
+            },
+            "id": "encounter-length-match-12",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-length"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-encounter-location-target",
+            "resourceType": "Location",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "name": "Target"
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "location": [
+                {
+                    "location": {
+                        "reference": "Location/core-encounter-location-target"
+                    }
+                }
+            ],
+            "id": "encounter-location-match-13",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-location"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "location": [
+                {
+                    "location": {
+                        "reference": "Location/core-encounter-locationperiod-target"
+                    },
+                    "period": {
+                        "start": "2024-03-01"
+                    }
+                }
+            ],
+            "id": "encounter-location-period-match-14",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-location-period"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-encounter-partof-target",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "status": "finished",
+            "class": {
+                "code": "AMB"
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "partOf": {
+                "reference": "Encounter/core-encounter-partof-target"
+            },
+            "id": "encounter-part-of-match-15",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-part-of"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-encounter-participant-target",
+            "resourceType": "Practitioner",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Target"
+                }
+            ]
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "participant": [
+                {
+                    "individual": {
+                        "reference": "Practitioner/core-encounter-participant-target"
+                    }
+                }
+            ],
+            "id": "encounter-participant-match-16",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-participant"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "participant": [
+                {
+                    "type": [
+                        {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                                    "code": "PPRF"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "id": "encounter-participant-type-match-17",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-participant-type"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "participant": [
+                {
+                    "type": [
+                        {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                                    "code": "ADM"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "id": "encounter-participant-type-other-18",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-participant-type"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-encounter-patient-target",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Target"
+                }
+            ]
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/core-encounter-patient-target"
+            },
+            "id": "encounter-patient-match-19",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-patient"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-encounter-practitioner-target",
+            "resourceType": "Practitioner",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Target"
+                }
+            ]
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "participant": [
+                {
+                    "individual": {
+                        "reference": "Practitioner/core-encounter-practitioner-target"
+                    }
+                }
+            ],
+            "id": "encounter-practitioner-match-20",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-practitioner"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "reasonCode": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "386661006"
+                        }
+                    ]
+                }
+            ],
+            "id": "encounter-reason-code-match-21",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-reason-code"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "reasonCode": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "25064002"
+                        }
+                    ]
+                }
+            ],
+            "id": "encounter-reason-code-other-22",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-reason-code"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-encounter-reasonref-target",
+            "resourceType": "Condition",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/core-encounter-reasonref-subject"
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "reasonReference": [
+                {
+                    "reference": "Condition/core-encounter-reasonref-target"
+                }
+            ],
+            "id": "encounter-reason-reference-match-23",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-reason-reference"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-encounter-serviceprovider-target",
+            "resourceType": "Organization",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "name": "Target"
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "serviceProvider": {
+                "reference": "Organization/core-encounter-serviceprovider-target"
+            },
+            "id": "encounter-service-provider-match-24",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-service-provider"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "hospitalization": {
+                "specialArrangement": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/encounter-special-arrangements",
+                                "code": "wheel"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "id": "encounter-special-arrangement-match-25",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-special-arrangement"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "hospitalization": {
+                "specialArrangement": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/encounter-special-arrangements",
+                                "code": "int"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "id": "encounter-special-arrangement-other-26",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-special-arrangement"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "id": "encounter-status-match-27",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-status"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "id": "encounter-status-other-28",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-status"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-encounter-subject-target",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Target"
+                }
+            ]
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/core-encounter-subject-target"
+            },
+            "id": "encounter-subject-match-29",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-subject"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "type": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "270427003"
+                        }
+                    ]
+                }
+            ],
+            "id": "encounter-type-match-30",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-type"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "in-progress",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "type": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "185349003"
+                        }
+                    ]
+                }
+            ],
+            "id": "encounter-type-other-31",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-encounter-test"
+                    },
+                    {
+                        "code": "scope-type"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-crud-create-1",
+            "resource": {
+                "reference": "#crud-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patch-doc-2",
+            "resource": {
+                "reference": "#patch-doc-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-crud-create-1-update-src",
+            "resource": {
+                "reference": "#crud-create-1-update-src"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-encounter-account-target",
+            "resource": {
+                "reference": "#core-encounter-account-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-account-match-2",
+            "resource": {
+                "reference": "#encounter-account-match-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-encounter-appointment-target",
+            "resource": {
+                "reference": "#core-encounter-appointment-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-appointment-match-3",
+            "resource": {
+                "reference": "#encounter-appointment-match-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-encounter-basedon-target",
+            "resource": {
+                "reference": "#core-encounter-basedon-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-based-on-match-4",
+            "resource": {
+                "reference": "#encounter-based-on-match-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-class-match-5",
+            "resource": {
+                "reference": "#encounter-class-match-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-class-other-6",
+            "resource": {
+                "reference": "#encounter-class-other-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-date-match-7",
+            "resource": {
+                "reference": "#encounter-date-match-7"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-encounter-diagnosis-target",
+            "resource": {
+                "reference": "#core-encounter-diagnosis-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-diagnosis-match-8",
+            "resource": {
+                "reference": "#encounter-diagnosis-match-8"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-encounter-episode-target",
+            "resource": {
+                "reference": "#core-encounter-episode-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-episode-of-care-match-9",
+            "resource": {
+                "reference": "#encounter-episode-of-care-match-9"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-identifier-match-10",
+            "resource": {
+                "reference": "#encounter-identifier-match-10"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-identifier-other-11",
+            "resource": {
+                "reference": "#encounter-identifier-other-11"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-length-match-12",
+            "resource": {
+                "reference": "#encounter-length-match-12"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-encounter-location-target",
+            "resource": {
+                "reference": "#core-encounter-location-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-location-match-13",
+            "resource": {
+                "reference": "#encounter-location-match-13"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-location-period-match-14",
+            "resource": {
+                "reference": "#encounter-location-period-match-14"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-encounter-partof-target",
+            "resource": {
+                "reference": "#core-encounter-partof-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-part-of-match-15",
+            "resource": {
+                "reference": "#encounter-part-of-match-15"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-encounter-participant-target",
+            "resource": {
+                "reference": "#core-encounter-participant-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-participant-match-16",
+            "resource": {
+                "reference": "#encounter-participant-match-16"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-participant-type-match-17",
+            "resource": {
+                "reference": "#encounter-participant-type-match-17"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-participant-type-other-18",
+            "resource": {
+                "reference": "#encounter-participant-type-other-18"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-encounter-patient-target",
+            "resource": {
+                "reference": "#core-encounter-patient-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-patient-match-19",
+            "resource": {
+                "reference": "#encounter-patient-match-19"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-encounter-practitioner-target",
+            "resource": {
+                "reference": "#core-encounter-practitioner-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-practitioner-match-20",
+            "resource": {
+                "reference": "#encounter-practitioner-match-20"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-reason-code-match-21",
+            "resource": {
+                "reference": "#encounter-reason-code-match-21"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-reason-code-other-22",
+            "resource": {
+                "reference": "#encounter-reason-code-other-22"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-encounter-reasonref-target",
+            "resource": {
+                "reference": "#core-encounter-reasonref-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-reason-reference-match-23",
+            "resource": {
+                "reference": "#encounter-reason-reference-match-23"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-encounter-serviceprovider-target",
+            "resource": {
+                "reference": "#core-encounter-serviceprovider-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-service-provider-match-24",
+            "resource": {
+                "reference": "#encounter-service-provider-match-24"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-special-arrangement-match-25",
+            "resource": {
+                "reference": "#encounter-special-arrangement-match-25"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-special-arrangement-other-26",
+            "resource": {
+                "reference": "#encounter-special-arrangement-other-26"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-status-match-27",
+            "resource": {
+                "reference": "#encounter-status-match-27"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-status-other-28",
+            "resource": {
+                "reference": "#encounter-status-other-28"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-encounter-subject-target",
+            "resource": {
+                "reference": "#core-encounter-subject-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-subject-match-29",
+            "resource": {
+                "reference": "#encounter-subject-match-29"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-type-match-30",
+            "resource": {
+                "reference": "#encounter-type-match-30"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter-type-other-31",
+            "resource": {
+                "reference": "#encounter-type-other-31"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create",
+            "name": "Create Encounter",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-crud-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Encounter",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "01-CreateOK"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read",
+            "name": "Read Encounter",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.id",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "Encounter.id"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.meta.versionId.empty()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "false"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patch",
+            "name": "Patch Encounter",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-patch-doc-2",
+                        "responseId": "patch-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.status",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "onleave"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-update",
+            "name": "Update Encounter",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-crud-create-1-update-src",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.status",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "finished"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Encounter.meta.versionId",
+                        "warningOnly": false,
+                        "operator": "notEquals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "Encounter.meta.versionId"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-delete",
+            "name": "Delete Encounter",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "targetId": "create-response",
+                        "responseId": "read-after-delete"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "05-DeleteThenReadGone"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-search-account",
+            "name": "Search Encounter by account (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Account",
+                        "sourceId": "fixture-core-encounter-account-target",
+                        "responseId": "account-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Account",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "account-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-account-match-2",
+                        "responseId": "account-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "account=core-encounter-account-target&_tag=core-encounter-test&_tag=scope-account"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "account-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "account=Account/core-encounter-account-target&_tag=core-encounter-test&_tag=scope-account"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "account-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-search-appointment",
+            "name": "Search Encounter by appointment (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Appointment",
+                        "sourceId": "fixture-core-encounter-appointment-target",
+                        "responseId": "appointment-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Appointment",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "appointment-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-appointment-match-3",
+                        "responseId": "appointment-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "appointment=core-encounter-appointment-target&_tag=core-encounter-test&_tag=scope-appointment"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "appointment-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "appointment=Appointment/core-encounter-appointment-target&_tag=core-encounter-test&_tag=scope-appointment"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "appointment-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-search-based-on",
+            "name": "Search Encounter by based-on (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ServiceRequest",
+                        "sourceId": "fixture-core-encounter-basedon-target",
+                        "responseId": "based-on-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "ServiceRequest",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "based-on-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-based-on-match-4",
+                        "responseId": "based-on-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "based-on=core-encounter-basedon-target&_tag=core-encounter-test&_tag=scope-based-on"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "based-on-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "based-on=ServiceRequest/core-encounter-basedon-target&_tag=core-encounter-test&_tag=scope-based-on"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "based-on-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-search-class",
+            "name": "Search Encounter by class (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-class-match-5",
+                        "responseId": "class-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-class-other-6",
+                        "responseId": "class-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "class=AMB&_tag=core-encounter-test&_tag=scope-class"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "class-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "class=http://terminology.hl7.org/CodeSystem/v3-ActCode|AMB&_tag=core-encounter-test&_tag=scope-class"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "class-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "class=|AMB&_tag=core-encounter-test&_tag=scope-class"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "class-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "class:not=AMB&_tag=core-encounter-test&_tag=scope-class"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "class-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "10-search-date",
+            "name": "Search Encounter by date (date)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-date-match-7",
+                        "responseId": "date-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "date=2024-02-01&_tag=core-encounter-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "date=ne2024-02-01&_tag=core-encounter-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-ne",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "date=gt2024-01-31&_tag=core-encounter-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-gt-below",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "date=gt2024-02-01&_tag=core-encounter-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-gt-eq",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "date=lt2024-02-02&_tag=core-encounter-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-lt-above",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "date=lt2024-02-01&_tag=core-encounter-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-lt-eq",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "date=ge2024-02-01&_tag=core-encounter-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-ge-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "date=ge2024-02-02&_tag=core-encounter-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-ge-above",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "date=le2024-02-01&_tag=core-encounter-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-le-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "date=le2024-01-31&_tag=core-encounter-test&_tag=scope-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "date-le-below",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "11-search-diagnosis",
+            "name": "Search Encounter by diagnosis (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Condition",
+                        "sourceId": "fixture-core-encounter-diagnosis-target",
+                        "responseId": "diagnosis-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Condition",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "diagnosis-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-diagnosis-match-8",
+                        "responseId": "diagnosis-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "diagnosis=core-encounter-diagnosis-target&_tag=core-encounter-test&_tag=scope-diagnosis"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "diagnosis-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "diagnosis=Condition/core-encounter-diagnosis-target&_tag=core-encounter-test&_tag=scope-diagnosis"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "diagnosis-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "12-search-episode-of-care",
+            "name": "Search Encounter by episode-of-care (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "EpisodeOfCare",
+                        "sourceId": "fixture-core-encounter-episode-target",
+                        "responseId": "episode-of-care-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "EpisodeOfCare",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "episode-of-care-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-episode-of-care-match-9",
+                        "responseId": "episode-of-care-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "episode-of-care=core-encounter-episode-target&_tag=core-encounter-test&_tag=scope-episode-of-care"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "episode-of-care-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "episode-of-care=EpisodeOfCare/core-encounter-episode-target&_tag=core-encounter-test&_tag=scope-episode-of-care"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "episode-of-care-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "13-search-identifier",
+            "name": "Search Encounter by identifier (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-identifier-match-10",
+                        "responseId": "identifier-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-identifier-other-11",
+                        "responseId": "identifier-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "identifier=enc-12345&_tag=core-encounter-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "identifier=http://example.org/enc-id|enc-12345&_tag=core-encounter-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "identifier=|enc-12345&_tag=core-encounter-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "identifier:not=enc-12345&_tag=core-encounter-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "14-search-length",
+            "name": "Search Encounter by length (quantity)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-length-match-12",
+                        "responseId": "length-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "length=45|http://unitsofmeasure.org|min&_tag=core-encounter-test&_tag=scope-length"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "length-value-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "length=45||min&_tag=core-encounter-test&_tag=scope-length"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "length-value-code-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "15-search-location",
+            "name": "Search Encounter by location (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Location",
+                        "sourceId": "fixture-core-encounter-location-target",
+                        "responseId": "location-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Location",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "location-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-location-match-13",
+                        "responseId": "location-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "location=core-encounter-location-target&_tag=core-encounter-test&_tag=scope-location"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "location=Location/core-encounter-location-target&_tag=core-encounter-test&_tag=scope-location"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "16-search-location-period",
+            "name": "Search Encounter by location-period (date)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-location-period-match-14",
+                        "responseId": "location-period-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "location-period=2024-03-01&_tag=core-encounter-test&_tag=scope-location-period"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-period-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "location-period=ne2024-03-01&_tag=core-encounter-test&_tag=scope-location-period"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-period-ne",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "location-period=gt2024-02-29&_tag=core-encounter-test&_tag=scope-location-period"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-period-gt-below",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "location-period=gt2024-03-01&_tag=core-encounter-test&_tag=scope-location-period"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-period-gt-eq",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "location-period=lt2024-03-02&_tag=core-encounter-test&_tag=scope-location-period"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-period-lt-above",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "location-period=lt2024-03-01&_tag=core-encounter-test&_tag=scope-location-period"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-period-lt-eq",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "location-period=ge2024-03-01&_tag=core-encounter-test&_tag=scope-location-period"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-period-ge-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "location-period=ge2024-03-02&_tag=core-encounter-test&_tag=scope-location-period"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-period-ge-above",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "location-period=le2024-03-01&_tag=core-encounter-test&_tag=scope-location-period"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-period-le-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "location-period=le2024-02-29&_tag=core-encounter-test&_tag=scope-location-period"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "location-period-le-below",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "17-search-part-of",
+            "name": "Search Encounter by part-of (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-core-encounter-partof-target",
+                        "responseId": "part-of-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Encounter",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "part-of-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-part-of-match-15",
+                        "responseId": "part-of-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "part-of=core-encounter-partof-target&_tag=core-encounter-test&_tag=scope-part-of"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "part-of-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "part-of=Encounter/core-encounter-partof-target&_tag=core-encounter-test&_tag=scope-part-of"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "part-of-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "18-search-participant",
+            "name": "Search Encounter by participant (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Practitioner",
+                        "sourceId": "fixture-core-encounter-participant-target",
+                        "responseId": "participant-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Practitioner",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "participant-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-participant-match-16",
+                        "responseId": "participant-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "participant=core-encounter-participant-target&_tag=core-encounter-test&_tag=scope-participant"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "participant-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "participant=Practitioner/core-encounter-participant-target&_tag=core-encounter-test&_tag=scope-participant"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "participant-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "19-search-participant-type",
+            "name": "Search Encounter by participant-type (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-participant-type-match-17",
+                        "responseId": "participant-type-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-participant-type-other-18",
+                        "responseId": "participant-type-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "participant-type=PPRF&_tag=core-encounter-test&_tag=scope-participant-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "participant-type-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "participant-type=http://terminology.hl7.org/CodeSystem/v3-ParticipationType|PPRF&_tag=core-encounter-test&_tag=scope-participant-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "participant-type-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "participant-type=|PPRF&_tag=core-encounter-test&_tag=scope-participant-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "participant-type-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "participant-type:not=PPRF&_tag=core-encounter-test&_tag=scope-participant-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "participant-type-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "20-search-patient",
+            "name": "Search Encounter by patient (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-core-encounter-patient-target",
+                        "responseId": "patient-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Patient",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "patient-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-patient-match-19",
+                        "responseId": "patient-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "patient=core-encounter-patient-target&_tag=core-encounter-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "patient=Patient/core-encounter-patient-target&_tag=core-encounter-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "21-search-practitioner",
+            "name": "Search Encounter by practitioner (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Practitioner",
+                        "sourceId": "fixture-core-encounter-practitioner-target",
+                        "responseId": "practitioner-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Practitioner",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "practitioner-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-practitioner-match-20",
+                        "responseId": "practitioner-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "practitioner=core-encounter-practitioner-target&_tag=core-encounter-test&_tag=scope-practitioner"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "practitioner-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "practitioner=Practitioner/core-encounter-practitioner-target&_tag=core-encounter-test&_tag=scope-practitioner"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "practitioner-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "22-search-reason-code",
+            "name": "Search Encounter by reason-code (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-reason-code-match-21",
+                        "responseId": "reason-code-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-reason-code-other-22",
+                        "responseId": "reason-code-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "reason-code=386661006&_tag=core-encounter-test&_tag=scope-reason-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "reason-code-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "reason-code=http://snomed.info/sct|386661006&_tag=core-encounter-test&_tag=scope-reason-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "reason-code-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "reason-code=|386661006&_tag=core-encounter-test&_tag=scope-reason-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "reason-code-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "reason-code:not=386661006&_tag=core-encounter-test&_tag=scope-reason-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "reason-code-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "23-search-reason-reference",
+            "name": "Search Encounter by reason-reference (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Condition",
+                        "sourceId": "fixture-core-encounter-reasonref-target",
+                        "responseId": "reason-reference-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Condition",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "reason-reference-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-reason-reference-match-23",
+                        "responseId": "reason-reference-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "reason-reference=core-encounter-reasonref-target&_tag=core-encounter-test&_tag=scope-reason-reference"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "reason-reference-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "reason-reference=Condition/core-encounter-reasonref-target&_tag=core-encounter-test&_tag=scope-reason-reference"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "reason-reference-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "24-search-service-provider",
+            "name": "Search Encounter by service-provider (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Organization",
+                        "sourceId": "fixture-core-encounter-serviceprovider-target",
+                        "responseId": "service-provider-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Organization",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "service-provider-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-service-provider-match-24",
+                        "responseId": "service-provider-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "service-provider=core-encounter-serviceprovider-target&_tag=core-encounter-test&_tag=scope-service-provider"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "service-provider-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "service-provider=Organization/core-encounter-serviceprovider-target&_tag=core-encounter-test&_tag=scope-service-provider"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "service-provider-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "25-search-special-arrangement",
+            "name": "Search Encounter by special-arrangement (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-special-arrangement-match-25",
+                        "responseId": "special-arrangement-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-special-arrangement-other-26",
+                        "responseId": "special-arrangement-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "special-arrangement=wheel&_tag=core-encounter-test&_tag=scope-special-arrangement"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "special-arrangement-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "special-arrangement=http://terminology.hl7.org/CodeSystem/encounter-special-arrangements|wheel&_tag=core-encounter-test&_tag=scope-special-arrangement"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "special-arrangement-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "special-arrangement=|wheel&_tag=core-encounter-test&_tag=scope-special-arrangement"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "special-arrangement-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "special-arrangement:not=wheel&_tag=core-encounter-test&_tag=scope-special-arrangement"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "special-arrangement-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "26-search-status",
+            "name": "Search Encounter by status (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-status-match-27",
+                        "responseId": "status-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-status-other-28",
+                        "responseId": "status-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "status=in-progress&_tag=core-encounter-test&_tag=scope-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "status-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "status:not=in-progress&_tag=core-encounter-test&_tag=scope-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "status-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "27-search-subject",
+            "name": "Search Encounter by subject (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-core-encounter-subject-target",
+                        "responseId": "subject-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Patient",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "subject-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-subject-match-29",
+                        "responseId": "subject-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "subject=core-encounter-subject-target&_tag=core-encounter-test&_tag=scope-subject"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "subject-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "subject=Patient/core-encounter-subject-target&_tag=core-encounter-test&_tag=scope-subject"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "subject-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "28-search-type",
+            "name": "Search Encounter by type (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-type-match-30",
+                        "responseId": "type-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-encounter-type-other-31",
+                        "responseId": "type-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "type=270427003&_tag=core-encounter-test&_tag=scope-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "type-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "type=http://snomed.info/sct|270427003&_tag=core-encounter-test&_tag=scope-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "type-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "type=|270427003&_tag=core-encounter-test&_tag=scope-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "type-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "params": "type:not=270427003&_tag=core-encounter-test&_tag=scope-type"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "type-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Encounter",
+                    "params": "_tag=core-encounter-test",
+                    "description": "Delete Encounter resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

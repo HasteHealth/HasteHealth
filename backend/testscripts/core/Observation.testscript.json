@@ -1,0 +1,4820 @@
+{
+    "id": "core-observation",
+    "url": "https://haste.health/fhir/TestScript/core-observation",
+    "title": "Core Observation TestScript",
+    "name": "Core Observation TestScript",
+    "status": "active",
+    "description": "CRUD and search parameter coverage for the Observation resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ],
+                "text": "Body Weight"
+            },
+            "id": "crud-create-1",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patch-doc-2",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAicmVwbGFjZSIsICJwYXRoIjogIi9zdGF0dXMiLCAidmFsdWUiOiAicHJlbGltaW5hcnkifV0="
+        },
+        {
+            "status": "amended",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ],
+                "text": "Body Weight"
+            },
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    }
+                ]
+            },
+            "id": "crud-create-1-update-src"
+        },
+        {
+            "id": "core-observation-basedon-target",
+            "resourceType": "ServiceRequest",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    }
+                ]
+            },
+            "status": "active",
+            "intent": "order",
+            "code": {
+                "text": "Target"
+            },
+            "subject": {
+                "reference": "Patient/core-observation-basedon-subject"
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "basedOn": [
+                {
+                    "reference": "ServiceRequest/core-observation-basedon-target"
+                }
+            ],
+            "id": "observation-based-on-match-2",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-based-on"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "vital-signs"
+                        }
+                    ]
+                }
+            ],
+            "id": "observation-category-match-3",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-category"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "laboratory"
+                        }
+                    ]
+                }
+            ],
+            "id": "observation-category-other-4",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-category"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "id": "observation-code-match-5",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-code"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "8302-2"
+                    }
+                ]
+            },
+            "id": "observation-code-other-6",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-code"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "component": [
+                {
+                    "code": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "8480-6"
+                            }
+                        ]
+                    },
+                    "valueString": "x"
+                }
+            ],
+            "id": "observation-combo-code-match-7",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-combo-code"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "component": [
+                {
+                    "code": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "8462-4"
+                            }
+                        ]
+                    },
+                    "valueString": "x"
+                }
+            ],
+            "id": "observation-combo-code-other-8",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-combo-code"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "dataAbsentReason": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                        "code": "unknown"
+                    }
+                ]
+            },
+            "id": "observation-combo-data-absent-reason-match-9",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-combo-data-absent-reason"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "dataAbsentReason": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                        "code": "masked"
+                    }
+                ]
+            },
+            "id": "observation-combo-data-absent-reason-other-10",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-combo-data-absent-reason"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "valueCodeableConcept": {
+                "coding": [
+                    {
+                        "system": "http://example.org/obs-values",
+                        "code": "positive"
+                    }
+                ]
+            },
+            "id": "observation-combo-value-concept-match-11",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-combo-value-concept"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "valueCodeableConcept": {
+                "coding": [
+                    {
+                        "system": "http://example.org/obs-values",
+                        "code": "negative"
+                    }
+                ]
+            },
+            "id": "observation-combo-value-concept-other-12",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-combo-value-concept"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "valueQuantity": {
+                "value": 62.5,
+                "unit": "kg",
+                "system": "http://unitsofmeasure.org",
+                "code": "kg"
+            },
+            "id": "observation-combo-value-quantity-match-13",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-combo-value-quantity"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "component": [
+                {
+                    "code": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "8480-6"
+                            }
+                        ]
+                    },
+                    "valueString": "x"
+                }
+            ],
+            "id": "observation-component-code-match-14",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-component-code"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "component": [
+                {
+                    "code": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "8462-4"
+                            }
+                        ]
+                    },
+                    "valueString": "x"
+                }
+            ],
+            "id": "observation-component-code-other-15",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-component-code"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "component": [
+                {
+                    "code": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "8480-6"
+                            }
+                        ]
+                    },
+                    "dataAbsentReason": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                                "code": "unknown"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "id": "observation-component-data-absent-reason-match-16",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-component-data-absent-reason"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "component": [
+                {
+                    "code": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "8480-6"
+                            }
+                        ]
+                    },
+                    "dataAbsentReason": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                                "code": "masked"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "id": "observation-component-data-absent-reason-other-17",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-component-data-absent-reason"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "component": [
+                {
+                    "code": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "8480-6"
+                            }
+                        ]
+                    },
+                    "valueCodeableConcept": {
+                        "coding": [
+                            {
+                                "system": "http://example.org/obs-values",
+                                "code": "positive"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "id": "observation-component-value-concept-match-18",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-component-value-concept"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "component": [
+                {
+                    "code": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "8480-6"
+                            }
+                        ]
+                    },
+                    "valueCodeableConcept": {
+                        "coding": [
+                            {
+                                "system": "http://example.org/obs-values",
+                                "code": "negative"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "id": "observation-component-value-concept-other-19",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-component-value-concept"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "component": [
+                {
+                    "code": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "8480-6"
+                            }
+                        ]
+                    },
+                    "valueQuantity": {
+                        "value": 120.0,
+                        "unit": "mmHg",
+                        "system": "http://unitsofmeasure.org",
+                        "code": "mm[Hg]"
+                    }
+                }
+            ],
+            "id": "observation-component-value-quantity-match-20",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-component-value-quantity"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "dataAbsentReason": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                        "code": "unknown"
+                    }
+                ]
+            },
+            "id": "observation-data-absent-reason-match-21",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-data-absent-reason"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "dataAbsentReason": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                        "code": "masked"
+                    }
+                ]
+            },
+            "id": "observation-data-absent-reason-other-22",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-data-absent-reason"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-observation-derivedfrom-target",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Target"
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "derivedFrom": [
+                {
+                    "reference": "Observation/core-observation-derivedfrom-target"
+                }
+            ],
+            "id": "observation-derived-from-match-23",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-derived-from"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-observation-device-target",
+            "resourceType": "Device",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "device": {
+                "reference": "Device/core-observation-device-target"
+            },
+            "id": "observation-device-match-24",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-device"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-observation-encounter-target",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    }
+                ]
+            },
+            "status": "finished",
+            "class": {
+                "code": "AMB"
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "encounter": {
+                "reference": "Encounter/core-observation-encounter-target"
+            },
+            "id": "observation-encounter-match-25",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-encounter"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-observation-focus-target",
+            "resourceType": "Condition",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/core-observation-focus-subject"
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "focus": [
+                {
+                    "reference": "Condition/core-observation-focus-target"
+                }
+            ],
+            "id": "observation-focus-match-26",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-focus"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-observation-hasmember-target",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Target"
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "hasMember": [
+                {
+                    "reference": "Observation/core-observation-hasmember-target"
+                }
+            ],
+            "id": "observation-has-member-match-27",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-has-member"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "http://example.org/obs-id",
+                    "value": "obs-12345"
+                }
+            ],
+            "id": "observation-identifier-match-28",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "identifier": [
+                {
+                    "system": "http://example.org/obs-id",
+                    "value": "obs-99999"
+                }
+            ],
+            "id": "observation-identifier-other-29",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "method": {
+                "coding": [
+                    {
+                        "system": "http://example.org/methods",
+                        "code": "auscultation"
+                    }
+                ]
+            },
+            "id": "observation-method-match-30",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-method"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "method": {
+                "coding": [
+                    {
+                        "system": "http://example.org/methods",
+                        "code": "palpation"
+                    }
+                ]
+            },
+            "id": "observation-method-other-31",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-method"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-observation-partof-target",
+            "resourceType": "Procedure",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    }
+                ]
+            },
+            "status": "completed",
+            "code": {
+                "text": "Target"
+            },
+            "subject": {
+                "reference": "Patient/core-observation-partof-subject"
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "partOf": [
+                {
+                    "reference": "Procedure/core-observation-partof-target"
+                }
+            ],
+            "id": "observation-part-of-match-32",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-part-of"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-observation-patient-target",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Target"
+                }
+            ]
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/core-observation-patient-target"
+            },
+            "id": "observation-patient-match-33",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-patient"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-observation-performer-target",
+            "resourceType": "Practitioner",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Target"
+                }
+            ]
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "performer": [
+                {
+                    "reference": "Practitioner/core-observation-performer-target"
+                }
+            ],
+            "id": "observation-performer-match-34",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-performer"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-observation-specimen-target",
+            "resourceType": "Specimen",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "specimen": {
+                "reference": "Specimen/core-observation-specimen-target"
+            },
+            "id": "observation-specimen-match-35",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-specimen"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "id": "observation-status-match-36",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-status"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "preliminary",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "id": "observation-status-other-37",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-status"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-observation-subject-target",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Target"
+                }
+            ]
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/core-observation-subject-target"
+            },
+            "id": "observation-subject-match-38",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-subject"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "valueCodeableConcept": {
+                "coding": [
+                    {
+                        "system": "http://example.org/obs-values",
+                        "code": "positive"
+                    }
+                ]
+            },
+            "id": "observation-value-concept-match-39",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-value-concept"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "valueCodeableConcept": {
+                "coding": [
+                    {
+                        "system": "http://example.org/obs-values",
+                        "code": "negative"
+                    }
+                ]
+            },
+            "id": "observation-value-concept-other-40",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-value-concept"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "valueDateTime": "2024-03-10",
+            "id": "observation-value-date-match-41",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-value-date"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "valueQuantity": {
+                "value": 70.2,
+                "unit": "kg",
+                "system": "http://unitsofmeasure.org",
+                "code": "kg"
+            },
+            "id": "observation-value-quantity-match-42",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-value-quantity"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "valueString": "Normalfindings",
+            "id": "observation-value-string-match-43",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-value-string"
+                    }
+                ]
+            }
+        },
+        {
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "id": "observation-value-string-missing-44",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-observation-test"
+                    },
+                    {
+                        "code": "scope-value-string"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-crud-create-1",
+            "resource": {
+                "reference": "#crud-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patch-doc-2",
+            "resource": {
+                "reference": "#patch-doc-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-crud-create-1-update-src",
+            "resource": {
+                "reference": "#crud-create-1-update-src"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-observation-basedon-target",
+            "resource": {
+                "reference": "#core-observation-basedon-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-based-on-match-2",
+            "resource": {
+                "reference": "#observation-based-on-match-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-category-match-3",
+            "resource": {
+                "reference": "#observation-category-match-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-category-other-4",
+            "resource": {
+                "reference": "#observation-category-other-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-code-match-5",
+            "resource": {
+                "reference": "#observation-code-match-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-code-other-6",
+            "resource": {
+                "reference": "#observation-code-other-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-combo-code-match-7",
+            "resource": {
+                "reference": "#observation-combo-code-match-7"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-combo-code-other-8",
+            "resource": {
+                "reference": "#observation-combo-code-other-8"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-combo-data-absent-reason-match-9",
+            "resource": {
+                "reference": "#observation-combo-data-absent-reason-match-9"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-combo-data-absent-reason-other-10",
+            "resource": {
+                "reference": "#observation-combo-data-absent-reason-other-10"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-combo-value-concept-match-11",
+            "resource": {
+                "reference": "#observation-combo-value-concept-match-11"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-combo-value-concept-other-12",
+            "resource": {
+                "reference": "#observation-combo-value-concept-other-12"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-combo-value-quantity-match-13",
+            "resource": {
+                "reference": "#observation-combo-value-quantity-match-13"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-component-code-match-14",
+            "resource": {
+                "reference": "#observation-component-code-match-14"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-component-code-other-15",
+            "resource": {
+                "reference": "#observation-component-code-other-15"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-component-data-absent-reason-match-16",
+            "resource": {
+                "reference": "#observation-component-data-absent-reason-match-16"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-component-data-absent-reason-other-17",
+            "resource": {
+                "reference": "#observation-component-data-absent-reason-other-17"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-component-value-concept-match-18",
+            "resource": {
+                "reference": "#observation-component-value-concept-match-18"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-component-value-concept-other-19",
+            "resource": {
+                "reference": "#observation-component-value-concept-other-19"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-component-value-quantity-match-20",
+            "resource": {
+                "reference": "#observation-component-value-quantity-match-20"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-data-absent-reason-match-21",
+            "resource": {
+                "reference": "#observation-data-absent-reason-match-21"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-data-absent-reason-other-22",
+            "resource": {
+                "reference": "#observation-data-absent-reason-other-22"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-observation-derivedfrom-target",
+            "resource": {
+                "reference": "#core-observation-derivedfrom-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-derived-from-match-23",
+            "resource": {
+                "reference": "#observation-derived-from-match-23"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-observation-device-target",
+            "resource": {
+                "reference": "#core-observation-device-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-device-match-24",
+            "resource": {
+                "reference": "#observation-device-match-24"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-observation-encounter-target",
+            "resource": {
+                "reference": "#core-observation-encounter-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-encounter-match-25",
+            "resource": {
+                "reference": "#observation-encounter-match-25"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-observation-focus-target",
+            "resource": {
+                "reference": "#core-observation-focus-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-focus-match-26",
+            "resource": {
+                "reference": "#observation-focus-match-26"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-observation-hasmember-target",
+            "resource": {
+                "reference": "#core-observation-hasmember-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-has-member-match-27",
+            "resource": {
+                "reference": "#observation-has-member-match-27"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-identifier-match-28",
+            "resource": {
+                "reference": "#observation-identifier-match-28"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-identifier-other-29",
+            "resource": {
+                "reference": "#observation-identifier-other-29"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-method-match-30",
+            "resource": {
+                "reference": "#observation-method-match-30"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-method-other-31",
+            "resource": {
+                "reference": "#observation-method-other-31"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-observation-partof-target",
+            "resource": {
+                "reference": "#core-observation-partof-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-part-of-match-32",
+            "resource": {
+                "reference": "#observation-part-of-match-32"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-observation-patient-target",
+            "resource": {
+                "reference": "#core-observation-patient-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-patient-match-33",
+            "resource": {
+                "reference": "#observation-patient-match-33"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-observation-performer-target",
+            "resource": {
+                "reference": "#core-observation-performer-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-performer-match-34",
+            "resource": {
+                "reference": "#observation-performer-match-34"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-observation-specimen-target",
+            "resource": {
+                "reference": "#core-observation-specimen-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-specimen-match-35",
+            "resource": {
+                "reference": "#observation-specimen-match-35"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-status-match-36",
+            "resource": {
+                "reference": "#observation-status-match-36"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-status-other-37",
+            "resource": {
+                "reference": "#observation-status-other-37"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-observation-subject-target",
+            "resource": {
+                "reference": "#core-observation-subject-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-subject-match-38",
+            "resource": {
+                "reference": "#observation-subject-match-38"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-value-concept-match-39",
+            "resource": {
+                "reference": "#observation-value-concept-match-39"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-value-concept-other-40",
+            "resource": {
+                "reference": "#observation-value-concept-other-40"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-value-date-match-41",
+            "resource": {
+                "reference": "#observation-value-date-match-41"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-value-quantity-match-42",
+            "resource": {
+                "reference": "#observation-value-quantity-match-42"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-value-string-match-43",
+            "resource": {
+                "reference": "#observation-value-string-match-43"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-value-string-missing-44",
+            "resource": {
+                "reference": "#observation-value-string-missing-44"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create",
+            "name": "Create Observation",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-crud-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Observation",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "01-CreateOK"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read",
+            "name": "Read Observation",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Observation.id",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "Observation.id"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Observation.meta.versionId.empty()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "false"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patch",
+            "name": "Patch Observation",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-patch-doc-2",
+                        "responseId": "patch-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Observation.status",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "preliminary"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-update",
+            "name": "Update Observation",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-crud-create-1-update-src",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Observation.status",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "amended"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Observation.meta.versionId",
+                        "warningOnly": false,
+                        "operator": "notEquals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "Observation.meta.versionId"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-delete",
+            "name": "Delete Observation",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "targetId": "create-response",
+                        "responseId": "read-after-delete"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "05-DeleteThenReadGone"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-search-based-on",
+            "name": "Search Observation by based-on (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "ServiceRequest",
+                        "sourceId": "fixture-core-observation-basedon-target",
+                        "responseId": "based-on-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "ServiceRequest",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "based-on-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-based-on-match-2",
+                        "responseId": "based-on-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "based-on=core-observation-basedon-target&_tag=core-observation-test&_tag=scope-based-on"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "based-on-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "based-on=ServiceRequest/core-observation-basedon-target&_tag=core-observation-test&_tag=scope-based-on"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "based-on-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-search-category",
+            "name": "Search Observation by category (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-category-match-3",
+                        "responseId": "category-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-category-other-4",
+                        "responseId": "category-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "category=vital-signs&_tag=core-observation-test&_tag=scope-category"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "category-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs&_tag=core-observation-test&_tag=scope-category"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "category-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "category=|vital-signs&_tag=core-observation-test&_tag=scope-category"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "category-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "category:not=vital-signs&_tag=core-observation-test&_tag=scope-category"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "category-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-search-code",
+            "name": "Search Observation by code (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-code-match-5",
+                        "responseId": "code-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-code-other-6",
+                        "responseId": "code-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "code=29463-7&_tag=core-observation-test&_tag=scope-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "code-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "code=http://loinc.org|29463-7&_tag=core-observation-test&_tag=scope-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "code-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "code=|29463-7&_tag=core-observation-test&_tag=scope-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "code-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "code:not=29463-7&_tag=core-observation-test&_tag=scope-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "code-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-search-combo-code",
+            "name": "Search Observation by combo-code (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-combo-code-match-7",
+                        "responseId": "combo-code-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-combo-code-other-8",
+                        "responseId": "combo-code-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "combo-code=8480-6&_tag=core-observation-test&_tag=scope-combo-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "combo-code-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "combo-code=http://loinc.org|8480-6&_tag=core-observation-test&_tag=scope-combo-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "combo-code-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "combo-code=|8480-6&_tag=core-observation-test&_tag=scope-combo-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "combo-code-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "10-search-combo-data-absent-reason",
+            "name": "Search Observation by combo-data-absent-reason (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-combo-data-absent-reason-match-9",
+                        "responseId": "combo-data-absent-reason-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-combo-data-absent-reason-other-10",
+                        "responseId": "combo-data-absent-reason-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "combo-data-absent-reason=unknown&_tag=core-observation-test&_tag=scope-combo-data-absent-reason"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "combo-data-absent-reason-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "combo-data-absent-reason=http://terminology.hl7.org/CodeSystem/data-absent-reason|unknown&_tag=core-observation-test&_tag=scope-combo-data-absent-reason"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "combo-data-absent-reason-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "combo-data-absent-reason=|unknown&_tag=core-observation-test&_tag=scope-combo-data-absent-reason"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "combo-data-absent-reason-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "11-search-combo-value-concept",
+            "name": "Search Observation by combo-value-concept (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-combo-value-concept-match-11",
+                        "responseId": "combo-value-concept-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-combo-value-concept-other-12",
+                        "responseId": "combo-value-concept-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "combo-value-concept=positive&_tag=core-observation-test&_tag=scope-combo-value-concept"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "combo-value-concept-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "combo-value-concept=http://example.org/obs-values|positive&_tag=core-observation-test&_tag=scope-combo-value-concept"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "combo-value-concept-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "combo-value-concept=|positive&_tag=core-observation-test&_tag=scope-combo-value-concept"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "combo-value-concept-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "12-search-combo-value-quantity",
+            "name": "Search Observation by combo-value-quantity (quantity)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-combo-value-quantity-match-13",
+                        "responseId": "combo-value-quantity-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "combo-value-quantity=62.5|http://unitsofmeasure.org|kg&_tag=core-observation-test&_tag=scope-combo-value-quantity"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "combo-value-quantity-value-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "combo-value-quantity=62.5||kg&_tag=core-observation-test&_tag=scope-combo-value-quantity"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "combo-value-quantity-value-code-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "13-search-component-code",
+            "name": "Search Observation by component-code (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-component-code-match-14",
+                        "responseId": "component-code-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-component-code-other-15",
+                        "responseId": "component-code-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "component-code=8480-6&_tag=core-observation-test&_tag=scope-component-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "component-code-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "component-code=http://loinc.org|8480-6&_tag=core-observation-test&_tag=scope-component-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "component-code-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "component-code=|8480-6&_tag=core-observation-test&_tag=scope-component-code"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "component-code-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "14-search-component-data-absent-reason",
+            "name": "Search Observation by component-data-absent-reason (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-component-data-absent-reason-match-16",
+                        "responseId": "component-data-absent-reason-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-component-data-absent-reason-other-17",
+                        "responseId": "component-data-absent-reason-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "component-data-absent-reason=unknown&_tag=core-observation-test&_tag=scope-component-data-absent-reason"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "component-data-absent-reason-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "component-data-absent-reason=http://terminology.hl7.org/CodeSystem/data-absent-reason|unknown&_tag=core-observation-test&_tag=scope-component-data-absent-reason"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "component-data-absent-reason-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "component-data-absent-reason=|unknown&_tag=core-observation-test&_tag=scope-component-data-absent-reason"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "component-data-absent-reason-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "15-search-component-value-concept",
+            "name": "Search Observation by component-value-concept (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-component-value-concept-match-18",
+                        "responseId": "component-value-concept-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-component-value-concept-other-19",
+                        "responseId": "component-value-concept-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "component-value-concept=positive&_tag=core-observation-test&_tag=scope-component-value-concept"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "component-value-concept-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "component-value-concept=http://example.org/obs-values|positive&_tag=core-observation-test&_tag=scope-component-value-concept"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "component-value-concept-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "component-value-concept=|positive&_tag=core-observation-test&_tag=scope-component-value-concept"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "component-value-concept-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "16-search-component-value-quantity",
+            "name": "Search Observation by component-value-quantity (quantity)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-component-value-quantity-match-20",
+                        "responseId": "component-value-quantity-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "component-value-quantity=120|http://unitsofmeasure.org|mm[Hg]&_tag=core-observation-test&_tag=scope-component-value-quantity"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "component-value-quantity-value-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "component-value-quantity=120||mm[Hg]&_tag=core-observation-test&_tag=scope-component-value-quantity"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "component-value-quantity-value-code-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "17-search-data-absent-reason",
+            "name": "Search Observation by data-absent-reason (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-data-absent-reason-match-21",
+                        "responseId": "data-absent-reason-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-data-absent-reason-other-22",
+                        "responseId": "data-absent-reason-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "data-absent-reason=unknown&_tag=core-observation-test&_tag=scope-data-absent-reason"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "data-absent-reason-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "data-absent-reason=http://terminology.hl7.org/CodeSystem/data-absent-reason|unknown&_tag=core-observation-test&_tag=scope-data-absent-reason"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "data-absent-reason-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "data-absent-reason=|unknown&_tag=core-observation-test&_tag=scope-data-absent-reason"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "data-absent-reason-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "data-absent-reason:not=unknown&_tag=core-observation-test&_tag=scope-data-absent-reason"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "data-absent-reason-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "18-search-derived-from",
+            "name": "Search Observation by derived-from (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-core-observation-derivedfrom-target",
+                        "responseId": "derived-from-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Observation",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "derived-from-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-derived-from-match-23",
+                        "responseId": "derived-from-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "derived-from=core-observation-derivedfrom-target&_tag=core-observation-test&_tag=scope-derived-from"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "derived-from-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "derived-from=Observation/core-observation-derivedfrom-target&_tag=core-observation-test&_tag=scope-derived-from"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "derived-from-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "19-search-device",
+            "name": "Search Observation by device (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Device",
+                        "sourceId": "fixture-core-observation-device-target",
+                        "responseId": "device-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Device",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "device-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-device-match-24",
+                        "responseId": "device-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "device=core-observation-device-target&_tag=core-observation-test&_tag=scope-device"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "device-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "device=Device/core-observation-device-target&_tag=core-observation-test&_tag=scope-device"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "device-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "20-search-encounter",
+            "name": "Search Observation by encounter (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "sourceId": "fixture-core-observation-encounter-target",
+                        "responseId": "encounter-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Encounter",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "encounter-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-encounter-match-25",
+                        "responseId": "encounter-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "encounter=core-observation-encounter-target&_tag=core-observation-test&_tag=scope-encounter"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "encounter-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "encounter=Encounter/core-observation-encounter-target&_tag=core-observation-test&_tag=scope-encounter"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "encounter-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "21-search-focus",
+            "name": "Search Observation by focus (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Condition",
+                        "sourceId": "fixture-core-observation-focus-target",
+                        "responseId": "focus-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Condition",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "focus-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-focus-match-26",
+                        "responseId": "focus-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "focus=core-observation-focus-target&_tag=core-observation-test&_tag=scope-focus"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "focus-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "focus=Condition/core-observation-focus-target&_tag=core-observation-test&_tag=scope-focus"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "focus-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "22-search-has-member",
+            "name": "Search Observation by has-member (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-core-observation-hasmember-target",
+                        "responseId": "has-member-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Observation",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "has-member-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-has-member-match-27",
+                        "responseId": "has-member-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "has-member=core-observation-hasmember-target&_tag=core-observation-test&_tag=scope-has-member"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "has-member-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "has-member=Observation/core-observation-hasmember-target&_tag=core-observation-test&_tag=scope-has-member"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "has-member-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "23-search-identifier",
+            "name": "Search Observation by identifier (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-identifier-match-28",
+                        "responseId": "identifier-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-identifier-other-29",
+                        "responseId": "identifier-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "identifier=obs-12345&_tag=core-observation-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "identifier=http://example.org/obs-id|obs-12345&_tag=core-observation-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "identifier=|obs-12345&_tag=core-observation-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "identifier:not=obs-12345&_tag=core-observation-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "24-search-method",
+            "name": "Search Observation by method (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-method-match-30",
+                        "responseId": "method-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-method-other-31",
+                        "responseId": "method-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "method=auscultation&_tag=core-observation-test&_tag=scope-method"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "method-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "method=http://example.org/methods|auscultation&_tag=core-observation-test&_tag=scope-method"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "method-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "method=|auscultation&_tag=core-observation-test&_tag=scope-method"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "method-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "method:not=auscultation&_tag=core-observation-test&_tag=scope-method"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "method-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "25-search-part-of",
+            "name": "Search Observation by part-of (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Procedure",
+                        "sourceId": "fixture-core-observation-partof-target",
+                        "responseId": "part-of-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Procedure",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "part-of-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-part-of-match-32",
+                        "responseId": "part-of-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "part-of=core-observation-partof-target&_tag=core-observation-test&_tag=scope-part-of"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "part-of-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "part-of=Procedure/core-observation-partof-target&_tag=core-observation-test&_tag=scope-part-of"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "part-of-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "26-search-patient",
+            "name": "Search Observation by patient (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-core-observation-patient-target",
+                        "responseId": "patient-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Patient",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "patient-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-patient-match-33",
+                        "responseId": "patient-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "patient=core-observation-patient-target&_tag=core-observation-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "patient=Patient/core-observation-patient-target&_tag=core-observation-test&_tag=scope-patient"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "patient-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "27-search-performer",
+            "name": "Search Observation by performer (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Practitioner",
+                        "sourceId": "fixture-core-observation-performer-target",
+                        "responseId": "performer-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Practitioner",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "performer-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-performer-match-34",
+                        "responseId": "performer-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "performer=core-observation-performer-target&_tag=core-observation-test&_tag=scope-performer"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "performer-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "performer=Practitioner/core-observation-performer-target&_tag=core-observation-test&_tag=scope-performer"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "performer-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "28-search-specimen",
+            "name": "Search Observation by specimen (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Specimen",
+                        "sourceId": "fixture-core-observation-specimen-target",
+                        "responseId": "specimen-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Specimen",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "specimen-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-specimen-match-35",
+                        "responseId": "specimen-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "specimen=core-observation-specimen-target&_tag=core-observation-test&_tag=scope-specimen"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "specimen-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "specimen=Specimen/core-observation-specimen-target&_tag=core-observation-test&_tag=scope-specimen"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "specimen-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "29-search-status",
+            "name": "Search Observation by status (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-status-match-36",
+                        "responseId": "status-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-status-other-37",
+                        "responseId": "status-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "status=final&_tag=core-observation-test&_tag=scope-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "status-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "status:not=final&_tag=core-observation-test&_tag=scope-status"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "status-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "30-search-subject",
+            "name": "Search Observation by subject (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-core-observation-subject-target",
+                        "responseId": "subject-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Patient",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "subject-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-subject-match-38",
+                        "responseId": "subject-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "subject=core-observation-subject-target&_tag=core-observation-test&_tag=scope-subject"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "subject-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "subject=Patient/core-observation-subject-target&_tag=core-observation-test&_tag=scope-subject"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "subject-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "31-search-value-concept",
+            "name": "Search Observation by value-concept (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-value-concept-match-39",
+                        "responseId": "value-concept-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-value-concept-other-40",
+                        "responseId": "value-concept-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-concept=positive&_tag=core-observation-test&_tag=scope-value-concept"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-concept-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-concept=http://example.org/obs-values|positive&_tag=core-observation-test&_tag=scope-value-concept"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-concept-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-concept=|positive&_tag=core-observation-test&_tag=scope-value-concept"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-concept-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-concept:not=positive&_tag=core-observation-test&_tag=scope-value-concept"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-concept-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "32-search-value-date",
+            "name": "Search Observation by value-date (date)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-value-date-match-41",
+                        "responseId": "value-date-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-date=2024-03-10&_tag=core-observation-test&_tag=scope-value-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-date-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-date=ne2024-03-10&_tag=core-observation-test&_tag=scope-value-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-date-ne",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-date=gt2024-03-09&_tag=core-observation-test&_tag=scope-value-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-date-gt-below",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-date=gt2024-03-10&_tag=core-observation-test&_tag=scope-value-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-date-gt-eq",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-date=lt2024-03-11&_tag=core-observation-test&_tag=scope-value-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-date-lt-above",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-date=lt2024-03-10&_tag=core-observation-test&_tag=scope-value-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-date-lt-eq",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-date=ge2024-03-10&_tag=core-observation-test&_tag=scope-value-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-date-ge-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-date=ge2024-03-11&_tag=core-observation-test&_tag=scope-value-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-date-ge-above",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-date=le2024-03-10&_tag=core-observation-test&_tag=scope-value-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-date-le-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-date=le2024-03-09&_tag=core-observation-test&_tag=scope-value-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-date-le-below",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "33-search-value-quantity",
+            "name": "Search Observation by value-quantity (quantity)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-value-quantity-match-42",
+                        "responseId": "value-quantity-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=70.2|http://unitsofmeasure.org|kg&_tag=core-observation-test&_tag=scope-value-quantity"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-quantity-value-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-quantity=70.2||kg&_tag=core-observation-test&_tag=scope-value-quantity"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-quantity-value-code-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "34-search-value-string",
+            "name": "Search Observation by value-string (string)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-value-string-match-43",
+                        "responseId": "value-string-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-string=Normalf&_tag=core-observation-test&_tag=scope-value-string"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-string-prefix-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-string:exact=Normalfindings&_tag=core-observation-test&_tag=scope-value-string"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-string-exact-match",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-string:contains=ormalfinding&_tag=core-observation-test&_tag=scope-value-string"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-string-contains",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "sourceId": "fixture-observation-value-string-missing-44",
+                        "responseId": "value-string-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-string:missing=true&_tag=core-observation-test&_tag=scope-value-string"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-string-missing-true",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Observation",
+                        "params": "value-string:missing=false&_tag=core-observation-test&_tag=scope-value-string"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "value-string-missing-false",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Observation",
+                    "params": "_tag=core-observation-test",
+                    "description": "Delete Observation resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

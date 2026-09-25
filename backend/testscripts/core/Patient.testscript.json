@@ -1,0 +1,4210 @@
+{
+    "id": "core-patient",
+    "url": "https://haste.health/fhir/TestScript/core-patient",
+    "title": "Core Patient TestScript",
+    "name": "Core Patient TestScript",
+    "status": "active",
+    "description": "CRUD and search parameter coverage for the Patient resource.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "name": [
+                {
+                    "family": "Chalmers",
+                    "given": [
+                        "Peter"
+                    ]
+                }
+            ],
+            "gender": "male",
+            "id": "crud-create-1",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patch-doc-2",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAicmVwbGFjZSIsICJwYXRoIjogIi9nZW5kZXIiLCAidmFsdWUiOiAiZmVtYWxlIn1d"
+        },
+        {
+            "name": [
+                {
+                    "family": "Chalmers-Updated",
+                    "given": [
+                        "Peter"
+                    ]
+                }
+            ],
+            "gender": "male",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    }
+                ]
+            },
+            "id": "crud-create-1-update-src"
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "active": true,
+            "id": "patient-active-match-2",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-active"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "active": false,
+            "id": "patient-active-other-3",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-active"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "address": [
+                {
+                    "line": [
+                        "534 Erewhon St"
+                    ],
+                    "city": "PleasantVille",
+                    "state": "Vic",
+                    "postalCode": "3999"
+                }
+            ],
+            "id": "patient-address-match-4",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-address"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "id": "patient-address-missing-5",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-address"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "address": [
+                {
+                    "city": "Pleasantville"
+                }
+            ],
+            "id": "patient-address-city-match-6",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-address-city"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "id": "patient-address-city-missing-7",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-address-city"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "address": [
+                {
+                    "country": "Atlantisland"
+                }
+            ],
+            "id": "patient-address-country-match-8",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-address-country"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "id": "patient-address-country-missing-9",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-address-country"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "address": [
+                {
+                    "postalCode": "301250"
+                }
+            ],
+            "id": "patient-address-postalcode-match-10",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-address-postalcode"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "id": "patient-address-postalcode-missing-11",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-address-postalcode"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "address": [
+                {
+                    "state": "Victorialand"
+                }
+            ],
+            "id": "patient-address-state-match-12",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-address-state"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "id": "patient-address-state-missing-13",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-address-state"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "address": [
+                {
+                    "use": "home",
+                    "line": [
+                        "1 Test St"
+                    ]
+                }
+            ],
+            "id": "patient-address-use-match-14",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-address-use"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "address": [
+                {
+                    "use": "work",
+                    "line": [
+                        "1 Test St"
+                    ]
+                }
+            ],
+            "id": "patient-address-use-other-15",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-address-use"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "birthDate": "1990-05-15",
+            "id": "patient-birthdate-match-16",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-birthdate"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "deceasedDateTime": "2021-08-01",
+            "id": "patient-death-date-match-17",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-death-date"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "deceasedBoolean": true,
+            "id": "patient-deceased-match-18",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-deceased"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "deceasedBoolean": false,
+            "id": "patient-deceased-other-19",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-deceased"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "telecom": [
+                {
+                    "system": "email",
+                    "value": "peter.chalmers@example.com"
+                }
+            ],
+            "id": "patient-email-match-20",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-email"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "telecom": [
+                {
+                    "system": "email",
+                    "value": "other@example.com"
+                }
+            ],
+            "id": "patient-email-other-21",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-email"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Chalmerston"
+                }
+            ],
+            "id": "patient-family-match-22",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-family"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patient-family-missing-23",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-family"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "gender": "male",
+            "id": "patient-gender-match-24",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-gender"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "gender": "female",
+            "id": "patient-gender-other-25",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-gender"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-patient-gp-target",
+            "resourceType": "Practitioner",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Practitioner-Target"
+                }
+            ]
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "generalPractitioner": [
+                {
+                    "reference": "Practitioner/core-patient-gp-target"
+                }
+            ],
+            "id": "patient-general-practitioner-match-26",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-general-practitioner"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Petersburg"
+                    ]
+                }
+            ],
+            "id": "patient-given-match-27",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-given"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patient-given-missing-28",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-given"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "identifier": [
+                {
+                    "system": "http://example.org/mrn",
+                    "value": "12345"
+                }
+            ],
+            "id": "patient-identifier-match-29",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "identifier": [
+                {
+                    "system": "http://example.org/mrn",
+                    "value": "99999"
+                }
+            ],
+            "id": "patient-identifier-other-30",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "communication": [
+                {
+                    "language": {
+                        "coding": [
+                            {
+                                "system": "urn:ietf:bcp:47",
+                                "code": "en"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "id": "patient-language-match-31",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-language"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "communication": [
+                {
+                    "language": {
+                        "coding": [
+                            {
+                                "system": "urn:ietf:bcp:47",
+                                "code": "fr"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "id": "patient-language-other-32",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-language"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-patient-link-target",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Link-Target"
+                }
+            ]
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "active": true,
+            "link": [
+                {
+                    "other": {
+                        "reference": "Patient/core-patient-link-target"
+                    },
+                    "type": "seealso"
+                }
+            ],
+            "id": "patient-link-match-33",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-link"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Uniquenameford"
+                }
+            ],
+            "id": "patient-name-match-34",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-name"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patient-name-missing-35",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-name"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "core-patient-org-target",
+            "resourceType": "Organization",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    }
+                ]
+            },
+            "name": "Org-Target"
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "managingOrganization": {
+                "reference": "Organization/core-patient-org-target"
+            },
+            "id": "patient-organization-match-36",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-organization"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "telecom": [
+                {
+                    "system": "phone",
+                    "value": "555-0100"
+                }
+            ],
+            "id": "patient-phone-match-37",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-phone"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "telecom": [
+                {
+                    "system": "phone",
+                    "value": "555-0199"
+                }
+            ],
+            "id": "patient-phone-other-38",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-phone"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Smythe"
+                }
+            ],
+            "id": "patient-phonetic-match-39",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-phonetic"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "patient-phonetic-missing-40",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-phonetic"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "telecom": [
+                {
+                    "system": "pager",
+                    "value": "555-8100"
+                }
+            ],
+            "id": "patient-telecom-match-41",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-telecom"
+                    }
+                ]
+            }
+        },
+        {
+            "name": [
+                {
+                    "family": "Base",
+                    "given": [
+                        "Base"
+                    ]
+                }
+            ],
+            "telecom": [
+                {
+                    "system": "pager",
+                    "value": "555-8199"
+                }
+            ],
+            "id": "patient-telecom-other-42",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "core-patient-test"
+                    },
+                    {
+                        "code": "scope-telecom"
+                    }
+                ]
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-crud-create-1",
+            "resource": {
+                "reference": "#crud-create-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patch-doc-2",
+            "resource": {
+                "reference": "#patch-doc-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-crud-create-1-update-src",
+            "resource": {
+                "reference": "#crud-create-1-update-src"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-active-match-2",
+            "resource": {
+                "reference": "#patient-active-match-2"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-active-other-3",
+            "resource": {
+                "reference": "#patient-active-other-3"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-address-match-4",
+            "resource": {
+                "reference": "#patient-address-match-4"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-address-missing-5",
+            "resource": {
+                "reference": "#patient-address-missing-5"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-address-city-match-6",
+            "resource": {
+                "reference": "#patient-address-city-match-6"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-address-city-missing-7",
+            "resource": {
+                "reference": "#patient-address-city-missing-7"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-address-country-match-8",
+            "resource": {
+                "reference": "#patient-address-country-match-8"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-address-country-missing-9",
+            "resource": {
+                "reference": "#patient-address-country-missing-9"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-address-postalcode-match-10",
+            "resource": {
+                "reference": "#patient-address-postalcode-match-10"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-address-postalcode-missing-11",
+            "resource": {
+                "reference": "#patient-address-postalcode-missing-11"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-address-state-match-12",
+            "resource": {
+                "reference": "#patient-address-state-match-12"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-address-state-missing-13",
+            "resource": {
+                "reference": "#patient-address-state-missing-13"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-address-use-match-14",
+            "resource": {
+                "reference": "#patient-address-use-match-14"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-address-use-other-15",
+            "resource": {
+                "reference": "#patient-address-use-other-15"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-birthdate-match-16",
+            "resource": {
+                "reference": "#patient-birthdate-match-16"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-death-date-match-17",
+            "resource": {
+                "reference": "#patient-death-date-match-17"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-deceased-match-18",
+            "resource": {
+                "reference": "#patient-deceased-match-18"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-deceased-other-19",
+            "resource": {
+                "reference": "#patient-deceased-other-19"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-email-match-20",
+            "resource": {
+                "reference": "#patient-email-match-20"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-email-other-21",
+            "resource": {
+                "reference": "#patient-email-other-21"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-family-match-22",
+            "resource": {
+                "reference": "#patient-family-match-22"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-family-missing-23",
+            "resource": {
+                "reference": "#patient-family-missing-23"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-gender-match-24",
+            "resource": {
+                "reference": "#patient-gender-match-24"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-gender-other-25",
+            "resource": {
+                "reference": "#patient-gender-other-25"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-patient-gp-target",
+            "resource": {
+                "reference": "#core-patient-gp-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-general-practitioner-match-26",
+            "resource": {
+                "reference": "#patient-general-practitioner-match-26"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-given-match-27",
+            "resource": {
+                "reference": "#patient-given-match-27"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-given-missing-28",
+            "resource": {
+                "reference": "#patient-given-missing-28"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-identifier-match-29",
+            "resource": {
+                "reference": "#patient-identifier-match-29"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-identifier-other-30",
+            "resource": {
+                "reference": "#patient-identifier-other-30"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-language-match-31",
+            "resource": {
+                "reference": "#patient-language-match-31"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-language-other-32",
+            "resource": {
+                "reference": "#patient-language-other-32"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-patient-link-target",
+            "resource": {
+                "reference": "#core-patient-link-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-link-match-33",
+            "resource": {
+                "reference": "#patient-link-match-33"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-name-match-34",
+            "resource": {
+                "reference": "#patient-name-match-34"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-name-missing-35",
+            "resource": {
+                "reference": "#patient-name-missing-35"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-core-patient-org-target",
+            "resource": {
+                "reference": "#core-patient-org-target"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-organization-match-36",
+            "resource": {
+                "reference": "#patient-organization-match-36"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-phone-match-37",
+            "resource": {
+                "reference": "#patient-phone-match-37"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-phone-other-38",
+            "resource": {
+                "reference": "#patient-phone-other-38"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-phonetic-match-39",
+            "resource": {
+                "reference": "#patient-phonetic-match-39"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-phonetic-missing-40",
+            "resource": {
+                "reference": "#patient-phonetic-missing-40"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-telecom-match-41",
+            "resource": {
+                "reference": "#patient-telecom-match-41"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient-telecom-other-42",
+            "resource": {
+                "reference": "#patient-telecom-other-42"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create",
+            "name": "Create Patient",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-crud-create-1",
+                        "responseId": "create-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Patient",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "01-CreateOK"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-read",
+            "name": "Read Patient",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "targetId": "create-response",
+                        "responseId": "read-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.id",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "Patient.id"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.versionId.empty()",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "false"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patch",
+            "name": "Patch Patient",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-patch-doc-2",
+                        "responseId": "patch-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.gender",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "female"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-update",
+            "name": "Update Patient",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "targetId": "create-response",
+                        "sourceId": "fixture-crud-create-1-update-src",
+                        "responseId": "update-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.name.family[0]",
+                        "warningOnly": false,
+                        "operator": "equals",
+                        "value": "Chalmers-Updated"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.versionId",
+                        "warningOnly": false,
+                        "operator": "notEquals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "Patient.meta.versionId"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-delete",
+            "name": "Delete Patient",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "targetId": "create-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "targetId": "create-response",
+                        "responseId": "read-after-delete"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "OperationOutcome",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "05-DeleteThenReadGone"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-search-active",
+            "name": "Search Patient by active (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-active-match-2",
+                        "responseId": "active-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-active-other-3",
+                        "responseId": "active-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "active=true&_tag=core-patient-test&_tag=scope-active"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "active-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "active:not=true&_tag=core-patient-test&_tag=scope-active"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "active-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-search-address",
+            "name": "Search Patient by address (string)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-address-match-4",
+                        "responseId": "address-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address=Pleasa&_tag=core-patient-test&_tag=scope-address"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-prefix-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address:exact=PleasantVille&_tag=core-patient-test&_tag=scope-address"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-exact-match",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address:contains=leasantVill&_tag=core-patient-test&_tag=scope-address"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-contains",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-address-missing-5",
+                        "responseId": "address-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address:missing=true&_tag=core-patient-test&_tag=scope-address"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-missing-true",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address:missing=false&_tag=core-patient-test&_tag=scope-address"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-missing-false",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-search-address-city",
+            "name": "Search Patient by address-city (string)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-address-city-match-6",
+                        "responseId": "address-city-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-city=Pleasa&_tag=core-patient-test&_tag=scope-address-city"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-city-prefix-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-city:exact=Pleasantville&_tag=core-patient-test&_tag=scope-address-city"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-city-exact-match",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-city:contains=leasantvill&_tag=core-patient-test&_tag=scope-address-city"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-city-contains",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-address-city-missing-7",
+                        "responseId": "address-city-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-city:missing=true&_tag=core-patient-test&_tag=scope-address-city"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-city-missing-true",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-city:missing=false&_tag=core-patient-test&_tag=scope-address-city"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-city-missing-false",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-search-address-country",
+            "name": "Search Patient by address-country (string)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-address-country-match-8",
+                        "responseId": "address-country-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-country=Atlant&_tag=core-patient-test&_tag=scope-address-country"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-country-prefix-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-country:exact=Atlantisland&_tag=core-patient-test&_tag=scope-address-country"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-country-exact-match",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-country:contains=tlantislan&_tag=core-patient-test&_tag=scope-address-country"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-country-contains",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-address-country-missing-9",
+                        "responseId": "address-country-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-country:missing=true&_tag=core-patient-test&_tag=scope-address-country"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-country-missing-true",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-country:missing=false&_tag=core-patient-test&_tag=scope-address-country"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-country-missing-false",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "10-search-address-postalcode",
+            "name": "Search Patient by address-postalcode (string)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-address-postalcode-match-10",
+                        "responseId": "address-postalcode-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-postalcode=301&_tag=core-patient-test&_tag=scope-address-postalcode"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-postalcode-prefix-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-postalcode:exact=301250&_tag=core-patient-test&_tag=scope-address-postalcode"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-postalcode-exact-match",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-postalcode:contains=0125&_tag=core-patient-test&_tag=scope-address-postalcode"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-postalcode-contains",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-address-postalcode-missing-11",
+                        "responseId": "address-postalcode-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-postalcode:missing=true&_tag=core-patient-test&_tag=scope-address-postalcode"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-postalcode-missing-true",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-postalcode:missing=false&_tag=core-patient-test&_tag=scope-address-postalcode"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-postalcode-missing-false",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "11-search-address-state",
+            "name": "Search Patient by address-state (string)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-address-state-match-12",
+                        "responseId": "address-state-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-state=Victor&_tag=core-patient-test&_tag=scope-address-state"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-state-prefix-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-state:exact=Victorialand&_tag=core-patient-test&_tag=scope-address-state"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-state-exact-match",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-state:contains=ictorialan&_tag=core-patient-test&_tag=scope-address-state"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-state-contains",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-address-state-missing-13",
+                        "responseId": "address-state-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-state:missing=true&_tag=core-patient-test&_tag=scope-address-state"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-state-missing-true",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-state:missing=false&_tag=core-patient-test&_tag=scope-address-state"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-state-missing-false",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "12-search-address-use",
+            "name": "Search Patient by address-use (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-address-use-match-14",
+                        "responseId": "address-use-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-address-use-other-15",
+                        "responseId": "address-use-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-use=home&_tag=core-patient-test&_tag=scope-address-use"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-use-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "address-use:not=home&_tag=core-patient-test&_tag=scope-address-use"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "address-use-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "13-search-birthdate",
+            "name": "Search Patient by birthdate (date)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-birthdate-match-16",
+                        "responseId": "birthdate-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "birthdate=1990-05-15&_tag=core-patient-test&_tag=scope-birthdate"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "birthdate-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "birthdate=ne1990-05-15&_tag=core-patient-test&_tag=scope-birthdate"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "birthdate-ne",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "birthdate=gt1990-05-14&_tag=core-patient-test&_tag=scope-birthdate"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "birthdate-gt-below",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "birthdate=gt1990-05-15&_tag=core-patient-test&_tag=scope-birthdate"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "birthdate-gt-eq",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "birthdate=lt1990-05-16&_tag=core-patient-test&_tag=scope-birthdate"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "birthdate-lt-above",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "birthdate=lt1990-05-15&_tag=core-patient-test&_tag=scope-birthdate"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "birthdate-lt-eq",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "birthdate=ge1990-05-15&_tag=core-patient-test&_tag=scope-birthdate"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "birthdate-ge-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "birthdate=ge1990-05-16&_tag=core-patient-test&_tag=scope-birthdate"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "birthdate-ge-above",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "birthdate=le1990-05-15&_tag=core-patient-test&_tag=scope-birthdate"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "birthdate-le-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "birthdate=le1990-05-14&_tag=core-patient-test&_tag=scope-birthdate"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "birthdate-le-below",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "14-search-death-date",
+            "name": "Search Patient by death-date (date)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-death-date-match-17",
+                        "responseId": "death-date-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "death-date=2021-08-01&_tag=core-patient-test&_tag=scope-death-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "death-date-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "death-date=ne2021-08-01&_tag=core-patient-test&_tag=scope-death-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "death-date-ne",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "death-date=gt2021-07-31&_tag=core-patient-test&_tag=scope-death-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "death-date-gt-below",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "death-date=gt2021-08-01&_tag=core-patient-test&_tag=scope-death-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "death-date-gt-eq",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "death-date=lt2021-08-02&_tag=core-patient-test&_tag=scope-death-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "death-date-lt-above",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "death-date=lt2021-08-01&_tag=core-patient-test&_tag=scope-death-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "death-date-lt-eq",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "death-date=ge2021-08-01&_tag=core-patient-test&_tag=scope-death-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "death-date-ge-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "death-date=ge2021-08-02&_tag=core-patient-test&_tag=scope-death-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "death-date-ge-above",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "death-date=le2021-08-01&_tag=core-patient-test&_tag=scope-death-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "death-date-le-eq",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "death-date=le2021-07-31&_tag=core-patient-test&_tag=scope-death-date"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "death-date-le-below",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "15-search-deceased",
+            "name": "Search Patient by deceased (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-deceased-match-18",
+                        "responseId": "deceased-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-deceased-other-19",
+                        "responseId": "deceased-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "deceased=true&_tag=core-patient-test&_tag=scope-deceased"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "deceased-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "deceased:not=true&_tag=core-patient-test&_tag=scope-deceased"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "deceased-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "16-search-email",
+            "name": "Search Patient by email (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-email-match-20",
+                        "responseId": "email-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-email-other-21",
+                        "responseId": "email-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "email=peter.chalmers@example.com&_tag=core-patient-test&_tag=scope-email"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "email-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "email:not=peter.chalmers@example.com&_tag=core-patient-test&_tag=scope-email"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "email-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "17-search-family",
+            "name": "Search Patient by family (string)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-family-match-22",
+                        "responseId": "family-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "family=Chalm&_tag=core-patient-test&_tag=scope-family"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "family-prefix-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "family:exact=Chalmerston&_tag=core-patient-test&_tag=scope-family"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "family-exact-match",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "family:contains=halmersto&_tag=core-patient-test&_tag=scope-family"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "family-contains",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-family-missing-23",
+                        "responseId": "family-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "family:missing=true&_tag=core-patient-test&_tag=scope-family"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "family-missing-true",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "family:missing=false&_tag=core-patient-test&_tag=scope-family"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "family-missing-false",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "18-search-gender",
+            "name": "Search Patient by gender (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-gender-match-24",
+                        "responseId": "gender-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-gender-other-25",
+                        "responseId": "gender-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "gender=male&_tag=core-patient-test&_tag=scope-gender"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "gender-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "gender:not=male&_tag=core-patient-test&_tag=scope-gender"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "gender-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "19-search-general-practitioner",
+            "name": "Search Patient by general-practitioner (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Practitioner",
+                        "sourceId": "fixture-core-patient-gp-target",
+                        "responseId": "general-practitioner-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Practitioner",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "general-practitioner-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-general-practitioner-match-26",
+                        "responseId": "general-practitioner-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "general-practitioner=core-patient-gp-target&_tag=core-patient-test&_tag=scope-general-practitioner"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "general-practitioner-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "general-practitioner=Practitioner/core-patient-gp-target&_tag=core-patient-test&_tag=scope-general-practitioner"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "general-practitioner-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "20-search-given",
+            "name": "Search Patient by given (string)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-given-match-27",
+                        "responseId": "given-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "given=Peter&_tag=core-patient-test&_tag=scope-given"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "given-prefix-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "given:exact=Petersburg&_tag=core-patient-test&_tag=scope-given"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "given-exact-match",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "given:contains=etersbur&_tag=core-patient-test&_tag=scope-given"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "given-contains",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-given-missing-28",
+                        "responseId": "given-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "given:missing=true&_tag=core-patient-test&_tag=scope-given"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "given-missing-true",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "given:missing=false&_tag=core-patient-test&_tag=scope-given"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "given-missing-false",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "21-search-identifier",
+            "name": "Search Patient by identifier (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-identifier-match-29",
+                        "responseId": "identifier-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-identifier-other-30",
+                        "responseId": "identifier-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "identifier=12345&_tag=core-patient-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "identifier=http://example.org/mrn|12345&_tag=core-patient-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "identifier=|12345&_tag=core-patient-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "identifier:not=12345&_tag=core-patient-test&_tag=scope-identifier"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "identifier-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "22-search-language",
+            "name": "Search Patient by language (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-language-match-31",
+                        "responseId": "language-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-language-other-32",
+                        "responseId": "language-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "language=en&_tag=core-patient-test&_tag=scope-language"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "language-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "language=urn:ietf:bcp:47|en&_tag=core-patient-test&_tag=scope-language"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "language-system-code",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "language=|en&_tag=core-patient-test&_tag=scope-language"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "language-no-system",
+                        "operator": "equals",
+                        "value": "0"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "language:not=en&_tag=core-patient-test&_tag=scope-language"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "language-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "23-search-link",
+            "name": "Search Patient by link (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-core-patient-link-target",
+                        "responseId": "link-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Patient",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "link-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-link-match-33",
+                        "responseId": "link-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "link=core-patient-link-target&_tag=core-patient-test&_tag=scope-link"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "link-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "link=Patient/core-patient-link-target&_tag=core-patient-test&_tag=scope-link"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "link-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "24-search-name",
+            "name": "Search Patient by name (string)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-name-match-34",
+                        "responseId": "name-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "name=Uniquen&_tag=core-patient-test&_tag=scope-name"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-prefix-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "name:exact=Uniquenameford&_tag=core-patient-test&_tag=scope-name"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-exact-match",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "name:contains=niquenamefor&_tag=core-patient-test&_tag=scope-name"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-contains",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-name-missing-35",
+                        "responseId": "name-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "name:missing=true&_tag=core-patient-test&_tag=scope-name"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-missing-true",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "name:missing=false&_tag=core-patient-test&_tag=scope-name"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "name-missing-false",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "25-search-organization",
+            "name": "Search Patient by organization (reference)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Organization",
+                        "sourceId": "fixture-core-patient-org-target",
+                        "responseId": "organization-target-response"
+                    }
+                },
+                {
+                    "assert": {
+                        "resource": "Organization",
+                        "direction": "response",
+                        "warningOnly": false,
+                        "label": "organization-target-created"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-organization-match-36",
+                        "responseId": "organization-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "organization=core-patient-org-target&_tag=core-patient-test&_tag=scope-organization"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "organization-id-only",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "organization=Organization/core-patient-org-target&_tag=core-patient-test&_tag=scope-organization"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "organization-type-slash-id",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "26-search-phone",
+            "name": "Search Patient by phone (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-phone-match-37",
+                        "responseId": "phone-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-phone-other-38",
+                        "responseId": "phone-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "phone=555-0100&_tag=core-patient-test&_tag=scope-phone"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "phone-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "phone:not=555-0100&_tag=core-patient-test&_tag=scope-phone"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "phone-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "27-search-phonetic",
+            "name": "Search Patient by phonetic (string)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-phonetic-match-39",
+                        "responseId": "phonetic-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "phonetic=Smy&_tag=core-patient-test&_tag=scope-phonetic"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "phonetic-prefix-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "phonetic:exact=Smythe&_tag=core-patient-test&_tag=scope-phonetic"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "phonetic-exact-match",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "phonetic:contains=myth&_tag=core-patient-test&_tag=scope-phonetic"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "phonetic-contains",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-phonetic-missing-40",
+                        "responseId": "phonetic-missing-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "phonetic:missing=true&_tag=core-patient-test&_tag=scope-phonetic"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "phonetic-missing-true",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "phonetic:missing=false&_tag=core-patient-test&_tag=scope-phonetic"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "phonetic-missing-false",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "28-search-telecom",
+            "name": "Search Patient by telecom (token)",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-telecom-match-41",
+                        "responseId": "telecom-match-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-telecom-other-42",
+                        "responseId": "telecom-other-response"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "telecom=555-8100&_tag=core-patient-test&_tag=scope-telecom"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "telecom-default",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Patient",
+                        "params": "telecom:not=555-8100&_tag=core-patient-test&_tag=scope-telecom"
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "warningOnly": false,
+                        "label": "telecom-not",
+                        "operator": "equals",
+                        "value": "1"
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Patient",
+                    "params": "_tag=core-patient-test",
+                    "description": "Delete Patient resources created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}
