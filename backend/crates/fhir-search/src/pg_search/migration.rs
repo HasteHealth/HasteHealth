@@ -1,3 +1,5 @@
+use std::fmt::Write as _;
+
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use sqlx::{Pool, Postgres};
@@ -228,16 +230,15 @@ fn resource_type_table_sql(schema: &ResourceTypeSchema) -> String {
 }
 
 fn add_columns_sql(table: &str, columns: &[ColumnDef]) -> String {
-    columns
-        .iter()
-        .map(|column| {
-            format!(
-                "ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {} {};\n",
-                quote_ident(&column.name),
-                sql_type(column.column_type)
-            )
-        })
-        .collect()
+    columns.iter().fold(String::new(), |mut sql, column| {
+        let _ = writeln!(
+            sql,
+            "ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {} {};",
+            quote_ident(&column.name),
+            sql_type(column.column_type)
+        );
+        sql
+    })
 }
 
 fn indexes_sql(table: &str, columns: &[ColumnDef], scope: &[&str]) -> String {

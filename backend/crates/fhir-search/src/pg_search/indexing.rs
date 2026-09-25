@@ -923,11 +923,11 @@ async fn write_batch(
         )
     })?;
 
-    let deleted = delete_anchors(tx.as_mut(), schema_registry, &deletes).await?;
+    let removed = delete_anchors(tx.as_mut(), schema_registry, &deletes).await?;
     let anchors = upsert_anchors(tx.as_mut(), schema_registry, &writes).await?;
 
     // Deleted resources, plus re-indexed ones' previous rows.
-    let stale: Vec<(i64, String)> = deleted
+    let stale: Vec<(i64, String)> = removed
         .into_iter()
         .chain(
             anchors
