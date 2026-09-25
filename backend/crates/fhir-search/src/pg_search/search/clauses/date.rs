@@ -5,7 +5,11 @@ use super::{
     ClauseTarget, SqlClause, SqlParam, bind, date_exprs, or_predicates, require_values,
     target_params, wrap_predicate,
 };
-use crate::{indexing_conversion::date_time_range, pg_search::search::QueryBuildError};
+use crate::{
+    indexing_conversion::date_time_range,
+    query::QueryBuildError,
+    search_ranges::{approximate_date, now_ms},
+};
 
 /// Compares each supplied date's range against the indexed period.
 pub fn date_clause(
@@ -38,7 +42,7 @@ fn date_predicate(
 
     Ok(match prefix {
         // Starts after the search range ends.
-        Some("gt") => {
+        Some("gt" | "sa") => {
             let (params, i) = bind(params, [upper]);
             (format!("{start} > ${i}"), params)
         }
@@ -46,6 +50,11 @@ fn date_predicate(
         Some("lt") => {
             let (params, i) = bind(params, [lower]);
             (format!("{start} < ${i}"), params)
+        }
+        // Ends before the search range begins.
+        Some("eb") => {
+            let (params, i) = bind(params, [lower]);
+            (format!("{end} < ${i}"), params)
         }
         Some("ge") => {
             let (params, i) = bind(params, [lower]);
@@ -66,6 +75,12 @@ fn date_predicate(
         // Overlaps.
         Some("eq") | None => {
             let (params, i) = bind(params, [lower, upper]);
+            (format!("({start} <= ${} AND {end} >= ${i})", i + 1), params)
+        }
+        // Overlaps the search range widened by 10% of its distance from now.
+        Some("ap") => {
+            let (low, high) = approximate_date(range.start, range.end, now_ms());
+            let (params, i) = bind(params, [SqlParam::Int64(low), SqlParam::Int64(high)]);
             (format!("({start} <= ${} AND {end} >= ${i})", i + 1), params)
         }
         Some(p) => return Err(QueryBuildError::UnsupportedPrefix(p.to_string())),

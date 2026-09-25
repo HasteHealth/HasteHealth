@@ -4,21 +4,15 @@ use super::{
     ClauseTarget, SqlClause, SqlParam, bind, or_predicates, require_values, target_params,
     token_exprs, wrap_predicate,
 };
-use crate::pg_search::search::QueryBuildError;
+use crate::query::QueryBuildError;
 
-/// Matches `[system|]code`. System and code share a row, so no recombination
-/// is needed.
+/// Matches `[system|]code`, or with `negate` (`:not`) excludes it. System and
+/// code share a row, so no recombination is needed.
 pub fn token_clause(
     parsed_parameter: &Parameter,
     target: &ClauseTarget,
+    negate: bool,
 ) -> Result<SqlClause, QueryBuildError> {
-    let negate = match parsed_parameter.modifier.as_deref() {
-        Some("not") => true,
-        Some(modifier) => {
-            return Err(QueryBuildError::UnsupportedModifier(modifier.to_string()));
-        }
-        None => false,
-    };
     require_values(parsed_parameter)?;
 
     let (system_column, code_column) = token_exprs(target)?;
@@ -85,6 +79,7 @@ mod tests {
                 chains: None,
             },
             target,
+            false,
         )
         .expect("a token search builds")
         .sql

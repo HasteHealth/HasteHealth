@@ -23,7 +23,7 @@ pub use uri::*;
 
 use haste_fhir_client::url::Parameter;
 
-use crate::pg_search::{schema::ParamColumns, search::QueryBuildError};
+use crate::{pg_search::schema::ParamColumns, query::QueryBuildError};
 
 /// Alias of the joined resource type table.
 pub const RESOURCE_TABLE_ALIAS: &str = "rt";
@@ -219,44 +219,62 @@ pub fn wrap_predicate(
     SqlClause { sql, params }
 }
 
-/// `:missing=true|false`: whether the parameter has any value.
-///
-/// # Errors
-///
-/// Returns an error for a value other than `true`/`false`, or a column shape
-/// with no single value column.
-pub fn missing_clause(
-    target: &ClauseTarget,
-    parsed_parameter: &Parameter,
-) -> Result<SqlClause, QueryBuildError> {
-    let missing = match parsed_parameter.value.first().map(String::as_str) {
-        Some("true") => true,
-        Some("false") => false,
-        _ => {
-            return Err(QueryBuildError::InvalidParameterValue(
-                parsed_parameter.name.clone(),
-            ));
-        }
-    };
-
+/// `:missing=true` (`missing`) or `:missing=false`: whether the parameter
+/// has any value.
+#[must_use]
+pub fn missing_clause(target: &ClauseTarget, missing: bool) -> SqlClause {
     match target {
-        // A scalar column is NULL when there is no value.
-        ClauseTarget::DirectColumn { .. } => {
-            let column = value_expr(target)?;
-            let test = if missing { "IS NULL" } else { "IS NOT NULL" };
-            Ok(SqlClause {
-                sql: format!("{column} {test}"),
+        // Columns are NULL when there is no value.
+        ClauseTarget::DirectColumn { alias, columns } => {
+            let columns = presence_columns(columns)
+                .into_iter()
+                .map(|column| direct_column(alias, column));
+            let sql = if missing {
+                columns
+                    .map(|column| format!("{column} IS NULL"))
+                    .collect::<Vec<_>>()
+                    .join(" AND ")
+            } else {
+                columns
+                    .map(|column| format!("{column} IS NOT NULL"))
+                    .collect::<Vec<_>>()
+                    .join(" OR ")
+            };
+            SqlClause {
+                sql: format!("({sql})"),
                 params: Vec::new(),
-            })
+            }
         }
         // No value means no shared-table row.
         ClauseTarget::Dynamic {
             table,
             param_identity,
-        } => Ok(SqlClause {
+        } => SqlClause {
             sql: dynamic_exists(table, missing, None),
             params: vec![SqlParam::Int64(*param_identity)],
-        }),
+        },
+    }
+}
+
+/// The columns that are all NULL exactly when a parameter has no value. Either
+/// half of a token or reference can be present alone.
+fn presence_columns(columns: &ParamColumns) -> Vec<&str> {
+    match columns {
+        ParamColumns::String { value }
+        | ParamColumns::Uri { value }
+        | ParamColumns::Number { value } => {
+            vec![value]
+        }
+        ParamColumns::Token { system, code } => system
+            .iter()
+            .map(String::as_str)
+            .chain([code.as_str()])
+            .collect(),
+        ParamColumns::Reference {
+            target_type,
+            target_id,
+        } => vec![target_type, target_id],
+        ParamColumns::Date { start, .. } | ParamColumns::Quantity { start, .. } => vec![start],
     }
 }
 
@@ -365,15 +383,6 @@ fn require_values(parsed_parameter: &Parameter) -> Result<(), QueryBuildError> {
     }
 }
 
-/// `true` for `:missing`, `false` for no modifier, an error for any other.
-fn missing_only(parsed_parameter: &Parameter) -> Result<bool, QueryBuildError> {
-    match parsed_parameter.modifier.as_deref() {
-        Some("missing") => Ok(true),
-        Some(modifier) => Err(QueryBuildError::UnsupportedModifier(modifier.to_string())),
-        None => Ok(false),
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -434,6 +443,86 @@ mod tests {
 
         assert!(value_expr(&target).is_ok());
         assert!(date_exprs(&target).is_err());
+    }
+
+    fn param(modifier: Option<&str>, values: &[&str]) -> Parameter {
+        Parameter {
+            name: "p".to_string(),
+            modifier: modifier.map(str::to_string),
+            value: values.iter().map(|v| (*v).to_string()).collect(),
+            chains: None,
+        }
+    }
+
+    /// A token column pair is missing only when both halves are NULL.
+    #[test]
+    fn missing_checks_every_column_that_can_hold_the_value() {
+        let target = direct(ParamColumns::Token {
+            system: Some("gender_system".to_string()),
+            code: "gender_code".to_string(),
+        });
+
+        assert_eq!(
+            missing_clause(&target, true).sql,
+            r#"(rt."gender_system" IS NULL AND rt."gender_code" IS NULL)"#
+        );
+        assert_eq!(
+            missing_clause(&target, false).sql,
+            r#"(rt."gender_system" IS NOT NULL OR rt."gender_code" IS NOT NULL)"#
+        );
+    }
+
+    #[test]
+    fn a_bare_quantity_value_matches_any_unit() {
+        let clause = quantity_clause(&param(None, &["70.2"]), &dynamic()).unwrap();
+        assert!(
+            clause
+                .sql
+                .contains("(v.start_value <= $2 AND v.end_value >= $2)"),
+            "{}",
+            clause.sql
+        );
+        assert!(!clause.sql.contains("start_code"), "{}", clause.sql);
+    }
+
+    #[test]
+    fn quantity_prefixes_compare_the_indexed_range() {
+        let clause = quantity_clause(&param(None, &["gt60||kg"]), &dynamic()).unwrap();
+        assert!(
+            clause
+                .sql
+                .contains("(v.start_value >= $2 AND v.start_code = $3)"),
+            "{}",
+            clause.sql
+        );
+    }
+
+    #[test]
+    fn number_and_date_accept_sa_eb_and_ap() {
+        let number = direct(ParamColumns::Number {
+            value: "probability".to_string(),
+        });
+        for value in ["sa1", "eb1", "ap1"] {
+            assert!(
+                number_clause(&param(None, &[value]), &number).is_ok(),
+                "{value}"
+            );
+        }
+
+        let date = direct(ParamColumns::Date {
+            start: "d_start".to_string(),
+            end: "d_end".to_string(),
+        });
+        assert_eq!(
+            date_clause(&param(None, &["eb2020"]), &date).unwrap().sql,
+            r#"(rt."d_end" < $1)"#
+        );
+        for value in ["sa2020", "ap2020"] {
+            assert!(
+                date_clause(&param(None, &[value]), &date).is_ok(),
+                "{value}"
+            );
+        }
     }
 
     #[test]

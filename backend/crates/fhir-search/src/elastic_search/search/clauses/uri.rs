@@ -2,40 +2,32 @@ use haste_fhir_client::url::Parameter;
 use haste_fhir_model::r4::generated::resources::SearchParameter;
 use serde_json::json;
 
-use crate::elastic_search::search::{
-    QueryBuildError, clauses::namespace_parameter, simple_missing_modifier,
-};
+use crate::elastic_search::search::clauses::namespace_parameter;
 
 pub fn uri(
     namespace: Option<&str>,
     parsed_parameter: &Parameter,
     search_parameter: &SearchParameter,
-) -> Result<serde_json::Value, QueryBuildError> {
-    match parsed_parameter.modifier.as_deref() {
-        Some("missing") => simple_missing_modifier(search_parameter, parsed_parameter),
-        Some(modifier) => Err(QueryBuildError::UnsupportedModifier(modifier.to_string())),
-        None => {
-            let column_name = namespace_parameter(namespace, search_parameter);
+) -> serde_json::Value {
+    let column_name = namespace_parameter(namespace, search_parameter);
 
-            let uri_params = parsed_parameter
-                .value
-                .iter()
-                .map(|value| {
-                    Ok(json!({
-                        "match":{
-                            &column_name: {
-                                "query": value
-                            }
-                        }
-                    }))
-                })
-                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
-
-            Ok(json!({
-                "bool": {
-                    "should": uri_params
+    let uri_params = parsed_parameter
+        .value
+        .iter()
+        .map(|value| {
+            json!({
+                "match":{
+                    &column_name: {
+                        "query": value
+                    }
                 }
-            }))
+            })
+        })
+        .collect::<Vec<serde_json::Value>>();
+
+    json!({
+        "bool": {
+            "should": uri_params
         }
-    }
+    })
 }

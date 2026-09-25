@@ -5,7 +5,7 @@ use haste_fhir_client::{
     url::{Parameter, ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{resources::ResourceType, terminology::IssueType};
-use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 use sqlx::{Pool, Postgres, Row, postgres::PgRow};
 
@@ -19,6 +19,7 @@ use crate::{
             shared_table_for, shared_table_name,
         },
     },
+    query::{Modifier, QueryBuildError, parse_modifier},
 };
 
 use clauses::{
@@ -27,46 +28,6 @@ use clauses::{
 };
 
 pub(crate) mod clauses;
-
-#[derive(OperationOutcomeError, Debug)]
-pub enum QueryBuildError {
-    #[error(
-        code = "not-found",
-        diagnostic = "Search parameter with name '{arg0}' not found.'"
-    )]
-    MissingParameter(String),
-    #[error(code = "not-supported", diagnostic = "Unsupported parameter: '{arg0}'")]
-    UnsupportedParameter(String),
-    #[error(
-        code = "not-supported",
-        diagnostic = "Unsupported sorting parameter: '{arg0}'"
-    )]
-    UnsupportedSortParameter(String),
-    #[error(
-        code = "not-supported",
-        diagnostic = "Unsupported modifier parameter: '{arg0}'"
-    )]
-    UnsupportedModifier(String),
-    #[error(
-        code = "not-supported",
-        diagnostic = "Prefix '{arg0}' is not supported for this search type."
-    )]
-    UnsupportedPrefix(String),
-    #[error(
-        code = "not-supported",
-        diagnostic = "Parameter value '{arg0}' is not supported for this search type."
-    )]
-    UnsupportedParameterValue(String),
-    #[error(code = "invalid", diagnostic = "Invalid parameter value: '{arg0}'")]
-    InvalidParameterValue(String),
-    #[error(code = "invalid", diagnostic = "Invalid date format: '{arg0}'")]
-    InvalidDateFormat(String),
-    #[error(
-        code = "not-supported",
-        diagnostic = "Modifier '{arg0}' is not supported"
-    )]
-    ModifierNotSupported(String),
-}
 
 static ABSOLUTE_MAX: u64 = 10_000;
 static DEFAULT_MAX_COUNT: u64 = 50;
@@ -295,11 +256,17 @@ fn parameter_to_sql_clause(
     param: &Parameter,
 ) -> Result<SqlClause, QueryBuildError> {
     let search_param = parameter.search_parameter.as_ref();
+    let modifier = parse_modifier(param, &search_param.type_)?;
+
+    // `:missing` works the same for every stored type.
+    if let Modifier::Missing(missing) = modifier {
+        return Ok(clauses::missing_clause(target, missing));
+    }
 
     // The same mapping that chose where values are written.
     match shared_table_for(&search_param.type_) {
-        Some(SharedTable::String) => clauses::string_clause(param, target),
-        Some(SharedTable::Token) => clauses::token_clause(param, target),
+        Some(SharedTable::String) => clauses::string_clause(param, target, modifier),
+        Some(SharedTable::Token) => clauses::token_clause(param, target, modifier == Modifier::Not),
         Some(SharedTable::Date) => clauses::date_clause(param, target),
         Some(SharedTable::Number) => clauses::number_clause(param, target),
         Some(SharedTable::Quantity) => clauses::quantity_clause(param, target),

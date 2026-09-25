@@ -1,19 +1,19 @@
 use haste_fhir_client::url::{Parameter, parse_prefix};
 
 use super::{
-    ClauseTarget, SqlClause, SqlParam, bind, missing_clause, missing_only, or_predicates,
-    require_values, target_params, value_expr, wrap_predicate,
+    ClauseTarget, SqlClause, SqlParam, bind, or_predicates, require_values, target_params,
+    value_expr, wrap_predicate,
 };
-use crate::{indexing_conversion::get_decimal_range, pg_search::search::QueryBuildError};
+use crate::{
+    indexing_conversion::get_decimal_range, query::QueryBuildError,
+    search_ranges::approximate_decimal,
+};
 
 /// A FHIR number has implicit precision, so equality is range containment.
 pub fn number_clause(
     parsed_parameter: &Parameter,
     target: &ClauseTarget,
 ) -> Result<SqlClause, QueryBuildError> {
-    if missing_only(parsed_parameter)? {
-        return missing_clause(target, parsed_parameter);
-    }
     require_values(parsed_parameter)?;
 
     let column = value_expr(target)?;
@@ -44,11 +44,12 @@ fn number_predicate(
                 params,
             )
         }
-        Some("gt") => {
+        // For a single value, `sa`/`eb` mean the same as `gt`/`lt`.
+        Some("gt" | "sa") => {
             let (params, i) = bind(params, [high]);
             (format!("{column} > ${i}"), params)
         }
-        Some("lt") => {
+        Some("lt" | "eb") => {
             let (params, i) = bind(params, [low]);
             (format!("{column} < ${i}"), params)
         }
@@ -62,6 +63,14 @@ fn number_predicate(
         }
         Some("eq") | None => {
             let (params, i) = bind(params, [low, high]);
+            (
+                format!("({column} >= ${i} AND {column} <= ${})", i + 1),
+                params,
+            )
+        }
+        Some("ap") => {
+            let (low, high) = approximate_decimal(&range);
+            let (params, i) = bind(params, [SqlParam::Float64(low), SqlParam::Float64(high)]);
             (
                 format!("({column} >= ${i} AND {column} <= ${})", i + 1),
                 params,

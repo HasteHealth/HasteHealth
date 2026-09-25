@@ -4,7 +4,7 @@ use super::{
     ClauseTarget, SqlClause, SqlParam, bind, or_predicates, reference_exprs, require_values,
     target_params, wrap_predicate,
 };
-use crate::pg_search::search::QueryBuildError;
+use crate::query::QueryBuildError;
 
 /// Matches `id` or `Type/id`.
 pub fn reference_clause(
