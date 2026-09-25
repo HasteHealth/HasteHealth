@@ -1,0 +1,150 @@
+name: Core TestScripts
+on:
+  push:
+    branches:
+      - main
+      - ci/core-testscripts
+      - "ci/core-testscripts/**"
+  workflow_dispatch:
+
+# A newer push to the same branch supersedes a running check.
+concurrency:
+  group: core-testscripts-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  core-testscripts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        search-backend: [elasticsearch, postgres]
+    env:
+      HASTE_CERTIFICATION_DIR: certifications
+      HASTE_ADMIN_APP_REDIRECT_URI: http://*.localhost:3001
+      HASTE_API_URI: http://localhost:3000
+      HASTE_REPO.backend: postgres
+      HASTE_REPO.database_url: postgresql://postgres:postgres@localhost:5432/haste_health
+      RUST_LOG: none
+      SQLX_OFFLINE: true
+
+    services:
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:9.2.4
+        ports:
+          - 9200:9200
+        env:
+          ELASTIC_PASSWORD: elastic
+          discovery.type: single-node
+          xpack.security.enabled: true
+          xpack.security.http.ssl.enabled: false
+          xpack.license.self_generated.type: trial
+          xpack.ml.use_auto_machine_memory_percent: true
+          ES_JAVA_OPTS: -Xms128m -Xmx2g
+          cluster.routing.allocation.disk.watermark.low: 1gb
+          cluster.routing.allocation.disk.watermark.high: 1gb
+          cluster.routing.allocation.disk.watermark.flood_stage: 1gb
+
+      postgres:
+        image: postgres:18.1
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_DB: haste_health
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "./backend -> target"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      # The postgres search backend indexes into its own database, apart from
+      # the repo's.
+      - name: Create search database (Postgres backend)
+        if: matrix.search-backend == 'postgres'
+        run: PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE haste_health_search;"
+
+      - name: Configure search backend (Elasticsearch)
+        if: matrix.search-backend == 'elasticsearch'
+        run: |
+          echo "HASTE_SEARCH.backend=elasticsearch" >> "$GITHUB_ENV"
+          echo "HASTE_SEARCH.url=http://localhost:9200" >> "$GITHUB_ENV"
+          echo "HASTE_SEARCH.username=elastic" >> "$GITHUB_ENV"
+          echo "HASTE_SEARCH.password=elastic" >> "$GITHUB_ENV"
+
+      - name: Configure search backend (Postgres)
+        if: matrix.search-backend == 'postgres'
+        run: |
+          echo "HASTE_SEARCH.backend=postgres" >> "$GITHUB_ENV"
+          echo "HASTE_SEARCH.database_url=postgresql://postgres:postgres@localhost:5432/haste_health_search" >> "$GITHUB_ENV"
+          echo "HASTE_SEARCH.max_connections=20" >> "$GITHUB_ENV"
+
+      - name: Build
+        run: cargo build --locked --workspace
+        working-directory: ./backend
+
+      - name: Run migrations
+        run: ./target/debug/haste-health admin migrate search && ./target/debug/haste-health admin migrate repo
+        working-directory: ./backend
+
+      - name: Start server
+        run: ./target/debug/haste-health server start &
+        working-directory: ./backend
+
+      - name: Start worker
+        run: ./target/debug/haste-health worker &
+        working-directory: ./backend
+
+      - name: Migrate artifacts
+        run: ./target/debug/haste-health admin migrate artifacts
+        working-directory: ./backend
+
+      - name: Set up tenant and client
+        run: |
+          ./target/debug/haste-health admin tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited
+          ./target/debug/haste-health admin client create --id testing --secret testing --tenant my-health --project system --grant-type client-credentials
+          ./target/debug/haste-health config create-profile -n testing --auth-mode client-credentials --r4-url http://localhost:3000/w/my-health/system/api/v1/fhir/r4 --discovery-uri http://localhost:3000/.well-known/openid-configuration/w/my-health/system --id testing --secret testing
+        working-directory: ./backend
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if ./target/debug/haste-health api capabilities > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server did not become ready" >&2
+          exit 1
+        working-directory: ./backend
+
+      # Exits non-zero if any TestScript fails.
+      - name: Run core TestScripts
+        run: ./target/debug/haste-health testscript run -i testscripts/core -w 2000 -o core-testreports.json
+        working-directory: ./backend
+        env:
+          RUST_LOG: info
+
+      - name: Upload TestReports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-testreports-${{ matrix.search-backend }}
+          path: backend/core-testreports.json
+          if-no-files-found: ignore
