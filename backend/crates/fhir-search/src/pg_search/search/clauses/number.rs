@@ -1,76 +1,72 @@
 use haste_fhir_client::url::{Parameter, parse_prefix};
 
-use super::{ClauseTarget, SqlClause, SqlParam, missing_only, require_values};
+use super::{
+    ClauseTarget, SqlClause, SqlParam, bind, missing_clause, missing_only, or_predicates,
+    require_values, target_params, value_expr, wrap_predicate,
+};
 use crate::{indexing_conversion::get_decimal_range, pg_search::search::QueryBuildError};
 
+/// A FHIR number has implicit precision, so equality is range containment.
 pub fn number_clause(
     parsed_parameter: &Parameter,
     target: &ClauseTarget,
 ) -> Result<SqlClause, QueryBuildError> {
     if missing_only(parsed_parameter)? {
-        return target.missing(parsed_parameter);
+        return missing_clause(target, parsed_parameter);
     }
-
     require_values(parsed_parameter)?;
 
-    let value_expr = target.value_expr()?;
-    let mut params = target.params();
-    let predicate = build_or_expr(parsed_parameter, &value_expr, &mut params)?;
+    let column = value_expr(target)?;
+    let (predicate, params) = or_predicates(
+        &parsed_parameter.value,
+        target_params(target),
+        |value, params| number_predicate(value, &column, params),
+    )?;
 
-    Ok(target.finish(false, &predicate, params))
+    Ok(wrap_predicate(target, false, &predicate, params))
 }
 
-/// OR-joins a predicate per supplied number. A FHIR number carries an implicit
-/// precision range, so equality is containment rather than `=`.
-fn build_or_expr(
-    parsed_parameter: &Parameter,
-    value_expr: &str,
-    params: &mut Vec<SqlParam>,
-) -> Result<String, QueryBuildError> {
-    let mut or_clauses = Vec::new();
+fn number_predicate(
+    value: &str,
+    column: &str,
+    params: Vec<SqlParam>,
+) -> Result<(String, Vec<SqlParam>), QueryBuildError> {
+    let (prefix, num_str) = parse_prefix(value);
+    let range = get_decimal_range(num_str)
+        .map_err(|_e| QueryBuildError::InvalidParameterValue(num_str.to_string()))?;
+    let (low, high) = (SqlParam::Float64(range.start), SqlParam::Float64(range.end));
 
-    for value in &parsed_parameter.value {
-        let (prefix, num_str) = parse_prefix(value);
-        let range = get_decimal_range(num_str)
-            .map_err(|_e| QueryBuildError::InvalidParameterValue(num_str.to_string()))?;
-
-        let low_idx = params.len() + 1;
-        let high_idx = params.len() + 2;
-
-        match prefix {
-            Some("ne") => {
-                or_clauses.push(format!(
-                    "NOT ({value_expr} >= ${low_idx} AND {value_expr} <= ${high_idx})"
-                ));
-                params.push(SqlParam::Float64(range.start));
-                params.push(SqlParam::Float64(range.end));
-            }
-            Some("gt") => {
-                or_clauses.push(format!("{value_expr} > ${low_idx}"));
-                params.push(SqlParam::Float64(range.end));
-            }
-            Some("lt") => {
-                or_clauses.push(format!("{value_expr} < ${low_idx}"));
-                params.push(SqlParam::Float64(range.start));
-            }
-            Some("ge") => {
-                or_clauses.push(format!("{value_expr} >= ${low_idx}"));
-                params.push(SqlParam::Float64(range.start));
-            }
-            Some("le") => {
-                or_clauses.push(format!("{value_expr} <= ${low_idx}"));
-                params.push(SqlParam::Float64(range.end));
-            }
-            Some("eq") | None => {
-                or_clauses.push(format!(
-                    "({value_expr} >= ${low_idx} AND {value_expr} <= ${high_idx})"
-                ));
-                params.push(SqlParam::Float64(range.start));
-                params.push(SqlParam::Float64(range.end));
-            }
-            Some(p) => return Err(QueryBuildError::UnsupportedPrefix(p.to_string())),
+    Ok(match prefix {
+        Some("ne") => {
+            let (params, i) = bind(params, [low, high]);
+            (
+                format!("NOT ({column} >= ${i} AND {column} <= ${})", i + 1),
+                params,
+            )
         }
-    }
-
-    Ok(or_clauses.join(" OR "))
+        Some("gt") => {
+            let (params, i) = bind(params, [high]);
+            (format!("{column} > ${i}"), params)
+        }
+        Some("lt") => {
+            let (params, i) = bind(params, [low]);
+            (format!("{column} < ${i}"), params)
+        }
+        Some("ge") => {
+            let (params, i) = bind(params, [low]);
+            (format!("{column} >= ${i}"), params)
+        }
+        Some("le") => {
+            let (params, i) = bind(params, [high]);
+            (format!("{column} <= ${i}"), params)
+        }
+        Some("eq") | None => {
+            let (params, i) = bind(params, [low, high]);
+            (
+                format!("({column} >= ${i} AND {column} <= ${})", i + 1),
+                params,
+            )
+        }
+        Some(p) => return Err(QueryBuildError::UnsupportedPrefix(p.to_string())),
+    })
 }

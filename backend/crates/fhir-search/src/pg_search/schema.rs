@@ -1,28 +1,21 @@
 //! Table and column layout for the PG search backend.
 //!
-//! How a parameter is stored depends on whether it can produce more than one
-//! value for a resource:
+//! Where a parameter is stored depends on whether it can repeat:
 //!
-//! - **Singular** parameters become columns on their resource type's table,
-//!   `r4_patient_idx`. A scalar is what an index needs for ordered
-//!   comparisons, prefix matches and sorts — an array only indexes for
-//!   overlap — and several on one row let the planner combine predicates and
-//!   walk a composite index straight down a sort order.
+//! - **Singular**: a scalar column on its resource type's table
+//!   (`r4_patient_idx`). Scalars support ordered comparisons, prefix matches,
+//!   sorts and composite indexes; arrays only support overlap.
+//! - **Repeating**: one row per value in the shared table for its type
+//!   (`r4_param_token_idx`, ...), keyed by canonical URL. Same indexes, at the
+//!   cost of a join.
 //!
-//! - **Repeating** parameters become rows in the shared table for their value
-//!   type, `r4_param_token_idx` and friends, keyed by canonical URL. One row
-//!   per value keeps the value scalar, so the same indexes work; the cost is a
-//!   join instead of a column read.
+//! Every table references its resource by `res_key`, a `BIGINT` allocated by
+//! the anchor (`r4_resource_idx`). Only the anchor stores tenant, project, type
+//! and id, which keeps the other indexes small.
 //!
-//! Every table refers to its resource by `res_key`, a `BIGINT` the anchor
-//! (`r4_resource_idx`) allocates. Only the anchor stores the tenant, project,
-//! type and id; carrying eight bytes of key instead keeps the other tables'
-//! indexes small enough to stay in memory.
-//!
-//! Cardinality is compiled in ahead of time — see
-//! [`crate::search_parameter_cardinality`]. Anything not known to be singular
-//! goes to the shared tables, since a scalar column keeps the first value and
-//! silently drops the rest.
+//! Cardinality is precomputed in [`crate::search_parameter_cardinality`].
+//! Anything not known to be singular goes to the shared tables, since a scalar
+//! column would silently drop extra values.
 
 use std::collections::{HashMap, HashSet};
 
@@ -31,8 +24,7 @@ use haste_repository::types::SupportedFHIRVersions;
 
 use crate::{ParameterLevel, ResolvedParameter, search_parameter_cardinality};
 
-/// The type of a generated column. Always a scalar: repeating values live in
-/// rows, not arrays.
+/// A generated column's type. Always scalar: repeating values live in rows.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ColumnType {
     Text,
@@ -40,38 +32,22 @@ pub enum ColumnType {
     Double,
 }
 
-impl ColumnType {
-    /// The name used in `CREATE TABLE` / `ADD COLUMN`.
-    #[must_use]
-    pub const fn sql_type(self) -> &'static str {
-        match self {
-            ColumnType::Text => "TEXT",
-            ColumnType::BigInt => "BIGINT",
-            ColumnType::Double => "DOUBLE PRECISION",
-        }
-    }
-}
-
 /// How a column is indexed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum IndexKind {
-    /// No index of its own: the other half of the pair carries it, and both
-    /// sit on the same row.
+    /// Not indexed; filtered on the row its indexed sibling finds.
     None,
-    /// A plain B-tree, for equality and ordered comparisons.
+    /// Plain B-tree for equality and range comparisons.
     BTree,
-    /// A B-tree stored `DESC NULLS LAST`, for a column a descending sort
-    /// reads. Read backwards a plain B-tree yields `DESC NULLS FIRST`, so the
-    /// sort would order every match instead of stopping at the page size.
-    /// Serves comparisons as well as a plain one.
+    /// B-tree stored `DESC NULLS LAST`, so a descending sort can stop at the
+    /// page size. (A plain B-tree read backwards is `DESC NULLS FIRST`.)
     BTreeDescending,
-    /// A B-tree over `LOWER(column)` with `text_pattern_ops`, for the
-    /// case-insensitive prefix match a string search defaults to. A plain
-    /// B-tree cannot serve a predicate on an expression of the column.
+    /// B-tree over `LOWER(column) text_pattern_ops`, for case-insensitive
+    /// prefix matches.
     LoweredPrefix,
 }
 
-/// A single generated column.
+/// One generated column.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ColumnDef {
     pub name: String,
@@ -79,16 +55,15 @@ pub struct ColumnDef {
     pub index: IndexKind,
 }
 
-/// The columns backing one parameter, by role. Multi-part types keep their
-/// parts in separate columns of the same row, so a token's system stays with
-/// its own code.
+/// The columns backing one parameter. Multi-part values keep their parts on the
+/// same row, so e.g. a token's system stays paired with its code.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ParamColumns {
     String {
         value: String,
     },
-    /// `system` is absent for a token that never carries one: `_id` reads the
-    /// anchor's `resource_id`, already indexed by its primary key.
+    /// `system` is `None` only for `_id`, which reads the anchor's
+    /// `resource_id`.
     Token {
         system: Option<String>,
         code: String,
@@ -115,56 +90,16 @@ pub enum ParamColumns {
     },
 }
 
-impl ParamColumns {
-    /// Every column this parameter occupies, in insert order.
-    #[must_use]
-    pub fn column_names(&self) -> Vec<&str> {
-        match self {
-            ParamColumns::String { value }
-            | ParamColumns::Number { value }
-            | ParamColumns::Uri { value } => vec![value.as_str()],
-            ParamColumns::Token { system, code } => system
-                .iter()
-                .map(String::as_str)
-                .chain(std::iter::once(code.as_str()))
-                .collect(),
-            ParamColumns::Date { start, end } => vec![start.as_str(), end.as_str()],
-            ParamColumns::Reference {
-                target_type,
-                target_id,
-            } => vec![target_type.as_str(), target_id.as_str()],
-            ParamColumns::Quantity {
-                start,
-                end,
-                system,
-                code,
-            } => vec![start.as_str(), end.as_str(), system.as_str(), code.as_str()],
-        }
-    }
-}
-
-/// One value column of a [`SharedTable`], as the migration's DDL and the batch
-/// insert's array cast both need it.
+/// A value column of a [`SharedTable`]. Shared by the DDL and the batch insert.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SharedColumn {
     pub name: &'static str,
-    /// Valid both in `CREATE TABLE` and in the `$n::<sql_type>[]` cast the
-    /// batch insert binds through.
+    /// Valid both in `CREATE TABLE` and as a `$n::<sql_type>[]` cast.
     pub sql_type: &'static str,
     pub nullable: bool,
 }
 
-impl SharedColumn {
-    const fn new(name: &'static str, sql_type: &'static str, nullable: bool) -> Self {
-        Self {
-            name,
-            sql_type,
-            nullable,
-        }
-    }
-}
-
-/// The shared table a repeating parameter writes to, one per value type.
+/// The shared table for one value type, holding repeating parameters.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SharedTable {
     String,
@@ -176,209 +111,199 @@ pub enum SharedTable {
     Reference,
 }
 
-impl SharedTable {
-    /// Every shared table, in the order the migration creates them.
-    pub const ALL: [SharedTable; 7] = [
-        SharedTable::String,
-        SharedTable::Token,
-        SharedTable::Date,
-        SharedTable::Number,
-        SharedTable::Quantity,
-        SharedTable::Uri,
-        SharedTable::Reference,
-    ];
-
-    /// The value type this table holds.
-    #[must_use]
-    pub const fn kind(self) -> &'static str {
-        match self {
-            SharedTable::String => "string",
-            SharedTable::Token => "token",
-            SharedTable::Date => "date",
-            SharedTable::Number => "number",
-            SharedTable::Quantity => "quantity",
-            SharedTable::Uri => "uri",
-            SharedTable::Reference => "reference",
-        }
-    }
-
-    /// The value columns. The DDL and the batch inserts read this same list,
-    /// so neither can have a column the other lacks. The key columns
-    /// (`res_key`, `param_identity`) are the same everywhere and not listed.
-    #[must_use]
-    pub const fn value_columns(self) -> &'static [SharedColumn] {
-        match self {
-            SharedTable::String | SharedTable::Uri => {
-                const COLUMNS: &[SharedColumn] = &[SharedColumn::new("value", "text", false)];
-                COLUMNS
-            }
-            SharedTable::Token => {
-                // A Coding can carry either half alone.
-                const COLUMNS: &[SharedColumn] = &[
-                    SharedColumn::new("system", "text", true),
-                    SharedColumn::new("code", "text", true),
-                ];
-                COLUMNS
-            }
-            SharedTable::Date => {
-                const COLUMNS: &[SharedColumn] = &[
-                    SharedColumn::new("start_ms", "int8", false),
-                    SharedColumn::new("end_ms", "int8", false),
-                ];
-                COLUMNS
-            }
-            SharedTable::Number => {
-                const COLUMNS: &[SharedColumn] = &[SharedColumn::new("value", "float8", false)];
-                COLUMNS
-            }
-            SharedTable::Quantity => {
-                const COLUMNS: &[SharedColumn] = &[
-                    SharedColumn::new("start_value", "float8", false),
-                    SharedColumn::new("end_value", "float8", false),
-                    SharedColumn::new("start_system", "text", true),
-                    SharedColumn::new("start_code", "text", true),
-                ];
-                COLUMNS
-            }
-            SharedTable::Reference => {
-                // A Reference may name a type with no id, or be an absolute
-                // URL that cannot be split.
-                const COLUMNS: &[SharedColumn] = &[
-                    SharedColumn::new("target_resource_type", "text", true),
-                    SharedColumn::new("target_id", "text", true),
-                ];
-                COLUMNS
-            }
-        }
-    }
-
-    /// `r4_param_token_idx` — version, value type, and an index suffix. The
-    /// `param_` segment keeps these apart from the resource type tables
-    /// (`r4_patient_idx`), since no resource type name contains an underscore.
-    #[must_use]
-    pub fn table_name(self, version: &SupportedFHIRVersions) -> String {
-        format!("{version}_param_{}_idx", self.kind())
-    }
-
-    /// The table `param_type` writes to, or `None` for a type with no
-    /// representation here (composite, special).
-    #[must_use]
-    pub fn for_param_type(param_type: &BoundCode<SearchParamType>) -> Option<SharedTable> {
-        if param_type == &SearchParamType::string() {
-            Some(SharedTable::String)
-        } else if param_type == &SearchParamType::token() {
-            Some(SharedTable::Token)
-        } else if param_type == &SearchParamType::date() {
-            Some(SharedTable::Date)
-        } else if param_type == &SearchParamType::number() {
-            Some(SharedTable::Number)
-        } else if param_type == &SearchParamType::quantity() {
-            Some(SharedTable::Quantity)
-        } else if param_type == &SearchParamType::uri() {
-            Some(SharedTable::Uri)
-        } else if param_type == &SearchParamType::reference() {
-            Some(SharedTable::Reference)
-        } else {
-            None
-        }
-    }
-}
+/// Every shared table, in creation order.
+pub const SHARED_TABLES: [SharedTable; 7] = [
+    SharedTable::String,
+    SharedTable::Token,
+    SharedTable::Date,
+    SharedTable::Number,
+    SharedTable::Quantity,
+    SharedTable::Uri,
+    SharedTable::Reference,
+];
 
 /// One resource type's table of singular parameters.
 #[derive(Debug, Clone, Default)]
 pub struct ResourceTypeSchema {
-    /// Resource type name, e.g. `"Patient"`.
+    /// e.g. `"Patient"`.
     pub resource_type: String,
-    /// Table name, e.g. `"r4_patient_idx"`.
+    /// e.g. `"r4_patient_idx"`.
     pub table_name: String,
-    /// Search parameter `code` → the columns backing it.
+    /// Parameter `code` → its columns.
     pub parameters: HashMap<String, ParamColumns>,
     /// All value columns, sorted by name.
     pub columns: Vec<ColumnDef>,
 }
 
-impl ResourceTypeSchema {
-    /// The columns backing a search parameter `code`, if it has a column here.
-    #[must_use]
-    pub fn columns_for(&self, code: &str) -> Option<&ParamColumns> {
-        self.parameters.get(code)
-    }
-
-    /// The position of a column within `columns`. A batched insert binds one
-    /// fixed column list per statement, so values are collected into a slot per
-    /// position. `columns` is sorted by name, hence the binary search.
-    #[must_use]
-    pub fn column_index(&self, name: &str) -> Option<usize> {
-        self.columns
-            .binary_search_by(|column| column.name.as_str().cmp(name))
-            .ok()
-    }
-}
-
-/// Every generated resource type schema, keyed by resource type name.
+/// Every generated table layout for one FHIR version.
 #[derive(Debug, Clone, Default)]
 pub struct SchemaRegistry {
-    version: SupportedFHIRVersions,
-    /// Columns on the anchor table, for the parameters every resource has.
-    ///
-    /// `_lastUpdated`, `_tag` and the rest are based on `Resource`, so
-    /// replicating them would store the same five columns on ~145 tables and
-    /// still not answer a search naming no resource type. The anchor is the
-    /// `FROM` of every search, typed or not.
-    anchor: ResourceTypeSchema,
-    schemas: HashMap<String, ResourceTypeSchema>,
+    pub version: SupportedFHIRVersions,
+    /// The anchor's columns: parameters on `Resource`/`DomainResource`
+    /// (`_lastUpdated`, `_tag`, ...). Stored once here instead of on every
+    /// type table, so untyped searches can read them too.
+    pub anchor: ResourceTypeSchema,
+    /// Keyed by resource type name.
+    pub schemas: HashMap<String, ResourceTypeSchema>,
 }
 
-impl SchemaRegistry {
-    #[must_use]
-    pub fn get(&self, resource_type: &str) -> Option<&ResourceTypeSchema> {
-        self.schemas.get(resource_type)
-    }
-
-    pub fn iter(&self) -> impl Iterator<Item = &ResourceTypeSchema> {
-        self.schemas.values()
-    }
-
-    /// The anchor table's own schema, carrying the resource-level parameters.
-    #[must_use]
-    pub fn anchor(&self) -> &ResourceTypeSchema {
-        &self.anchor
-    }
-
-    /// The anchor table: one row per indexed resource, selected from by every
-    /// search and hung off by every other table.
-    #[must_use]
-    pub fn resource_table_name(&self) -> String {
-        resource_table_name(&self.version)
-    }
-
-    /// A shared table's name in this registry's FHIR version.
-    #[must_use]
-    pub fn shared_table_name(&self, table: SharedTable) -> String {
-        table.table_name(&self.version)
-    }
-
-    #[must_use]
-    pub fn len(&self) -> usize {
-        self.schemas.len()
-    }
-
-    #[must_use]
-    pub fn is_empty(&self) -> bool {
-        self.schemas.is_empty()
+/// SQL type for `CREATE TABLE` / `ADD COLUMN`.
+#[must_use]
+pub const fn sql_type(column_type: ColumnType) -> &'static str {
+    match column_type {
+        ColumnType::Text => "TEXT",
+        ColumnType::BigInt => "BIGINT",
+        ColumnType::Double => "DOUBLE PRECISION",
     }
 }
 
-/// The resource id parameter, answered from the anchor's `resource_id` key
-/// rather than a column of its own duplicating it.
+/// Every column a parameter occupies, in insert order.
+#[must_use]
+pub fn column_names(columns: &ParamColumns) -> Vec<&str> {
+    match columns {
+        ParamColumns::String { value }
+        | ParamColumns::Number { value }
+        | ParamColumns::Uri { value } => vec![value.as_str()],
+        ParamColumns::Token { system, code } => system
+            .iter()
+            .map(String::as_str)
+            .chain(std::iter::once(code.as_str()))
+            .collect(),
+        ParamColumns::Date { start, end } => vec![start.as_str(), end.as_str()],
+        ParamColumns::Reference {
+            target_type,
+            target_id,
+        } => vec![target_type.as_str(), target_id.as_str()],
+        ParamColumns::Quantity {
+            start,
+            end,
+            system,
+            code,
+        } => vec![start.as_str(), end.as_str(), system.as_str(), code.as_str()],
+    }
+}
+
+const fn shared_column(name: &'static str, sql_type: &'static str, nullable: bool) -> SharedColumn {
+    SharedColumn {
+        name,
+        sql_type,
+        nullable,
+    }
+}
+
+/// The value type a shared table holds.
+#[must_use]
+pub const fn shared_table_kind(table: SharedTable) -> &'static str {
+    match table {
+        SharedTable::String => "string",
+        SharedTable::Token => "token",
+        SharedTable::Date => "date",
+        SharedTable::Number => "number",
+        SharedTable::Quantity => "quantity",
+        SharedTable::Uri => "uri",
+        SharedTable::Reference => "reference",
+    }
+}
+
+/// A shared table's value columns, after the `res_key, param_identity` keys.
+/// The DDL and the inserts both read this list, so they cannot drift.
+#[must_use]
+pub const fn shared_value_columns(table: SharedTable) -> &'static [SharedColumn] {
+    match table {
+        SharedTable::String | SharedTable::Uri => {
+            const COLUMNS: &[SharedColumn] = &[shared_column("value", "text", false)];
+            COLUMNS
+        }
+        SharedTable::Token => {
+            // A Coding may have only a system or only a code.
+            const COLUMNS: &[SharedColumn] = &[
+                shared_column("system", "text", true),
+                shared_column("code", "text", true),
+            ];
+            COLUMNS
+        }
+        SharedTable::Date => {
+            const COLUMNS: &[SharedColumn] = &[
+                shared_column("start_ms", "int8", false),
+                shared_column("end_ms", "int8", false),
+            ];
+            COLUMNS
+        }
+        SharedTable::Number => {
+            const COLUMNS: &[SharedColumn] = &[shared_column("value", "float8", false)];
+            COLUMNS
+        }
+        SharedTable::Quantity => {
+            const COLUMNS: &[SharedColumn] = &[
+                shared_column("start_value", "float8", false),
+                shared_column("end_value", "float8", false),
+                shared_column("start_system", "text", true),
+                shared_column("start_code", "text", true),
+            ];
+            COLUMNS
+        }
+        SharedTable::Reference => {
+            // A type with no id, or an absolute URL, leaves one half empty.
+            const COLUMNS: &[SharedColumn] = &[
+                shared_column("target_resource_type", "text", true),
+                shared_column("target_id", "text", true),
+            ];
+            COLUMNS
+        }
+    }
+}
+
+/// `r4_param_token_idx`. The `param_` segment can't clash with a type table,
+/// since no resource type name contains an underscore.
+#[must_use]
+pub fn shared_table_name(version: &SupportedFHIRVersions, table: SharedTable) -> String {
+    format!("{version}_param_{}_idx", shared_table_kind(table))
+}
+
+/// The shared table for a parameter type; `None` for composite and special.
+#[must_use]
+pub fn shared_table_for(param_type: &BoundCode<SearchParamType>) -> Option<SharedTable> {
+    [
+        (SearchParamType::string(), SharedTable::String),
+        (SearchParamType::token(), SharedTable::Token),
+        (SearchParamType::date(), SharedTable::Date),
+        (SearchParamType::number(), SharedTable::Number),
+        (SearchParamType::quantity(), SharedTable::Quantity),
+        (SearchParamType::uri(), SharedTable::Uri),
+        (SearchParamType::reference(), SharedTable::Reference),
+    ]
+    .into_iter()
+    .find_map(|(candidate, table)| (param_type == &candidate).then_some(table))
+}
+
+/// `r4_resource_idx`: the anchor, one row per indexed resource.
+#[must_use]
+pub fn resource_table_name(version: &SupportedFHIRVersions) -> String {
+    format!("{version}_resource_idx")
+}
+
+/// `r4_patient_idx`: one table per resource type.
+#[must_use]
+pub fn resource_type_to_table(version: &SupportedFHIRVersions, resource_type: &str) -> String {
+    format!("{version}_{}_idx", resource_type.to_ascii_lowercase())
+}
+
+/// Position of `name` in `schema.columns` (sorted, so binary search).
+#[must_use]
+pub fn column_index(schema: &ResourceTypeSchema, name: &str) -> Option<usize> {
+    schema
+        .columns
+        .binary_search_by(|column| column.name.as_str().cmp(name))
+        .ok()
+}
+
+/// `_id` reads the anchor's `resource_id` primary key instead of a column.
 const RESOURCE_ID_CODE: &str = "_id";
 
-/// Bases whose parameters apply to every resource and so live on the anchor
-/// (`_lastUpdated`, `_tag`, `_profile`, ...).
+/// Bases whose parameters apply to every resource, so live on the anchor.
 const UNIVERSAL_BASES: [&str; 2] = ["Resource", "DomainResource"];
 
-/// The fixed columns of the anchor and the resource type tables. A parameter
-/// whose generated name lands on one falls back to the shared tables.
+/// Fixed columns; a parameter whose name lands on one uses the shared tables.
 const RESERVED_COLUMNS: [&str; 8] = [
     "res_key",
     "scope",
@@ -390,7 +315,7 @@ const RESERVED_COLUMNS: [&str; 8] = [
     "sequence",
 ];
 
-/// Normalizes a `code` into a safe column base name.
+/// Folds a `code` to `[a-z0-9_]`, so a column name never needs escaping.
 fn code_to_column_base(code: &str) -> String {
     code.chars()
         .map(|c| {
@@ -403,26 +328,12 @@ fn code_to_column_base(code: &str) -> String {
         .collect()
 }
 
-/// The anchor table for a FHIR version: one row per indexed resource.
-#[must_use]
-pub fn resource_table_name(version: &SupportedFHIRVersions) -> String {
-    format!("{version}_resource_idx")
-}
-
-/// `r4_patient_idx` — one table per resource type.
-#[must_use]
-pub fn resource_type_to_table(version: &SupportedFHIRVersions, resource_type: &str) -> String {
-    format!("{version}_{}_idx", resource_type.to_ascii_lowercase())
-}
-
-/// The columns a singular parameter of this type needs, or `None` for a type
-/// with no column representation. Derived from the same mapping the shared
-/// tables use, so a parameter cannot get a column of one shape and rows of
-/// another.
+/// Column names for a singular parameter of `param_type`. Derived from the
+/// same mapping as the shared tables, so both shapes always agree.
 fn columns_for_type(base: &str, param_type: &BoundCode<SearchParamType>) -> Option<ParamColumns> {
     let part = |suffix: &str| format!("{base}{suffix}");
 
-    Some(match SharedTable::for_param_type(param_type)? {
+    Some(match shared_table_for(param_type)? {
         SharedTable::String => ParamColumns::String {
             value: base.to_string(),
         },
@@ -453,43 +364,29 @@ fn columns_for_type(base: &str, param_type: &BoundCode<SearchParamType>) -> Opti
     })
 }
 
-/// The definitions for a parameter's columns.
-///
-/// Only the half of a pair a query filters on is indexed: a token is looked up
-/// by code and a reference by id, with the other half checked on the same row.
-/// Indexing it too would mostly index a few repeated canonical URLs.
+/// Column definitions for a parameter. Of a pair, only the half queries filter
+/// on is indexed (token code, reference id); the other is checked on the row.
 fn column_defs(columns: &ParamColumns) -> Vec<ColumnDef> {
-    let text = |name: &String, index| ColumnDef {
+    let def = |name: &String, column_type, index| ColumnDef {
         name: name.clone(),
-        column_type: ColumnType::Text,
+        column_type,
         index,
     };
+    let text = |name, index| def(name, ColumnType::Text, index);
 
     match columns {
         ParamColumns::String { value } => vec![text(value, IndexKind::LoweredPrefix)],
         ParamColumns::Uri { value } => vec![text(value, IndexKind::BTree)],
-        ParamColumns::Number { value } => vec![ColumnDef {
-            name: value.clone(),
-            column_type: ColumnType::Double,
-            index: IndexKind::BTree,
-        }],
+        ParamColumns::Number { value } => vec![def(value, ColumnType::Double, IndexKind::BTree)],
         ParamColumns::Token { system, code } => system
             .iter()
             .map(|system| text(system, IndexKind::None))
             .chain(std::iter::once(text(code, IndexKind::BTree)))
             .collect(),
         ParamColumns::Date { start, end } => vec![
-            ColumnDef {
-                name: start.clone(),
-                column_type: ColumnType::BigInt,
-                index: IndexKind::BTree,
-            },
-            // The only sort reading the period's end is a descending one.
-            ColumnDef {
-                name: end.clone(),
-                column_type: ColumnType::BigInt,
-                index: IndexKind::BTreeDescending,
-            },
+            def(start, ColumnType::BigInt, IndexKind::BTree),
+            // Only descending sorts read the end.
+            def(end, ColumnType::BigInt, IndexKind::BTreeDescending),
         ],
         ParamColumns::Reference {
             target_type,
@@ -504,25 +401,17 @@ fn column_defs(columns: &ParamColumns) -> Vec<ColumnDef> {
             system,
             code,
         } => vec![
-            ColumnDef {
-                name: start.clone(),
-                column_type: ColumnType::Double,
-                index: IndexKind::BTree,
-            },
-            ColumnDef {
-                name: end.clone(),
-                column_type: ColumnType::Double,
-                index: IndexKind::BTree,
-            },
+            def(start, ColumnType::Double, IndexKind::BTree),
+            def(end, ColumnType::Double, IndexKind::BTree),
             text(system, IndexKind::None),
             text(code, IndexKind::None),
         ],
     }
 }
 
-/// The code, URL and columns `parameter` would occupy, or `None` when it can
-/// have none: project-level, or with no expression or column representation.
-/// The caller decides per resource type whether it actually gets them.
+/// The `(code, url, columns)` a system-level parameter with an expression and
+/// a column-mappable type would use. Cardinality is checked per base by the
+/// caller.
 fn singular_columns(parameter: &ResolvedParameter) -> Option<(&str, &str, ParamColumns)> {
     if !matches!(parameter.level, ParameterLevel::System) {
         return None;
@@ -530,103 +419,101 @@ fn singular_columns(parameter: &ResolvedParameter) -> Option<(&str, &str, ParamC
 
     let search_parameter = &parameter.search_parameter;
     let code = search_parameter.code.value.as_deref()?;
-
-    // Without an expression nothing is evaluated into the column.
     search_parameter
         .expression
         .as_ref()
         .and_then(|e| e.value.as_deref())?;
-
     let url = search_parameter.url.value.as_deref()?;
     let columns = columns_for_type(&code_to_column_base(code), &search_parameter.type_)?;
+
     Some((code, url, columns))
 }
 
-/// Lays out one table from its parameters, in order.
-///
-/// Taken names are seeded with the fixed columns. Two parameters can also
-/// normalize to the same name; first writer wins and the loser resolves through
-/// the shared tables, which have no such constraint.
+/// Lays out one table. On a column name clash (with a fixed column or an
+/// earlier parameter) the later parameter falls back to the shared tables.
 fn build_table_schema(
     table_name: String,
     resource_type: String,
     entries: &[(String, ParamColumns)],
 ) -> ResourceTypeSchema {
-    let mut schema = ResourceTypeSchema {
+    let reserved: HashSet<&str> = RESERVED_COLUMNS.into_iter().collect();
+
+    let (_, parameters) = entries.iter().fold(
+        (reserved, Vec::with_capacity(entries.len())),
+        |(mut claimed, mut accepted), (code, columns)| {
+            let names = column_names(columns);
+            if names.iter().any(|name| claimed.contains(name)) {
+                tracing::warn!(
+                    "PG search: '{code}' on '{table_name}' collides with an existing column; \
+                     it resolves through the shared tables instead.",
+                );
+            } else {
+                claimed.extend(names);
+                accepted.push((code, columns));
+            }
+            (claimed, accepted)
+        },
+    );
+
+    let mut columns: Vec<ColumnDef> = parameters
+        .iter()
+        .flat_map(|(_, columns)| column_defs(columns))
+        .collect();
+    columns.sort_by(|a, b| a.name.cmp(&b.name));
+
+    ResourceTypeSchema {
         table_name,
         resource_type,
-        parameters: HashMap::new(),
-        columns: Vec::new(),
-    };
-
-    let mut claimed: HashSet<String> = RESERVED_COLUMNS.iter().map(|c| (*c).to_string()).collect();
-
-    for (code, columns) in entries {
-        let names = columns.column_names();
-        if names.iter().any(|name| claimed.contains(*name)) {
-            tracing::warn!(
-                "PG search: '{code}' on '{}' collides with an existing column; \
-                 it resolves through the shared tables instead.",
-                schema.table_name,
-            );
-            continue;
-        }
-
-        for name in names {
-            claimed.insert(name.to_string());
-        }
-
-        schema.columns.extend(column_defs(columns));
-        schema.parameters.insert(code.clone(), columns.clone());
+        parameters: parameters
+            .into_iter()
+            .map(|(code, columns)| (code.clone(), columns.clone()))
+            .collect(),
+        columns,
     }
-
-    schema.columns.sort_by(|a, b| a.name.cmp(&b.name));
-    schema
 }
 
-/// A table per resource type from the singular system-level parameters, plus
+/// Builds every resource type table from the singular system parameters, plus
 /// the anchor's columns for the resource-level ones.
 #[must_use]
 pub fn generate_schemas(
     version: SupportedFHIRVersions,
     parameters: &[ResolvedParameter],
 ) -> SchemaRegistry {
-    let mut universal: Vec<(String, ParamColumns)> = Vec::new();
-    let mut per_type: HashMap<String, Vec<(String, ParamColumns)>> = HashMap::new();
+    // (base, code, columns) for every base where the parameter is singular.
+    // Checked per base: a parameter can repeat on one type but not another.
+    let placements = parameters
+        .iter()
+        .filter_map(|parameter| Some((parameter, singular_columns(parameter)?)))
+        .flat_map(|(parameter, (code, url, columns))| {
+            parameter
+                .search_parameter
+                .base
+                .iter()
+                .filter_map(BoundCode::as_str)
+                .filter(move |base| search_parameter_cardinality::is_single_valued(url, base))
+                // `_id` is the anchor's own key, added below.
+                .filter(move |base| !(code == RESOURCE_ID_CODE && UNIVERSAL_BASES.contains(base)))
+                .map(move |base| (base, code, columns.clone()))
+        });
 
-    for parameter in parameters {
-        let Some((code, url, columns)) = singular_columns(parameter) else {
-            continue;
-        };
-
-        for base in parameter
-            .search_parameter
-            .base
-            .iter()
-            .filter_map(BoundCode::as_str)
-        {
-            // Gated per type: a shared parameter can repeat for one type and
-            // not another, and a column is only safe where it cannot.
-            if !search_parameter_cardinality::is_single_valued(url, base) {
-                continue;
-            }
-
-            // `_id` is the anchor's own key, added below.
-            if code == RESOURCE_ID_CODE && UNIVERSAL_BASES.contains(&base) {
-                continue;
-            }
-
+    // First occurrence of each code per table wins.
+    let (universal, per_type) = placements.fold(
+        (
+            Vec::<(String, ParamColumns)>::new(),
+            HashMap::<String, Vec<(String, ParamColumns)>>::new(),
+        ),
+        |(mut universal, mut per_type), (base, code, columns)| {
             let entries = if UNIVERSAL_BASES.contains(&base) {
                 &mut universal
             } else {
                 per_type.entry(base.to_string()).or_default()
             };
-
             if !entries.iter().any(|(existing, _)| existing == code) {
-                entries.push((code.to_string(), columns.clone()));
+                entries.push((code.to_string(), columns));
             }
-        }
-    }
+            (universal, per_type)
+        },
+    );
 
     let mut anchor = build_table_schema(
         resource_table_name(&version),
@@ -676,6 +563,13 @@ mod tests {
         generate_schemas(SupportedFHIRVersions::R4, &parameters)
     }
 
+    fn schema<'a>(registry: &'a SchemaRegistry, resource_type: &str) -> &'a ResourceTypeSchema {
+        registry
+            .schemas
+            .get(resource_type)
+            .unwrap_or_else(|| panic!("{resource_type} schema"))
+    }
+
     fn column<'a>(schema: &'a ResourceTypeSchema, name: &str) -> Option<&'a ColumnDef> {
         schema.columns.iter().find(|c| c.name == name)
     }
@@ -687,7 +581,7 @@ mod tests {
             "r4_patient_idx"
         );
         assert_eq!(
-            SharedTable::Token.table_name(&SupportedFHIRVersions::R4),
+            shared_table_name(&SupportedFHIRVersions::R4, SharedTable::Token),
             "r4_param_token_idx"
         );
         assert_eq!(
@@ -696,11 +590,10 @@ mod tests {
         );
     }
 
-    /// Singular parameters get a scalar column, the reason for the split.
     #[tokio::test]
     async fn singular_parameters_get_scalar_columns() {
         let registry = registry().await;
-        let patient = registry.get("Patient").expect("Patient schema");
+        let patient = schema(&registry, "Patient");
 
         let birth_date = column(patient, "birthdate_start").expect("birthdate_start");
         assert_eq!(birth_date.column_type, ColumnType::BigInt);
@@ -710,81 +603,81 @@ mod tests {
         assert_eq!(gender.column_type, ColumnType::Text);
     }
 
-    /// `Patient.name` is `0..*`, so it resolves through the shared string
-    /// table.
+    /// `Patient.name` is `0..*`, so it uses the shared string table.
     #[tokio::test]
     async fn repeating_parameters_get_no_column() {
         let registry = registry().await;
-        let patient = registry.get("Patient").expect("Patient schema");
+        let patient = schema(&registry, "Patient");
 
         for code in ["name", "family", "given", "identifier", "address"] {
             assert!(
-                patient.columns_for(code).is_none(),
+                !patient.parameters.contains_key(code),
                 "'{code}' repeats and must not claim a column",
             );
         }
     }
 
-    /// A case-insensitive prefix search needs an index over `LOWER(column)`; a
-    /// plain B-tree cannot serve a predicate on an expression.
+    /// Case-insensitive prefix search needs an index over `LOWER(column)`.
     #[tokio::test]
     async fn string_columns_index_the_lowered_value() {
         let registry = registry().await;
 
-        let mut checked = 0;
-        for schema in registry.iter() {
-            for columns in schema.parameters.values() {
-                if let ParamColumns::String { value } = columns {
-                    assert_eq!(
-                        column(schema, value).expect(value).index,
-                        IndexKind::LoweredPrefix,
-                        "'{value}' on '{}' is searched by prefix",
-                        schema.table_name,
-                    );
-                    checked += 1;
-                }
-            }
-        }
+        let string_columns: Vec<_> = registry
+            .schemas
+            .values()
+            .flat_map(|schema| {
+                schema
+                    .parameters
+                    .values()
+                    .filter_map(move |columns| match columns {
+                        ParamColumns::String { value } => Some((schema, value)),
+                        _ => None,
+                    })
+            })
+            .collect();
 
-        assert!(checked > 0, "expected some string columns to check");
+        assert!(!string_columns.is_empty(), "expected some string columns");
+        for (schema, value) in string_columns {
+            assert_eq!(
+                column(schema, value).expect(value).index,
+                IndexKind::LoweredPrefix,
+                "'{value}' on '{}' is searched by prefix",
+                schema.table_name,
+            );
+        }
     }
 
-    /// The half a query never filters on is checked on the row the indexed
-    /// half already found.
     #[tokio::test]
     async fn only_the_filtered_half_of_a_pair_is_indexed() {
         let registry = registry().await;
-        let observation = registry.get("Observation").expect("Observation schema");
+        let observation = schema(&registry, "Observation");
 
-        if let Some(ParamColumns::Reference {
+        let Some(ParamColumns::Reference {
             target_type,
             target_id,
-        }) = observation.columns_for("subject")
-        {
-            assert_eq!(
-                column(observation, target_id).unwrap().index,
-                IndexKind::BTree
-            );
-            assert_eq!(
-                column(observation, target_type).unwrap().index,
-                IndexKind::None
-            );
-        } else {
+        }) = observation.parameters.get("subject")
+        else {
             panic!("Observation.subject should be a singular reference column");
-        }
+        };
+
+        assert_eq!(
+            column(observation, target_id).unwrap().index,
+            IndexKind::BTree
+        );
+        assert_eq!(
+            column(observation, target_type).unwrap().index,
+            IndexKind::None
+        );
     }
 
-    /// Each resource type takes only its own branch of the union, so a single
-    /// branch gets a column even when another type's repeats.
+    /// Each type takes only its own branch of a union expression.
     #[tokio::test]
     async fn shared_parameters_get_columns_where_their_branch_is_single() {
         let registry = registry().await;
         let has = |resource_type: &str, code: &str| {
-            registry
-                .get(resource_type)
-                .unwrap_or_else(|| panic!("{resource_type} schema"))
-                .columns_for(code)
-                .is_some()
+            schema(&registry, resource_type)
+                .parameters
+                .contains_key(code)
         };
 
         assert!(has("Observation", "patient"));
@@ -792,7 +685,7 @@ mod tests {
         assert!(has("Condition", "patient"));
         assert!(has("Encounter", "date"));
 
-        // `Observation.effective` may be a Timing, which is several dates.
+        // `Observation.effective` may be a Timing (several dates).
         assert!(!has("Observation", "date"));
         // A CodeableConcept is one token per coding.
         assert!(!has("Observation", "code"));
@@ -800,35 +693,30 @@ mod tests {
         assert!(!has("DocumentReference", "encounter"));
     }
 
-    /// Resource-level parameters live on the anchor, which is also what lets a
-    /// search naming no resource type read them.
     #[tokio::test]
     async fn resource_level_parameters_live_on_the_anchor() {
         let registry = registry().await;
-        let anchor = registry.anchor();
 
-        assert_eq!(anchor.table_name, "r4_resource_idx");
+        assert_eq!(registry.anchor.table_name, "r4_resource_idx");
         assert!(
-            anchor.columns_for("_lastUpdated").is_some(),
+            registry.anchor.parameters.contains_key("_lastUpdated"),
             "_lastUpdated belongs on the anchor",
         );
-
-        let patient = registry.get("Patient").expect("Patient schema");
         assert!(
-            patient.columns_for("_lastUpdated").is_none(),
+            !schema(&registry, "Patient")
+                .parameters
+                .contains_key("_lastUpdated"),
             "_lastUpdated must not be replicated onto every resource type table",
         );
     }
 
-    /// `_id` is answered from the anchor's `resource_id`, already indexed by
-    /// its primary key, rather than a duplicate column.
     #[tokio::test]
     async fn id_is_answered_from_the_resource_key() {
         let registry = registry().await;
-        let anchor = registry.anchor();
+        let anchor = &registry.anchor;
 
         assert_eq!(
-            anchor.columns_for("_id"),
+            anchor.parameters.get("_id"),
             Some(&ParamColumns::Token {
                 system: None,
                 code: "resource_id".to_string()
@@ -840,20 +728,16 @@ mod tests {
         );
     }
 
-    /// The anchor's columns are indexed like any other, so a system-wide
-    /// `_lastUpdated` filter or sort reads an index.
     #[tokio::test]
     async fn anchor_columns_are_indexed() {
         let registry = registry().await;
-        let anchor = registry.anchor();
+        let anchor = &registry.anchor;
 
-        let Some(ParamColumns::Date { start, end }) = anchor.columns_for("_lastUpdated") else {
+        let Some(ParamColumns::Date { start, end }) = anchor.parameters.get("_lastUpdated") else {
             panic!("_lastUpdated should be a date column pair");
         };
         assert_eq!(column(anchor, start).unwrap().index, IndexKind::BTree);
-
-        // `_sort=-_lastUpdated` reads the end, and stops at the page size only
-        // if the index is already in that order.
+        // `_sort=-_lastUpdated` reads the end in descending order.
         assert_eq!(
             column(anchor, end).unwrap().index,
             IndexKind::BTreeDescending
@@ -864,7 +748,7 @@ mod tests {
     async fn reserved_columns_are_never_generated() {
         let registry = registry().await;
 
-        for schema in registry.iter() {
+        for schema in registry.schemas.values() {
             for column in &schema.columns {
                 assert!(
                     !RESERVED_COLUMNS.contains(&column.name.as_str()),
@@ -880,7 +764,7 @@ mod tests {
     async fn column_names_are_unique_per_table() {
         let registry = registry().await;
 
-        for schema in registry.iter() {
+        for schema in registry.schemas.values() {
             let mut seen = HashSet::new();
             for column in &schema.columns {
                 assert!(

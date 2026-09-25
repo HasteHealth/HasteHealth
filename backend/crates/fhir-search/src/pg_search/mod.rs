@@ -47,18 +47,18 @@ impl From<sqlx::Error> for PgSearchError {
     }
 }
 
+/// [`SearchEngine`] backed by PostgreSQL. A thin handle: the work is done by
+/// the free functions in [`search`], [`indexing`] and [`migration`].
 #[derive(Clone)]
 pub struct PgSearchEngine<SearchParameterResolver: SearchParameterResolve + 'static> {
     parameter_resolver: Arc<SearchParameterResolver>,
     fp_engine: Arc<FPEngine>,
     pool: Pool<Postgres>,
-    /// Table layouts for the HL7 base parameters, derived from the same static
-    /// R4 set the migration builds the tables from, so the two can't drift.
+    /// Built from the same R4 parameters the migration uses, so the two agree.
     schema_registry: Arc<SchemaRegistry>,
 }
 
-/// Shared by every engine instance: deriving it walks every HL7
-/// `SearchParameter`.
+/// Built once per process; it walks every HL7 `SearchParameter`.
 static R4_SCHEMA_REGISTRY: LazyLock<Arc<SchemaRegistry>> = LazyLock::new(|| {
     Arc::new(generate_schemas(
         SupportedFHIRVersions::R4,
@@ -66,13 +66,25 @@ static R4_SCHEMA_REGISTRY: LazyLock<Arc<SchemaRegistry>> = LazyLock::new(|| {
     ))
 });
 
-impl<Resolver: SearchParameterResolve> PgSearchEngine<Resolver> {
-    /// Whether the search database answers, for callers that wait on it at
-    /// startup.
+impl<Resolver: SearchParameterResolve + 'static> PgSearchEngine<Resolver> {
+    pub fn new(
+        parameter_resolver: Arc<Resolver>,
+        fp_engine: Arc<FPEngine>,
+        pool: Pool<Postgres>,
+    ) -> Self {
+        PgSearchEngine {
+            parameter_resolver,
+            fp_engine,
+            pool,
+            schema_registry: R4_SCHEMA_REGISTRY.clone(),
+        }
+    }
+
+    /// Checks the search database responds, for startup waits.
     ///
     /// # Errors
     ///
-    /// Returns an error if the pool cannot serve a statement.
+    /// Returns an error if the pool cannot run a statement.
     pub async fn is_connected(&self) -> Result<(), OperationOutcomeError> {
         sqlx::query("SELECT 1")
             .execute(&self.pool)
@@ -80,18 +92,18 @@ impl<Resolver: SearchParameterResolve> PgSearchEngine<Resolver> {
             .map(|_| ())
             .map_err(|e| {
                 OperationOutcomeError::fatal(
-                    haste_fhir_model::r4::generated::terminology::IssueType::exception(),
+                    IssueType::exception(),
                     format!("PG search database is not reachable: {e}"),
                 )
             })
     }
 }
 
-/// Creates a separate connection pool for the search index database.
+/// Creates the search index's own connection pool.
 ///
 /// # Errors
 ///
-/// Returns an error if the pool cannot open its first connection.
+/// Returns an error if the first connection cannot be opened.
 pub async fn create_pg_search_pool(
     database_url: &str,
     max_connections: u32,
@@ -108,99 +120,68 @@ pub async fn create_pg_search_pool(
         })
 }
 
-impl<SearchParameterResolver: SearchParameterResolve + 'static>
-    PgSearchEngine<SearchParameterResolver>
-{
-    pub fn new(
-        parameter_resolver: Arc<SearchParameterResolver>,
-        fp_engine: Arc<FPEngine>,
-        pool: Pool<Postgres>,
-    ) -> Self {
-        PgSearchEngine {
-            parameter_resolver,
-            fp_engine,
-            pool,
-            schema_registry: R4_SCHEMA_REGISTRY.clone(),
-        }
-    }
-}
-
-/// One resource's evaluated search values, split the way the schema stores
-/// them.
+/// One resource's evaluated search values, split by storage.
+#[derive(Default)]
 pub(crate) struct ResourceSearchIndex {
-    /// Single-valued parameters, keyed by `code`: a column on the resource
-    /// type's own table.
+    /// Singular system parameters, keyed by `code`: type table or anchor
+    /// columns.
     pub system_entries: Vec<(String, InsertableIndex)>,
-    /// Everything that may repeat, keyed by canonical URL: a row in the shared
-    /// `{version}_param_{type}_idx` table, discriminated by a hash of the URL.
+    /// Possibly repeating parameters, keyed by URL: shared-table rows.
     pub dynamic_entries: Vec<(String, InsertableIndex)>,
 }
 
-/// Evaluates every applicable parameter's `FHIRPath` expression and splits the
-/// results by where they are stored.
+/// Evaluates each parameter's `FHIRPath` expression against `resource` and
+/// splits the results by where they are stored.
 pub(crate) async fn resource_to_search_index(
     fp_engine: Arc<FPEngine>,
     parameters: &[ResolvedParameter],
     resource: &Resource,
     resource_type: &str,
 ) -> Result<ResourceSearchIndex, OperationOutcomeError> {
-    let mut system_entries = Vec::new();
-    let mut dynamic_entries = Vec::new();
+    let mut index = ResourceSearchIndex::default();
 
-    for param in parameters {
-        if let Some(expression) = param
-            .search_parameter
-            .expression
-            .as_ref()
-            .and_then(|e| e.value.as_ref())
-            && let Some(url) = param.search_parameter.url.value.as_ref()
-        {
-            // An unmapped type (composite, special, ...) has nowhere to be
-            // written.
-            if !is_mapped_search_parameter_type(&param.search_parameter.type_) {
-                continue;
-            }
-
-            let result = fp_engine
-                .evaluate(expression, vec![resource])
-                .await
-                .map_err(PgSearchError::from);
-
-            if let Err(err) = result {
+    for (param, expression, url) in parameters.iter().filter_map(indexable) {
+        let evaluated = fp_engine
+            .evaluate(expression, vec![resource])
+            .await
+            .map_err(|e| {
                 tracing::error!(
                     "Failed to evaluate FHIRPath expression: '{}' for resource.",
                     expression,
                 );
-                return Err(err.into());
+                PgSearchError::from(e)
+            })?;
+
+        let insertable =
+            indexing_conversion::to_insertable_index(param, &evaluated.iter().collect::<Vec<_>>())?;
+
+        // Cardinality, not level, decides the destination: a column only
+        // exists where a second value is impossible.
+        match param.level {
+            ParameterLevel::System
+                if search_parameter_cardinality::is_single_valued(url, resource_type) =>
+            {
+                if let Some(code) = param.search_parameter.code.value.as_ref() {
+                    index.system_entries.push((code.clone(), insertable));
+                }
             }
-
-            let insertable = indexing_conversion::to_insertable_index(
-                param,
-                &result?.iter().collect::<Vec<_>>(),
-            )?;
-
-            match &param.level {
-                // A column exists only where a parameter cannot produce a
-                // second value, so cardinality — not level — decides the
-                // destination. Columns are named after the code, not the URL.
-                ParameterLevel::System
-                    if search_parameter_cardinality::is_single_valued(url, resource_type) =>
-                {
-                    if let Some(code) = param.search_parameter.code.value.as_ref() {
-                        system_entries.push((code.clone(), insertable));
-                    }
-                }
-                ParameterLevel::System | ParameterLevel::Project => {
-                    dynamic_entries.push((url.clone(), insertable));
-                }
+            ParameterLevel::System | ParameterLevel::Project => {
+                index.dynamic_entries.push((url.clone(), insertable));
             }
         }
     }
 
-    Ok(ResourceSearchIndex {
-        system_entries,
-        dynamic_entries,
-    })
+    Ok(index)
+}
+
+/// `(parameter, expression, url)` for a parameter that can be stored: it has
+/// both, and a mapped type (not composite or special).
+fn indexable(param: &ResolvedParameter) -> Option<(&ResolvedParameter, &String, &String)> {
+    let search_parameter = &param.search_parameter;
+    let expression = search_parameter.expression.as_ref()?.value.as_ref()?;
+    let url = search_parameter.url.value.as_ref()?;
+
+    is_mapped_search_parameter_type(&search_parameter.type_).then_some((param, expression, url))
 }
 
 impl<SearchParameterResolver: SearchParameterResolve> SearchEngine
