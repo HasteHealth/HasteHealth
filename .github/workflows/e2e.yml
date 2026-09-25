@@ -12,16 +12,16 @@ env:
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        search-backend: [elasticsearch, postgres]
     env:
       HASTE_CERTIFICATION_DIR: certifications
       HASTE_ADMIN_APP_REDIRECT_URI: http://*.localhost:3001
       HASTE_API_URI: http://localhost:3000
       HASTE_REPO.backend: postgres
       HASTE_REPO.database_url: postgresql://postgres:postgres@localhost:5432/haste_health
-      HASTE_SEARCH.backend: elasticsearch
-      HASTE_SEARCH.url: http://localhost:9200
-      HASTE_SEARCH.username: elastic
-      HASTE_SEARCH.password: elastic
       RUST_LOG: none
       SQLX_OFFLINE: true
 
@@ -66,6 +66,27 @@ jobs:
         with:
           workspaces: "./backend -> target"
           save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      # The postgres search backend indexes into its own database, kept apart
+      # from the repo's, so the two backends never share tables in this job.
+      - name: Create isolated search database (Postgres backend)
+        if: matrix.search-backend == 'postgres'
+        run: PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE haste_health_search;"
+
+      - name: Configure search backend (Elasticsearch)
+        if: matrix.search-backend == 'elasticsearch'
+        run: |
+          echo "HASTE_SEARCH.backend=elasticsearch" >> "$GITHUB_ENV"
+          echo "HASTE_SEARCH.url=http://localhost:9200" >> "$GITHUB_ENV"
+          echo "HASTE_SEARCH.username=elastic" >> "$GITHUB_ENV"
+          echo "HASTE_SEARCH.password=elastic" >> "$GITHUB_ENV"
+
+      - name: Configure search backend (Postgres)
+        if: matrix.search-backend == 'postgres'
+        run: |
+          echo "HASTE_SEARCH.backend=postgres" >> "$GITHUB_ENV"
+          echo "HASTE_SEARCH.database_url=postgresql://postgres:postgres@localhost:5432/haste_health_search" >> "$GITHUB_ENV"
+          echo "HASTE_SEARCH.max_connections=20" >> "$GITHUB_ENV"
 
       - name: Build
         run: cargo build --locked --verbose --workspace
