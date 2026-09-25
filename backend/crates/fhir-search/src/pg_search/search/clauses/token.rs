@@ -1,8 +1,13 @@
 use haste_fhir_client::url::Parameter;
 
-use super::{ClauseTarget, SqlClause, SqlParam, require_values};
+use super::{
+    ClauseTarget, SqlClause, SqlParam, bind, or_predicates, require_values, target_params,
+    token_exprs, wrap_predicate,
+};
 use crate::pg_search::search::QueryBuildError;
 
+/// Matches `[system|]code`. System and code share a row, so no recombination
+/// is needed.
 pub fn token_clause(
     parsed_parameter: &Parameter,
     target: &ClauseTarget,
@@ -14,68 +19,56 @@ pub fn token_clause(
         }
         None => false,
     };
-
     require_values(parsed_parameter)?;
 
-    // Both halves sit on the same row, so nothing has to be recombined.
-    let (system_expr, code_expr) = target.token_exprs()?;
-    let mut params = target.params();
-    let predicate = build_or_expr(parsed_parameter, &system_expr, &code_expr, &mut params)?;
+    let (system_column, code_column) = token_exprs(target)?;
+    let (predicate, params) = or_predicates(
+        &parsed_parameter.value,
+        target_params(target),
+        |value, params| token_predicate(value, &system_column, &code_column, params),
+    )?;
 
-    Ok(target.finish(negate, &predicate, params))
+    Ok(wrap_predicate(target, negate, &predicate, params))
 }
 
-/// OR-joins a predicate per supplied `[system|]code`, pushing bind parameters
-/// onto `params` as it goes.
-fn build_or_expr(
-    parsed_parameter: &Parameter,
-    system_expr: &str,
-    code_expr: &str,
-    params: &mut Vec<SqlParam>,
-) -> Result<String, QueryBuildError> {
-    let mut or_clauses = Vec::new();
+fn token_predicate(
+    value: &str,
+    system_column: &str,
+    code_column: &str,
+    params: Vec<SqlParam>,
+) -> Result<(String, Vec<SqlParam>), QueryBuildError> {
+    let text = |s: &str| SqlParam::Text(s.to_string());
 
-    for value in &parsed_parameter.value {
-        let pieces: Vec<&str> = value.split('|').collect();
-        match pieces.len() {
-            // code — any system
-            1 => {
-                let idx = params.len() + 1;
-                or_clauses.push(format!("{code_expr} = ${idx}"));
-                params.push(SqlParam::Text(pieces[0].to_string()));
-            }
-            2 => {
-                let system = pieces[0];
-                let code = pieces[1];
-
-                if system.is_empty() && code.is_empty() {
-                    // "|" — match any token for this parameter
-                    or_clauses.push("TRUE".to_string());
-                } else if system.is_empty() {
-                    // "|code" — code with no system
-                    let idx = params.len() + 1;
-                    or_clauses.push(format!("({code_expr} = ${idx} AND {system_expr} IS NULL)"));
-                    params.push(SqlParam::Text(code.to_string()));
-                } else if code.is_empty() {
-                    // "system|" — any code in this system
-                    let idx = params.len() + 1;
-                    or_clauses.push(format!("{system_expr} = ${idx}"));
-                    params.push(SqlParam::Text(system.to_string()));
-                } else {
-                    let sys_idx = params.len() + 1;
-                    let code_idx = params.len() + 2;
-                    or_clauses.push(format!(
-                        "({system_expr} = ${sys_idx} AND {code_expr} = ${code_idx})"
-                    ));
-                    params.push(SqlParam::Text(system.to_string()));
-                    params.push(SqlParam::Text(code.to_string()));
-                }
-            }
-            _ => return Err(QueryBuildError::InvalidParameterValue(value.clone())),
+    Ok(match value.split('|').collect::<Vec<_>>()[..] {
+        // `code`: any system.
+        [code] => {
+            let (params, i) = bind(params, [text(code)]);
+            (format!("{code_column} = ${i}"), params)
         }
-    }
-
-    Ok(or_clauses.join(" OR "))
+        // `|`: any token.
+        ["", ""] => ("TRUE".to_string(), params),
+        // `|code`: no system.
+        ["", code] => {
+            let (params, i) = bind(params, [text(code)]);
+            (
+                format!("({code_column} = ${i} AND {system_column} IS NULL)"),
+                params,
+            )
+        }
+        // `system|`: any code in the system.
+        [system, ""] => {
+            let (params, i) = bind(params, [text(system)]);
+            (format!("{system_column} = ${i}"), params)
+        }
+        [system, code] => {
+            let (params, i) = bind(params, [text(system), text(code)]);
+            (
+                format!("({system_column} = ${i} AND {code_column} = ${})", i + 1),
+                params,
+            )
+        }
+        _ => return Err(QueryBuildError::InvalidParameterValue(value.to_string())),
+    })
 }
 
 #[cfg(test)]
@@ -97,8 +90,7 @@ mod tests {
         .sql
     }
 
-    /// `_id` has no system: it reads the anchor column the primary key already
-    /// indexes.
+    /// `_id` has no system; it reads the anchor's primary key column.
     #[test]
     fn an_id_search_reads_the_key_column() {
         let target = ClauseTarget::DirectColumn {
@@ -115,8 +107,7 @@ mod tests {
         );
     }
 
-    /// One indexed lookup per value, correlated back to the anchor row: the
-    /// planner can drive it either way round.
+    /// A repeating token is a correlated `EXISTS` on the shared table.
     #[test]
     fn a_repeating_token_reads_the_shared_table_by_identity() {
         let target = ClauseTarget::Dynamic {

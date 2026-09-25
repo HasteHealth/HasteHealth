@@ -1,52 +1,43 @@
 use haste_fhir_client::url::Parameter;
 
-use super::{ClauseTarget, SqlClause, SqlParam, require_values};
+use super::{
+    ClauseTarget, SqlClause, SqlParam, bind, or_predicates, reference_exprs, require_values,
+    target_params, wrap_predicate,
+};
 use crate::pg_search::search::QueryBuildError;
 
+/// Matches `id` or `Type/id`.
 pub fn reference_clause(
     parsed_parameter: &Parameter,
     target: &ClauseTarget,
 ) -> Result<SqlClause, QueryBuildError> {
     require_values(parsed_parameter)?;
 
-    let (type_expr, id_expr) = target.reference_exprs()?;
-    let mut params = target.params();
-    let predicate = build_or_expr(parsed_parameter, &type_expr, &id_expr, &mut params)?;
-
-    Ok(target.finish(false, &predicate, params))
-}
-
-/// OR-joins a predicate per supplied `[Type/]id` value.
-fn build_or_expr(
-    parsed_parameter: &Parameter,
-    type_expr: &str,
-    id_expr: &str,
-    params: &mut Vec<SqlParam>,
-) -> Result<String, QueryBuildError> {
-    let mut or_clauses = Vec::new();
-
-    for value in &parsed_parameter.value {
-        let pieces: Vec<&str> = value.split('/').collect();
-        match pieces.len() {
-            // ID only
-            1 => {
-                let idx = params.len() + 1;
-                or_clauses.push(format!("{id_expr} = ${idx}"));
-                params.push(SqlParam::Text(pieces[0].to_string()));
+    let (type_column, id_column) = reference_exprs(target)?;
+    let (predicate, params) = or_predicates(
+        &parsed_parameter.value,
+        target_params(target),
+        |value, params| match value.split('/').collect::<Vec<_>>()[..] {
+            [id] => {
+                let (params, i) = bind(params, [SqlParam::Text(id.to_string())]);
+                Ok((format!("{id_column} = ${i}"), params))
             }
-            // ResourceType/ID
-            2 => {
-                let type_idx = params.len() + 1;
-                let id_idx = params.len() + 2;
-                or_clauses.push(format!(
-                    "({type_expr} = ${type_idx} AND {id_expr} = ${id_idx})"
-                ));
-                params.push(SqlParam::Text(pieces[0].to_string()));
-                params.push(SqlParam::Text(pieces[1].to_string()));
+            [resource_type, id] => {
+                let (params, i) = bind(
+                    params,
+                    [
+                        SqlParam::Text(resource_type.to_string()),
+                        SqlParam::Text(id.to_string()),
+                    ],
+                );
+                Ok((
+                    format!("({type_column} = ${i} AND {id_column} = ${})", i + 1),
+                    params,
+                ))
             }
-            _ => return Err(QueryBuildError::InvalidParameterValue(value.clone())),
-        }
-    }
+            _ => Err(QueryBuildError::InvalidParameterValue(value.to_string())),
+        },
+    )?;
 
-    Ok(or_clauses.join(" OR "))
+    Ok(wrap_predicate(target, false, &predicate, params))
 }

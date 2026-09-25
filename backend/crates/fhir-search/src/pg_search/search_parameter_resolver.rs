@@ -7,7 +7,7 @@ use haste_jwt::{ProjectId, TenantId};
 
 use super::{
     keys,
-    schema::{SharedTable, resource_table_name},
+    schema::{SharedTable, resource_table_name, shared_table_name},
 };
 use haste_repository::types::SupportedFHIRVersions;
 use haste_repository::{Repository, fhir::CachePolicy};
@@ -20,12 +20,21 @@ use crate::{
     memory::{R4_SEARCH_PARAMETERS_INDEX, SearchParametersIndex, create_index_map},
 };
 
+/// Resolves HL7 base parameters plus each project's own active
+/// `SearchParameter` resources.
 #[derive(Clone)]
 pub struct PgSearchParameterResolver<Repo: Repository + Send + Sync> {
     pool: Pool<Postgres>,
     repo: Arc<Repo>,
 }
 
+impl<Repo: Repository + Send + Sync> PgSearchParameterResolver<Repo> {
+    pub fn new(pool: Pool<Postgres>, repo: Arc<Repo>) -> Self {
+        PgSearchParameterResolver { pool, repo }
+    }
+}
+
+/// Per-project parameter indexes, evicted after two idle hours.
 static PG_SEARCHPARAMETER_CACHE: LazyLock<
     Cache<(TenantId, ProjectId), Arc<SearchParametersIndex>>,
 > = LazyLock::new(|| {
@@ -34,26 +43,17 @@ static PG_SEARCHPARAMETER_CACHE: LazyLock<
         .build()
 });
 
-impl<Repo: Repository + Send + Sync> PgSearchParameterResolver<Repo> {
-    pub fn new(pool: Pool<Postgres>, repo: Arc<Repo>) -> Self {
-        PgSearchParameterResolver { pool, repo }
-    }
-}
-
 const CONFORMANCE_STATUS_URL: &str = "http://hl7.org/fhir/SearchParameter/conformance-status";
 
-/// Finds active `SearchParameter` resources in the PG search index and builds
-/// a project-level search parameter index from them.
+/// Builds a project's parameter index from its active `SearchParameter`s.
 async fn create_project_sp_index<Repo: Repository + Send + Sync>(
     pool: &Pool<Postgres>,
     repo: &Repo,
     tenant: &TenantId,
     project: &ProjectId,
 ) -> Result<SearchParametersIndex, OperationOutcomeError> {
-    // `SearchParameter.status` comes from `conformance-status`, whose
-    // expression is a union across every conformance resource. A union can
-    // yield more than one value, so the parameter has no column of its own and
-    // is read from the shared token table like any other repeating parameter.
+    // `SearchParameter.status` comes from `conformance-status`, a union that
+    // can repeat, so it is read from the shared token table.
     let sql = format!(
         "SELECT sr.resource_id, sr.version_id \
          FROM {resource_table} sr \
@@ -64,7 +64,7 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
              AND t.code = 'active' \
          LIMIT 10000",
         resource_table = resource_table_name(&SupportedFHIRVersions::R4),
-        token_table = SharedTable::Token.table_name(&SupportedFHIRVersions::R4),
+        token_table = shared_table_name(&SupportedFHIRVersions::R4, SharedTable::Token),
     );
 
     let rows = sqlx::query(&sql)
@@ -86,12 +86,8 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
 
     let version_ids: Vec<haste_jwt::VersionId> = rows
         .iter()
-        .map(|r| {
-            let vid: String = r.get("version_id");
-            haste_jwt::VersionId::new(vid)
-        })
+        .map(|r| haste_jwt::VersionId::new(r.get("version_id")))
         .collect();
-
     let version_id_refs: Vec<&haste_jwt::VersionId> = version_ids.iter().collect();
 
     let project_sps = repo
@@ -110,28 +106,32 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
     ))
 }
 
-async fn get_or_create_sp_index_for_project<Repo: Repository + Send + Sync>(
-    pool: &Pool<Postgres>,
-    repo: &Repo,
-    tenant: TenantId,
-    project: ProjectId,
+/// The project's cached parameter index, or `None` for the system project.
+async fn project_index<Repo: Repository + Send + Sync>(
+    resolver: &PgSearchParameterResolver<Repo>,
+    tenant: &TenantId,
+    project: &ProjectId,
 ) -> Result<Option<Arc<SearchParametersIndex>>, OperationOutcomeError> {
-    if let (TenantId::System, ProjectId::System) = (&tenant, &project) {
+    if let (TenantId::System, ProjectId::System) = (tenant, project) {
         return Ok(None);
     }
 
-    let index_key = (tenant, project);
-    let pool = pool.clone();
-    let index = PG_SEARCHPARAMETER_CACHE
-        .try_get_with(index_key.clone(), async {
-            create_project_sp_index(&pool, repo, &index_key.0, &index_key.1)
+    let index_key = (tenant.clone(), project.clone());
+    PG_SEARCHPARAMETER_CACHE
+        .try_get_with(index_key, async {
+            create_project_sp_index(&resolver.pool, resolver.repo.as_ref(), tenant, project)
                 .await
                 .map(Arc::new)
         })
         .await
-        .map_err(|e| OperationOutcomeError::fatal(IssueType::exception(), e.to_string()))?;
+        .map(Some)
+        .map_err(|e| OperationOutcomeError::fatal(IssueType::exception(), e.to_string()))
+}
 
-    Ok(Some(index))
+/// `base` followed by `extra`, reusing `base`'s allocation.
+fn extended<T>(mut base: Vec<T>, extra: Vec<T>) -> Vec<T> {
+    base.extend(extra);
+    base
 }
 
 impl<Repo: Repository + Send + Sync> SearchParameterResolve for PgSearchParameterResolver<Repo> {
@@ -141,25 +141,19 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve for PgSearchParamete
         project: &ProjectId,
         resource_type: &ResourceType,
     ) -> Result<Vec<ResolvedParameter>, OperationOutcomeError> {
-        let mut sps = R4_SEARCH_PARAMETERS_INDEX
+        let base = R4_SEARCH_PARAMETERS_INDEX
             .by_resource_type(tenant, project, resource_type)
             .await?;
 
-        if let Some(project_index) = get_or_create_sp_index_for_project(
-            &self.pool,
-            self.repo.as_ref(),
-            tenant.clone(),
-            project.clone(),
-        )
-        .await?
-        {
-            let project_sps = project_index
-                .by_resource_type(tenant, project, resource_type)
-                .await?;
-            sps.extend(project_sps);
-        }
-
-        Ok(sps)
+        Ok(match project_index(self, tenant, project).await? {
+            Some(index) => extended(
+                base,
+                index
+                    .by_resource_type(tenant, project, resource_type)
+                    .await?,
+            ),
+            None => base,
+        })
     }
 
     async fn by_name(
@@ -169,24 +163,17 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve for PgSearchParamete
         resource_type: Option<&ResourceType>,
         code: &str,
     ) -> Result<Option<ResolvedParameter>, OperationOutcomeError> {
+        // Base parameters take precedence over a project's.
         if let Some(parameter) = R4_SEARCH_PARAMETERS_INDEX
             .by_name(tenant, project, resource_type, code)
             .await?
         {
-            Ok(Some(parameter))
-        } else if let Some(project_index) = get_or_create_sp_index_for_project(
-            &self.pool,
-            self.repo.as_ref(),
-            tenant.clone(),
-            project.clone(),
-        )
-        .await?
-        {
-            project_index
-                .by_name(tenant, project, resource_type, code)
-                .await
-        } else {
-            Ok(None)
+            return Ok(Some(parameter));
+        }
+
+        match project_index(self, tenant, project).await? {
+            Some(index) => index.by_name(tenant, project, resource_type, code).await,
+            None => Ok(None),
         }
     }
 
@@ -195,19 +182,11 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve for PgSearchParamete
         tenant: &TenantId,
         project: &ProjectId,
     ) -> Result<Vec<ResolvedParameter>, OperationOutcomeError> {
-        let mut all_sps = R4_SEARCH_PARAMETERS_INDEX.all(tenant, project).await?;
+        let base = R4_SEARCH_PARAMETERS_INDEX.all(tenant, project).await?;
 
-        if let Some(project_index) = get_or_create_sp_index_for_project(
-            &self.pool,
-            self.repo.as_ref(),
-            tenant.clone(),
-            project.clone(),
-        )
-        .await?
-        {
-            all_sps.extend(project_index.all(tenant, project).await?);
-        }
-
-        Ok(all_sps)
+        Ok(match project_index(self, tenant, project).await? {
+            Some(index) => extended(base, index.all(tenant, project).await?),
+            None => base,
+        })
     }
 }
