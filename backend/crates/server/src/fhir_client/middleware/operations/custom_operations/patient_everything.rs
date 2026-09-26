@@ -291,7 +291,7 @@ fn compartment_searches(
         .unwrap_or_default()
         .iter()
         .filter_map(|resource: &CompartmentDefinitionResource| {
-            let code = resource.code.as_str()?;
+            let code: &str = resource.code.as_str()?;
             // Read directly, and it has no parameter pointing at itself.
             if code == ResourceType::Patient.as_ref() {
                 return None;
