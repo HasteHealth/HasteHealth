@@ -80,6 +80,7 @@ impl<
             Box::new(custom_operations::indexing_errors_op()),
             Box::new(custom_operations::tenant_customization_op()),
             Box::new(custom_operations::tenant_branding_op()),
+            Box::new(custom_operations::patient_everything()),
         ];
 
         Self(Arc::new(executors))

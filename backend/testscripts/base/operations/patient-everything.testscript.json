@@ -1,0 +1,573 @@
+{
+    "id": "patient-everything-test",
+    "url": "https://haste.health/fhir/TestScript/patient-everything",
+    "name": "Patient Everything Test",
+    "title": "Patient $everything tests",
+    "status": "active",
+    "description": "Tests Patient/{id}/$everything: the patient plus their compartment in one searchset Bundle, and the _type, _count and _since filters. Resources use client-supplied ids so the compartment references are static.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "everything-patient",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "patient-everything-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Everything",
+                    "given": [
+                        "Eve"
+                    ]
+                }
+            ],
+            "gender": "female",
+            "birthDate": "1980-04-12"
+        },
+        {
+            "id": "everything-observation",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "patient-everything-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7",
+                        "display": "Body Weight"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/everything-patient"
+            },
+            "effectiveDateTime": "2026-03-15",
+            "valueQuantity": {
+                "value": 72.5,
+                "unit": "kg",
+                "system": "http://unitsofmeasure.org",
+                "code": "kg"
+            }
+        },
+        {
+            "id": "everything-condition",
+            "resourceType": "Condition",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "patient-everything-test"
+                    }
+                ]
+            },
+            "clinicalStatus": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active"
+                    }
+                ]
+            },
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "code": "44054006",
+                        "display": "Type 2 diabetes mellitus"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/everything-patient"
+            }
+        },
+        {
+            "id": "everything-other-patient",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "patient-everything-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Unrelated",
+                    "given": [
+                        "Otto"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "everything-other-observation",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "patient-everything-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "8867-4",
+                        "display": "Heart rate"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/everything-other-patient"
+            },
+            "effectiveDateTime": "2026-03-15",
+            "valueQuantity": {
+                "value": 68,
+                "unit": "/min",
+                "system": "http://unitsofmeasure.org",
+                "code": "/min"
+            }
+        },
+        {
+            "id": "everything-no-params",
+            "resourceType": "Parameters"
+        },
+        {
+            "id": "everything-type-observation",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "_type",
+                    "valueCode": "Observation"
+                }
+            ]
+        },
+        {
+            "id": "everything-type-two",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "_type",
+                    "valueCode": "Condition,Observation"
+                }
+            ]
+        },
+        {
+            "id": "everything-count-one",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "_count",
+                    "valueInteger": 1
+                }
+            ]
+        },
+        {
+            "id": "everything-since-future",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "_since",
+                    "valueInstant": "2099-01-01T00:00:00Z"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-patient",
+            "resource": {
+                "reference": "#everything-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation",
+            "resource": {
+                "reference": "#everything-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-condition",
+            "resource": {
+                "reference": "#everything-condition"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-other-patient",
+            "resource": {
+                "reference": "#everything-other-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-other-observation",
+            "resource": {
+                "reference": "#everything-other-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-no-params",
+            "resource": {
+                "reference": "#everything-no-params"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-type-observation",
+            "resource": {
+                "reference": "#everything-type-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-type-two",
+            "resource": {
+                "reference": "#everything-type-two"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-count-one",
+            "resource": {
+                "reference": "#everything-count-one"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-since-future",
+            "resource": {
+                "reference": "#everything-since-future"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "setup": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "The patient under test, at a client-supplied id so the compartment references below are static.",
+                    "targetId": "fixture-patient",
+                    "sourceId": "fixture-patient",
+                    "responseId": "created-patient",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "An Observation in the patient's compartment.",
+                    "targetId": "fixture-observation",
+                    "sourceId": "fixture-observation",
+                    "responseId": "created-observation",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "A Condition in the patient's compartment.",
+                    "targetId": "fixture-condition",
+                    "sourceId": "fixture-condition",
+                    "responseId": "created-condition",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "A second patient, whose resources must never appear in the first patient's compartment.",
+                    "targetId": "fixture-other-patient",
+                    "sourceId": "fixture-other-patient",
+                    "responseId": "created-other-patient",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "description": "An Observation belonging to the other patient.",
+                    "targetId": "fixture-other-observation",
+                    "sourceId": "fixture-other-observation",
+                    "responseId": "created-other-observation",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    },
+    "test": [
+        {
+            "id": "01-everything-returns-the-patient-and-compartment",
+            "name": "$everything returns the patient and their compartment",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "everything",
+                        "resource": "Patient",
+                        "targetId": "fixture-patient",
+                        "sourceId": "fixture-no-params",
+                        "responseId": "everything-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "$everything answers with a searchset Bundle",
+                        "expression": "Bundle.type = 'searchset'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient itself is in its own compartment, exactly once",
+                        "expression": "Bundle.entry.resource.ofType(Patient).count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The returned patient is the one invoked on",
+                        "expression": "Bundle.entry.resource.ofType(Patient).id = 'everything-patient'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient's Observation is in the compartment",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'everything-observation').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient's Condition is in the compartment",
+                        "expression": "Bundle.entry.resource.ofType(Condition).where(id = 'everything-condition').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Another patient's Observation is NOT in this compartment",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'everything-other-observation').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Another patient is NOT in this compartment",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'everything-other-patient').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An Observation reachable by two compartment parameters (subject and performer) appears exactly once",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'everything-observation').count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "a complete result reports a total",
+                        "expression": "Bundle.total.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-type-filters-the-result",
+            "name": "_type restricts which resource types are returned",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "everything",
+                        "resource": "Patient",
+                        "targetId": "fixture-patient",
+                        "sourceId": "fixture-type-observation",
+                        "responseId": "everything-observation-only",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "_type=Observation returns the Observation",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'everything-observation').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "_type=Observation excludes the Condition",
+                        "expression": "Bundle.entry.resource.ofType(Condition).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "_type=Observation excludes the Patient itself",
+                        "expression": "Bundle.entry.resource.ofType(Patient).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-type-accepts-a-comma-delimited-list",
+            "name": "_type accepts several comma-delimited types",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "everything",
+                        "resource": "Patient",
+                        "targetId": "fixture-patient",
+                        "sourceId": "fixture-type-two",
+                        "responseId": "everything-two-types",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both requested types are returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).exists() and Bundle.entry.resource.ofType(Condition).exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A type that was not requested is excluded",
+                        "expression": "Bundle.entry.resource.ofType(Patient).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-count-caps-the-entries",
+            "name": "_count caps how many entries are returned",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "everything",
+                        "resource": "Patient",
+                        "targetId": "fixture-patient",
+                        "sourceId": "fixture-count-one",
+                        "responseId": "everything-count-one",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "_count=1 returns exactly one entry",
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-since-excludes-older-records",
+            "name": "_since excludes records last updated before it",
+            "description": "Every resource was written during setup, so a _since in the future must exclude the whole compartment. The patient is read directly and is not subject to _since.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "everything",
+                        "resource": "Patient",
+                        "targetId": "fixture-patient",
+                        "sourceId": "fixture-since-future",
+                        "responseId": "everything-since",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No compartment resource survives a future _since",
+                        "expression": "Bundle.entry.resource.ofType(Observation).empty() and Bundle.entry.resource.ofType(Condition).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}
