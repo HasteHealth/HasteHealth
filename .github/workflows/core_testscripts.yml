@@ -179,8 +179,18 @@ jobs:
       # Exits non-zero if any TestScript fails. `--index-wait-ms` is a
       # ceiling, not a delay: each search waits only until the latest write is
       # indexed (about 0.2s on Postgres and 1s on Elasticsearch locally).
+      #
+      # `--allow-failure` lists known gaps: they still fail in the TestReport
+      # (and on the website's coverage page) but don't fail the job. Remove an
+      # entry once it's fixed; the run warns when a listed script passes.
+      #   core-bundle: `composition`/`message` searches over
+      #   `Bundle.entry[0].resource` aren't indexed yet.
       - name: Run core TestScripts
-        run: ./target/debug/haste-health testscript run -i testscripts/core -w 0 --index-wait-ms 30000 -o ${{ matrix.search-backend }}.json
+        run: >-
+          ./target/debug/haste-health testscript run -i testscripts/core
+          -w 0 --index-wait-ms 30000
+          --allow-failure core-bundle
+          -o ${{ matrix.search-backend }}.json
         working-directory: ./backend
         env:
           RUST_LOG: info

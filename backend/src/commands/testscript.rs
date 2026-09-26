@@ -2,7 +2,7 @@ use crate::cli::state::CliState;
 use clap::Subcommand;
 use haste_fhir_client::http::{HeaderMap, HttpRequestHeaders, WithRequestHeaders};
 use haste_fhir_model::r4::generated::{
-    resources::{Bundle, BundleEntry, BundleEntryRequest, Resource, TestScript},
+    resources::{Bundle, BundleEntry, BundleEntryRequest, Resource, TestReport, TestScript},
     terminology::{BundleType, HttpVerb, IssueType, ReportResultCodes},
     types::FHIRUri,
 };
@@ -10,7 +10,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_testscript_runner::TestRunnerOptions;
 use std::{path::Path, sync::Arc};
 use tokio::{sync::Mutex, task::JoinSet};
-use tracing::{error, info};
+use tracing::{error, info, warn};
 
 /// Per-operation client context for a TestScript run.
 ///
@@ -54,6 +54,10 @@ pub(crate) enum TestScriptCommands {
         /// indexing is asynchronous; this waits only as long as it takes.
         #[arg(long)]
         index_wait_ms: Option<u64>,
+        /// A TestScript id whose failure is known and shouldn't fail the run.
+        /// Its TestReport is still recorded as `fail`. Repeatable.
+        #[arg(long = "allow-failure", value_name = "TESTSCRIPT_ID")]
+        allowed_failures: Vec<String>,
     },
 }
 
@@ -112,6 +116,7 @@ pub(crate) async fn run(
             input: inputs,
             wait_between_operations_ms,
             index_wait_ms,
+            allowed_failures,
         } => {
             let fhir_client = crate::cli::client::fhir_client(state).await?;
 
@@ -124,6 +129,12 @@ pub(crate) async fn run(
 
             let mut status_code = 0;
             let mut test_runs = JoinSet::new();
+            let is_allowed_failure = |test_report: &TestReport| {
+                test_report
+                    .id
+                    .as_ref()
+                    .is_some_and(|id| allowed_failures.contains(id))
+            };
 
             for input in inputs {
                 let walker = walkdir::WalkDir::new(&input).into_iter();
@@ -200,7 +211,23 @@ pub(crate) async fn run(
                             // Ignore for rest.
                             r if r == &ReportResultCodes::pass()
                                 || r == &ReportResultCodes::pending()
-                                || r == &ReportResultCodes::null() => {}
+                                || r == &ReportResultCodes::null() =>
+                            {
+                                if is_allowed_failure(&test_report) {
+                                    warn!(
+                                        "TestScript '{testscript_name}' passed but is listed with --allow-failure; remove it (TestReport id: {})",
+                                        test_report.id.as_deref().unwrap_or("<none>")
+                                    );
+                                }
+                            }
+                            r if r == &ReportResultCodes::fail()
+                                && is_allowed_failure(&test_report) =>
+                            {
+                                warn!(
+                                    "TestScript '{testscript_name}' FAILED as expected (--allow-failure; file: {testscript_file}, TestReport id: {})",
+                                    test_report.id.as_deref().unwrap_or("<none>")
+                                );
+                            }
                             r if r == &ReportResultCodes::fail() => {
                                 status_code = 1;
                                 error!(
