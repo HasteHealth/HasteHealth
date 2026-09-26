@@ -49,6 +49,11 @@ pub(crate) enum TestScriptCommands {
         /// Delay between operations within a TestScript, in milliseconds.
         #[arg(short, long)]
         wait_between_operations_ms: Option<u64>,
+        /// Before a search (or conditional delete/update), wait up to this many
+        /// milliseconds for the TestScript's latest write to be indexed. Search
+        /// indexing is asynchronous; this waits only as long as it takes.
+        #[arg(long)]
+        index_wait_ms: Option<u64>,
     },
 }
 
@@ -106,6 +111,7 @@ pub(crate) async fn run(
             output,
             input: inputs,
             wait_between_operations_ms,
+            index_wait_ms,
         } => {
             let fhir_client = crate::cli::client::fhir_client(state).await?;
 
@@ -113,6 +119,7 @@ pub(crate) async fn run(
             let testrunner_options = Arc::new(TestRunnerOptions {
                 wait_between_operations: wait_between_operations_ms
                     .map(|ms| std::time::Duration::from_millis(ms)),
+                index_wait_timeout: index_wait_ms.map(std::time::Duration::from_millis),
             });
 
             let mut status_code = 0;

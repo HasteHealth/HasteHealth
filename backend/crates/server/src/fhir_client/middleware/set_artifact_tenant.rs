@@ -97,9 +97,14 @@ impl<
             };
 
             match context.request {
-                FHIRRequest::Delete(_) | FHIRRequest::Update(_) | FHIRRequest::Create(_) => {
-                    next(state, context).await
-                }
+                // Writes stay in the caller's tenant and project, so they can
+                // never modify the shared system artifacts. A patch reads the
+                // resource from the same place, so a system artifact isn't
+                // found rather than patched.
+                FHIRRequest::Delete(_)
+                | FHIRRequest::Update(_)
+                | FHIRRequest::Patch(_)
+                | FHIRRequest::Create(_) => next(state, context).await,
                 // For search and reads look at both the system tenant that contains core resources
                 // and the users tenant and current project.
                 FHIRRequest::Read(_) => {
@@ -134,7 +139,7 @@ impl<
                 }
                 _ => Err(OperationOutcomeError::fatal(
                     IssueType::exception(),
-                    "Artifact tenant middleware only supports read and search requests."
+                    "Artifact tenant middleware only supports create, read, update, patch, delete and search requests."
                         .to_string(),
                 )),
             }

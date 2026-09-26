@@ -471,6 +471,7 @@ fn column_values<'a>(
             ParamColumns::Reference {
                 target_type,
                 target_id,
+                target_uri,
             },
             InsertableIndex::Reference(references),
         ) => [
@@ -482,7 +483,10 @@ fn column_values<'a>(
                 target_id,
                 first_text(references.iter().map(ReferenceIndex::id)),
             ),
-            None,
+            at(
+                target_uri,
+                first_text(references.iter().map(ReferenceIndex::uri)),
+            ),
             None,
         ],
         (

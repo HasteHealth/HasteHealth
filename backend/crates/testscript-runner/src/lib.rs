@@ -3,13 +3,14 @@ use haste_fhir_client::{
     FHIRClient,
     http::{HeaderMap, HeaderName, HeaderValue, WithRequestHeaders},
     request::{
-        DeleteRequest, FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest,
-        FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest, FHIRDeleteTypeRequest,
-        FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
-        FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest, FHIRInvokeTypeRequest,
-        FHIRPatchRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRTransactionRequest,
-        FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest, HistoryResponse,
-        InvocationRequest, InvokeResponse, Operation, SearchResponse, UpdateRequest,
+        DeleteRequest, DeleteResponse, FHIRBatchRequest, FHIRConditionalUpdateRequest,
+        FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
+        FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest, FHIRHistorySystemRequest,
+        FHIRHistoryTypeRequest, FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest,
+        FHIRInvokeTypeRequest, FHIRPatchRequest, FHIRReadRequest, FHIRRequest, FHIRResponse,
+        FHIRSearchTypeRequest, FHIRTransactionRequest, FHIRUpdateInstanceRequest,
+        FHIRVersionReadRequest, HistoryRequest, HistoryResponse, InvocationRequest, InvokeResponse,
+        Operation, SearchRequest, SearchResponse, UpdateRequest,
     },
     url::ParsedParameters,
 };
@@ -73,6 +74,21 @@ struct TestState {
     latest_request: Option<FHIRRequest>,
     latest_response: Option<Response>,
     result: BoundCode<ReportResultCodes>,
+    /// The latest write not yet confirmed visible to search.
+    unindexed_write: Option<IndexedWrite>,
+}
+
+/// A write that searches must see before they run. Search indexing is
+/// asynchronous, so a search sent straight after a write can miss it. The
+/// worker indexes a tenant's writes in order, so once the latest write is
+/// visible every earlier one is too.
+#[derive(Debug, Clone)]
+struct IndexedWrite {
+    resource_type: ResourceType,
+    id: String,
+    /// The version search should return; `None` for a delete, which search
+    /// should no longer return at all.
+    version_id: Option<String>,
 }
 
 impl TestState {
@@ -83,6 +99,7 @@ impl TestState {
             latest_request: None,
             latest_response: None,
             result: ReportResultCodes::pending(),
+            unindexed_write: None,
         }
     }
     fn resolve_fixture<'a>(
@@ -960,7 +977,95 @@ async fn testscript_request_headers(
     Ok((!headers.is_empty()).then_some(headers))
 }
 
-async fn run_operation<CTX: WithRequestHeaders, Client: FHIRClient<CTX, OperationOutcomeError>>(
+/// How often search is polled while waiting for a write to be indexed.
+const INDEX_POLL_INTERVAL: Duration = Duration::from_millis(100);
+
+/// The write a response records, for requests that change a resource.
+fn indexed_write(response: &FHIRResponse) -> Option<IndexedWrite> {
+    let (resource, deleted) = match response {
+        FHIRResponse::Create(created) => (&created.resource, false),
+        FHIRResponse::Update(updated) => (&updated.resource, false),
+        FHIRResponse::Patch(patched) => (&patched.resource, false),
+        FHIRResponse::Delete(DeleteResponse::Instance(deleted)) => (&deleted.resource, true),
+        _ => return None,
+    };
+    let json = serde_json::to_value(resource).ok()?;
+    Some(IndexedWrite {
+        resource_type: ResourceType::try_from(json.get("resourceType")?.as_str()?).ok()?,
+        id: json.get("id")?.as_str()?.to_string(),
+        version_id: if deleted {
+            None
+        } else {
+            Some(json.pointer("/meta/versionId")?.as_str()?.to_string())
+        },
+    })
+}
+
+/// Whether a request's result depends on the search index.
+fn reads_search_index(request: &FHIRRequest) -> bool {
+    matches!(
+        request,
+        FHIRRequest::Search(_)
+            | FHIRRequest::Delete(DeleteRequest::Type(_) | DeleteRequest::System(_))
+            | FHIRRequest::Update(UpdateRequest::Conditional(_))
+    )
+}
+
+/// Polls search until `write` is visible (its version returned, or gone after
+/// a delete) or `timeout` runs out. On timeout the caller carries on, and a
+/// search that depended on the write fails its assertions as usual.
+async fn wait_for_index<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
+    client: &Client,
+    ctx: &CTX,
+    write: &IndexedWrite,
+    timeout: Duration,
+) {
+    let Ok(parameters) = ParsedParameters::try_from(format!("_id={}", write.id).as_str()) else {
+        return;
+    };
+    let request = FHIRRequest::Search(SearchRequest::Type(FHIRSearchTypeRequest {
+        resource_type: write.resource_type.clone(),
+        parameters,
+    }));
+    let deadline = tokio::time::Instant::now() + timeout;
+
+    loop {
+        let versions: Vec<String> = match client.request(ctx.clone(), request.clone()).await {
+            Ok(FHIRResponse::Search(SearchResponse::Type(response))) => response
+                .bundle
+                .entry
+                .unwrap_or_default()
+                .into_iter()
+                .filter_map(|entry| {
+                    let json = serde_json::to_value(entry.resource?).ok()?;
+                    Some(json.pointer("/meta/versionId")?.as_str()?.to_string())
+                })
+                .collect(),
+            _ => vec![],
+        };
+        let visible = match &write.version_id {
+            Some(version_id) => versions.contains(version_id),
+            None => versions.is_empty(),
+        };
+        if visible {
+            return;
+        }
+        if tokio::time::Instant::now() >= deadline {
+            tracing::warn!(
+                resource_type = write.resource_type.as_ref(),
+                id = write.id,
+                "Timed out waiting for a write to be indexed"
+            );
+            return;
+        }
+        tokio::time::sleep(INDEX_POLL_INTERVAL).await;
+    }
+}
+
+async fn run_operation<
+    CTX: Clone + WithRequestHeaders,
+    Client: FHIRClient<CTX, OperationOutcomeError>,
+>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -977,6 +1082,13 @@ async fn run_operation<CTX: WithRequestHeaders, Client: FHIRClient<CTX, Operatio
     let mut state_guard = state.lock().await;
     let fhir_request = testscript_operation_to_fhir_request(&state_guard, &pointer).await?;
 
+    if let Some(timeout) = options.index_wait_timeout
+        && reads_search_index(&fhir_request)
+        && let Some(write) = state_guard.unindexed_write.take()
+    {
+        wait_for_index(client, &ctx, &write, timeout).await;
+    }
+
     let ctx = match testscript_request_headers(&state_guard, &pointer, operation).await? {
         Some(headers) => ctx.with_request_headers(headers),
         None => ctx,
@@ -989,6 +1101,9 @@ async fn run_operation<CTX: WithRequestHeaders, Client: FHIRClient<CTX, Operatio
 
     match fhir_response {
         Ok(fhir_response) => {
+            if let Some(write) = indexed_write(&fhir_response) {
+                state_guard.unindexed_write = Some(write);
+            }
             associate_request_response_variables(
                 &mut state_guard,
                 operation,
@@ -1353,7 +1468,10 @@ async fn evaluate_expression_assertion(
     )))
 }
 
-async fn run_action<CTX: WithRequestHeaders, Client: FHIRClient<CTX, OperationOutcomeError>>(
+async fn run_action<
+    CTX: Clone + WithRequestHeaders,
+    Client: FHIRClient<CTX, OperationOutcomeError>,
+>(
     client: &Client,
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
@@ -1417,7 +1535,7 @@ async fn run_action<CTX: WithRequestHeaders, Client: FHIRClient<CTX, OperationOu
 }
 
 async fn run_setup_action<
-    CTX: WithRequestHeaders,
+    CTX: Clone + WithRequestHeaders,
     Client: FHIRClient<CTX, OperationOutcomeError>,
 >(
     client: &Client,
@@ -1806,6 +1924,11 @@ async fn run_tests<
 
 pub struct TestRunnerOptions {
     pub wait_between_operations: Option<Duration>,
+    /// Before a request that reads the search index (a search, conditional
+    /// delete or conditional update), wait up to this long for the latest
+    /// write to be indexed. Waits only as long as indexing takes, where
+    /// `wait_between_operations` waits a fixed time after every operation.
+    pub index_wait_timeout: Option<Duration>,
 }
 
 /// Runs a FHIR `TestScript` using the provided client and execution context.
@@ -1958,4 +2081,58 @@ pub async fn run<
     }
 
     Ok(test_report)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use haste_fhir_client::request::{FHIRCreateResponse, FHIRDeleteInstanceResponse};
+
+    fn patient(id: &str, version_id: &str) -> Resource {
+        serde_json::from_value(serde_json::json!({
+            "resourceType": "Patient",
+            "id": id,
+            "meta": { "versionId": version_id }
+        }))
+        .expect("valid Patient")
+    }
+
+    #[test]
+    fn writes_record_the_version_search_must_return() {
+        let created = FHIRResponse::Create(FHIRCreateResponse {
+            resource: patient("p1", "v1"),
+        });
+        let write = indexed_write(&created).expect("a create is a write");
+        assert_eq!(write.resource_type, ResourceType::Patient);
+        assert_eq!(write.id, "p1");
+        assert_eq!(write.version_id.as_deref(), Some("v1"));
+
+        // A delete must be gone from search, whatever version it was.
+        let deleted = FHIRResponse::Delete(DeleteResponse::Instance(Box::new(
+            FHIRDeleteInstanceResponse {
+                resource: patient("p1", "v2"),
+            },
+        )));
+        assert_eq!(
+            indexed_write(&deleted)
+                .expect("a delete is a write")
+                .version_id,
+            None
+        );
+    }
+
+    #[test]
+    fn only_index_backed_requests_wait() {
+        let search = FHIRRequest::Search(SearchRequest::Type(FHIRSearchTypeRequest {
+            resource_type: ResourceType::Patient,
+            parameters: ParsedParameters::try_from("_tag=x").unwrap(),
+        }));
+        assert!(reads_search_index(&search));
+
+        let read = FHIRRequest::Read(FHIRReadRequest {
+            resource_type: ResourceType::Patient,
+            id: "p1".to_string(),
+        });
+        assert!(!reads_search_index(&read), "a read goes to the repository");
+    }
 }

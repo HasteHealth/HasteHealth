@@ -371,6 +371,7 @@ impl<
                 filter: Box::new(|req: &FHIRRequest| match req {
                     FHIRRequest::Create(_)
                     | FHIRRequest::Update(_)
+                    | FHIRRequest::Patch(_)
                     | FHIRRequest::Delete(_)
                     | FHIRRequest::Read(_)
                     | FHIRRequest::Search(SearchRequest::Type(_)) => {
