@@ -580,9 +580,7 @@ impl<
                                 let id = update_request
                                     .resource
                                     .get_field("id")
-                                    .unwrap()
-                                    .as_any()
-                                    .downcast_ref::<String>()
+                                    .and_then(|id| id.as_any().downcast_ref::<String>())
                                     .cloned();
 
                                 // From R5 but Applying here on all versions to dissallow updating a Resource if it already exists
@@ -645,14 +643,7 @@ impl<
                                 let resource_id_body = update_request
                                     .resource
                                     .get_field("id")
-                                    .ok_or_else(|| {
-                                        OperationOutcomeError::error(
-                                            IssueType::invalid(),
-                                            "Missing resource ID".to_string(),
-                                        )
-                                    })?
-                                    .as_any()
-                                    .downcast_ref::<String>();
+                                    .and_then(|id| id.as_any().downcast_ref::<String>());
 
                                 // If body has resource Id verify it's the same as one in search result.
                                 if resource_id_body.is_some()

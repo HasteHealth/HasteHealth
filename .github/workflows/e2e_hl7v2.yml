@@ -1,0 +1,193 @@
+name: E2E HL7v2 ingest
+
+# Sends real HL7 v2 messages over MLLP to the listener and confirms, through
+# TestScripts, that the resulting FHIR resources are correct.
+#
+# Separate from e2e.yml because it exercises a different entry point: every
+# other job drives the FHIR REST API, while this one drives a TCP socket and
+# checks the REST API for the result. It runs on Postgres only -- the ingest
+# path does not vary by search backend, and the assertions here are about the
+# conversion rather than the query planner.
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  hl7v2-ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HASTE_CERTIFICATION_DIR: certifications
+      HASTE_ADMIN_APP_REDIRECT_URI: http://*.localhost:3001
+      HASTE_API_URI: http://localhost:3000
+      HASTE_REPO.backend: postgres
+      HASTE_REPO.database_url: postgresql://postgres:postgres@localhost:5432/haste_health
+      HASTE_SEARCH.backend: postgres
+      HASTE_SEARCH.database_url: postgresql://postgres:postgres@localhost:5432/haste_health_search
+      HASTE_SEARCH.max_connections: 20
+      RUST_LOG: none
+      SQLX_OFFLINE: true
+      MLLP_PORT: 2575
+
+    services:
+      postgres:
+        image: postgres:18.1
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_DB: haste_health
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "./backend -> target"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      # The Postgres search backend indexes into its own database, kept apart
+      # from the repo's.
+      - name: Create search database
+        run: PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE haste_health_search;"
+
+      - name: Build
+        run: cargo build --locked --workspace
+        working-directory: ./backend
+
+      - name: Run migrations
+        run: |
+          ./target/debug/haste-health admin migrate search
+          ./target/debug/haste-health admin migrate repo
+          ./target/debug/haste-health admin migrate artifacts
+        working-directory: ./backend
+
+      - name: Start server and worker
+        run: |
+          ./target/debug/haste-health server start > server.log 2>&1 &
+          ./target/debug/haste-health worker > worker.log 2>&1 &
+        working-directory: ./backend
+
+      - name: Set up tenant and client
+        run: |
+          ./target/debug/haste-health admin tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited
+          ./target/debug/haste-health admin client create --id testing --secret testing --tenant my-health --project system --grant-type client-credentials
+          ./target/debug/haste-health config create-profile -n testing --auth-mode client-credentials --r4-url http://localhost:3000/w/my-health/system/api/v1/fhir/r4 --discovery-uri http://localhost:3000/.well-known/openid-configuration/w/my-health/system --id testing --secret testing
+        working-directory: ./backend
+
+      # The artifacts load in the background and terminology and profile
+      # validation find them through search, so let indexing catch up before
+      # the first authenticated call.
+      - name: Wait for artifacts to be indexed
+        run: bash .github/scripts/wait_for_indexing.sh 600
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if ./target/debug/haste-health api capabilities > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server did not become ready" >&2
+          cat server.log >&2
+          exit 1
+        working-directory: ./backend
+
+      - name: Start MLLP listener
+        run: |
+          ./target/debug/haste-health hl7v2 receiver \
+            --address 127.0.0.1 --port "$MLLP_PORT" \
+            --main ADT_A01 --template-dir testscripts/hl7v2/templates \
+            > listener.log 2>&1 &
+          for i in {1..30}; do
+            if nc -z 127.0.0.1 "$MLLP_PORT"; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "MLLP listener did not bind to port $MLLP_PORT" >&2
+          cat listener.log >&2
+          exit 1
+        working-directory: ./backend
+
+      # The sender exits non-zero unless MSA-1 is AA, so a rejected or
+      # unacknowledged message fails the job here rather than showing up as a
+      # confusing empty search later.
+      - name: Send ADT^A01 over MLLP
+        run: |
+          ./target/debug/haste-health hl7v2 sender \
+            --address 127.0.0.1 --port "$MLLP_PORT" \
+            --file testscripts/hl7v2/fixtures/adt_a01.hl7
+        working-directory: ./backend
+
+      # The ingest wrote through the FHIR API, and the TestScripts search for
+      # what it wrote, so indexing has to catch up first.
+      - name: Wait for ingested resources to be indexed
+        run: bash .github/scripts/wait_for_indexing.sh 300
+
+      # Asserts the conversion: every field these read comes from a named HL7
+      # field, so a field-offset regression fails here.
+      - name: Run HL7v2 ingest TestScripts
+        run: >-
+          ./target/debug/haste-health testscript run -i testscripts/hl7v2/ingest
+          -w 0 --index-wait-ms 30000
+          -o hl7v2-ingest-testreports.json
+        working-directory: ./backend
+
+      # An interface engine retries anything it does not see an ACK for, so a
+      # non-idempotent ingest duplicates patients and encounters under entirely
+      # normal operation. Sending twice more takes the total to three.
+      - name: Re-send the same message twice
+        run: |
+          ./target/debug/haste-health hl7v2 sender \
+            --address 127.0.0.1 --port "$MLLP_PORT" \
+            --file testscripts/hl7v2/fixtures/adt_a01.hl7
+          ./target/debug/haste-health hl7v2 sender \
+            --address 127.0.0.1 --port "$MLLP_PORT" \
+            --file testscripts/hl7v2/fixtures/adt_a01.hl7
+        working-directory: ./backend
+
+      - name: Wait for the replays to be indexed
+        run: bash .github/scripts/wait_for_indexing.sh 300
+
+      - name: Confirm the replays did not duplicate anything
+        run: >-
+          ./target/debug/haste-health testscript run -i testscripts/hl7v2/replay
+          -w 0 --index-wait-ms 30000
+          -o hl7v2-replay-testreports.json
+        working-directory: ./backend
+
+      - name: Upload TestReports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hl7v2-testreports
+          path: backend/hl7v2-*-testreports.json
+          if-no-files-found: ignore
+
+      - name: Dump logs on failure
+        if: failure()
+        run: |
+          echo "===== listener.log ====="
+          tail -200 listener.log || true
+          echo "===== server.log ====="
+          tail -200 server.log || true
+          echo "===== worker.log ====="
+          tail -100 worker.log || true
+        working-directory: ./backend

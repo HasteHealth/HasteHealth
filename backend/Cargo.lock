@@ -2726,6 +2726,7 @@ name = "haste-health"
 version = "0.23.1"
 dependencies = [
  "base64 0.22.1",
+ "chrono",
  "clap",
  "clap-markdown",
  "dialoguer",
@@ -2780,6 +2781,7 @@ dependencies = [
  "haste-fhir-operation-error",
  "pretty_assertions",
  "serde_json",
+ "tokio",
 ]
 
 [[package]]

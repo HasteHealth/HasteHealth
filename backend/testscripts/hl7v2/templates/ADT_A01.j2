@@ -1,0 +1,108 @@
+{#
+  ADT^A01 to a FHIR transaction Bundle.
+
+  Field addressing uses HL7 numbering throughout: `PID[0][5][1]` is PID-5.1,
+  the family name, and `MSH[0][10][1]` is MSH-10, the control id. Segment
+  selection is an ordinary list, so `[0]` is the first segment of that name.
+
+  The Patient is written with a conditional reference on the MRN, so replaying
+  the same message updates the same patient rather than creating a duplicate.
+  An interface engine retries anything it does not see an ACK for, so a
+  non-idempotent ingest produces duplicate patients under normal operation.
+#}
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:patient-1",
+      "request": {
+        "method": "PUT",
+        "url": "Patient?identifier={{ hl7v2.PID[0][3][1] }}"
+      },
+      "resource": {
+        "resourceType": "Patient",
+        "identifier": [
+          {
+            "use": "usual",
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "value": "{{ hl7v2.PID[0][3][1] }}"
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "{{ hl7v2.PID[0][5][1] }}",
+            "given": [
+              "{{ hl7v2.PID[0][5][2] }}"
+            ]
+          }
+        ],
+        {#
+          A component resolves to an object that renders as its text, so it
+          cannot be compared or sliced directly. Concatenating with `~` forces
+          the rendered string, which is available without the builtin filters
+          (the converter builds minijinja with default-features off).
+        #}
+        {% set sex = "" ~ hl7v2.PID[0][8][1] %}
+        {% set birth_date = "" ~ hl7v2.PID[0][7][1] %}
+        "gender": "{% if sex == 'M' %}male{% elif sex == 'F' %}female{% else %}unknown{% endif %}",
+        "birthDate": "{{ birth_date[0:4] }}-{{ birth_date[4:6] }}-{{ birth_date[6:8] }}",
+        "address": [
+          {
+            "line": [
+              "{{ hl7v2.PID[0][11][1] }}"
+            ],
+            "city": "{{ hl7v2.PID[0][11][3] }}",
+            "state": "{{ hl7v2.PID[0][11][4] }}",
+            "postalCode": "{{ hl7v2.PID[0][11][5] }}"
+          }
+        ]
+      }
+    },
+    {
+      {#
+        Conditional on the message control id, for the same reason the Patient
+        is conditional on the MRN: a retried message must not create a second
+        encounter. MSH-10 is unique per message by definition, which makes it
+        the natural key for what this message produced.
+      #}
+      "request": {
+        "method": "PUT",
+        "url": "Encounter?identifier=urn:haste:hl7v2:message-control-id|{{ hl7v2.MSH[0][10][1] }}"
+      },
+      "resource": {
+        "resourceType": "Encounter",
+        "identifier": [
+          {
+            "system": "urn:haste:hl7v2:message-control-id",
+            "value": "{{ hl7v2.MSH[0][10][1] }}"
+          }
+        ],
+        "status": "in-progress",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "IMP",
+          "display": "inpatient encounter"
+        },
+        "subject": {
+          "reference": "urn:uuid:patient-1"
+        },
+        "location": [
+          {
+            "location": {
+              "display": "{{ hl7v2.PV1[0][3][1] }}"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
