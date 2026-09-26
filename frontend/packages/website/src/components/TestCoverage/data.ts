@@ -285,25 +285,32 @@ export type Gap = {
   backends: Backend[];
 };
 
+/** Adds a failing group to `gaps`, merging features of the same subject. */
+function recordGap(gaps: Map<string, Gap>, resourceType: string, group: SupportGroup): void {
+  const failing = BACKENDS.filter((backend) => group.results[backend] === "fail");
+  if (failing.length === 0) return;
+
+  const isSearch = group.group === "search";
+  const subject = isSearch ? (group.searchParameterCode ?? "search") : group.group;
+  const key = `${resourceType}|${group.group}|${subject}|${failing.join(",")}`;
+  const gap = gaps.get(key) ?? {
+    resourceType,
+    kind: isSearch ? "search" : "interaction",
+    subject,
+    type: group.searchParameterType,
+    features: [],
+    backends: failing,
+  };
+  const feature = featureKey(group.variant);
+  if (feature && !gap.features.includes(feature)) gap.features.push(feature);
+  gaps.set(key, gap);
+}
+
 export function knownGaps(data: SupportData): Gap[] {
   const gaps = new Map<string, Gap>();
   for (const resource of data.resources) {
     for (const group of resource.groups) {
-      const failing = BACKENDS.filter((backend) => group.results[backend] === "fail");
-      if (failing.length === 0) continue;
-      const subject = group.group === "search" ? (group.searchParameterCode ?? "search") : group.group;
-      const key = `${resource.resourceType}|${group.group}|${subject}|${failing.join(",")}`;
-      const gap = gaps.get(key) ?? {
-        resourceType: resource.resourceType,
-        kind: group.group === "search" ? "search" : "interaction",
-        subject,
-        type: group.searchParameterType,
-        features: [],
-        backends: failing,
-      };
-      const feature = featureKey(group.variant);
-      if (feature && !gap.features.includes(feature)) gap.features.push(feature);
-      gaps.set(key, gap);
+      recordGap(gaps, resource.resourceType, group);
     }
   }
   return [...gaps.values()];

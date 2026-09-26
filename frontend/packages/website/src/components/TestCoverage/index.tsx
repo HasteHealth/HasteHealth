@@ -51,40 +51,28 @@ const RESULT_TEXT: Record<Result, string> = {
   "not-run": "Not tested",
 };
 
+const ICON_TONES: Record<Result, string> = {
+  pass: "text-emerald-600 dark:text-emerald-400",
+  fail: "text-rose-600 dark:text-rose-400",
+  "not-run": "text-slate-400 dark:text-slate-500",
+};
+
+const ICON_PATHS: Record<Result, string> = {
+  pass: "M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z",
+  fail: "M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z",
+  "not-run": "M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM6.75 9.25a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z",
+};
+
 function StatusIcon({ result, className = "h-4 w-4" }: Readonly<{ result: Result; className?: string }>) {
-  const tone =
-    result === "pass"
-      ? "text-emerald-600 dark:text-emerald-400"
-      : result === "fail"
-        ? "text-rose-600 dark:text-rose-400"
-        : "text-slate-400 dark:text-slate-500";
   return (
     <svg
       viewBox="0 0 20 20"
       fill="currentColor"
       role="img"
       aria-label={RESULT_TEXT[result]}
-      className={`inline-block shrink-0 ${tone} ${className}`}
+      className={`inline-block shrink-0 ${ICON_TONES[result]} ${className}`}
     >
-      {result === "pass" ? (
-        <path
-          fillRule="evenodd"
-          d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z"
-          clipRule="evenodd"
-        />
-      ) : result === "fail" ? (
-        <path
-          fillRule="evenodd"
-          d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z"
-          clipRule="evenodd"
-        />
-      ) : (
-        <path
-          fillRule="evenodd"
-          d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM6.75 9.25a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z"
-          clipRule="evenodd"
-        />
-      )}
+      <path fillRule="evenodd" d={ICON_PATHS[result]} clipRule="evenodd" />
     </svg>
   );
 }
@@ -142,8 +130,12 @@ function Loaded({ children }: Readonly<{ children: (data: SupportData) => React.
   return <div className={styles.root}>{children(state.data)}</div>;
 }
 
-const percent = (tally: Tally) =>
-  tally.total === 0 ? "0" : ((tally.pass / tally.total) * 100).toFixed(tally.pass === tally.total ? 0 : 1);
+/** A tally as a percentage: whole when complete, else one decimal. */
+function percent(tally: Tally): string {
+  if (tally.total === 0) return "0";
+  const digits = tally.pass === tally.total ? 0 : 1;
+  return ((tally.pass / tally.total) * 100).toFixed(digits);
+}
 
 // ---------------------------------------------------------------------------
 // Summary
@@ -200,7 +192,7 @@ export function CoverageSummary() {
                   </div>
                   <div
                     className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"
-                    role="presentation"
+                    aria-hidden="true"
                   >
                     <div
                       className="h-full rounded-full bg-emerald-500"
@@ -367,11 +359,23 @@ function ResourceStatus({ resource, backend }: Readonly<{ resource: ResourceSupp
     >
       <StatusIcon result={result} />
       <span className={result === "fail" ? "font-semibold text-rose-700 dark:text-rose-300" : ""}>
-        {result === "pass" ? "All pass" : result === "fail" ? `${failing} of ${total} fail` : "Not tested"}
+        {
+          {
+            pass: "All pass",
+            fail: `${failing} of ${total} fail`,
+            "not-run": "Not tested",
+          }[result]
+        }
       </span>
     </span>
   );
 }
+
+const CHIP_TONES: Record<Result, string> = {
+  pass: "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-800",
+  fail: "bg-rose-50 text-rose-700 ring-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:ring-rose-800",
+  "not-run": "bg-slate-50 text-slate-400 ring-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:ring-slate-700",
+};
 
 /** C R U P D, each coloured by its worst result across backends. */
 function InteractionChips({ resource }: Readonly<{ resource: ResourceSupport }>) {
@@ -381,12 +385,7 @@ function InteractionChips({ resource }: Readonly<{ resource: ResourceSupport }>)
         const groups = resource.groups.filter((group) => group.group === interaction);
         const perBackend = BACKENDS.map((backend) => groupsResult(groups, backend));
         const result = combine(perBackend);
-        const tone =
-          result === "pass"
-            ? "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-800"
-            : result === "fail"
-              ? "bg-rose-50 text-rose-700 ring-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:ring-rose-800"
-              : "bg-slate-50 text-slate-400 ring-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:ring-slate-700";
+        const tone = CHIP_TONES[result];
         const title = `${INTERACTION_NAMES[interaction]}: ${BACKENDS.map(
           (backend, index) => `${BACKEND_NAMES[backend]} ${RESULT_TEXT[perBackend[index]].toLowerCase()}`,
         ).join(", ")}`;
@@ -641,7 +640,7 @@ function ResourceTable({ data }: Readonly<{ data: SupportData }>) {
         />
         <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
           <input type="checkbox" checked={issuesOnly} onChange={(event) => setIssuesOnly(event.target.checked)} />
-          Only show issues
+          <span>Only show issues</span>
         </label>
         <span className="text-xs text-slate-500 dark:text-slate-400">
           {resources.length} of {data.resources.length}
