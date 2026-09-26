@@ -56,13 +56,12 @@ const ABSOLUTE_MAX_ENTRIES: usize = 10_000;
 const SEARCH_PAGE_SIZE: usize = 500;
 
 /// The R4 Patient compartment, resolved once.
-static PATIENT_COMPARTMENT: LazyLock<Option<&'static CompartmentDefinition>> =
-    LazyLock::new(|| {
-        ARTIFACT_RESOURCES.iter().find_map(|r| match r {
-            Resource::CompartmentDefinition(c) if c.code == CompartmentType::patient() => Some(c),
-            _ => None,
-        })
-    });
+static PATIENT_COMPARTMENT: LazyLock<Option<&CompartmentDefinition>> = LazyLock::new(|| {
+    ARTIFACT_RESOURCES.iter().find_map(|r| match r {
+        Resource::CompartmentDefinition(c) if c.code == CompartmentType::patient() => Some(c),
+        _ => None,
+    })
+});
 
 pub fn patient_everything<
     Repo: Repository + Send + Sync + 'static,
