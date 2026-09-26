@@ -957,6 +957,13 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
     }
 }
 
+/// The references one evaluated value carries, for callers resolving
+/// `_include` and `_revinclude` outside the indexing path.
+#[must_use]
+pub fn index_reference_values(value: &dyn MetaValue) -> Vec<ReferenceIndex> {
+    index_reference(value).unwrap_or_default()
+}
+
 fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, InsertableIndexError> {
     match value.fhir_type() {
         "Reference" => {

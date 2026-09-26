@@ -309,8 +309,10 @@ async fn apply_result_parameter<ParameterResolver: SearchParameterResolve>(
             }
             QueryState { sort, ..state }
         }
-        // Handled in middleware.
-        "_summary" | "_elements" => state,
+        // Handled in middleware. `_include` adds entries to the Bundle from
+        // the references on this page of matches; it does not filter, sort or
+        // page, so there is nothing for the query to do with it.
+        "_summary" | "_elements" | "_include" => state,
         _ => return Err(QueryBuildError::UnsupportedParameter(param.name.clone()).into()),
     })
 }
