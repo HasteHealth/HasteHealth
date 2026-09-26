@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "Ratio",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "vhifjeue2qhp0rxod1xk91x54z",
-    "lastUpdated": "2026-08-21T17:06:29.617125+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "q0idMoTM--Xa3JB_bgqERHcYg_Q"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "Ratio",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/Ratio",
   "version": "4.0.1",
-  "name": "Ratio",
-  "status": "active",
-  "kind": "complex-type",
-  "abstract": false,
   "type": "Ratio",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "kind": "complex-type",
   "derivation": "specialization",
+  "status": "active",
   "snapshot": {
     "element": [
       {

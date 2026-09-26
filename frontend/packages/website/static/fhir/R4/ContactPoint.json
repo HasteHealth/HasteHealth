@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "ContactPoint",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "rol-8nf2j8hprwffw-zb5h-zu5",
-    "lastUpdated": "2026-08-21T17:06:52.323407+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "0xibm30CVNy88Tb6LnrmjmeJGzE"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "ContactPoint",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/ContactPoint",
   "version": "4.0.1",
-  "name": "ContactPoint",
-  "status": "active",
-  "kind": "complex-type",
-  "abstract": false,
   "type": "ContactPoint",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "kind": "complex-type",
   "derivation": "specialization",
+  "status": "active",
   "snapshot": {
     "element": [
       {
@@ -280,7 +262,7 @@
         "id": "ContactPoint.rank",
         "path": "ContactPoint.rank",
         "short": "Specify preferred order of use (1 = highest)",
-        "definition": "Specifies a preferred order in which to use a set of contacts. ContactPoints with lower rank values are more preferred than those with higher rank values.",
+        "definition": "Specifies a preferred order in which to use a set of contacts. `ContactPoints` with lower rank values are more preferred than those with higher rank values.",
         "comment": "Note that rank does not necessarily follow the order in which the contacts are represented in the instance.",
         "min": 0,
         "max": "1",

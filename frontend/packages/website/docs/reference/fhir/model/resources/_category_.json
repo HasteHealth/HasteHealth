@@ -1,9 +1,5 @@
 {
     "label": "Resources",
     "position": 0,
-    "key": "reference-fhir-model-resources",
-    "link": {
-        "type": "generated-index",
-        "description": "FHIR Resources Reference Documentation for Haste Health."
-    }
+    "key": "reference-fhir-model-resources"
 }

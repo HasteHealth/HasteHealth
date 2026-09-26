@@ -1,35 +1,17 @@
 {
   "resourceType": "StructureDefinition",
   "id": "Project",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "pddto98c94athqoqvf7zk4zfax",
-    "lastUpdated": "2026-08-21T17:06:52.784923+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "aRlcdEWwnJKCE63OAjSd553Hcyw"
-      }
-    ]
-  },
   "url": "https://haste-health.com/StructureDefinition/Project",
   "version": "4.0.1",
   "name": "Project",
   "status": "active",
   "publisher": "haste-health",
-  "description": "A FHIR project is used to represent a collection of resources and users.",
   "fhirVersion": "4.0.1",
   "kind": "resource",
   "abstract": false,
   "type": "Project",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
+  "description": "A FHIR project is used to represent a collection of resources and users.",
   "derivation": "specialization",
   "snapshot": {
     "element": [
@@ -107,20 +89,18 @@
         "id": "Project.name",
         "path": "Project.name",
         "short": "Projects name",
-        "min": 1,
-        "max": "1",
         "type": [
           {
             "code": "string"
           }
-        ]
+        ],
+        "min": 1,
+        "max": "1"
       },
       {
         "id": "Project.fhirVersion",
         "path": "Project.fhirVersion",
         "short": "A Given projects fhir version.",
-        "min": 1,
-        "max": "1",
         "type": [
           {
             "code": "code"
@@ -129,14 +109,14 @@
         "binding": {
           "strength": "required",
           "valueSet": "https://haste.health/fhir/ValueSet/SupportedFHIRVersion|4.0.1"
-        }
+        },
+        "min": 1,
+        "max": "1"
       },
       {
         "id": "Project.identityProvider",
         "path": "Project.identityProvider",
         "short": "A Given projects identity providers.",
-        "min": 0,
-        "max": "3",
         "type": [
           {
             "code": "Reference",
@@ -144,7 +124,54 @@
               "https://haste-health.com/StructureDefinition/IdentityProvider"
             ]
           }
-        ]
+        ],
+        "min": 0,
+        "max": "3"
+      },
+      {
+        "id": "Project.identityProviderSetting",
+        "path": "Project.identityProviderSetting",
+        "definition": "Settings applied to users who sign in through one of the project's identity providers.",
+        "short": "Per identity provider sign-in settings.",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "min": 0,
+        "max": "3"
+      },
+      {
+        "id": "Project.identityProviderSetting.identityProvider",
+        "path": "Project.identityProviderSetting.identityProvider",
+        "definition": "The identity provider these settings apply to. It must also be listed in Project.identityProvider.",
+        "short": "The identity provider these settings apply to.",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://haste-health.com/StructureDefinition/IdentityProvider"
+            ]
+          }
+        ],
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "Project.identityProviderSetting.defaultAccessPolicy",
+        "path": "Project.identityProviderSetting.defaultAccessPolicy",
+        "definition": "Access policies assigned to a user the first time they sign in through this identity provider. One AccessPolicyV2Assignment is created per policy, linked to the user's new Membership. Later sign-ins do not change existing assignments, so assignments removed by an administrator are not recreated.",
+        "short": "Access policies assigned on a user's first sign-in.",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://haste-health.com/StructureDefinition/AccessPolicyV2"
+            ]
+          }
+        ],
+        "min": 0,
+        "max": "*"
       }
     ]
   }

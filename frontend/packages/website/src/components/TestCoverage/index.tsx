@@ -47,23 +47,26 @@ const EXAMPLE_PARAMETER: Record<ParamType, string> = {
 
 const RESULT_TEXT: Record<Result, string> = {
   pass: "Passes",
+  warn: "Known issue",
   fail: "Fails",
   "not-run": "Not tested",
 };
 
 const ICON_TONES: Record<Result, string> = {
   pass: "text-emerald-600 dark:text-emerald-400",
+  warn: "text-amber-500 dark:text-amber-400",
   fail: "text-rose-600 dark:text-rose-400",
   "not-run": "text-slate-400 dark:text-slate-500",
 };
 
 const ICON_PATHS: Record<Result, string> = {
   pass: "M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z",
+  warn: "M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z",
   fail: "M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z",
   "not-run": "M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM6.75 9.25a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z",
 };
 
-function StatusIcon({ result, className = "h-4 w-4" }: Readonly<{ result: Result; className?: string }>) {
+export function StatusIcon({ result, className = "h-4 w-4" }: Readonly<{ result: Result; className?: string }>) {
   return (
     <svg
       viewBox="0 0 20 20"
@@ -79,16 +82,24 @@ function StatusIcon({ result, className = "h-4 w-4" }: Readonly<{ result: Result
 
 function tallyResult(tally: Tally): Result {
   if (tally.total === 0) return "not-run";
-  return tally.pass === tally.total ? "pass" : "fail";
+  if (tally.pass === tally.total) return "pass";
+  return tally.pass + tally.warn === tally.total ? "warn" : "fail";
 }
 
-/** `icon 54 / 54`, red when anything failed. */
+const EMPHASIS: Record<Result, string> = {
+  pass: "",
+  warn: "font-semibold text-amber-700 dark:text-amber-300",
+  fail: "font-semibold text-rose-700 dark:text-rose-300",
+  "not-run": "",
+};
+
+/** `icon 54 / 54`: red when anything failed, amber when only known issues. */
 function TallyCell({ tally, unit }: Readonly<{ tally: Tally; unit?: string }>) {
   const result = tallyResult(tally);
   return (
     <span className="inline-flex items-center justify-end gap-1.5">
       <StatusIcon result={result} />
-      <span className={result === "fail" ? "font-semibold text-rose-700 dark:text-rose-300" : ""}>
+      <span className={EMPHASIS[result]}>
         {tally.pass} / {tally.total}
       </span>
       {unit ? <span className="text-slate-500 dark:text-slate-400">{unit}</span> : null}
@@ -131,7 +142,7 @@ function Loaded({ children }: Readonly<{ children: (data: SupportData) => React.
 }
 
 /** A tally as a percentage: whole when complete, else one decimal. */
-function percent(tally: Tally): string {
+function percent(tally: Pick<Tally, "pass" | "total">): string {
   if (tally.total === 0) return "0";
   const digits = tally.pass === tally.total ? 0 : 1;
   return ((tally.pass / tally.total) * 100).toFixed(digits);
@@ -171,14 +182,18 @@ export function CoverageSummary() {
             </Card>
             {BACKENDS.map((backend) => {
               const result = summary.backends[backend];
-              const allPass = result.resourcesPassing === summary.resourceTypes;
+              const status = tallyResult({
+                pass: result.resourcesPassing,
+                warn: result.resourcesWarning,
+                total: summary.resourceTypes,
+              });
               return (
                 <Card key={backend} className="p-5">
                   <div className="flex items-center justify-between">
                     <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                       {BACKEND_NAMES[backend]}
                     </div>
-                    <StatusIcon result={allPass ? "pass" : "fail"} className="h-5 w-5" />
+                    <StatusIcon result={status} className="h-5 w-5" />
                   </div>
                   <div className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
                     {result.resourcesPassing}
@@ -189,6 +204,12 @@ export function CoverageSummary() {
                   </div>
                   <div className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                     resource types pass every check
+                    {result.resourcesWarning > 0 ? (
+                      <span className="text-amber-700 dark:text-amber-300">
+                        {" "}
+                        · {result.resourcesWarning} with known issues
+                      </span>
+                    ) : null}
                   </div>
                   <div
                     className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"
@@ -344,35 +365,36 @@ export function SearchFeatureMatrix() {
 
 const rowId = (resourceType: string) => `resource-${resourceType}`;
 
-function failingCount(resource: ResourceSupport, backend: Backend) {
-  return resource.groups.filter((group) => group.results[backend] === "fail").length;
+function countResult(resource: ResourceSupport, backend: Backend, result: Result) {
+  return resource.groups.filter((group) => group.results[backend] === result).length;
 }
 
 function ResourceStatus({ resource, backend }: Readonly<{ resource: ResourceSupport; backend: Backend }>) {
   const result = groupsResult(resource.groups, backend);
-  const failing = failingCount(resource, backend);
+  const failing = countResult(resource, backend, "fail");
+  const known = countResult(resource, backend, "warn");
   const total = resource.groups.length;
+  const text: Record<Result, string> = {
+    pass: "All pass",
+    warn: `${known} known issue${known === 1 ? "" : "s"}`,
+    fail: `${failing} of ${total} fail`,
+    "not-run": "Not tested",
+  };
+  const titles: Partial<Record<Result, string>> = {
+    warn: `${known} of ${total} tests fail, all known and tracked`,
+    fail: `${failing} of ${total} tests fail`,
+  };
   return (
-    <span
-      className="inline-flex items-center justify-end gap-1.5 whitespace-nowrap"
-      title={result === "fail" ? `${failing} of ${total} tests fail` : undefined}
-    >
+    <span className="inline-flex items-center justify-end gap-1.5 whitespace-nowrap" title={titles[result]}>
       <StatusIcon result={result} />
-      <span className={result === "fail" ? "font-semibold text-rose-700 dark:text-rose-300" : ""}>
-        {
-          {
-            pass: "All pass",
-            fail: `${failing} of ${total} fail`,
-            "not-run": "Not tested",
-          }[result]
-        }
-      </span>
+      <span className={EMPHASIS[result]}>{text[result]}</span>
     </span>
   );
 }
 
 const CHIP_TONES: Record<Result, string> = {
   pass: "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-800",
+  warn: "bg-amber-50 text-amber-700 ring-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:ring-amber-800",
   fail: "bg-rose-50 text-rose-700 ring-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:ring-rose-800",
   "not-run": "bg-slate-50 text-slate-400 ring-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:ring-slate-700",
 };
@@ -409,7 +431,7 @@ function FeatureChip({
   feature,
   results,
 }: Readonly<{ type?: ParamType; feature: string; results: Record<Backend, Result> }>) {
-  const failing = BACKENDS.filter((backend) => results[backend] === "fail");
+  const failing = BACKENDS.filter((backend) => ["fail", "warn"].includes(results[backend]));
   const label = featureInfo(type, feature).label;
   if (failing.length === 0) {
     return (
@@ -418,13 +440,16 @@ function FeatureChip({
       </span>
     );
   }
-  const title = `Fails on ${failing.map((backend) => BACKEND_NAMES[backend]).join(" and ")}`;
+  const result = combine(failing.map((backend) => results[backend]));
+  const title = `${result === "warn" ? "Known issue on" : "Fails on"} ${failing
+    .map((backend) => BACKEND_NAMES[backend])
+    .join(" and ")}`;
   return (
     <span
       title={title}
-      className="inline-flex items-center gap-1 rounded-sm bg-rose-50 px-1.5 py-0.5 font-mono text-[11px] text-rose-700 ring-1 ring-inset ring-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:ring-rose-800"
+      className={`inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 font-mono text-[11px] ring-1 ring-inset ${CHIP_TONES[result]}`}
     >
-      <StatusIcon result="fail" className="h-3 w-3" />
+      <StatusIcon result={result} className="h-3 w-3" />
       {label}
       <span className="sr-only">({title})</span>
     </span>
@@ -760,7 +785,7 @@ export function KnownGaps() {
                 className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 p-4 last:border-b-0 dark:border-slate-800"
               >
                 <div className="flex items-start gap-3">
-                  <StatusIcon result="fail" className="mt-0.5 h-5 w-5" />
+                  <StatusIcon result={gap.expected ? "warn" : "fail"} className="mt-0.5 h-5 w-5" />
                   <div>
                     <div className="text-sm font-semibold text-slate-900 dark:text-white">
                       {gap.resourceType}
@@ -790,7 +815,7 @@ export function KnownGaps() {
                         {gap.features.map((feature) => (
                           <span
                             key={feature}
-                            className="rounded-sm bg-rose-50 px-1.5 py-0.5 font-mono text-[11px] text-rose-700 dark:bg-rose-950 dark:text-rose-300"
+                            className={`rounded-sm px-1.5 py-0.5 font-mono text-[11px] ${CHIP_TONES[gap.expected ? "warn" : "fail"]}`}
                           >
                             {featureInfo(gap.type, feature).label}
                           </span>
@@ -798,7 +823,8 @@ export function KnownGaps() {
                       </div>
                     ) : null}
                     <div className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
-                      Fails on {gap.backends.map((backend) => BACKEND_NAMES[backend]).join(" and ")}
+                      {gap.expected ? "Known issue, tracked, on " : "Fails on "}
+                      {gap.backends.map((backend) => BACKEND_NAMES[backend]).join(" and ")}
                     </div>
                   </div>
                 </div>

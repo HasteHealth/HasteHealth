@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-export type Result = "pass" | "fail" | "not-run";
+/** `warn`: a known failure, listed with the runner's `--allow-failure`. */
+export type Result = "pass" | "warn" | "fail" | "not-run";
 export type Backend = "postgres" | "elasticsearch";
 export type Interaction = "create" | "read" | "update" | "patch" | "delete";
 export type ParamType =
@@ -96,11 +97,14 @@ export function useSupportData(): LoadState {
 // Derived views
 // ---------------------------------------------------------------------------
 
-/** `fail` if anything failed, `pass` if everything passed, else `not-run`. */
+/**
+ * The worst result: `fail`, then `warn` (known failures), then `pass` when
+ * everything ran; `not-run` if anything didn't.
+ */
 export function combine(results: Result[]): Result {
   if (results.includes("fail")) return "fail";
-  if (results.length > 0 && results.every((result) => result === "pass")) return "pass";
-  return "not-run";
+  if (results.length === 0 || results.includes("not-run")) return "not-run";
+  return results.includes("warn") ? "warn" : "pass";
 }
 
 export function groupsResult(groups: SupportGroup[], backend: Backend): Result {
@@ -117,17 +121,21 @@ export function featureKey(variant: string | undefined): string | undefined {
   return variant.startsWith("missing-") ? "missing" : variant;
 }
 
-export type Tally = { pass: number; total: number };
+/** `warn` counts known failures, which are neither passes nor new failures. */
+export type Tally = { pass: number; warn: number; total: number };
 
 function tally(results: Result[]): Tally {
   return {
     pass: results.filter((result) => result === "pass").length,
+    warn: results.filter((result) => result === "warn").length,
     total: results.length,
   };
 }
 
 export type BackendSummary = {
   resourcesPassing: number;
+  /** Resource types whose only failures are known ones. */
+  resourcesWarning: number;
   checks: Tally;
 };
 
@@ -155,6 +163,9 @@ export function summarize(data: SupportData): Summary {
   const backend = (name: Backend): BackendSummary => ({
     resourcesPassing: data.resources.filter(
       (resource) => groupsResult(resource.groups, name) === "pass",
+    ).length,
+    resourcesWarning: data.resources.filter(
+      (resource) => groupsResult(resource.groups, name) === "warn",
     ).length,
     checks: tally(assertions.map((assertion) => assertion.results[name])),
   });
@@ -283,16 +294,21 @@ export type Gap = {
   type?: ParamType;
   features: string[];
   backends: Backend[];
+  /** Every failure here is a known one (`warn`). */
+  expected: boolean;
 };
 
 /** Adds a failing group to `gaps`, merging features of the same subject. */
 function recordGap(gaps: Map<string, Gap>, resourceType: string, group: SupportGroup): void {
-  const failing = BACKENDS.filter((backend) => group.results[backend] === "fail");
+  const failing = BACKENDS.filter((backend) =>
+    ["fail", "warn"].includes(group.results[backend]),
+  );
   if (failing.length === 0) return;
+  const expected = failing.every((backend) => group.results[backend] === "warn");
 
   const isSearch = group.group === "search";
   const subject = isSearch ? (group.searchParameterCode ?? "search") : group.group;
-  const key = `${resourceType}|${group.group}|${subject}|${failing.join(",")}`;
+  const key = `${resourceType}|${group.group}|${subject}|${failing.join(",")}|${expected}`;
   const gap = gaps.get(key) ?? {
     resourceType,
     kind: isSearch ? "search" : "interaction",
@@ -300,6 +316,7 @@ function recordGap(gaps: Map<string, Gap>, resourceType: string, group: SupportG
     type: group.searchParameterType,
     features: [],
     backends: failing,
+    expected,
   };
   const feature = featureKey(group.variant);
   if (feature && !gap.features.includes(feature)) gap.features.push(feature);
@@ -313,5 +330,6 @@ export function knownGaps(data: SupportData): Gap[] {
       recordGap(gaps, resource.resourceType, group);
     }
   }
-  return [...gaps.values()];
+  // New failures first, then known ones.
+  return [...gaps.values()].sort((a, b) => Number(a.expected) - Number(b.expected));
 }

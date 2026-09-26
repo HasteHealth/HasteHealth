@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "EpisodeOfCare",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "hlqjd3a81po0paj22dojkyxfvc",
-    "lastUpdated": "2026-08-21T17:07:01.384473+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "FYqrXcS2_HQlNu5X_9Pmby-lLHY"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "EpisodeOfCare",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/EpisodeOfCare",
   "version": "4.0.1",
-  "name": "EpisodeOfCare",
-  "status": "draft",
-  "kind": "resource",
-  "abstract": false,
   "type": "EpisodeOfCare",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "kind": "resource",
   "derivation": "specialization",
+  "status": "draft",
   "snapshot": {
     "element": [
       {
@@ -349,7 +331,7 @@
         "id": "EpisodeOfCare.modifierExtension",
         "path": "EpisodeOfCare.modifierExtension",
         "short": "Extensions that cannot be ignored",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -394,7 +376,7 @@
         "id": "EpisodeOfCare.identifier",
         "path": "EpisodeOfCare.identifier",
         "short": "Business Identifier(s) relevant for this EpisodeOfCare",
-        "definition": "The EpisodeOfCare may be known by different identifiers for different contexts of use, such as when an external agency is tracking the Episode for funding purposes.",
+        "definition": "The `EpisodeOfCare` may be known by different identifiers for different contexts of use, such as when an external agency is tracking the Episode for funding purposes.",
         "min": 0,
         "max": "*",
         "base": {
@@ -467,7 +449,7 @@
         "id": "EpisodeOfCare.statusHistory",
         "path": "EpisodeOfCare.statusHistory",
         "short": "Past list of status codes (the current status may be included to cover the start date of the status)",
-        "definition": "The history of statuses that the EpisodeOfCare has been through (without requiring processing the history of the resource).",
+        "definition": "The history of statuses that the `EpisodeOfCare` has been through (without requiring processing the history of the resource).",
         "min": 0,
         "max": "*",
         "base": {
@@ -569,7 +551,7 @@
         "id": "EpisodeOfCare.statusHistory.modifierExtension",
         "path": "EpisodeOfCare.statusHistory.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -656,7 +638,7 @@
         "id": "EpisodeOfCare.statusHistory.period",
         "path": "EpisodeOfCare.statusHistory.period",
         "short": "Duration the EpisodeOfCare was in the specified status",
-        "definition": "The period during this EpisodeOfCare that the specific status applied.",
+        "definition": "The period during this `EpisodeOfCare` that the specific status applied.",
         "min": 1,
         "max": "1",
         "base": {
@@ -836,7 +818,7 @@
         "id": "EpisodeOfCare.diagnosis.modifierExtension",
         "path": "EpisodeOfCare.diagnosis.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -1086,7 +1068,7 @@
         "id": "EpisodeOfCare.referralRequest",
         "path": "EpisodeOfCare.referralRequest",
         "short": "Originating Referral Request(s)",
-        "definition": "Referral Request(s) that are fulfilled by this EpisodeOfCare, incoming referrals.",
+        "definition": "Referral Request(s) that are fulfilled by this `EpisodeOfCare`, incoming referrals.",
         "min": 0,
         "max": "*",
         "base": {
@@ -1189,7 +1171,7 @@
         "id": "EpisodeOfCare.account",
         "path": "EpisodeOfCare.account",
         "short": "The set of accounts that may be used for billing for this EpisodeOfCare",
-        "definition": "The set of accounts that may be used for billing for this EpisodeOfCare.",
+        "definition": "The set of accounts that may be used for billing for this `EpisodeOfCare`.",
         "comment": "The billing system may choose to allocate billable items associated with the EpisodeOfCare to different referenced Accounts based on internal business rules.",
         "min": 0,
         "max": "*",

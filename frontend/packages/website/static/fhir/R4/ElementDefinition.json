@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "ElementDefinition",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "1t1kf2-kyv2azh6tvawzz1o9ag",
-    "lastUpdated": "2026-08-21T17:06:46.530344+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "RmCSdS21ilPfeQaYH1ACFdRhYXs"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "ElementDefinition",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/ElementDefinition",
   "version": "4.0.1",
-  "name": "ElementDefinition",
-  "status": "active",
-  "kind": "complex-type",
-  "abstract": false,
   "type": "ElementDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/BackboneElement",
+  "kind": "complex-type",
   "derivation": "specialization",
+  "status": "active",
   "snapshot": {
     "element": [
       {
@@ -248,7 +230,7 @@
         "id": "ElementDefinition.modifierExtension",
         "path": "ElementDefinition.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -790,7 +772,7 @@
         "id": "ElementDefinition.slicing.discriminator.path",
         "path": "ElementDefinition.slicing.discriminator.path",
         "short": "Path to element value",
-        "definition": "A FHIRPath expression, using [the simple subset of FHIRPath](fhirpath.html#simple), that is used to identify the element on which discrimination is based.",
+        "definition": "A `FHIRPath` expression, using [the simple subset of `FHIRPath`](fhirpath.html#simple), that is used to identify the element on which discrimination is based.",
         "comment": "The only FHIRPath functions that are allowed are as(type), resolve(), and extension(url).",
         "min": 1,
         "max": "1",
@@ -1315,7 +1297,7 @@
         "id": "ElementDefinition.base.path",
         "path": "ElementDefinition.base.path",
         "short": "Path that identifies the base element",
-        "definition": "The Path that identifies the base element - this matches the ElementDefinition.path for that element. Across FHIR, there is only one base definition of any element - that is, an element definition on a [StructureDefinition](structuredefinition.html#) without a StructureDefinition.base.",
+        "definition": "The Path that identifies the base element - this matches the ElementDefinition.path for that element. Across FHIR, there is only one base definition of any element - that is, an element definition on a [`StructureDefinition`](structuredefinition.html#) without a StructureDefinition.base.",
         "min": 1,
         "max": "1",
         "base": {
@@ -1407,7 +1389,7 @@
         "id": "ElementDefinition.contentReference",
         "path": "ElementDefinition.contentReference",
         "short": "Reference to definition of content for the element",
-        "definition": "Identifies an element defined elsewhere in the definition whose content rules should be applied to the current element. ContentReferences bring across all the rules that are in the ElementDefinition for the element, including definitions, cardinality constraints, bindings, invariants etc.",
+        "definition": "Identifies an element defined elsewhere in the definition whose content rules should be applied to the current element. `ContentReferences` bring across all the rules that are in the `ElementDefinition` for the element, including definitions, cardinality constraints, bindings, invariants etc.",
         "comment": "ContentReferences can only be defined in specializations, not constrained types, and they cannot be changed and always reference the non-constrained definition.",
         "min": 0,
         "max": "1",
@@ -1577,7 +1559,7 @@
         "id": "ElementDefinition.type.code",
         "path": "ElementDefinition.type.code",
         "short": "Data type or Resource (reference to definition)",
-        "definition": "URL of Data type or Resource that is a(or the) type used for this element. References are URLs that are relative to http://hl7.org/fhir/StructureDefinition e.g. \"string\" is a reference to http://hl7.org/fhir/StructureDefinition/string. Absolute URLs are only allowed in logical models.",
+        "definition": "URL of Data type or Resource that is a(or the) type used for this element. References are URLs that are relative to <http://hl7.org/fhir/StructureDefinition> e.g. \"string\" is a reference to <http://hl7.org/fhir/StructureDefinition/string>. Absolute URLs are only allowed in logical models.",
         "comment": "If the element is a reference to another resource, this element contains \"Reference\", and the targetProfile element defines what resources can be referenced. The targetProfile may be a reference to the general definition of a resource (e.g. http://hl7.org/fhir/StructureDefinition/Patient).",
         "min": 1,
         "max": "1",
@@ -1619,7 +1601,7 @@
         "id": "ElementDefinition.type.profile",
         "path": "ElementDefinition.type.profile",
         "short": "Profiles (StructureDefinition or IG) - one must apply",
-        "definition": "Identifies a profile structure or implementation Guide that applies to the datatype this element refers to. If any profiles are specified, then the content must conform to at least one of them. The URL can be a local reference - to a contained StructureDefinition, or a reference to another StructureDefinition or Implementation Guide by a canonical URL. When an implementation guide is specified, the type SHALL conform to at least one profile defined in the implementation guide.",
+        "definition": "Identifies a profile structure or implementation Guide that applies to the datatype this element refers to. If any profiles are specified, then the content must conform to at least one of them. The URL can be a local reference - to a contained `StructureDefinition`, or a reference to another `StructureDefinition` or Implementation Guide by a canonical URL. When an implementation guide is specified, the type SHALL conform to at least one profile defined in the implementation guide.",
         "comment": "It is possible to profile  backbone element (e.g. part of a resource), using the [profile-element](extension-elementdefinition-profile-element.html) extension.",
         "min": 0,
         "max": "*",
@@ -1654,7 +1636,7 @@
         "id": "ElementDefinition.type.targetProfile",
         "path": "ElementDefinition.type.targetProfile",
         "short": "Profile (StructureDefinition or IG) on the Reference/canonical target - one must apply",
-        "definition": "Used when the type is \"Reference\" or \"canonical\", and identifies a profile structure or implementation Guide that applies to the target of the reference this element refers to. If any profiles are specified, then the content must conform to at least one of them. The URL can be a local reference - to a contained StructureDefinition, or a reference to another StructureDefinition or Implementation Guide by a canonical URL. When an implementation guide is specified, the target resource SHALL conform to at least one profile defined in the implementation guide.",
+        "definition": "Used when the type is \"Reference\" or \"canonical\", and identifies a profile structure or implementation Guide that applies to the target of the reference this element refers to. If any profiles are specified, then the content must conform to at least one of them. The URL can be a local reference - to a contained `StructureDefinition`, or a reference to another `StructureDefinition` or Implementation Guide by a canonical URL. When an implementation guide is specified, the target resource SHALL conform to at least one profile defined in the implementation guide.",
         "min": 0,
         "max": "*",
         "base": {
@@ -3153,7 +3135,7 @@
         "id": "ElementDefinition.constraint.expression",
         "path": "ElementDefinition.constraint.expression",
         "short": "FHIRPath expression of constraint",
-        "definition": "A [FHIRPath](fhirpath.html) expression of constraint that can be executed to see if this constraint is met.",
+        "definition": "A [`FHIRPath`](fhirpath.html) expression of constraint that can be executed to see if this constraint is met.",
         "comment": "In the absense of an expression, the expression is likely not enforceable by validators, and might be missed by many systems.",
         "requirements": "Used by validation tooling tests of the validity of the resource.",
         "min": 0,
@@ -3191,7 +3173,7 @@
         ],
         "path": "ElementDefinition.constraint.xpath",
         "short": "XPath expression of constraint",
-        "definition": "An XPath expression of constraint that can be executed to see if this constraint is met.",
+        "definition": "An `XPath` expression of constraint that can be executed to see if this constraint is met.",
         "comment": "Elements SHALL use \"f\" as the namespace prefix for the FHIR namespace, and \"x\" for the xhtml namespace, and SHALL NOT use any other prefixes.     Note: XPath is generally considered not useful because it does not apply to JSON and other formats and because of XSLT implementation issues, and may be removed in the future.",
         "requirements": "Used in Schematron tests of the validity of the resource.",
         "min": 0,
@@ -3392,7 +3374,7 @@
         ],
         "path": "ElementDefinition.binding",
         "short": "ValueSet details if this is coded",
-        "definition": "Binds to a value set if this element is coded (code, Coding, CodeableConcept, Quantity), or the data types (string, uri).",
+        "definition": "Binds to a value set if this element is coded (code, Coding, `CodeableConcept`, Quantity), or the data types (string, uri).",
         "comment": "For a CodeableConcept, when no codes are allowed - only text, use a binding of strength \"required\" with a description explaining that no coded values are allowed and what sort of information to put in the \"text\" element.",
         "min": 0,
         "max": "1",

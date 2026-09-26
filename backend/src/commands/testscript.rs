@@ -4,7 +4,7 @@ use haste_fhir_client::http::{HeaderMap, HttpRequestHeaders, WithRequestHeaders}
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, BundleEntryRequest, Resource, TestReport, TestScript},
     terminology::{BundleType, HttpVerb, IssueType, ReportResultCodes},
-    types::FHIRUri,
+    types::{Extension, ExtensionValueTypeChoice, FHIRBoolean, FHIRUri},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_testscript_runner::TestRunnerOptions;
@@ -61,25 +61,15 @@ pub(crate) enum TestScriptCommands {
     },
 }
 
-fn load_testscript_files(path: &Path) -> Vec<TestScript> {
+/// The TestScripts in a file (a TestScript or a Bundle of them). A file that
+/// can't be read or parsed is an error, so a broken script fails the run
+/// instead of silently not running.
+fn load_testscript_files(path: &Path) -> Result<Vec<TestScript>, String> {
     let mut testscripts = vec![];
 
-    let Ok(data) = std::fs::read_to_string(path).map_err(|e| format!("Failed to read file: {}", e))
-    else {
-        return vec![];
-    };
-
-    let resource = match serde_json::from_str::<Resource>(&data) {
-        Ok(resource) => resource,
-        Err(e) => {
-            println!(
-                "Failed to parse FHIR resource from file {}: {}",
-                path.display(),
-                e
-            );
-            return vec![];
-        }
-    };
+    let data = std::fs::read_to_string(path).map_err(|e| format!("Failed to read file: {e}"))?;
+    let resource = serde_json::from_str::<Resource>(&data)
+        .map_err(|e| format!("Failed to parse FHIR resource: {e}"))?;
 
     match resource {
         Resource::Bundle(bundle) => bundle
@@ -102,7 +92,27 @@ fn load_testscript_files(path: &Path) -> Vec<TestScript> {
         _ => {}
     }
 
-    testscripts
+    Ok(testscripts)
+}
+
+/// Marks a TestReport whose failure is known (`--allow-failure`). It stays
+/// `fail`, so the result is truthful, but readers such as the website's
+/// coverage page can show its failures as expected rather than as errors.
+const EXPECTED_FAILURE_URL: &str =
+    "https://haste.health/fhir/StructureDefinition/testreport-expected-failure";
+
+fn mark_expected_failure(test_report: &mut TestReport) {
+    test_report
+        .extension
+        .get_or_insert_with(Vec::new)
+        .push(Extension {
+            url: EXPECTED_FAILURE_URL.to_string(),
+            value: Some(ExtensionValueTypeChoice::Boolean(Box::new(FHIRBoolean {
+                value: Some(true),
+                ..Default::default()
+            }))),
+            ..Default::default()
+        });
 }
 
 /// Runs the `testscript` command group.
@@ -145,7 +155,14 @@ pub(crate) async fn run(
                     .filter(|f| f.file_name().to_string_lossy().ends_with(".json"))
                 {
                     println!("Processing file: {}", entry.path().display());
-                    let testscripts = load_testscript_files(&entry.path());
+                    let testscripts = match load_testscript_files(entry.path()) {
+                        Ok(testscripts) => testscripts,
+                        Err(e) => {
+                            status_code = 1;
+                            error!("Skipping {}: {e}", entry.path().display());
+                            continue;
+                        }
+                    };
                     for testscript in testscripts.into_iter() {
                         let testscript = Arc::new(testscript);
 
@@ -206,8 +223,8 @@ pub(crate) async fn run(
                 test_runs.join_next().await
             {
                 match res {
-                    Ok(test_report) => {
-                        match &test_report.result {
+                    Ok(mut test_report) => {
+                        match &test_report.result.clone() {
                             // Ignore for rest.
                             r if r == &ReportResultCodes::pass()
                                 || r == &ReportResultCodes::pending()
@@ -227,6 +244,7 @@ pub(crate) async fn run(
                                     "TestScript '{testscript_name}' FAILED as expected (--allow-failure; file: {testscript_file}, TestReport id: {})",
                                     test_report.id.as_deref().unwrap_or("<none>")
                                 );
+                                mark_expected_failure(&mut test_report);
                             }
                             r if r == &ReportResultCodes::fail() => {
                                 status_code = 1;

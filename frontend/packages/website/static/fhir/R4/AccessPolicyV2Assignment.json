@@ -1,34 +1,16 @@
 {
   "resourceType": "StructureDefinition",
   "id": "AccessPolicyV2Assignment",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "ia296n-socbl09d-s7i7th10-c",
-    "lastUpdated": "2026-08-23T20:58:42.125740+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "whOXVeq_r9r20rMhph7mVQ8z-tk"
-      }
-    ]
-  },
   "url": "https://haste-health.com/StructureDefinition/AccessPolicyV2Assignment",
   "version": "4.0.1",
   "name": "AccessPolicyV2Assignment",
   "status": "active",
   "publisher": "haste-health",
-  "description": "Links an AccessPolicyV2 to the resource it applies to. Replaces AccessPolicyV2.target as its own resource so that assignments can be created and removed independently, without conflicting updates to the AccessPolicyV2 resource itself.",
   "fhirVersion": "4.0.1",
   "kind": "resource",
   "abstract": false,
   "type": "AccessPolicyV2Assignment",
+  "description": "Links an AccessPolicyV2 to the resource it applies to. Replaces AccessPolicyV2.target as its own resource so that assignments can be created and removed independently, without conflicting updates to the AccessPolicyV2 resource itself.",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
   "derivation": "specialization",
   "snapshot": {
@@ -36,8 +18,8 @@
       {
         "id": "AccessPolicyV2Assignment",
         "path": "AccessPolicyV2Assignment",
-        "definition": "A set of rules that govern how a system resource is accessed and used.",
         "min": 0,
+        "definition": "A set of rules that govern how a system resource is accessed and used.",
         "max": "*",
         "base": {
           "path": "AccessPolicyV2Assignment",
@@ -107,10 +89,8 @@
       {
         "id": "AccessPolicyV2Assignment.accessPolicy",
         "path": "AccessPolicyV2Assignment.accessPolicy",
-        "short": "The access policy that this assignment grants.",
         "definition": "The access policy that this assignment grants.",
-        "min": 1,
-        "max": "1",
+        "short": "The access policy that this assignment grants.",
         "type": [
           {
             "code": "Reference",
@@ -118,15 +98,15 @@
               "https://haste-health.com/StructureDefinition/AccessPolicyV2"
             ]
           }
-        ]
+        ],
+        "min": 1,
+        "max": "1"
       },
       {
         "id": "AccessPolicyV2Assignment.link",
         "path": "AccessPolicyV2Assignment.link",
-        "short": "The target reference the access policy applies to.",
         "definition": "Who the access policy applies to.",
-        "min": 1,
-        "max": "1",
+        "short": "The target reference the access policy applies to.",
         "type": [
           {
             "code": "Reference",
@@ -136,7 +116,9 @@
               "http://hl7.org/fhir/StructureDefinition/OperationDefinition"
             ]
           }
-        ]
+        ],
+        "min": 1,
+        "max": "1"
       }
     ]
   }

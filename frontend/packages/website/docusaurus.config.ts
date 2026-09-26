@@ -42,6 +42,8 @@ const config: Config = {
 
   onBrokenLinks: "throw",
 
+  clientModules: ["./src/clientModules/navbarDropdowns.ts"],
+
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
@@ -165,19 +167,57 @@ const config: Config = {
           width: "128px",
         },
       },
+      // Buyer-first: what the platform does, proof it works (Conformance),
+      // then Docs; everything else sits under Resources. One primary CTA.
       items: [
         {
-          type: "docSidebar",
-          sidebarId: "documentationSidebar",
+          type: "dropdown",
+          label: "Platform",
           position: "left",
-          label: "Documentation",
+          items: [
+            { label: "Overview", to: "/docs/overview/what_is_haste_health" },
+            {
+              label: "Architecture",
+              to: "/docs/core_concepts/platform_architecture",
+            },
+            {
+              label: "AI agents & MCP",
+              to: "/docs/api/rest_api/model_context_protocol/endpoint",
+            },
+            { label: "SQL on FHIR analytics", to: "/docs/guides/sql_on_fhir" },
+            {
+              label: "Identity & access control",
+              to: "/docs/core_concepts/identity_access_control",
+            },
+          ],
         },
-        { to: "/blog", label: "Blog", position: "left" },
         {
-          to: "https://calendly.com/rp-haste/book-a-demo",
-          position: "right",
-          label: "Book a Demo",
-          className: "signup-link",
+          to: "/docs/reference/conformance/test-coverage",
+          label: "Conformance",
+          position: "left",
+          activeBaseRegex: "^/docs/reference/conformance/",
+        },
+        {
+          to: "/docs/getting_started/quick_start",
+          label: "Docs",
+          position: "left",
+          // Every other /docs page, not the reference sections under Resources.
+          activeBaseRegex: "^/docs/(?!reference/(fhir|conformance)/)",
+        },
+        {
+          type: "dropdown",
+          label: "Resources",
+          position: "left",
+          items: [
+            {
+              label: "FHIR R4 reference",
+              to: "/docs/reference/fhir/model/resources/",
+            },
+            { label: "REST API", to: "/docs/api/rest_api/fhir/intro" },
+            { label: "SDKs", to: "/docs/api/sdks/typescript" },
+            { label: "Blog", to: "/blog" },
+            { label: "Contact", to: "/contact" },
+          ],
         },
         {
           type: "search",
@@ -193,14 +233,18 @@ const config: Config = {
           to: "https://api.haste.health/auth/login",
           label: "Log in",
           position: "right",
-          className: "signup-link",
+        },
+        {
+          to: "https://calendly.com/rp-haste/book-a-demo",
+          label: "Book a demo",
+          position: "right",
+          className: "navbar-button navbar-button--secondary",
         },
         {
           to: "https://api.haste.health/auth/signup",
           label: "Start for free",
           position: "right",
-          className:
-            "text-white bg-brand-800 hover:bg-brand-900 rounded-4xl px-4 py-2",
+          className: "navbar-button navbar-button--primary",
         },
       ],
     },

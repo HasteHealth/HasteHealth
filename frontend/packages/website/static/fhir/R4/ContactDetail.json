@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "ContactDetail",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "lixm6jv-v9tvzaxx0psz4qf5tz",
-    "lastUpdated": "2026-08-21T17:06:36.915608+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "q_SVyvWeUu3PtSnnfLrsbmXHC8U"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "ContactDetail",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/ContactDetail",
   "version": "4.0.1",
-  "name": "ContactDetail",
-  "status": "active",
-  "kind": "complex-type",
-  "abstract": false,
   "type": "ContactDetail",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "kind": "complex-type",
   "derivation": "specialization",
+  "status": "active",
   "snapshot": {
     "element": [
       {

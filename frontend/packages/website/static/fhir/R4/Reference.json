@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "Reference",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "vgjay8e04z7749giny0-22dl9v",
-    "lastUpdated": "2026-08-21T17:06:43.901180+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "SFkGarZIsrW-v4-43o7Mh34BiAQ"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "Reference",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/Reference",
   "version": "4.0.1",
-  "name": "Reference",
-  "status": "active",
-  "kind": "complex-type",
-  "abstract": false,
   "type": "Reference",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "kind": "complex-type",
   "derivation": "specialization",
+  "status": "active",
   "snapshot": {
     "element": [
       {
@@ -161,7 +143,7 @@
         "id": "Reference.reference",
         "path": "Reference.reference",
         "short": "Literal reference, Relative, internal or absolute URL",
-        "definition": "A reference to a location at which the other resource is found. The reference may be a relative reference, in which case it is relative to the service base URL, or an absolute URL that resolves to the location where the resource is found. The reference may be version specific or not. If the reference is not to a FHIR RESTful server, then it should be assumed to be version specific. Internal fragment references (start with '#') refer to contained resources.",
+        "definition": "A reference to a location at which the other resource is found. The reference may be a relative reference, in which case it is relative to the service base URL, or an absolute URL that resolves to the location where the resource is found. The reference may be version specific or not. If the reference is not to a FHIR `RESTful` server, then it should be assumed to be version specific. Internal fragment references (start with '#') refer to contained resources.",
         "comment": "Using absolute URLs provides a stable scalable approach suitable for a cloud/web context, while using relative/logical references provides a flexible approach suitable for use when trading across closed eco-system boundaries.   Absolute URLs do not need to point to a FHIR RESTful server, though this is the preferred approach. If the URL conforms to the structure \"/[type]/[id]\" then it should be assumed that the reference is to a FHIR RESTful server.",
         "min": 0,
         "max": "1",
@@ -195,7 +177,7 @@
         "id": "Reference.type",
         "path": "Reference.type",
         "short": "Type the reference refers to (e.g. \"Patient\")",
-        "definition": "The expected type of the target of the reference. If both Reference.type and Reference.reference are populated and Reference.reference is a FHIR URL, both SHALL be consistent.\n\nThe type is the Canonical URL of Resource Definition that is the type this reference refers to. References are URLs that are relative to http://hl7.org/fhir/StructureDefinition/ e.g. \"Patient\" is a reference to http://hl7.org/fhir/StructureDefinition/Patient. Absolute URLs are only allowed for logical models (and can only be used in references in logical models, not resources).",
+        "definition": "The expected type of the target of the reference. If both Reference.type and Reference.reference are populated and Reference.reference is a FHIR URL, both SHALL be consistent.\n\nThe type is the Canonical URL of Resource Definition that is the type this reference refers to. References are URLs that are relative to <http://hl7.org/fhir/StructureDefinition>/ e.g. \"Patient\" is a reference to <http://hl7.org/fhir/StructureDefinition/Patient>. Absolute URLs are only allowed for logical models (and can only be used in references in logical models, not resources).",
         "comment": "This element is used to indicate the type of  the target of the reference. This may be used which ever of the other elements are populated (or not). In some cases, the type of the target may be determined by inspection of the reference (e.g. a RESTful URL) or by resolving the target of the reference; if both the type and a reference is provided, the reference SHALL resolve to a resource of the same type as that specified.",
         "min": 0,
         "max": "1",

@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "ServiceRequest",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "yd1zgtn7wu-tueqimbtws1a9l4",
-    "lastUpdated": "2026-08-21T17:06:50.070153+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "yF_5ToWMkC_WP9YeYQkxVB34aGM"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "ServiceRequest",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/ServiceRequest",
   "version": "4.0.1",
-  "name": "ServiceRequest",
-  "status": "draft",
-  "kind": "resource",
-  "abstract": false,
   "type": "ServiceRequest",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "kind": "resource",
   "derivation": "specialization",
+  "status": "draft",
   "snapshot": {
     "element": [
       {
@@ -359,7 +341,7 @@
         "id": "ServiceRequest.modifierExtension",
         "path": "ServiceRequest.modifierExtension",
         "short": "Extensions that cannot be ignored",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -435,7 +417,7 @@
         "id": "ServiceRequest.instantiatesCanonical",
         "path": "ServiceRequest.instantiatesCanonical",
         "short": "Instantiates FHIR protocol or definition",
-        "definition": "The URL pointing to a FHIR-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this ServiceRequest.",
+        "definition": "The URL pointing to a FHIR-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this `ServiceRequest`.",
         "comment": "Note: This is a business identifier, not a resource identifier (see [discussion](resource.html#identifiers)).  It is best practice for the identifier to only appear on a single resource instance, however business practices may occasionally dictate that multiple resource instances with the same identifier can exist - possibly even with different resource types.  For example, multiple Patient and a Person resource instance might share the same social insurance number.",
         "min": 0,
         "max": "*",
@@ -470,7 +452,7 @@
         "id": "ServiceRequest.instantiatesUri",
         "path": "ServiceRequest.instantiatesUri",
         "short": "Instantiates external protocol or definition",
-        "definition": "The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this ServiceRequest.",
+        "definition": "The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this `ServiceRequest`.",
         "comment": "This might be an HTML page, PDF, etc. or could just be a non-resolvable URI identifier.",
         "min": 0,
         "max": "*",
@@ -742,7 +724,7 @@
         "id": "ServiceRequest.priority",
         "path": "ServiceRequest.priority",
         "short": "routine | urgent | asap | stat",
-        "definition": "Indicates how quickly the ServiceRequest should be addressed with respect to other requests.",
+        "definition": "Indicates how quickly the `ServiceRequest` should be addressed with respect to other requests.",
         "min": 0,
         "max": "1",
         "base": {
@@ -1059,7 +1041,7 @@
         "id": "ServiceRequest.asNeeded[x]",
         "path": "ServiceRequest.asNeeded[x]",
         "short": "Preconditions for service",
-        "definition": "If a CodeableConcept is present, it indicates the pre-condition for performing the service.  For example \"pain\", \"on flare-up\", etc.",
+        "definition": "If a `CodeableConcept` is present, it indicates the pre-condition for performing the service.  For example \"pain\", \"on flare-up\", etc.",
         "min": 0,
         "max": "1",
         "base": {

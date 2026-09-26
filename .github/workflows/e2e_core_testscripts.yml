@@ -10,11 +10,9 @@ name: Core TestScripts
 # iterating on the scripts without touching main.
 on:
   push:
-    branches:
-      - main
-      - ci/core-testscripts
-      - "ci/core-testscripts/**"
-  workflow_dispatch:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
 # A newer push to the same branch supersedes a running check.
 concurrency:
@@ -164,6 +162,13 @@ jobs:
           ./target/debug/haste-health config create-profile -n testing --auth-mode client-credentials --r4-url http://localhost:3000/w/my-health/system/api/v1/fhir/r4 --discovery-uri http://localhost:3000/.well-known/openid-configuration/w/my-health/system --id testing --secret testing
         working-directory: ./backend
 
+      # The client's access policy is found through search when a token is
+      # issued, and the CLI caches its token. A token issued before the worker
+      # indexes the policy carries none, and every request with it is denied,
+      # so wait before the first authenticated call (the check below).
+      - name: Wait for indexing
+        run: bash .github/scripts/wait_for_indexing.sh 600
+
       - name: Wait for server
         run: |
           for i in {1..30}; do
@@ -180,11 +185,15 @@ jobs:
       # ceiling, not a delay: each search waits only until the latest write is
       # indexed (about 0.2s on Postgres and 1s on Elasticsearch locally).
       #
-      # `--allow-failure` lists known gaps: they still fail in the TestReport
-      # (and on the website's coverage page) but don't fail the job. Remove an
-      # entry once it's fixed; the run warns when a listed script passes.
+      # `--allow-failure` lists known gaps: their TestReports stay `fail`,
+      # marked as expected (the website shows them as known issues), and they
+      # don't fail the job. Remove an entry once it's fixed; the run warns when
+      # a listed script passes.
       #   core-bundle: `composition`/`message` searches over
       #   `Bundle.entry[0].resource` aren't indexed yet.
+      #
+      # These run in the `system` project: Project and IdentityProvider can
+      # only be created there.
       - name: Run core TestScripts
         run: >-
           ./target/debug/haste-health testscript run -i testscripts/core

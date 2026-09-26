@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "Address",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "js-tt64il6him4wa4t642zlg38",
-    "lastUpdated": "2026-08-21T17:06:51.789568+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "N4Oz4SyG7MAEfKJ9HMtLfO9GCWo"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "Address",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/Address",
   "version": "4.0.1",
-  "name": "Address",
-  "status": "active",
-  "kind": "complex-type",
-  "abstract": false,
   "type": "Address",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "kind": "complex-type",
   "derivation": "specialization",
+  "status": "active",
   "snapshot": {
     "element": [
       {

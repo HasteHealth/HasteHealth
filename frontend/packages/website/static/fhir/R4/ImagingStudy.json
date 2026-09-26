@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "ImagingStudy",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "3kxcq5ho13v5zm--0el836bvzz",
-    "lastUpdated": "2026-08-21T17:07:22.043326+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "hSdpqjhrDJ4UZ-bqTf_x67LQKjU"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "ImagingStudy",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/ImagingStudy",
   "version": "4.0.1",
-  "name": "ImagingStudy",
-  "status": "draft",
-  "kind": "resource",
-  "abstract": false,
   "type": "ImagingStudy",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "kind": "resource",
   "derivation": "specialization",
+  "status": "draft",
   "snapshot": {
     "element": [
       {
@@ -346,7 +328,7 @@
         "id": "ImagingStudy.modifierExtension",
         "path": "ImagingStudy.modifierExtension",
         "short": "Extensions that cannot be ignored",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -391,7 +373,7 @@
         "id": "ImagingStudy.identifier",
         "path": "ImagingStudy.identifier",
         "short": "Identifiers for the whole study",
-        "definition": "Identifiers for the ImagingStudy such as DICOM Study Instance UID, and Accession Number.",
+        "definition": "Identifiers for the `ImagingStudy` such as DICOM Study Instance UID, and Accession Number.",
         "comment": "See discussion under [Imaging Study Implementation Notes](imagingstudy.html#notes) for encoding of DICOM Study Instance UID. Accession Number should use ACSN Identifier type.",
         "requirements": "If one or more series elements are present in the ImagingStudy, then there shall be one DICOM Study UID identifier (see [DICOM PS 3.3 C.7.2](http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.2.html).",
         "alias": [
@@ -427,7 +409,7 @@
         "id": "ImagingStudy.status",
         "path": "ImagingStudy.status",
         "short": "registered | available | cancelled | entered-in-error | unknown",
-        "definition": "The current state of the ImagingStudy.",
+        "definition": "The current state of the `ImagingStudy`.",
         "comment": "Unknown does not represent \"other\" - one of the defined statuses must apply.  Unknown is used when the authoring system is not sure what the current status is.",
         "min": 1,
         "max": "1",
@@ -556,7 +538,7 @@
         "id": "ImagingStudy.encounter",
         "path": "ImagingStudy.encounter",
         "short": "Encounter with which this imaging study is associated",
-        "definition": "The healthcare event (e.g. a patient and healthcare provider interaction) during which this ImagingStudy is made.",
+        "definition": "The healthcare event (e.g. a patient and healthcare provider interaction) during which this `ImagingStudy` is made.",
         "comment": "This will typically be the encounter the event occurred within, but some events may be initiated prior to or after the official completion of an encounter but still be tied to the context of the encounter (e.g. pre-admission test).",
         "min": 0,
         "max": "1",
@@ -616,7 +598,7 @@
         "example": [
           {
             "label": "General",
-            "valueDateTime": "2011-01-01T08:01:20+00:00"
+            "valueDateTime": "2011-01-01T11:01:20+03:00"
           }
         ],
         "constraint": [
@@ -849,7 +831,7 @@
         "id": "ImagingStudy.procedureReference",
         "path": "ImagingStudy.procedureReference",
         "short": "The performed Procedure reference",
-        "definition": "The procedure which this ImagingStudy was part of.",
+        "definition": "The procedure which this `ImagingStudy` was part of.",
         "min": 0,
         "max": "1",
         "base": {
@@ -926,7 +908,7 @@
         "id": "ImagingStudy.location",
         "path": "ImagingStudy.location",
         "short": "Where ImagingStudy occurred",
-        "definition": "The principal physical location where the ImagingStudy was performed.",
+        "definition": "The principal physical location where the `ImagingStudy` was performed.",
         "requirements": "Ties the event to where the records are likely kept and provides context around the event occurrence (e.g. if it occurred inside or outside a dedicated healthcare setting).",
         "min": 0,
         "max": "1",
@@ -960,7 +942,7 @@
         "id": "ImagingStudy.reasonCode",
         "path": "ImagingStudy.reasonCode",
         "short": "Why the study was requested",
-        "definition": "Description of clinical condition indicating why the ImagingStudy was requested.",
+        "definition": "Description of clinical condition indicating why the `ImagingStudy` was requested.",
         "min": 0,
         "max": "*",
         "base": {
@@ -1203,7 +1185,7 @@
         "id": "ImagingStudy.series.modifierExtension",
         "path": "ImagingStudy.series.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -1480,7 +1462,7 @@
         "id": "ImagingStudy.series.bodySite",
         "path": "ImagingStudy.series.bodySite",
         "short": "Body part examined",
-        "definition": "The anatomic structures examined. See DICOM Part 16 Annex L (http://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_L.html) for DICOM to SNOMED-CT mappings. The bodySite may indicate the laterality of body part imaged; if so, it shall be consistent with any content of ImagingStudy.series.laterality.",
+        "definition": "The anatomic structures examined. See DICOM Part 16 Annex L (<http://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_L.html>) for DICOM to SNOMED-CT mappings. The bodySite may indicate the laterality of body part imaged; if so, it shall be consistent with any content of ImagingStudy.series.laterality.",
         "alias": [
           "BodyPartExamined"
         ],
@@ -1736,7 +1718,7 @@
         "id": "ImagingStudy.series.performer.modifierExtension",
         "path": "ImagingStudy.series.performer.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -1965,7 +1947,7 @@
         "id": "ImagingStudy.series.instance.modifierExtension",
         "path": "ImagingStudy.series.instance.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
