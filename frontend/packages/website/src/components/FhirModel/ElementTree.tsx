@@ -126,13 +126,13 @@ function ElementRow({
   onToggle,
 }: Readonly<{ row: Row; open: boolean; onToggle: (path: string) => void }>) {
   return (
-    <div
+    <tr
       id={anchor(row.path)}
       className={styles.row}
-      role="row"
       style={{ "--depth": row.depth } as React.CSSProperties}
     >
-      <div className={styles.nameCell} role="cell">
+      <td>
+        <div className={styles.nameCell}>
         {row.parent ? (
           <button
             type="button"
@@ -150,20 +150,21 @@ function ElementRow({
           {row.name}
         </span>
         <Flags row={row} />
-      </div>
-      <div className={styles.cardCell} role="cell">
+        </div>
+      </td>
+      <td className={styles.cardCell}>
         <span className={row.min > 0 ? styles.cardRequired : undefined}>
           {row.min}..{row.max}
         </span>
-      </div>
-      <div className={styles.typeCell} role="cell">
+      </td>
+      <td className={styles.typeCell}>
         <Types row={row} />
-      </div>
-      <div className={styles.descriptionCell} role="cell">
+      </td>
+      <td className={styles.descriptionCell}>
         {row.short}
         {row.binding && <Binding binding={row.binding} />}
-      </div>
-    </div>
+      </td>
+    </tr>
   );
 }
 
@@ -214,16 +215,22 @@ export default function ElementTree({ data }: Readonly<{ data: ModelData }>) {
           </span>
         )}
       </div>
-      <div className={styles.tree} role="table" aria-label={`${data.name} elements`}>
-        <div className={`${styles.row} ${styles.headRow}`} role="row">
-          <div role="columnheader">Element</div>
-          <div role="columnheader">Card.</div>
-          <div role="columnheader">Type</div>
-          <div role="columnheader">Description</div>
-        </div>
-        {visible.map((row) => (
-          <ElementRow key={row.path} row={row} open={!collapsed.has(row.path)} onToggle={toggle} />
-        ))}
+      <div className={styles.tree}>
+        <table className={styles.treeTable} aria-label={`${data.name} elements`}>
+          <thead>
+            <tr>
+              <th>Element</th>
+              <th>Card.</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((row) => (
+              <ElementRow key={row.path} row={row} open={!collapsed.has(row.path)} onToggle={toggle} />
+            ))}
+          </tbody>
+        </table>
       </div>
       <p className={styles.legend}>
         <span className={styles.flag}>Σ</span> in <code>_summary</code> results ·{" "}

@@ -7,7 +7,8 @@ import type { ModelData, SearchParameter } from "./types";
 import styles from "./styles.module.css";
 
 function TypeBadge({ type }: Readonly<{ type: string }>) {
-  return <span className={`${styles.paramType} ${styles[`type-${type}`] ?? ""}`}>{type}</span>;
+  const className = [styles.paramType, styles[`type-${type}`]].filter(Boolean).join(" ");
+  return <span className={className}>{type}</span>;
 }
 
 function matches(parameter: SearchParameter, query: string): boolean {

@@ -162,8 +162,8 @@ function descriptionFor(description, name) {
 function expressionFor(expression, name) {
   if (!expression) return undefined;
   const parts = expression.split(/\s\|\s/).map((p) => p.trim());
-  const own = parts.filter((p) =>
-    new RegExp(`^\\(?${name}\\.`).test(p),
+  const own = parts.filter(
+    (p) => p.startsWith(`${name}.`) || p.startsWith(`(${name}.`),
   );
   return (own.length > 0 ? own : parts).join(" | ");
 }
@@ -242,9 +242,24 @@ const KIND_LABEL = {
   "primitive-type": "data type",
 };
 
+/** `[text](url)` -> `text`, scanning rather than with a backtracking regex. */
+function stripLinks(text) {
+  let result = "";
+  let index = 0;
+  while (index < text.length) {
+    const open = text.indexOf("[", index);
+    const close = open === -1 ? -1 : text.indexOf("](", open);
+    const end = close === -1 ? -1 : text.indexOf(")", close);
+    if (end === -1) break;
+    result += text.slice(index, open) + text.slice(open + 1, close);
+    index = end + 1;
+  }
+  return result + text.slice(index);
+}
+
 function metaDescription(sd, definition) {
   const kind = KIND_LABEL[sd.kind];
-  const raw = definition.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1");
+  const raw = stripLinks(definition);
   const body = raw.replace(/\s+/g, " ").trim();
   const prefix = `${sd.name} (FHIR R4 ${kind}): `;
   const budget = 155 - prefix.length;

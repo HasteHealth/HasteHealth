@@ -55,12 +55,16 @@ function typeGroups(list: IndexEntry[]): Group[] {
 
 /** Lets long names wrap between words: Medicinal<wbr>Product<wbr>Authorization. */
 function wrappable(name: string): React.ReactNode[] {
-  return name.split(/(?<=[a-z])(?=[A-Z])/).map((word, i) => (
-    <React.Fragment key={i}>
-      {i > 0 && <wbr />}
-      {word}
-    </React.Fragment>
-  ));
+  const nodes: React.ReactNode[] = [];
+  let start = 0;
+  for (let i = 1; i <= name.length; i++) {
+    const boundary = i === name.length || (/[a-z]/.test(name[i - 1]) && /[A-Z]/.test(name[i]));
+    if (!boundary) continue;
+    if (start > 0) nodes.push(<wbr key={`wbr-${start}`} />);
+    nodes.push(name.slice(start, i));
+    start = i;
+  }
+  return nodes;
 }
 
 function Card({ entry }: Readonly<{ entry: IndexEntry }>) {

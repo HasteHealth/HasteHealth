@@ -203,24 +203,35 @@
   overflow: hidden;
 }
 
-.row {
-  display: grid;
-  grid-template-columns: minmax(13rem, 1.3fr) 3.5rem minmax(8rem, 1fr) minmax(12rem, 2fr);
-  gap: 0 0.75rem;
-  padding: 0.4375rem 0.75rem;
-  border-bottom: 1px solid var(--model-rule);
-  scroll-margin-top: calc(var(--ifm-navbar-height) + 0.5rem);
+/* Infima styles bare tables outside any cascade layer; reset them here. */
+.treeTable {
+  display: table;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  overflow: visible;
 }
 
-.row:last-child {
+.treeTable tr,
+.treeTable tr:nth-child(2n) {
+  background: transparent;
+  border: 0;
+}
+
+.treeTable th,
+.treeTable td {
+  border: 0;
+  border-bottom: 1px solid var(--model-rule);
+  padding: 0.4375rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.treeTable tbody tr:last-child > td {
   border-bottom: 0;
 }
 
-.row:target {
-  background: var(--model-accent-bg);
-}
-
-.headRow {
+.treeTable th {
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -229,6 +240,27 @@
   background: var(--model-head);
 }
 
+.treeTable th:nth-child(1) {
+  width: 30%;
+}
+
+.treeTable th:nth-child(2) {
+  width: 4.5rem;
+}
+
+.treeTable th:nth-child(3) {
+  width: 22%;
+}
+
+.row {
+  scroll-margin-top: calc(var(--ifm-navbar-height) + 0.5rem);
+}
+
+.treeTable .row:target > td {
+  background: var(--model-accent-bg);
+}
+
+/* The name cell's content: indent, toggle, name and flags. */
 .nameCell {
   padding-left: calc(var(--depth, 0) * 1.125rem);
   display: flex;
@@ -345,19 +377,29 @@
   color: var(--model-muted);
 }
 
-/* Phones: name, cardinality and type on one line, description below. */
+/* Phones: name and cardinality on one line, type and description below. */
 @media (max-width: 720px) {
-  .row {
-    grid-template-columns: 1fr auto;
-    gap: 0.125rem 0.75rem;
-  }
-
-  .headRow {
+  .treeTable thead {
     display: none;
   }
 
-  .nameCell {
-    grid-column: 1;
+  /* :nth-child(n) matches the specificity of the zebra reset above. */
+  .treeTable .row:nth-child(n) {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.125rem 0.75rem;
+    padding: 0.4375rem 0.75rem;
+    border-bottom: 1px solid var(--model-rule);
+  }
+
+  .treeTable .row:last-child {
+    border-bottom: 0;
+  }
+
+  .treeTable .row > td {
+    display: block;
+    padding: 0;
+    border: 0;
   }
 
   .cardCell {
@@ -368,7 +410,7 @@
   .typeCell,
   .descriptionCell {
     grid-column: 1 / -1;
-    padding-left: calc(var(--depth, 0) * 1.125rem + 1.375rem);
+    padding-left: calc(var(--depth, 0) * 1.125rem + 1.375rem) !important;
   }
 
   .descriptionCell {
