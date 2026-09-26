@@ -1,0 +1,560 @@
+.root {
+  --model-rule: rgb(226 232 240);
+  --model-head: rgb(248 250 252);
+  --model-muted: rgb(100 116 139);
+  --model-accent: var(--color-brand-800);
+  --model-accent-bg: var(--color-brand-50);
+  --model-accent-rule: var(--color-brand-200);
+  margin-bottom: 1.5rem;
+}
+
+[data-theme="dark"] .root {
+  --model-rule: rgb(51 65 85);
+  --model-head: rgb(15 23 42 / 0.6);
+  --model-muted: rgb(148 163 184);
+  --model-accent: var(--color-brand-300);
+  --model-accent-bg: rgb(15 23 42 / 0.6);
+  --model-accent-rule: rgb(51 65 85);
+}
+
+.muted {
+  color: var(--model-muted);
+}
+
+/* ---------------------------------------------------------------------------
+ * Header
+ * ------------------------------------------------------------------------- */
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--model-rule);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: var(--model-muted);
+  background: var(--model-head);
+}
+
+.badgeAccent {
+  border-color: var(--model-accent-rule);
+  color: var(--model-accent);
+  background: var(--model-accent-bg);
+  font-weight: 600;
+}
+
+.definition {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.definition p:last-child,
+.paramDescription p:last-child {
+  margin-bottom: 0;
+}
+
+.definition ul,
+.paramDescription ul {
+  margin: 0.25rem 0 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.coverage {
+  margin-top: 1.25rem;
+  border: 1px solid var(--model-rule);
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+  background: var(--model-head);
+}
+
+.coverageHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.625rem;
+}
+
+.coverageTitle {
+  font-weight: 600;
+}
+
+.coverageLink {
+  font-size: 0.875rem;
+}
+
+.coverageGrid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5rem 1.25rem;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.coverageGrid dt {
+  margin: 0;
+  font-weight: 500;
+  color: var(--model-muted);
+}
+
+.coverageGrid dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0;
+}
+
+.coverageItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * Toolbars
+ * ------------------------------------------------------------------------- */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.toolbarButtons {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.button {
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--model-rule);
+  border-radius: 0.375rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--model-head);
+}
+
+.filter {
+  flex: 1 1 16rem;
+  max-width: 24rem;
+  padding: 0.4375rem 0.75rem;
+  border: 1px solid var(--model-rule);
+  border-radius: 0.375rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.filter:focus {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: -1px;
+}
+
+.legend {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--model-muted);
+}
+
+/* ---------------------------------------------------------------------------
+ * Element tree
+ * ------------------------------------------------------------------------- */
+
+.tree {
+  border: 1px solid var(--model-rule);
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  overflow: hidden;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(13rem, 1.3fr) 3.5rem minmax(8rem, 1fr) minmax(12rem, 2fr);
+  gap: 0 0.75rem;
+  padding: 0.4375rem 0.75rem;
+  border-bottom: 1px solid var(--model-rule);
+  scroll-margin-top: calc(var(--ifm-navbar-height) + 0.5rem);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.row:target {
+  background: var(--model-accent-bg);
+}
+
+.headRow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--model-muted);
+  background: var(--model-head);
+}
+
+.nameCell {
+  padding-left: calc(var(--depth, 0) * 1.125rem);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.toggle,
+.toggleSpacer {
+  flex: none;
+  width: 1.125rem;
+  height: 1.25rem;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--model-muted);
+  cursor: pointer;
+}
+
+.toggle:hover {
+  background: var(--model-head);
+  color: inherit;
+}
+
+.chevron {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 150ms ease;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+.name {
+  font-family: var(--ifm-font-family-monospace);
+  font-weight: 600;
+  line-height: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.inherited {
+  color: var(--model-muted);
+  font-weight: 400;
+}
+
+.flags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-left: 0.25rem;
+  line-height: 1.25rem;
+}
+
+.flag {
+  display: inline-block;
+  min-width: 1.125rem;
+  padding: 0 0.25rem;
+  border: 1px solid var(--model-rule);
+  border-radius: 0.25rem;
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  text-align: center;
+  color: var(--model-muted);
+}
+
+.required {
+  padding: 0 0.3125rem;
+  border-radius: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.125rem;
+  color: rgb(190 18 60);
+  background: rgb(255 241 242);
+}
+
+.cardCell {
+  font-family: var(--ifm-font-family-monospace);
+  line-height: 1.25rem;
+  color: var(--model-muted);
+  white-space: nowrap;
+}
+
+.cardRequired {
+  font-weight: 700;
+  color: var(--ifm-font-color-base);
+}
+
+.typeCell {
+  line-height: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.types a {
+  font-weight: 500;
+}
+
+.descriptionCell {
+  line-height: 1.25rem;
+}
+
+.binding {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  color: var(--model-muted);
+}
+
+/* Phones: name, cardinality and type on one line, description below. */
+@media (max-width: 720px) {
+  .row {
+    grid-template-columns: 1fr auto;
+    gap: 0.125rem 0.75rem;
+  }
+
+  .headRow {
+    display: none;
+  }
+
+  .nameCell {
+    grid-column: 1;
+  }
+
+  .cardCell {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .typeCell,
+  .descriptionCell {
+    grid-column: 1 / -1;
+    padding-left: calc(var(--depth, 0) * 1.125rem + 1.375rem);
+  }
+
+  .descriptionCell {
+    color: var(--model-muted);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Search parameters
+ *
+ * Infima styles bare table elements outside any cascade layer, so the table
+ * is styled here rather than with Tailwind utilities.
+ * ------------------------------------------------------------------------- */
+
+.scroll {
+  overflow-x: auto;
+  contain: inline-size;
+  border: 1px solid var(--model-rule);
+  border-radius: 0.5rem;
+}
+
+.table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  overflow: visible;
+  font-size: 0.8125rem;
+}
+
+.table tr,
+.table tr:nth-child(2n) {
+  background: transparent;
+  border: 0;
+}
+
+.table th,
+.table td {
+  border: 0;
+  border-bottom: 1px solid var(--model-rule);
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--model-muted);
+  background: var(--model-head);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child > td {
+  border-bottom: 0;
+}
+
+.table tbody tr:target > td {
+  background: var(--model-accent-bg);
+}
+
+.table .center {
+  text-align: center;
+  width: 2.75rem;
+}
+
+.paramCode {
+  white-space: nowrap;
+}
+
+.paramCode code {
+  font-weight: 600;
+}
+
+.paramDescription p {
+  margin-bottom: 0.25rem;
+}
+
+.expression {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--model-muted);
+  overflow-wrap: anywhere;
+}
+
+.paramType {
+  display: inline-block;
+  padding: 0 0.4375rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: rgb(51 65 85);
+  background: rgb(241 245 249);
+}
+
+.type-token { color: rgb(159 18 57); background: rgb(255 241 242); }
+.type-string { color: rgb(17 94 89); background: rgb(240 253 250); }
+.type-reference { color: rgb(30 64 175); background: rgb(239 246 255); }
+.type-date { color: rgb(55 48 163); background: rgb(238 242 255); }
+.type-number { color: rgb(107 33 168); background: rgb(250 245 255); }
+.type-quantity { color: rgb(146 64 14); background: rgb(255 251 235); }
+.type-uri { color: rgb(21 94 117); background: rgb(236 254 255); }
+.type-composite { color: rgb(71 85 105); background: rgb(241 245 249); }
+
+.common {
+  margin-top: 1.25rem;
+}
+
+.common summary {
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------------
+ * Index pages
+ * ------------------------------------------------------------------------- */
+
+.group {
+  margin-top: 2rem;
+}
+
+.groupTitle {
+  margin-bottom: 0.75rem;
+  font-size: 1.125rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.75rem;
+}
+
+.card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--model-rule);
+  border-radius: 0.5rem;
+  color: inherit;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.card:hover {
+  border-color: var(--color-brand-400);
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.08);
+  color: inherit;
+  text-decoration: none;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--model-accent);
+}
+
+.cardIcon {
+  flex: none;
+  display: inline-flex;
+  height: 1.5em;
+  align-items: center;
+}
+
+/* Names like MedicinalProductContraindication are wider than a card; they
+ * wrap at the <wbr> between words, and mid-word only as a last resort. */
+.cardName {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.cardText {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  color: var(--model-muted);
+}

@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "Expression",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "cjhgrko-o5ort7m72h623ryxk6",
-    "lastUpdated": "2026-08-21T17:06:49.105129+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "yEsmJqFMfEkCmDpeEtIzSU2MqyE"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "Expression",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/Expression",
   "version": "4.0.1",
-  "name": "Expression",
-  "status": "draft",
-  "kind": "complex-type",
-  "abstract": false,
   "type": "Expression",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "kind": "complex-type",
   "derivation": "specialization",
+  "status": "draft",
   "snapshot": {
     "element": [
       {

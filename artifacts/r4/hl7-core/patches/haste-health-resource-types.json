@@ -9,6 +9,13 @@
       ]
     },
     {
+      "target": { "resourceType": "ValueSet", "id": "defined-types" },
+      "operations": [
+        { "op": "test", "path": "/compose/include/1/system", "value": "http://hl7.org/fhir/resource-types" },
+        { "op": "add", "path": "/compose/include/-", "value": { "system": "https://haste.health/fhir/resource-types" } }
+      ]
+    },
+    {
       "target": { "resourceType": "ValueSet", "id": "all-types" },
       "operations": [
         { "op": "test", "path": "/compose/include/1/system", "value": "http://hl7.org/fhir/resource-types" },

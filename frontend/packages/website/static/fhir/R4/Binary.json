@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "Binary",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "x2j52l1exsav38s0xmco7yye91",
-    "lastUpdated": "2026-08-21T17:06:46.374275+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "jvQ9dUE_xu4zt01fXhS4OT0ZHB4"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "Binary",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/Binary",
   "version": "4.0.1",
-  "name": "Binary",
-  "status": "active",
-  "kind": "resource",
-  "abstract": false,
   "type": "Binary",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
+  "kind": "resource",
   "derivation": "specialization",
+  "status": "active",
   "snapshot": {
     "element": [
       {
@@ -189,7 +171,7 @@
         "id": "Binary.contentType",
         "path": "Binary.contentType",
         "short": "MimeType of the binary content",
-        "definition": "MimeType of the binary content represented as a standard MimeType (BCP 13).",
+        "definition": "`MimeType` of the binary content represented as a standard `MimeType` (BCP 13).",
         "min": 1,
         "max": "1",
         "base": {
@@ -234,7 +216,7 @@
         "id": "Binary.securityContext",
         "path": "Binary.securityContext",
         "short": "Identifies another resource to use as proxy when enforcing access control",
-        "definition": "This element identifies another resource that can be used as a proxy of the security sensitivity to use when deciding and enforcing access control rules for the Binary resource. Given that the Binary resource contains very few elements that can be used to determine the sensitivity of the data and relationships to individuals, the referenced resource stands in as a proxy equivalent for this purpose. This referenced resource may be related to the Binary (e.g. Media, DocumentReference), or may be some non-related Resource purely as a security proxy. E.g. to identify that the binary resource relates to a patient, and access should only be granted to applications that have access to the patient.",
+        "definition": "This element identifies another resource that can be used as a proxy of the security sensitivity to use when deciding and enforcing access control rules for the Binary resource. Given that the Binary resource contains very few elements that can be used to determine the sensitivity of the data and relationships to individuals, the referenced resource stands in as a proxy equivalent for this purpose. This referenced resource may be related to the Binary (e.g. Media, `DocumentReference`), or may be some non-related Resource purely as a security proxy. E.g. to identify that the binary resource relates to a patient, and access should only be granted to applications that have access to the patient.",
         "comment": "Very often, a server will also know of a resource that references the binary, and can automatically apply the appropriate access rules based on that reference. However, there are some circumstances where this is not appropriate, e.g. the binary is uploaded directly to the server without any linking resource, the binary is referred to from multiple different resources, and/or the binary is content such as an application logo that has less protection than any of the resources that reference it.",
         "min": 0,
         "max": "1",

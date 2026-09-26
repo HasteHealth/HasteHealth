@@ -18,7 +18,7 @@ use haste_repository::Repository;
 use std::sync::Arc;
 use tracing::info;
 
-// Only need a transaction in the context of Create, Update, Delete, and Conditional Update.
+// Only need a transaction in the context of Create, Update, Patch, Delete, and Conditional Update.
 pub async fn setup_transaction_context<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -28,7 +28,10 @@ pub async fn setup_transaction_context<
     state: ServerMiddlewareState<Repo, Search, Terminology>,
 ) -> Result<ServerMiddlewareState<Repo, Search, Terminology>, OperationOutcomeError> {
     match request {
-        FHIRRequest::Create(_) | FHIRRequest::Delete(_) | FHIRRequest::Update(_) => {
+        FHIRRequest::Create(_)
+        | FHIRRequest::Delete(_)
+        | FHIRRequest::Update(_)
+        | FHIRRequest::Patch(_) => {
             if state.repo.in_transaction() {
                 Ok(state)
             } else {

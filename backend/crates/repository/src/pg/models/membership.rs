@@ -78,11 +78,29 @@ async fn update_membership<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
+    // Rows are keyed by user, so pointing a Membership at another user would
+    // otherwise insert a row for the new user and leave the old user's row,
+    // and its access to the project, behind. Remove it in the same statement.
     let mut query_builder = QueryBuilder::new(
         r"
+            WITH replaced AS (
+                DELETE FROM memberships
+                WHERE tenant = ",
+    );
+    query_builder
+        .push_bind(tenant.as_ref())
+        .push(" AND project = ")
+        .push_bind(project.as_ref())
+        .push(" AND resource_id = ")
+        .push_bind(&model.resource_id)
+        .push(" AND user_id <> ")
+        .push_bind(&model.user_id)
+        .push(
+            r"
+            )
             INSERT INTO memberships(tenant, project, user_id, role, resource_id) VALUES (
         ",
-    );
+        );
 
     let mut seperator = query_builder.separated(", ");
 

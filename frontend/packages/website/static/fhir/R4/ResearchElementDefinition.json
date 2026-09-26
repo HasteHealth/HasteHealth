@@ -1,40 +1,22 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "ResearchElementDefinition",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "6kh8ollza93c5c1ylsd75r7jx9",
-    "lastUpdated": "2026-08-21T17:06:14.903801+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "Nsr6loz7Czea6EtCPrUHWM7ad34"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "ResearchElementDefinition",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/ResearchElementDefinition",
   "version": "4.0.1",
-  "name": "ResearchElementDefinition",
-  "status": "draft",
-  "kind": "resource",
-  "abstract": false,
   "type": "ResearchElementDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "kind": "resource",
   "derivation": "specialization",
+  "status": "draft",
   "snapshot": {
     "element": [
       {
         "id": "ResearchElementDefinition",
         "path": "ResearchElementDefinition",
         "short": "A population, intervention, or exposure definition",
-        "definition": "The ResearchElementDefinition resource describes a \"PICO\" element that knowledge (evidence, assertion, recommendation) is about.",
+        "definition": "The `ResearchElementDefinition` resource describes a \"PICO\" element that knowledge (evidence, assertion, recommendation) is about.",
         "comment": "PICO stands for Population (the population within which exposures are being compared), Intervention (the conditional state or exposure state being described for its effect on outcomes), Comparison (the alternative conditional state or alternative exposure state being compared against), and Outcome (the result or effect of the intervention in the population).",
         "min": 0,
         "max": "*",
@@ -354,7 +336,7 @@
         "id": "ResearchElementDefinition.modifierExtension",
         "path": "ResearchElementDefinition.modifierExtension",
         "short": "Extensions that cannot be ignored",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -591,7 +573,7 @@
         "id": "ResearchElementDefinition.subtitle",
         "path": "ResearchElementDefinition.subtitle",
         "short": "Subordinate title of the ResearchElementDefinition",
-        "definition": "An explanatory or alternate title for the ResearchElementDefinition giving additional information about its content.",
+        "definition": "An explanatory or alternate title for the `ResearchElementDefinition` giving additional information about its content.",
         "min": 0,
         "max": "1",
         "base": {
@@ -700,7 +682,7 @@
         "id": "ResearchElementDefinition.subject[x]",
         "path": "ResearchElementDefinition.subject[x]",
         "short": "E.g. Patient, Practitioner, RelatedPerson, Organization, Location, Device",
-        "definition": "The intended subjects for the ResearchElementDefinition. If this element is not provided, a Patient subject is assumed, but the subject of the ResearchElementDefinition can be anything.",
+        "definition": "The intended subjects for the `ResearchElementDefinition`. If this element is not provided, a Patient subject is assumed, but the subject of the `ResearchElementDefinition` can be anything.",
         "comment": "The subject of the ResearchElementDefinition is critical in interpreting the criteria definitions, as the logic in the ResearchElementDefinitions is evaluated with respect to a particular subject. This corresponds roughly to the notion of a Compartment in that it limits what content is available based on its relationship to the subject. In CQL, this corresponds to the context declaration.",
         "min": 0,
         "max": "1",
@@ -1016,7 +998,7 @@
         "id": "ResearchElementDefinition.usage",
         "path": "ResearchElementDefinition.usage",
         "short": "Describes the clinical usage of the ResearchElementDefinition",
-        "definition": "A detailed description, from a clinical perspective, of how the ResearchElementDefinition is used.",
+        "definition": "A detailed description, from a clinical perspective, of how the `ResearchElementDefinition` is used.",
         "min": 0,
         "max": "1",
         "base": {
@@ -1176,7 +1158,7 @@
         "id": "ResearchElementDefinition.topic",
         "path": "ResearchElementDefinition.topic",
         "short": "The category of the ResearchElementDefinition, such as Education, Treatment, Assessment, etc.",
-        "definition": "Descriptive topics related to the content of the ResearchElementDefinition. Topics provide a high-level categorization grouping types of ResearchElementDefinitions that can be useful for filtering and searching.",
+        "definition": "Descriptive topics related to the content of the `ResearchElementDefinition`. Topics provide a high-level categorization grouping types of `ResearchElementDefinitions` that can be useful for filtering and searching.",
         "requirements": "Repositories must be able to determine how to categorize the ResearchElementDefinition so that it can be found by topical searches.",
         "min": 0,
         "max": "*",
@@ -1370,7 +1352,7 @@
         "id": "ResearchElementDefinition.library",
         "path": "ResearchElementDefinition.library",
         "short": "Logic used by the ResearchElementDefinition",
-        "definition": "A reference to a Library resource containing the formal logic used by the ResearchElementDefinition.",
+        "definition": "A reference to a Library resource containing the formal logic used by the `ResearchElementDefinition`.",
         "min": 0,
         "max": "*",
         "base": {
@@ -1588,7 +1570,7 @@
         "id": "ResearchElementDefinition.characteristic.modifierExtension",
         "path": "ResearchElementDefinition.characteristic.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -1634,7 +1616,7 @@
         "id": "ResearchElementDefinition.characteristic.definition[x]",
         "path": "ResearchElementDefinition.characteristic.definition[x]",
         "short": "What code or expression defines members?",
-        "definition": "Define members of the research element using Codes (such as condition, medication, or observation), Expressions ( using an expression language such as FHIRPath or CQL) or DataRequirements (such as Diabetes diagnosis onset in the last year).",
+        "definition": "Define members of the research element using Codes (such as condition, medication, or observation), Expressions ( using an expression language such as `FHIRPath` or CQL) or `DataRequirements` (such as Diabetes diagnosis onset in the last year).",
         "requirements": "Need to be able to define members in simple codes when the membership aligns well with terminology, with common criteria such as observations in a value set or lab tests within a year, or with expression language to support criteria that do not fit in the above.",
         "min": 1,
         "max": "1",
@@ -1677,7 +1659,7 @@
         "id": "ResearchElementDefinition.characteristic.usageContext",
         "path": "ResearchElementDefinition.characteristic.usageContext",
         "short": "What code/value pairs define members?",
-        "definition": "Use UsageContext to define the members of the population, such as Age Ranges, Genders, Settings.",
+        "definition": "Use `UsageContext` to define the members of the population, such as Age Ranges, Genders, Settings.",
         "requirements": "Need to be able to define members more structurally when more information can be communicated such as age range.",
         "min": 0,
         "max": "*",

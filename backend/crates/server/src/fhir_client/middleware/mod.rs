@@ -13,6 +13,7 @@ pub mod check_project;
 pub mod custom_models;
 pub mod element_filtering;
 pub mod operations;
+pub mod patch_as_update;
 pub mod rate_limit;
 pub mod set_artifact_tenant;
 pub mod storage;

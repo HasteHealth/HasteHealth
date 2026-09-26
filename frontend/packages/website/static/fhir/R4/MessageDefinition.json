@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "MessageDefinition",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "y3rfumf2o8sdrq5kkyuawrp4cu",
-    "lastUpdated": "2026-08-21T17:07:07.367043+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "GcLXqhiXV1zGrBihW9OuHD_-YW4"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "MessageDefinition",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/MessageDefinition",
   "version": "4.0.1",
-  "name": "MessageDefinition",
-  "status": "draft",
-  "kind": "resource",
-  "abstract": false,
   "type": "MessageDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "kind": "resource",
   "derivation": "specialization",
+  "status": "draft",
   "snapshot": {
     "element": [
       {
@@ -354,7 +336,7 @@
         "id": "MessageDefinition.modifierExtension",
         "path": "MessageDefinition.modifierExtension",
         "short": "Extensions that cannot be ignored",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -399,7 +381,7 @@
         "id": "MessageDefinition.url",
         "path": "MessageDefinition.url",
         "short": "Business Identifier for a given MessageDefinition",
-        "definition": "The business identifier that is used to reference the MessageDefinition and *is* expected to be consistent from server to server.",
+        "definition": "The business identifier that is used to reference the `MessageDefinition` and *is* expected to be consistent from server to server.",
         "comment": "Can be a urn:uuid: or a urn:oid: but real http: addresses are preferred.  Multiple instances may share the same URL if they have a distinct version.\n\nThe determination of when to create a new version of a resource (same url, new version) vs. defining a new artifact is up to the author.  Considerations for making this decision are found in [Technical and Business Versions](resource.html#versions). \n\nIn some cases, the resource can no longer be found at the stated url, but the url itself cannot change. Implementations can use the [meta.source](resource.html#meta) element to indicate where the current master source of the resource can be found.",
         "requirements": "Allows the message definition to be referenced by a single globally unique identifier.",
         "min": 0,
@@ -560,7 +542,7 @@
         "id": "MessageDefinition.replaces",
         "path": "MessageDefinition.replaces",
         "short": "Takes the place of",
-        "definition": "A MessageDefinition that is superseded by this definition.",
+        "definition": "A `MessageDefinition` that is superseded by this definition.",
         "min": 0,
         "max": "*",
         "base": {
@@ -944,7 +926,7 @@
         "id": "MessageDefinition.base",
         "path": "MessageDefinition.base",
         "short": "Definition this one is based on",
-        "definition": "The MessageDefinition that is the basis for the contents of this resource.",
+        "definition": "The `MessageDefinition` that is the basis for the contents of this resource.",
         "min": 0,
         "max": "1",
         "base": {
@@ -977,7 +959,7 @@
         "id": "MessageDefinition.parent",
         "path": "MessageDefinition.parent",
         "short": "Protocol/workflow this is part of",
-        "definition": "Identifies a protocol or workflow that this MessageDefinition represents a step in.",
+        "definition": "Identifies a protocol or workflow that this `MessageDefinition` represents a step in.",
         "comment": "It should be possible to use MessageDefinition to describe a message to be used by certain steps in a particular protocol as part of a PlanDefinition or ActivityDefinition.",
         "min": 0,
         "max": "*",
@@ -1012,7 +994,7 @@
         "id": "MessageDefinition.event[x]",
         "path": "MessageDefinition.event[x]",
         "short": "Event code  or link to the EventDefinition",
-        "definition": "Event code or link to the EventDefinition.",
+        "definition": "Event code or link to the `EventDefinition`.",
         "min": 1,
         "max": "1",
         "base": {
@@ -1210,7 +1192,7 @@
         "id": "MessageDefinition.focus.modifierExtension",
         "path": "MessageDefinition.focus.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -1337,7 +1319,7 @@
         "id": "MessageDefinition.focus.min",
         "path": "MessageDefinition.focus.min",
         "short": "Minimum number of focuses of this type",
-        "definition": "Identifies the minimum number of resources of this type that must be pointed to by a message in order for it to be valid against this MessageDefinition.",
+        "definition": "Identifies the minimum number of resources of this type that must be pointed to by a message in order for it to be valid against this `MessageDefinition`.",
         "min": 1,
         "max": "1",
         "base": {
@@ -1367,7 +1349,7 @@
         "id": "MessageDefinition.focus.max",
         "path": "MessageDefinition.focus.max",
         "short": "Maximum number of focuses of this type",
-        "definition": "Identifies the maximum number of resources of this type that must be pointed to by a message in order for it to be valid against this MessageDefinition.",
+        "definition": "Identifies the maximum number of resources of this type that must be pointed to by a message in order for it to be valid against this `MessageDefinition`.",
         "min": 0,
         "max": "1",
         "base": {
@@ -1551,7 +1533,7 @@
         "id": "MessageDefinition.allowedResponse.modifierExtension",
         "path": "MessageDefinition.allowedResponse.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -1660,7 +1642,7 @@
         "id": "MessageDefinition.graph",
         "path": "MessageDefinition.graph",
         "short": "Canonical reference to a GraphDefinition",
-        "definition": "Canonical reference to a GraphDefinition. If a URL is provided, it is the canonical reference to a [GraphDefinition](graphdefinition.html) that it controls what resources are to be added to the bundle when building the document. The GraphDefinition can also specify profiles that apply to the various resources.",
+        "definition": "Canonical reference to a `GraphDefinition`. If a URL is provided, it is the canonical reference to a [`GraphDefinition`](graphdefinition.html) that it controls what resources are to be added to the bundle when building the document. The `GraphDefinition` can also specify profiles that apply to the various resources.",
         "min": 0,
         "max": "*",
         "base": {

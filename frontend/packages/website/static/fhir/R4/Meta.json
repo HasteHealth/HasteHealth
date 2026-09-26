@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "Meta",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "d3l6kw78l39mqjqm95luefg0lm",
-    "lastUpdated": "2026-08-21T17:07:27.758496+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "gYBgm3jUNso5VcxxGe53Z3jpvy0"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "Meta",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/Meta",
   "version": "4.0.1",
-  "name": "Meta",
-  "status": "active",
-  "kind": "complex-type",
-  "abstract": false,
   "type": "Meta",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "kind": "complex-type",
   "derivation": "specialization",
+  "status": "active",
   "snapshot": {
     "element": [
       {
@@ -246,7 +228,7 @@
         "id": "Meta.profile",
         "path": "Meta.profile",
         "short": "Profiles this resource claims to conform to",
-        "definition": "A list of profiles (references to [StructureDefinition](structuredefinition.html#) resources) that this resource claims to conform to. The URL is a reference to [StructureDefinition.url](structuredefinition-definitions.html#StructureDefinition.url).",
+        "definition": "A list of profiles (references to [`StructureDefinition`](structuredefinition.html#) resources) that this resource claims to conform to. The URL is a reference to [StructureDefinition.url](structuredefinition-definitions.html#StructureDefinition.url).",
         "comment": "It is up to the server and/or other infrastructure of policy to determine whether/how these claims are verified and/or updated over time.  The list of profile URLs is a set.",
         "min": 0,
         "max": "*",

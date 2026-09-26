@@ -1,34 +1,16 @@
 {
   "resourceType": "StructureDefinition",
   "id": "HL7V2",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "4grlzlaxjjyo6e2js4riwpal9q",
-    "lastUpdated": "2026-08-21T17:06:58.406976+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "gZrNI1NWhb4_4sfMXR7ld3ase3Q"
-      }
-    ]
-  },
   "url": "https://haste-health.com/StructureDefinition/HL7V2",
   "version": "4.0.1",
   "name": "HL7V2",
   "status": "active",
   "publisher": "haste-health",
-  "description": "Parsed Hl7V2 message.",
   "fhirVersion": "4.0.1",
   "kind": "resource",
   "abstract": false,
   "type": "HL7V2",
+  "description": "Parsed Hl7V2 message.",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
   "derivation": "specialization",
   "snapshot": {
@@ -36,8 +18,8 @@
       {
         "id": "HL7V2",
         "path": "HL7V2",
-        "definition": "Parsed Hl7V2 message.",
         "min": 0,
+        "definition": "Parsed Hl7V2 message.",
         "max": "*",
         "base": {
           "path": "HL7V2",
@@ -107,34 +89,34 @@
       {
         "id": "HL7V2.fieldSeparator",
         "path": "HL7V2.fieldSeparator",
-        "short": "Field separator",
         "definition": "The character used to separate fields in the HL7v2 message.",
-        "min": 1,
-        "max": "1",
+        "short": "Field separator",
         "type": [
           {
             "code": "string"
           }
-        ]
+        ],
+        "min": 1,
+        "max": "1"
       },
       {
         "id": "HL7V2.segments",
         "path": "HL7V2.segments",
-        "short": "Message segments",
         "definition": "Non-MSH segments in the HL7v2 message.",
-        "min": 0,
-        "max": "*",
+        "short": "Message segments",
         "type": [
           {
             "code": "BackboneElement"
           }
-        ]
+        ],
+        "min": 0,
+        "max": "*"
       },
       {
         "id": "HL7V2.segments.id",
         "path": "HL7V2.segments.id",
-        "short": "Segment ID",
         "definition": "Three-character segment identifier (e.g. PID, OBX).",
+        "short": "Segment ID",
         "min": 1,
         "max": "1",
         "type": [
@@ -146,21 +128,21 @@
       {
         "id": "HL7V2.segments.fields",
         "path": "HL7V2.segments.fields",
-        "short": "Segment fields",
         "definition": "Fields within the segment.",
-        "min": 0,
-        "max": "*",
+        "short": "Segment fields",
         "type": [
           {
             "code": "BackboneElement"
           }
-        ]
+        ],
+        "min": 0,
+        "max": "*"
       },
       {
         "id": "HL7V2.segments.fields.repetitions",
         "path": "HL7V2.segments.fields.repetitions",
-        "short": "Field repetitions",
         "definition": "Repeated field values when the field contains the repetition separator.",
+        "short": "Field repetitions",
         "min": 0,
         "max": "*",
         "contentReference": "#HL7V2.segments.fields.value"
@@ -168,21 +150,21 @@
       {
         "id": "HL7V2.segments.fields.value",
         "path": "HL7V2.segments.fields.value",
-        "short": "Field value",
         "definition": "The field value when no repetitions are present.",
-        "min": 0,
-        "max": "1",
+        "short": "Field value",
         "type": [
           {
             "code": "BackboneElement"
           }
-        ]
+        ],
+        "min": 0,
+        "max": "1"
       },
       {
         "id": "HL7V2.segments.fields.value.components",
         "path": "HL7V2.segments.fields.value.components",
-        "short": "Field components",
         "definition": "Components when the field value is divided by the component separator.",
+        "short": "Field components",
         "min": 0,
         "max": "*",
         "contentReference": "#HL7V2.segments.fields.value.value"
@@ -190,21 +172,21 @@
       {
         "id": "HL7V2.segments.fields.value.value",
         "path": "HL7V2.segments.fields.value.value",
-        "short": "Simple component",
         "definition": "The component when no sub-components are present.",
-        "min": 0,
-        "max": "1",
+        "short": "Simple component",
         "type": [
           {
             "code": "BackboneElement"
           }
-        ]
+        ],
+        "min": 0,
+        "max": "1"
       },
       {
         "id": "HL7V2.segments.fields.value.value.value",
         "path": "HL7V2.segments.fields.value.value.value",
-        "short": "Component value",
         "definition": "The string value of the component.",
+        "short": "Component value",
         "min": 0,
         "max": "1",
         "type": [
@@ -216,8 +198,8 @@
       {
         "id": "HL7V2.segments.fields.value.value.subcomponents",
         "path": "HL7V2.segments.fields.value.value.subcomponents",
-        "short": "Subcomponents",
         "definition": "Subcomponent values when the component is further divided by the subcomponent separator.",
+        "short": "Subcomponents",
         "min": 0,
         "max": "*",
         "type": [

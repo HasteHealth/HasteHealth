@@ -1,40 +1,22 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "MedicationStatement",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "81gsayg297lgj-ivu8u7pwx9ps",
-    "lastUpdated": "2026-08-21T17:06:59.108058+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "KPHb5tU0sNiz5CSB313EC2_55pM"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "MedicationStatement",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/MedicationStatement",
   "version": "4.0.1",
-  "name": "MedicationStatement",
-  "status": "draft",
-  "kind": "resource",
-  "abstract": false,
   "type": "MedicationStatement",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "kind": "resource",
   "derivation": "specialization",
+  "status": "draft",
   "snapshot": {
     "element": [
       {
         "id": "MedicationStatement",
         "path": "MedicationStatement",
         "short": "Record of medication being taken by a patient",
-        "definition": "A record of a medication that is being consumed by a patient.   A MedicationStatement may indicate that the patient may be taking the medication now or has taken the medication in the past or will be taking the medication in the future.  The source of this information can be the patient, significant other (such as a family member or spouse), or a clinician.  A common scenario where this information is captured is during the history taking process during a patient visit or stay.   The medication information may come from sources such as the patient's memory, from a prescription bottle,  or from a list of medications the patient, clinician or other party maintains. \n\nThe primary difference between a medication statement and a medication administration is that the medication administration has complete administration information and is based on actual administration information from the person who administered the medication.  A medication statement is often, if not always, less specific.  There is no required date/time when the medication was administered, in fact we only know that a source has reported the patient is taking this medication, where details such as time, quantity, or rate or even medication product may be incomplete or missing or less precise.  As stated earlier, the medication statement information may come from the patient's memory, from a prescription bottle or from a list of medications the patient, clinician or other party maintains.  Medication administration is more formal and is not missing detailed information.",
+        "definition": "A record of a medication that is being consumed by a patient.   A `MedicationStatement` may indicate that the patient may be taking the medication now or has taken the medication in the past or will be taking the medication in the future.  The source of this information can be the patient, significant other (such as a family member or spouse), or a clinician.  A common scenario where this information is captured is during the history taking process during a patient visit or stay.   The medication information may come from sources such as the patient's memory, from a prescription bottle,  or from a list of medications the patient, clinician or other party maintains. \n\nThe primary difference between a medication statement and a medication administration is that the medication administration has complete administration information and is based on actual administration information from the person who administered the medication.  A medication statement is often, if not always, less specific.  There is no required date/time when the medication was administered, in fact we only know that a source has reported the patient is taking this medication, where details such as time, quantity, or rate or even medication product may be incomplete or missing or less precise.  As stated earlier, the medication statement information may come from the patient's memory, from a prescription bottle or from a list of medications the patient, clinician or other party maintains.  Medication administration is more formal and is not missing detailed information.",
         "comment": "When interpreting a medicationStatement, the value of the status and NotTaken needed to be considered:\rMedicationStatement.status + MedicationStatement.wasNotTaken\rStatus=Active + NotTaken=T = Not currently taking\rStatus=Completed + NotTaken=T = Not taken in the past\rStatus=Intended + NotTaken=T = No intention of taking\rStatus=Active + NotTaken=F = Taking, but not as prescribed\rStatus=Active + NotTaken=F = Taking\rStatus=Intended +NotTaken= F = Will be taking (not started)\rStatus=Completed + NotTaken=F = Taken in past\rStatus=In Error + NotTaken=N/A = In Error.",
         "min": 0,
         "max": "*",
@@ -347,7 +329,7 @@
         "id": "MedicationStatement.modifierExtension",
         "path": "MedicationStatement.modifierExtension",
         "short": "Extensions that cannot be ignored",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -540,7 +522,7 @@
         "id": "MedicationStatement.statusReason",
         "path": "MedicationStatement.statusReason",
         "short": "Reason for current status",
-        "definition": "Captures the reason for the current state of the MedicationStatement.",
+        "definition": "Captures the reason for the current state of the `MedicationStatement`.",
         "comment": "This is generally only used for \"exception\" statuses such as \"not-taken\", \"on-hold\", \"cancelled\" or \"entered-in-error\". The reason for performing the event at all is captured in reasonCode, not here.",
         "min": 0,
         "max": "*",
@@ -705,7 +687,7 @@
         "id": "MedicationStatement.context",
         "path": "MedicationStatement.context",
         "short": "Encounter / Episode associated with MedicationStatement",
-        "definition": "The encounter or episode of care that establishes the context for this MedicationStatement.",
+        "definition": "The encounter or episode of care that establishes the context for this `MedicationStatement`.",
         "min": 0,
         "max": "1",
         "base": {
@@ -803,7 +785,7 @@
         "id": "MedicationStatement.informationSource",
         "path": "MedicationStatement.informationSource",
         "short": "Person or organization that provided the information about the taking of this medication",
-        "definition": "The person or organization that provided the information about the taking of this medication. Note: Use derivedFrom when a MedicationStatement is derived from other resources, e.g. Claim or MedicationRequest.",
+        "definition": "The person or organization that provided the information about the taking of this medication. Note: Use derivedFrom when a `MedicationStatement` is derived from other resources, e.g. Claim or `MedicationRequest`.",
         "min": 0,
         "max": "1",
         "base": {
@@ -840,7 +822,7 @@
         "id": "MedicationStatement.derivedFrom",
         "path": "MedicationStatement.derivedFrom",
         "short": "Additional supporting information",
-        "definition": "Allows linking the MedicationStatement to the underlying MedicationRequest, or to other information that supports or is used to derive the MedicationStatement.",
+        "definition": "Allows linking the `MedicationStatement` to the underlying `MedicationRequest`, or to other information that supports or is used to derive the `MedicationStatement`.",
         "comment": "Likely references would be to MedicationRequest, MedicationDispense, Claim, Observation or QuestionnaireAnswers.  The most common use cases for deriving a MedicationStatement comes from creating a MedicationStatement from a MedicationRequest or from a lab observation or a claim.  it should be noted that the amount of information that is available varies from the type resource that you derive the MedicationStatement from.",
         "min": 0,
         "max": "*",

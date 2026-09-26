@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "Money",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "b2zoxz-zpkg88aqkuli9g15o0t",
-    "lastUpdated": "2026-08-21T17:07:04.391153+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "AiEDTsnwvEKoo8LS7XyfCpg0H4c"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "Money",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/Money",
   "version": "4.0.1",
-  "name": "Money",
-  "status": "active",
-  "kind": "complex-type",
-  "abstract": false,
   "type": "Money",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "kind": "complex-type",
   "derivation": "specialization",
+  "status": "active",
   "snapshot": {
     "element": [
       {

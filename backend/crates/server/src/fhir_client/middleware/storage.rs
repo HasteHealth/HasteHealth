@@ -19,10 +19,11 @@ use haste_fhir_client::{
         DeleteRequest, DeleteResponse, FHIRBatchResponse, FHIRCreateResponse,
         FHIRDeleteInstanceResponse, FHIRDeleteSystemResponse, FHIRDeleteTypeResponse,
         FHIRHistoryInstanceResponse, FHIRHistorySystemResponse, FHIRHistoryTypeResponse,
-        FHIRPatchResponse, FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRSearchSystemRequest,
-        FHIRSearchSystemResponse, FHIRSearchTypeRequest, FHIRSearchTypeResponse,
-        FHIRTransactionResponse, FHIRUpdateResponse, FHIRVersionReadResponse, HistoryRequest,
-        HistoryResponse, SearchRequest, SearchResponse, UpdateRequest,
+        FHIRPatchRequest, FHIRPatchResponse, FHIRReadResponse, FHIRRequest, FHIRResponse,
+        FHIRSearchSystemRequest, FHIRSearchSystemResponse, FHIRSearchTypeRequest,
+        FHIRSearchTypeResponse, FHIRTransactionResponse, FHIRUpdateResponse,
+        FHIRVersionReadResponse, HistoryRequest, HistoryResponse, SearchRequest, SearchResponse,
+        UpdateRequest,
     },
     url::{ParsedParameter, ParsedParameters},
 };
@@ -34,11 +35,92 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::{SearchEngine, SearchOptions};
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::ResourceId;
+use haste_jwt::{ProjectId, ResourceId, TenantId};
 use haste_reflect::MetaValue;
 use haste_repository::{Repository, fhir::FHIRRepository};
 use std::sync::Arc;
 use url::Url;
+
+/// Applies a PATCH to the latest version of a resource and returns the patched
+/// resource, without saving it. The patch may not change the resource's type
+/// or `id`.
+///
+/// Storage saves the result as an update. Routes whose middleware must see the
+/// change as an update (tenant and project auth resources) use it through
+/// [`super::patch_as_update`].
+pub async fn apply_patch<Repo: Repository>(
+    repo: &Repo,
+    tenant: &TenantId,
+    project: &ProjectId,
+    fhir_patch_request: &FHIRPatchRequest,
+) -> Result<Resource, OperationOutcomeError> {
+    let Some(resource) = repo
+        .read_latest(
+            tenant,
+            project,
+            &fhir_patch_request.resource_type,
+            &ResourceId::new(fhir_patch_request.id.to_string()),
+        )
+        .await?
+    else {
+        return Err(OperationOutcomeError::error(
+            IssueType::not_found(),
+            format!("Resource with id '{}' not found", fhir_patch_request.id),
+        ));
+    };
+
+    let mut json: serde_json::Value = serde_json::to_value(&resource).map_err(|e| {
+        OperationOutcomeError::fatal(
+            IssueType::exception(),
+            "Failed to deserialize JSON for patching: ".to_string() + (e.to_string().as_str()),
+        )
+    })?;
+
+    json_patch::patch(&mut json, &fhir_patch_request.patch).map_err(|e| {
+        OperationOutcomeError::fatal(
+            IssueType::exception(),
+            format!("Failed to apply JSON patch: '{}'", e),
+        )
+    })?;
+
+    let patched_resource = serde_json::from_value::<Resource>(json).map_err(|e| {
+        OperationOutcomeError::fatal(
+            IssueType::exception(),
+            format!("Failed to deserialize patched resource '{}'.", e),
+        )
+    })?;
+
+    if std::mem::discriminant(&resource) != std::mem::discriminant(&patched_resource) {
+        return Err(OperationOutcomeError::error(
+            IssueType::conflict(),
+            "Resource type mismatch after patching".to_string(),
+        ));
+    }
+
+    let patched_id = patched_resource
+        .get_field("id")
+        .ok_or_else(|| {
+            OperationOutcomeError::error(IssueType::invalid(), "Missing resource ID".to_string())
+        })?
+        .as_any()
+        .downcast_ref::<String>()
+        .cloned()
+        .ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::invalid(),
+                "Invalid resource ID type".to_string(),
+            )
+        })?;
+
+    if fhir_patch_request.id != patched_id {
+        return Err(OperationOutcomeError::error(
+            IssueType::conflict(),
+            "Resource ID mismatch after patching".to_string(),
+        ));
+    }
+
+    Ok(patched_resource)
+}
 
 pub struct Middleware {}
 impl Middleware {
@@ -789,79 +871,13 @@ impl<
                     })))
                 }
                 FHIRRequest::Patch(fhir_patch_request) => {
-                    let Some(resource) = state
-                        .repo
-                        .read_latest(
-                            &context.ctx.tenant,
-                            &context.ctx.project,
-                            &fhir_patch_request.resource_type,
-                            &ResourceId::new(fhir_patch_request.id.to_string()),
-                        )
-                        .await?
-                    else {
-                        return Err(OperationOutcomeError::error(
-                            IssueType::not_found(),
-                            format!("Resource with id '{}' not found", fhir_patch_request.id),
-                        ));
-                    };
-
-                    let mut json: serde_json::Value =
-                        serde_json::to_value(&resource).map_err(|e| {
-                            OperationOutcomeError::fatal(
-                                IssueType::exception(),
-                                "Failed to deserialize JSON for patching: ".to_string()
-                                    + (e.to_string().as_str()),
-                            )
-                        })?;
-
-                    json_patch::patch(&mut json, &fhir_patch_request.patch).map_err(|e| {
-                        OperationOutcomeError::fatal(
-                            IssueType::exception(),
-                            format!("Failed to apply JSON patch: '{}'", e),
-                        )
-                    })?;
-
-                    let patched_resource =
-                        serde_json::from_value::<Resource>(json).map_err(|e| {
-                            OperationOutcomeError::fatal(
-                                IssueType::exception(),
-                                format!("Failed to deserialize patched resource '{}'.", e),
-                            )
-                        })?;
-
-                    if std::mem::discriminant(&resource)
-                        != std::mem::discriminant(&patched_resource)
-                    {
-                        return Err(OperationOutcomeError::error(
-                            IssueType::conflict(),
-                            "Resource type mismatch after patching".to_string(),
-                        ));
-                    }
-
-                    let patched_id = patched_resource
-                        .get_field("id")
-                        .ok_or_else(|| {
-                            OperationOutcomeError::error(
-                                IssueType::invalid(),
-                                "Missing resource ID".to_string(),
-                            )
-                        })?
-                        .as_any()
-                        .downcast_ref::<String>()
-                        .cloned()
-                        .ok_or_else(|| {
-                            OperationOutcomeError::error(
-                                IssueType::invalid(),
-                                "Invalid resource ID type".to_string(),
-                            )
-                        })?;
-
-                    if fhir_patch_request.id != patched_id {
-                        return Err(OperationOutcomeError::error(
-                            IssueType::conflict(),
-                            "Resource ID mismatch after patching".to_string(),
-                        ));
-                    }
+                    let patched_resource = apply_patch(
+                        state.repo.as_ref(),
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        fhir_patch_request,
+                    )
+                    .await?;
 
                     Ok(Some(FHIRResponse::Patch(FHIRPatchResponse {
                         resource: FHIRRepository::update(

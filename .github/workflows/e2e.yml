@@ -115,6 +115,14 @@ jobs:
           ./target/debug/haste-health config create-profile -n testing --auth-mode client-credentials --r4-url http://localhost:3000/w/my-health/system/api/v1/fhir/r4 --discovery-uri http://localhost:3000/.well-known/openid-configuration/w/my-health/system --id testing --secret testing
         working-directory: ./backend
 
+      # The artifacts load in the background; terminology and profile
+      # validation find them through search, so let indexing catch up first.
+      # This also has to come before the first token (Confirm Client App): a
+      # token lists the client's access policies found through search, and
+      # the CLI caches it.
+      - name: Wait for artifacts to be indexed
+        run: bash .github/scripts/wait_for_indexing.sh 600
+
       - name: Confirm Client App
         run: |
           set +e
@@ -129,11 +137,6 @@ jobs:
           exit 1;
 
         working-directory: ./backend
-
-      # The artifacts load in the background; terminology and profile
-      # validation find them through search, so let indexing catch up first.
-      - name: Wait for artifacts to be indexed
-        run: bash .github/scripts/wait_for_indexing.sh 600
 
       # `--index-wait-ms` makes each search wait until the TestScript's latest
       # write is indexed, instead of a fixed delay after every operation.

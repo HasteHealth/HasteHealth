@@ -408,6 +408,8 @@ impl<
                 }),
                 middleware: Middleware::new(vec![
                     Box::new(middleware::transaction::Middleware::new()),
+                    // A PATCH runs as an update, so the membership row stays in sync.
+                    Box::new(middleware::patch_as_update::Middleware::new()),
                     Box::new(middleware::custom_models::membership::Middleware::new()),
                     Box::new(middleware::storage::Middleware::new()),
                 ]),
@@ -430,6 +432,9 @@ impl<
                         ProjectId::System,
                     )),
                     Box::new(middleware::transaction::Middleware::new()),
+                    // A PATCH runs as an update, so it gets the Project update
+                    // checks and the users table stays in sync.
+                    Box::new(middleware::patch_as_update::Middleware::new()),
                     Box::new(middleware::custom_models::project::Middleware::new()),
                     Box::new(middleware::custom_models::user::Middleware::new()),
                     Box::new(middleware::storage::Middleware::new()),

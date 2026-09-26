@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "ParameterDefinition",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "mqavw07f9abg01hym-oski0sn6",
-    "lastUpdated": "2026-08-21T17:06:58.450110+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "WQZmQ8feVnvmpQM1jEsW56F6r0s"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "ParameterDefinition",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/ParameterDefinition",
   "version": "4.0.1",
-  "name": "ParameterDefinition",
-  "status": "draft",
-  "kind": "complex-type",
-  "abstract": false,
   "type": "ParameterDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "kind": "complex-type",
   "derivation": "specialization",
+  "status": "draft",
   "snapshot": {
     "element": [
       {
@@ -40,7 +22,7 @@
         ],
         "path": "ParameterDefinition",
         "short": "Definition of a parameter to a module",
-        "definition": "The parameters to the module. This collection specifies both the input and output parameters. Input parameters are provided by the caller as part of the $evaluate operation. Output parameters are included in the GuidanceResponse.",
+        "definition": "The parameters to the module. This collection specifies both the input and output parameters. Input parameters are provided by the caller as part of the $evaluate operation. Output parameters are included in the `GuidanceResponse`.",
         "min": 0,
         "max": "*",
         "base": {

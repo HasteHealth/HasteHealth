@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "Signature",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "c4464ymgyyno01t1l0g0y9nfpg",
-    "lastUpdated": "2026-08-21T17:06:31.325924+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "WRl0iSweiQJLD6ydkn8kFJ5lEto"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "Signature",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/Signature",
   "version": "4.0.1",
-  "name": "Signature",
-  "status": "draft",
-  "kind": "complex-type",
-  "abstract": false,
   "type": "Signature",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "kind": "complex-type",
   "derivation": "specialization",
+  "status": "draft",
   "snapshot": {
     "element": [
       {
@@ -348,7 +330,7 @@
         "id": "Signature.sigFormat",
         "path": "Signature.sigFormat",
         "short": "The technical format of the signature",
-        "definition": "A mime type that indicates the technical format of the signature. Important mime types are application/signature+xml for X ML DigSig, application/jose for JWS, and image/* for a graphical image of a signature, etc.",
+        "definition": "A mime type that indicates the technical format of the signature. Important mime types are application/signature+xml for X ML `DigSig`, application/jose for JWS, and image/* for a graphical image of a signature, etc.",
         "min": 0,
         "max": "1",
         "base": {

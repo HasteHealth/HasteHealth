@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "base64Binary",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "-ih1ggq5e5zckwhj5di2awsbur",
-    "lastUpdated": "2026-08-21T17:07:00.410078+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "-A-AYbtVTU5_yQCxLrXHx66myO4"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "base64Binary",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/base64Binary",
   "version": "4.0.1",
-  "name": "base64Binary",
-  "status": "active",
-  "kind": "primitive-type",
-  "abstract": false,
   "type": "base64Binary",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "kind": "primitive-type",
   "derivation": "specialization",
+  "status": "active",
   "snapshot": {
     "element": [
       {

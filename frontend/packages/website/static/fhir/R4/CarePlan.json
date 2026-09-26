@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "CarePlan",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "0kw998-q18tq7tro2nu2pb2s83",
-    "lastUpdated": "2026-08-21T17:06:20.170622+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "JwaYT8ba9-tFYZIbVKIbdCU_wzQ"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "CarePlan",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/CarePlan",
   "version": "4.0.1",
-  "name": "CarePlan",
-  "status": "draft",
-  "kind": "resource",
-  "abstract": false,
   "type": "CarePlan",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "kind": "resource",
   "derivation": "specialization",
+  "status": "draft",
   "snapshot": {
     "element": [
       {
@@ -349,7 +331,7 @@
         "id": "CarePlan.modifierExtension",
         "path": "CarePlan.modifierExtension",
         "short": "Extensions that cannot be ignored",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -426,7 +408,7 @@
         "id": "CarePlan.instantiatesCanonical",
         "path": "CarePlan.instantiatesCanonical",
         "short": "Instantiates FHIR protocol or definition",
-        "definition": "The URL pointing to a FHIR-defined protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this CarePlan.",
+        "definition": "The URL pointing to a FHIR-defined protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this `CarePlan`.",
         "min": 0,
         "max": "*",
         "base": {
@@ -463,7 +445,7 @@
         "id": "CarePlan.instantiatesUri",
         "path": "CarePlan.instantiatesUri",
         "short": "Instantiates external protocol or definition",
-        "definition": "The URL pointing to an externally maintained protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this CarePlan.",
+        "definition": "The URL pointing to an externally maintained protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this `CarePlan`.",
         "comment": "This might be an HTML page, PDF, etc. or could just be a non-resolvable URI identifier.",
         "min": 0,
         "max": "*",
@@ -850,7 +832,7 @@
         "id": "CarePlan.encounter",
         "path": "CarePlan.encounter",
         "short": "Encounter created as part of",
-        "definition": "The Encounter during which this CarePlan was created or to which the creation of this record is tightly associated.",
+        "definition": "The Encounter during which this `CarePlan` was created or to which the creation of this record is tightly associated.",
         "comment": "This will typically be the encounter the event occurred within, but some activities may be initiated prior to or after the official completion of an encounter but still be tied to the context of the encounter. CarePlan activities conducted as a result of the care plan may well occur as part of other encounters.",
         "min": 0,
         "max": "1",
@@ -919,7 +901,7 @@
         "id": "CarePlan.created",
         "path": "CarePlan.created",
         "short": "Date record was first recorded",
-        "definition": "Represents when this particular CarePlan record was created in the system, which is often a system-generated date.",
+        "definition": "Represents when this particular `CarePlan` record was created in the system, which is often a system-generated date.",
         "alias": [
           "authoredOn"
         ],
@@ -1281,7 +1263,7 @@
         "id": "CarePlan.activity.modifierExtension",
         "path": "CarePlan.activity.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -1588,7 +1570,7 @@
         "id": "CarePlan.activity.detail.modifierExtension",
         "path": "CarePlan.activity.detail.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -1634,7 +1616,7 @@
         "id": "CarePlan.activity.detail.kind",
         "path": "CarePlan.activity.detail.kind",
         "short": "Appointment | CommunicationRequest | DeviceRequest | MedicationRequest | NutritionOrder | Task | ServiceRequest | VisionPrescription",
-        "definition": "A description of the kind of resource the in-line definition of a care plan activity is representing.  The CarePlan.activity.detail is an in-line definition when a resource is not referenced using CarePlan.activity.reference.  For example, a MedicationRequest, a ServiceRequest, or a CommunicationRequest.",
+        "definition": "A description of the kind of resource the in-line definition of a care plan activity is representing.  The CarePlan.activity.detail is an in-line definition when a resource is not referenced using CarePlan.activity.reference.  For example, a `MedicationRequest`, a `ServiceRequest`, or a `CommunicationRequest`.",
         "requirements": "May determine what types of extensions are permitted.",
         "min": 0,
         "max": "1",
@@ -1676,7 +1658,7 @@
         "id": "CarePlan.activity.detail.instantiatesCanonical",
         "path": "CarePlan.activity.detail.instantiatesCanonical",
         "short": "Instantiates FHIR protocol or definition",
-        "definition": "The URL pointing to a FHIR-defined protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this CarePlan activity.",
+        "definition": "The URL pointing to a FHIR-defined protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this `CarePlan` activity.",
         "requirements": "Allows Questionnaires that the patient (or practitioner) should fill in to fulfill the care plan activity.",
         "min": 0,
         "max": "*",
@@ -1714,7 +1696,7 @@
         "id": "CarePlan.activity.detail.instantiatesUri",
         "path": "CarePlan.activity.detail.instantiatesUri",
         "short": "Instantiates external protocol or definition",
-        "definition": "The URL pointing to an externally maintained protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this CarePlan activity.",
+        "definition": "The URL pointing to an externally maintained protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this `CarePlan` activity.",
         "comment": "This might be an HTML page, PDF, etc. or could just be a non-resolvable URI identifier.",
         "requirements": "Allows Questionnaires that the patient (or practitioner) should fill in to fulfill the care plan activity.",
         "min": 0,

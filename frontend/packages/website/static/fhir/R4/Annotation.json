@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "Annotation",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "mlfesmisspm2f8wi56xfgw443u",
-    "lastUpdated": "2026-08-21T17:06:18.576329+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "BJpqiKU_DZu_XBfdsToAPFpf8jQ"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "Annotation",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/Annotation",
   "version": "4.0.1",
-  "name": "Annotation",
-  "status": "active",
-  "kind": "complex-type",
-  "abstract": false,
   "type": "Annotation",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "kind": "complex-type",
   "derivation": "specialization",
+  "status": "active",
   "snapshot": {
     "element": [
       {

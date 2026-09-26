@@ -1,40 +1,22 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "EvidenceVariable",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "18jsph8p2mxcv8j-24h8x32gmj",
-    "lastUpdated": "2026-08-21T17:06:59.381731+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "e9YpDxZIHcda46BHDmYbairHOwM"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "EvidenceVariable",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/EvidenceVariable",
   "version": "4.0.1",
-  "name": "EvidenceVariable",
-  "status": "draft",
-  "kind": "resource",
-  "abstract": false,
   "type": "EvidenceVariable",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "kind": "resource",
   "derivation": "specialization",
+  "status": "draft",
   "snapshot": {
     "element": [
       {
         "id": "EvidenceVariable",
         "path": "EvidenceVariable",
         "short": "A population, intervention, or exposure definition",
-        "definition": "The EvidenceVariable resource describes a \"PICO\" element that knowledge (evidence, assertion, recommendation) is about.",
+        "definition": "The `EvidenceVariable` resource describes a \"PICO\" element that knowledge (evidence, assertion, recommendation) is about.",
         "comment": "PICO stands for Population (the population within which exposures are being compared), Intervention (the conditional state or exposure state being described for its effect on outcomes), Comparison (the alternative conditional state or alternative exposure state being compared against), and Outcome (the result or effect of the intervention in the population).",
         "min": 0,
         "max": "*",
@@ -354,7 +336,7 @@
         "id": "EvidenceVariable.modifierExtension",
         "path": "EvidenceVariable.modifierExtension",
         "short": "Extensions that cannot be ignored",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -591,7 +573,7 @@
         "id": "EvidenceVariable.subtitle",
         "path": "EvidenceVariable.subtitle",
         "short": "Subordinate title of the EvidenceVariable",
-        "definition": "An explanatory or alternate title for the EvidenceVariable giving additional information about its content.",
+        "definition": "An explanatory or alternate title for the `EvidenceVariable` giving additional information about its content.",
         "min": 0,
         "max": "1",
         "base": {
@@ -1034,7 +1016,7 @@
         "id": "EvidenceVariable.topic",
         "path": "EvidenceVariable.topic",
         "short": "The category of the EvidenceVariable, such as Education, Treatment, Assessment, etc.",
-        "definition": "Descriptive topics related to the content of the EvidenceVariable. Topics provide a high-level categorization grouping types of EvidenceVariables that can be useful for filtering and searching.",
+        "definition": "Descriptive topics related to the content of the `EvidenceVariable`. Topics provide a high-level categorization grouping types of `EvidenceVariables` that can be useful for filtering and searching.",
         "requirements": "Repositories must be able to determine how to categorize the EvidenceVariable so that it can be found by topical searches.",
         "min": 0,
         "max": "*",
@@ -1372,7 +1354,7 @@
         "id": "EvidenceVariable.characteristic.modifierExtension",
         "path": "EvidenceVariable.characteristic.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -1449,7 +1431,7 @@
         "id": "EvidenceVariable.characteristic.definition[x]",
         "path": "EvidenceVariable.characteristic.definition[x]",
         "short": "What code or expression defines members?",
-        "definition": "Define members of the evidence element using Codes (such as condition, medication, or observation), Expressions ( using an expression language such as FHIRPath or CQL) or DataRequirements (such as Diabetes diagnosis onset in the last year).",
+        "definition": "Define members of the evidence element using Codes (such as condition, medication, or observation), Expressions ( using an expression language such as `FHIRPath` or CQL) or `DataRequirements` (such as Diabetes diagnosis onset in the last year).",
         "requirements": "Need to be able to define members in simple codes when the membership aligns well with terminology, with common criteria such as observations in a value set or lab tests within a year, or with expression language to support criteria that do not fit in the above.",
         "min": 1,
         "max": "1",
@@ -1501,7 +1483,7 @@
         "id": "EvidenceVariable.characteristic.usageContext",
         "path": "EvidenceVariable.characteristic.usageContext",
         "short": "What code/value pairs define members?",
-        "definition": "Use UsageContext to define the members of the population, such as Age Ranges, Genders, Settings.",
+        "definition": "Use `UsageContext` to define the members of the population, such as Age Ranges, Genders, Settings.",
         "requirements": "Need to be able to define members more structurally when more information can be communicated such as age range.",
         "min": 0,
         "max": "*",

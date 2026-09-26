@@ -1,33 +1,15 @@
 {
-  "resourceType": "StructureDefinition",
   "id": "ObservationDefinition",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "c18y7xh7l0-pcv7a16m-7yiejm",
-    "lastUpdated": "2026-08-21T17:07:23.423155+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "BsGvUtBRuXiwf-71SDULK0x5Jtk"
-      }
-    ]
-  },
+  "resourceType": "StructureDefinition",
+  "name": "ObservationDefinition",
+  "abstract": false,
   "url": "http://hl7.org/fhir/StructureDefinition/ObservationDefinition",
   "version": "4.0.1",
-  "name": "ObservationDefinition",
-  "status": "draft",
-  "kind": "resource",
-  "abstract": false,
   "type": "ObservationDefinition",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+  "kind": "resource",
   "derivation": "specialization",
+  "status": "draft",
   "snapshot": {
     "element": [
       {
@@ -347,7 +329,7 @@
         "id": "ObservationDefinition.modifierExtension",
         "path": "ObservationDefinition.modifierExtension",
         "short": "Extensions that cannot be ignored",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -483,7 +465,7 @@
         "id": "ObservationDefinition.identifier",
         "path": "ObservationDefinition.identifier",
         "short": "Business identifier for this ObservationDefinition instance",
-        "definition": "A unique identifier assigned to this ObservationDefinition artifact.",
+        "definition": "A unique identifier assigned to this `ObservationDefinition` artifact.",
         "min": 0,
         "max": "*",
         "base": {
@@ -513,7 +495,7 @@
         "id": "ObservationDefinition.permittedDataType",
         "path": "ObservationDefinition.permittedDataType",
         "short": "Quantity | CodeableConcept | string | boolean | integer | Range | Ratio | SampledData | time | dateTime | Period",
-        "definition": "The data types allowed for the value element of the instance observations conforming to this ObservationDefinition.",
+        "definition": "The data types allowed for the value element of the instance observations conforming to this `ObservationDefinition`.",
         "min": 0,
         "max": "*",
         "base": {
@@ -560,7 +542,7 @@
         "id": "ObservationDefinition.multipleResultsAllowed",
         "path": "ObservationDefinition.multipleResultsAllowed",
         "short": "Multiple results allowed",
-        "definition": "Multiple results allowed for observations conforming to this ObservationDefinition.",
+        "definition": "Multiple results allowed for observations conforming to this `ObservationDefinition`.",
         "comment": "An example of observation allowing multiple results is \"bacteria identified by culture\". Conversely, the measurement of a potassium level allows a single result.",
         "min": 0,
         "max": "1",
@@ -640,7 +622,7 @@
         "id": "ObservationDefinition.preferredReportName",
         "path": "ObservationDefinition.preferredReportName",
         "short": "Preferred report name",
-        "definition": "The preferred name to be used when reporting the results of observations conforming to this ObservationDefinition.",
+        "definition": "The preferred name to be used when reporting the results of observations conforming to this `ObservationDefinition`.",
         "min": 0,
         "max": "1",
         "base": {
@@ -772,7 +754,7 @@
         "id": "ObservationDefinition.quantitativeDetails.modifierExtension",
         "path": "ObservationDefinition.quantitativeDetails.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -818,7 +800,7 @@
         "id": "ObservationDefinition.quantitativeDetails.customaryUnit",
         "path": "ObservationDefinition.quantitativeDetails.customaryUnit",
         "short": "Customary unit for quantitative results",
-        "definition": "Customary unit used to report quantitative results of observations conforming to this ObservationDefinition.",
+        "definition": "Customary unit used to report quantitative results of observations conforming to this `ObservationDefinition`.",
         "min": 0,
         "max": "1",
         "base": {
@@ -859,7 +841,7 @@
         "id": "ObservationDefinition.quantitativeDetails.unit",
         "path": "ObservationDefinition.quantitativeDetails.unit",
         "short": "SI unit for quantitative results",
-        "definition": "SI unit used to report quantitative results of observations conforming to this ObservationDefinition.",
+        "definition": "SI unit used to report quantitative results of observations conforming to this `ObservationDefinition`.",
         "min": 0,
         "max": "1",
         "base": {
@@ -960,7 +942,7 @@
         "id": "ObservationDefinition.qualifiedInterval",
         "path": "ObservationDefinition.qualifiedInterval",
         "short": "Qualified range for continuous and ordinal observation results",
-        "definition": "Multiple  ranges of results qualified by different contexts for ordinal or continuous observations conforming to this ObservationDefinition.",
+        "definition": "Multiple  ranges of results qualified by different contexts for ordinal or continuous observations conforming to this `ObservationDefinition`.",
         "min": 0,
         "max": "*",
         "base": {
@@ -1062,7 +1044,7 @@
         "id": "ObservationDefinition.qualifiedInterval.modifierExtension",
         "path": "ObservationDefinition.qualifiedInterval.modifierExtension",
         "short": "Extensions that cannot be ignored even if unrecognized",
-        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+        "definition": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or `DomainResource` (including cannot change the meaning of modifierExtension itself).",
         "comment": "There can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions.  The use of extensions is what allows the FHIR specification to retain a core level of simplicity for everyone.",
         "requirements": "Modifier extensions allow for extensions that *cannot* be safely ignored to be clearly distinguished from the vast majority of extensions which can be safely ignored.  This promotes interoperability by eliminating the need for implementers to prohibit the presence of extensions. For further information, see the [definition of modifier extensions](extensibility.html#modifierExtension).",
         "alias": [
@@ -1108,7 +1090,7 @@
         "id": "ObservationDefinition.qualifiedInterval.category",
         "path": "ObservationDefinition.qualifiedInterval.category",
         "short": "reference | critical | absolute",
-        "definition": "The category of interval of values for continuous or ordinal observations conforming to this ObservationDefinition.",
+        "definition": "The category of interval of values for continuous or ordinal observations conforming to this `ObservationDefinition`.",
         "min": 0,
         "max": "1",
         "base": {
@@ -1411,7 +1393,7 @@
         "id": "ObservationDefinition.validCodedValueSet",
         "path": "ObservationDefinition.validCodedValueSet",
         "short": "Value set of valid coded values for the observations conforming to this ObservationDefinition",
-        "definition": "The set of valid coded results for the observations  conforming to this ObservationDefinition.",
+        "definition": "The set of valid coded results for the observations  conforming to this `ObservationDefinition`.",
         "min": 0,
         "max": "1",
         "base": {
@@ -1444,7 +1426,7 @@
         "id": "ObservationDefinition.normalCodedValueSet",
         "path": "ObservationDefinition.normalCodedValueSet",
         "short": "Value set of normal coded values for the observations conforming to this ObservationDefinition",
-        "definition": "The set of normal coded results for the observations conforming to this ObservationDefinition.",
+        "definition": "The set of normal coded results for the observations conforming to this `ObservationDefinition`.",
         "min": 0,
         "max": "1",
         "base": {
@@ -1477,7 +1459,7 @@
         "id": "ObservationDefinition.abnormalCodedValueSet",
         "path": "ObservationDefinition.abnormalCodedValueSet",
         "short": "Value set of abnormal coded values for the observations conforming to this ObservationDefinition",
-        "definition": "The set of abnormal coded results for the observation conforming to this ObservationDefinition.",
+        "definition": "The set of abnormal coded results for the observation conforming to this `ObservationDefinition`.",
         "min": 0,
         "max": "1",
         "base": {
@@ -1510,7 +1492,7 @@
         "id": "ObservationDefinition.criticalCodedValueSet",
         "path": "ObservationDefinition.criticalCodedValueSet",
         "short": "Value set of critical coded values for the observations conforming to this ObservationDefinition",
-        "definition": "The set of critical coded results for the observation conforming to this ObservationDefinition.",
+        "definition": "The set of critical coded results for the observation conforming to this `ObservationDefinition`.",
         "min": 0,
         "max": "1",
         "base": {

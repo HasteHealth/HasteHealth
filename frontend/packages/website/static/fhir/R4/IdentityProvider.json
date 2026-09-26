@@ -1,34 +1,16 @@
 {
   "resourceType": "StructureDefinition",
   "id": "IdentityProvider",
-  "meta": {
-    "extension": [
-      {
-        "url": "https://haste.health/author",
-        "valueReference": {
-          "reference": "System/system"
-        }
-      }
-    ],
-    "versionId": "oad8l5wkfqd1hlme92nwemvwb3",
-    "lastUpdated": "2026-08-21T17:06:58.283862+00:00",
-    "tag": [
-      {
-        "system": "https://haste.health/fhir/CodeSystem/hash",
-        "code": "12R1vubXteSp-_bgD546siHg8bo"
-      }
-    ]
-  },
   "url": "https://haste-health.com/StructureDefinition/IdentityProvider",
   "version": "4.0.1",
   "name": "IdentityProvider",
   "status": "active",
   "publisher": "haste-health",
-  "description": "External identity provider configuration.",
   "fhirVersion": "4.0.1",
   "kind": "resource",
   "abstract": false,
   "type": "IdentityProvider",
+  "description": "External identity provider configuration.",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
   "derivation": "specialization",
   "snapshot": {
@@ -36,8 +18,8 @@
       {
         "id": "IdentityProvider",
         "path": "IdentityProvider",
-        "definition": "External identity provider configuration.",
         "min": 0,
+        "definition": "External identity provider configuration.",
         "max": "*",
         "base": {
           "path": "IdentityProvider",
@@ -107,28 +89,28 @@
       {
         "id": "IdentityProvider.name",
         "path": "IdentityProvider.name",
-        "short": "The name of the external identity provider.",
         "definition": "The name of the external identity provider.",
-        "min": 1,
-        "max": "1",
+        "short": "The name of the external identity provider.",
         "type": [
           {
             "code": "string"
           }
-        ]
+        ],
+        "min": 1,
+        "max": "1"
       },
       {
         "id": "IdentityProvider.status",
         "path": "IdentityProvider.status",
-        "short": "The status of the identity provider.",
         "definition": "The status of the identity provider.",
-        "min": 1,
-        "max": "1",
+        "short": "The status of the identity provider.",
         "type": [
           {
             "code": "code"
           }
         ],
+        "min": 1,
+        "max": "1",
         "binding": {
           "strength": "required",
           "valueSet": "https://haste.health/fhir/ValueSet/IdentityProviderStatus|4.0.1"
@@ -137,15 +119,15 @@
       {
         "id": "IdentityProvider.accessType",
         "path": "IdentityProvider.accessType",
-        "short": "Method for connecting to external identity provider.",
         "definition": "Method for connecting to external identity provider.",
-        "min": 1,
-        "max": "1",
+        "short": "Method for connecting to external identity provider.",
         "type": [
           {
             "code": "code"
           }
         ],
+        "min": 1,
+        "max": "1",
         "binding": {
           "strength": "required",
           "valueSet": "https://haste.health/fhir/ValueSet/IdentityProviderAccessType|4.0.1"
@@ -154,140 +136,138 @@
       {
         "id": "IdentityProvider.oidc",
         "path": "IdentityProvider.oidc",
-        "short": "OIDC connection configuration for the identity provider.",
         "definition": "OIDC connection configuration for the identity provider.",
-        "min": 0,
-        "max": "1",
+        "short": "OIDC connection configuration for the identity provider.",
         "type": [
           {
             "code": "BackboneElement"
           }
-        ]
+        ],
+        "min": 0,
+        "max": "1"
       },
       {
         "id": "IdentityProvider.oidc.authorization_endpoint",
         "path": "IdentityProvider.oidc.authorization_endpoint",
-        "short": "OIDC authorization endpoint.",
         "definition": "OIDC authorization endpoint.",
-        "min": 1,
-        "max": "1",
+        "short": "OIDC authorization endpoint.",
         "type": [
           {
             "code": "string"
           }
-        ]
+        ],
+        "min": 1,
+        "max": "1"
       },
       {
         "id": "IdentityProvider.oidc.token_endpoint",
         "path": "IdentityProvider.oidc.token_endpoint",
-        "short": "OIDC token endpoint.",
         "definition": "OIDC token endpoint.",
-        "min": 1,
-        "max": "1",
+        "short": "OIDC token endpoint.",
         "type": [
           {
             "code": "string"
           }
-        ]
+        ],
+        "min": 1,
+        "max": "1"
       },
       {
         "id": "IdentityProvider.oidc.userinfo_endpoint",
         "path": "IdentityProvider.oidc.userinfo_endpoint",
-        "short": "The OIDC user info endpoint.",
         "definition": "The OIDC user info endpoint.",
-        "min": 0,
-        "max": "1",
+        "short": "The OIDC user info endpoint.",
         "type": [
           {
             "code": "string"
           }
-        ]
+        ],
+        "min": 0,
+        "max": "1"
       },
       {
         "id": "IdentityProvider.oidc.jwks_uri",
         "path": "IdentityProvider.oidc.jwks_uri",
-        "short": "If included will verify id token based on this jwks keys.",
         "definition": "If included will verify id token based on this jwks keys.",
-        "min": 0,
-        "max": "1",
+        "short": "If included will verify id token based on this jwks keys.",
         "type": [
           {
             "code": "string"
           }
-        ]
+        ],
+        "min": 0,
+        "max": "1"
       },
       {
         "id": "IdentityProvider.oidc.scopes",
         "path": "IdentityProvider.oidc.scopes",
-        "short": "Scopes to send to the OIDC provider.",
         "definition": "Scopes to send to the OIDC provider.",
-        "min": 0,
-        "max": "*",
+        "short": "Scopes to send to the OIDC provider.",
         "type": [
           {
             "code": "string"
           }
-        ]
+        ],
+        "min": 0,
+        "max": "*"
       },
       {
         "id": "IdentityProvider.oidc.client",
         "path": "IdentityProvider.oidc.client",
-        "short": "Registered client for the OIDC provider.",
         "definition": "Registered client for the OIDC provider.",
-        "min": 1,
-        "max": "1",
+        "short": "Registered client for the OIDC provider.",
         "type": [
           {
             "code": "BackboneElement"
           }
-        ]
+        ],
+        "min": 1,
+        "max": "1"
       },
       {
         "id": "IdentityProvider.oidc.client.clientId",
         "path": "IdentityProvider.oidc.client.clientId",
-        "short": "Registered clients id.",
         "definition": "Registered clients id.",
-        "min": 1,
-        "max": "1",
+        "short": "Registered clients id.",
         "type": [
           {
             "code": "string"
           }
-        ]
+        ],
+        "min": 1,
+        "max": "1"
       },
       {
         "id": "IdentityProvider.oidc.client.secret",
         "path": "IdentityProvider.oidc.client.secret",
-        "short": "Registered clients secret.",
         "definition": "Registered clients secret.",
-        "min": 0,
-        "max": "1",
+        "short": "Registered clients secret.",
         "type": [
           {
             "code": "string"
           }
-        ]
+        ],
+        "min": 0,
+        "max": "1"
       },
       {
         "id": "IdentityProvider.oidc.pkce",
         "path": "IdentityProvider.oidc.pkce",
-        "short": "PKCE Configuration",
         "definition": "PKCE Configuration",
-        "min": 0,
-        "max": "1",
+        "short": "PKCE Configuration",
         "type": [
           {
             "code": "BackboneElement"
           }
-        ]
+        ],
+        "min": 0,
+        "max": "1"
       },
       {
         "id": "IdentityProvider.oidc.pkce.code_challenge_method",
         "path": "IdentityProvider.oidc.pkce.code_challenge_method",
-        "short": "PKCE code challenge method.",
         "definition": "PKCE code challenge method.",
-        "min": 0,
-        "max": "1",
+        "short": "PKCE code challenge method.",
         "type": [
           {
             "code": "code"
@@ -296,20 +276,22 @@
         "binding": {
           "strength": "required",
           "valueSet": "https://haste.health/fhir/ValueSet/IdentityProviderPKCEChallengeMethod|4.0.1"
-        }
+        },
+        "min": 0,
+        "max": "1"
       },
       {
         "id": "IdentityProvider.oidc.pkce.enabled",
         "path": "IdentityProvider.oidc.pkce.enabled",
-        "short": "PKCE enabled.",
         "definition": "PKCE enabled.",
-        "min": 0,
-        "max": "1",
+        "short": "PKCE enabled.",
         "type": [
           {
             "code": "boolean"
           }
-        ]
+        ],
+        "min": 0,
+        "max": "1"
       }
     ]
   }
