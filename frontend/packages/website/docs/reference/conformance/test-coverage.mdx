@@ -1,0 +1,52 @@
+---
+title: Tested FHIR support
+description: What Haste Health supports for each FHIR R4 resource type and search feature, on PostgreSQL and Elasticsearch, verified by automated TestScripts.
+sidebar_position: 1
+hide_table_of_contents: true
+---
+
+import {
+  CoverageSummary,
+  InteractionMatrix,
+  KnownGaps,
+  ResourceCoverage,
+  SearchFeatureMatrix,
+} from '@site/src/components/TestCoverage';
+
+# Tested FHIR support
+
+Everything on this page comes from test results, not a feature list. Each
+resource type has a FHIR [`TestScript`](https://github.com/hastehealth/hastehealth/tree/main/backend/testscripts/core)
+that creates, reads, updates, patches, deletes and searches real data. The same
+scripts run against both search backends, **PostgreSQL** and **Elasticsearch**,
+and a feature is shown as supported only when its checks pass.
+
+<CoverageSummary />
+
+## Known gaps
+
+Behaviours that were tested and currently fail.
+
+<KnownGaps />
+
+## REST interactions
+
+How many resource types pass each interaction.
+
+<InteractionMatrix />
+
+## Search features
+
+Each FHIR search type, with every form, prefix and modifier we test. *Parameters
+tested* counts every resource type and search parameter pair that exercises the
+feature.
+
+<SearchFeatureMatrix />
+
+## By resource type
+
+Expand a resource type to see each search parameter and the features tested for
+it. Link to a resource type directly with `#resource-<Type>`, for example
+[`#resource-Observation`](#resource-Observation).
+
+<ResourceCoverage />

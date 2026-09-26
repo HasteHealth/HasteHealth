@@ -78,9 +78,12 @@ pub enum ParamColumns {
     Uri {
         value: String,
     },
+    /// `target_uri` holds a canonical or absolute URL, which has no
+    /// type/id split; it keeps such a value present for `:missing`.
     Reference {
         target_type: String,
         target_id: String,
+        target_uri: String,
     },
     Quantity {
         start: String,
@@ -173,7 +176,12 @@ pub fn column_names(columns: &ParamColumns) -> Vec<&str> {
         ParamColumns::Reference {
             target_type,
             target_id,
-        } => vec![target_type.as_str(), target_id.as_str()],
+            target_uri,
+        } => vec![
+            target_type.as_str(),
+            target_id.as_str(),
+            target_uri.as_str(),
+        ],
         ParamColumns::Quantity {
             start,
             end,
@@ -354,6 +362,7 @@ fn columns_for_type(base: &str, param_type: &BoundCode<SearchParamType>) -> Opti
         SharedTable::Reference => ParamColumns::Reference {
             target_type: part("_type"),
             target_id: part("_id"),
+            target_uri: part("_uri"),
         },
         SharedTable::Quantity => ParamColumns::Quantity {
             start: part("_start"),
@@ -391,9 +400,11 @@ fn column_defs(columns: &ParamColumns) -> Vec<ColumnDef> {
         ParamColumns::Reference {
             target_type,
             target_id,
+            target_uri,
         } => vec![
             text(target_type, IndexKind::None),
             text(target_id, IndexKind::BTree),
+            text(target_uri, IndexKind::None),
         ],
         ParamColumns::Quantity {
             start,
@@ -655,6 +666,7 @@ mod tests {
         let Some(ParamColumns::Reference {
             target_type,
             target_id,
+            ..
         }) = observation.parameters.get("subject")
         else {
             panic!("Observation.subject should be a singular reference column");

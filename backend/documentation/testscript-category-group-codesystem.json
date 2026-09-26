@@ -1,0 +1,19 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "testscript-category-groups",
+  "url": "https://haste.health/fhir/CodeSystem/testscript-category-group",
+  "version": "1.0.0",
+  "name": "TestScriptCategoryGroup",
+  "title": "TestScript category groups",
+  "status": "active",
+  "content": "complete",
+  "description": "Fixed set of `group` codes used by the `https://haste.health/fhir/StructureDefinition/testscript-category` extension on TestScript operation/assert elements in backend/testscripts/core/*.testscript.json. A website reading these TestScripts plus their TestReports can group assertions by these codes to show 'what does the server support' without parsing labels or query strings.",
+  "concept": [
+    { "code": "create", "display": "Create" },
+    { "code": "read", "display": "Read" },
+    { "code": "update", "display": "Update" },
+    { "code": "patch", "display": "Patch" },
+    { "code": "delete", "display": "Delete" },
+    { "code": "search", "display": "Search" }
+  ]
+}

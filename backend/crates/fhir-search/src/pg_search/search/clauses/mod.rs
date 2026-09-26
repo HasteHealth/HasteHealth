@@ -158,6 +158,7 @@ pub fn reference_exprs(target: &ClauseTarget) -> Result<(String, String), QueryB
                 ParamColumns::Reference {
                     target_type,
                     target_id,
+                    ..
                 },
         } => Ok((
             direct_column(alias, target_type),
@@ -256,8 +257,9 @@ pub fn missing_clause(target: &ClauseTarget, missing: bool) -> SqlClause {
     }
 }
 
-/// The columns that are all NULL exactly when a parameter has no value. Either
-/// half of a token or reference can be present alone.
+/// The columns that are all NULL exactly when a parameter has no value. Any
+/// part of a token or reference can be present alone (a canonical reference
+/// has only a URI).
 fn presence_columns(columns: &ParamColumns) -> Vec<&str> {
     match columns {
         ParamColumns::String { value }
@@ -273,7 +275,8 @@ fn presence_columns(columns: &ParamColumns) -> Vec<&str> {
         ParamColumns::Reference {
             target_type,
             target_id,
-        } => vec![target_type, target_id],
+            target_uri,
+        } => vec![target_type, target_id, target_uri],
         ParamColumns::Date { start, .. } | ParamColumns::Quantity { start, .. } => vec![start],
     }
 }
@@ -469,6 +472,21 @@ mod tests {
         assert_eq!(
             missing_clause(&target, false).sql,
             r#"(rt."gender_system" IS NOT NULL OR rt."gender_code" IS NOT NULL)"#
+        );
+    }
+
+    /// A canonical reference has only a URI; it still counts as a value.
+    #[test]
+    fn missing_counts_a_canonical_reference_as_present() {
+        let target = direct(ParamColumns::Reference {
+            target_type: "base_type".to_string(),
+            target_id: "base_id".to_string(),
+            target_uri: "base_uri".to_string(),
+        });
+
+        assert_eq!(
+            missing_clause(&target, true).sql,
+            r#"(rt."base_type" IS NULL AND rt."base_id" IS NULL AND rt."base_uri" IS NULL)"#
         );
     }
 

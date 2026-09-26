@@ -130,14 +130,21 @@ jobs:
 
         working-directory: ./backend
 
+      # The artifacts load in the background; terminology and profile
+      # validation find them through search, so let indexing catch up first.
+      - name: Wait for artifacts to be indexed
+        run: bash .github/scripts/wait_for_indexing.sh 600
+
+      # `--index-wait-ms` makes each search wait until the TestScript's latest
+      # write is indexed, instead of a fixed delay after every operation.
       - name: Run Base Testscripts
-        run: ./target/debug/haste-health testscript run -i testscripts/base -w 2000
+        run: ./target/debug/haste-health testscript run -i testscripts/base -w 0 --index-wait-ms 30000
         working-directory: ./backend
         env:
           RUST_LOG: info
 
       - name: R4 Backport Testscripts
-        run: ./target/debug/haste-health testscript run -i testscripts/r4-r5-backport -w 2000
+        run: ./target/debug/haste-health testscript run -i testscripts/r4-r5-backport -w 0 --index-wait-ms 30000
         working-directory: ./backend
         env:
           RUST_LOG: info
@@ -146,8 +153,11 @@ jobs:
         run: node scripts/load_us_core.mjs
         working-directory: ./backend
 
+      - name: Wait for US Core profiles to be indexed
+        run: bash .github/scripts/wait_for_indexing.sh 600
+
       - name: Run US Core Testscripts
-        run: ./target/debug/haste-health testscript run -i testscripts/us-core -w 2000
+        run: ./target/debug/haste-health testscript run -i testscripts/us-core -w 0 --index-wait-ms 30000
         working-directory: ./backend
         env:
           RUST_LOG: info
