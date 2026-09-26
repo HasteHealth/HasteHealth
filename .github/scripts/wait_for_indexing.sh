@@ -19,7 +19,7 @@ behind_query="SELECT count(*) FROM tenants t
 
 for ((elapsed = 0; elapsed < timeout; elapsed += 2)); do
   behind=$(psql "$database_url" -tAc "$behind_query")
-  if [ "$behind" = "0" ]; then
+  if [[ "$behind" == "0" ]]; then
     echo "Search index caught up after ${elapsed}s."
     exit 0
   fi
