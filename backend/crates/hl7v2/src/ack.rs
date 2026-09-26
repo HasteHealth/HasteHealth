@@ -132,7 +132,12 @@ const DEFAULT_VERSION: &str = "2.5.1";
 /// placed in `MSA-3` and is what an operator reads when a message is rejected,
 /// so it should say what was wrong rather than that something was.
 #[must_use]
-pub fn build_ack(header: &InboundHeader, code: AckCode, text: Option<&str>, timestamp: &str) -> String {
+pub fn build_ack(
+    header: &InboundHeader,
+    code: AckCode,
+    text: Option<&str>,
+    timestamp: &str,
+) -> String {
     let version = if header.version.is_empty() {
         DEFAULT_VERSION
     } else {
@@ -284,7 +289,11 @@ mod tests {
 
         // Segments are separated by `\r`, which `str::lines` does not split on.
         let msa = segment(&ack, "MSA");
-        assert_eq!(msa.split('|').count(), 4, "delimiters must not add fields: {msa}");
+        assert_eq!(
+            msa.split('|').count(),
+            4,
+            "delimiters must not add fields: {msa}"
+        );
         assert!(msa.contains("\\F\\"), "{msa}");
         assert!(msa.contains("\\S\\"), "{msa}");
     }
@@ -307,7 +316,12 @@ mod tests {
     #[test]
     fn a_message_without_an_msh_still_produces_an_ack() {
         let header = InboundHeader::scan("this is not HL7");
-        let ack = build_ack(&header, AckCode::ApplicationReject, Some("no MSH"), "20260101");
+        let ack = build_ack(
+            &header,
+            AckCode::ApplicationReject,
+            Some("no MSH"),
+            "20260101",
+        );
 
         assert!(ack.starts_with("MSH|^~\\&|"), "{ack}");
         assert!(ack.contains("MSA|AR"), "{ack}");
