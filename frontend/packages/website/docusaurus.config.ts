@@ -219,7 +219,7 @@ const config: Config = {
               to: "/docs/reference/fhir/model/resources/",
             },
             { label: "REST API", to: "/docs/api/rest_api/fhir/intro" },
-            { label: "SDKs", to: "/docs/api/sdks/typescript" },
+            { label: "SDKs", to: "/docs/category/sdks" },
             { label: "Blog", to: "/blog" },
             { label: "Contact", to: "/contact" },
           ],

@@ -392,10 +392,10 @@ export default function Pricing(): ReactNode {
               Pricing
             </Heading>
             <p className="max-w-3xl text-lg text-slate-700 leading-relaxed">
-              The server is free forever when you run it yourself — Apache-2.0,
-              no feature gates. The hosted tiers sell the part you would rather
-              not operate at 3 a.m.: backups, upgrades, a BAA and someone on
-              call.
+              The server is free with self-hosting and licensed under
+              Apache-2.0. The hosted tiers cover the operational work of
+              running it in production: backups, upgrades, a signed BAA, and
+              dedicated support.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               <Link
@@ -426,9 +426,7 @@ export default function Pricing(): ReactNode {
 
         <p className="mt-4 text-center text-sm text-slate-600">
           Doesn&apos;t fit your situation? Tell us at{" "}
-          <Link href="mailto:business@haste.health">
-            business@haste.health
-          </Link>
+          <Link href="mailto:business@haste.health">business@haste.health</Link>
           .
         </p>
 
