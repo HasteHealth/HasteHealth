@@ -34,6 +34,22 @@ impl FHIRMethod {
     }
 }
 
+#[derive(sqlx::Type, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[sqlx(type_name = "search_index_backend", rename_all = "lowercase")]
+pub enum SearchIndexBackend {
+    Elasticsearch,
+    Postgres,
+}
+
+impl std::fmt::Display for SearchIndexBackend {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SearchIndexBackend::Elasticsearch => write!(f, "elasticsearch"),
+            SearchIndexBackend::Postgres => write!(f, "postgres"),
+        }
+    }
+}
+
 impl TryFrom<&str> for FHIRMethod {
     type Error = String;
 

@@ -1,5 +1,5 @@
 use crate::{
-    indexing_lock::{IndexLockProvider, postgres::TenantLockIndex},
+    indexing_lock::{IndexLockProvider, postgres::ProjectLockIndex},
     traits::Worker,
 };
 use haste_fhir_model::r4::generated::resources::ResourceTypeError;
@@ -7,14 +7,14 @@ use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcome
 use haste_fhir_search::config::{SearchConfig, SearchEngineBackend};
 use haste_fhir_search::{IndexResource, SearchEngine};
 use haste_fhirpath::FHIRPathError;
-use haste_jwt::{TenantId, VersionId};
+use haste_jwt::{ProjectId, TenantId, VersionId};
 use haste_repository::config::{RepoConfig, create_repo};
 use haste_repository::{
     failed_indexing::{FailedIndexRecord, FailedIndexingProvider},
     fhir::FHIRRepository,
     pg::PGConnection,
     sequence::{ResourcePollingValue, ResourceSequential},
-    types::SupportedFHIRVersions,
+    types::{SearchIndexBackend, SupportedFHIRVersions},
 };
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, query_as, types::time::OffsetDateTime};
@@ -51,16 +51,17 @@ pub enum IndexingWorkerError {
     ResourceTypeError(#[from] ResourceTypeError),
 }
 
-struct TenantReturn {
-    id: TenantId,
+struct ProjectReturn {
+    tenant: TenantId,
+    project: ProjectId,
     created_at: OffsetDateTime,
 }
 
-async fn get_tenants(
+async fn get_projects(
     repo: &PGConnection,
     cursor: &OffsetDateTime,
     count: i64,
-) -> Result<Vec<TenantReturn>, OperationOutcomeError> {
+) -> Result<Vec<ProjectReturn>, OperationOutcomeError> {
     match repo {
         PGConnection::Pool(pool, _) => {
             let mut connection = pool.acquire().await.map_err(IndexingWorkerError::from)?;
@@ -69,8 +70,8 @@ async fn get_tenants(
                 .await
                 .map_err(IndexingWorkerError::from)?;
             let result = query_as!(
-                TenantReturn,
-                r#"SELECT id as "id: TenantId", created_at FROM tenants WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
+                ProjectReturn,
+                r#"SELECT tenant as "tenant: TenantId", id as "project: ProjectId", created_at FROM projects WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
                 cursor,
                 count
             )
@@ -87,8 +88,8 @@ async fn get_tenants(
                 .await
                 .map_err(IndexingWorkerError::from)?;
             let result = query_as!(
-                TenantReturn,
-                r#"SELECT id as "id: TenantId", created_at FROM tenants WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
+                ProjectReturn,
+                r#"SELECT tenant as "tenant: TenantId", id as "project: ProjectId", created_at FROM projects WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
                 cursor,
                 count
             )
@@ -104,6 +105,7 @@ async fn get_tenants(
 /// Records in `FailedIndexingProvider` if any resources failed to index. This is a no-op if the list is empty.
 async fn record_failures(
     tenant: &TenantId,
+    project: &ProjectId,
     indexing_error_provider: &impl FailedIndexingProvider,
     failures: &[FailedIndexRecord],
 ) -> Result<(), IndexingWorkerError> {
@@ -112,19 +114,21 @@ async fn record_failures(
     }
 
     tracing::warn!(
-        "Parking {} resource(s) that failed indexing for tenant '{}'.",
+        "Parking {} resource(s) that failed indexing for tenant '{}' project '{}'.",
         failures.len(),
-        tenant
+        tenant,
+        project.as_ref()
     );
 
     for failure in failures {
         tracing::error!(
             tenant = %tenant,
+            project = %project.as_ref(),
             resource_type = %failure.resource_type,
             version_id = failure.version_id.as_ref(),
             fhir_method = failure.fhir_method.as_str(),
             error = %failure.error_message,
-            "Elasticsearch indexing failed for resource"
+            "Search indexing failed for resource"
         );
     }
 
@@ -134,9 +138,11 @@ async fn record_failures(
 }
 
 async fn update_lock_sequence_position<
-    Repo: ResourceSequential + IndexLockProvider<TenantId, TenantLockIndex>,
+    Repo: ResourceSequential + IndexLockProvider<(TenantId, ProjectId), ProjectLockIndex>,
 >(
     tenant_id: &TenantId,
+    project_id: &ProjectId,
+    backend: SearchIndexBackend,
     repo: &Repo,
     start_sequence: Option<i64>,
     resources_total: usize,
@@ -154,30 +160,37 @@ async fn update_lock_sequence_position<
             last_seq = last_polling_value.sequence,
             total = resources_total,
             diff = (last_polling_value.sequence + 1) - start_sequence.unwrap_or(0),
-            "Sequence gap detected while indexing tenant '{}' - resources may have been skipped.",
-            tenant_id
+            "Sequence gap detected while indexing tenant '{}' project '{}' ({}) - resources may have been skipped.",
+            tenant_id,
+            project_id.as_ref(),
+            backend
         );
     }
 
     tracing::trace!(
-        "Updating lock for tenant '{}' to sequence position {}.",
+        "Updating {} lock for tenant '{}' project '{}' to sequence position {}.",
+        backend,
         tenant_id,
+        project_id.as_ref(),
         last_polling_value.sequence
     );
 
     repo.update_lock(
-        tenant_id,
-        TenantLockIndex {
-            id: tenant_id.clone(),
-            index_sequence_position_v2: last_polling_value.sequence,
+        backend,
+        &(tenant_id.clone(), project_id.clone()),
+        ProjectLockIndex {
+            tenant: tenant_id.clone(),
+            project: project_id.clone(),
+            index_sequence_position: last_polling_value.sequence,
         },
     )
     .await?;
 
     tracing::trace!(
-        "Indexed {} resources for tenant '{}' in {:.2?} (up to sequence {})",
+        "Indexed {} resources for tenant '{}' project '{}' in {:.2?} (up to sequence {})",
         resources_total,
         tenant_id.as_ref(),
+        project_id.as_ref(),
         start.elapsed(),
         last_polling_value.sequence
     );
@@ -188,36 +201,46 @@ async fn update_lock_sequence_position<
 static TOTAL_INDEXED: std::sync::LazyLock<Mutex<usize>> =
     std::sync::LazyLock::new(|| Mutex::new(0));
 
-async fn index_tenant_next_sequence<
-    Repo: ResourceSequential + IndexLockProvider<TenantId, TenantLockIndex> + FailedIndexingProvider,
+async fn index_project_next_sequence<
+    Repo: ResourceSequential
+        + IndexLockProvider<(TenantId, ProjectId), ProjectLockIndex>
+        + FailedIndexingProvider,
     Engine: SearchEngine,
 >(
     max_concurrent_limit: u64,
+    backend: SearchIndexBackend,
     search_client: Arc<Engine>,
     repo: &Repo,
     tenant_id: &TenantId,
+    project_id: &ProjectId,
 ) -> Result<(), IndexingWorkerError> {
     let start = std::time::Instant::now();
-    let tenant_locks = repo.get_available_locks(vec![tenant_id]).await?;
+    let lock_key = (tenant_id.clone(), project_id.clone());
+    let project_locks = repo.get_available_locks(backend, vec![&lock_key]).await?;
 
-    if tenant_locks.is_empty() {
+    if project_locks.is_empty() {
         tracing::info!(
-            "No available locks for tenant '{}', skipping indexing.",
-            tenant_id
+            "No available {} lock for tenant '{}' project '{}', skipping indexing.",
+            backend,
+            tenant_id,
+            project_id.as_ref()
         );
         return Ok(());
     }
 
     tracing::trace!(
-        "Acquired lock for tenant '{}', starting indexing from sequence {}.",
+        "Acquired {} lock for tenant '{}' project '{}', starting indexing from sequence {}.",
+        backend,
         tenant_id,
-        tenant_locks[0].index_sequence_position_v2
+        project_id.as_ref(),
+        project_locks[0].index_sequence_position
     );
 
     let resources = repo
         .get_sequence(
             tenant_id,
-            tenant_locks[0].index_sequence_position_v2.cast_unsigned(),
+            project_id,
+            project_locks[0].index_sequence_position.cast_unsigned(),
             Some(max_concurrent_limit),
         )
         .await?;
@@ -250,10 +273,11 @@ async fn index_tenant_next_sequence<
 
         if resources_attempted_to_index_count != resources_total {
             tracing::error!(
-                "Indexed+failed resource count '{}' does not match retrieved resource count '{}' for tenant '{}'",
+                "Indexed+failed resource count '{}' does not match retrieved resource count '{}' for tenant '{}' project '{}'",
                 resources_attempted_to_index_count,
                 resources_total,
-                tenant_id
+                tenant_id,
+                project_id.as_ref()
             );
             return Err(IndexingWorkerError::Fatal);
         }
@@ -271,11 +295,13 @@ async fn index_tenant_next_sequence<
             })
             .collect::<Vec<_>>();
 
-        record_failures(tenant_id, repo, &failures).await?;
+        record_failures(tenant_id, project_id, repo, &failures).await?;
 
         if let Some(last_polling_value) = last_value {
             update_lock_sequence_position(
                 tenant_id,
+                project_id,
+                backend,
                 repo,
                 start_sequence,
                 resources_total,
@@ -291,23 +317,33 @@ async fn index_tenant_next_sequence<
     Ok(())
 }
 
-async fn index_for_tenant<
+async fn index_for_project<
     Search: SearchEngine,
     Repository: FHIRRepository
         + ResourceSequential
-        + IndexLockProvider<TenantId, TenantLockIndex>
+        + IndexLockProvider<(TenantId, ProjectId), ProjectLockIndex>
         + FailedIndexingProvider,
 >(
     max_concurrent_limit: u64,
+    backend: SearchIndexBackend,
     repo: Arc<Repository>,
     search_client: Arc<Search>,
     tenant_id: &TenantId,
+    project_id: &ProjectId,
 ) -> Result<(), IndexingWorkerError> {
     let tx = repo
         .transaction(false)
         .await
         .map_err(IndexingWorkerError::from)?;
-    let res = index_tenant_next_sequence(max_concurrent_limit, search_client, &tx, tenant_id).await;
+    let res = index_project_next_sequence(
+        max_concurrent_limit,
+        backend,
+        search_client,
+        &tx,
+        tenant_id,
+        project_id,
+    )
+    .await;
 
     match res {
         Ok(res) => {
@@ -317,8 +353,9 @@ async fn index_for_tenant<
         Err(e) => {
             if let Err(rollback_err) = tx.rollback().await {
                 tracing::error!(
-                    "Failed to roll back transaction for tenant '{}' (original error: '{:?}'): '{:?}'",
+                    "Failed to roll back transaction for tenant '{}' project '{}' (original error: '{:?}'): '{:?}'",
                     tenant_id,
+                    project_id.as_ref(),
                     e,
                     rollback_err
                 );
@@ -341,7 +378,10 @@ pub struct IndexingWorker {
 #[serde(default)]
 pub struct WorkerEnvironment {
     pub max_concurrent_limit: Option<u64>,
-    /// Maximum number of tenants indexed concurrently within one poll.
+    /// Maximum number of projects indexed concurrently within one poll.
+    /// Field name kept as `tenant_concurrency` for config compatibility -
+    /// locking moved from tenant- to project-level, but this still bounds
+    /// the same underlying semaphore.
     pub tenant_concurrency: Option<u64>,
     pub repo: RepoConfig,
     pub search: SearchConfig,
@@ -417,7 +457,7 @@ impl IndexingWorker {
 impl Worker for IndexingWorker {
     async fn run(&self) -> Result<JoinHandle<()>, OperationOutcomeError> {
         let mut cursor = OffsetDateTime::UNIX_EPOCH;
-        let tenants_limit: u64 = 100;
+        let projects_limit: u64 = 100;
 
         tracing::info!("Starting indexing worker...");
 
@@ -425,63 +465,72 @@ impl Worker for IndexingWorker {
 
         let repo = self.repo.clone();
         let search_engine: Arc<SearchEngineBackend> = self.search_engine.clone();
+        let backend = search_engine.lock_kind();
         let running = self.running.clone();
         let max_concurrent_limit = self.max_concurrent_limit.unwrap_or(1000);
-        let tenant_semaphore = Arc::new(Semaphore::new(
+        let project_semaphore = Arc::new(Semaphore::new(
             usize::try_from(self.tenant_concurrency.unwrap_or(10).max(1)).unwrap_or(usize::MAX),
         ));
 
         let spawned = tokio::spawn(async move {
             while *running.lock().await {
-                let tenants_to_check =
-                    get_tenants(repo.as_ref(), &cursor, tenants_limit.cast_signed()).await;
+                let projects_to_check =
+                    get_projects(repo.as_ref(), &cursor, projects_limit.cast_signed()).await;
 
-                // Nothing to do this iteration (no tenants, or the fetch itself
+                // Nothing to do this iteration (no projects, or the fetch itself
                 // failed) - back off instead of hammering Postgres in a tight spin.
-                let idle = match tenants_to_check {
-                    Ok(tenants_to_check) => {
-                        let idle = tenants_to_check.is_empty();
-                        if idle || (tenants_to_check.len() as u64) < tenants_limit {
-                            cursor = OffsetDateTime::UNIX_EPOCH; // Reset cursor if no tenants found
+                let idle = match projects_to_check {
+                    Ok(projects_to_check) => {
+                        let idle = projects_to_check.is_empty();
+                        if idle || (projects_to_check.len() as u64) < projects_limit {
+                            cursor = OffsetDateTime::UNIX_EPOCH; // Reset cursor if no projects found
                         } else {
-                            cursor = tenants_to_check[0].created_at;
+                            cursor = projects_to_check[0].created_at;
                         }
 
-                        let handles: Vec<_> = tenants_to_check
+                        let handles: Vec<_> = projects_to_check
                             .into_iter()
-                            .map(|tenant| {
+                            .map(|project| {
                                 let repo = repo.clone();
                                 let search_engine = search_engine.clone();
-                                let semaphore = tenant_semaphore.clone();
+                                let semaphore = project_semaphore.clone();
 
                                 tokio::spawn(async move {
                                     let _permit = match semaphore.acquire_owned().await {
                                         Ok(permit) => permit,
                                         Err(_closed) => {
                                             tracing::warn!(
-                                                "Tenant semaphore closed; skipping indexing for tenant '{}'.",
-                                                &tenant.id
+                                                "Project semaphore closed; skipping indexing for tenant '{}' project '{}'.",
+                                                &project.tenant,
+                                                project.project.as_ref()
                                             );
                                             return;
                                         }
                                     };
 
-                                    tracing::trace!("Indexing tenant: '{}'", &tenant.id);
+                                    tracing::trace!(
+                                        "Indexing tenant: '{}' project: '{}'",
+                                        &project.tenant,
+                                        project.project.as_ref()
+                                    );
 
                                     // Boxed: the search engine's indexing future is
-                                    // large, and this one is spawned per tenant.
-                                    let result = Box::pin(index_for_tenant(
+                                    // large, and this one is spawned per project.
+                                    let result = Box::pin(index_for_project(
                                         max_concurrent_limit,
+                                        backend,
                                         repo,
                                         search_engine,
-                                        &tenant.id,
+                                        &project.tenant,
+                                        &project.project,
                                     ))
                                     .await;
 
                                     if let Err(error) = result {
                                         tracing::error!(
-                                            "Failed to index tenant: '{}' cause: '{:?}'",
-                                            &tenant.id,
+                                            "Failed to index tenant: '{}' project: '{}' cause: '{:?}'",
+                                            &project.tenant,
+                                            project.project.as_ref(),
                                             error
                                         );
                                     }
@@ -492,7 +541,7 @@ impl Worker for IndexingWorker {
                         for handle in handles {
                             if let Err(join_error) = handle.await {
                                 tracing::error!(
-                                    "Tenant indexing task panicked: '{:?}'",
+                                    "Project indexing task panicked: '{:?}'",
                                     join_error
                                 );
                             }
@@ -501,7 +550,7 @@ impl Worker for IndexingWorker {
                         idle
                     }
                     Err(error) => {
-                        tracing::error!("Failed to retrieve tenants: {:?}", error);
+                        tracing::error!("Failed to retrieve projects: {:?}", error);
                         true
                     }
                 };

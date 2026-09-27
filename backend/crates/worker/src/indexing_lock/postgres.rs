@@ -1,7 +1,8 @@
 use crate::indexing_lock::IndexLockProvider;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use haste_jwt::TenantId;
+use haste_jwt::{ProjectId, TenantId};
 use haste_repository::pg::PGConnection;
+use haste_repository::types::SearchIndexBackend;
 use sqlx::{Acquire, Postgres, QueryBuilder};
 
 #[derive(OperationOutcomeError, Debug)]
@@ -16,17 +17,20 @@ pub enum TenantLockIndexError {
 }
 
 #[derive(sqlx::FromRow, Debug)]
-pub struct TenantLockIndex {
+pub struct ProjectLockIndex {
     #[allow(dead_code)]
-    pub id: TenantId,
-    pub index_sequence_position_v2: i64,
+    pub tenant: TenantId,
+    #[allow(dead_code)]
+    pub project: ProjectId,
+    pub index_sequence_position: i64,
 }
 
-impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
+impl IndexLockProvider<(TenantId, ProjectId), ProjectLockIndex> for PGConnection {
     async fn get_available_locks(
         &self,
-        tenants: Vec<&TenantId>,
-    ) -> Result<Vec<TenantLockIndex>, OperationOutcomeError> {
+        backend: SearchIndexBackend,
+        project_ids: Vec<&(TenantId, ProjectId)>,
+    ) -> Result<Vec<ProjectLockIndex>, OperationOutcomeError> {
         match self {
             PGConnection::Transaction(tx, _, _) => {
                 let mut tx = tx.lock().await;
@@ -34,21 +38,25 @@ impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
                     .acquire()
                     .await
                     .map_err(TenantLockIndexError::from)?;
-                // Implementation for retrieving available locks from PostgreSQL
 
                 let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
-                    "SELECT id, index_sequence_position_v2 FROM tenants WHERE id IN ( ",
+                    "SELECT tenant, project, index_sequence_position FROM search_index_locks WHERE backend = ",
                 );
+                query_builder.push_bind(backend);
+                query_builder.push(" AND (tenant, project) IN ( ");
 
                 let mut separated = query_builder.separated(", ");
-                for tenant_id in &tenants {
-                    separated.push_bind(tenant_id.as_ref());
+                for (tenant_id, project_id) in &project_ids {
+                    separated.push_unseparated("(");
+                    separated.push_bind_unseparated(tenant_id.as_ref());
+                    separated.push_unseparated(", ");
+                    separated.push_bind_unseparated(project_id.as_ref());
+                    separated.push_unseparated(")");
                 }
 
-                separated.push_unseparated(") FOR NO KEY UPDATE SKIP LOCKED");
+                query_builder.push(") FOR NO KEY UPDATE SKIP LOCKED");
 
                 let query = query_builder.build_query_as();
-                // println!("Executing query: '{:?}'", query.sql());
                 let res = query
                     .fetch_all(conn)
                     .await
@@ -62,8 +70,9 @@ impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
 
     async fn update_lock(
         &self,
-        tenant_id: &TenantId,
-        model: TenantLockIndex,
+        backend: SearchIndexBackend,
+        project_id: &(TenantId, ProjectId),
+        model: ProjectLockIndex,
     ) -> Result<(), OperationOutcomeError> {
         match self {
             PGConnection::Transaction(tx, _, _) => {
@@ -72,11 +81,13 @@ impl IndexLockProvider<TenantId, TenantLockIndex> for PGConnection {
                     .acquire()
                     .await
                     .map_err(TenantLockIndexError::from)?;
-                // Implementation for retrieving available locks from PostgreSQL
+                let (tenant_id, proj_id) = project_id;
                 sqlx::query!(
-                    "UPDATE tenants SET index_sequence_position_v2 = $1 WHERE id = $2",
-                    model.index_sequence_position_v2,
-                    tenant_id.as_ref()
+                    "UPDATE search_index_locks SET index_sequence_position = $1 WHERE tenant = $2 AND project = $3 AND backend = $4",
+                    model.index_sequence_position,
+                    tenant_id.as_ref(),
+                    proj_id.as_ref(),
+                    backend as SearchIndexBackend,
                 )
                 .execute(conn)
                 .await
