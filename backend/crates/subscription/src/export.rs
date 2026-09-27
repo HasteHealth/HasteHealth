@@ -197,10 +197,7 @@ mod tests {
 
         // Uncapped limits are the bare tag string, not `{"unlimited": null}`.
         assert_eq!(tiers[1]["total_resources"], serde_json::json!("unlimited"));
-        assert_eq!(
-            tiers[3]["request_budget"],
-            serde_json::json!("unmetered")
-        );
+        assert_eq!(tiers[3]["request_budget"], serde_json::json!("unmetered"));
     }
 
     /// `flatten` puts the tier's own fields at the top level; the page reads

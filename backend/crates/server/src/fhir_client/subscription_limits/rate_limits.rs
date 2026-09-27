@@ -37,7 +37,11 @@ pub fn get_total_rate_limit_for_tier(config: &ServerConfig, tier: &SubscriptionT
         .iter()
         .position(|limits| &limits.tier == tier)
         .and_then(|index| tiers.get(index).copied())
-        .unwrap_or_else(|| haste_subscription::limits_for(tier).request_budget.as_points())
+        .unwrap_or_else(|| {
+            haste_subscription::limits_for(tier)
+                .request_budget
+                .as_points()
+        })
 }
 
 fn score_bundle(bundle: &Bundle) -> u32 {

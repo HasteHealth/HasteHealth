@@ -307,7 +307,11 @@ mod tests {
             limits_for(tier);
         }
 
-        assert_eq!(TIERS.len(), all.len(), "TIERS has a duplicate or extra tier");
+        assert_eq!(
+            TIERS.len(),
+            all.len(),
+            "TIERS has a duplicate or extra tier"
+        );
     }
 
     #[test]
@@ -337,12 +341,12 @@ mod tests {
                 paid.display_name
             );
             assert!(
-                !paid.total_resources.is_exceeded_at(
-                    match free.total_resources {
+                !paid
+                    .total_resources
+                    .is_exceeded_at(match free.total_resources {
                         ResourceLimit::Count(count) => count,
                         ResourceLimit::Unlimited => u64::MAX,
-                    }
-                ),
+                    }),
                 "{} caps total resources below Developer",
                 paid.display_name
             );
@@ -386,8 +390,7 @@ mod tests {
         let budget = free.request_budget.as_points();
 
         let synthea_patient_resources = 744;
-        let cost_of_five_patients =
-            5 * synthea_patient_resources * OPERATION_POINTS.write as usize;
+        let cost_of_five_patients = 5 * synthea_patient_resources * OPERATION_POINTS.write as usize;
 
         assert!(
             cost_of_five_patients < budget,
