@@ -56,9 +56,11 @@ fn score_bundle(bundle: &Bundle) -> u32 {
             {
                 total_points += OPERATION_POINTS.write
             }
-            // A GET entry is a search only when it carries a query; otherwise it
-            // is a read by id. Charging every GET as a search overcharges a
-            // bundled read six-fold now that the weights differ.
+            // A GET entry is scored as a search only when its URL carries a
+            // query string. A type-level search with no parameters (e.g.
+            // `Patient`) has no `?` either, so it's scored as a read too --
+            // cheap enough with no params to charge as one rather than as a
+            // search here.
             method if method == &HttpVerb::get() => {
                 let is_search = entry
                     .request
@@ -136,8 +138,9 @@ mod tests {
         }
     }
 
-    /// A bundled GET with a query is a search; one without is a read by id.
-    /// Charging both as searches overcharges a bundled read six-fold.
+    /// A bundled GET is scored as a search only when its URL has a query
+    /// string; a plain `Type/id` read and a parameterless type-level search
+    /// both lack one, so both are scored as reads.
     #[test]
     fn scores_bundled_reads_and_searches_differently() {
         let reads = bundle(vec![entry(HttpVerb::get(), "Patient/123")]);
