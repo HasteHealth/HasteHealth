@@ -8,8 +8,7 @@ import autoprefixer from "autoprefixer";
 
 const config: Config = {
   title: "Haste Health",
-  tagline:
-    "The Headless EHR & FHIR Clinical Data Repository, Built for AI Agents",
+  tagline: "The FHIR Data Layer for AI Agents",
   favicon: "/img/favicon.ico",
   trailingSlash: false,
 

@@ -262,8 +262,8 @@ export default function Home(): ReactNode {
   return (
     <Layout
       wrapperClassName="bg-background"
-      title="Headless EHR & FHIR Clinical Data Repository"
-      description="The headless EHR: an open-source FHIR R4 clinical data repository that normalizes every healthcare data source into one API, built for AI agents via MCP, with OAuth2/SMART on FHIR built in. Self-hosted under Apache-2.0."
+      title="FHIR Data Layer for AI Agents"
+      description="Haste Health is an open-source, self-hosted FHIR R4 clinical data repository built for AI agents via MCP. It normalizes Epic, Cerner, HL7v2, and other healthcare data sources into one API, with OAuth2/SMART on FHIR built in. Often described as a headless EHR, it runs under Apache-2.0."
     >
       <meta name="algolia-site-verification" content="A94F28B6A640A6FE" />
       <script type="application/ld+json">
@@ -274,7 +274,7 @@ export default function Home(): ReactNode {
           applicationCategory: "HealthApplication",
           operatingSystem: "Linux, macOS, Windows (Docker)",
           description:
-            "Open-source, self-hosted headless EHR and FHIR R4 clinical data repository that normalizes Epic, Cerner, HL7v2, and other healthcare data sources into one API for apps and AI agents. Built-in OAuth2 / SMART on FHIR authorization and MCP tools for AI agent access.",
+            "Open-source, self-hosted FHIR R4 clinical data repository built for AI agents, normalizing Epic, Cerner, HL7v2, and other healthcare data sources into one API. Built-in OAuth2 / SMART on FHIR authorization and MCP tools for AI agent access. Often described as a headless EHR.",
           url: "https://haste.health",
           license: "https://www.apache.org/licenses/LICENSE-2.0",
           offers: {
@@ -316,13 +316,14 @@ export default function Home(): ReactNode {
                 as="h1"
                 className="text-4xl md:text-6xl font-bold tracking-[-0.025em] leading-[1.05] text-white"
               >
-                The Headless EHR, Built for AI Agents
+                The FHIR Data Layer for AI Agents
               </Heading>
 
               <p className="max-w-2xl text-lg md:text-2xl text-brand-100 leading-relaxed">
                 Haste Health normalizes Epic, Cerner, HL7v2, and any
-                FHIR-compatible system into one API, giving you a headless layer
-                to power your apps and AI agents.
+                FHIR-compatible system into one structured API, giving your
+                agents and applications direct, standards-based access to
+                clinical data, not a fragile integration layer.
               </p>
 
               <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center">
@@ -482,7 +483,7 @@ export default function Home(): ReactNode {
         <section className="mt-20 md:mt-32 rounded-2xl border border-white/10 bg-brand-950 px-6 py-12 md:px-14 md:py-16">
           <div className="max-w-4xl space-y-4">
             <h2 className="text-3xl md:text-4xl font-bold tracking-[-0.02em] leading-[1.15] text-white">
-              Secure by Default — Even for Autonomous Agents
+              Secure by Default, Even for Autonomous Agents
             </h2>
             <p className="max-w-2xl text-brand-100 text-base md:text-lg leading-relaxed">
               TOTP-based MFA, argon2 password hashing, and CSRF-protected auth
