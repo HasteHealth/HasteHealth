@@ -41,8 +41,7 @@ Fine-grained access control policies that define what operations users can perfo
 
 **Key Features**:
 - **Policy rules**: Define conditions for allowing/denying access
-- **User linking**: Associate policies with User or Membership resources
-- **Request evaluation**: Policies evaluate against HTTP request context (method, URL, body)
+- **Request evaluation**: Policies evaluate against request context (type, level, resource type, id) via FHIRPath
 - **Version tracking**: Policies are versioned and referenced by version ID in tokens
 
 **Use Cases**:
@@ -53,6 +52,22 @@ Fine-grained access control policies that define what operations users can perfo
 
 **[View AccessPolicyV2 schema →](/docs/reference/fhir/model/resources/AccessPolicyV2)**
 
+### AccessPolicyV2Assignment
+
+Connects a policy to what it applies to.
+
+**Purpose**: An `AccessPolicyV2` on its own grants nothing — an `AccessPolicyV2Assignment` links it to a `Membership`, `ClientApplication`, or `OperationDefinition`. One policy can be assigned to many things, and one thing can hold many assignments; assignments can be added or removed without touching the policy itself.
+
+**Key Features**:
+- **accessPolicy**: Reference to the `AccessPolicyV2` being granted
+- **link**: Reference to the `Membership`, `ClientApplication`, or `OperationDefinition` it's granted to
+
+:::warning[Deprecated]
+`AccessPolicyV2.target.link` did this same job before `AccessPolicyV2Assignment` existed. Policies still using it keep working, but write new ones with an assignment instead.
+:::
+
+**[View AccessPolicyV2Assignment schema →](/docs/reference/fhir/model/resources/AccessPolicyV2Assignment)**
+
 ### User
 
 User accounts that can authenticate to the platform.
@@ -61,9 +76,9 @@ User accounts that can authenticate to the platform.
 
 **Key Features**:
 - **Email**: Unique identifier for authentication
-- **Role**: Tenant-level role (admin or member)
+- **Role**: Tenant-level role (`admin`, `member`, or `owner`)
 - **Federated identity**: Optional link to external identity providers (OIDC)
-- **Access policies**: Referenced by AccessPolicyV2 for permissions
+- **Access policies**: Granted per-project through the user's Membership, via `AccessPolicyV2Assignment` — not referenced directly on the User resource
 
 **Use Cases**:
 - Healthcare provider login accounts
@@ -100,11 +115,10 @@ Links users to projects and defines their project-level role and access policies
 **Purpose**: Grants users access to specific projects with defined roles and permissions. Memberships are the bridge between User resources (in System Project) and Project resources.
 
 **Key Features**:
-- **User link**: Reference to User resource
-- **Role**: Project-level role (admin or member)
-- **Email**: User's email address for identification
-- **Access policy references**: Which AccessPolicyV2 resources apply to this user in this project
-- **Federated identity**: Optional external identity provider linkage
+- **user**: Reference to the `User` resource
+- **link**: Optional reference to the clinical resource this membership represents (`Patient`, `Practitioner`, `RelatedPerson`, or `Person`)
+
+That's the whole resource — role lives on `User`, not `Membership` (see above), and access policies attach via `AccessPolicyV2Assignment` (see [AccessPolicyV2Assignment](#accesspolicyv2assignment)), not as a field on the Membership itself.
 
 **Use Cases**:
 - Grant developer access to development project
@@ -145,13 +159,14 @@ Custom resources work together with standard FHIR resources:
 ```
 Tenant (Organization Boundary)
 ├── System Project
-│   ├── User (authentication identity)
+│   ├── User (authentication identity, tenant-level role)
 │   ├── IdentityProvider (SSO configuration)
 │   └── ClientApplication (OAuth clients)
 │
 └── User Project
-    ├── Membership (links User → Project + role)
-    ├── AccessPolicyV2 (defines permissions for User/Membership)
+    ├── Membership (links User → Project)
+    ├── AccessPolicyV2Assignment (links Membership/ClientApplication → AccessPolicyV2)
+    ├── AccessPolicyV2 (defines permissions)
     ├── Patient (standard FHIR)
     ├── Observation (standard FHIR)
     └── [All other FHIR resources...]
@@ -159,8 +174,8 @@ Tenant (Organization Boundary)
 
 **Authentication Flow**:
 1. User authenticates against tenant (System Project validates credentials)
-2. Membership resources determine which projects user can access
-3. AccessPolicyV2 resources define resource-level permissions within projects
+2. Membership resources determine which projects the user can access
+3. AccessPolicyV2Assignment resources, linked to that Membership, point at the AccessPolicyV2 policies that apply
 4. Tokens include project context and access policy version IDs
 
 **[Learn more about multi-tenant architecture →](/docs/core_concepts/platform_architecture)**

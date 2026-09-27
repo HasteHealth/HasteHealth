@@ -24,6 +24,10 @@ We require PKCE to enhance the security of the authorization code flow by adding
 - **Mitigates Cross-Site Request Forgery (CSRF)**:	By dynamically linking the initial authorization request to the final token exchange, PKCE provides strong protection against CSRF, often making the use of the state parameter redundant for this specific purpose.
 - **Default Security Standard**:	PKCE is now mandated in the OAuth 2.0 Security Best Current Practice and the upcoming OAuth 2.1 specification, making it the required flow for modern application development.
 
+:::caution[`patient/*` scopes are not currently enforced]
+The examples below include `patient/*.read` to illustrate the SMART scope shape. The server currently rejects any request whose best-matching scope is patient-level — request `user/*` scopes for a working client today.
+:::
+
 ## Authorization Code Flow with PKCE
 
 ```mermaid

@@ -17,8 +17,8 @@ import TabItem from '@theme/TabItem';
 
 :::danger[Omitting the search parameters deletes every resource of that type]
 `parameters` is optional. Leave it out and the server deletes **every** resource
-of the given type (up to its configured delete limit, at which point it errors
-rather than partially deleting) always pass search criteria unless that's
+of the given type, up to its configured delete limit (past which it errors
+rather than partially deleting). Always pass search criteria unless that's
 genuinely what you want.
 :::
 
