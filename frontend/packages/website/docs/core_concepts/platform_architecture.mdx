@@ -9,153 +9,38 @@ tags:
     - isolation
 ---
 
+import { TenantHierarchyDiagram, RequestFlowDiagram } from '@site/src/components/PlatformArchitecture';
+
 # Platform architecture
 
-Haste Health uses a hierarchical multi-tenant architecture with two levels of isolation: **Tenants** and **Projects**. 
-This design provides secure data separation and flexible resource organization for healthcare applications.
+Haste Health isolates data on two levels: **Tenants** are the top-level
+organizational boundary, and **Projects** partition resources within a
+tenant. Every request, token, and resource belongs to exactly one tenant and
+one project, no exceptions.
 
-## Architecture Overview
+## Tenants and projects
 
-```
-Haste Health
-└── Tenant (Organization)
-    ├── System Project (Special)
-    │   ├── IdentityProvider resources
-    │   ├── User resources
-    │   └── Authentication configuration
-    │
-    └── User Projects (Multiple)
-        ├── Membership resource (links Users to Projects)
-        ├── Patient resources
-        ├── Observation resources
-        ├── Condition resources
-        └── All other FHIR resources
-```
+<TenantHierarchyDiagram />
 
-## Tenants
+| Level | Isolates | Identified by |
+|---|---|---|
+| Tenant | Identity providers, users, and the Project record of every project underneath it | Tenant ID, first path segment |
+| Project | Access policies, OAuth clients, memberships, FHIR resources, search | Project ID, second path segment |
 
-A **Tenant** represents the top-level organizational boundary in Haste Health. Each tenant is a completely isolated environment with its own:
+A resource in one project can't reference a resource in another, and a
+tenant's data is never visible to another tenant. Access tokens are scoped to
+a tenant, and, once a user's membership is checked, to specific projects
+within it.
 
-- Authentication and authorization configuration
-- User management
-- Projects and data
-- Identity providers
+## The System Project
 
-### Tenant Isolation
+Every tenant gets one reserved project, `system`, created automatically and
+impossible to delete or rename. It holds tenant-level resources, including
+the record of every other project in the tenant:
 
-Tenants provide complete data isolation:
-- Resources in one tenant cannot access resources in another tenant
-- Authentication tokens are scoped to a specific tenant
-- Each tenant has independent configuration
-- API endpoints are tenant-specific
-
-## Projects
-
-A **Project** is a FHIR resource that provides resource isolation within a tenant. 
-Each project contains its own set of FHIR resources and operates independently.
-
-### Project Resource
-
-Projects are defined using the custom FHIR **[Project](/docs/reference/fhir/model/resources/Project)** resource type with the following key properties:
-
-- **ID**: Unique identifier for the project
-- **Name**: The name of the project
-- **FHIR Version**: R4
-
-### Project Isolation
-
-Resources are strictly isolated by project:
-- A Patient in Project A cannot reference an Observation in Project B
-- Search operations are scoped to the current project
-- Access policies are project-specific
-- Resource references must be within the same project
-
-### Multiple Projects
-
-Tenants can have multiple projects for different purposes:
-
-**Use Cases:**
-- **Environment separation**: `development`, `staging`, `production`
-- **Department isolation**: `cardiology`, `oncology`, `emergency`
-- **Application separation**: `patient-portal`, `clinical-system`, `analytics`
-- **Client isolation**: Each customer gets their own project
-
-**Example Setup:**
-```
-Tenant: hospital-network
-├── System Project
-├── cardiology-dept
-├── oncology-dept
-├── emergency-dept
-└── analytics-warehouse
-```
-
-## System Project
-
-The **System Project** is a special, reserved project that exists in every tenant. It stores tenant-level configuration and authentication resources.
-
-### Purpose
-
-The System Project contains resources that manage the tenant itself:
-
-- **IdentityProvider**: External authentication provider configurations (OIDC)
-- **User**: User accounts and profiles
-- **ClientApplication**: OAuth clients for authentication
-- **AccessPolicyV2**: Authorization policies
-
-### System Project Characteristics
-
-**Read-Only Enforcement:**
-- System resources are protected from modification in certain contexts
-- System-created projects cannot be deleted
-- Critical configuration is preserved
-
-**Special Access:**
-- Authentication flows access the System Project to verify users
-- User management happens in the System Project
-- Identity provider configuration is centralized
-
-**Automatic Creation:**
-- Created automatically when a tenant is provisioned
-- Always has the identifier: `system`
-- Cannot be deleted or renamed
-
-### Resources in System Project
-
-#### IdentityProvider
-
-External identity providers for federated authentication:
-
-```json
-{
-  "resourceType": "IdentityProvider",
-  "name": "My Identity Provider",
-  "status": "active",
-  "accessType": "oidc",
-  "oidc": {
-    "authorization_endpoint": "idp_authorization_endpoint",
-    "token_endpoint": "idp_token_endpoint",
-    "jwks_uri": "idp_jwks_uri",
-    "scopes": [
-      "openid profile"
-    ],
-    "client": {
-      "clientId": "idp-client",
-      "secret": "idp-client-secret"
-    },
-    "pkce": {
-      "code_challenge_method": "S256",
-      "enabled": true
-    }
-  }
-}
-```
-
-**[View IdentityProvider Documentation →](/docs/reference/fhir/model/resources/IdentityProvider)**
-
-#### User
-
-User accounts associated with the tenant:
+- **[IdentityProvider](/docs/reference/fhir/model/resources/IdentityProvider)** — external OIDC providers for federated login
+- **[User](/docs/reference/fhir/model/resources/User)** — accounts and their tenant-level role (`admin`, `member`, or `owner`)
+- **[Project](/docs/reference/fhir/model/resources/Project)** — metadata for every project in the tenant, user-created ones included
 
 ```json
 {
@@ -165,225 +50,66 @@ User accounts associated with the tenant:
 }
 ```
 
-`role` is one of `admin`, `member`, or `owner` — a tenant-level role, distinct from anything set per-project.
+## Regular projects
 
-**[View User Documentation →](/docs/reference/fhir/model/resources/User)**
+Everything else lives in regular, user-created projects, scoped per project
+rather than per tenant:
 
-## Working with Projects
+- **[AccessPolicyV2](/docs/reference/fhir/model/resources/AccessPolicyV2)** — the access a user or client has *within that project*. See [Access control](/docs/auth/authorization/access_control).
+- **[ClientApplication](/docs/reference/fhir/model/resources/ClientApplication)** — OAuth clients associated with that project
+- **[Membership](/docs/reference/fhir/model/resources/Membership)** — links a `system`-project `User` to this project
+- Clinical and application data: `Patient`, `Observation`, and every other FHIR resource
 
-### Creating a Project
+## How a request resolves
 
-Create a new project via the FHIR API:
+<RequestFlowDiagram />
+
+Membership resources (in each project) determine which projects a user can
+reach; that project's own AccessPolicyV2 then determines what they can do
+once there. See
+[Identity & access control](/docs/core_concepts/identity_access_control) for
+the full model.
+
+## URL structure
+
+```
+https://api.haste.health/w/{tenant}/{project}/api/v1/fhir/{resourceType}/{id}
+                             ↓          ↓                       ↓            ↓
+                          Tenant     Project                Resource    Resource ID
+```
+
+```
+GET /w/acme-health/production/api/v1/fhir/Patient/123      # a project's data
+GET /w/acme-health/system/api/v1/fhir/User/user-456         # the System Project
+```
+
+## Working with projects
 
 ```http
+### Create
 POST /w/{tenant}/system/api/v1/fhir/Project
 Content-Type: application/fhir+json
 
-{
-  "resourceType": "Project",
-  "name": "MY CLINIC",
-  "fhirVersion": "r4",
-  "identityProvider": [
-    {
-      "reference": "IdentityProvider/my-idp"
-    }
-  ]
-}
-```
+{ "resourceType": "Project", "name": "MY CLINIC", "fhirVersion": "r4" }
 
-**Note:** Projects are created in the System Project context but represent separate data containers.
-
-### Switching Projects
-
-To work with resources in different projects, change the project in the URL:
-
-```bash
-# Access production project
-GET /w/acme-health/production/api/v1/fhir/Patient
-
-# Access staging project
-GET /w/acme-health/staging/api/v1/fhir/Patient
-```
-
-### Listing Projects
-
-Query available projects:
-
-```http
+### List
 GET /w/{tenant}/system/api/v1/fhir/Project
-```
 
-### Deleting a Project
-
-Delete a user-created project:
-
-```http
+### Delete (permanent; the reserved `system` project can't be deleted)
 DELETE /w/{tenant}/system/api/v1/fhir/Project/cardiology
 ```
 
-**Restrictions:**
-- System-created projects (like `system`) cannot be deleted
-- All resources in the project are deleted
-- This operation is permanent
+Projects are managed through the System Project's API, but each one is a
+fully separate data container once created.
 
-## URL Structure Explained
+## Choosing project boundaries
 
-```
-https://api.haste.health/w/{tenant}/{project}/api/v1/fhir/{version}/{resourceType}/{id}
-                              ↓          ↓                   ↓           ↓          ↓         
-                            Tenant     Project           FHIR Version  Resource    Resource ID
-                          Identifier  Identifier                         Type
-```
+Common ways teams split projects within a tenant:
 
-### Examples
+- **Environment**: `development`, `staging`, `production`
+- **Department**: `cardiology`, `oncology`, `emergency`
+- **Application**: `patient-portal`, `clinical-emr`, `analytics`
+- **Customer**: one project per customer, for SaaS deployments
 
-**Patient in production project:**
-```
-https://api.haste.health/w/acme-health/production/api/v1/fhir/Patient/123
-```
-
-**Get a User from the system project:**
-```
-https://api.haste.health/w/acme-health/system/api/v1/fhir/User/user-456
-```
-
-**Search in specific project:**
-```
-https://api.haste.health/w/acme-health/cardiology/api/v1/fhir/Observation?patient=Patient/123
-```
-
-## Authentication Context
-
-### Project Access Control
-
-Users must have explicit access to projects:
-
-1. User authenticates (System Project validates credentials)
-2. Project Membership resources determine project access
-3. Project Access policies grant resource-level permissions
-4. Tokens are scoped to accessible projects
-
-## Use Cases and Patterns
-
-### Multi-Environment Setup
-
-Separate projects for different deployment stages:
-
-```
-Tenant: healthcare-app
-├── system          (Authentication & config)
-├── development     (Dev environment)
-├── staging         (QA environment)
-└── production      (Live system)
-```
-
-**Benefits:**
-- Test changes in development before production
-- Isolate staging data from production
-- Same authentication across environments
-
-### Departmental Isolation
-
-Separate projects per hospital department:
-
-```
-Tenant: city-hospital
-├── system
-├── emergency
-├── cardiology
-├── oncology
-└── radiology
-```
-
-**Benefits:**
-- Department-specific access control
-- Data isolation between departments
-- Specialized workflows per department
-
-### Customer/Client Separation
-
-Each customer gets their own project:
-
-```
-Tenant: health-saas-provider
-├── system
-├── customer-a
-├── customer-b
-└── customer-c
-```
-
-**Benefits:**
-- Complete data isolation per customer
-- Customer-specific configurations
-- Independent backup and recovery
-
-### Application Separation
-
-Different applications in different projects:
-
-```
-Tenant: health-system
-├── system
-├── patient-portal
-├── clinical-emr
-└── analytics
-```
-
-**Benefits:**
-- Application-specific data models
-- Prevent cross-application data leaks
-- Independent scaling and optimization
-
-## Best Practices
-
-### Project Design
-
-✅ **Do:**
-- Use descriptive project names (`cardiology-dept`, not `proj1`)
-- Plan project boundaries based on access control needs
-- Document project purposes and ownership
-- Use consistent naming conventions
-
-❌ **Don't:**
-- Create too many projects (adds complexity)
-- Mix unrelated data in the same project
-- Use projects as temporary storage
-- Share projects across different customers
-
-### Resource Organization
-
-✅ **Do:**
-- Keep related resources in the same project
-- Use references within the same project
-- Plan for data migration when restructuring
-- Regular project audits and cleanup
-
-❌ **Don't:**
-- Create cross-project resource references
-- Store System Project resources in user projects
-- Duplicate configuration across projects unnecessarily
-
-### System Project
-
-✅ **Do:**
-- Limit access to System Project resources
-- Centralize identity provider configuration
-- Maintain user accounts in System Project
-
-❌ **Don't:**
-- Store clinical data in System Project
-- Modify system-created resources without understanding impact
-- Share System Project credentials
-
-## Summary
-
-Haste Health's tenant and project architecture provides:
-
-- **Two-level isolation**: Tenants for organizations, Projects for data separation
-- **System Project**: Special project for authentication and configuration
-- **Flexible organization**: Multiple projects per tenant for any use case
-- **Complete isolation**: Resources strictly contained within projects
-- **Scalable design**: Support for multi-environment, multi-department, and multi-customer scenarios
-- **Security**: Multiple layers of access control and data separation
-
-This architecture enables healthcare organizations to securely manage multiple applications, departments, or customers within a single Haste Health deployment while maintaining strict data isolation and access control.
+Keep related resources together within one project. References can't cross
+project boundaries.
