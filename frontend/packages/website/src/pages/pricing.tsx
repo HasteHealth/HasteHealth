@@ -131,28 +131,16 @@ const faqs = [
     a: "No. There is no feature gate and no license key. Everything we build lands in the Apache-2.0 repository, including the Postgres-only search backend, the MCP server and SQL-on-FHIR. The hosted tiers sell operations and compliance — backups, upgrades, a BAA and someone on call — not access to code.",
   },
   {
-    q: "What is a request point?",
-    a: `The unit your API budget is spent in, because not every request costs the server the same. A read by id is ${OPERATION_POINTS.read} point, a search ${OPERATION_POINTS.search}, a history read ${OPERATION_POINTS.history}, an operation ${OPERATION_POINTS.invocation}, and a write ${OPERATION_POINTS.write}. A batch or transaction costs the sum of its entries. Writes carry the most weight because storage is append-only: a write adds a history row and re-indexes that resource across every search parameter it touches, and unlike a search it cannot be served from a read replica. Budgets are per day, and every figure on this page is generated from the same table the server enforces.`,
-  },
-  {
-    q: "Why is a price on this page at all, this early?",
-    a: "Because you cannot evaluate a backend you cannot budget for. These numbers are real and you can sign up against them today. They will also move as we learn; we would rather publish and revise in public than make you book a call to find out whether we are in your range.",
-  },
-  {
     q: "Do you sign a BAA?",
     a: "Yes, on Production and Scale, before you send us any PHI. Our BAA template, subprocessor list, data-flow diagram and a pre-answered security questionnaire are available up front, so your security review does not start with a scheduling email. We do not have a SOC 2 report yet — ask and we will tell you exactly where that work stands.",
   },
   {
     q: "What happens if I exceed my included usage?",
-    a: "On the paid tiers, nothing breaks: overage is metered at the rates above and appears on your next invoice. If your usage settles at a consistently higher level we will move you to a plan that costs less than the overage. The Developer tier is the exception — it is a sandbox, so writes are refused once you reach its caps rather than billed to you.",
+    a: "On the paid tiers, nothing breaks: overage is metered at the rates above and appears on your next invoice. If your usage settles at a consistently higher level we will move you to a plan that costs less than the overage. The Developer tier is the exception it is a sandbox, so writes are refused once you reach its caps rather than billed to you.",
   },
   {
     q: "Can I move between self-hosted and hosted?",
-    a: "In both directions. It is the same server and the same storage schema, so a migration is a bulk export and a bulk import. We will not hold your data to keep your business.",
-  },
-  {
-    q: "Is there a discount for non-profits or research?",
-    a: "Yes. Academic, non-profit and open-source projects get Production at no cost. Email business@haste.health with a sentence about the work.",
+    a: "In both directions. It is the same server and the same storage schema, so a migration is a bulk export and a bulk import.",
   },
 ];
 
@@ -249,7 +237,10 @@ function TierCard(props: Readonly<{ tier: Tier }>): ReactNode {
           align across cards even when the paragraphs above differ in length. */}
       <ul className="space-y-2 list-none pl-0 self-start">
         {copy.includes.map((item) => (
-          <li key={item} className="flex gap-2 text-sm text-slate-700 leading-6">
+          <li
+            key={item}
+            className="flex gap-2 text-sm text-slate-700 leading-6"
+          >
             <span aria-hidden="true" className="mt-0.5 text-brand-700">
               &#10003;
             </span>
@@ -372,7 +363,10 @@ const comparisonRows: ComparisonRow[] = [
   },
   { label: "Support", value: (tier) => tier.support },
   { label: "Uptime SLA", value: (tier) => tier.uptime_sla },
-  { label: "BAA available", value: (tier) => (tier.baa_available ? "Yes" : "—") },
+  {
+    label: "BAA available",
+    value: (tier) => (tier.baa_available ? "Yes" : "—"),
+  },
 ];
 
 export default function Pricing(): ReactNode {
@@ -389,7 +383,7 @@ export default function Pricing(): ReactNode {
         <section className="rounded-3xl border border-brand-200 bg-white px-6 py-12 md:px-10 md:py-16">
           <div className="max-w-4xl space-y-4">
             <div className="inline-flex items-center rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-brand-800">
-              Published prices, revised in public
+              Published pricing
             </div>
             <Heading
               as="h1"
@@ -429,6 +423,14 @@ export default function Pricing(): ReactNode {
             <TierCard key={tier.tier} tier={tier} />
           ))}
         </section>
+
+        <p className="mt-4 text-center text-sm text-slate-600">
+          Doesn&apos;t fit your situation? Tell us at{" "}
+          <Link href="mailto:business@haste.health">
+            business@haste.health
+          </Link>
+          .
+        </p>
 
         <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
           <SectionTitle
@@ -568,30 +570,6 @@ export default function Pricing(): ReactNode {
                 </p>
               </div>
             ))}
-          </div>
-        </section>
-
-        <section className="mt-10 rounded-2xl border border-brand-700 bg-brand-50/60 p-6 md:p-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="max-w-2xl space-y-2">
-              <Heading
-                as="h2"
-                className="text-2xl font-bold tracking-tight text-brand-950"
-              >
-                Think a number here is wrong?
-              </Heading>
-              <p className="text-base text-slate-700 leading-relaxed">
-                Tell us. These prices are a first draft published so you can
-                budget against something real, and design-partner feedback is
-                exactly how they get better.
-              </p>
-            </div>
-            <Link
-              href="mailto:business@haste.health"
-              className="inline-flex shrink-0 items-center justify-center rounded-lg bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white no-underline hover:bg-brand-800 hover:no-underline"
-            >
-              business@haste.health
-            </Link>
           </div>
         </section>
       </main>
