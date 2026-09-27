@@ -7,7 +7,7 @@ use crate::{
         compartment::process_compartment_request,
         middleware::{
             ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-            ServerMiddlewareState,
+            ServerMiddlewareState, search_includes,
         },
     },
     route_path::{api_fhir_root_url, append_path_segments},
@@ -28,8 +28,8 @@ use haste_fhir_client::{
     url::{ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Bundle, BundleEntry, BundleEntryRequest, Resource},
-    terminology::{BoundCode, BundleType, HttpVerb, IssueType},
+    resources::{Bundle, BundleEntry, BundleEntryRequest, BundleEntrySearch, Resource},
+    terminology::{BoundCode, BundleType, HttpVerb, IssueType, SearchEntryMode},
     types::{FHIRUnsignedInt, FHIRUri},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -170,6 +170,44 @@ pub fn to_bundle_entry(
     entry.resource = Some(Box::new(resource));
 
     entry
+}
+
+/// The parameters of a search request, whichever level it is at.
+fn search_request_parameters(request: &SearchRequest) -> &ParsedParameters {
+    match request {
+        SearchRequest::Type(r) => &r.parameters,
+        SearchRequest::System(r) => &r.parameters,
+    }
+}
+
+/// One page's entries: the matches, then whatever `_include` added.
+///
+/// `search.mode` is set on every entry. FHIR requires it to distinguish a
+/// match from an include, and a client that renders an included Patient as a
+/// search hit is showing the user a result they did not ask for.
+fn search_entries(
+    fhir_api_root: &Url,
+    matches: Vec<Resource>,
+    included: Vec<Resource>,
+) -> Vec<BundleEntry> {
+    let entry = |resource, mode: BoundCode<SearchEntryMode>| {
+        let mut entry = to_bundle_entry(fhir_api_root, resource, None);
+        entry.search = Some(BundleEntrySearch {
+            mode: Some(mode),
+            ..Default::default()
+        });
+        entry
+    };
+
+    matches
+        .into_iter()
+        .map(|resource| entry(resource, SearchEntryMode::match_()))
+        .chain(
+            included
+                .into_iter()
+                .map(|resource| entry(resource, SearchEntryMode::include())),
+        )
+        .collect()
 }
 
 pub fn to_bundle(
@@ -710,15 +748,30 @@ impl<
                             )
                             .await?;
 
+                        // `_include` reads the references on this page of
+                        // matches. It adds entries; it never changes which
+                        // resources matched, so `total` is untouched.
+                        let directives = search_includes::include_directives(
+                            search_request_parameters(search_request),
+                        );
+
+                        let included = search_includes::resolve_includes(
+                            state.repo.as_ref(),
+                            &context.ctx.tenant,
+                            &context.ctx.project,
+                            &resources,
+                            directives,
+                        )
+                        .await?;
+
+                        let entries = search_entries(&fhir_api_root, resources, included);
+
                         Ok(Some(FHIRResponse::Search(SearchResponse::Type(
                             FHIRSearchTypeResponse {
                                 bundle: to_bundle(
                                     BundleType::searchset(),
                                     search_results.total,
-                                    resources
-                                        .into_iter()
-                                        .map(|r| to_bundle_entry(&fhir_api_root, r, None))
-                                        .collect(),
+                                    entries,
                                 ),
                             },
                         ))))

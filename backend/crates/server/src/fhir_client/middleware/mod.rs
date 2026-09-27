@@ -15,6 +15,7 @@ pub mod element_filtering;
 pub mod operations;
 pub mod patch_as_update;
 pub mod rate_limit;
+pub mod search_includes;
 pub mod set_artifact_tenant;
 pub mod storage;
 pub mod tenant_tier_limits;

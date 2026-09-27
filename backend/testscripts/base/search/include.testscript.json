@@ -1,0 +1,472 @@
+{
+    "id": "search-include-test",
+    "url": "https://haste.health/fhir/TestScript/search-include",
+    "name": "Search Include Test",
+    "title": "_include tests",
+    "status": "active",
+    "description": "Tests _include: the referenced resources travel with the matches, entries carry search.mode, a target type filters which references are followed, and :iterate follows a second hop.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "include-org",
+            "resourceType": "Organization",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-include-test"
+                    }
+                ]
+            },
+            "name": "Include Test Hospital"
+        },
+        {
+            "id": "include-patient",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-include-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Included",
+                    "given": [
+                        "Ida"
+                    ]
+                }
+            ],
+            "managingOrganization": {
+                "reference": "Organization/include-org"
+            }
+        },
+        {
+            "id": "include-encounter",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-include-test"
+                    }
+                ]
+            },
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/include-patient"
+            }
+        },
+        {
+            "id": "include-observation-one",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-include-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/include-patient"
+            },
+            "encounter": {
+                "reference": "Encounter/include-encounter"
+            },
+            "valueQuantity": {
+                "value": 70,
+                "unit": "kg",
+                "system": "http://unitsofmeasure.org",
+                "code": "kg"
+            }
+        },
+        {
+            "id": "include-observation-two",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-include-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "8867-4"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/include-patient"
+            },
+            "valueQuantity": {
+                "value": 65,
+                "unit": "/min",
+                "system": "http://unitsofmeasure.org",
+                "code": "/min"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-org",
+            "resource": {
+                "reference": "#include-org"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-patient",
+            "resource": {
+                "reference": "#include-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-encounter",
+            "resource": {
+                "reference": "#include-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-one",
+            "resource": {
+                "reference": "#include-observation-one"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-observation-two",
+            "resource": {
+                "reference": "#include-observation-two"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-include-adds-the-referenced-resource",
+            "name": "_include adds the referenced Patient to the Bundle",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "description": "Client-supplied ids, so the references below are static.",
+                        "targetId": "fixture-org",
+                        "sourceId": "fixture-org",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-patient",
+                        "sourceId": "fixture-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-encounter",
+                        "sourceId": "fixture-encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-observation-one",
+                        "sourceId": "fixture-observation-one",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-observation-two",
+                        "sourceId": "fixture-observation-two",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-include-test&_include=Observation:subject",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both matching Observations are returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The referenced Patient travels with them",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'include-patient').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A reference shared by two matches is included once Two Observations reference one Patient; it must be read and returned once.",
+                        "expression": "Bundle.entry.resource.ofType(Patient).count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both matches are marked search.mode = match",
+                        "expression": "Bundle.entry.where(search.mode = 'match').resource.ofType(Observation).count()",
+                        "value": "2",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The included Patient is marked search.mode = include, not match",
+                        "expression": "Bundle.entry.where(search.mode = 'include').resource.ofType(Patient).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "_include adds an entry without making it a match: 3 entries, 2 of them matches",
+                        "expression": "Bundle.entry.where(search.mode = 'match').count()",
+                        "value": "2",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-no-include-returns-only-matches",
+            "name": "Without _include the Bundle carries only matches",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-include-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Observations are returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No Patient is added when none was asked for",
+                        "expression": "Bundle.entry.resource.ofType(Patient).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-several-include-parameters",
+            "name": "Two _include values both resolve",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-include-test&_include=Observation:subject,Observation:encounter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The subject is included",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'include-patient').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The encounter is included",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).where(id = 'include-encounter').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both matches are still returned Only one of the two Observations has an encounter, so the include must not require every match to carry the reference.",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-target-type-filters-the-reference",
+            "name": "A target type restricts which references are followed",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-include-test&_include=Observation:subject:Patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "subject:Patient includes the Patient",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'include-patient').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No Encounter is included The target type names Patient, so the encounter reference is not followed.",
+                        "expression": "Bundle.entry.resource.ofType(Encounter).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-iterate-follows-a-second-hop",
+            "name": ":iterate follows references from included resources",
+            "description": "Observation -> Patient is the first hop; Patient -> Organization is reached only because :iterate runs against what was included.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-include-test&_include=Observation:subject&_include:iterate=Patient:organization",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The first hop still includes the Patient",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'include-patient').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The second hop includes the Patient's Organization",
+                        "expression": "Bundle.entry.resource.ofType(Organization).where(id = 'include-org').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-an-unfollowable-include-is-ignored",
+            "name": "An _include naming a non-reference or unknown parameter does not fail the search",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-include-test&_include=Observation:status&_include=Observation:not-a-parameter",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The matches are still returned status is a token and not-a-parameter does not exist; neither can be followed, and neither is a reason to fail the search.",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "operator": "equals",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Nothing is included",
+                        "expression": "Bundle.entry.resource.ofType(Patient).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}
