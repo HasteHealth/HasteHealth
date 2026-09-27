@@ -442,13 +442,13 @@ export default function Pricing(): ReactNode {
             <table className="w-full min-w-[48rem] text-left text-sm">
               <thead>
                 <tr className="border-b border-brand-200">
-                  <th className="pb-3 pr-4 font-semibold text-brand-900">
+                  <th className="px-4 py-3 font-semibold text-brand-900">
                     Limit
                   </th>
                   {TIERS.map((tier) => (
                     <th
                       key={tier.tier}
-                      className="pb-3 pr-4 font-semibold text-brand-900"
+                      className="px-4 py-3 font-semibold text-brand-900"
                     >
                       {tier.display_name}
                     </th>
@@ -460,12 +460,12 @@ export default function Pricing(): ReactNode {
                   <tr key={row.label} className="border-b border-brand-100">
                     <th
                       scope="row"
-                      className="py-3 pr-4 text-left font-medium text-brand-900"
+                      className="px-4 py-3 text-left font-medium text-brand-900"
                     >
                       {row.label}
                     </th>
                     {TIERS.map((tier) => (
-                      <td key={tier.tier} className="py-3 pr-4 text-slate-700">
+                      <td key={tier.tier} className="px-4 py-3 text-slate-700">
                         {row.value(tier)}
                       </td>
                     ))}
@@ -486,13 +486,13 @@ export default function Pricing(): ReactNode {
             <table className="w-full min-w-[42rem] text-left text-sm">
               <thead>
                 <tr className="border-b border-brand-200">
-                  <th className="pb-3 pr-4 font-semibold text-brand-900">
+                  <th className="px-4 py-3 font-semibold text-brand-900">
                     What
                   </th>
-                  <th className="pb-3 pr-4 font-semibold text-brand-900">
+                  <th className="px-4 py-3 font-semibold text-brand-900">
                     Rate
                   </th>
-                  <th className="pb-3 font-semibold text-brand-900">
+                  <th className="px-4 py-3 font-semibold text-brand-900">
                     How it is counted
                   </th>
                 </tr>
@@ -500,13 +500,13 @@ export default function Pricing(): ReactNode {
               <tbody>
                 {overages.map((row) => (
                   <tr key={row.what} className="border-b border-brand-100">
-                    <td className="py-3 pr-4 font-medium text-brand-900">
+                    <td className="px-4 py-3 font-medium text-brand-900">
                       {row.what}
                     </td>
-                    <td className="py-3 pr-4 font-mono text-slate-800">
+                    <td className="px-4 py-3 font-mono text-slate-800">
                       {row.cost}
                     </td>
-                    <td className="py-3 text-slate-700">{row.note}</td>
+                    <td className="px-4 py-3 text-slate-700">{row.note}</td>
                   </tr>
                 ))}
               </tbody>

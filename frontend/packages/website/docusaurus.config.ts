@@ -321,7 +321,7 @@ const config: Config = {
         },
       ],
 
-      copyright: `Copyright © ${new Date().getFullYear()} Haste Health, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Haste Health, Inc.`,
     },
     prism: {
       theme: prismThemes.github,
