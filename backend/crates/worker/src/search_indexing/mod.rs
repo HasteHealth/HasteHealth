@@ -137,6 +137,15 @@ async fn record_failures(
     Ok(())
 }
 
+/// The batch of resources indexed in one `index_project_next_sequence` pass,
+/// as measured just before and after the indexing call.
+struct IndexingBatchStats {
+    start_sequence: Option<i64>,
+    resources_total: usize,
+    start: Instant,
+    last_polling_value: ResourcePollingValue,
+}
+
 async fn update_lock_sequence_position<
     Repo: ResourceSequential + IndexLockProvider<(TenantId, ProjectId), ProjectLockIndex>,
 >(
@@ -144,11 +153,14 @@ async fn update_lock_sequence_position<
     project_id: &ProjectId,
     backend: SearchIndexBackend,
     repo: &Repo,
-    start_sequence: Option<i64>,
-    resources_total: usize,
-    start: Instant,
-    last_polling_value: ResourcePollingValue,
+    batch: IndexingBatchStats,
 ) -> Result<(), OperationOutcomeError> {
+    let IndexingBatchStats {
+        start_sequence,
+        resources_total,
+        start,
+        last_polling_value,
+    } = batch;
     let diff = (last_polling_value.sequence + 1) - start_sequence.unwrap_or(0);
     let total = resources_total;
 
@@ -303,10 +315,12 @@ async fn index_project_next_sequence<
                 project_id,
                 backend,
                 repo,
-                start_sequence,
-                resources_total,
-                start,
-                last_polling_value,
+                IndexingBatchStats {
+                    start_sequence,
+                    resources_total,
+                    start,
+                    last_polling_value,
+                },
             )
             .await?;
         }

@@ -64,12 +64,13 @@ FROM
 
 -- Keeps future projects covered without relying on every call site that
 -- creates a project to remember to seed its locks.
+-- Seeds one lock per backend, driven by the enum itself so a future backend
+-- added to search_index_backend is covered here without an edit.
 CREATE FUNCTION create_search_index_locks_for_project () RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO search_index_locks (tenant, project, backend, index_sequence_position)
-    VALUES
-        (NEW.tenant, NEW.id, 'elasticsearch', 0),
-        (NEW.tenant, NEW.id, 'postgres', 0);
+    SELECT NEW.tenant, NEW.id, backend, 0
+    FROM unnest(enum_range(NULL::search_index_backend)) AS backend;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
