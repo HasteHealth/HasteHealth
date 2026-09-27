@@ -12,6 +12,7 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::FPEngine;
 use haste_repository::pg::PGConnection;
+use haste_repository::types::SearchIndexBackend;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -119,6 +120,16 @@ impl SearchEngineBackend {
         match self {
             SearchEngineBackend::Elasticsearch(_) => "Elasticsearch",
             SearchEngineBackend::Postgres(_) => "PostgreSQL search",
+        }
+    }
+
+    /// Which `search_index_locks` row this backend's indexing progress is
+    /// tracked under.
+    #[must_use]
+    pub const fn lock_kind(&self) -> SearchIndexBackend {
+        match self {
+            SearchEngineBackend::Elasticsearch(_) => SearchIndexBackend::Elasticsearch,
+            SearchEngineBackend::Postgres(_) => SearchIndexBackend::Postgres,
         }
     }
 }

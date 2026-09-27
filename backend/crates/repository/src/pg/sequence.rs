@@ -17,6 +17,7 @@ use crate::{
 async fn get_sequence_helper(
     executor: &mut PgConnection,
     tenant_id: &TenantId,
+    project_id: &ProjectId,
     cur_sequence: u64,
     count: Option<u64>,
 ) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
@@ -45,12 +46,13 @@ async fn get_sequence_helper(
         r"
             SELECT id, tenant, project, version_id, resource_type, fhir_method, sequence, resource
             FROM resources
-            WHERE tenant = $1 AND sequence > $2 AND sequence <= $3
+            WHERE tenant = $1 AND project = $2 AND sequence > $3 AND sequence <= $4
             ORDER BY sequence
-            LIMIT $4
+            LIMIT $5
         ",
     )
     .bind(tenant_id.as_ref())
+    .bind(project_id.as_ref())
     .bind(cur_sequence.cast_signed())
     .bind(safe_sequence)
     .bind(count.unwrap_or(100).cast_signed())
@@ -98,6 +100,7 @@ impl ResourceSequential for PGConnection {
     async fn get_sequence(
         &self,
         tenant_id: &TenantId,
+        project_id: &ProjectId,
         sequence_id: u64,
         count: Option<u64>,
     ) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
@@ -106,12 +109,12 @@ impl ResourceSequential for PGConnection {
                 // Acquire a dedicated connection from the pool so both queries execute
                 // sequentially on the same PgConnection, matching the transaction path.
                 let mut conn = pool.acquire().await.map_err(StoreError::from)?;
-                get_sequence_helper(&mut conn, tenant_id, sequence_id, count).await
+                get_sequence_helper(&mut conn, tenant_id, project_id, sequence_id, count).await
             }
             PGConnection::Transaction(tx, _, _) => {
                 let mut conn = tx.lock().await;
                 // Pass the mutable reference to the underlying PgConnection handle
-                get_sequence_helper(&mut conn, tenant_id, sequence_id, count).await
+                get_sequence_helper(&mut conn, tenant_id, project_id, sequence_id, count).await
             }
         }
     }

@@ -23,6 +23,7 @@ pub trait ResourceSequential {
     fn get_sequence(
         &self,
         tenant_id: &TenantId,
+        project_id: &ProjectId,
         sequence_id: u64,
         count: Option<u64>,
     ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
