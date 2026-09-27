@@ -467,6 +467,48 @@
                     }
                 }
             ]
+        },
+        {
+            "id": "07-elements-applies-to-matches-not-includes",
+            "name": "_elements trims matches but leaves what _include adds untouched",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-include-test&_elements=status&_include=Observation:subject",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The requested element is present on the matches",
+                        "expression": "Bundle.entry.where(search.mode = 'match').resource.ofType(Observation).status.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Fields outside _elements are trimmed from the matches",
+                        "expression": "Bundle.entry.where(search.mode = 'match').resource.ofType(Observation).subject.empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The included Patient keeps its full content; _elements never applied to it",
+                        "expression": "Bundle.entry.where(search.mode = 'include').resource.ofType(Patient).name.family.first()",
+                        "operator": "equals",
+                        "value": "Included",
+                        "warningOnly": false
+                    }
+                }
+            ]
         }
     ]
 }

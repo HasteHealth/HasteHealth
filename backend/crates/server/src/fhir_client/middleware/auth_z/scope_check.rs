@@ -1,7 +1,7 @@
 use crate::fhir_client::{
     ServerCTX,
     middleware::{ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput},
-    utilities::request_to_resource_type,
+    utilities::{is_search_match, map_search_entries, request_to_resource_type},
 };
 
 use haste_fhir_client::{
@@ -9,7 +9,10 @@ use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
 };
-use haste_fhir_model::r4::generated::{resources::ResourceType, terminology::IssueType};
+use haste_fhir_model::r4::generated::{
+    resources::{BundleEntry, ResourceType},
+    terminology::IssueType,
+};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::scopes::{
     SMARTResourceScope, Scope, Scopes, SmartResourceScopeLevel, SmartResourceScopePermission,
@@ -101,6 +104,38 @@ fn get_highest_value_for_request_scope<'a>(
     Ok(sorted_scopes.first().copied())
 }
 
+/// Whether `scopes` grant `read` on `resource_type` (patient-level scopes
+/// excluded, matching the top-level check).
+fn resource_type_has_read_scope(scopes: &Scopes, resource_type: &ResourceType) -> bool {
+    scopes.0.iter().any(|scope| match scope {
+        Scope::SMART(SmartScope::Resource(scope)) => {
+            scope.user != SmartResourceScopeUser::Patient
+                && fits_resource_type(scope, Some(resource_type))
+                && scope
+                    .permissions
+                    .has_permission(&SmartResourceScopePermission::Read)
+        }
+        _ => false,
+    })
+}
+
+/// Drops include/revinclude entries whose type the caller's scopes don't
+/// cover — the top-level check only looked at the primary search's own type.
+async fn filter_unauthorized_includes(
+    entries: Vec<BundleEntry>,
+    scopes: &Scopes,
+) -> Vec<BundleEntry> {
+    entries
+        .into_iter()
+        .filter(|entry| {
+            is_search_match(entry)
+                || entry.resource.as_deref().is_some_and(|resource| {
+                    resource_type_has_read_scope(scopes, &resource.resource_type())
+                })
+        })
+        .collect()
+}
+
 pub struct SMARTScopeAccessMiddleware {}
 impl SMARTScopeAccessMiddleware {
     pub fn new() -> Self {
@@ -161,7 +196,16 @@ impl<
                         Some(_scope) => {
                             // Permission granted
                             if let Some(next) = next {
-                                Ok(next(state, context).await?)
+                                let mut result = next(state, context).await?;
+                                if let Some(response) = result.response.take() {
+                                    let scopes = &result.ctx.user.claims.scope;
+                                    let filtered = map_search_entries(response, |entries| {
+                                        filter_unauthorized_includes(entries, scopes)
+                                    })
+                                    .await;
+                                    result.response = Some(filtered);
+                                }
+                                Ok(result)
                             } else {
                                 Ok(context)
                             }
