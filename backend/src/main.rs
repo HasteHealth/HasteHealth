@@ -47,6 +47,11 @@ enum CliCommand {
         #[command(subcommand)]
         command: commands::artifacts::ArtifactCommands,
     },
+    /// Publish what each subscription tier allows.
+    Subscription {
+        #[command(subcommand)]
+        command: commands::subscription::SubscriptionCommands,
+    },
     /// Run the FHIR server.
     Server {
         #[command(subcommand)]

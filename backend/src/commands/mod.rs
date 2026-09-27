@@ -8,6 +8,7 @@ pub(crate) mod fhirpath;
 pub(crate) mod hl7v2;
 pub(crate) mod login;
 pub(crate) mod server;
+pub(crate) mod subscription;
 pub(crate) mod testscript;
 pub(crate) mod worker;
 
@@ -25,6 +26,7 @@ pub(crate) async fn run(
         CliCommand::FHIRPath { fhirpath } => fhirpath::run(fhirpath).await,
         CliCommand::Generate { command } => codegen::run(command).await,
         CliCommand::Artifacts { command } => artifacts::run(command).await,
+        CliCommand::Subscription { command } => subscription::run(command).await,
         CliCommand::Server { command } => server::run(command).await,
         CliCommand::Worker { command } => worker::run(command).await,
         CliCommand::Config { command } => config::run(state, command).await,

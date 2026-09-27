@@ -205,6 +205,11 @@ const config: Config = {
           activeBaseRegex: "^/docs/(?!reference/(fhir|conformance)/)",
         },
         {
+          to: "/pricing",
+          label: "Pricing",
+          position: "left",
+        },
+        {
           type: "dropdown",
           label: "Resources",
           position: "left",
@@ -272,6 +277,10 @@ const config: Config = {
           title: "Community",
           items: [
             {
+              label: "Pricing",
+              to: "/pricing",
+            },
+            {
               label: "Contact",
               to: "/contact",
             },
@@ -312,7 +321,7 @@ const config: Config = {
         },
       ],
 
-      copyright: `Copyright © ${new Date().getFullYear()} Haste Health, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Haste Health, Inc.`,
     },
     prism: {
       theme: prismThemes.github,

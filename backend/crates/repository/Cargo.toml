@@ -20,6 +20,7 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
 haste-jwt = { path = "../jwt", version = "0.*", features = ["sqlx"] }
 haste-rate-limit = { path = "../rate-limit", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
+haste-subscription = { path = "../subscription", version = "0.*" }
 
 argon2 = { workspace = true }
 chrono = { workspace = true }

@@ -19,7 +19,7 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::{ProjectId, claims::SubscriptionTier};
+use haste_jwt::ProjectId;
 use haste_repository::{
     Repository,
     admin::SystemAdmin,
@@ -109,7 +109,7 @@ async fn create_or_retrieve_user_tenant<
             app_state,
             None,
             "default",
-            &SubscriptionTier::Free,
+            &haste_subscription::DEFAULT_TIER,
             haste_fhir_model::r4::generated::resources::User {
                 role: terminology::UserRole::owner(),
                 email: Some(Box::new(FHIRString {

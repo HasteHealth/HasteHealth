@@ -1,80 +1,47 @@
+//! Scores a request against a tier's budget. The point costs and per-tier
+//! budgets live in the `haste-subscription` crate; a deployment may override the
+//! budgets through `rate_limit_subscription_tiers` in its config.
+
 use crate::config::ServerConfig;
 
 use haste_fhir_client::request::FHIRRequest;
 use haste_fhir_model::r4::generated::{resources::Bundle, terminology::HttpVerb};
 use haste_jwt::claims::SubscriptionTier;
-use std::sync::{LazyLock, OnceLock};
+use haste_subscription::{OPERATION_POINTS, TIERS};
+use std::sync::OnceLock;
 
-struct OperationScoringPoints {
-    read: u32,
-    write: u32,
-    search: u32,
-    invocation: u32,
+/// Each tier's budget, in the order [`TIERS`] declares them, after applying any
+/// config override.
+static SUBSCRIPTION_TIERS: OnceLock<Vec<usize>> = OnceLock::new();
+
+/// The published budgets, with `rate_limit_subscription_tiers` overriding them
+/// position by position when configured.
+fn setup_subscription_tiers(config: &ServerConfig) -> Vec<usize> {
+    let overrides = config.rate_limits.rate_limit_subscription_tiers.as_ref();
+
+    TIERS
+        .iter()
+        .enumerate()
+        .map(|(index, limits)| {
+            overrides
+                .and_then(|tiers| tiers.get(index).copied())
+                .unwrap_or_else(|| limits.request_budget.as_points())
+        })
+        .collect()
 }
-
-static DEFAULT_READ_POINTS: u32 = 10;
-static DEFAULT_WRITE_POINTS: u32 = 50;
-static DEFAULT_SEARCH_POINTS: u32 = 10;
-static DEFAULT_INVOCATION_POINTS: u32 = 10;
-
-static OPERATION_POINTS: LazyLock<OperationScoringPoints> =
-    LazyLock::new(|| OperationScoringPoints {
-        read: DEFAULT_READ_POINTS,
-        write: DEFAULT_WRITE_POINTS,
-        search: DEFAULT_SEARCH_POINTS,
-        invocation: DEFAULT_INVOCATION_POINTS,
-    });
-
-// Per day Limits
-static DEFAULT_FREE_TIER: usize = 25000;
-static DEFAULT_PRO_TIER: usize = 1_000_000;
-static DEFAULT_TEAM_TIER: usize = 5_000_000;
-
-struct SubscriptionTiers {
-    free: usize,
-    professional: usize,
-    team: usize,
-    unlimited: usize,
-}
-
-fn setup_subscription_tiers(config: &ServerConfig) -> SubscriptionTiers {
-    if let Some(subscription_tiers_rate_limit) = &config.rate_limits.rate_limit_subscription_tiers {
-        SubscriptionTiers {
-            free: subscription_tiers_rate_limit
-                .first()
-                .unwrap_or(&DEFAULT_FREE_TIER)
-                .to_owned(),
-            professional: subscription_tiers_rate_limit
-                .get(1)
-                .unwrap_or(&DEFAULT_PRO_TIER)
-                .to_owned(),
-            team: subscription_tiers_rate_limit
-                .get(2)
-                .unwrap_or(&DEFAULT_TEAM_TIER)
-                .to_owned(),
-            unlimited: usize::MAX,
-        }
-    } else {
-        SubscriptionTiers {
-            free: DEFAULT_FREE_TIER,
-            professional: DEFAULT_PRO_TIER,
-            team: DEFAULT_TEAM_TIER,
-            unlimited: usize::MAX,
-        }
-    }
-}
-
-static SUBSCRIPTION_TIERS: OnceLock<SubscriptionTiers> = OnceLock::new();
 
 pub fn get_total_rate_limit_for_tier(config: &ServerConfig, tier: &SubscriptionTier) -> usize {
     let tiers = SUBSCRIPTION_TIERS.get_or_init(|| setup_subscription_tiers(config));
 
-    match tier {
-        SubscriptionTier::Free => tiers.free,
-        SubscriptionTier::Professional => tiers.professional,
-        SubscriptionTier::Team => tiers.team,
-        SubscriptionTier::Unlimited => tiers.unlimited,
-    }
+    TIERS
+        .iter()
+        .position(|limits| &limits.tier == tier)
+        .and_then(|index| tiers.get(index).copied())
+        .unwrap_or_else(|| {
+            haste_subscription::limits_for(tier)
+                .request_budget
+                .as_points()
+        })
 }
 
 fn score_bundle(bundle: &Bundle) -> u32 {
@@ -93,7 +60,24 @@ fn score_bundle(bundle: &Bundle) -> u32 {
             {
                 total_points += OPERATION_POINTS.write
             }
-            method if method == &HttpVerb::get() => total_points += OPERATION_POINTS.search,
+            // A GET entry is scored as a search only when its URL carries a
+            // query string. A type-level search with no parameters (e.g.
+            // `Patient`) has no `?` either, so it's scored as a read too --
+            // cheap enough with no params to charge as one rather than as a
+            // search here.
+            method if method == &HttpVerb::get() => {
+                let is_search = entry
+                    .request
+                    .as_ref()
+                    .and_then(|req| req.url.value.as_deref())
+                    .is_some_and(|url| url.contains('?'));
+
+                total_points += if is_search {
+                    OPERATION_POINTS.search
+                } else {
+                    OPERATION_POINTS.read
+                };
+            }
             method if method == &HttpVerb::null() || method == &HttpVerb::head() => {
                 // Do nothing for null/head
             }
@@ -118,7 +102,7 @@ pub fn points_for_operation(config: &ServerConfig, request: &FHIRRequest) -> u32
 
         FHIRRequest::Capabilities => OPERATION_POINTS.invocation,
         FHIRRequest::Search(_) => OPERATION_POINTS.search,
-        FHIRRequest::History(_) => OPERATION_POINTS.search,
+        FHIRRequest::History(_) => OPERATION_POINTS.history,
 
         FHIRRequest::Invocation(_) => OPERATION_POINTS.invocation,
 
@@ -129,5 +113,143 @@ pub fn points_for_operation(config: &ServerConfig, request: &FHIRRequest) -> u32
         FHIRRequest::Compartment(compartment_request) => {
             points_for_operation(config, &compartment_request.request)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use haste_fhir_model::r4::generated::{
+        resources::{BundleEntry, BundleEntryRequest},
+        terminology::BoundCode,
+    };
+
+    fn entry(method: BoundCode<HttpVerb>, url: &str) -> BundleEntry {
+        BundleEntry {
+            request: Some(BundleEntryRequest {
+                method,
+                url: Box::new(url.to_string().into()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
+    }
+
+    fn bundle(entries: Vec<BundleEntry>) -> Bundle {
+        Bundle {
+            entry: Some(entries),
+            ..Default::default()
+        }
+    }
+
+    /// A bundled GET is scored as a search only when its URL has a query
+    /// string; a plain `Type/id` read and a parameterless type-level search
+    /// both lack one, so both are scored as reads.
+    #[test]
+    fn scores_bundled_reads_and_searches_differently() {
+        let reads = bundle(vec![entry(HttpVerb::get(), "Patient/123")]);
+        assert_eq!(score_bundle(&reads), OPERATION_POINTS.read);
+
+        let searches = bundle(vec![entry(HttpVerb::get(), "Patient?name=smith")]);
+        assert_eq!(score_bundle(&searches), OPERATION_POINTS.search);
+    }
+
+    #[test]
+    fn scores_bundled_writes_as_writes() {
+        for method in [
+            HttpVerb::post(),
+            HttpVerb::put(),
+            HttpVerb::patch(),
+            HttpVerb::delete(),
+        ] {
+            let b = bundle(vec![entry(method, "Patient/123")]);
+            assert_eq!(score_bundle(&b), OPERATION_POINTS.write);
+        }
+    }
+
+    /// The whole point of a weighted bundle score: cost is the sum of entries.
+    #[test]
+    fn scores_a_mixed_bundle_as_the_sum_of_its_entries() {
+        let b = bundle(vec![
+            entry(HttpVerb::get(), "Patient/1"),
+            entry(HttpVerb::get(), "Observation?patient=1"),
+            entry(HttpVerb::post(), "Observation"),
+        ]);
+
+        assert_eq!(
+            score_bundle(&b),
+            OPERATION_POINTS.read + OPERATION_POINTS.search + OPERATION_POINTS.write
+        );
+    }
+
+    /// With no override, every tier gets the budget the pricing page publishes.
+    #[test]
+    fn defaults_to_the_published_budgets() {
+        let config = ServerConfig::default();
+        let tiers = setup_subscription_tiers(&config);
+
+        for (index, limits) in TIERS.iter().enumerate() {
+            assert_eq!(
+                tiers[index],
+                limits.request_budget.as_points(),
+                "{} does not get its published budget",
+                limits.display_name
+            );
+        }
+    }
+
+    /// The config array overrides budgets in the order `TIERS` declares them.
+    #[test]
+    fn config_overrides_budgets_positionally() {
+        let mut config = ServerConfig::default();
+        config.rate_limits.rate_limit_subscription_tiers = Some([1, 2, 3, 4]);
+
+        let tiers = setup_subscription_tiers(&config);
+
+        assert_eq!(tiers, vec![1, 2, 3, 4]);
+    }
+
+    /// The override array has one slot per tier. Adding a tier without widening
+    /// it would leave the new tier un-overridable, so assert the widths match.
+    #[test]
+    fn override_array_covers_every_tier() {
+        let mut config = ServerConfig::default();
+        config.rate_limits.rate_limit_subscription_tiers = Some([1, 2, 3, 4]);
+
+        let width = config
+            .rate_limits
+            .rate_limit_subscription_tiers
+            .expect("just set")
+            .len();
+
+        assert_eq!(
+            width,
+            TIERS.len(),
+            "rate_limit_subscription_tiers must have one entry per tier"
+        );
+    }
+
+    /// Every tier resolves to its own budget, keyed by tier rather than by
+    /// position at the call site.
+    #[test]
+    fn resolves_each_tier_to_its_own_budget() {
+        let config = ServerConfig::default();
+
+        assert_eq!(
+            get_total_rate_limit_for_tier(&config, &SubscriptionTier::Free),
+            250_000
+        );
+        assert_eq!(
+            get_total_rate_limit_for_tier(&config, &SubscriptionTier::Professional),
+            10_000_000
+        );
+        assert_eq!(
+            get_total_rate_limit_for_tier(&config, &SubscriptionTier::Team),
+            50_000_000
+        );
+        assert_eq!(
+            get_total_rate_limit_for_tier(&config, &SubscriptionTier::Unlimited),
+            usize::MAX
+        );
     }
 }
