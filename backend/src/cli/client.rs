@@ -30,6 +30,28 @@ pub(crate) struct TokenResponseBody {
     pub(crate) expires_in: i64,
 }
 
+/// How long before expiry a cached token stops being handed out.
+///
+/// A token refreshed at the instant it expires still races the request it was
+/// fetched for: the round trip takes time, and the server's clock need not
+/// agree with ours to the second. Renewing a minute early costs one extra
+/// token request per lifetime and removes both problems.
+const TOKEN_EXPIRY_MARGIN_SECS: i64 = 60;
+
+/// The cached access token, if it is still good.
+///
+/// Returns `None` once the token is within [`TOKEN_EXPIRY_MARGIN_SECS`] of
+/// expiring, or when its lifetime is unknown, so the caller fetches a new one.
+/// Without this the first cached token was reused for the life of the process,
+/// which a one-shot CLI command never notices and a long-running one -- the
+/// MLLP listener -- fails on for every request after expiry.
+pub(crate) fn cached_access_token(state: &CliState) -> Option<String> {
+    let token = state.access_token.as_ref()?;
+    let expires_at = state.access_token_expires_at?;
+
+    (unix_now() + TOKEN_EXPIRY_MARGIN_SECS < expires_at).then(|| token.clone())
+}
+
 pub(crate) fn unix_now() -> i64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -127,8 +149,13 @@ pub(crate) async fn refresh_access_token(
         )
     })?;
 
+    let expires_at = unix_now() + token_response.expires_in;
+
     let mut current_state = state.lock().await;
     current_state.access_token = Some(token_response.access_token.clone());
+    // Kept with the token, so a process that outlives this lifetime refreshes
+    // again rather than reusing it.
+    current_state.access_token_expires_at = Some(expires_at);
 
     current_state.secrets.profile_mut(profile_name).tokens = Some(StoredTokens {
         access_token: token_response.access_token.clone(),
@@ -136,7 +163,7 @@ pub(crate) async fn refresh_access_token(
             .refresh_token
             .or(Some(refresh_token.to_string())),
         id_token: token_response.id_token,
-        expires_at: unix_now() + token_response.expires_in,
+        expires_at,
     });
 
     crate::cli::secrets::write_secrets(&SECRETS_LOCATION, &current_state.secrets)?;
@@ -187,7 +214,7 @@ async fn config_to_fhir_http_state(
                         Box::pin(async move {
                             {
                                 let current_state = state.lock().await;
-                                if let Some(token) = current_state.access_token.clone() {
+                                if let Some(token) = cached_access_token(&current_state) {
                                     return Ok(token);
                                 }
                             }
@@ -243,7 +270,20 @@ async fn config_to_fhir_http_state(
                                 })?
                                 .to_string();
 
-                            state.lock().await.access_token = Some(access_token.clone());
+                            // `expires_in` is seconds from now. A server that
+                            // omits it leaves the lifetime unknown, which is
+                            // recorded as `None` so the next request fetches
+                            // again rather than reusing a token of unknown age.
+                            let expires_at = token_response
+                                .get("expires_in")
+                                .and_then(serde_json::Value::as_i64)
+                                .map(|expires_in| unix_now() + expires_in);
+
+                            {
+                                let mut current_state = state.lock().await;
+                                current_state.access_token = Some(access_token.clone());
+                                current_state.access_token_expires_at = expires_at;
+                            }
 
                             Ok(access_token)
                         })
@@ -261,7 +301,11 @@ async fn config_to_fhir_http_state(
                         let client_id = client_id.clone();
                         let profile_name = profile_name.clone();
                         Box::pin(async move {
-                            if let Some(token) = state.lock().await.access_token.clone() {
+                            // Expiry-aware: returning the in-memory token
+                            // unconditionally skipped the stored-token expiry
+                            // check below, so a refresh never happened once a
+                            // token had been cached once.
+                            if let Some(token) = cached_access_token(&*state.lock().await) {
                                 return Ok(token);
                             }
 
@@ -280,9 +324,12 @@ async fn config_to_fhir_http_state(
                                 ));
                             };
 
-                            // Small buffer so a token doesn't expire mid-request.
-                            if tokens.expires_at > unix_now() + 30 {
-                                state.lock().await.access_token = Some(tokens.access_token.clone());
+                            if tokens.expires_at > unix_now() + TOKEN_EXPIRY_MARGIN_SECS {
+                                let mut current_state = state.lock().await;
+                                current_state.access_token = Some(tokens.access_token.clone());
+                                // Cached with its expiry, so the check above
+                                // applies on the next request too.
+                                current_state.access_token_expires_at = Some(tokens.expires_at);
                                 return Ok(tokens.access_token);
                             }
 
