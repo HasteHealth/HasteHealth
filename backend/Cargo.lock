@@ -2745,6 +2745,7 @@ dependencies = [
  "haste-jwt",
  "haste-repository",
  "haste-server",
+ "haste-subscription",
  "haste-testscript-runner",
  "haste-worker",
  "json-patch",
@@ -2875,6 +2876,7 @@ dependencies = [
  "haste-jwt",
  "haste-rate-limit",
  "haste-reflect",
+ "haste-subscription",
  "moka",
  "nanoid",
  "regex",
@@ -2932,6 +2934,7 @@ dependencies = [
  "haste-repository",
  "haste-sd-to-json-schema",
  "haste-sql-on-fhir",
+ "haste-subscription",
  "image",
  "json-patch",
  "jsonwebtoken",
@@ -2987,6 +2990,16 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+]
+
+[[package]]
+name = "haste-subscription"
+version = "0.23.1"
+dependencies = [
+ "haste-fhir-model",
+ "haste-jwt",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

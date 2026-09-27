@@ -1,0 +1,17 @@
+[package]
+name = "haste-subscription"
+description = "The single source of truth for what each subscription tier allows."
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+edition.workspace = true
+
+[dependencies]
+haste-fhir-model = { path = "../fhir-model", version = "0.*" }
+haste-jwt = { path = "../jwt", version = "0.*" }
+
+serde = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }

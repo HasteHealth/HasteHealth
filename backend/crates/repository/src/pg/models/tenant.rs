@@ -5,7 +5,7 @@ use crate::{
     utilities::{generate_id, validate_id},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_jwt::TenantId;
+use haste_jwt::{TenantId, claims::SubscriptionTier};
 use sqlx::{PgExecutor, QueryBuilder};
 
 fn validate_tenant_customization(
@@ -30,13 +30,19 @@ fn validate_tenant_customization(
         ));
     }
 
-    if subscription_tier == "free"
-        && (display_name.is_some() || logo_data.is_some() || logo_content_type.is_some())
-    {
-        return Err(OperationOutcomeError::error(
-            haste_fhir_model::r4::generated::terminology::IssueType::forbidden(),
-            "Tenant customization requires a paid subscription tier".to_string(),
-        ));
+    let wants_customization =
+        display_name.is_some() || logo_data.is_some() || logo_content_type.is_some();
+
+    if wants_customization {
+        // An unrecognized tier is not silently treated as permissive.
+        let tier = SubscriptionTier::try_from(subscription_tier.to_string())?;
+
+        if !haste_subscription::allows_tenant_customization(&tier) {
+            return Err(OperationOutcomeError::error(
+                haste_fhir_model::r4::generated::terminology::IssueType::forbidden(),
+                "Tenant customization requires a paid subscription tier".to_string(),
+            ));
+        }
     }
 
     Ok(())

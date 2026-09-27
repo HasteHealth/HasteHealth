@@ -3,7 +3,7 @@
 use crate::fhir_client::{
     ServerCTX,
     middleware::{ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput},
-    subscription_limits::resource_limits::{TenantResourceLimit, get_tenant_resource_limit},
+    subscription_limits::resource_limits::{TenantResourceLimit, get_tenant_resource_limits},
     utilities::request_to_resource_type,
 };
 use haste_fhir_client::{
@@ -25,10 +25,10 @@ impl Middleware {
     }
 }
 
-fn get_request_limit(
+fn get_request_limits(
     subscription_tier: &SubscriptionTier,
     request: &FHIRRequest,
-) -> Result<TenantResourceLimit, OperationOutcomeError> {
+) -> Result<Vec<TenantResourceLimit>, OperationOutcomeError> {
     match request {
         FHIRRequest::Update(_) | FHIRRequest::Create(_) => {
             let Some(resource_type) = request_to_resource_type(request) else {
@@ -38,10 +38,10 @@ fn get_request_limit(
                 ));
             };
 
-            Ok(get_tenant_resource_limit(subscription_tier, resource_type))
+            Ok(get_tenant_resource_limits(subscription_tier, resource_type))
         }
 
-        _ => Ok(TenantResourceLimit::Unlimited),
+        _ => Ok(vec![TenantResourceLimit::Unlimited]),
     }
 }
 
@@ -65,47 +65,76 @@ impl<
                 ));
             };
 
-            let request_limit =
-                get_request_limit(&context.ctx.user.claims.subscription_tier, &context.request)?;
+            let request_limits =
+                get_request_limits(&context.ctx.user.claims.subscription_tier, &context.request)?;
 
-            match request_limit {
-                TenantResourceLimit::Count(resource_type, limit) => {
-                    let result = context
-                        .ctx
-                        .client
-                        .search_type(context.ctx.clone(), resource_type.clone(), "?_total=accurate".try_into().map_err(|e|{
-                            tracing::error!("Failed to construct search query for subscription tier limit middleware: {}", e);
+            for request_limit in request_limits {
+                let TenantResourceLimit::Count {
+                    resource_type,
+                    limit,
+                } = request_limit
+                else {
+                    continue;
+                };
 
-                            OperationOutcomeError::fatal(
-                                IssueType::exception(),
-                                "Failed to construct search query for subscription tier limit middleware".to_string(),
-                            )
-                        })?)
-                        .await?;
+                let parameters = "?_total=accurate".try_into().map_err(|e| {
+                    tracing::error!(
+                        "Failed to construct search query for subscription tier limit middleware: {}",
+                        e
+                    );
 
-                    let total = result.total.and_then(|total| total.value).ok_or_else(|| {
-                        OperationOutcomeError::fatal(
-                            IssueType::exception(),
-                            "Failed to retrieve total count for resource type".to_string(),
-                        )
-                    })?;
+                    OperationOutcomeError::fatal(
+                        IssueType::exception(),
+                        "Failed to construct search query for subscription tier limit middleware"
+                            .to_string(),
+                    )
+                })?;
 
-                    if total >= (limit as u64) {
-                        return Err(OperationOutcomeError::error(
-                            IssueType::too_costly(),
-                            format!(
-                                "Request exceeds the limit of '{}' for resource type '{}' for subscription tier {:?}",
-                                limit,
-                                resource_type.as_ref(),
-                                context.ctx.user.claims.subscription_tier
-                            ),
-                        ));
+                // `None` is the tenant's total footprint, counted across every
+                // resource type; `Some` is the cap on one type.
+                let result = match resource_type.as_ref() {
+                    Some(resource_type) => {
+                        context
+                            .ctx
+                            .client
+                            .search_type(context.ctx.clone(), resource_type.clone(), parameters)
+                            .await?
                     }
+                    None => {
+                        context
+                            .ctx
+                            .client
+                            .search_system(context.ctx.clone(), parameters)
+                            .await?
+                    }
+                };
 
-                    next(state, context).await
+                let total = result.total.and_then(|total| total.value).ok_or_else(|| {
+                    OperationOutcomeError::fatal(
+                        IssueType::exception(),
+                        "Failed to retrieve total count for resource type".to_string(),
+                    )
+                })?;
+
+                if total >= limit {
+                    let scope = match resource_type.as_ref() {
+                        Some(resource_type) => {
+                            format!("resource type '{}'", resource_type.as_ref())
+                        }
+                        None => "stored resources".to_string(),
+                    };
+
+                    return Err(OperationOutcomeError::error(
+                        IssueType::too_costly(),
+                        format!(
+                            "Request exceeds the limit of '{}' for {} for subscription tier {:?}",
+                            limit, scope, context.ctx.user.claims.subscription_tier
+                        ),
+                    ));
                 }
-                TenantResourceLimit::Unlimited => return next(state, context).await,
             }
+
+            next(state, context).await
         })
     }
 }

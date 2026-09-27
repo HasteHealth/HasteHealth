@@ -47,6 +47,7 @@ members = [
     "crates/sd-to-json-schema",
     "crates/server",
     "crates/sql-on-fhir",
+    "crates/subscription",
     "crates/testscript-runner",
     "crates/wal-worker",
     "crates/worker",
@@ -179,6 +180,7 @@ haste-hl7v2 = { path = "./crates/hl7v2" }
 haste-jwt = { path = "./crates/jwt" }
 haste-repository = { path = "./crates/repository" }
 haste-server = { path = "./crates/server" }
+haste-subscription = { path = "./crates/subscription" }
 haste-testscript-runner = { path = "./crates/testscript-runner" }
 haste-worker = { path = "./crates/worker" }
 
