@@ -21,12 +21,18 @@ fn request_type_to_permission(
     request: &FHIRRequest,
 ) -> Result<SmartResourceScopePermission, OperationOutcomeError> {
     match request {
-        FHIRRequest::Capabilities
-        | FHIRRequest::Batch(_)
-        | FHIRRequest::Transaction(_)
-        | FHIRRequest::Invocation(_) => Err(OperationOutcomeError::fatal(
+        FHIRRequest::Capabilities | FHIRRequest::Batch(_) | FHIRRequest::Transaction(_) => {
+            Err(OperationOutcomeError::fatal(
+                IssueType::exception(),
+                "Cannot determine permission for this request type".to_string(),
+            ))
+        }
+
+        // Operations are checked separately: the permission an invocation needs
+        // depends on the OperationDefinition, not on the request shape.
+        FHIRRequest::Invocation(_) => Err(OperationOutcomeError::fatal(
             IssueType::exception(),
-            "Cannot determine permission for this request type".to_string(),
+            "Operation invocations are authorized by invocation_permitted".to_string(),
         )),
         FHIRRequest::Create(_) => Ok(SmartResourceScopePermission::Create),
 
@@ -101,6 +107,38 @@ fn get_highest_value_for_request_scope<'a>(
     Ok(sorted_scopes.first().copied())
 }
 
+/// Whether any granted scope permits invoking an operation.
+///
+/// The permission an operation needs is declared by its `OperationDefinition`
+/// (`affectsState`), which this middleware does not load -- resolving it here
+/// would mean a repository read on the authorization path for every invocation.
+/// Instead we require that the caller holds *some* resource-level scope covering
+/// the operation's target, and let the operation's own FHIR reads and writes be
+/// scope-checked as they pass back through this chain. That keeps a token with no
+/// FHIR access from reaching operations at all, while the per-interaction checks
+/// remain authoritative for whatever the operation actually touches.
+fn invocation_permitted(scopes: &Scopes, request: &FHIRRequest) -> bool {
+    let request_resource_type = request_to_resource_type(request);
+
+    scopes.0.iter().any(|scope| {
+        let Scope::SMART(SmartScope::Resource(resource_scope)) = scope else {
+            return false;
+        };
+
+        // Patient-level scopes are rejected for every other request type here.
+        if resource_scope.user == SmartResourceScopeUser::Patient {
+            return false;
+        }
+
+        match request_resource_type {
+            // A system-level operation has no target type, so holding any
+            // resource scope is enough to reach it.
+            None => true,
+            Some(_) => fits_resource_type(resource_scope, request_resource_type),
+        }
+    })
+}
+
 pub struct SMARTScopeAccessMiddleware {}
 impl SMARTScopeAccessMiddleware {
     pub fn new() -> Self {
@@ -123,10 +161,21 @@ impl<
             match &context.request {
                 // Batch and transaction will call back into this middleware for their individual requests
                 // at which point the permissions will be checked.
-                FHIRRequest::Capabilities
-                | FHIRRequest::Batch(_)
-                | FHIRRequest::Transaction(_)
-                | FHIRRequest::Invocation(_) => {
+                FHIRRequest::Capabilities | FHIRRequest::Batch(_) | FHIRRequest::Transaction(_) => {
+                    if let Some(next) = next {
+                        Ok(next(state, context).await?)
+                    } else {
+                        Ok(context)
+                    }
+                }
+                FHIRRequest::Invocation(_) => {
+                    if !invocation_permitted(&context.ctx.user.claims.scope, &context.request) {
+                        return Err(OperationOutcomeError::error(
+                            IssueType::security(),
+                            "Insufficient SMART scope to invoke this operation".to_string(),
+                        ));
+                    }
+
                     if let Some(next) = next {
                         Ok(next(state, context).await?)
                     } else {
@@ -177,5 +226,76 @@ impl<
                 }
             }
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use haste_fhir_client::request::{FHIRInvokeSystemRequest, FHIRInvokeTypeRequest, Operation};
+    use haste_fhir_model::r4::generated::resources::Parameters;
+
+    fn scopes(raw: &str) -> Scopes {
+        Scopes::try_from(raw).expect("valid scopes")
+    }
+
+    fn type_invocation(resource_type: ResourceType, code: &str) -> FHIRRequest {
+        FHIRRequest::Invocation(haste_fhir_client::request::InvocationRequest::Type(
+            FHIRInvokeTypeRequest {
+                operation: Operation::new(code),
+                resource_type,
+                parameters: Parameters::default(),
+            },
+        ))
+    }
+
+    fn system_invocation(code: &str) -> FHIRRequest {
+        FHIRRequest::Invocation(haste_fhir_client::request::InvocationRequest::System(
+            FHIRInvokeSystemRequest {
+                operation: Operation::new(code),
+                parameters: Parameters::default(),
+            },
+        ))
+    }
+
+    #[test]
+    fn invocation_requires_a_scope_on_the_target_type() {
+        let request = type_invocation(ResourceType::ViewDefinition, "viewdefinition-run");
+
+        assert!(invocation_permitted(
+            &scopes("user/ViewDefinition.rs"),
+            &request
+        ));
+        // A scope on some other resource type does not reach this operation.
+        assert!(!invocation_permitted(&scopes("user/Patient.rs"), &request));
+    }
+
+    #[test]
+    fn wildcard_scopes_permit_invocation() {
+        let request = type_invocation(ResourceType::Patient, "everything");
+        assert!(invocation_permitted(&scopes("system/*.cruds"), &request));
+    }
+
+    #[test]
+    fn a_token_without_resource_scopes_cannot_invoke() {
+        // Previously every invocation bypassed this middleware entirely.
+        let request = system_invocation("current-project");
+        assert!(!invocation_permitted(&scopes("openid profile"), &request));
+    }
+
+    #[test]
+    fn patient_level_scopes_do_not_permit_invocation() {
+        let request = type_invocation(ResourceType::Patient, "everything");
+        assert!(!invocation_permitted(
+            &scopes("patient/Patient.rs"),
+            &request
+        ));
+    }
+
+    #[test]
+    fn system_level_invocation_accepts_any_resource_scope() {
+        // System operations have no target type, so any resource scope qualifies.
+        let request = system_invocation("current-project");
+        assert!(invocation_permitted(&scopes("user/Patient.rs"), &request));
     }
 }
