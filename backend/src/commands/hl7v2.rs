@@ -267,7 +267,7 @@ where
     // until the last one finishes. A message already acknowledged has been
     // written; one not yet acknowledged will be retried by the sender.
     tracing::info!("Draining in-flight messages");
-    let _ = in_flight.write().await;
+    std::mem::drop(in_flight.write().await);
     tracing::info!("MLLP listener stopped");
 
     Ok(())
