@@ -9,6 +9,7 @@ import {
   CoverageSummary,
   InteractionMatrix,
   KnownGaps,
+  LastVerified,
   ResourceCoverage,
   SearchFeatureMatrix,
 } from '@site/src/components/TestCoverage';
@@ -20,6 +21,8 @@ resource type has a FHIR [`TestScript`](https://github.com/hastehealth/hasteheal
 that creates, reads, updates, patches, deletes and searches real data. The same
 scripts run against both search backends, **PostgreSQL** and **Elasticsearch**,
 and a feature is shown as supported only when its checks pass.
+
+<LastVerified />
 
 <CoverageSummary />
 

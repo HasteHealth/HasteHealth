@@ -223,3 +223,64 @@ jobs:
             backend/server.log
             backend/worker.log
           if-no-files-found: ignore
+
+  # Deploys the website on every push to main, with the conformance page's
+  # data refreshed from this run's TestReports. `continue-on-error` plus the
+  # file check below mean a build/test failure upstream (no artifacts to
+  # download)
+  deploy-website:
+    needs: core-testscripts
+    if: always() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Download TestReports
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: core-testreports-*
+          path: reports
+
+      - name: Generate merged coverage data
+        run: |
+          postgres=reports/core-testreports-postgres/postgres.json
+          elasticsearch=reports/core-testreports-elasticsearch/elasticsearch.json
+          if [ -f "$postgres" ] && [ -f "$elasticsearch" ]; then
+            node frontend/packages/website/scripts/generate-test-support.mjs \
+              --testscripts backend/testscripts/core \
+              --postgres "$postgres" \
+              --elasticsearch "$elasticsearch" \
+              --output frontend/packages/website/static/test-reports/support.json
+          else
+            echo "TestReports unavailable this run; deploying with the previously committed coverage data."
+          fi
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 23
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: ./frontend
+
+      - name: Build frontend packages
+        run: pnpm ci:build
+        working-directory: ./frontend
+
+      - name: Build & Deploy Worker
+        uses: cloudflare/wrangler-action@v4
+        with:
+          wranglerVersion: "4.130.0"
+          workingDirectory: "frontend/packages/website"
+          packageManager: pnpm
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

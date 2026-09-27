@@ -63,10 +63,14 @@ const ICON_PATHS: Record<Result, string> = {
   pass: "M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z",
   warn: "M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z",
   fail: "M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z",
-  "not-run": "M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM6.75 9.25a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z",
+  "not-run":
+    "M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM6.75 9.25a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z",
 };
 
-export function StatusIcon({ result, className = "h-4 w-4" }: Readonly<{ result: Result; className?: string }>) {
+export function StatusIcon({
+  result,
+  className = "h-4 w-4",
+}: Readonly<{ result: Result; className?: string }>) {
   return (
     <svg
       viewBox="0 0 20 20"
@@ -102,7 +106,9 @@ function TallyCell({ tally, unit }: Readonly<{ tally: Tally; unit?: string }>) {
       <span className={EMPHASIS[result]}>
         {tally.pass} / {tally.total}
       </span>
-      {unit ? <span className="text-slate-500 dark:text-slate-400">{unit}</span> : null}
+      {unit ? (
+        <span className="text-slate-500 dark:text-slate-400">{unit}</span>
+      ) : null}
     </span>
   );
 }
@@ -116,7 +122,10 @@ function TypeBadge({ type }: Readonly<{ type?: ParamType }>) {
   );
 }
 
-function Card({ children, className = "" }: Readonly<{ children: React.ReactNode; className?: string }>) {
+function Card({
+  children,
+  className = "",
+}: Readonly<{ children: React.ReactNode; className?: string }>) {
   return (
     <div
       className={`overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 ${className}`}
@@ -126,7 +135,9 @@ function Card({ children, className = "" }: Readonly<{ children: React.ReactNode
   );
 }
 
-function Loaded({ children }: Readonly<{ children: (data: SupportData) => React.ReactNode }>) {
+function Loaded({
+  children,
+}: Readonly<{ children: (data: SupportData) => React.ReactNode }>) {
   const state = useSupportData();
   if (state.status === "error") {
     return (
@@ -136,7 +147,12 @@ function Loaded({ children }: Readonly<{ children: (data: SupportData) => React.
     );
   }
   if (state.status === "loading") {
-    return <div className="h-24 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" aria-label="Loading test results" />;
+    return (
+      <div
+        className="h-24 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800"
+        aria-label="Loading test results"
+      />
+    );
   }
   return <div className={styles.root}>{children(state.data)}</div>;
 }
@@ -157,7 +173,6 @@ export function CoverageSummary() {
     <Loaded>
       {(data) => {
         const summary = summarize(data);
-        const verified = new Date(data.generatedAt);
         return (
           <div className="grid gap-4 lg:grid-cols-3">
             <Card className="p-5">
@@ -172,12 +187,9 @@ export function CoverageSummary() {
                 {summary.checks.toLocaleString()} checks
               </div>
               <div className="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
-                Both backends agree on {percent({ pass: summary.agreeing, total: summary.checks })}% of
-                checks. Last verified{" "}
-                <time dateTime={data.generatedAt}>
-                  {verified.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}
-                </time>
-                .
+                Both backends agree on{" "}
+                {percent({ pass: summary.agreeing, total: summary.checks })}% of
+                checks.
               </div>
             </Card>
             {BACKENDS.map((backend) => {
@@ -217,16 +229,61 @@ export function CoverageSummary() {
                   >
                     <div
                       className="h-full rounded-full bg-emerald-500"
-                      style={{ width: `${(result.checks.pass / Math.max(result.checks.total, 1)) * 100}%` }}
+                      style={{
+                        width: `${(result.checks.pass / Math.max(result.checks.total, 1)) * 100}%`,
+                      }}
                     />
                   </div>
                   <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                    {result.checks.pass.toLocaleString()} of {result.checks.total.toLocaleString()} checks
-                    pass ({percent(result.checks)}%)
+                    {result.checks.pass.toLocaleString()} of{" "}
+                    {result.checks.total.toLocaleString()} checks pass (
+                    {percent(result.checks)}%)
                   </div>
                 </Card>
               );
             })}
+          </div>
+        );
+      }}
+    </Loaded>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Last verified
+// ---------------------------------------------------------------------------
+
+/**
+ * A dedicated, prominent timestamp when this data actually last ran, not
+ * when the page happened to build. Placed above the fold so a reader can
+ * judge freshness before looking at any number on the page.
+ */
+export function LastVerified() {
+  return (
+    <Loaded>
+      {(data) => {
+        const verified = new Date(data.generatedAt);
+        return (
+          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+            <StatusIcon result="pass" className="h-5 w-5" />
+            <span>
+              Results below are from the latest automated run against{" "}
+              <code>main</code>, completed{" "}
+              <time
+                dateTime={data.generatedAt}
+                className="font-semibold text-slate-900 dark:text-white"
+              >
+                {verified.toLocaleString(undefined, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                  timeZoneName: "short",
+                })}
+              </time>
+              .
+            </span>
           </div>
         );
       }}
@@ -267,9 +324,13 @@ export function InteractionMatrix() {
               <tbody>
                 {interactionCoverage(data).map(({ interaction, results }) => (
                   <tr key={interaction}>
-                    <td className="font-medium text-slate-900 dark:text-white">{INTERACTION_NAMES[interaction]}</td>
+                    <td className="font-medium text-slate-900 dark:text-white">
+                      {INTERACTION_NAMES[interaction]}
+                    </td>
                     <td>
-                      <code className="text-xs">{INTERACTION_EXAMPLES[interaction]}</code>
+                      <code className="text-xs">
+                        {INTERACTION_EXAMPLES[interaction]}
+                      </code>
                     </td>
                     {BACKENDS.map((backend) => (
                       <td key={backend} className={styles.numeric}>
@@ -308,7 +369,11 @@ export function SearchFeatureMatrix() {
                   {TYPE_ORDER.map((type) => {
                     const rows = features
                       .filter((feature) => feature.type === type)
-                      .sort((a, b) => featureOrder(type, a.feature) - featureOrder(type, b.feature));
+                      .sort(
+                        (a, b) =>
+                          featureOrder(type, a.feature) -
+                          featureOrder(type, b.feature),
+                      );
                     if (rows.length === 0) return null;
                     return (
                       <React.Fragment key={type}>
@@ -337,7 +402,9 @@ export function SearchFeatureMatrix() {
                                   </code>
                                 ) : null}
                               </td>
-                              <td className={styles.numeric}>{row.parameters}</td>
+                              <td className={styles.numeric}>
+                                {row.parameters}
+                              </td>
                               {BACKENDS.map((backend) => (
                                 <td key={backend} className={styles.numeric}>
                                   <TallyCell tally={row.results[backend]} />
@@ -365,11 +432,19 @@ export function SearchFeatureMatrix() {
 
 const rowId = (resourceType: string) => `resource-${resourceType}`;
 
-function countResult(resource: ResourceSupport, backend: Backend, result: Result) {
-  return resource.groups.filter((group) => group.results[backend] === result).length;
+function countResult(
+  resource: ResourceSupport,
+  backend: Backend,
+  result: Result,
+) {
+  return resource.groups.filter((group) => group.results[backend] === result)
+    .length;
 }
 
-function ResourceStatus({ resource, backend }: Readonly<{ resource: ResourceSupport; backend: Backend }>) {
+function ResourceStatus({
+  resource,
+  backend,
+}: Readonly<{ resource: ResourceSupport; backend: Backend }>) {
   const result = groupsResult(resource.groups, backend);
   const failing = countResult(resource, backend, "fail");
   const known = countResult(resource, backend, "warn");
@@ -385,7 +460,10 @@ function ResourceStatus({ resource, backend }: Readonly<{ resource: ResourceSupp
     fail: `${failing} of ${total} tests fail`,
   };
   return (
-    <span className="inline-flex items-center justify-end gap-1.5 whitespace-nowrap" title={titles[result]}>
+    <span
+      className="inline-flex items-center justify-end gap-1.5 whitespace-nowrap"
+      title={titles[result]}
+    >
       <StatusIcon result={result} />
       <span className={EMPHASIS[result]}>{text[result]}</span>
     </span>
@@ -396,20 +474,28 @@ const CHIP_TONES: Record<Result, string> = {
   pass: "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-800",
   warn: "bg-amber-50 text-amber-700 ring-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:ring-amber-800",
   fail: "bg-rose-50 text-rose-700 ring-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:ring-rose-800",
-  "not-run": "bg-slate-50 text-slate-400 ring-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:ring-slate-700",
+  "not-run":
+    "bg-slate-50 text-slate-400 ring-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:ring-slate-700",
 };
 
 /** C R U P D, each coloured by its worst result across backends. */
-function InteractionChips({ resource }: Readonly<{ resource: ResourceSupport }>) {
+function InteractionChips({
+  resource,
+}: Readonly<{ resource: ResourceSupport }>) {
   return (
     <span className="inline-flex gap-1">
       {INTERACTIONS.map((interaction) => {
-        const groups = resource.groups.filter((group) => group.group === interaction);
-        const perBackend = BACKENDS.map((backend) => groupsResult(groups, backend));
+        const groups = resource.groups.filter(
+          (group) => group.group === interaction,
+        );
+        const perBackend = BACKENDS.map((backend) =>
+          groupsResult(groups, backend),
+        );
         const result = combine(perBackend);
         const tone = CHIP_TONES[result];
         const title = `${INTERACTION_NAMES[interaction]}: ${BACKENDS.map(
-          (backend, index) => `${BACKEND_NAMES[backend]} ${RESULT_TEXT[perBackend[index]].toLowerCase()}`,
+          (backend, index) =>
+            `${BACKEND_NAMES[backend]} ${RESULT_TEXT[perBackend[index]].toLowerCase()}`,
         ).join(", ")}`;
         return (
           <span
@@ -430,8 +516,14 @@ function FeatureChip({
   type,
   feature,
   results,
-}: Readonly<{ type?: ParamType; feature: string; results: Record<Backend, Result> }>) {
-  const failing = BACKENDS.filter((backend) => ["fail", "warn"].includes(results[backend]));
+}: Readonly<{
+  type?: ParamType;
+  feature: string;
+  results: Record<Backend, Result>;
+}>) {
+  const failing = BACKENDS.filter((backend) =>
+    ["fail", "warn"].includes(results[backend]),
+  );
   const label = featureInfo(type, feature).label;
   if (failing.length === 0) {
     return (
@@ -476,7 +568,9 @@ function ResourceDetail({ resource }: Readonly<{ resource: ResourceSupport }>) {
           </thead>
           <tbody>
             {INTERACTIONS.map((interaction) => {
-              const groups = resource.groups.filter((group) => group.group === interaction);
+              const groups = resource.groups.filter(
+                (group) => group.group === interaction,
+              );
               return (
                 <tr key={interaction}>
                   <td>{INTERACTION_NAMES[interaction]}</td>
@@ -495,7 +589,8 @@ function ResourceDetail({ resource }: Readonly<{ resource: ResourceSupport }>) {
       <Card>
         {parameters.length === 0 ? (
           <p className="m-0 p-4 text-sm text-slate-500 dark:text-slate-400">
-            {resource.resourceType} defines no search parameters beyond the common ones.
+            {resource.resourceType} defines no search parameters beyond the
+            common ones.
           </p>
         ) : (
           <div className={styles.scroll}>
@@ -545,7 +640,10 @@ function ResourceDetail({ resource }: Readonly<{ resource: ResourceSupport }>) {
                                   feature={feature}
                                   results={
                                     Object.fromEntries(
-                                      BACKENDS.map((backend) => [backend, groupsResult(groups, backend)]),
+                                      BACKENDS.map((backend) => [
+                                        backend,
+                                        groupsResult(groups, backend),
+                                      ]),
                                     ) as Record<Backend, Result>
                                   }
                                 />
@@ -561,10 +659,16 @@ function ResourceDetail({ resource }: Readonly<{ resource: ResourceSupport }>) {
                           <button
                             type="button"
                             aria-expanded={open}
-                            onClick={() => setOpenParameter(open ? undefined : parameter.code)}
+                            onClick={() =>
+                              setOpenParameter(
+                                open ? undefined : parameter.code,
+                              )
+                            }
                             className="cursor-pointer rounded-sm border-0 bg-transparent px-1 text-xs text-slate-500 underline-offset-2 hover:text-slate-900 hover:underline dark:text-slate-400 dark:hover:text-white"
                           >
-                            {open ? "Hide" : `${parameter.assertions.length} checks`}
+                            {open
+                              ? "Hide"
+                              : `${parameter.assertions.length} checks`}
                           </button>
                         </td>
                       </tr>
@@ -580,14 +684,21 @@ function ResourceDetail({ resource }: Readonly<{ resource: ResourceSupport }>) {
                                   <span className="font-mono text-slate-700 dark:text-slate-200">
                                     {assertion.label}
                                     <span className="ml-2 text-slate-500 dark:text-slate-400">
-                                      {assertion.expression} {assertion.operator} {assertion.expected}
+                                      {assertion.expression}{" "}
+                                      {assertion.operator} {assertion.expected}
                                     </span>
                                   </span>
                                   <span className="inline-flex gap-3">
                                     {BACKENDS.map((backend) => (
-                                      <span key={backend} className="inline-flex items-center gap-1 text-slate-500">
+                                      <span
+                                        key={backend}
+                                        className="inline-flex items-center gap-1 text-slate-500"
+                                      >
                                         {backend === "postgres" ? "PG" : "ES"}
-                                        <StatusIcon result={assertion.results[backend]} className="h-3.5 w-3.5" />
+                                        <StatusIcon
+                                          result={assertion.results[backend]}
+                                          className="h-3.5 w-3.5"
+                                        />
                                       </span>
                                     ))}
                                   </span>
@@ -610,7 +721,10 @@ function ResourceDetail({ resource }: Readonly<{ resource: ResourceSupport }>) {
 }
 
 /** Opens the resource named in the URL hash (`#resource-Patient`). */
-function useHashResource(): [string | undefined, (resourceType: string | undefined) => void] {
+function useHashResource(): [
+  string | undefined,
+  (resourceType: string | undefined) => void,
+] {
   const [open, setOpen] = useState<string>();
 
   useEffect(() => {
@@ -619,7 +733,9 @@ function useHashResource(): [string | undefined, (resourceType: string | undefin
       if (match) {
         setOpen(decodeURIComponent(match[1]));
         requestAnimationFrame(() =>
-          document.getElementById(window.location.hash.slice(1))?.scrollIntoView({ block: "start" }),
+          document
+            .getElementById(window.location.hash.slice(1))
+            ?.scrollIntoView({ block: "start" }),
         );
       }
     };
@@ -631,7 +747,11 @@ function useHashResource(): [string | undefined, (resourceType: string | undefin
   const update = (resourceType: string | undefined) => {
     setOpen(resourceType);
     const hash = resourceType ? `#${rowId(resourceType)}` : " ";
-    window.history.replaceState(null, "", hash === " " ? window.location.pathname : hash);
+    window.history.replaceState(
+      null,
+      "",
+      hash === " " ? window.location.pathname : hash,
+    );
   };
   return [open, update];
 }
@@ -647,7 +767,10 @@ function ResourceTable({ data }: Readonly<{ data: SupportData }>) {
       data.resources.filter(
         (resource) =>
           resource.resourceType.toLowerCase().includes(deferredQuery) &&
-          (!issuesOnly || BACKENDS.some((backend) => groupsResult(resource.groups, backend) !== "pass")),
+          (!issuesOnly ||
+            BACKENDS.some(
+              (backend) => groupsResult(resource.groups, backend) !== "pass",
+            )),
       ),
     [data, deferredQuery, issuesOnly],
   );
@@ -664,7 +787,11 @@ function ResourceTable({ data }: Readonly<{ data: SupportData }>) {
           className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-slate-500 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
         />
         <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-          <input type="checkbox" checked={issuesOnly} onChange={(event) => setIssuesOnly(event.target.checked)} />
+          <input
+            type="checkbox"
+            checked={issuesOnly}
+            onChange={(event) => setIssuesOnly(event.target.checked)}
+          />
           <span>Only show issues</span>
         </label>
         <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -677,7 +804,9 @@ function ResourceTable({ data }: Readonly<{ data: SupportData }>) {
             <tr>
               <th>Resource type</th>
               <th className={styles.optional}>Interactions</th>
-              <th className={`${styles.numeric} ${styles.optional}`}>Search parameters</th>
+              <th className={`${styles.numeric} ${styles.optional}`}>
+                Search parameters
+              </th>
               <BackendHeaders />
             </tr>
           </thead>
@@ -691,12 +820,17 @@ function ResourceTable({ data }: Readonly<{ data: SupportData }>) {
               ).size;
               return (
                 <React.Fragment key={resource.resourceType}>
-                  <tr id={rowId(resource.resourceType)} className="scroll-mt-20">
+                  <tr
+                    id={rowId(resource.resourceType)}
+                    className="scroll-mt-20"
+                  >
                     <td>
                       <button
                         type="button"
                         aria-expanded={expanded}
-                        onClick={() => setOpen(expanded ? undefined : resource.resourceType)}
+                        onClick={() =>
+                          setOpen(expanded ? undefined : resource.resourceType)
+                        }
                         className="inline-flex cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-left text-sm font-semibold text-slate-900 hover:text-brand-800 dark:text-white dark:hover:text-brand-300"
                       >
                         <svg
@@ -721,7 +855,10 @@ function ResourceTable({ data }: Readonly<{ data: SupportData }>) {
                       {parameterCount > 0 ? (
                         parameterCount
                       ) : (
-                        <span className="text-slate-400" title="No search parameters">
+                        <span
+                          className="text-slate-400"
+                          title="No search parameters"
+                        >
                           —
                         </span>
                       )}
@@ -785,7 +922,10 @@ export function KnownGaps() {
                 className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 p-4 last:border-b-0 dark:border-slate-800"
               >
                 <div className="flex items-start gap-3">
-                  <StatusIcon result={gap.expected ? "warn" : "fail"} className="mt-0.5 h-5 w-5" />
+                  <StatusIcon
+                    result={gap.expected ? "warn" : "fail"}
+                    className="mt-0.5 h-5 w-5"
+                  />
                   <div>
                     <div className="text-sm font-semibold text-slate-900 dark:text-white">
                       {gap.resourceType}
@@ -805,7 +945,10 @@ export function KnownGaps() {
                       ) : (
                         <span className="font-normal text-slate-500 dark:text-slate-400">
                           {" "}
-                          · {INTERACTION_NAMES[gap.subject as keyof typeof INTERACTION_NAMES] ?? gap.subject}{" "}
+                          ·{" "}
+                          {INTERACTION_NAMES[
+                            gap.subject as keyof typeof INTERACTION_NAMES
+                          ] ?? gap.subject}{" "}
                           interaction
                         </span>
                       )}
@@ -824,11 +967,16 @@ export function KnownGaps() {
                     ) : null}
                     <div className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
                       {gap.expected ? "Known issue, tracked, on " : "Fails on "}
-                      {gap.backends.map((backend) => BACKEND_NAMES[backend]).join(" and ")}
+                      {gap.backends
+                        .map((backend) => BACKEND_NAMES[backend])
+                        .join(" and ")}
                     </div>
                   </div>
                 </div>
-                <a href={`#${rowId(gap.resourceType)}`} className="text-xs font-medium">
+                <a
+                  href={`#${rowId(gap.resourceType)}`}
+                  className="text-xs font-medium"
+                >
                   View {gap.resourceType} →
                 </a>
               </div>
