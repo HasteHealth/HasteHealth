@@ -53,7 +53,7 @@ Without a Membership, a User can't access a project's resources (unless they're 
 
 At login, the system finds every `AccessPolicyV2Assignment` linking to the caller's Membership and stamps those policies' version IDs into the access token; each request then evaluates all of them, and **any** one granting access is enough.
 
-:::warning Deprecated
+:::warning[Deprecated]
 `AccessPolicyV2.target.link` did this same job before `AccessPolicyV2Assignment` existed. Still honored, but write new policies with an assignment instead.
 :::
 
