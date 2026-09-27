@@ -21,7 +21,7 @@ Search across all resource types using the Haste Health CLI:
 haste-health api search-system "_sort=_lastUpdated"
 ```
 
-This command searches for Patient and Observation resources updated on or after January 1, 2025.
+This command searches across every resource type, sorted by last-updated time.
 
 You can also perform a system-level search without parameters:
 
@@ -76,7 +76,15 @@ curl -X GET "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir?_sort=_la
 Replace `[tenant]` with your tenant name and `[project]` with your project ID.
 <div className="border border-brand-100" />
 
+## `_elements` and `_summary`
 
+`_elements=field1,field2` returns only the named top-level fields (plus a resource's always-present elements); `_summary=true|text|count` returns the SMART-defined summary subset, the narrative only, or just a match count.
+
+```bash
+haste-health api search-system "_summary=count"
+```
+
+`_include`/`_revinclude` are not currently supported at the system level — they only apply to a [type-level search](/docs/api/rest_api/fhir/endpoints/search-type).
 
 ## Error Handling
 

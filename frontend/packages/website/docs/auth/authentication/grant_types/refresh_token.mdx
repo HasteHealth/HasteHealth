@@ -34,6 +34,10 @@ Access tokens are intentionally short-lived (typically 1 hour) to limit the impa
 - **Rotation Support**: Refresh tokens can be rotated on each use for enhanced security
 - **Offline Access**: Some systems allow refresh tokens to work even when the user is offline
 
+:::caution[`patient/*` scopes are not currently enforced]
+The examples below include `patient/*.read` to illustrate the SMART scope shape. The server currently rejects any request whose best-matching scope is patient-level — request `user/*` scopes for a working client today.
+:::
+
 ## Refresh Token Flow
 
 ```mermaid

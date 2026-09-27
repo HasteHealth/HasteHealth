@@ -151,6 +151,9 @@ You can also register clients through the Haste Health Admin App:
 
 ## Client Configuration Examples
 
+:::caution[`patient/*` scopes are not currently enforced]
+The Web Application and Mobile Application examples below request `patient/*` scopes to illustrate the intended shape for a patient-facing client. The server currently rejects any request whose best-matching scope is patient-level — request `user/*` scopes for a working client today.
+:::
 
 <Tabs>
 <TabItem value="web-app" label="Web Application">

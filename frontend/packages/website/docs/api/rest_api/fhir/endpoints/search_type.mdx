@@ -21,7 +21,7 @@ Search for Patient resources using the Haste Health CLI:
 haste-health api search-type Patient "name=Smith"
 ```
 
-This command searches for Patient resources with family name "Smith" born on or after January 1, 1980.
+This command searches for Patient resources with family name "Smith".
 
 You can also search without parameters to get all resources of a type:
 
@@ -79,7 +79,31 @@ curl -X GET "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/Patient?n
 Replace `[tenant]` with your tenant name and `[project]` with your project ID.
 <div className="border border-brand-100" />
 
+## `_include`
 
+`_include=Type:param[:TargetType]` follows a reference on each matched resource and adds the referenced resource to the bundle:
+
+```bash
+haste-health api search-type Observation "_include=Observation:subject"
+```
+
+Every entry carries `search.mode`: `match` for the resources you searched for, `include` for what `_include` added — so a client can tell them apart. Includes are deduplicated (the same referenced resource is never added twice), capped at 1,000 added resources per search, and a dangling reference (one that no longer resolves) is silently skipped rather than failing the search.
+
+Add `:iterate` to follow references one hop further, out of what the first hop already included:
+
+```bash
+haste-health api search-type Observation "_include=Observation:subject&_include:iterate=Patient:organization"
+```
+
+`_revinclude` (following references inward — "resources that point at my matches") is not yet implemented.
+
+## `_elements` and `_summary`
+
+`_elements=field1,field2` returns only the named top-level fields (plus a resource's always-present elements); `_summary=true|text|count` returns the SMART-defined summary subset, the narrative only, or just a match count. Both apply **only to the resources you searched for** — anything added by `_include` is returned in full, since trimming a reference's target defeats the reason you asked for it.
+
+```bash
+haste-health api search-type Patient "_elements=name,birthDate"
+```
 
 ## Error Handling
 

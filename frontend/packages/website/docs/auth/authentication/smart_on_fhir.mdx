@@ -163,6 +163,10 @@ SMART on FHIR defines a structured scope syntax that combines permissions with F
 
 Access data for the currently selected patient:
 
+:::caution[`patient/*` scopes are not currently enforced]
+The server rejects any request whose best-matching scope is patient-level, with "Patient-level SMART scopes are not supported for this request." The scopes below are documented for completeness with the SMART spec — use the [user-level scopes](#2-user-level-scopes) for a working client today.
+:::
+
 | Scope | Description |
 |-------|-------------|
 | `patient/*.read` | Read all patient compartment resources |

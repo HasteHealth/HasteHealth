@@ -74,6 +74,10 @@ Where:
 | `patient` | Access resources in the context of a specific patient | Patient-facing applications, personal health records |
 | `system` | Access resources without a user context | Backend services, system integrations, automated processes |
 
+:::caution[`patient/*` scopes are not currently enforced]
+The server rejects any request whose best-matching scope is patient-level, with "Patient-level SMART scopes are not supported for this request." The `patient` context is documented below for completeness with the SMART spec, but a patient-facing application should request `user/*` scopes today, not `patient/*`.
+:::
+
 ### Permission Characters
 
 Permissions must be specified in the order: **c-r-u-d-s**
