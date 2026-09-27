@@ -260,34 +260,36 @@ export function CoverageSummary() {
  */
 export function LastVerified() {
   return (
-    <Loaded>
-      {(data) => {
-        const verified = new Date(data.generatedAt);
-        return (
-          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-            <StatusIcon result="pass" className="h-5 w-5" />
-            <span>
-              Results below are from the latest automated run against{" "}
-              <code>main</code>, completed{" "}
-              <time
-                dateTime={data.generatedAt}
-                className="font-semibold text-slate-900 dark:text-white"
-              >
-                {verified.toLocaleString(undefined, {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  hour: "numeric",
-                  minute: "2-digit",
-                  timeZoneName: "short",
-                })}
-              </time>
-              .
-            </span>
-          </div>
-        );
-      }}
-    </Loaded>
+    <div className="mb-6">
+      <Loaded>
+        {(data) => {
+          const verified = new Date(data.generatedAt);
+          return (
+            <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+              <StatusIcon result="pass" className="h-5 w-5" />
+              <span>
+                Results below are from the latest automated run against{" "}
+                <code>main</code>, completed{" "}
+                <time
+                  dateTime={data.generatedAt}
+                  className="font-semibold text-slate-900 dark:text-white"
+                >
+                  {verified.toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    timeZoneName: "short",
+                  })}
+                </time>
+                .
+              </span>
+            </div>
+          );
+        }}
+      </Loaded>
+    </div>
   );
 }
 
