@@ -1,7 +1,11 @@
-
+{#
+  Segment selection is a plain list, so `PID[0]` is the first PID segment.
+  Fields, components and subcomponents use HL7 numbering: `PID[0][5][1]` is
+  PID-5.1, the family name, and `PID[0][3][1]` is PID-3.1, the MRN.
+#}
 {
   "resourceType": "Bundle",
-  "type": "transaction",    
+  "type": "transaction",
   "entry": [
     {
       "request": {
@@ -19,8 +23,8 @@
         "resourceType": "Patient",
             "name" : [
                 {
-                    "family" : "{{ hl7v2.PID[0][4][0] }}",
-                    "given" : [ "{{ hl7v2.PID[0][4][1] }}" ]
+                    "family" : "{{ hl7v2.PID[0][5][1] }}",
+                    "given" : [ "{{ hl7v2.PID[0][5][2] }}" ]
                 }
             ],
             "identifier": [
@@ -34,7 +38,7 @@
                             }
                         ]
                     },
-                    "value": "{{ hl7v2.PID[0][6] }}"
+                    "value": "{{ hl7v2.PID[0][3][1] }}"
                 }
             ]
         }

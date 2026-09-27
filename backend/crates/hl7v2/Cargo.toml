@@ -6,14 +6,20 @@ description = "Haste Health HL7v2 parsing and serialization library."
 license = { workspace = true }
 homepage = { workspace = true }
 
+
 [dependencies]
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 
+tokio = { workspace = true, features = ["io-util"] }
+
 [dev-dependencies]
 criterion = { workspace = true }
-pretty_assertions = { version = "1.4.1", default-features = false, features = ["alloc"] }
+pretty_assertions = { version = "1.4.1", default-features = false, features = [
+    "alloc",
+] }
 serde_json = { workspace = true }
+tokio = { workspace = true, features = ["io-util", "macros", "rt", "time"] }
 
 [[bench]]
 name = "hl7v2_serialization_bench"
