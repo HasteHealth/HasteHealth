@@ -4,6 +4,7 @@ use crate::fhir_client::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
         ServerMiddlewareState,
     },
+    utilities::is_search_match,
 };
 use haste_fhir_client::{
     FHIRClient,
@@ -159,7 +160,9 @@ fn filter_bundle(
     let filtered_entries = entries
         .into_iter()
         .map(|mut entry| {
-            if let Some(resource) = entry.resource.take() {
+            if is_search_match(&entry)
+                && let Some(resource) = entry.resource.take()
+            {
                 entry.resource = Some(Box::new(filter_resource(*resource, subsetting)?));
             }
             Ok(entry)
