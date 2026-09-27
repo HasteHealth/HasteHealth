@@ -15,12 +15,17 @@ import TabItem from '@theme/TabItem';
 <Tabs>
 <TabItem value="cli" label="CLI" default>
 
-**Note:** The CLI `delete` command only supports deleting individual resource instances, not conditional deletion by type. For conditional deletion, use the TypeScript client or cURL.
+:::danger[Omitting the search parameters deletes every resource of that type]
+`parameters` is optional. Leave it out and the server deletes **every** resource
+of the given type (up to its configured delete limit, at which point it errors
+rather than partially deleting) always pass search criteria unless that's
+genuinely what you want.
+:::
 
-To delete a single Patient resource:
+To delete Patient resources matching a search:
 
 ```bash
-haste-health api delete-type Patient
+haste-health api delete-type Patient 'identifier=http://example.org/fhir/ids|12345'
 ```
 
 </TabItem>

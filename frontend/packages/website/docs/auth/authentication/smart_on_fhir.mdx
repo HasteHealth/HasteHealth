@@ -30,7 +30,7 @@ SMART on FHIR supports two primary launch patterns:
 
 ### 1. EHR Launch (Contextual Launch)
 
-:::caution EHR Launch is not yet supported in Haste Health
+:::caution[EHR Launch is not yet supported in Haste Health]
 This feature is not yet supported in Haste Health. The following is for informational purposes only.
 :::
 
@@ -260,11 +260,11 @@ When using SMART on FHIR, the token response includes additional context informa
 
 ## SMART Configuration Discovery
 
-Applications discover SMART capabilities via the `.well-known` endpoint:
+Applications discover SMART capabilities via the `.well-known` endpoint, scoped to a tenant and project:
 
 **Request:**
 ```http
-GET /.well-known/smart-configuration HTTP/1.1
+GET /w/{tenant}/{project}/api/v1/fhir/.well-known/smart-configuration HTTP/1.1
 Host: api.haste.health
 ```
 
@@ -276,41 +276,26 @@ Host: api.haste.health
   "token_endpoint": "https://api.haste.health/w/{tenant}/{project}/api/v1/oidc/auth/token",
   "token_endpoint_auth_methods_supported": [
     "client_secret_basic",
-    "client_secret_post",
-    "private_key_jwt"
+    "client_secret_post"
   ],
-  "registration_endpoint": "https://api.haste.health/w/{tenant}/{project}/api/v1/oidc/auth/register",
   "scopes_supported": [
     "openid",
     "profile",
     "email",
-    "fhirUser",
-    "launch",
-    "launch/patient",
-    "launch/encounter",
-    "online_access",
     "offline_access",
-    "patient/*.read",
-    "patient/*.write",
-    "user/*.read",
-    "user/*.write",
-    "system/*.read",
-    "system/*.write"
+    "fhirUser",
+    "user/*.cruds",
+    "system/*.cruds"
   ],
   "response_types_supported": [
-    "code"
+    "code",
+    "id_token",
+    "id_token token"
   ],
   "capabilities": [
-    "launch-ehr",
-    "launch-standalone",
-    "client-public",
+    "sso-openid-connect",
     "client-confidential-symmetric",
-    "context-ehr-patient",
-    "context-ehr-encounter",
-    "context-standalone-patient",
-    "context-standalone-encounter",
-    "permission-offline",
-    "permission-patient",
+    "launch-standalone",
     "permission-user",
     "permission-v2"
   ],
@@ -319,29 +304,29 @@ Host: api.haste.health
   ],
   "grant_types_supported": [
     "authorization_code",
-    "refresh_token",
     "client_credentials"
   ]
 }
 ```
+
+`registration_endpoint` is omitted entirely (dynamic client registration isn't supported — register a `ClientApplication` resource directly instead; see [Client Registration](/docs/auth/authentication/client_registration)).
 
 #
 ## SMART Capabilities
 
 ### Supported Capabilities
 
-Haste Health supports the following SMART capabilities:
+Haste Health currently advertises exactly these five SMART capabilities — no others are included in `capabilities`, even ones a SMART server commonly supports:
 
 | Capability | Description | Supported |
 |------------|-------------|-----------|
-| `launch-standalone` | Supports standalone launch | ✅ Yes |
-| `client-public` | Supports public clients (no secret) | ✅ Yes |
-| `client-confidential-symmetric` | Supports confidential clients with secret | ✅ Yes |
-| `context-standalone-patient` | Patient picker in standalone launch | ✅ Yes |
-| `permission-offline` | Supports offline_access scope | ✅ Yes |
-| `permission-patient` | Supports patient/* scopes | ✅ Yes |
-| `permission-user` | Supports user/* scopes | ✅ Yes |
+| `sso-openid-connect` | OpenID Connect on top of OAuth 2.0 | ✅ Yes |
+| `client-confidential-symmetric` | Confidential clients with a shared secret | ✅ Yes |
+| `launch-standalone` | Standalone launch | ✅ Yes |
+| `permission-user` | `user/*` scopes | ✅ Yes |
 | `permission-v2` | SMART v2 scope syntax | ✅ Yes |
+
+Not currently advertised or supported: `launch-ehr` (see the caution box above), `client-public`, `context-ehr-*`, `context-standalone-*`, `permission-patient`, and `permission-offline`. If your app depends on any of these, confirm it against the live discovery document for your server rather than assuming.
 
 ## Common Use Cases
 

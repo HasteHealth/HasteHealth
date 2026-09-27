@@ -1,13 +1,13 @@
 ---
 id: patch
 title: patch
-description: How to partially update a FHIR resource using JSON Patch or FHIRPath Patch, via the CLI, TypeScript client, or cURL.
+description: How to partially update a FHIR resource using JSON Patch, via the CLI, TypeScript client, or cURL.
 sidebar_position: 4
 ---
 
 # Patch Resource
 
-The FHIR [patch operation](https://www.hl7.org/fhir/http.html#patch) allows you to partially update an existing resource on the FHIR server. This is done using an HTTP PATCH request to the endpoint corresponding to the resource type and ID. FHIR supports both JSON Patch and FHIRPath Patch formats.
+The FHIR [patch operation](https://www.hl7.org/fhir/http.html#patch) allows you to partially update an existing resource on the FHIR server. This is done using an HTTP PATCH request to the endpoint corresponding to the resource type and ID. Only [JSON Patch](https://www.rfc-editor.org/rfc/rfc6902) (`application/json-patch+json`) is supported — FHIRPath Patch (the `Parameters`-based format) is not implemented.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';

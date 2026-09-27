@@ -9,7 +9,7 @@ tags:
     - fhir converter
 ---
 
-:::caution Experimental Feature
+:::caution[Experimental Feature]
 This feature is highly experimental and subject to breaking changes in future releases.
 :::
 
@@ -59,7 +59,7 @@ Two things to know about that indexing:
 - **Further indices descend into repetitions, components, and subcomponents**, collapsing automatically when there's only one. For a non-repeating PID-5 (XPN), `hl7v2.PID[4][0]` reaches the first component (family name) directly; if PID-5 repeats (multiple names on the message), you'd index the repetition first, then the component.
 - A segment repeats if the message has more than one (e.g. multiple `NK1` segments) — indexing a segment by name always returns a list, so template logic needs a `{% for %}` loop for multi-segment types, not direct indexing.
 
-:::note `hl7v2_segments` filter is not implemented
+:::note[`hl7v2_segments` filter is not implemented]
 A `| hl7v2_segments` Jinja filter is registered, but it's a stub — it ignores its input and always returns the literal string `"hl7v2_segments"`. Don't use it; use direct segment/field indexing as shown above instead.
 :::
 

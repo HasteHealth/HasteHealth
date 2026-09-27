@@ -41,6 +41,7 @@ Anything left unset by either source falls back to the default listed below.
 | `admin_app_redirect_uri` | `HASTE_ADMIN_APP_REDIRECT_URI` | `http://*.localhost:3001` | Redirect target for the hardcoded admin app OIDC client. |
 | `allow_artifact_mutations` | `HASTE_ALLOW_ARTIFACT_MUTATIONS` | `false` | Allows mutating built-in/embedded artifact resources. |
 | `max_request_body_size` | `HASTE_MAX_REQUEST_BODY_SIZE` | `4194304` (4MB) | Max accepted request body size, in bytes. |
+| `port` | `HASTE_PORT` | `3000` | Port the server listens on. |
 
 ### `[fhir]`
 
@@ -55,19 +56,28 @@ Tagged by `backend`; only `postgres` exists today.
 | Key | Env var | Default |
 | --- | --- | --- |
 | `repo.backend` | `HASTE_REPO.backend` | `postgres` |
-| `repo.database_url` | `HASTE_REPO.database_url` | `postgresql://postgres:postgres@localhost:5432/haste_health` |
-| `repo.max_connections` | `HASTE_REPO.max_connections` | `10` |
+| `repo.database_url` | `HASTE_REPO.database_url` | `postgresql://postgres:postgres@127.0.0.1/haste_health` |
+| `repo.max_connections` | `HASTE_REPO.max_connections` | `20` |
 
 ### `[search]` — search index backend
 
-Tagged by `backend`; only `elasticsearch` exists today.
+Tagged by `backend`; two backends exist: `elasticsearch` (the default) and `postgres` (search indexed in the same Postgres server as `[repo]`, no Elasticsearch cluster required).
+
+**`backend = "elasticsearch"`** (default):
 
 | Key | Env var | Default |
 | --- | --- | --- |
-| `search.backend` | `HASTE_SEARCH.backend` | `elasticsearch` |
 | `search.url` | `HASTE_SEARCH.url` | `http://localhost:9200` |
 | `search.username` | `HASTE_SEARCH.username` | `elastic` |
 | `search.password` | `HASTE_SEARCH.password` | `elastic` |
+| `search.prune_removed_search_parameters` | `HASTE_SEARCH.prune_removed_search_parameters` | `false` — lets `migrate search` drop the mapping (and indexed data) for a removed search parameter. Off by default: removed parameters are logged, never deleted, since Elasticsearch mappings are append-only and dropping one needs a reindex. |
+
+**`backend = "postgres"`**:
+
+| Key | Env var | Default |
+| --- | --- | --- |
+| `search.database_url` | `HASTE_SEARCH.database_url` | `postgresql://postgres:postgres@127.0.0.1/haste_health_search` — a separate database from `[repo]`'s |
+| `search.max_connections` | `HASTE_SEARCH.max_connections` | `20` |
 
 ### `[email]` — optional
 
@@ -119,6 +129,12 @@ Tagged by `type`: `environment` (default), `gcp`, or `aws`.
 | `security.encryption.project_id` (gcp only) | `HASTE_SECURITY.encryption.project_id` | — |
 | `security.encryption.region` (aws only) | `HASTE_SECURITY.encryption.region` | — |
 
+### `[operations]`
+
+| Key | Env var | Default | Notes |
+| --- | --- | --- | --- |
+| `operations.deno_pool_threads` | `HASTE_OPERATIONS.deno_pool_threads` | Roughly half the host's available parallelism (minimum 2) | Dedicated OS threads executing custom (tenant-authored) FHIR operation scripts in isolated Deno/V8 sandboxes. Each thread runs one script at a time — this is a hard ceiling on concurrent custom-operation invocations. |
+
 ## Example `haste.toml`
 
 ```toml
@@ -137,6 +153,15 @@ backend = "elasticsearch"
 url = "http://localhost:9200"
 username = "elastic"
 password = "elastic"
+
+# Alternative to the [search] block above -- no Elasticsearch cluster needed:
+# [search]
+# backend = "postgres"
+# database_url = "postgresql://postgres:postgres@127.0.0.1/haste_health_search"
+# max_connections = 20
+
+[operations]
+deno_pool_threads = 4
 
 [monitoring]
 audit_enabled = false
