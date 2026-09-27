@@ -34,6 +34,8 @@ pub(crate) struct CliState {
     pub(crate) config: CliConfiguration,
     pub(crate) secrets: CliSecrets,
     pub(crate) access_token: Option<String>,
+    /// Unix seconds at which `access_token` stops being usable.
+    pub(crate) access_token_expires_at: Option<i64>,
     pub(crate) well_known_document: Option<WellKnownDiscoveryDocument>,
 }
 
@@ -43,6 +45,7 @@ impl CliState {
             config,
             secrets,
             access_token: None,
+            access_token_expires_at: None,
             well_known_document: None,
         }
     }

@@ -279,14 +279,19 @@ pub(crate) async fn run(state: Arc<Mutex<CliState>>) -> Result<(), OperationOutc
         )
     })?;
 
+    let expires_at = unix_now() + token_response.expires_in;
+
     let mut current_state = state.lock().await;
     current_state.access_token = Some(token_response.access_token.clone());
+    // Recorded with the token so the client refreshes it rather than reusing it
+    // past its lifetime.
+    current_state.access_token_expires_at = Some(expires_at);
 
     current_state.secrets.profile_mut(&profile_name).tokens = Some(StoredTokens {
         access_token: token_response.access_token,
         refresh_token: token_response.refresh_token,
         id_token: token_response.id_token,
-        expires_at: unix_now() + token_response.expires_in,
+        expires_at,
     });
 
     crate::cli::secrets::write_secrets(&SECRETS_LOCATION, &current_state.secrets)?;
