@@ -1,7 +1,7 @@
 ---
 id: access_control
 title: Access Control
-description: How Haste Health's AccessPolicyV2 resource implements attribute-based access control using full-access and rule-engine policy evaluation.
+description: How AccessPolicyV2 and AccessPolicyV2Assignment implement attribute-based access control in Haste Health.
 sidebar_position: 3
 tags:
   - authorization
@@ -9,37 +9,59 @@ tags:
 
 # Access Control
 
-Haste Health implements fine-grained access control using **AccessPolicyV2** resources. These policies provide attribute-based access control (ABAC) beyond basic OAuth scopes, enabling complex authorization rules based on user identity, resource properties, and request context.
+Haste Health's attribute-based access control (ABAC) uses two resources: **AccessPolicyV2** defines a rule, and **AccessPolicyV2Assignment** says who it applies to.
 
-## AccessPolicyV2 Resource
+```mermaid
+flowchart LR
+    M[Membership] -->|link| A
+    C[ClientApplication] -->|link| A
+    O[OperationDefinition] -->|link| A
+    A[AccessPolicyV2Assignment] -->|accessPolicy| P[AccessPolicyV2]
+```
 
-AccessPolicyV2 resources define authorization policies that evaluate against API requests to determine access permissions.
+A Membership, ClientApplication, or OperationDefinition can have several assignments; each assignment points at exactly one policy. Assignments can be added or removed without touching the policy itself, and one policy can be assigned to many things at once.
 
-### Key Fields
+## AccessPolicyV2
 
-- **engine**: Evaluation engine (`full-access`, `rule-engine`)
-- **target.link** (deprecated): Who the policy applies to. Use `AccessPolicyV2Assignment` instead
-- **rule**: Array of authorization rules with actions, resources, and conditions
-- **name**: Human-readable policy description
+Defines what's allowed.
 
-**[View AccessPolicyV2 schema →](/docs/reference/fhir/model/resources/AccessPolicyV2)**
+| Field | Meaning |
+| --- | --- |
+| `name` | Human-readable label |
+| `engine` | `full-access` or `rule-engine` — see [Policy Engines](#policy-engines) |
+| `rule` | The rule-engine's conditions (only used when `engine` is `rule-engine`) |
+
+**[Full schema →](/docs/reference/fhir/model/resources/AccessPolicyV2)**
+
+## AccessPolicyV2Assignment
+
+Connects a policy to what it applies to.
+
+| Field | Meaning |
+| --- | --- |
+| `accessPolicy` | Reference to the `AccessPolicyV2` being granted |
+| `link` | Reference to a `Membership`, `ClientApplication`, or `OperationDefinition` |
+
+```json
+{
+  "resourceType": "AccessPolicyV2Assignment",
+  "accessPolicy": { "reference": "AccessPolicyV2/policy-id" },
+  "link": { "reference": "Membership/membership-id" }
+}
+```
+
+:::warning Deprecated
+`AccessPolicyV2.target.link` did this same job before `AccessPolicyV2Assignment` existed. Policies still using it keep working, but write new ones with an assignment instead.
+:::
+
+**[Full schema →](/docs/reference/fhir/model/resources/AccessPolicyV2Assignment)**
 
 ## Policy Engines
 
-AccessPolicyV2 supports multiple evaluation engines for different authorization models:
+### Full Access
 
-### Full Access Engine
+**`engine: "full-access"`** — grants everything. For admins and service accounts.
 
-**Engine code**: `full-access`
-
-Grants unrestricted access to all resources and operations. The simplest engine—always returns success.
-
-**Use cases**:
-- System administrators with full platform access
-- Automated service accounts needing complete access
-- Development/testing environments
-
-**Example**:
 ```json
 {
   "resourceType": "AccessPolicyV2",
@@ -49,172 +71,81 @@ Grants unrestricted access to all resources and operations. The simplest engine�
 }
 ```
 
-Assign it with an `AccessPolicyV2Assignment` (see [Associating Policies with Users](#associating-policies-with-users)):
-
-```json
-{
-  "resourceType": "AccessPolicyV2Assignment",
-  "accessPolicy": {
-    "reference": "AccessPolicyV2/admin-full-access"
-  },
-  "link": {
-    "reference": "Membership/admin-membership"
-  }
-}
-```
-
 ### Rule Engine
 
-**Engine code**: `rule-engine`
+**`engine: "rule-engine"`** — evaluates FHIRPath rules against the request.
 
-Enables fine-grained, attribute-based access control using FHIRPath expressions to define rules and conditions.
+#### Variables available in rules
 
+- `%user.id` — the authenticated user's id
+- `%request` — the incoming request:
+  - `level` — `instance`, `type`, or `system`
+  - `type` — `create` \| `read` \| `vread` \| `update` \| `patch` \| `delete` \| `search` \| `history` \| `invoke` \| `batch` \| `transaction` \| `compartment` \| `capabilities`
+  - `resource_type`, `id`, `resource`, `parameters` — only present where that request shape has them (e.g. `id` on a `Read`, not on a `Search`)
 
-#### Special Variables:
-The following special variables are available within FHIRPath expressions for rules and conditions:
-- `user`: The authenticated user this includes the user's id.
-- `request`: The incoming API request details, including method and resource type.
-    - `level`: Whether request is at 'instance', 'type' or 'system' level.
-    - `type`:  One of "create"|"read"|"vread"|"update"|"patch"|"delete"|"capabilities"|"search"|"history"|"invoke"|"batch"|"transaction"|"compartment"
-    - `resourceType`: The FHIR resource type being accessed (if applicable).
-    - `resource`: The FHIR resource if present in the request IE (create).
-    - `id`: The resource ID if applicable.
-    - `parameters`: The search parameters if applicable.
+#### Attributes: pulling in other data
 
-#### Attributes
-Attributes are how you can make pull in external data during a policy evaluation.
-We support 'read', and 'search' operations.
+An `attribute` runs a `read`, `search-type`, or `search-system` and makes the result available as `%<attributeId>`:
 
-For example
 ```json
-  "attribute": [
-    {
-      "operation": {
-        "type": "read",
-        "path": {
-          "language": "text/fhirpath",
-          "expression": "Patient/123"
-        }
-      },
-      "attributeId": "patient"
+"attribute": [
+  {
+    "attributeId": "target",
+    "operation": {
+      "type": "read",
+      "path": {
+        "language": "text/fhirpath",
+        "expression": "%request.resource_type + '/' + %request.id"
+      }
     }
-  ]
+  }
+]
 ```
 
-This operation will read the Patient with ID 123 and make it available in FHIRPath expressions as `%patient`.
+This reads the resource the request is acting on and makes it available as `%target` — useful for a rule that needs to look at the resource's own fields (e.g. "is `%target.subject` the caller's own patient?").
 
-#### Rules
+#### Rules: permit or deny
 
-Rules define whether or not to permit or deny access based on conditions. Each rule includes:
-- **effect**: `permit` or `deny`
-- **combineBehavior**: `all` (AND) or `any` (OR)
-- **target.expression**: FHIRPath expression to determine whether or not to evaluate this rule
-- **condition.expression**: FHIRPath expression evaluated if target matches
+Each rule has an optional `target` (should this rule run at all?) and a `condition` (does it pass?):
 
-
-**Example**:
 ```json
 {
   "resourceType": "AccessPolicyV2",
-  "name": "Rule Engine",
+  "name": "Reads only",
   "engine": "rule-engine",
   "rule": [
     {
-      "name": "Access Control",
-      "combineBehavior": "any",
-      "rule": [
-        {
-          "name": "Is Read request",
-          "target": {
-            "expression": {
-              "language": "text/fhirpath",
-              "expression": "true"
-            }
-          },
-          "condition": {
-            "expression": {
-              "language": "text/fhirpath",
-              "expression": "%request.type = 'read'"
-            }
-          }
+      "name": "Allow reads",
+      "condition": {
+        "expression": {
+          "language": "text/fhirpath",
+          "expression": "%request.type = 'read'"
         }
-      ]
+      }
     }
   ]
 }
 ```
 
+- **effect**: `permit` (default) or `deny`
+- **combineBehavior**: `all-of` (every child rule must pass) or `any` (one is enough)
+
 ## Policy Evaluation
 
-When a user makes an API request:
-
-1. **Token validation**: JWT token verified and claims extracted
-2. **Policy loading**: AccessPolicyV2 resources loaded by version IDs in token
-3. **Engine execution**: Each policy evaluated using its specified engine
-4. **Decision**: If **any** policy grants access, request proceeds; otherwise denied
-
-Multiple policies can apply to a single user (via Membership). The system uses an "any allow" model—if any policy permits the action, it's allowed.
-
-## Associating Policies with Users
-
-Policies are linked to the resources they apply to with `AccessPolicyV2Assignment` resources. Each assignment has an `accessPolicy` reference and a `link` reference to a `Membership`, `ClientApplication` or `OperationDefinition`. Assignments can be created and removed without editing the policy itself.
-
-```json
-{
-  "resourceType": "Membership",
-  "link": {
-    "reference": "User/user-789"
-  },
-  "role": "member"
-}
-```
-
-Then assign the policy to the Membership:
-
-```json
-{
-  "resourceType": "AccessPolicyV2Assignment",
-  "accessPolicy": {
-    "reference": "AccessPolicyV2/policy-id"
-  },
-  "link": {
-    "reference": "Membership/membership-id"
-  }
-}
-```
-
-During authentication, the system:
-1. Finds the user's Membership (or the ClientApplication, for client credentials)
-2. Searches for `AccessPolicyV2Assignment` resources whose `link` references it, and loads the policies they point to
-3. Includes policy version IDs in access token
-
-:::warning Deprecated
-`AccessPolicyV2.target.link` is deprecated. Policies that still use it continue to apply, but new policies should use `AccessPolicyV2Assignment`.
-:::
-
-**[Learn more about Membership →](/docs/auth/authorization/membership)**
+1. At login, the token is stamped with the version IDs of every `AccessPolicyV2` reachable through the user's (or client's) `AccessPolicyV2Assignment`s
+2. Each request loads those policies and runs each one's engine
+3. **Any** policy granting access is enough — the request is denied only if every policy denies
 
 ## Best Practices
 
-**Principle of least privilege**: Grant minimum necessary permissions
-- Start with restrictive policies
-- Add specific exceptions as needed
-
-**Layer policies**: Combine multiple policies for flexibility
-- Base policy for common permissions
-- Specific policies for exceptional access
-
-**Test thoroughly**: Validate policies before production
-- Use `$evaluate-policy` operation
-- Test edge cases and negative scenarios
-
-**Document conditions**: Use clear policy names and document complex FHIRPath expressions
-
-**Version carefully**: Policies are versioned—understand token caching implications
+- **Least privilege** — start restrictive, add exceptions as needed
+- **Layer policies** — a base policy for common access, narrow ones for exceptions
+- **Test before shipping** — use `$evaluate-policy` against real and edge-case requests
+- **Name things clearly** — a FHIRPath condition isn't self-explanatory later
 
 ## Related Documentation
 
-- **[Membership](/docs/auth/authorization/membership)**: Link policies to users
-- **[Scopes](/docs/auth/authorization/scopes)**: OAuth scope-based permissions
-- **[AccessPolicyV2](/docs/core_concepts/data_model#accesspolicyv2)**: Resource overview
-- **[AccessPolicyV2 Schema](/docs/reference/fhir/model/resources/AccessPolicyV2)**: Complete resource reference
+- **[Membership](/docs/auth/authorization/membership)** — what usually gets assigned a policy
+- **[Scopes](/docs/auth/authorization/scopes)** — coarser, OAuth-scope-based permissions
+- **[AccessPolicyV2 schema](/docs/reference/fhir/model/resources/AccessPolicyV2)**
+- **[AccessPolicyV2Assignment schema](/docs/reference/fhir/model/resources/AccessPolicyV2Assignment)**

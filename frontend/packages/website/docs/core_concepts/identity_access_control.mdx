@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: Identity & Access control
-description: How Haste Health's User, Membership, and AccessPolicyV2 resources work together to manage identity and authorization across projects.
+description: How Haste Health's User, Membership, AccessPolicyV2, and AccessPolicyV2Assignment resources work together to manage identity and authorization across projects.
 tags:
     - core concepts
     - identity
@@ -10,86 +10,57 @@ tags:
 
 # Identity & Access Control
 
-Haste Health's access control system uses three core resources to manage user identity and authorization across projects.
+Four resources manage identity and authorization across projects: **User** is who you are, **Membership** is which project you're in, and **AccessPolicyV2** (connected via **AccessPolicyV2Assignment**) is what you can do there.
+
+```mermaid
+flowchart TD
+    Mem[Membership] -->|user| U[User]
+    Asn[AccessPolicyV2Assignment] -->|link| Mem
+    Asn -->|accessPolicy| Pol[AccessPolicyV2]
+    Pol -.governs.-> Res[FHIR Resources]
+```
 
 ## User
 
-The **User** resource represents an authenticated identity at the tenant level.
+An authenticated identity, at the tenant level.
 
-**Purpose**: Stores authentication credentials and tenant-level role for individuals accessing the platform. Users exist in the System Project and can access multiple user projects through Memberships.
+- **email** — unique identifier for authentication
+- **role** — tenant-level role: `admin`, `member`, or `owner`
+- **federated** — optional link to an external identity provider (SSO/OIDC)
 
-**Key Properties**:
-- **Email**: Unique identifier for authentication
-- **Role**: Tenant-level role (`admin` or `member`)
-- **Federated Identity**: Optional link to external identity providers (SSO/OIDC)
+Users live in the System Project and reach other projects through Memberships.
 
-**Related Documentation**:
-- **[View Schema →](/docs/reference/fhir/model/resources/User)** 
-
----
+**[Schema →](/docs/reference/fhir/model/resources/User)**
 
 ## Membership
 
-The **Membership** resource connects Users to Projects and establishes project-level access.
+Links a User to a Project, granting project-level access.
 
-**Purpose**: Links a User to a specific Project, granting project-level access. Without a Membership, users cannot access resources in a project (unless they are tenant owners or super-admins).
+- **user** — reference to the `User`
+- **link** — optional reference to the clinical resource this membership represents (`Patient`, `Practitioner`, `RelatedPerson`, or `Person`)
 
-**Key Properties**:
-- **user**: Reference to the User resource
-- **link**: Reference to the clinical resource this membership represents (e.g., Patient, Practitioner)
-- **role**: Project-level role (`admin` or `member`)
+Without a Membership, a User can't access a project's resources (unless they're a tenant `owner`/`admin`). A Membership alone only grants entry — what it can then do is decided by whatever `AccessPolicyV2` its `AccessPolicyV2Assignment`s point at.
 
-**Access Flow**:
-1. User authenticates (System Project validates credentials)
-2. System queries for Memberships in target Project
-3. If Membership exists, access is granted to the project
-4. AccessPolicyV2 resources determine resource-level permissions
+**[Membership details →](/docs/auth/authorization/membership)** · **[Schema →](/docs/reference/fhir/model/resources/Membership)**
 
-**Related Documentation**:
-- **[View Membership details →](/docs/auth/authorization/membership)** 
-- **[View Schema →](/docs/reference/fhir/model/resources/Membership)**
+## AccessPolicyV2 and AccessPolicyV2Assignment
 
----
+**AccessPolicyV2** defines what's allowed; **AccessPolicyV2Assignment** connects that policy to a Membership (or a `ClientApplication`/`OperationDefinition` for non-user callers).
 
-## AccessPolicyV2
+- **AccessPolicyV2.engine** — `full-access` or `rule-engine`
+- **AccessPolicyV2Assignment.accessPolicy** — reference to the policy
+- **AccessPolicyV2Assignment.link** — reference to the Membership/ClientApplication/OperationDefinition it's granted to
 
-The **AccessPolicyV2** resource defines fine-grained authorization rules for what resources a Member can access within a Project.
+At login, the system finds every `AccessPolicyV2Assignment` linking to the caller's Membership and stamps those policies' version IDs into the access token; each request then evaluates all of them, and **any** one granting access is enough.
 
-**Purpose**: Establishes attribute-based access control (ABAC) rules that determine which FHIR resources and operations a user can perform. Policies are associated with Users or Memberships.
+:::warning Deprecated
+`AccessPolicyV2.target.link` did this same job before `AccessPolicyV2Assignment` existed. Still honored, but write new policies with an assignment instead.
+:::
 
-**Key Properties**:
-- **engine**: Policy evaluation engine (`full-access`, `rule-engine`)
-- **target**: Reference to User or Membership this policy applies to
-- **rule**: Array of authorization rules defining allowed actions, resources, and conditions
-- **name**: Human-readable policy description
+**[Access control details →](/docs/auth/authorization/access_control)** · **[AccessPolicyV2 schema →](/docs/reference/fhir/model/resources/AccessPolicyV2)** · **[AccessPolicyV2Assignment schema →](/docs/reference/fhir/model/resources/AccessPolicyV2Assignment)**
 
-**Policy Evaluation**:
-During authentication, the system:
-1. Identifies user's Memberships in the target project
-2. Finds AccessPolicyV2 resources where `target.link` references those Memberships
-3. Includes policy version IDs in the access token
-4. Evaluates policies on each API request to determine permissions
+## Related Documentation
 
-**Related Documentation**:
-- **[View AccessPolicyV2 details →](/docs/auth/authorization/access_control)**
-- **[View Schema →](/docs/reference/fhir/model/resources/AccessPolicyV2)** 
-
----
-
-## How They Work Together
-
-```
-User (System Project)
-  ↓
-Membership (User Project) ← links User to Project
-  ↓
-AccessPolicyV2 (User Project) ← defines permissions
-  ↓
-FHIR Resources (User Project) ← authorized access
-```
-
-**Related Documentation**:
-- **[Authorization Overview](/docs/auth/authorization/intro)**: Complete authorization system
-- **[Multi-Tenant Architecture](/docs/core_concepts/platform_architecture)**: Tenant and project structure
-- **[Authentication](/docs/category/oauth-grant-types)**: OAuth 2.0 and OIDC flows
-
+- **[Authorization Overview](/docs/auth/authorization/intro)** — the complete authorization system
+- **[Multi-Tenant Architecture](/docs/core_concepts/platform_architecture)** — tenant and project structure
+- **[Authentication](/docs/category/oauth-grant-types)** — OAuth 2.0 and OIDC flows
