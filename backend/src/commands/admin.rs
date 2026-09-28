@@ -126,7 +126,7 @@ pub(crate) enum MigrationCommands {
     ResetArtifacts {},
     /// Run pending repository (Postgres) migrations.
     Repo {},
-    /// Run pending search index (ElasticSearch) migrations.
+    /// Run pending search index (Postgres or Elasticsearch) migrations.
     Search {},
     /// Run all of the above: repo, then search, then artifacts.
     All,

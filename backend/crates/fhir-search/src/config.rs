@@ -76,7 +76,7 @@ impl Default for PostgresSearchConfig {
 
 impl Default for SearchConfig {
     fn default() -> Self {
-        SearchConfig::Elasticsearch(ElasticsearchConfig::default())
+        SearchConfig::Postgres(PostgresSearchConfig::default())
     }
 }
 
