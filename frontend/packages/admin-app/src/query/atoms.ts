@@ -131,7 +131,21 @@ export const setColumnsAtom = atom(
  */
 export const recentOpenAtom = workspaceAtom<boolean>("recentOpen", false);
 
-export const pinnedTypesAtom = workspaceAtom<string[]>("pinnedTypes", []);
+/**
+ * Types pinned to the top of the sidebar.
+ *
+ * Seeded rather than empty: a new workspace would otherwise show only
+ * collapsed module groups, which says nothing about where to start. These are
+ * the types a clinical system is usually opened for, and unpinning any of
+ * them sticks.
+ */
+export const pinnedTypesAtom = workspaceAtom<string[]>("pinnedTypes", [
+  "Patient",
+  "Encounter",
+  "Observation",
+  "Condition",
+  "MedicationRequest",
+]);
 
 /** Adds or removes a type from the pinned list. */
 export const togglePinnedTypeAtom = atom(

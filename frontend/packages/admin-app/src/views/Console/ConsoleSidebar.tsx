@@ -1,15 +1,22 @@
 import {
   ArrowUpTrayIcon,
+  BanknotesIcon,
+  BeakerIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   ClockIcon,
   Cog6ToothIcon,
+  CommandLineIcon,
+  CubeIcon,
   ExclamationTriangleIcon,
+  HeartIcon,
+  LockClosedIcon,
   MagnifyingGlassIcon,
   QuestionMarkCircleIcon,
+  Squares2X2Icon,
   StarIcon,
-  CommandLineIcon,
   TableCellsIcon,
+  WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarSolidIcon } from "@heroicons/react/24/solid";
 import classNames from "classnames";
@@ -19,6 +26,20 @@ import React, { useEffect, useMemo, useState } from "react";
 import { CategoryGroup, categorise } from "../../db/categories";
 import { pinnedTypesAtom, togglePinnedTypeAtom } from "../../query/atoms";
 import { modLabel } from "../../hooks/useShortcuts";
+
+/**
+ * An icon per module, so a group is recognisable before its label is read.
+ * Falls back to a neutral mark for a module not listed here.
+ */
+const MODULE_ICONS: Record<string, typeof CubeIcon> = {
+  Base: CubeIcon,
+  Clinical: HeartIcon,
+  Financial: BanknotesIcon,
+  Specialized: BeakerIcon,
+  Foundation: WrenchScrewdriverIcon,
+  "SQL on FHIR": TableCellsIcon,
+  "Haste Health": LockClosedIcon,
+};
 
 const OPERATE_LINKS = [
   { path: "/r/_history", label: "Event history", Icon: ClockIcon },
@@ -135,10 +156,11 @@ function Group({
   onTogglePin: (type: string) => void;
 }>) {
   const count = group.sections.reduce((n, s) => n + s.types.length, 0);
+  const ModuleIcon = MODULE_ICONS[group.module] ?? Squares2X2Icon;
   return (
     <li>
       <button
-        className="flex w-full items-center gap-1 rounded px-2 py-1 text-left text-sm text-slate-700 hover:bg-slate-100"
+        className="flex w-full items-center gap-1.5 rounded px-2 py-1 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
         onClick={onToggle}
         aria-expanded={isOpen}
         type="button"
@@ -148,6 +170,7 @@ function Group({
         ) : (
           <ChevronRightIcon className="h-3.5 w-3.5 shrink-0 text-slate-400" />
         )}
+        <ModuleIcon className="h-4 w-4 shrink-0 text-slate-400" />
         <span className="min-w-0 flex-1 truncate">{group.module}</span>
         <span className="shrink-0 text-xs text-slate-400">{count}</span>
       </button>
