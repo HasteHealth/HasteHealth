@@ -7,13 +7,7 @@ import {
   PlusIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useAtomValue } from "jotai";
 
 import { Loading, Toaster } from "@haste-health/components";
@@ -40,6 +34,40 @@ function isSystemProject(project: Project) {
   return project.id === "system";
 }
 
+/** What the typed name will be addressed as, or why it cannot be. */
+function SlugHint({
+  adjusted,
+  finalSlug,
+  slug,
+  typed,
+}: Readonly<{
+  adjusted: boolean;
+  finalSlug: string;
+  slug: string;
+  typed: boolean;
+}>) {
+  if (typed && !slug) {
+    return (
+      <span className="text-amber-700">
+        Add a letter or number: a name needs one to make an address.
+      </span>
+    );
+  }
+  if (!finalSlug) return null;
+
+  return (
+    <span className="text-slate-500">
+      Address: <span className="font-mono text-slate-700">{finalSlug}</span>
+      {adjusted && (
+        <span className="text-amber-700">
+          {" "}
+          ({slug} is taken, so this one is free)
+        </span>
+      )}
+    </span>
+  );
+}
+
 /**
  * The inline create form on the landing page.
  *
@@ -50,17 +78,14 @@ function isSystemProject(project: Project) {
 function CreateProjectForm({
   onCreated,
   takenIds,
-  autoFocus = false,
 }: Readonly<{
   onCreated: (project: Project) => void;
   /** Ids already in use, so the slug shown is one that is actually free. */
   takenIds: string[];
-  autoFocus?: boolean;
 }>) {
   const client = useAtomValue(getClient);
   const [name, setName] = useState("");
   const [creating, setCreating] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const trimmed = name.trim();
   const slug = useMemo(() => slugifyProjectName(trimmed), [trimmed]);
@@ -122,13 +147,11 @@ function CreateProjectForm({
         </label>
         <input
           aria-describedby="new-project-slug"
-          autoFocus={autoFocus}
           className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           disabled={creating}
           id="new-project-name"
           onChange={(event) => setName(event.target.value)}
           placeholder="My sandbox"
-          ref={inputRef}
           value={name}
         />
         <button
@@ -143,22 +166,12 @@ function CreateProjectForm({
 
       {/* The id is the address, so it is shown before the write. */}
       <p className="min-h-5 text-xs" id="new-project-slug">
-        {trimmed && !slug ? (
-          <span className="text-amber-700">
-            Add a letter or number: a name needs one to make an address.
-          </span>
-        ) : finalSlug ? (
-          <span className="text-slate-500">
-            Address:{" "}
-            <span className="font-mono text-slate-700">{finalSlug}</span>
-            {adjusted && (
-              <span className="text-amber-700">
-                {" "}
-                ({slug} is taken, so this one is free)
-              </span>
-            )}
-          </span>
-        ) : null}
+        <SlugHint
+          adjusted={adjusted}
+          finalSlug={finalSlug}
+          slug={slug}
+          typed={Boolean(trimmed)}
+        />
       </p>
     </div>
   );
@@ -198,11 +211,7 @@ function GettingStarted({
           </div>
 
           <div className="max-w-xl">
-            <CreateProjectForm
-              autoFocus={!hasProjects}
-              onCreated={onCreated}
-              takenIds={takenIds}
-            />
+            <CreateProjectForm onCreated={onCreated} takenIds={takenIds} />
           </div>
 
           <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
