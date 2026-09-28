@@ -1,14 +1,22 @@
 import classNames from "classnames";
 import React, { DetailedHTMLProps, InputHTMLAttributes } from "react";
 
-interface TagProps extends DetailedHTMLProps<
-  InputHTMLAttributes<HTMLSpanElement>,
-  HTMLSpanElement
-> {
+interface TagProps
+  extends DetailedHTMLProps<
+    InputHTMLAttributes<HTMLSpanElement>,
+    HTMLSpanElement
+  > {
   className?: string;
   children: React.ReactNode;
   color?:
-    "blue" | "gray" | "red" | "green" | "yellow" | "indigo" | "purple" | "pink";
+    | "blue"
+    | "gray"
+    | "red"
+    | "green"
+    | "yellow"
+    | "indigo"
+    | "purple"
+    | "pink";
 }
 
 export function Tag({

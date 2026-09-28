@@ -23,10 +23,8 @@ function paginationWindow(
   return pages;
 }
 
-interface PaginationItemProps extends DetailedHTMLProps<
-  HTMLAttributes<HTMLLIElement>,
-  HTMLLIElement
-> {
+interface PaginationItemProps
+  extends DetailedHTMLProps<HTMLAttributes<HTMLLIElement>, HTMLLIElement> {
   children: React.ReactNode;
   active?: boolean;
 }

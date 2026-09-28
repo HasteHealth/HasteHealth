@@ -8,10 +8,11 @@ import React, {
 
 import { InputContainer } from "./containers";
 
-export interface InputProps extends DetailedHTMLProps<
-  InputHTMLAttributes<HTMLInputElement>,
-  HTMLInputElement
-> {
+export interface InputProps
+  extends DetailedHTMLProps<
+    InputHTMLAttributes<HTMLInputElement>,
+    HTMLInputElement
+  > {
   issues?: string[];
   hideBorder?: boolean;
   labelProps?: HTMLProps<HTMLLabelElement>;

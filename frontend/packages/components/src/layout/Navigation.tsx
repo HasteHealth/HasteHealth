@@ -7,10 +7,11 @@ import {
 import classNames from "classnames";
 import React, { Fragment } from "react";
 
-interface NavigationItem extends React.DetailedHTMLProps<
-  React.AnchorHTMLAttributes<HTMLAnchorElement>,
-  HTMLAnchorElement
-> {
+interface NavigationItem
+  extends React.DetailedHTMLProps<
+    React.AnchorHTMLAttributes<HTMLAnchorElement>,
+    HTMLAnchorElement
+  > {
   name: string;
 }
 
