@@ -11,7 +11,15 @@ import { useEffect, useMemo } from "react";
 /** True when the user is on a Mac, which decides the modifier and its label. */
 export function isMac(): boolean {
   if (typeof navigator === "undefined") return false;
-  return /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  // `userAgentData.platform` says "macOS" where `platform` says "MacIntel",
+  // so this matches case insensitively rather than on either spelling.
+  const platform =
+    (navigator as { userAgentData?: { platform?: string } }).userAgentData
+      ?.platform ||
+    navigator.platform ||
+    navigator.userAgent ||
+    "";
+  return /mac|iphone|ipad/i.test(platform);
 }
 
 /** The modifier's symbol, for showing a binding in the UI. */
@@ -72,7 +80,10 @@ export function useShortcuts(shortcuts: Shortcut[]): void {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      const mod = isMac() ? event.metaKey : event.ctrlKey;
+      // On Windows and Linux AltGr reports as Ctrl+Alt, so a user typing an
+      // AltGr character (€, @, # on many layouts) would trigger every Ctrl
+      // binding. Requiring Alt to be up keeps those characters typable.
+      const mod = isMac() ? event.metaKey : event.ctrlKey && !event.altKey;
       const typing = isTypingTarget(event.target);
 
       for (const shortcut of bound) {
@@ -83,9 +94,7 @@ export function useShortcuts(shortcuts: Shortcut[]): void {
         // command bar keeps focus for most of a session, so anything meant
         // to work from there has to say so or carry the modifier.
         const live =
-          shortcut.mod ||
-          shortcut.whileTyping ||
-          ALWAYS_LIVE.has(shortcut.key);
+          shortcut.mod || shortcut.whileTyping || ALWAYS_LIVE.has(shortcut.key);
         if (typing && !live) continue;
 
         event.preventDefault();

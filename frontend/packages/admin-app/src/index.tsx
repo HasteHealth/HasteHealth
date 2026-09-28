@@ -21,6 +21,7 @@ import {
 } from "@heroicons/react/24/outline";
 import classNames from "classnames";
 import { useAtom, useAtomValue } from "jotai";
+import { EditorView } from "@codemirror/view";
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import {
@@ -120,7 +121,12 @@ function ServiceSetup() {
       // The inspector reads element definitions through this cache.
       setStructures(new StructureCache(adminClient));
     }
-  }, [setClient, setStructures, hasteHealth.isAuthenticated, hasteHealth.client]);
+  }, [
+    setClient,
+    setStructures,
+    hasteHealth.isAuthenticated,
+    hasteHealth.client,
+  ]);
 
   return (
     <>
@@ -462,6 +468,27 @@ function ProjectRoot() {
     target?.focus();
   }, []);
 
+  /**
+   * Focuses the command bar and selects what is in it, so the next keystroke
+   * replaces the query the way a browser's address bar does.
+   *
+   * The bar is a CodeMirror editor, which owns its selection, so this goes
+   * through the view rather than the DOM.
+   */
+  const focusCommandBar = React.useCallback(() => {
+    const dom = document.querySelector<HTMLElement>("[data-command-input]");
+    if (!dom) return;
+    const view = EditorView.findFromDOM(dom);
+    if (!view) {
+      dom.querySelector<HTMLElement>(".cm-content")?.focus();
+      return;
+    }
+    view.focus();
+    view.dispatch({
+      selection: { anchor: 0, head: view.state.doc.length },
+    });
+  }, []);
+
   const shortcuts = React.useMemo(
     (): Shortcut[] => [
       {
@@ -469,7 +496,7 @@ function ProjectRoot() {
         mod: true,
         description: "Focus the command bar",
         whileTyping: true,
-        run: () => focusFirst("[data-command-input] .cm-content"),
+        run: focusCommandBar,
       },
       {
         key: "r",
@@ -665,7 +692,6 @@ function ProjectRoot() {
     </div>
   );
 }
-
 
 function App() {
   return <RouterProvider router={router} />;
