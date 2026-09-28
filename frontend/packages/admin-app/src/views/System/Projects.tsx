@@ -318,7 +318,7 @@ function ProjectCard({
               className="rounded p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:text-slate-300"
               onClick={() =>
                 navigate(
-                  generatePath("/resources/Project/:id", {
+                  generatePath("/r/Project/:id", {
                     id: project.id as string,
                   }),
                 )
@@ -348,7 +348,7 @@ function NewProjectCard() {
   return (
     <button
       className="flex min-h-36 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-slate-300 bg-white/50 p-5 text-slate-500 hover:border-brand-400 hover:text-brand-700"
-      onClick={() => navigate(generatePath("/resources/Project/new", {}))}
+      onClick={() => navigate(generatePath("/r/Project/new", {}))}
       type="button"
     >
       <PlusIcon className="h-6 w-6" />

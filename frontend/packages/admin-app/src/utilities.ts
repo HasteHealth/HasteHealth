@@ -49,18 +49,12 @@ export function openProject(projectId: string): void {
   window.open(projectUrl(projectId), "_blank");
 }
 
-/**
- * Where a resource type's listing lives in the app currently running: `/r/`
- * in a project's console, `/resources/` in the system one. Shared views
- * navigate through this rather than assuming either.
- */
+/** Where a resource type's listing lives, in either console. */
 export function resourceListPath(resourceType: string): string {
-  return deriveProjectId() === "system"
-    ? `/resources/${resourceType}`
-    : `/r/${resourceType}`;
+  return `/r/${resourceType}`;
 }
 
-/** Where a single resource's editor lives in the app currently running. */
+/** Where a single resource's editor lives, in either console. */
 export function resourceInstancePath(
   resourceType: string,
   resourceId: string,

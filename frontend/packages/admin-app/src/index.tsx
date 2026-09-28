@@ -170,7 +170,7 @@ function SystemBar() {
         {SYSTEM_TABS.map(({ type, label }) => (
           <Link
             key={type}
-            to={`/resources/${type}`}
+            to={`/r/${type}`}
             className={classNames(
               "-mb-px border-b-2 px-1 pb-3 text-sm transition-colors",
               {
@@ -226,12 +226,12 @@ const router =
                           children: [
                             {
                               id: "Resources",
-                              path: "/resources/:resourceType",
+                              path: "/r/:resourceType",
                               element: <SystemResources />,
                             },
                             {
                               id: "Editor",
-                              path: "/resources/:resourceType/:id",
+                              path: "/r/:resourceType/:id",
                               element: <ResourceEditor />,
                             },
                             {
@@ -242,9 +242,7 @@ const router =
                             {
                               id: "redirect",
                               path: "/",
-                              element: (
-                                <Navigate to="/resources/Project" replace />
-                              ),
+                              element: <Navigate to="/r/Project" replace />,
                             },
                           ],
                         },
@@ -309,13 +307,6 @@ const router =
                           id: "indexing-errors",
                           path: "indexing-errors",
                           element: <IndexingErrors />,
-                        },
-                        {
-                          // The old resource paths still get linked to from
-                          // bookmarks and from the specialized editors.
-                          id: "legacy-instance",
-                          path: "resources/:resourceType/:id",
-                          element: <ResourceEditor />,
                         },
                       ],
                     },

@@ -56,7 +56,7 @@ export default function ResourceTypes() {
             className="inline-flex shrink-0 items-center gap-2 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500"
             onClick={() =>
               navigate(
-                generatePath("/resources/:resourceType/:id", {
+                generatePath("/r/:resourceType/:id", {
                   resourceType,
                   id: "new",
                 }),
@@ -81,7 +81,7 @@ export default function ResourceTypes() {
           }}
           onRowClick={(row) => {
             navigate(
-              generatePath("/resources/:resourceType/:id", {
+              generatePath("/r/:resourceType/:id", {
                 resourceType: (row as Resource<R4, AllResourceTypes>)
                   .resourceType,
                 id: (row as Resource<R4, AllResourceTypes>).id as string,
