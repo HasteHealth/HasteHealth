@@ -246,6 +246,45 @@ export function ConsoleSidebar({
     if (group) setOpen((current) => ({ ...current, [group.module]: true }));
   }, [activeType, groups]);
 
+  /** The list body: every group, the filter's matches, or a nothing-found row. */
+  let typeList: React.ReactNode;
+  if (needle === "") {
+    typeList = groups.map((group) => (
+      <Group
+        key={group.module}
+        group={group}
+        isOpen={open[group.module] ?? false}
+        onToggle={() =>
+          setOpen((current) => ({
+            ...current,
+            [group.module]: !(current[group.module] ?? false),
+          }))
+        }
+        activeType={activeType}
+        pinnedTypes={pinnedTypes}
+        onNavigate={onNavigate}
+        onTogglePin={onTogglePin}
+      />
+    ));
+  } else if (matches.length > 0) {
+    typeList = matches.map((type) => (
+      <TypeRow
+        key={type}
+        type={type}
+        activeType={activeType}
+        pinned={pinnedTypes.includes(type)}
+        onNavigate={onNavigate}
+        onTogglePin={onTogglePin}
+      />
+    ));
+  } else {
+    typeList = (
+      <li className="px-2 py-2 text-xs text-slate-400">
+        No type matches “{filter}”.
+      </li>
+    );
+  }
+
   return (
     <nav
       data-sidebar
@@ -285,42 +324,7 @@ export function ConsoleSidebar({
           />
         </div>
 
-        <ul className="min-h-0 flex-1 overflow-auto">
-          {needle === "" ? (
-            groups.map((group) => (
-              <Group
-                key={group.module}
-                group={group}
-                isOpen={open[group.module] ?? false}
-                onToggle={() =>
-                  setOpen((current) => ({
-                    ...current,
-                    [group.module]: !(current[group.module] ?? false),
-                  }))
-                }
-                activeType={activeType}
-                pinnedTypes={pinnedTypes}
-                onNavigate={onNavigate}
-                onTogglePin={onTogglePin}
-              />
-            ))
-          ) : matches.length > 0 ? (
-            matches.map((type) => (
-              <TypeRow
-                key={type}
-                type={type}
-                activeType={activeType}
-                pinned={pinnedTypes.includes(type)}
-                onNavigate={onNavigate}
-                onTogglePin={onTogglePin}
-              />
-            ))
-          ) : (
-            <li className="px-2 py-2 text-xs text-slate-400">
-              No type matches “{filter}”.
-            </li>
-          )}
-        </ul>
+        <ul className="min-h-0 flex-1 overflow-auto">{typeList}</ul>
       </section>
 
       <section className="border-t border-slate-200 pt-2">

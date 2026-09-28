@@ -31,9 +31,14 @@ export function ShortcutHelp({
   const dialog = useRef<HTMLDialogElement | null>(null);
 
   useEffect(() => {
+    const element = dialog.current;
     // `showModal` is what gives the backdrop and the focus trap, so the
     // dialog is opened here rather than with the `open` attribute.
-    dialog.current?.showModal();
+    element?.showModal();
+    // Light dismiss, where the browser supports it: a click on the backdrop
+    // closes the dialog without a listener on a non-interactive element.
+    // Esc works regardless, and so does the Esc button in the header.
+    element?.setAttribute("closedby", "any");
   }, []);
 
   return (
@@ -41,12 +46,9 @@ export function ShortcutHelp({
       ref={dialog}
       aria-label="Keyboard shortcuts"
       className="max-h-[80vh] w-full max-w-md rounded-lg border border-slate-200 bg-white p-0 shadow-xl backdrop:bg-slate-900/30"
+      // `onClose` fires for Esc and for `close()`, so the one handler covers
+      // every way the dialog goes away.
       onClose={onClose}
-      // A click on the backdrop reports the dialog itself as the target; the
-      // content sits in a child, so anything inside it is ignored here.
-      onClick={(event) => {
-        if (event.target === dialog.current) onClose();
-      }}
     >
       <div className="max-h-[80vh] overflow-auto">
         <header className="flex items-center border-b border-slate-200 px-4 py-2">

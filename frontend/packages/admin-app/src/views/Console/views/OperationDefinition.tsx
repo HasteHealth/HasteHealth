@@ -353,6 +353,17 @@ function Editor({
   );
 }
 
+/** `Modal`'s content: the invocation dialog for `operation`. */
+function renderInvocationModal(operation: OperationDefinition, dirty: boolean) {
+  return function ModalContent(
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  ) {
+    return (
+      <InvocationModal operation={operation} dirty={dirty} setOpen={setOpen} />
+    );
+  };
+}
+
 /** `Modal`'s trigger: opens the invocation dialog. */
 function renderInvokeButton(setOpen: (open: boolean) => void) {
   return (
@@ -407,13 +418,7 @@ function CodeView({
         <div className="flex items-center gap-2 py-2">
           <Modal
             modalTitle={`Invoke ${operation.code ?? "operation"}`}
-            ModalContent={(setOpen) => (
-              <InvocationModal
-                operation={operation}
-                dirty={dirty}
-                setOpen={setOpen}
-              />
-            )}
+            ModalContent={renderInvocationModal(operation, dirty)}
           >
             {renderInvokeButton}
           </Modal>

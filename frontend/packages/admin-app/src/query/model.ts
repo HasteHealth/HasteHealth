@@ -214,12 +214,12 @@ export function parseCommand(text: string): Command | undefined {
 
   // An explicit verb, if one was typed.
   let verb: Verb = "GET";
-  const verbMatch = /^([A-Za-z]{1,10})\s+(.*)$/.exec(rest);
-  if (verbMatch) {
-    const candidate = verbMatch[1].toUpperCase() as Verb;
+  const space = rest.search(/\s/);
+  if (space !== -1) {
+    const candidate = rest.slice(0, space).toUpperCase() as Verb;
     if (VERBS.includes(candidate)) {
       verb = candidate;
-      rest = verbMatch[2].trim();
+      rest = rest.slice(space + 1).trim();
     }
   }
   if (rest === "") return undefined;
