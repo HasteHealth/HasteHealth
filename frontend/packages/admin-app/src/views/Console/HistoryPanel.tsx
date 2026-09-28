@@ -14,12 +14,30 @@ import { R4, ResourceType } from "@haste-health/fhir-types/versions";
 
 import { getClient } from "../../db/client";
 import { Target } from "../../query/model";
+import { Badge, PanelHeader } from "./PanelHeader";
+
+/** How a history listing names itself, matching the path it lists. */
+function historyTitle(target: Target): string {
+  switch (target.level) {
+    case "system":
+      return "_history";
+    case "type":
+      return `${target.resourceType}/_history`;
+    case "instance":
+      return `${target.resourceType}/${target.id}/_history`;
+  }
+}
 
 const PAGE_SIZE = 25;
 
 export interface HistoryPanelProps {
   /** Which level to list, taken straight from the command's target. */
   target: Target;
+  /**
+   * Show the panel's own header. Off inside the instance view's History tab,
+   * where the panel already sits under that resource's header.
+   */
+  heading?: boolean;
 }
 
 /**
@@ -29,7 +47,10 @@ export interface HistoryPanelProps {
  * make - the columns and paging are identical - so they are one view rather
  * than the three near-copies this replaces.
  */
-export function HistoryPanel({ target }: Readonly<HistoryPanelProps>) {
+export function HistoryPanel({
+  target,
+  heading = false,
+}: Readonly<HistoryPanelProps>) {
   const client = useAtomValue(getClient);
   const navigate = useNavigate();
   const [entries, setEntries] = useState<BundleEntry[]>([]);
@@ -96,18 +117,27 @@ export function HistoryPanel({ target }: Readonly<HistoryPanelProps>) {
     return <OutcomePanel outcome={outcome} />;
   }
 
-  return (
-    <div className="flex flex-col">
+  const counts = (
+    <>
+      <Badge>{entries.length} entries</Badge>
       {elapsedMs !== undefined && (
-        <div className="mb-2 flex items-center gap-2 text-xs text-slate-500">
-          <span>{entries.length} entries</span>
-          <span
-            className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600"
-            title="Round trip time as the browser measured it"
-          >
+        <Badge>
+          <span title="Round trip time as the browser measured it">
             {elapsedMs} ms
           </span>
-        </div>
+        </Badge>
+      )}
+    </>
+  );
+
+  return (
+    <div className="flex flex-col">
+      {heading ? (
+        <PanelHeader title={historyTitle(target)} badges={counts} />
+      ) : (
+        elapsedMs !== undefined && (
+          <div className="mb-2 flex items-center gap-2">{counts}</div>
+        )
       )}
       <Table
         isLoading={loading}

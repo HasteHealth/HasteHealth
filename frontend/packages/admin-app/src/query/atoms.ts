@@ -125,6 +125,12 @@ export const setColumnsAtom = atom(
  * a hundred and any one workspace cares about a few, so which few is worth
  * remembering.
  */
+/**
+ * Whether the Recent rail is open. Closed by default: it is a working log,
+ * useful once you have run something and noise before that.
+ */
+export const recentOpenAtom = workspaceAtom<boolean>("recentOpen", false);
+
 export const pinnedTypesAtom = workspaceAtom<string[]>("pinnedTypes", []);
 
 /** Adds or removes a type from the pinned list. */

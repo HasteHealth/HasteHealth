@@ -1,6 +1,6 @@
 import { ClockIcon, TrashIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 
@@ -12,16 +12,19 @@ import {
   commandFromLocation,
   commandToPath,
   describeCommand,
+  historyCommand,
   isMutation,
   sameCommand,
 } from "../../query/model";
 import {
   clearHistoryAtom,
   historyAtom,
+  recentOpenAtom,
   recordCommandAtom,
   removeCommandAtom,
 } from "../../query/atoms";
 import { HistoryPanel } from "./HistoryPanel";
+import { ResourceTypeHeader } from "./ResourceTypeHeader";
 import { MutationPanel } from "./MutationPanel";
 import { ResourcePanel } from "./ResourcePanel";
 import { ResultsPanel } from "./ResultsPanel";
@@ -41,16 +44,38 @@ function age(at: number): string {
 function RecentPanel({
   entries,
   current,
+  open,
+  onOpenChange,
   onSelect,
   onRemove,
   onClear,
 }: Readonly<{
   entries: CommandHistoryEntry[];
   current?: Command;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onSelect: (command: Command) => void;
   onRemove: (command: Command) => void;
   onClear: () => void;
 }>) {
+  // Closed, it is a thin rail rather than nothing at all, so the history is
+  // still one click away.
+  if (!open) {
+    return (
+      <aside className="hidden shrink-0 xl:flex">
+        <button
+          className="flex flex-col items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-3 text-slate-400 hover:bg-slate-50 hover:text-slate-600"
+          onClick={() => onOpenChange(true)}
+          title={`Recent commands${entries.length > 0 ? ` (${entries.length})` : ""}`}
+          type="button"
+        >
+          <ClockIcon className="h-4 w-4" />
+          <span className="text-[11px] [writing-mode:vertical-rl]">Recent</span>
+        </button>
+      </aside>
+    );
+  }
+
   return (
     <aside className="hidden w-64 shrink-0 flex-col rounded-lg border border-slate-200 bg-white xl:flex">
       <header className="flex items-center gap-2 border-b border-slate-200 px-3 py-2">
@@ -68,6 +93,14 @@ function RecentPanel({
             <TrashIcon className="h-4 w-4" />
           </button>
         )}
+        <button
+          className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          onClick={() => onOpenChange(false)}
+          title="Hide"
+          type="button"
+        >
+          <XMarkIcon className="h-4 w-4" />
+        </button>
       </header>
       {entries.length === 0 ? (
         <p className="px-3 py-4 text-xs text-slate-400">
@@ -187,6 +220,7 @@ export default function Console() {
 
   // History is workspace state that persists itself.
   const history = useAtomValue(historyAtom);
+  const [recentOpen, setRecentOpen] = useAtom(recentOpenAtom);
   const recordCommand = useSetAtom(recordCommandAtom);
   const removeCommand = useSetAtom(removeCommandAtom);
   const clearHistory = useSetAtom(clearHistoryAtom);
@@ -281,7 +315,7 @@ export default function Console() {
     }
 
     if (command.interaction.kind === "history") {
-      return <HistoryPanel target={command.target} />;
+      return <HistoryPanel target={command.target} heading />;
     }
 
     if (command.target.level === "instance") {
@@ -289,16 +323,32 @@ export default function Console() {
     }
 
     if (command.target.level === "type") {
+      const { resourceType } = command.target;
       return (
-        <ResultsPanel
-          command={command}
-          resourceType={command.target.resourceType}
-          search={searchText}
-          offset={offset}
-          onOffsetChange={onOffsetChange}
-          sort={searchParams.get("_sort") ?? undefined}
-          onSortChange={onSortChange}
-        />
+        <div className="flex min-h-0 flex-1 flex-col">
+          <ResourceTypeHeader
+            resourceType={resourceType}
+            onHistory={() =>
+              run(historyCommand({ level: "type", resourceType }))
+            }
+            onNew={() =>
+              run({
+                verb: "POST",
+                target: { level: "type", resourceType },
+                interaction: { kind: "resource" },
+              })
+            }
+          />
+          <ResultsPanel
+            command={command}
+            resourceType={resourceType}
+            search={searchText}
+            offset={offset}
+            onOffsetChange={onOffsetChange}
+            sort={searchParams.get("_sort") ?? undefined}
+            onSortChange={onSortChange}
+          />
+        </div>
       );
     }
 
@@ -332,6 +382,8 @@ export default function Console() {
         <RecentPanel
           entries={history}
           current={command}
+          open={recentOpen}
+          onOpenChange={setRecentOpen}
           onSelect={run}
           onRemove={removeCommand}
           onClear={clearHistory}
