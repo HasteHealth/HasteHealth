@@ -61,12 +61,14 @@ function RecentPanel({
   // Closed, it is a thin rail rather than nothing at all, so the history is
   // still one click away.
   if (!open) {
+    const count = entries.length > 0 ? ` (${entries.length})` : "";
+
     return (
       <aside className="hidden shrink-0 xl:flex">
         <button
           className="flex flex-col items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-3 text-slate-400 hover:bg-slate-50 hover:text-slate-600"
           onClick={() => onOpenChange(true)}
-          title={`Recent commands${entries.length > 0 ? ` (${entries.length})` : ""}`}
+          title={`Recent commands${count}`}
           type="button"
         >
           <ClockIcon className="h-4 w-4" />
