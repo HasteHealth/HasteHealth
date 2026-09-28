@@ -24,7 +24,9 @@ import {
   isConditional,
   mutationWarning,
 } from "../../query/model";
-import { hasTypePanels, typeTabs, typeTemplate } from "./TypePanels";
+import { customViews, hasCustomViews } from "./registry";
+import { useViewTabs } from "./useViewTabs";
+import { typeTemplate } from "./views";
 
 type Client = ReturnType<typeof import("../../db/client").createAdminAppClient>;
 
@@ -145,7 +147,11 @@ export function MutationPanel({
     }
     if (command.verb === "PATCH") {
       setBody(
-        JSON.stringify([{ op: "replace", path: "/status", value: "" }], null, 2),
+        JSON.stringify(
+          [{ op: "replace", path: "/status", value: "" }],
+          null,
+          2,
+        ),
       );
       return undefined;
     }
@@ -210,27 +216,25 @@ export function MutationPanel({
     }
   }, [body, needsBody, command.verb]);
 
-  const [viewPane, setViewPane] = useState(0);
-  const [selectedTab, setSelectedTab] = useState(0);
-
-  const specializedTabs =
-    bodyResource && hasTypePanels(bodyResource.resourceType)
-      ? typeTabs({
+  const {
+    tabs: bodyTabs,
+    selectedTab,
+    onTab,
+  } = useViewTabs((paneState, showPane) => [
+    ...(bodyResource && hasCustomViews(bodyResource.resourceType)
+      ? customViews({
           resource: bodyResource,
-          // Nothing is saved yet, so there is no saved version to differ from
-          // and nothing to invoke or log against.
+          resourceType: bodyResource.resourceType as string,
+          // Nothing is saved yet, so there is nothing to diff against,
+          // invoke, or look up logs for.
           saved: false,
+          dirty: false,
+          readOnly: false,
           onChange: (next) => setBody(JSON.stringify(next, null, 2)),
-          viewPane,
-          onViewPaneChange: (pane) => {
-            setViewPane(pane);
-            setSelectedTab(pane);
-          },
+          paneState,
+          onPaneStateChange: showPane,
         })
-      : [];
-
-  const bodyTabs = [
-    ...specializedTabs,
+      : []),
     {
       id: "json",
       title: "JSON",
@@ -238,7 +242,7 @@ export function MutationPanel({
         <JSONTextEditor value={body} onChange={setBody} hint="Request body" />
       ),
     },
-  ];
+  ]);
 
   const request = useMemo(() => describeRequest(command), [command]);
   const warning = mutationWarning(command);
@@ -332,21 +336,8 @@ export function MutationPanel({
 
       {needsBody && (
         <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200 bg-white p-3">
-          {specializedTabs.length > 0 ? (
-            <Tabs
-              selectedTab={selectedTab}
-              onTab={(tab) => {
-                const id = String(tab.id);
-                const index = bodyTabs.findIndex(
-                  (candidate) => candidate.id === id,
-                );
-                setSelectedTab(index === -1 ? 0 : index);
-                if (id.startsWith("view-")) {
-                  setViewPane(Number(id.slice("view-".length)));
-                }
-              }}
-              tabs={bodyTabs}
-            />
+          {bodyTabs.length > 1 ? (
+            <Tabs selectedTab={selectedTab} onTab={onTab} tabs={bodyTabs} />
           ) : (
             <JSONTextEditor
               value={body}

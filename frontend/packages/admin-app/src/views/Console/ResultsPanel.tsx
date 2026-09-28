@@ -8,7 +8,11 @@ import {
   toOutcome,
   useSearch,
 } from "@haste-health/components";
-import { AllResourceTypes, R4, Resource } from "@haste-health/fhir-types/versions";
+import {
+  AllResourceTypes,
+  R4,
+  Resource,
+} from "@haste-health/fhir-types/versions";
 
 import { getClient } from "../../db/client";
 import { Command, describeRequest } from "../../query/model";
@@ -47,7 +51,13 @@ export function ResultsPanel({
   const navigate = useNavigate();
 
   const {
-    resources, total, loading, elapsedMs, error, errorCause, searchParameters,
+    resources,
+    total,
+    loading,
+    elapsedMs,
+    error,
+    errorCause,
+    searchParameters,
   } = useSearch({
     client,
     fhirVersion: R4,

@@ -1,4 +1,7 @@
-import { ArrowTopRightOnSquareIcon, ClockIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowTopRightOnSquareIcon,
+  ClockIcon,
+} from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
@@ -22,7 +25,9 @@ import { ElementInfo, getStructures } from "../../db/structures";
 import { Target } from "../../query/model";
 import { fhirResourceDocsUrl, getErrorMessage } from "../../utilities";
 import { HistoryPanel } from "./HistoryPanel";
-import { typeTabs } from "./TypePanels";
+import { resourceViews } from "./registry";
+import { useViewTabs } from "./useViewTabs";
+import "./views";
 
 export interface ResourcePanelProps {
   target: Extract<Target, { level: "instance" }>;
@@ -30,7 +35,8 @@ export interface ResourcePanelProps {
 
 /** Flattens a resource into the leaf paths present on it. */
 function leafPaths(value: unknown, prefix = ""): string[] {
-  if (value === null || typeof value !== "object") return prefix ? [prefix] : [];
+  if (value === null || typeof value !== "object")
+    return prefix ? [prefix] : [];
   if (Array.isArray(value)) {
     return value.flatMap((item) => leafPaths(item, prefix));
   }
@@ -132,7 +138,10 @@ function Elements({
                 <td className="whitespace-nowrap px-3 py-1.5 text-xs text-slate-500">
                   {/* An inherited row describes its ancestor, so showing that
                       ancestor's type against a leaf would be misleading. */}
-                  {inherited ? "—" : ((info?.types.join(" | ") ?? "—") + (info?.isArray ? "[]" : ""))}
+                  {inherited
+                    ? "—"
+                    : (info?.types.join(" | ") ?? "—") +
+                      (info?.isArray ? "[]" : "")}
                 </td>
                 <td className="px-3 py-1.5 text-xs text-slate-600">
                   {info?.short ? (
@@ -140,7 +149,8 @@ function Elements({
                       {info.short}{" "}
                       {inherited && (
                         <span className="text-slate-400">
-                          (part of <span className="font-mono">{inherited}</span>
+                          (part of{" "}
+                          <span className="font-mono">{inherited}</span>
                           {info.types.length > 0 && `, a ${info.types[0]}`})
                         </span>
                       )}
@@ -223,18 +233,19 @@ export function ResourcePanel({ target }: Readonly<ResourcePanelProps>) {
     [draft, resource],
   );
 
-  // Which SQL runner pane a ViewDefinition is showing. It lives here so that
-  // running a view can move the panel to the Results tab.
-  const [viewPane, setViewPane] = useState(0);
-  const [selectedTab, setSelectedTab] = useState(0);
-
   const save = () => {
     if (!draft) return;
     setSaving(true);
     setSaveOutcome(undefined);
     Toaster.promise(
       client
-        .update({}, R4, resourceType as ResourceType<R4>, resourceId as id, draft)
+        .update(
+          {},
+          R4,
+          resourceType as ResourceType<R4>,
+          resourceId as id,
+          draft,
+        )
         .then((result) => {
           setSaved(result as Resource);
           setDraft(result as Resource);
@@ -255,21 +266,7 @@ export function ResourcePanel({ target }: Readonly<ResourcePanelProps>) {
     );
   };
 
-  const tabs = [
-    ...typeTabs({
-      // The specialized editors read and write the draft, so they show an
-      // edit made in the JSON tab and vice versa.
-      resource: draft ?? resource ?? ({} as Resource),
-      dirty,
-      readOnly,
-      onChange: setDraft,
-      viewPane,
-      // Running a view moves it to its results, which is a sibling tab here.
-      onViewPaneChange: (pane: number) => {
-        setViewPane(pane);
-        setSelectedTab(pane);
-      },
-    }),
+  const generic = [
     {
       id: "json",
       title: "JSON",
@@ -305,16 +302,24 @@ export function ResourcePanel({ target }: Readonly<ResourcePanelProps>) {
           },
         ]),
   ];
-
-  /** Keeps the selected tab and the runner's pane in step. */
-  const onTab = (tab: { id: number | string }) => {
-    const id = String(tab.id);
-    const index = tabs.findIndex((candidate) => candidate.id === id);
-    setSelectedTab(index === -1 ? 0 : index);
-    if (id.startsWith("view-")) {
-      setViewPane(Number(id.slice("view-".length)));
-    }
-  };
+  const { tabs, selectedTab, onTab } = useViewTabs((paneState, showPane) =>
+    resourceViews(
+      {
+        // Custom views read and write the draft, so an edit here shows in the
+        // JSON tab and vice versa.
+        resource: draft ?? resource ?? ({} as Resource),
+        resourceType,
+        resourceId,
+        dirty,
+        readOnly,
+        saved: true,
+        onChange: setDraft,
+        paneState,
+        onPaneStateChange: showPane,
+      },
+      generic,
+    ),
+  );
 
   if (loading) {
     return (

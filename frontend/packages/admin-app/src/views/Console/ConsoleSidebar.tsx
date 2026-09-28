@@ -125,7 +125,9 @@ export function ConsoleSidebar({
         <button
           className={classNames(
             "rounded p-1 text-slate-300 hover:text-amber-500",
-            isPinned ? "visible text-amber-500" : "invisible group-hover:visible",
+            isPinned
+              ? "visible text-amber-500"
+              : "invisible group-hover:visible",
           )}
           onClick={() => onTogglePin(type)}
           title={isPinned ? `Unpin ${type}` : `Pin ${type}`}
@@ -165,33 +167,33 @@ export function ConsoleSidebar({
 
         {isOpen && (
           <div className="mb-1">
-           <ul>
-            {group.sections.map((section) => (
-              <li key={section.label}>
-                {/* A module with one section is not worth a subheading.
+            <ul>
+              {group.sections.map((section) => (
+                <li key={section.label}>
+                  {/* A module with one section is not worth a subheading.
                     The heading is indented past its module and trails a rule,
                     so it reads as a divider inside the group rather than as a
                     new group of its own. */}
-                {group.sections.length > 1 && (
-                  <div className="flex items-center gap-1.5 pb-0.5 pl-5 pr-2 pt-2">
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
-                      {section.label}
-                    </span>
-                    <span className="h-px flex-1 bg-slate-200" />
-                  </div>
-                )}
-                <ul>
-                  {section.types.map((type) => (
-                    <TypeRow
-                      key={type}
-                      type={type}
-                      depth={group.sections.length > 1 ? 2 : 1}
-                    />
-                  ))}
-                </ul>
-              </li>
-            ))}
-           </ul>
+                  {group.sections.length > 1 && (
+                    <div className="flex items-center gap-1.5 pb-0.5 pl-5 pr-2 pt-2">
+                      <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                        {section.label}
+                      </span>
+                      <span className="h-px flex-1 bg-slate-200" />
+                    </div>
+                  )}
+                  <ul>
+                    {section.types.map((type) => (
+                      <TypeRow
+                        key={type}
+                        type={type}
+                        depth={group.sections.length > 1 ? 2 : 1}
+                      />
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </li>
