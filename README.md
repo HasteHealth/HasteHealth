@@ -8,10 +8,11 @@ Haste Health is a headless EHR. Store clinical data as FHIR R4 and serve it to y
 
 ## Running Locally
 
-The quickest way to get everything running is with the top-level [docker-compose.yml](./docker-compose.yml), which pulls the published images and starts PostgreSQL, Elasticsearch, the server, the worker, and the admin app:
+The quickest way to get everything running is with the top-level [docker-compose.yml](./docker-compose.yml), which pulls the published images and starts PostgreSQL, the server, the worker, and the admin app.
 
 ```bash
-docker-compose up
+curl -O https://raw.githubusercontent.com/HasteHealth/HasteHealth/main/docker-compose.yml
+docker compose up
 ```
 
 Once the containers are healthy, open `http://my-health_system.localhost:3001` and log in with:
@@ -31,7 +32,8 @@ If you're actively developing on the backend or frontend instead of just running
 docker-compose -f docker-services-compose.yml up
 ```
 
-This starts a PostgreSQL database, Elasticsearch, and a migration job for PostgreSQL and Elasticsearch schema migrations.
+This starts a PostgreSQL database and a migration job for the repository and
+search index schema migrations.
 
 ### 2. Server
 

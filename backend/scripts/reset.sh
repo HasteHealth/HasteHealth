@@ -3,8 +3,9 @@
 echo "Resetting haste_health database..."
 dropdb haste_health
 createdb haste_health
-echo "Deleting r4_search_index from Elasticsearch..."
-curl -u "elastic:SZxWWFbG"  -k http://localhost:9200/r4_search_index/ -XDELETE -H 'Content-Type: application/json'
+echo "Resetting haste_health_search database..."
+dropdb --if-exists haste_health_search
+createdb haste_health_search
 echo "Build schemas and artifacts..."
 cargo run admin migrate all
 echo "Creating tenant..."

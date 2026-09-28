@@ -9,10 +9,9 @@ database_url = "postgresql://postgres:postgres@localhost:5432/haste_health"
 max_connections = 20
 
 [search]
-backend = "elasticsearch"
-url = "http://localhost:9200"
-username = "elastic"
-password = "elastic"
+backend = "postgres"
+database_url = "postgresql://postgres:postgres@localhost:5432/haste_health_search"
+max_connections = 20
 
 [monitoring]
 audit_enabled = false

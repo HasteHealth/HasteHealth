@@ -1,36 +1,4 @@
 services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.2
-    volumes:
-      - ./data/elasticsearch:/usr/share/elasticsearch/data
-    ports:
-      - 127.0.0.1:9200:9200
-    environment:
-      - discovery.type=single-node
-      - ELASTIC_PASSWORD=elastic
-      - xpack.security.enabled=true
-      - xpack.security.http.ssl.enabled=false
-      - xpack.license.self_generated.type=trial
-      - xpack.ml.use_auto_machine_memory_percent=true
-      - ES_JAVA_OPTS=-Xms128m -Xmx2g
-      - cluster.routing.allocation.disk.watermark.low=1gb
-      - cluster.routing.allocation.disk.watermark.high=1gb
-      - cluster.routing.allocation.disk.watermark.flood_stage=1gb
-      - "_JAVA_OPTIONS=-XX:UseSVE=0"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl --output /dev/null --silent --head --fail -u elastic:elastic http://elasticsearch:9200",
-        ]
-      interval: 10s
-      timeout: 10s
-      retries: 30
-
   postgres:
     image: postgres:18.1
     ports:
@@ -41,19 +9,33 @@ services:
       - POSTGRES_DB=haste_health
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    # The search backend indexes into its own database, kept apart from the
+    # repository's.
+    command:
+      - bash
+      - -c
+      - |
+        docker-entrypoint.sh postgres &
+        until pg_isready -U "$$POSTGRES_USER" -q; do sleep 1; done
+        psql -v ON_ERROR_STOP=1 -U "$$POSTGRES_USER" -tc \
+          "SELECT 1 FROM pg_database WHERE datname = 'haste_health_search'" \
+          | grep -q 1 || createdb -U "$$POSTGRES_USER" haste_health_search
+        wait
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U postgres && psql -U postgres -lqt | cut -d'|' -f1 | grep -qw haste_health_search",
+        ]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   hastehealth-migrate:
     image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
     platform: linux/amd64
     depends_on:
       postgres:
-        condition: service_healthy
-      elasticsearch:
         condition: service_healthy
     entrypoint: ["/bin/bash"]
     command: >
@@ -63,8 +45,7 @@ services:
       - HASTE_REPO.backend=postgres
       - HASTE_REPO.database_url=postgresql://postgres:postgres@postgres:5432/haste_health
       - HASTE_REPO.max_connections=20
-      - HASTE_SEARCH.backend=elasticsearch
-      - HASTE_SEARCH.url=http://elasticsearch:9200
-      - HASTE_SEARCH.username=elastic
-      - HASTE_SEARCH.password=elastic
+      - HASTE_SEARCH.backend=postgres
+      - HASTE_SEARCH.database_url=postgresql://postgres:postgres@postgres:5432/haste_health_search
+      - HASTE_SEARCH.max_connections=20
       - HASTE_API_URI=http://localhost:3000

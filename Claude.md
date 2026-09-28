@@ -5,8 +5,8 @@
 ### Backend
 
 - Rust ~1.93 backend, Axum server
-- ElasticSearch - search
-- PostgreSQL 18 - Resource storage
+- PostgreSQL 18 - resource storage and, by default, the search index
+- ElasticSearch - optional alternative search backend
 
 ## Build Commands
 
