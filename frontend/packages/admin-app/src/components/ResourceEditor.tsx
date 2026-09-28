@@ -2,15 +2,18 @@ import { json } from "@codemirror/lang-json";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { basicSetup } from "codemirror";
 import { useAtomValue } from "jotai";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
 
 import {
   Button,
-  JSONResourceEditor,
   DropDownMenu,
+  FHIRGenerativeForm,
+  JSONResourceEditor,
+  Loading,
   MergeViewer,
   Modal,
+  Setter,
   Table,
   Tabs,
 } from "@haste-health/components";
@@ -177,12 +180,52 @@ export default function ResourceEditorComponent({
   leftTabs: leftSide = [],
   rightTabs: rightSide = [],
 }: AdditionalContent) {
+  const client = useAtomValue(getClient);
+
+  /**
+   * Applies a change from the generated form, which hands back a function of
+   * the current resource. An empty editor starts from the bare resourceType.
+   */
+  const setValue = useMemo(
+    () => (getResource: Setter) => {
+      onChange?.((resource) =>
+        getResource(
+          resource ?? ({ resourceType: structureDefinition?.type } as Resource),
+        ),
+      );
+    },
+    [structureDefinition, onChange],
+  );
+
   return (
     <Tabs
       tabs={[
-        // JSON comes first: this is a developer tool, and the resource as the
-        // server stores it is the thing to edit. Resource specific builders,
-        // where they exist, are passed in as `leftTabs`/`rightTabs`.
+        // First, so a type with a purpose-built editor opens on it rather
+        // than on the generic form.
+        ...leftSide,
+        // Otherwise the generated form leads, showing what the type allows.
+        // It is always listed, even while its definition loads: `Tabs` is
+        // uncontrolled, so adding a tab in front later would move the
+        // selection out from under the reader.
+        {
+          // Not `form`: Questionnaire contributes a tab of its own, and two
+          // tabs sharing a key render both.
+          id: "generated-form",
+          title: "Form",
+          content: structureDefinition ? (
+            <FHIRGenerativeForm
+              client={client}
+              fhirVersion={R4}
+              setValue={setValue}
+              structureDefinition={structureDefinition}
+              value={resource}
+            />
+          ) : (
+            <div className="flex flex-1 items-center justify-center py-8">
+              <Loading />
+            </div>
+          ),
+        },
         {
           id: "json",
           title: "JSON",
@@ -193,7 +236,6 @@ export default function ResourceEditorComponent({
             />
           ),
         },
-        ...leftSide,
         ...(id !== "new"
           ? [
               {

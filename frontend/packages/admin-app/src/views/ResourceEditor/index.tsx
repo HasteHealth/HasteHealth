@@ -25,7 +25,12 @@ import { R4 } from "@haste-health/fhir-types/versions";
 
 import ResourceEditorComponent from "../../components/ResourceEditor";
 import { getClient } from "../../db/client";
-import { fhirResourceDocsUrl, getErrorMessage } from "../../utilities";
+import {
+  fhirResourceDocsUrl,
+  getErrorMessage,
+  resourceInstancePath,
+  resourceListPath,
+} from "../../utilities";
 import AccessPolicyView from "./AccessPolicy";
 import IdentityProviderView from "./IdentityProvider";
 import OperationDefinitionView from "./OperationDefinition";
@@ -83,9 +88,15 @@ function ResourceEditorTabs({
               return getErrorMessage(error);
             },
           }).then((value) =>
-            navigate(`/r/${resourceType}/${(value as Resource).id}`, {
-              replace: true,
-            }),
+            navigate(
+              resourceInstancePath(
+                resourceType as string,
+                (value as Resource).id as string,
+              ),
+              {
+                replace: true,
+              },
+            ),
           );
         } catch (e) {
           Toaster.error(`${e}`);
@@ -111,7 +122,7 @@ function ResourceEditorTabs({
                 error: (error) => {
                   return getErrorMessage(error);
                 },
-              }).then(() => navigate(`/r/${resourceType}`));
+              }).then(() => navigate(resourceListPath(resourceType as string)));
             },
           },
         ]
@@ -279,7 +290,7 @@ export default function ResourceEditor() {
           <ChevronRightIcon className="h-4 w-4 text-slate-400" />
           <button
             className="rounded px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
-            onClick={() => navigate(`/r/${displayResourceType}`)}
+            onClick={() => navigate(resourceListPath(displayResourceType))}
             type="button"
           >
             {displayResourceType}

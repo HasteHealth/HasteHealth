@@ -9,10 +9,12 @@ import { useNavigate } from "react-router";
 
 import {
   Button,
+  FHIRGenerativeForm,
   JSONResourceEditor,
   Loading,
   Outcome,
   OutcomePanel,
+  Setter,
   Tabs,
   Toaster,
   toOutcome,
@@ -23,6 +25,7 @@ import { R4, ResourceType } from "@haste-health/fhir-types/versions";
 import { getClient } from "../../db/client";
 import { useRequest } from "../../hooks/useRequest";
 import { ElementInfo, getStructures } from "../../db/structures";
+import { StructureDefinition } from "@haste-health/fhir-types/r4/types";
 import { Target } from "../../query/model";
 import { fhirResourceDocsUrl, getErrorMessage } from "../../utilities";
 import { HistoryPanel } from "./HistoryPanel";
@@ -94,6 +97,65 @@ function typeLabel(
   if (inherited) return "—";
   const types = info?.types.join(" | ") ?? "—";
   return `${types}${info?.isArray ? "[]" : ""}`;
+}
+
+/**
+ * The resource as a form built from its StructureDefinition: the one view
+ * here that can fill in a field the resource does not already carry.
+ */
+function GeneratedForm({
+  resource,
+  resourceType,
+  onChange,
+}: Readonly<{
+  resource: Resource;
+  resourceType: string;
+  /** Omitted on a historical version, which cannot be saved. */
+  onChange?: React.Dispatch<React.SetStateAction<Resource | undefined>>;
+}>) {
+  const client = useAtomValue(getClient);
+  const structures = useAtomValue(getStructures);
+  const [sd, setSd] = useState<StructureDefinition>();
+
+  useEffect(() => {
+    let cancelled = false;
+    structures?.get(resourceType).then((found) => {
+      if (!cancelled) setSd(found);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [structures, resourceType]);
+
+  // Stable, because the form memoises on it, and applied through React's
+  // updater so the edit lands on the current draft.
+  const setValue = useMemo(
+    () => (getResource: Setter) =>
+      onChange?.((current) => getResource((current ?? {}) as Resource)),
+    [onChange],
+  );
+
+  if (!sd) {
+    return (
+      <div className="flex flex-1 items-center justify-center py-8">
+        <Loading />
+      </div>
+    );
+  }
+
+  // The form has no read-only mode, and omitting its setter would only make
+  // edits vanish silently, so a disabled fieldset does the work.
+  return (
+    <fieldset className="min-w-0" disabled={!onChange}>
+      <FHIRGenerativeForm
+        client={client}
+        fhirVersion={R4}
+        structureDefinition={sd}
+        value={resource}
+        setValue={setValue}
+      />
+    </fieldset>
+  );
 }
 
 function Elements({
@@ -284,7 +346,21 @@ export function ResourcePanel({ target }: Readonly<ResourcePanelProps>) {
       title: "JSON",
       content: (
         <JSONResourceEditor
-          resource={resource as Resource}
+          // The draft, so a form edit shows here. The editor keeps its own
+          // text while focused, so this does not disturb typing.
+          resource={(draft ?? resource) as Resource}
+          onChange={readOnly ? undefined : setDraft}
+        />
+      ),
+    },
+    {
+      id: "form",
+      title: "Form",
+      content: (
+        <GeneratedForm
+          // The draft, so a JSON edit shows here.
+          resource={(draft ?? resource) as Resource}
+          resourceType={resourceType}
           onChange={readOnly ? undefined : setDraft}
         />
       ),

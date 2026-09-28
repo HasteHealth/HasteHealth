@@ -34,8 +34,10 @@ export default function QuestionnaireView({
       onChange={onChange}
       rightTabs={[
         {
-          id: "form",
-          title: "Form",
+          // Not "Form": this fills the questionnaire in, while the editor's
+          // own Form tab edits the resource.
+          id: "preview",
+          title: "Preview",
           content: (
             <FHIRQuestionnaireRenderer
               schema={resource as Questionnaire}

@@ -29,3 +29,95 @@ export function getErrorMessage(error: any): string {
   }
   return "Unknown Error";
 }
+
+/**
+ * The URL a project's console lives at. A project is addressed by subdomain
+ * (`<tenant>_<project>`), so this is another origin, not another path.
+ */
+export function projectUrl(projectId: string): string {
+  const tenant = deriveTenantId();
+  const project = deriveProjectId();
+
+  return window.location.origin.replace(
+    `${tenant}_${project}`,
+    `${tenant}_${projectId}`,
+  );
+}
+
+/** Opens a project's console in a new tab. */
+export function openProject(projectId: string): void {
+  window.open(projectUrl(projectId), "_blank");
+}
+
+/**
+ * Where a resource type's listing lives in the app currently running: `/r/`
+ * in a project's console, `/resources/` in the system one. Shared views
+ * navigate through this rather than assuming either.
+ */
+export function resourceListPath(resourceType: string): string {
+  return deriveProjectId() === "system"
+    ? `/resources/${resourceType}`
+    : `/r/${resourceType}`;
+}
+
+/** Where a single resource's editor lives in the app currently running. */
+export function resourceInstancePath(
+  resourceType: string,
+  resourceId: string,
+): string {
+  return `${resourceListPath(resourceType)}/${resourceId}`;
+}
+
+/**
+ * A project id shares a 63 character DNS label with its tenant, so it takes
+ * well under half of that budget.
+ */
+const MAX_SLUG_LENGTH = 40;
+
+/**
+ * Turns a typed name into an id the server accepts: lowercase alphanumerics
+ * and `-`, matching `ID_CHARACTERS` in the repository crate (`_` is excluded
+ * for FHIR compliance). The result also has to be a hostname label, so it
+ * starts and ends alphanumeric.
+ *
+ * Empty when a name holds nothing usable, which callers read as "no slug".
+ */
+export function slugifyProjectName(name: string): string {
+  return (
+    name
+      .toLowerCase()
+      // Decompose accents, so the base letter survives rather than becoming
+      // a dash.
+      .normalize("NFKD")
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, MAX_SLUG_LENGTH)
+      // Slicing can leave a trailing dash behind.
+      .replace(/-$/, "")
+  );
+}
+
+/**
+ * A slug no existing project uses. Appends `-2`, `-3` and so on, trimming the
+ * base rather than the suffix to stay within [`MAX_SLUG_LENGTH`].
+ */
+export function uniqueProjectSlug(
+  slug: string,
+  taken: Iterable<string>,
+): string {
+  const used = new Set(taken);
+  if (!used.has(slug)) {
+    return slug;
+  }
+
+  for (let suffix = 2; ; suffix += 1) {
+    const tail = `-${suffix}`;
+    const base = slug.slice(0, MAX_SLUG_LENGTH - tail.length).replace(/-$/, "");
+    const candidate = `${base}${tail}`;
+    if (!used.has(candidate)) {
+      return candidate;
+    }
+  }
+}

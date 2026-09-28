@@ -139,11 +139,23 @@ function HasteHealthWrapper() {
   );
 }
 
-const SYSTEM_TYPES: r4Types.ResourceType[] = [
-  "Project",
-  "User",
-  "IdentityProvider",
+/**
+ * The system console's tabs. Projects leads: opening one is what a new user
+ * is here to do, while the other two administer access to it.
+ */
+const SYSTEM_TABS: {
+  type: r4Types.ResourceType;
+  label: string;
+}[] = [
+  { type: "Project", label: "Projects" },
+  { type: "User", label: "Users" },
+  { type: "IdentityProvider", label: "Identity providers" },
 ];
+
+/** The types this console manages, which is also what its search covers. */
+const SYSTEM_TYPES: r4Types.ResourceType[] = SYSTEM_TABS.map(
+  ({ type }) => type,
+);
 
 const APP_HEADER_HEIGHT_CLASS = "h-16";
 const APP_HEADER_OFFSET = "4rem";
@@ -152,24 +164,24 @@ function SystemBar() {
   const params = useParams();
 
   return (
-    <div className="flex flex-col w-full z-10">
-      {/* Create a horizontal navbar with circular buttons for navigation to user project IdentityProvider */}
-      <nav className="flex space-x-4 pb-4">
-        {SYSTEM_TYPES.map((type) => (
+    <div className="flex w-full flex-col overflow-y-auto z-10">
+      {/* Quiet, so it does not compete with the create call to action. */}
+      <nav className="mb-6 flex shrink-0 gap-6 border-b border-slate-200">
+        {SYSTEM_TABS.map(({ type, label }) => (
           <Link
             key={type}
             to={`/resources/${type}`}
             className={classNames(
-              "flex items-center justify-center  h-10 rounded-full px-4 text-sm text-slate-800",
+              "-mb-px border-b-2 px-1 pb-3 text-sm transition-colors",
               {
-                ["bg-brand-600 hover:bg-brand-600 text-white"]:
+                ["border-brand-600 font-semibold text-brand-700"]:
                   params.resourceType === type,
-                [" bg-gray-100 hover:bg-brand-600 hover:text-white p-2"]:
+                ["border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-800"]:
                   params.resourceType !== type,
               },
             )}
           >
-            {type}s
+            {label}
           </Link>
         ))}
       </nav>
