@@ -518,7 +518,24 @@ export type ViewDefinitionSqlRunnerProps = ClientProps & {
   setViewDefinition: (value: ViewDefinition) => void;
   defaultPageSize?: number;
   pageSizeOptions?: number[];
+  /**
+   * Shows just one pane and hides the runner's own tab strip, for a host that
+   * lays the panes out as tabs of its own. Without it the runner renders all
+   * three behind its own tabs, as it always has.
+   *
+   * {@link VIEW_DEFINITION_PANES} names the panes a host can pick from.
+   */
+  activePane?: number;
+  /** Told when the runner wants a different pane shown, e.g. after a run. */
+  onActivePaneChange?: (pane: number) => void;
 };
+
+/** The runner's panes, in order, for a host driving `activePane`. */
+export const VIEW_DEFINITION_PANES = [
+  { id: 0, title: "ViewDefinition" },
+  { id: 1, title: "Results" },
+  { id: 2, title: "Raw Output" },
+] as const;
 
 export function ViewDefinitionSqlRunner({
   client,
@@ -530,8 +547,16 @@ export function ViewDefinitionSqlRunner({
   setViewDefinition,
   defaultPageSize = 100,
   pageSizeOptions = [10, 20, 50, 100],
+  activePane,
+  onActivePaneChange,
 }: ViewDefinitionSqlRunnerProps) {
-  const [activeTab, setActiveTab] = useState(0);
+  const [ownActiveTab, setOwnActiveTab] = useState(0);
+  // Controlled when the host passes a pane, uncontrolled otherwise.
+  const activeTab = activePane ?? ownActiveTab;
+  const setActiveTab = (pane: number) => {
+    setOwnActiveTab(pane);
+    onActivePaneChange?.(pane);
+  };
   const [results, setResults] = useState<ParsedResults>({
     headers: [],
     rows: [],
@@ -666,6 +691,11 @@ export function ViewDefinitionSqlRunner({
       ),
     },
   ];
+
+  // A host with its own tabs shows one pane and supplies the strip itself.
+  if (activePane !== undefined) {
+    return <>{tabs.find((tab) => tab.id === activePane)?.content ?? null}</>;
+  }
 
   return (
     <Tabs

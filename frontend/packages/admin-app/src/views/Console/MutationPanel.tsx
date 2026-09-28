@@ -8,6 +8,7 @@ import {
   JSONTextEditor,
   Outcome,
   OutcomePanel,
+  Tabs,
   toOutcome,
 } from "@haste-health/components";
 import { Resource, id } from "@haste-health/fhir-types/r4/types";
@@ -23,6 +24,7 @@ import {
   isConditional,
   mutationWarning,
 } from "../../query/model";
+import { hasTypePanels, typeTabs, typeTemplate } from "./TypePanels";
 
 type Client = ReturnType<typeof import("../../db/client").createAdminAppClient>;
 
@@ -173,6 +175,13 @@ export function MutationPanel({
         setBody(JSON.stringify(existing, null, 2));
         return;
       }
+      // A type with its own editor starts from a template that editor can
+      // show, rather than from the bare required elements.
+      const specialized = typeTemplate(resourceType);
+      if (specialized) {
+        setBody(JSON.stringify(specialized, null, 2));
+        return;
+      }
       const structure = await structures?.get(resourceType);
       if (cancelled) return;
       setBody(JSON.stringify(templateFor(resourceType, structure), null, 2));
@@ -185,6 +194,51 @@ export function MutationPanel({
   const [confirming, setConfirming] = useState(false);
   const [running, setRunning] = useState(false);
   const [outcome, setOutcome] = useState<Outcome>();
+
+  // A type with its own editor gets it here too, so an operation's code or a
+  // view's projection can be written before the resource exists. The editors
+  // work on a resource, the request body is text, so it is parsed for them
+  // and written back as text.
+  const bodyResource = useMemo(() => {
+    if (!needsBody || command.verb === "PATCH") return undefined;
+    try {
+      return JSON.parse(body) as Resource;
+    } catch {
+      // Mid-edit the JSON is often invalid; the JSON tab is where that gets
+      // reported, so the specialized tabs simply have nothing to show.
+      return undefined;
+    }
+  }, [body, needsBody, command.verb]);
+
+  const [viewPane, setViewPane] = useState(0);
+  const [selectedTab, setSelectedTab] = useState(0);
+
+  const specializedTabs =
+    bodyResource && hasTypePanels(bodyResource.resourceType)
+      ? typeTabs({
+          resource: bodyResource,
+          // Nothing is saved yet, so there is no saved version to differ from
+          // and nothing to invoke or log against.
+          saved: false,
+          onChange: (next) => setBody(JSON.stringify(next, null, 2)),
+          viewPane,
+          onViewPaneChange: (pane) => {
+            setViewPane(pane);
+            setSelectedTab(pane);
+          },
+        })
+      : [];
+
+  const bodyTabs = [
+    ...specializedTabs,
+    {
+      id: "json",
+      title: "JSON",
+      content: (
+        <JSONTextEditor value={body} onChange={setBody} hint="Request body" />
+      ),
+    },
+  ];
 
   const request = useMemo(() => describeRequest(command), [command]);
   const warning = mutationWarning(command);
@@ -278,15 +332,32 @@ export function MutationPanel({
 
       {needsBody && (
         <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200 bg-white p-3">
-          <JSONTextEditor
-            value={body}
-            onChange={setBody}
-            hint={
-              command.verb === "PATCH"
-                ? "JSON Patch document: an array of operations."
-                : "Request body"
-            }
-          />
+          {specializedTabs.length > 0 ? (
+            <Tabs
+              selectedTab={selectedTab}
+              onTab={(tab) => {
+                const id = String(tab.id);
+                const index = bodyTabs.findIndex(
+                  (candidate) => candidate.id === id,
+                );
+                setSelectedTab(index === -1 ? 0 : index);
+                if (id.startsWith("view-")) {
+                  setViewPane(Number(id.slice("view-".length)));
+                }
+              }}
+              tabs={bodyTabs}
+            />
+          ) : (
+            <JSONTextEditor
+              value={body}
+              onChange={setBody}
+              hint={
+                command.verb === "PATCH"
+                  ? "JSON Patch document: an array of operations."
+                  : "Request body"
+              }
+            />
+          )}
         </div>
       )}
     </div>

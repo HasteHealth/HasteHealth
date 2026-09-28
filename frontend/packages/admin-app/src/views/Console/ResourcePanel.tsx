@@ -22,6 +22,7 @@ import { ElementInfo, getStructures } from "../../db/structures";
 import { Target } from "../../query/model";
 import { fhirResourceDocsUrl, getErrorMessage } from "../../utilities";
 import { HistoryPanel } from "./HistoryPanel";
+import { typeTabs } from "./TypePanels";
 
 export interface ResourcePanelProps {
   target: Extract<Target, { level: "instance" }>;
@@ -212,6 +213,21 @@ export function ResourcePanel({ target }: Readonly<ResourcePanelProps>) {
   /** An outcome from a failed save, shown above the editor. */
   const [saveOutcome, setSaveOutcome] = useState<Outcome>();
 
+  // Whether the draft has diverged from what the server last gave us. The
+  // specialized tabs use it to warn that a run uses the saved version.
+  const dirty = useMemo(
+    () =>
+      draft !== undefined &&
+      resource !== undefined &&
+      JSON.stringify(draft) !== JSON.stringify(resource),
+    [draft, resource],
+  );
+
+  // Which SQL runner pane a ViewDefinition is showing. It lives here so that
+  // running a view can move the panel to the Results tab.
+  const [viewPane, setViewPane] = useState(0);
+  const [selectedTab, setSelectedTab] = useState(0);
+
   const save = () => {
     if (!draft) return;
     setSaving(true);
@@ -237,6 +253,67 @@ export function ResourcePanel({ target }: Readonly<ResourcePanelProps>) {
         error: (error) => getErrorMessage(error),
       },
     );
+  };
+
+  const tabs = [
+    ...typeTabs({
+      // The specialized editors read and write the draft, so they show an
+      // edit made in the JSON tab and vice versa.
+      resource: draft ?? resource ?? ({} as Resource),
+      dirty,
+      readOnly,
+      onChange: setDraft,
+      viewPane,
+      // Running a view moves it to its results, which is a sibling tab here.
+      onViewPaneChange: (pane: number) => {
+        setViewPane(pane);
+        setSelectedTab(pane);
+      },
+    }),
+    {
+      id: "json",
+      title: "JSON",
+      content: (
+        <JSONResourceEditor
+          resource={resource as Resource}
+          onChange={readOnly ? undefined : setDraft}
+        />
+      ),
+    },
+    {
+      id: "elements",
+      title: "Elements",
+      content: (
+        <Elements resource={resource as Resource} resourceType={resourceType} />
+      ),
+    },
+    ...(versionId
+      ? []
+      : [
+          {
+            id: "history",
+            title: "History",
+            content: (
+              <HistoryPanel
+                target={{
+                  level: "instance" as const,
+                  resourceType,
+                  id: resourceId,
+                }}
+              />
+            ),
+          },
+        ]),
+  ];
+
+  /** Keeps the selected tab and the runner's pane in step. */
+  const onTab = (tab: { id: number | string }) => {
+    const id = String(tab.id);
+    const index = tabs.findIndex((candidate) => candidate.id === id);
+    setSelectedTab(index === -1 ? 0 : index);
+    if (id.startsWith("view-")) {
+      setViewPane(Number(id.slice("view-".length)));
+    }
   };
 
   if (loading) {
@@ -315,44 +392,7 @@ export function ResourcePanel({ target }: Readonly<ResourcePanelProps>) {
         </div>
       )}
 
-      <Tabs
-        tabs={[
-          {
-            id: "json",
-            title: "JSON",
-            content: (
-              <JSONResourceEditor
-                resource={resource}
-                onChange={readOnly ? undefined : setDraft}
-              />
-            ),
-          },
-          {
-            id: "elements",
-            title: "Elements",
-            content: (
-              <Elements resource={resource} resourceType={resourceType} />
-            ),
-          },
-          ...(versionId
-            ? []
-            : [
-                {
-                  id: "history",
-                  title: "History",
-                  content: (
-                    <HistoryPanel
-                      target={{
-                        level: "instance" as const,
-                        resourceType,
-                        id: resourceId,
-                      }}
-                    />
-                  ),
-                },
-              ]),
-        ]}
-      />
+      <Tabs selectedTab={selectedTab} onTab={onTab} tabs={tabs} />
     </div>
   );
 }
