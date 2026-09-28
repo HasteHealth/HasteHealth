@@ -70,7 +70,7 @@ export function Table({
   return (
     <div className="overflow-x-auto overflow-y-auto">
       <table className="text-left text-xs text-slate-600 w-full">
-        <thead className=" sticky top-0 z-5 border-b font-medium">
+        <thead className="sticky top-0 z-10 bg-white border-b font-medium">
           <tr>
             {columns.map((column, i) => (
               <th
