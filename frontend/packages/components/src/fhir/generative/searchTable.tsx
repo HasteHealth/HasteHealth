@@ -53,7 +53,8 @@ import {
 import { ClientProps } from "../types";
 
 interface FHIRGenerativeSearchTableProps<Version extends FHIR_VERSION>
-  extends Partial<TableProps>, ClientProps {
+  extends Partial<TableProps>,
+    ClientProps {
   fhirVersion: Version;
   resourceType: ResourceType<Version>;
   refresh?: (refreshFunc: () => void) => void;
@@ -398,7 +399,7 @@ function describePeriod(value: Period): string {
  * @param searchType The Search Parameter Type
  * @param value Some Value
  */
-function DataDisplay(searchType: string, value: unknown[]) {
+export function DataDisplay(searchType: string, value: unknown[]) {
   switch (searchType) {
     case "number": {
       return (value as number[]).map((v, i) => {

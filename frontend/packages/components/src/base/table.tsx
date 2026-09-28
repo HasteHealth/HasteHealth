@@ -88,9 +88,22 @@ export function Table({
             data.map((row, index) => (
               <tr
                 key={index}
-                className="border cursor-pointer hover:bg-slate-100"
+                // Keyboard reachable, so results can be worked without a
+                // mouse. The row keeps its `row` role: overriding it with
+                // `button` would hide the cells from a screen reader.
+                tabIndex={0}
+                data-table-row
+                className="border cursor-pointer hover:bg-slate-100 focus:outline-none focus-visible:bg-brand-50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
                 onClick={(e) => {
                   onRowClick(row, e);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter" && e.key !== " ") return;
+                  e.preventDefault();
+                  onRowClick(
+                    row,
+                    e as unknown as React.MouseEvent<HTMLTableRowElement>,
+                  );
                 }}
               >
                 {columns.map((column) => (

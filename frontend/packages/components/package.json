@@ -21,6 +21,7 @@
     "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {
+    "@codemirror/autocomplete": ">=6.0.0",
     "@codemirror/state": ">=6.0.0",
     "@codemirror/theme-one-dark": ">=6.0.0",
     "@codemirror/view": ">=6.0.0",
@@ -33,6 +34,7 @@
     "@babel/preset-react": "^7.29.7",
     "@babel/preset-typescript": "^7.29.7",
     "@chromatic-com/storybook": "^5.3.1",
+    "@codemirror/autocomplete": "^6.20.3",
     "@codemirror/state": "^6.5.2",
     "@codemirror/view": "^6.36.4",
     "@haste-health/fhir-types": "workspace:^",
@@ -49,7 +51,6 @@
     "@storybook/react-webpack5": "^10.6.0",
     "@types/react": "^19.2.17",
     "autoprefixer": "^10.5.2",
-    "codemirror": "^6.0.1",
     "css-loader": "^7.1.4",
     "postcss": "^8.5.23",
     "postcss-cli": "^11.0.1",
@@ -69,7 +70,9 @@
     "wrangler": "^4.130.0"
   },
   "dependencies": {
+    "@codemirror/lang-json": "^6.0.1",
     "@codemirror/lang-markdown": "^6.3.2",
+    "codemirror": "^6.0.1",
     "@codemirror/merge": "^6.10.0",
     "@haste-health/client": "workspace:^",
     "@haste-health/fhir-patch-building": "workspace:^",

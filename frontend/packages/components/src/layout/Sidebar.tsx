@@ -4,10 +4,11 @@ import React from "react";
 
 const SidebarOpenContext = React.createContext(true);
 
-export interface SideBarItemProps extends React.DetailedHTMLProps<
-  React.LiHTMLAttributes<HTMLLIElement>,
-  HTMLLIElement
-> {
+export interface SideBarItemProps
+  extends React.DetailedHTMLProps<
+    React.LiHTMLAttributes<HTMLLIElement>,
+    HTMLLIElement
+  > {
   active?: boolean;
   logo?: React.ReactNode;
   children: React.ReactNode;
@@ -51,10 +52,11 @@ export function SideBarItem({
   );
 }
 
-export interface SideBarItemGroupProps extends React.DetailedHTMLProps<
-  React.LiHTMLAttributes<HTMLLIElement>,
-  HTMLLIElement
-> {
+export interface SideBarItemGroupProps
+  extends React.DetailedHTMLProps<
+    React.LiHTMLAttributes<HTMLLIElement>,
+    HTMLLIElement
+  > {
   label?: string;
 }
 

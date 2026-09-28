@@ -2,10 +2,11 @@ import { Menu } from "@headlessui/react";
 import classNames from "classnames";
 import React, { DetailedHTMLProps, HTMLAttributes } from "react";
 
-interface Link extends DetailedHTMLProps<
-  HTMLAttributes<HTMLAnchorElement>,
-  HTMLAnchorElement
-> {
+interface Link
+  extends DetailedHTMLProps<
+    HTMLAttributes<HTMLAnchorElement>,
+    HTMLAnchorElement
+  > {
   label: React.ReactNode;
 }
 
