@@ -119,17 +119,14 @@ const TEMPLATES: Record<string, Record<string, unknown>> = {
  * terminology round trip.
  */
 function firstCode(short: string | undefined): string | undefined {
-  if (!short || !short.includes("|")) return undefined;
+  if (!short?.includes("|")) return undefined;
   const first = short.split("|")[0].trim();
   // A short that is prose rather than a code list will not look like a code.
   return /^[A-Za-z][A-Za-z0-9-]*$/.test(first) ? first : undefined;
 }
 
 /** A placeholder value for one element, by its FHIR type. */
-function sampleFor(
-  type: string,
-  element: ElementDefinition,
-): unknown {
+function sampleFor(type: string, element: ElementDefinition): unknown {
   switch (type) {
     case "code":
       return firstCode(element.short as string | undefined) ?? "";
@@ -198,7 +195,7 @@ export function templateFor(
   // point through the shared object.
   const example = TEMPLATES[resourceType];
   if (example) {
-    return JSON.parse(JSON.stringify(example)) as Resource;
+    return structuredClone(example) as unknown as Resource;
   }
 
   const template: Record<string, unknown> = { resourceType };

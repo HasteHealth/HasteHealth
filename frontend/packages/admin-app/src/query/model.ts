@@ -92,7 +92,8 @@ export function targetPath(command: Command): string {
   // A search on a type or system target is the conditional part of a
   // conditional write, and the query part of a plain search.
   const search = target.level === "instance" ? undefined : target.search;
-  return `${path}${search ? `?${search}` : ""}`;
+  const query = search ? `?${search}` : "";
+  return `${path}${query}`;
 }
 
 /**
@@ -144,6 +145,35 @@ export function isConditional(command: Command): boolean {
   );
 }
 
+/** What a DELETE would remove. */
+function deleteWarning(target: Target): string {
+  switch (target.level) {
+    case "system":
+      return "Deletes across the whole server.";
+    case "type":
+      return target.search
+        ? `Deletes every ${target.resourceType} matching this search.`
+        : `Deletes every ${target.resourceType} on the server.`;
+    case "instance":
+      return "Deletes this resource.";
+  }
+}
+
+/** What a POST would create. */
+function createWarning(target: Target): string {
+  if (target.level === "system") return "Submits a bundle to the server.";
+  const what = target.level === "type" ? target.resourceType : "resource";
+  return `Creates a new ${what}.`;
+}
+
+/** What a conditional PUT or PATCH would act on. */
+function conditionalWriteWarning(verb: Verb, target: Target): string {
+  const action = verb === "PATCH" ? "Patches" : "Updates";
+  const upsert = verb === "PUT" ? ", or creates one if none match" : "";
+  const type = target.level === "type" ? target.resourceType : "resource";
+  return `${action} every ${type} matching this search${upsert}.`;
+}
+
 /** A plain-language warning for a mutation, or `undefined` when there is none. */
 export function mutationWarning(command: Command): string | undefined {
   if (!isMutation(command)) return undefined;
@@ -155,28 +185,10 @@ export function mutationWarning(command: Command): string | undefined {
     return `Invokes $${interaction.operation}, which may change data.`;
   }
 
-  if (verb === "DELETE") {
-    switch (target.level) {
-      case "system":
-        return "Deletes across the whole server.";
-      case "type":
-        return target.search
-          ? `Deletes every ${target.resourceType} matching this search.`
-          : `Deletes every ${target.resourceType} on the server.`;
-      case "instance":
-        return "Deletes this resource.";
-    }
-  }
-  if (verb === "POST") {
-    return target.level === "system"
-      ? "Submits a bundle to the server."
-      : `Creates a new ${target.level === "type" ? target.resourceType : "resource"}.`;
-  }
+  if (verb === "DELETE") return deleteWarning(target);
+  if (verb === "POST") return createWarning(target);
   if (target.level === "type" && target.search) {
-    const action = verb === "PATCH" ? "Patches" : "Updates";
-    return `${action} every ${target.resourceType} matching this search${
-      verb === "PUT" ? ", or creates one if none match" : ""
-    }.`;
+    return conditionalWriteWarning(verb, target);
   }
   if (verb === "PUT") return "Replaces this resource.";
   if (verb === "PATCH") return "Applies a patch to this resource.";
@@ -202,7 +214,7 @@ export function parseCommand(text: string): Command | undefined {
 
   // An explicit verb, if one was typed.
   let verb: Verb = "GET";
-  const verbMatch = /^([A-Za-z]+)\s+(.*)$/.exec(rest);
+  const verbMatch = /^([A-Za-z]{1,10})\s+(.*)$/.exec(rest);
   if (verbMatch) {
     const candidate = verbMatch[1].toUpperCase() as Verb;
     if (VERBS.includes(candidate)) {
@@ -221,7 +233,7 @@ export function parseCommand(text: string): Command | undefined {
   const takeInteraction = (
     parts: string[],
   ): { interaction: Interaction; rest: string[] } => {
-    const last = parts[parts.length - 1];
+    const last = parts.at(-1);
     if (last === "_history") {
       return { interaction: { kind: "history" }, rest: parts.slice(0, -1) };
     }
@@ -266,7 +278,11 @@ export function parseCommand(text: string): Command | undefined {
   if (!/^[A-Z][A-Za-z0-9]*$/.test(resourceType)) return undefined;
 
   if (path.length === 1) {
-    return { verb, target: { level: "type", resourceType, search }, interaction };
+    return {
+      verb,
+      target: { level: "type", resourceType, search },
+      interaction,
+    };
   }
   if (path.length === 2) {
     return {
@@ -303,10 +319,7 @@ export function commandFromLocation(
 }
 
 /** Convenience for the sidebar and links: a plain search of one type. */
-export function searchCommand(
-  resourceType: string,
-  search?: string,
-): Command {
+export function searchCommand(resourceType: string, search?: string): Command {
   return {
     verb: "GET",
     target: { level: "type", resourceType, search },
@@ -314,25 +327,33 @@ export function searchCommand(
   };
 }
 
+/** What a history link points at. */
+export type HistoryScope =
+  | { level: "system" }
+  | { level: "type"; resourceType: string }
+  | { level: "instance"; resourceType: string; id: string };
+
+/** `scope` as a command target. */
+function targetForScope(scope: HistoryScope): Target {
+  switch (scope.level) {
+    case "system":
+      return { level: "system" };
+    case "type":
+      return { level: "type", resourceType: scope.resourceType };
+    case "instance":
+      return {
+        level: "instance",
+        resourceType: scope.resourceType,
+        id: scope.id,
+      };
+  }
+}
+
 /** Convenience for history links at any level. */
-export function historyCommand(
-  scope:
-    | { level: "system" }
-    | { level: "type"; resourceType: string }
-    | { level: "instance"; resourceType: string; id: string },
-): Command {
+export function historyCommand(scope: HistoryScope): Command {
   return {
     verb: "GET",
-    target:
-      scope.level === "system"
-        ? { level: "system" }
-        : scope.level === "type"
-          ? { level: "type", resourceType: scope.resourceType }
-          : {
-              level: "instance",
-              resourceType: scope.resourceType,
-              id: scope.id,
-            },
+    target: targetForScope(scope),
     interaction: { kind: "history" },
   };
 }

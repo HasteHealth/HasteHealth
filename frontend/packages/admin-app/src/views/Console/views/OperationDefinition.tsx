@@ -122,7 +122,7 @@ function TargetControls({
   return (
     <div className="mb-2 flex flex-wrap items-end gap-2">
       <label className="flex flex-col text-xs text-slate-600">
-        Level
+        <span>Level</span>
         <select
           className={field}
           value={target.level}
@@ -138,11 +138,11 @@ function TargetControls({
         </select>
       </label>
 
+      {/* Free text when the operation names no types, since it applies to any
+          of them. */}
       {target.level !== "system" && (
         <label className="flex flex-col text-xs text-slate-600">
-          Resource type
-          {/* Free text when the operation names no types, since it applies
-              to any of them. */}
+          <span>Resource type</span>
           {resourceTypes.length > 0 ? (
             <select
               className={field}
@@ -172,7 +172,7 @@ function TargetControls({
 
       {target.level === "instance" && (
         <label className="flex flex-col text-xs text-slate-600">
-          Id
+          <span>Id</span>
           <input
             className={`${field} font-mono`}
             placeholder="123"
@@ -353,6 +353,18 @@ function Editor({
   );
 }
 
+/** `Modal`'s trigger: opens the invocation dialog. */
+function renderInvokeButton(setOpen: (open: boolean) => void) {
+  return (
+    <Button buttonSize="small" onClick={() => setOpen(true)}>
+      <span className="flex items-center">
+        <PlayIcon className="mr-1 h-4 w-4" />
+        Invoke
+      </span>
+    </Button>
+  );
+}
+
 /** The operation's source, plus a way to run it. */
 function CodeView({
   operation,
@@ -403,14 +415,7 @@ function CodeView({
               />
             )}
           >
-            {(setOpen) => (
-              <Button buttonSize="small" onClick={() => setOpen(true)}>
-                <span className="flex items-center">
-                  <PlayIcon className="mr-1 h-4 w-4" />
-                  Invoke
-                </span>
-              </Button>
-            )}
+            {renderInvokeButton}
           </Modal>
           {dirty && (
             <span className="text-xs text-amber-700">

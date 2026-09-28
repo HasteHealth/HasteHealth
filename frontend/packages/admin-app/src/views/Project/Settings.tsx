@@ -364,8 +364,7 @@ function TenantBranding({ isOwner }: Readonly<{ isOwner: boolean }>) {
                 onChange={(e) => selectLogoFile(e.target.files?.[0])}
               />
               <p className="text-xs text-slate-500">
-                Logo must be a square PNG image; it will be resized to
-                150x150.
+                Logo must be a square PNG image; it will be resized to 150x150.
               </p>
 
               <div className="flex justify-end">
@@ -499,8 +498,8 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
 
   const oidcConfigured = Boolean(
     endpointMetadata?.["oidc-discovery-url"] &&
-    endpointMetadata?.["oidc-token-endpoint"] &&
-    endpointMetadata?.["oidc-authorize-endpoint"],
+      endpointMetadata?.["oidc-token-endpoint"] &&
+      endpointMetadata?.["oidc-authorize-endpoint"],
   );
 
   const tenant = user?.["https://haste.health/tenant"];

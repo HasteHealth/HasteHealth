@@ -40,6 +40,14 @@ const VERB_CLASS: Record<Verb, string> = {
   DELETE: "text-red-700",
 };
 
+/** Colours the Run button: amber for a mutation, brand for a read. */
+function runButtonClass(parsed: Command | undefined): string {
+  if (!parsed) return "cursor-not-allowed bg-slate-100 text-slate-400";
+  return isMutation(parsed)
+    ? "bg-amber-600 text-white hover:bg-amber-700"
+    : "bg-brand-600 text-white hover:bg-brand-700";
+}
+
 /**
  * The console's one input.
  *
@@ -74,10 +82,13 @@ export function CommandBar({
   const request = parsed ? describeRequest(parsed) : undefined;
 
   const run = (value?: string) => {
-    const next =
-      value === undefined
-        ? parsed
-        : parseCommand(value.trim() === "" ? "" : `${verb} ${value}`);
+    // No value means run what is already parsed; otherwise re-parse, since
+    // the text may have changed since the last render.
+    let next = parsed;
+    if (value !== undefined) {
+      const text = value.trim() === "" ? "" : `${verb} ${value}`;
+      next = parseCommand(text);
+    }
     if (next) onRun(next);
   };
 
@@ -132,11 +143,7 @@ export function CommandBar({
         <button
           className={classNames(
             "shrink-0 rounded px-2 py-1 text-xs font-medium",
-            parsed
-              ? isMutation(parsed)
-                ? "bg-amber-600 text-white hover:bg-amber-700"
-                : "bg-brand-600 text-white hover:bg-brand-700"
-              : "cursor-not-allowed bg-slate-100 text-slate-400",
+            runButtonClass(parsed),
           )}
           disabled={!parsed || busy}
           onClick={() => run()}

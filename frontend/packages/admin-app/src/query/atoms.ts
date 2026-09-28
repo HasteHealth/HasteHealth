@@ -36,8 +36,12 @@ function backing(): Storage {
     const memory = new Map<string, string>();
     return {
       getItem: (key: string) => memory.get(key) ?? null,
-      setItem: (key: string, value: string) => void memory.set(key, value),
-      removeItem: (key: string) => void memory.delete(key),
+      setItem: (key: string, value: string) => {
+        memory.set(key, value);
+      },
+      removeItem: (key: string) => {
+        memory.delete(key);
+      },
       clear: () => memory.clear(),
       key: (index: number) => Array.from(memory.keys())[index] ?? null,
       get length() {
@@ -54,9 +58,14 @@ function backing(): Storage {
  * caller wants the same key scoping and read-on-init behaviour.
  */
 function workspaceAtom<T>(name: string, initial: T) {
-  return atomWithStorage<T>(scopedKey(name), initial, createJSONStorage<T>(backing), {
-    getOnInit: true,
-  });
+  return atomWithStorage<T>(
+    scopedKey(name),
+    initial,
+    createJSONStorage<T>(backing),
+    {
+      getOnInit: true,
+    },
+  );
 }
 
 /** Past commands, most recently run first. */
@@ -75,7 +84,10 @@ export const recordCommandAtom = atom(null, (get, set, command: Command) => {
   const existing = get(historyAtom).filter(
     (entry) => !sameCommand(entry.command, command),
   );
-  set(historyAtom, [{ command, at: Date.now() }, ...existing].slice(0, HISTORY_LIMIT));
+  set(
+    historyAtom,
+    [{ command, at: Date.now() }, ...existing].slice(0, HISTORY_LIMIT),
+  );
 });
 
 /** Drops one command from the history. */

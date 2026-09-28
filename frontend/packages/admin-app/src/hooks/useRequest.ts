@@ -7,11 +7,7 @@
  * hand in each panel is where the bugs live, so it is written once here.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Outcome,
-  toOutcome,
-} from "@haste-health/components";
-
+import { Outcome, toOutcome } from "@haste-health/components";
 
 export interface RequestState<T> {
   data?: T;

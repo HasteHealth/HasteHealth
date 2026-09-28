@@ -118,6 +118,23 @@ export interface MutationPanelProps {
   onCancel: () => void;
 }
 
+/** What the send button reads: sending, confirming, or the request itself. */
+function sendLabel({
+  running,
+  confirming,
+  command,
+  request,
+}: {
+  running: boolean;
+  confirming: boolean;
+  command: Command;
+  request: { method: string; path: string };
+}): string {
+  if (running) return "Sending…";
+  if (confirming) return `Yes, send ${command.verb}`;
+  return `Send ${request.method} ${request.path}`;
+}
+
 /**
  * Runs a write.
  *
@@ -321,11 +338,7 @@ export function MutationPanel({
               }
             >
               <span className="block max-w-80 truncate">
-                {running
-                  ? "Sending…"
-                  : confirming
-                    ? `Yes, send ${command.verb}`
-                    : `Send ${request.method} ${request.path}`}
+                {sendLabel({ running, confirming, command, request })}
               </span>
             </Button>
           </div>

@@ -19,7 +19,6 @@
 
 import SPEC_CATEGORIES from "./resource-categories.json";
 
-
 /** Types the spec gives no category, grouped by where they come from. */
 const EXTRA_GROUPS: Record<string, string[]> = {
   "Haste Health.Access control": [

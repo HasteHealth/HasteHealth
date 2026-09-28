@@ -1,24 +1,4 @@
-import {
-  ArrowLeftOnRectangleIcon,
-  ArrowUpTrayIcon,
-  Bars3Icon,
-  BeakerIcon,
-  BellIcon,
-  CalendarDaysIcon,
-  ChartBarIcon,
-  CircleStackIcon,
-  ClipboardDocumentCheckIcon,
-  ClipboardDocumentListIcon,
-  ClockIcon,
-  Cog6ToothIcon,
-  DocumentMagnifyingGlassIcon,
-  ExclamationTriangleIcon,
-  LockClosedIcon,
-  PuzzlePieceIcon,
-  UserGroupIcon,
-  UsersIcon,
-  WrenchScrewdriverIcon,
-} from "@heroicons/react/24/outline";
+import { Bars3Icon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
 import { useAtom, useAtomValue } from "jotai";
 import { EditorView } from "@codemirror/view";
@@ -32,7 +12,6 @@ import {
   createBrowserRouter,
   generatePath,
   useLocation,
-  useMatches,
   useNavigate,
   useParams,
 } from "react-router";
@@ -41,7 +20,6 @@ import {
   HasteHealthProvider,
   Loading,
   ProfileDropdown,
-  SideBar,
   Toaster,
   useHasteHealth,
 } from "@haste-health/components";
@@ -373,24 +351,24 @@ function Navbar({ showLogo = true }: Readonly<{ showLogo?: boolean }>) {
           >
             <div>
               <div className="mt-2">
-                <a
-                  className={classNames(
-                    "cursor-pointer block px-4 py-2 text-sm hover:text-brand-800 hover:bg-brand-200",
-                  )}
+                <button
+                  className="block w-full cursor-pointer px-4 py-2 text-left text-sm hover:bg-brand-200 hover:text-brand-800"
                   onClick={() => {
                     navigate(generatePath("/settings", {}));
                   }}
+                  type="button"
                 >
                   Settings
-                </a>
-                <a
-                  className="cursor-pointer block px-4 py-2 text-sm text-slate-800 hover:text-brand-800 hover:bg-brand-200"
+                </button>
+                <button
+                  className="block w-full cursor-pointer px-4 py-2 text-left text-sm text-slate-800 hover:bg-brand-200 hover:text-brand-800"
                   onClick={() => {
                     hasteHealth.logout(window.location.origin);
                   }}
+                  type="button"
                 >
                   Sign out
-                </a>
+                </button>
               </div>
             </div>
           </ProfileDropdown>
@@ -639,18 +617,20 @@ function ProjectRoot() {
             }}
           >
             <div className="mt-2">
-              <a
-                className="block cursor-pointer px-4 py-2 text-sm hover:bg-brand-200 hover:text-brand-800"
+              <button
+                className="block w-full cursor-pointer px-4 py-2 text-left text-sm hover:bg-brand-200 hover:text-brand-800"
                 onClick={() => go("/settings")}
+                type="button"
               >
                 Settings
-              </a>
-              <a
-                className="block cursor-pointer px-4 py-2 text-sm text-slate-800 hover:bg-brand-200 hover:text-brand-800"
+              </button>
+              <button
+                className="block w-full cursor-pointer px-4 py-2 text-left text-sm text-slate-800 hover:bg-brand-200 hover:text-brand-800"
                 onClick={() => hasteHealth.logout(window.location.origin)}
+                type="button"
               >
                 Sign out
-              </a>
+              </button>
             </div>
           </ProfileDropdown>
         </div>

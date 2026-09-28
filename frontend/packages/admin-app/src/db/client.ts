@@ -10,7 +10,7 @@ type CachedClient = AsynchronousClient<HTTPContext>;
 
 export const getClient = atom<ReturnType<typeof createAdminAppClient>>(
   // Q Hack to avoid uneccessary checks.
-  undefined as unknown as ReturnType<typeof createAdminAppClient>
+  undefined as unknown as ReturnType<typeof createAdminAppClient>,
 );
 
 const cachedResponse: Record<
@@ -22,7 +22,7 @@ const cachedResponse: Record<
  ** Cache select calls for performance improvements (notably expansions).
  */
 export function createAdminAppClient(
-  client: ReturnType<typeof createHTTPClient>
+  client: ReturnType<typeof createHTTPClient>,
 ): CachedClient {
   return new AsynchronousClient(
     createMiddlewareAsync<
@@ -38,7 +38,7 @@ export function createAdminAppClient(
                 if (!cachedResponse[requestString]) {
                   cachedResponse[requestString] = state.client.request(
                     context.ctx,
-                    context.request
+                    context.request,
                   );
                 }
 
@@ -58,7 +58,7 @@ export function createAdminAppClient(
                     ...context,
                     response: await state.client.request(
                       context.ctx,
-                      context.request
+                      context.request,
                     ),
                   },
                 ];
@@ -72,12 +72,12 @@ export function createAdminAppClient(
                 ...context,
                 response: await state.client.request(
                   context.ctx,
-                  context.request
+                  context.request,
                 ),
               },
             ];
         }
       },
-    ])
+    ]),
   );
 }

@@ -147,6 +147,12 @@ function Welcome({
   );
 }
 
+/** `pathname` with `params` appended, omitting the `?` when it is empty. */
+function withQuery(pathname: string, params: URLSearchParams): string {
+  const query = params.toString();
+  return query ? `${pathname}?${query}` : pathname;
+}
+
 /**
  * The console.
  *
@@ -232,11 +238,8 @@ export default function Console() {
       const params = new URLSearchParams(location.search);
       if (next > 0) params.set("_offset", String(next));
       else params.delete("_offset");
-      const query = params.toString();
       // Paging is not a new command, so it should not fill up back/forward.
-      navigate(`${location.pathname}${query ? `?${query}` : ""}`, {
-        replace: true,
-      });
+      navigate(withQuery(location.pathname, params), { replace: true });
     },
     [navigate, location.pathname, location.search],
   );
@@ -246,8 +249,7 @@ export default function Console() {
       const params = new URLSearchParams(location.search);
       if (next) params.set("_sort", next);
       else params.delete("_sort");
-      const query = params.toString();
-      navigate(`${location.pathname}${query ? `?${query}` : ""}`);
+      navigate(withQuery(location.pathname, params));
     },
     [navigate, location.pathname, location.search],
   );

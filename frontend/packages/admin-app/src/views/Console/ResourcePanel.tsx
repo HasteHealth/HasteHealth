@@ -81,6 +81,19 @@ function describe(
  * the same StructureDefinition the server validates against, so someone who
  * does not know FHIR can read a resource without leaving the console.
  */
+/**
+ * The type cell's text. An inherited row describes an ancestor, so showing
+ * that ancestor's type against a leaf would be misleading.
+ */
+function typeLabel(
+  info: ElementInfo | undefined,
+  inherited: string | undefined,
+): string {
+  if (inherited) return "—";
+  const types = info?.types.join(" | ") ?? "—";
+  return `${types}${info?.isArray ? "[]" : ""}`;
+}
+
 function Elements({
   resource,
   resourceType,
@@ -106,7 +119,7 @@ function Elements({
       // Array indices are not part of an element's path.
       paths.add(path.replace(/\.\d+/g, ""));
     }
-    return Array.from(paths).sort();
+    return Array.from(paths).sort((a, b) => a.localeCompare(b));
   }, [resource]);
 
   if (!elements) {
@@ -138,10 +151,7 @@ function Elements({
                 <td className="whitespace-nowrap px-3 py-1.5 text-xs text-slate-500">
                   {/* An inherited row describes its ancestor, so showing that
                       ancestor's type against a leaf would be misleading. */}
-                  {inherited
-                    ? "—"
-                    : (info?.types.join(" | ") ?? "—") +
-                      (info?.isArray ? "[]" : "")}
+                  {typeLabel(info, inherited)}
                 </td>
                 <td className="px-3 py-1.5 text-xs text-slate-600">
                   {info?.short ? (

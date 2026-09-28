@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 import { Shortcut, modLabel } from "../hooks/useShortcuts";
 
@@ -18,20 +18,37 @@ function chord(shortcut: Shortcut): string {
     .join(" + ");
 }
 
-/** The list of shortcuts, shown over the console on `?`. */
-export function ShortcutHelp({ shortcuts, onClose }: Readonly<ShortcutHelpProps>) {
+/**
+ * The list of shortcuts, shown over the console.
+ *
+ * A native `<dialog>` rather than a styled div: it traps focus, closes on Esc
+ * and announces itself as a dialog without any of that being reimplemented.
+ */
+export function ShortcutHelp({
+  shortcuts,
+  onClose,
+}: Readonly<ShortcutHelpProps>) {
+  const dialog = useRef<HTMLDialogElement | null>(null);
+
+  useEffect(() => {
+    // `showModal` is what gives the backdrop and the focus trap, so the
+    // dialog is opened here rather than with the `open` attribute.
+    dialog.current?.showModal();
+  }, []);
+
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 p-4"
-      onClick={onClose}
-      role="presentation"
+    <dialog
+      ref={dialog}
+      aria-label="Keyboard shortcuts"
+      className="max-h-[80vh] w-full max-w-md rounded-lg border border-slate-200 bg-white p-0 shadow-xl backdrop:bg-slate-900/30"
+      onClose={onClose}
+      // A click on the backdrop reports the dialog itself as the target; the
+      // content sits in a child, so anything inside it is ignored here.
+      onClick={(event) => {
+        if (event.target === dialog.current) onClose();
+      }}
     >
-      <div
-        className="max-h-[80vh] w-full max-w-md overflow-auto rounded-lg border border-slate-200 bg-white shadow-xl"
-        onClick={(event) => event.stopPropagation()}
-        role="dialog"
-        aria-label="Keyboard shortcuts"
-      >
+      <div className="max-h-[80vh] overflow-auto">
         <header className="flex items-center border-b border-slate-200 px-4 py-2">
           <h2 className="flex-1 text-sm font-medium text-slate-800">
             Keyboard shortcuts
@@ -60,6 +77,6 @@ export function ShortcutHelp({ shortcuts, onClose }: Readonly<ShortcutHelpProps>
           ))}
         </ul>
       </div>
-    </div>
+    </dialog>
   );
 }

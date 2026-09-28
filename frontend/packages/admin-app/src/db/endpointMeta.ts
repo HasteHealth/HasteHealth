@@ -11,7 +11,7 @@ export const getEndpointMetadata = atom(async (get) => {
     TenantEndpointInformation.Op,
     {},
     R4,
-    {}
+    {},
   );
   return endpointMetadata;
 });
