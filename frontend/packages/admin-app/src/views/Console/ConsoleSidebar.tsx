@@ -8,6 +8,7 @@ import {
   MagnifyingGlassIcon,
   QuestionMarkCircleIcon,
   StarIcon,
+  CommandLineIcon,
   TableCellsIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarSolidIcon } from "@heroicons/react/24/solid";
@@ -28,6 +29,13 @@ const OPERATE_LINKS = [
     Icon: ExclamationTriangleIcon,
   },
   { path: "/r/ViewDefinition", label: "Projections", Icon: TableCellsIcon },
+  // Custom operations are authored as OperationDefinitions, so the listing is
+  // the way into building one.
+  {
+    path: "/r/OperationDefinition",
+    label: "Custom operations",
+    Icon: CommandLineIcon,
+  },
   { path: "/settings", label: "Settings", Icon: Cog6ToothIcon },
 ];
 

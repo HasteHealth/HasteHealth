@@ -1,6 +1,5 @@
 import { json } from "@codemirror/lang-json";
 import {
-  ArrowDownTrayIcon,
   CheckCircleIcon,
   ExclamationCircleIcon,
   SparklesIcon,
@@ -96,27 +95,6 @@ export function JSONResourceEditor({
             Format
           </span>
         </Button>
-        <Button
-          buttonSize="small"
-          buttonType="secondary"
-          disabled={error !== undefined}
-          onClick={() => {
-            const minified = (() => {
-              try {
-                return JSON.stringify(JSON.parse(text));
-              } catch {
-                return undefined;
-              }
-            })();
-            if (minified !== undefined) onTextChange(minified);
-          }}
-        >
-          <span className="flex items-center">
-            <ArrowDownTrayIcon className="mr-1 h-4 w-4 rotate-90" />
-            Minify
-          </span>
-        </Button>
-
         <div className="flex flex-1 justify-end">
           {error ? (
             <span

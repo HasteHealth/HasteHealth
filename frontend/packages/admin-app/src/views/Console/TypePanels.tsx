@@ -16,7 +16,7 @@ import { keymap } from "@codemirror/view";
 import { PlayIcon } from "@heroicons/react/24/outline";
 import { basicSetup } from "codemirror";
 import { useAtomValue } from "jotai";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import {
   Button,
@@ -74,9 +74,22 @@ const DEFAULT_OPERATION_CODE = `interface Context {
 }
 
 export default async function (context: Context) {
+  // \`parameters\` holds the inputs declared on this OperationDefinition.
+  const { input } = context.request.parameters as { input?: string };
+
+  // Each output is a named parameter, so the resource is returned inside a
+  // Parameters under the name this operation declares.
   return {
     resourceType: "Parameters",
-    parameter: [{ name: "echo", valueString: "hello" }],
+    parameter: [
+      {
+        name: "basic",
+        resource: {
+          resourceType: "Basic",
+          code: { text: \`echo: \${input ?? ""}\` },
+        },
+      },
+    ],
   };
 }
 `;
@@ -144,7 +157,33 @@ export function typeTemplate(resourceType: string): Resource | undefined {
           system: true,
           type: false,
           instance: false,
-        } as OperationDefinition,
+          // An input is only sent if it is declared here: the client builds
+          // the Parameters body from this list, so an undeclared name is
+          // dropped rather than transmitted.
+          parameter: [
+            {
+              name: "input",
+              use: "in",
+              min: 0,
+              max: "1",
+              type: "string",
+              documentation: "Replace with the inputs this operation takes.",
+            },
+            // Each declared output becomes a named parameter in the returned
+            // Parameters. The one exception is a single output named `return`
+            // typed as a resource, which FHIR treats as the response body
+            // itself; that needs `min` 1, `max` "1" and a resource type.
+            {
+              name: "basic",
+              use: "out",
+              min: 1,
+              max: "1",
+              type: "Basic",
+              documentation:
+                "The resource this operation returns. Rename it and narrow the type to whatever this operation produces.",
+            },
+          ],
+        } as unknown as OperationDefinition,
         DEFAULT_OPERATION_CODE,
       ) as Resource;
     case "ViewDefinition":
@@ -185,9 +224,34 @@ function InvocationModal({
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }>) {
   const client = useAtomValue(getClient);
-  const [parameters, setParameters] = useState("{}");
+  const declared = (operation.parameter ?? []).filter((p) => p.use === "in");
+  // The client builds the Parameters body from the declared inputs only, so a
+  // name that is not declared never reaches the server. Saying so here beats
+  // an empty request the user has to discover in the network tab.
+  const [parameters, setParameters] = useState(() =>
+    JSON.stringify(
+      Object.fromEntries(declared.map((p) => [p.name as string, ""])),
+      null,
+      2,
+    ),
+  );
   const [output, setOutput] = useState<unknown>();
   const [running, setRunning] = useState(false);
+
+  const typedNames = useMemo(() => {
+    try {
+      const parsed = JSON.parse(parameters) as Record<string, unknown>;
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+        ? Object.keys(parsed)
+        : [];
+    } catch {
+      return [];
+    }
+  }, [parameters]);
+
+  const undeclared = typedNames.filter(
+    (name) => !declared.some((p) => p.name === name),
+  );
 
   const run = () => {
     let parsed: unknown;
@@ -220,6 +284,41 @@ function InvocationModal({
           This runs the saved operation. Save first to invoke your current
           edits.
         </PanelHint>
+      )}
+      {declared.length === 0 ? (
+        <div className="mb-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          This operation declares no input parameters, so nothing you type here
+          is sent. Add a parameter with <code className="font-mono">use</code>{" "}
+          of <code className="font-mono">in</code> on the OperationDefinition
+          first.
+        </div>
+      ) : (
+        <div className="mb-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+          Declared inputs:{" "}
+          {declared.map((p) => (
+            <code
+              key={p.name as string}
+              className="mr-1 rounded bg-white px-1 py-0.5 font-mono"
+            >
+              {p.name as string}
+              {p.type ? `: ${p.type as string}` : ""}
+            </code>
+          ))}
+        </div>
+      )}
+      {undeclared.length > 0 && (
+        <div className="mb-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          Not declared on this operation, so{" "}
+          {undeclared.length === 1 ? "it" : "they"} will not be sent:{" "}
+          {undeclared.map((name) => (
+            <code
+              key={name}
+              className="mr-1 rounded bg-white px-1 py-0.5 font-mono"
+            >
+              {name}
+            </code>
+          ))}
+        </div>
       )}
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col">
