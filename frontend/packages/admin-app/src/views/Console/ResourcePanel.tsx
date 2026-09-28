@@ -1,5 +1,6 @@
 import {
   ArrowTopRightOnSquareIcon,
+  ArrowUturnLeftIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
@@ -25,6 +26,7 @@ import { ElementInfo, getStructures } from "../../db/structures";
 import { Target } from "../../query/model";
 import { fhirResourceDocsUrl, getErrorMessage } from "../../utilities";
 import { HistoryPanel } from "./HistoryPanel";
+import { Badge, PanelHeader } from "./PanelHeader";
 import { resourceViews } from "./registry";
 import { useViewTabs } from "./useViewTabs";
 import "./views";
@@ -343,57 +345,72 @@ export function ResourcePanel({ target }: Readonly<ResourcePanelProps>) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="font-mono text-sm text-slate-700">
-          {resourceType}/{resourceId}
-        </span>
-        {versionId && (
-          <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800">
-            version {versionId} · read only
-          </span>
-        )}
-        <span className="text-xs text-slate-400">
-          {resource.meta?.lastUpdated
-            ? `updated ${resource.meta.lastUpdated}`
-            : ""}
-        </span>
-
-        <div className="flex flex-1 justify-end gap-2">
-          <Button
-            buttonSize="small"
-            buttonType="secondary"
-            onClick={() =>
-              window.open(
-                fhirResourceDocsUrl(resourceType),
-                "_blank",
-                "noopener,noreferrer",
-              )
-            }
-          >
-            <span className="flex items-center">
-              <ArrowTopRightOnSquareIcon className="mr-1 h-4 w-4" />
-              Spec
-            </span>
-          </Button>
-          {versionId && (
+      <PanelHeader
+        title={`${resourceType}/${resourceId}`}
+        badges={
+          <>
+            {resource.meta?.versionId && (
+              <Badge>Version {resource.meta.versionId}</Badge>
+            )}
+            {versionId && <Badge tone="amber">read only</Badge>}
+          </>
+        }
+        actions={
+          <>
             <Button
               buttonSize="small"
               buttonType="secondary"
-              onClick={() => navigate(`/r/${resourceType}/${resourceId}`)}
+              onClick={() =>
+                window.open(
+                  fhirResourceDocsUrl(resourceType),
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
             >
               <span className="flex items-center">
-                <ClockIcon className="mr-1 h-4 w-4" />
-                Current
+                <ArrowTopRightOnSquareIcon className="mr-1 h-4 w-4" />
+                Docs
               </span>
             </Button>
-          )}
-          {!readOnly && (
-            <Button buttonSize="small" disabled={saving} onClick={save}>
-              {saving ? "Saving…" : "Save"}
-            </Button>
-          )}
-        </div>
-      </div>
+            {versionId ? (
+              <Button
+                buttonSize="small"
+                buttonType="secondary"
+                onClick={() => navigate(`/r/${resourceType}/${resourceId}`)}
+              >
+                <span className="flex items-center">
+                  <ArrowUturnLeftIcon className="mr-1 h-4 w-4" />
+                  Current
+                </span>
+              </Button>
+            ) : (
+              <Button
+                buttonSize="small"
+                buttonType="secondary"
+                onClick={() =>
+                  navigate(`/r/${resourceType}/${resourceId}/_history`)
+                }
+              >
+                <span className="flex items-center">
+                  <ClockIcon className="mr-1 h-4 w-4" />
+                  History
+                </span>
+              </Button>
+            )}
+            {!readOnly && (
+              <Button buttonSize="small" disabled={saving} onClick={save}>
+                {saving ? "Saving…" : "Save"}
+              </Button>
+            )}
+          </>
+        }
+        description={
+          resource.meta?.lastUpdated
+            ? `Updated ${resource.meta.lastUpdated}`
+            : ""
+        }
+      />
 
       {saveOutcome && (
         <div className="mb-2">
