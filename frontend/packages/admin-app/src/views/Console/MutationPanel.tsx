@@ -25,6 +25,7 @@ import {
   mutationWarning,
 } from "../../query/model";
 import { customViews, hasCustomViews } from "./registry";
+import { GeneratedForm } from "./GeneratedForm";
 import { useViewTabs } from "./useViewTabs";
 import { typeTemplate } from "./views";
 
@@ -259,6 +260,37 @@ export function MutationPanel({
         <JSONTextEditor value={body} onChange={setBody} hint="Request body" />
       ),
     },
+    // A create has no resource to read yet, so the form is the only place
+    // the body can be written without knowing the type's shape. It needs the
+    // body to parse, which it does not while the JSON tab is mid-edit.
+    ...(bodyResource?.resourceType
+      ? [
+          {
+            id: "generated-form",
+            title: "Form",
+            content: (
+              <GeneratedForm
+                resource={bodyResource}
+                resourceType={bodyResource.resourceType as string}
+                // The form edits a resource, the body is text, so it is
+                // written back as text. `bodyResource` is what parsed, so
+                // applying to it avoids re-parsing text that may not.
+                onChange={(update) =>
+                  setBody(
+                    JSON.stringify(
+                      typeof update === "function"
+                        ? update(bodyResource)
+                        : update,
+                      null,
+                      2,
+                    ),
+                  )
+                }
+              />
+            ),
+          },
+        ]
+      : []),
   ]);
 
   const request = useMemo(() => describeRequest(command), [command]);
