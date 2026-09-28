@@ -2,14 +2,13 @@ import { json } from "@codemirror/lang-json";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { basicSetup } from "codemirror";
 import { useAtomValue } from "jotai";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
 import {
   Button,
-  CodeMirror,
+  JSONResourceEditor,
   DropDownMenu,
-  FHIRGenerativeForm,
   MergeViewer,
   Modal,
   Table,
@@ -28,32 +27,6 @@ import { getClient } from "../db/client";
 
 const extensions = [basicSetup, json()];
 const HISTORY_PAGE_SIZE = 25;
-
-function JSONEditor({
-  value,
-  setValue,
-}: {
-  value: string;
-  setValue: (value: string) => void;
-}) {
-  return (
-    <div className="flex flex-1 border overflow-auto">
-      <CodeMirror
-        extensions={extensions}
-        value={value}
-        theme={{
-          "&": {
-            height: "100%",
-            width: "100%",
-          },
-        }}
-        onChange={(value) => {
-          setValue(value);
-        }}
-      />
-    </div>
-  );
-}
 
 function ResourceHistory() {
   const client = useAtomValue(getClient);
@@ -204,62 +177,23 @@ export default function ResourceEditorComponent({
   leftTabs: leftSide = [],
   rightTabs: rightSide = [],
 }: AdditionalContent) {
-  const client = useAtomValue(getClient);
-  const setValue = useMemo(
-    () => (getResource: (r: Resource) => Resource) => {
-      if (onChange) {
-        onChange((resource) => {
-          const newResource = getResource(
-            resource
-              ? resource
-              : ({
-                  resourceType: structureDefinition?.type,
-                } as Resource),
-          );
-          return newResource;
-        });
-      }
-    },
-    [structureDefinition, onChange],
-  );
-
   return (
     <Tabs
       tabs={[
+        // JSON comes first: this is a developer tool, and the resource as the
+        // server stores it is the thing to edit. Resource specific builders,
+        // where they exist, are passed in as `leftTabs`/`rightTabs`.
+        {
+          id: "json",
+          title: "JSON",
+          content: (
+            <JSONResourceEditor
+              resource={resource}
+              onChange={(next: Resource) => onChange?.(next)}
+            />
+          ),
+        },
         ...leftSide,
-        ...[
-          {
-            id: "editor",
-            title: "Editor",
-            content: structureDefinition && (
-              <FHIRGenerativeForm
-                fhirVersion={R4}
-                value={resource}
-                structureDefinition={structureDefinition}
-                setValue={setValue}
-                client={client}
-              />
-            ),
-          },
-          {
-            id: "json",
-            title: "JSON",
-            content: (
-              <JSONEditor
-                value={JSON.stringify(resource, null, 2)}
-                setValue={(v) => {
-                  try {
-                    const resource = JSON.parse(v);
-                    if (onChange) onChange(resource);
-                  } catch (e) {
-                    console.error(e);
-                    return;
-                  }
-                }}
-              />
-            ),
-          },
-        ],
         ...(id !== "new"
           ? [
               {

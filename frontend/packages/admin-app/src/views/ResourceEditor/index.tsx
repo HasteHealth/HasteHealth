@@ -83,15 +83,9 @@ function ResourceEditorTabs({
               return getErrorMessage(error);
             },
           }).then((value) =>
-            navigate(
-              generatePath("/resources/:resourceType/:id", {
-                resourceType: resourceType as string,
-                id: (value as Resource).id as string,
-              }),
-              {
-                replace: true,
-              },
-            ),
+            navigate(`/r/${resourceType}/${(value as Resource).id}`, {
+              replace: true,
+            }),
           );
         } catch (e) {
           Toaster.error(`${e}`);
@@ -117,13 +111,7 @@ function ResourceEditorTabs({
                 error: (error) => {
                   return getErrorMessage(error);
                 },
-              }).then(() =>
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: resourceType as string,
-                  }),
-                ),
-              );
+              }).then(() => navigate(`/r/${resourceType}`));
             },
           },
         ]
@@ -283,7 +271,7 @@ export default function ResourceEditor() {
           <ChevronRightIcon className="h-4 w-4 text-slate-400" />
           <button
             className="inline-flex items-center gap-1 rounded px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
-            onClick={() => navigate(generatePath("/resources", {}))}
+            onClick={() => navigate("/")}
             type="button"
           >
             Resources
@@ -291,13 +279,7 @@ export default function ResourceEditor() {
           <ChevronRightIcon className="h-4 w-4 text-slate-400" />
           <button
             className="rounded px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
-            onClick={() =>
-              navigate(
-                generatePath("/resources/:resourceType", {
-                  resourceType: displayResourceType,
-                }),
-              )
-            }
+            onClick={() => navigate(`/r/${displayResourceType}`)}
             type="button"
           >
             {displayResourceType}

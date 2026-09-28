@@ -32,7 +32,7 @@
     @apply border-red-500 focus:border-red-500 focus:outline-none;
   }
   .btn {
-    @apply px-4 py-2 rounded-md inline-block cursor-pointer shadow-sm ring-1 ring-slate-700/10 disabled:bg-gray-100 disabled:hover:bg-gray-100 disabled:cursor-not-allowed disabled:ring-0 disabled:text-gray-400;
+    @apply px-4 py-2 rounded-md inline-block cursor-pointer shadow-sm border border-slate-700/10 disabled:bg-gray-100 disabled:hover:bg-gray-100 disabled:cursor-not-allowed disabled:border-slate-700/10 disabled:text-gray-400;
   }
   .btn-primary {
     @apply text-white bg-brand-600 hover:bg-brand-700;
