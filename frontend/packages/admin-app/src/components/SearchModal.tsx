@@ -34,7 +34,7 @@ type SearchItem =
 const STATIC_PAGES: Readonly<
   { id: string; label: string; category: string; path: string }[]
 > = [
-  { id: "dashboard", label: "Dashboard", category: "General", path: "/" },
+  { id: "console", label: "Console", category: "General", path: "/" },
   {
     id: "settings",
     label: "Settings",
@@ -42,16 +42,10 @@ const STATIC_PAGES: Readonly<
     path: "/settings",
   },
   {
-    id: "all-resources",
-    label: "All Resources",
-    category: "Data",
-    path: "/resources",
-  },
-  {
     id: "system-history",
     label: "Event History",
     category: "Monitoring",
-    path: "/history/system",
+    path: "/r/_history",
   },
   {
     id: "indexing-errors",
@@ -63,7 +57,7 @@ const STATIC_PAGES: Readonly<
     id: "bundle-import",
     label: "Bundles",
     category: "Import",
-    path: "/bundle-import",
+    path: "/import",
   },
 ];
 
@@ -236,11 +230,7 @@ function SearchModal(props: SearchModalProps) {
       if (item.kind === "page") {
         navigate(generatePath(item.path, {}));
       } else {
-        navigate(
-          generatePath("/resources/:resourceType", {
-            resourceType: item.resourceType,
-          }),
-        );
+        navigate(`/r/${item.resourceType}`);
       }
 
       setOpenModal(false);
