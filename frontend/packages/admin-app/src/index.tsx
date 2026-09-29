@@ -57,7 +57,7 @@ import "./index.css";
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function LoginWrapper() {
-  const hasteHealth = useHasteHealth();
+  const hasteHealth = useHasteHealth({ searchMethod: "POST" });
 
   return (
     <>
@@ -87,7 +87,7 @@ function LoginWrapper() {
 }
 
 function ServiceSetup() {
-  const hasteHealth = useHasteHealth();
+  const hasteHealth = useHasteHealth({ searchMethod: "POST" });
   const client = hasteHealth.isAuthenticated ? hasteHealth.client : undefined;
   const [c, setClient] = useAtom(getClient);
   const [, setStructures] = useAtom(getStructures);
@@ -319,7 +319,7 @@ const router =
       ]);
 
 function Navbar({ showLogo = true }: Readonly<{ showLogo?: boolean }>) {
-  const hasteHealth = useHasteHealth();
+  const hasteHealth = useHasteHealth({ searchMethod: "POST" });
   const navigate = useNavigate();
 
   return (
@@ -403,7 +403,7 @@ function Page(props: PageProps) {
 }
 
 function ProjectRoot() {
-  const hasteHealth = useHasteHealth();
+  const hasteHealth = useHasteHealth({ searchMethod: "POST" });
   const navigate = useNavigate();
   const location = useLocation();
   const [project, setProject] = React.useState<r4Types.Project | null>(null);

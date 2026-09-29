@@ -338,7 +338,9 @@ pub async fn server(
                     CorsLayer::new()
                         .allow_methods(Any)
                         .allow_origin(Any)
-                        .allow_headers(Any),
+                        .allow_headers(Any)
+                        // Set the max age for CORS preflight requests to 2 hours.
+                        .max_age(std::time::Duration::from_secs(7200)),
                 ),
         )
         .with_state(shared_state)
