@@ -38,7 +38,7 @@ use serde::Deserialize;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tower::{Layer, ServiceBuilder};
-use tower_http::{catch_panic::CatchPanicLayer, normalize_path::NormalizePath};
+use tower_http::{catch_panic::CatchPanicLayer, cors::AllowHeaders, normalize_path::NormalizePath};
 use tower_http::{
     compression::CompressionLayer,
     cors::{Any, CorsLayer},
@@ -338,7 +338,7 @@ pub async fn server(
                     CorsLayer::new()
                         .allow_methods(Any)
                         .allow_origin(Any)
-                        .allow_headers(Any)
+                        .allow_headers(AllowHeaders::mirror_request())
                         // Set the max age for CORS preflight requests to 2 hours.
                         .max_age(std::time::Duration::from_secs(7200)),
                 ),
