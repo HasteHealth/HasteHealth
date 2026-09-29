@@ -146,6 +146,16 @@ jobs:
         env:
           RUST_LOG: info
 
+      # Features only the Postgres search backend implements (chained search).
+      # Each TestScript here is marked with the testscript-search-backend
+      # extension.
+      - name: Run Postgres-only Testscripts
+        if: matrix.search-backend == 'postgres'
+        run: ./target/debug/haste-health testscript run -i testscripts/postgres-only -w 0 --index-wait-ms 30000
+        working-directory: ./backend
+        env:
+          RUST_LOG: info
+
       - name: R4 Backport Testscripts
         run: ./target/debug/haste-health testscript run -i testscripts/r4-r5-backport -w 0 --index-wait-ms 30000
         working-directory: ./backend

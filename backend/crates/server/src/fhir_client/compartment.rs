@@ -96,7 +96,7 @@ pub async fn process_compartment_request<
                             compartment_request.id
                         )],
                         modifier: None,
-                        chains: None,
+                        chains: Vec::new(),
                     }))
                 })
                 .collect::<Vec<ParsedParameter>>();

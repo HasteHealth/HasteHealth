@@ -76,7 +76,7 @@ mod tests {
                 name: "code".to_string(),
                 modifier: None,
                 value: values.iter().map(|v| (*v).to_string()).collect(),
-                chains: None,
+                chains: Vec::new(),
             },
             target,
             false,
@@ -89,7 +89,7 @@ mod tests {
     #[test]
     fn an_id_search_reads_the_key_column() {
         let target = ClauseTarget::DirectColumn {
-            alias: ANCHOR_TABLE_ALIAS,
+            alias: std::borrow::Cow::Borrowed(ANCHOR_TABLE_ALIAS),
             columns: ParamColumns::Token {
                 system: None,
                 code: "resource_id".to_string(),
@@ -108,6 +108,7 @@ mod tests {
         let target = ClauseTarget::Dynamic {
             table: "r4_param_token_idx".to_string(),
             param_identity: 7,
+            correlate: std::borrow::Cow::Borrowed(ANCHOR_TABLE_ALIAS),
         };
 
         assert_eq!(

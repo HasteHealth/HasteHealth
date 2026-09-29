@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{borrow::Cow, sync::Arc};
 
 use haste_fhir_client::{
     request::SearchRequest,
@@ -27,6 +27,7 @@ use clauses::{
     rebase_placeholders, resolve_param_identity,
 };
 
+mod chained;
 pub(crate) mod clauses;
 
 static ABSOLUTE_MAX: u64 = 10_000;
@@ -183,11 +184,12 @@ fn max_count(options: Option<&SearchOptions>) -> Result<u64, OperationOutcomeErr
 
 async fn resolve_parameter<ParameterResolver: SearchParameterResolve>(
     scope: &SearchScope<'_, ParameterResolver>,
+    resource_type: Option<&ResourceType>,
     name: &str,
 ) -> Result<ResolvedParameter, OperationOutcomeError> {
     Ok(scope
         .parameter_resolver
-        .by_name(scope.tenant, scope.project, scope.resource_type, name)
+        .by_name(scope.tenant, scope.project, resource_type, name)
         .await?
         .ok_or_else(|| QueryBuildError::MissingParameter(name.to_string()))?)
 }
@@ -196,15 +198,39 @@ async fn resource_clause<ParameterResolver: SearchParameterResolve>(
     scope: &SearchScope<'_, ParameterResolver>,
     param: &Parameter,
 ) -> Result<SqlClause, OperationOutcomeError> {
-    let parameter = resolve_parameter(scope, &param.name).await?;
-    let target = clause_target(scope, &parameter);
+    if param.is_chained() {
+        return chained::chained_clause(scope, param).await;
+    }
+
+    let parameter = resolve_parameter(scope, scope.resource_type, &param.name).await?;
+    let target = clause_target(scope, &scope.root_row(), &parameter);
     Ok(parameter_to_sql_clause(&parameter, &target, param)?)
 }
 
-/// Where a parameter's values are read from: an anchor column, a type table
-/// column (typed searches only), or otherwise the shared table for its type.
+/// A resource row clauses are read against: its anchor row, and its type
+/// table when one is joined.
+struct ClauseRow<'a> {
+    anchor: Cow<'static, str>,
+    type_table: Option<(Cow<'static, str>, &'a ResourceTypeSchema)>,
+}
+
+impl<ParameterResolver> SearchScope<'_, ParameterResolver> {
+    /// The row being searched.
+    fn root_row(&self) -> ClauseRow<'_> {
+        ClauseRow {
+            anchor: Cow::Borrowed(ANCHOR_TABLE_ALIAS),
+            type_table: self
+                .schema
+                .map(|schema| (Cow::Borrowed(RESOURCE_TABLE_ALIAS), schema)),
+        }
+    }
+}
+
+/// Where a parameter's values are read from on `row`: an anchor column, a
+/// type table column, or otherwise the shared table for its type.
 fn clause_target<ParameterResolver>(
     scope: &SearchScope<'_, ParameterResolver>,
+    row: &ClauseRow<'_>,
     parameter: &ResolvedParameter,
 ) -> ClauseTarget {
     let search_param = parameter.search_parameter.as_ref();
@@ -220,19 +246,16 @@ fn clause_target<ParameterResolver>(
                 .anchor
                 .parameters
                 .get(code)
-                .map(|columns| (ANCHOR_TABLE_ALIAS, columns))
+                .map(|columns| (&row.anchor, columns))
                 .or_else(|| {
-                    scope
-                        .schema?
-                        .parameters
-                        .get(code)
-                        .map(|columns| (RESOURCE_TABLE_ALIAS, columns))
+                    let (alias, schema) = row.type_table.as_ref()?;
+                    schema.parameters.get(code).map(|columns| (alias, columns))
                 })
         });
 
     match column {
         Some((alias, columns)) => ClauseTarget::DirectColumn {
-            alias,
+            alias: alias.clone(),
             columns: columns.clone(),
         },
         // An unmapped type gets an empty table name and is rejected by
@@ -246,6 +269,7 @@ fn clause_target<ParameterResolver>(
                 scope.tenant.as_ref(),
                 scope.project.as_ref(),
             ),
+            correlate: row.anchor.clone(),
         },
     }
 }
@@ -342,7 +366,7 @@ async fn sort_entry<ParameterResolver: SearchParameterResolve>(
         None => (value, "ASC"),
     };
 
-    let parameter = resolve_parameter(scope, name).await?;
+    let parameter = resolve_parameter(scope, scope.resource_type, name).await?;
     let param_type = parameter
         .search_parameter
         .type_
@@ -356,7 +380,7 @@ async fn sort_entry<ParameterResolver: SearchParameterResolve>(
     }
 
     Ok(SortEntry {
-        target: clause_target(scope, &parameter),
+        target: clause_target(scope, &scope.root_row(), &parameter),
         param_type,
         direction,
     })
@@ -416,7 +440,7 @@ fn build_final_query(
         .any(|fragment| fragment.contains(RESOURCE_TABLE_ALIAS))
         || state.sort.iter().any(|entry| {
             matches!(
-                entry.target,
+                &entry.target,
                 ClauseTarget::DirectColumn { alias, .. } if alias == RESOURCE_TABLE_ALIAS
             )
         });
@@ -514,6 +538,7 @@ fn sort_expression(entry: &SortEntry, params: Vec<SqlParam>) -> (Option<String>,
         ClauseTarget::Dynamic {
             table,
             param_identity,
+            ..
         } => {
             let column = match entry.param_type.as_str() {
                 "date" if ascending => "start_ms",
@@ -660,6 +685,7 @@ mod tests {
         let dynamic = || ClauseTarget::Dynamic {
             table: shared_table_name(&registry.version, SharedTable::String),
             param_identity: 7,
+            correlate: Cow::Borrowed(ANCHOR_TABLE_ALIAS),
         };
 
         // Without, then with, the type table join (whose bind the estimate
@@ -668,7 +694,7 @@ mod tests {
             vec![
                 sort(
                     ClauseTarget::DirectColumn {
-                        alias: ANCHOR_TABLE_ALIAS,
+                        alias: Cow::Borrowed(ANCHOR_TABLE_ALIAS),
                         columns: last_updated.clone(),
                     },
                     "date",
@@ -678,7 +704,7 @@ mod tests {
             vec![
                 sort(
                     ClauseTarget::DirectColumn {
-                        alias: RESOURCE_TABLE_ALIAS,
+                        alias: Cow::Borrowed(RESOURCE_TABLE_ALIAS),
                         columns: birthdate.clone(),
                     },
                     "date",

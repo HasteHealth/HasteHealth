@@ -138,17 +138,7 @@ fn fhir_parameter_to_query_parameters(http_url: &mut reqwest::Url, parameters: &
             ParsedParameter::Result(parameter) | ParsedParameter::Resource(parameter) => parameter,
         };
 
-        let mut query_param_name = parameter.name.clone();
-
-        if let Some(chains) = parameter.chains.as_ref() {
-            query_param_name = format!("{query_param_name}.{}", chains.join("."));
-        }
-
-        if let Some(modifier) = parameter.modifier.as_ref() {
-            query_param_name = format!("{query_param_name}:{modifier}");
-        }
-
-        query_parameters.append_pair(&query_param_name, parameter.value.join(",").as_str());
+        query_parameters.append_pair(&parameter.key(), parameter.value.join(",").as_str());
     }
 }
 

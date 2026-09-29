@@ -17,6 +17,39 @@ static RESULT_PARAMETERS: &[&str] = &[
     "_since",
 ];
 
+/// One `name[:modifier]` segment of a chained parameter's name.
+#[derive(Debug, Clone, PartialEq, Eq, Reflect)]
+#[fhir_type = "BackboneElement"]
+pub struct ChainLink {
+    pub name: String,
+    pub modifier: Option<String>,
+}
+
+impl ChainLink {
+    /// Parses one segment, rejecting an empty name or modifier and a second
+    /// modifier (`:b`, `a:`, `a:b:c`).
+    fn parse(segment: &str) -> Result<Self, ParseError> {
+        let (name, modifier) = match segment.split_once(':') {
+            Some((name, modifier)) => (name, Some(modifier)),
+            None => (segment, None),
+        };
+
+        if name.is_empty() || modifier.is_some_and(|m| m.is_empty() || m.contains(':')) {
+            return Err(ParseError::InvalidParameter(segment.to_string()));
+        }
+
+        Ok(ChainLink {
+            name: name.to_string(),
+            modifier: modifier.map(str::to_string),
+        })
+    }
+}
+
+/// A search parameter as written in the URL.
+///
+/// `name` and `modifier` are the first segment and `chains` the rest, each
+/// with its own modifier: `subject:Patient.name:exact` is `subject` with
+/// modifier `Patient`, then `name` with modifier `exact`.
 #[derive(Derivative, Clone, Reflect)]
 #[fhir_type = "BackboneElement"]
 #[derivative(Debug)]
@@ -25,7 +58,50 @@ pub struct Parameter {
     #[derivative(Debug(format_with = "crate::redact"))]
     pub value: Vec<String>,
     pub modifier: Option<String>,
-    pub chains: Option<Vec<String>>,
+    pub chains: Vec<ChainLink>,
+}
+
+impl Parameter {
+    /// Whether this parameter follows a reference (`subject.name`).
+    #[must_use]
+    pub fn is_chained(&self) -> bool {
+        !self.chains.is_empty()
+    }
+
+    /// The parameter's name as written in a URL: `subject:Patient.name:exact`.
+    #[must_use]
+    pub fn key(&self) -> String {
+        let segments = std::iter::once((&self.name, &self.modifier))
+            .chain(self.chains.iter().map(|link| (&link.name, &link.modifier)));
+
+        let mut key = String::new();
+        for (i, (name, modifier)) in segments.enumerate() {
+            if i > 0 {
+                key.push('.');
+            }
+            key.push_str(name);
+            if let Some(modifier) = modifier {
+                key.push(':');
+                key.push_str(modifier);
+            }
+        }
+        key
+    }
+
+    fn parse(key: &str, value: &str) -> Result<Self, ParseError> {
+        let mut segments = key.split('.').map(ChainLink::parse);
+        // `split` always yields at least one segment.
+        let first = segments
+            .next()
+            .ok_or_else(|| ParseError::InvalidParameter(key.to_string()))??;
+
+        Ok(Parameter {
+            name: first.name,
+            modifier: first.modifier,
+            value: value.split(',').map(str::to_string).collect(),
+            chains: segments.collect::<Result<_, _>>()?,
+        })
+    }
 }
 
 impl From<(String, Vec<String>)> for Parameter {
@@ -34,7 +110,7 @@ impl From<(String, Vec<String>)> for Parameter {
             name: tuple.0,
             value: tuple.1,
             modifier: None,
-            chains: None,
+            chains: Vec::new(),
         }
     }
 }
@@ -45,18 +121,7 @@ impl From<(String, Vec<String>, String)> for Parameter {
             name: tuple.0,
             value: tuple.1,
             modifier: Some(tuple.2),
-            chains: None,
-        }
-    }
-}
-
-impl From<(String, Vec<String>, Option<String>, Vec<String>)> for Parameter {
-    fn from(tuple: (String, Vec<String>, Option<String>, Vec<String>)) -> Self {
-        Parameter {
-            name: tuple.0,
-            value: tuple.1,
-            modifier: tuple.2,
-            chains: Some(tuple.3),
+            chains: Vec::new(),
         }
     }
 }
@@ -278,38 +343,7 @@ impl TryFrom<&HashMap<String, String>> for ParsedParameters {
             .map(|param_name| {
                 let value = query_params.get(param_name).unwrap();
 
-                let chain = param_name
-                    .split('.')
-                    .map(std::string::ToString::to_string)
-                    .collect::<Vec<String>>();
-
-                if chain.is_empty() {
-                    return Err(ParseError::InvalidParameter(param_name.clone()));
-                }
-
-                let name_and_modifier = chain[0].split(':').collect::<Vec<&str>>();
-
-                if name_and_modifier.len() > 2 || name_and_modifier.is_empty() {
-                    return Err(ParseError::InvalidParameter(param_name.clone()));
-                }
-
-                let name = name_and_modifier[0].to_string();
-
-                let param = Parameter {
-                    name,
-                    modifier: name_and_modifier
-                        .get(1)
-                        .map(std::string::ToString::to_string),
-                    value: value
-                        .split(',')
-                        .map(std::string::ToString::to_string)
-                        .collect(),
-                    chains: if chain.len() > 1 {
-                        Some(chain[1..].to_vec())
-                    } else {
-                        None
-                    },
-                };
+                let param = Parameter::parse(param_name, value)?;
 
                 if RESULT_PARAMETERS.contains(&param.name.as_str()) {
                     Ok(ParsedParameter::Result(param))
@@ -376,7 +410,7 @@ mod tests {
                 assert_eq!(param.name, "name");
                 assert_eq!(param.value, vec!["John", "Doe"]);
                 assert!(param.modifier.is_none());
-                assert!(param.chains.is_none());
+                assert!(param.chains.is_empty());
             }
             _ => panic!("Expected Resource parameter"),
         }
@@ -386,7 +420,7 @@ mod tests {
                 assert_eq!(param.name, "_count");
                 assert_eq!(param.value, vec!["10"]);
                 assert!(param.modifier.is_none());
-                assert!(param.chains.is_none());
+                assert!(param.chains.is_empty());
             }
             _ => panic!("Expected Result parameter"),
         }
@@ -396,7 +430,13 @@ mod tests {
                 assert_eq!(param.name, "address");
                 assert_eq!(param.value, vec!["NewYork"]);
                 assert!(param.modifier.is_none());
-                assert_eq!(param.chains, Some(vec!["city".to_string()]));
+                assert_eq!(
+                    param.chains,
+                    vec![ChainLink {
+                        name: "city".to_string(),
+                        modifier: None
+                    }]
+                );
             }
             _ => panic!("Expected Resource parameter"),
         }
@@ -406,7 +446,7 @@ mod tests {
                 assert_eq!(param.name, "status");
                 assert_eq!(param.value, vec!["active"]);
                 assert_eq!(param.modifier, Some("exact".to_string()));
-                assert!(param.chains.is_none());
+                assert!(param.chains.is_empty());
             }
             _ => panic!("Expected Resource parameter"),
         }

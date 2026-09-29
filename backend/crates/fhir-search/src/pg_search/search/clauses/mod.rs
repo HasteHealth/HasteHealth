@@ -21,6 +21,8 @@ pub use string::*;
 pub use token::*;
 pub use uri::*;
 
+use std::{borrow::Cow, fmt::Write as _};
+
 use haste_fhir_client::url::Parameter;
 
 use crate::{pg_search::schema::ParamColumns, query::QueryBuildError};
@@ -37,13 +39,18 @@ pub const SHARED_TABLE_ALIAS: &str = "v";
 /// Where a parameter's values are stored.
 #[derive(Debug, Clone)]
 pub enum ClauseTarget {
-    /// Scalar columns on the row under `alias` (type table or anchor).
+    /// Scalar columns on the row under `alias`: an anchor row or a type table.
     DirectColumn {
-        alias: &'static str,
+        alias: Cow<'static, str>,
         columns: ParamColumns,
     },
-    /// Rows in a shared table, selected by the parameter's identity hash.
-    Dynamic { table: String, param_identity: i64 },
+    /// Rows in a shared table, selected by the parameter's identity hash and
+    /// belonging to the anchor row under `correlate`.
+    Dynamic {
+        table: String,
+        param_identity: i64,
+        correlate: Cow<'static, str>,
+    },
 }
 
 /// A quantity's value range and unit.
@@ -215,7 +222,9 @@ pub fn wrap_predicate(
 ) -> SqlClause {
     let sql = match target {
         ClauseTarget::DirectColumn { .. } => direct_predicate(negate, predicate),
-        ClauseTarget::Dynamic { table, .. } => dynamic_exists(table, negate, Some(predicate)),
+        ClauseTarget::Dynamic {
+            table, correlate, ..
+        } => dynamic_exists(table, correlate, negate, Some(predicate)),
     };
     SqlClause { sql, params }
 }
@@ -250,8 +259,9 @@ pub fn missing_clause(target: &ClauseTarget, missing: bool) -> SqlClause {
         ClauseTarget::Dynamic {
             table,
             param_identity,
+            correlate,
         } => SqlClause {
-            sql: dynamic_exists(table, missing, None),
+            sql: dynamic_exists(table, correlate, missing, None),
             params: vec![SqlParam::Int64(*param_identity)],
         },
     }
@@ -318,10 +328,26 @@ pub fn rebase_placeholders(sql: &str, param_count: usize, offset: usize) -> Stri
     if offset == 0 {
         return sql.to_string();
     }
-    // Highest first, or `$1` would also match inside `$10`.
-    (1..=param_count).rev().fold(sql.to_string(), |sql, i| {
-        sql.replace(&format!("${i}"), &format!("${}", i + offset))
-    })
+
+    // One pass: rewriting with successive `replace` calls would rewrite its
+    // own output (`$2` -> `$11`, then the `$1` rule turns that into `$101`).
+    let mut out = String::with_capacity(sql.len() + 8);
+    let mut rest = sql;
+    while let Some(start) = rest.find('$') {
+        out.push_str(&rest[..=start]);
+        let after = &rest[start + 1..];
+        let digits = &after[..after.bytes().take_while(u8::is_ascii_digit).count()];
+        match digits.parse::<usize>() {
+            // Only this clause's own placeholders are shifted.
+            Ok(n) if (1..=param_count).contains(&n) => {
+                let _ = write!(out, "{}", n + offset);
+            }
+            _ => out.push_str(digits),
+        }
+        rest = &after[digits.len()..];
+    }
+    out.push_str(rest);
+    out
 }
 
 /// The identity of a parameter's shared-table rows in this project.
@@ -351,13 +377,13 @@ fn shared_column(column: &str) -> String {
 
 /// `[NOT] EXISTS (SELECT 1 FROM {table} v WHERE <correlate> AND
 /// v.param_identity = $1 [AND (predicate)])`.
-fn dynamic_exists(table: &str, negate: bool, predicate: Option<&str>) -> String {
+fn dynamic_exists(table: &str, correlate: &str, negate: bool, predicate: Option<&str>) -> String {
     let prefix = if negate { "NOT " } else { "" };
     let extra = predicate.map_or_else(String::new, |p| format!(" AND ({p})"));
 
     format!(
         "{prefix}EXISTS (SELECT 1 FROM {table} {SHARED_TABLE_ALIAS} \
-         WHERE {SHARED_TABLE_ALIAS}.res_key = {ANCHOR_TABLE_ALIAS}.res_key \
+         WHERE {SHARED_TABLE_ALIAS}.res_key = {correlate}.res_key \
          AND {SHARED_TABLE_ALIAS}.param_identity = $1{extra})"
     )
 }
@@ -392,7 +418,7 @@ mod tests {
 
     fn direct(columns: ParamColumns) -> ClauseTarget {
         ClauseTarget::DirectColumn {
-            alias: RESOURCE_TABLE_ALIAS,
+            alias: Cow::Borrowed(RESOURCE_TABLE_ALIAS),
             columns,
         }
     }
@@ -401,6 +427,7 @@ mod tests {
         ClauseTarget::Dynamic {
             table: "r4_param_token_idx".to_string(),
             param_identity: 7,
+            correlate: Cow::Borrowed(ANCHOR_TABLE_ALIAS),
         }
     }
 
@@ -453,7 +480,7 @@ mod tests {
             name: "p".to_string(),
             modifier: modifier.map(str::to_string),
             value: values.iter().map(|v| (*v).to_string()).collect(),
-            chains: None,
+            chains: Vec::new(),
         }
     }
 

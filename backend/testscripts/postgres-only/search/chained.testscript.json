@@ -1,0 +1,788 @@
+{
+    "id": "search-chained-test",
+    "url": "https://haste.health/fhir/TestScript/search-chained",
+    "name": "Search Chained Parameter Test",
+    "title": "Chained parameter tests",
+    "status": "active",
+    "description": "Tests chained search parameters: a chain filters by the referenced resource, may end on a string, token or _id parameter with its own modifier, may follow two references and repeating references into only the named type, and is rejected when ambiguous, too deep, or through a parameter that is not a reference.",
+    "extension": [
+        {
+            "url": "https://haste.health/fhir/StructureDefinition/testscript-search-backend",
+            "valueCode": "postgres"
+        }
+    ],
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "chain-org",
+            "resourceType": "Organization",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-chained-test"
+                    }
+                ]
+            },
+            "name": "Chain Test Clinic"
+        },
+        {
+            "id": "chain-practitioner",
+            "resourceType": "Practitioner",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-chained-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Chainwright",
+                    "given": [
+                        "Pat"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "chain-patient-smith",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-chained-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Smithers",
+                    "given": [
+                        "Sam"
+                    ]
+                }
+            ],
+            "gender": "male",
+            "managingOrganization": {
+                "reference": "Organization/chain-org"
+            },
+            "generalPractitioner": [
+                {
+                    "reference": "Practitioner/chain-practitioner"
+                }
+            ]
+        },
+        {
+            "id": "chain-patient-jones",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-chained-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Jonesborough",
+                    "given": [
+                        "Jo"
+                    ]
+                }
+            ],
+            "gender": "female",
+            "generalPractitioner": [
+                {
+                    "reference": "Organization/chain-org"
+                }
+            ]
+        },
+        {
+            "id": "chain-obs-smith",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-chained-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/chain-patient-smith"
+            },
+            "valueQuantity": {
+                "value": 70,
+                "unit": "kg",
+                "system": "http://unitsofmeasure.org",
+                "code": "kg"
+            }
+        },
+        {
+            "id": "chain-obs-jones",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "search-chained-test"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "29463-7"
+                    }
+                ]
+            },
+            "subject": {
+                "reference": "Patient/chain-patient-jones"
+            },
+            "valueQuantity": {
+                "value": 62,
+                "unit": "kg",
+                "system": "http://unitsofmeasure.org",
+                "code": "kg"
+            },
+            "performer": [
+                {
+                    "reference": "Practitioner/chain-practitioner"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-chain-org",
+            "resource": {
+                "reference": "#chain-org"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-chain-practitioner",
+            "resource": {
+                "reference": "#chain-practitioner"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-chain-patient-smith",
+            "resource": {
+                "reference": "#chain-patient-smith"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-chain-patient-jones",
+            "resource": {
+                "reference": "#chain-patient-jones"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-chain-obs-smith",
+            "resource": {
+                "reference": "#chain-obs-smith"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-chain-obs-jones",
+            "resource": {
+                "reference": "#chain-obs-jones"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-a-chain-filters-by-the-referenced-resource",
+            "name": "subject:Patient.family filters Observations by the patient's name",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-chain-obs-smith",
+                        "sourceId": "fixture-chain-obs-smith",
+                        "encodeRequestUrl": false,
+                        "description": "Client-supplied ids so the chain has static targets. The referenced resources are written last: the runner waits for the final write to be indexed, and a chain filters on the referenced resource, not the match."
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-chain-obs-jones",
+                        "sourceId": "fixture-chain-obs-jones",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-chain-org",
+                        "sourceId": "fixture-chain-org",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-chain-practitioner",
+                        "sourceId": "fixture-chain-practitioner",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-chain-patient-jones",
+                        "sourceId": "fixture-chain-patient-jones",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "targetId": "fixture-chain-patient-smith",
+                        "sourceId": "fixture-chain-patient-smith",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject:Patient.family=Smithers",
+                        "encodeRequestUrl": false,
+                        "description": "Only the Observation whose patient is Smithers may match."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Exactly one Observation matches the chain",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the Smithers patient's Observation",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-smith').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The other patient's Observation does not match",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-jones').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-the-other-side-of-the-chain",
+            "name": "The same chain against the other patient returns only their Observation",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject:Patient.family=Jonesborough",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Exactly one Observation matches",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the Jonesborough patient's Observation",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-jones').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-a-chain-matching-nothing-returns-nothing",
+            "name": "A chain whose inner value matches no resource returns no matches",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject:Patient.family=NoSuchFamily",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No Observation matches",
+                        "expression": "Bundle.entry.resource.ofType(Observation).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-a-chain-on-a-token-parameter",
+            "name": "A chain can end on a token parameter",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject:Patient.gender=male",
+                        "encodeRequestUrl": false,
+                        "description": "gender is a token; the chain must carry the inner clause type, not just strings."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Only the male patient's Observation matches",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-smith').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The female patient's Observation does not match",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-jones').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-a-two-link-chain",
+            "name": "A chain may follow two references",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject:Patient.organization.name=Chain Test Clinic",
+                        "encodeRequestUrl": false,
+                        "description": "Observation -> Patient -> Organization: only the Smithers patient has one."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Only the Observation reachable through both links matches",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-smith').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient without an organization does not match",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-jones').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-a-chain-on-the-id-of-the-referenced-resource",
+            "name": "A chain may end on _id",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject:Patient._id=chain-patient-smith",
+                        "encodeRequestUrl": false,
+                        "description": "_id is an anchor column at the chain level, not a shared-table row."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Only that patient's Observation matches",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the right one",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-smith').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-a-nested-link-through-a-repeating-reference",
+            "name": "A later link may follow a repeating reference",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject:Patient.general-practitioner:Practitioner.name=Chainwright",
+                        "encodeRequestUrl": false,
+                        "description": "Patient.generalPractitioner repeats, so it is read from the shared reference rows of the Patient, not of the Observation being searched."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Exactly one Observation matches",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the Observation whose patient's general practitioner is Chainwright",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-smith').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient whose general practitioner is an Organization does not match",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-jones').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-a-repeating-reference-is-followed-only-into-the-named-type",
+            "name": "A repeating reference is followed only into the type its modifier names",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject:Patient.general-practitioner:Organization.name=Chain Test Clinic",
+                        "encodeRequestUrl": false,
+                        "description": "Only the Jonesborough patient's general practitioner is an Organization."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Exactly one Observation matches",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the Observation whose patient's general practitioner is the clinic",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-jones').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient whose general practitioner is a Practitioner does not match",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-smith').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-a-first-link-through-a-repeating-reference",
+            "name": "The first link may follow a repeating reference",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&performer:Practitioner.name=Chainwright",
+                        "encodeRequestUrl": false,
+                        "description": "Observation.performer repeats, so it is read from the Observation's shared reference rows."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Exactly one Observation matches",
+                        "expression": "Bundle.entry.resource.ofType(Observation).count()",
+                        "value": "1",
+                        "warningOnly": false,
+                        "operator": "equals"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the Observation Chainwright performed",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-jones').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Observation without a performer does not match",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-smith').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "10-a-modifier-on-the-final-parameter",
+            "name": "The final parameter keeps its own modifier",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject:Patient.family:exact=Smithers",
+                        "encodeRequestUrl": false,
+                        "description": "family:exact is an exact, case-sensitive match on the patient."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The exact family name matches",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'chain-obs-smith').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject:Patient.family:exact=smithers",
+                        "encodeRequestUrl": false,
+                        "description": "A different case is not an exact match."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A different case does not match",
+                        "expression": "Bundle.entry.resource.ofType(Observation).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "11-an-ambiguous-reference-is-rejected",
+            "name": "A reference with several target types needs a type modifier",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject.family=Smithers",
+                        "encodeRequestUrl": false,
+                        "description": "Observation.subject can point at several types, so the chain must name one."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search is rejected with an OperationOutcome",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "12-a-type-the-reference-cannot-point-at-is-rejected",
+            "name": "A type modifier must be one of the reference's targets",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject:Medication.code=x",
+                        "encodeRequestUrl": false,
+                        "description": "Observation.subject cannot point at a Medication."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search is rejected with an OperationOutcome",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "13-a-non-reference-link-is-rejected",
+            "name": "Only a reference parameter can be chained through",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&code.family=Smithers",
+                        "encodeRequestUrl": false,
+                        "description": "code is a token, not a reference."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search is rejected with an OperationOutcome",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "14-an-unknown-final-parameter-is-rejected",
+            "name": "The final parameter must exist on the type the chain reaches",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject:Patient.no-such-parameter=x",
+                        "encodeRequestUrl": false,
+                        "description": "Patient has no parameter named no-such-parameter."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search is rejected with an OperationOutcome",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "15-a-chain-deeper-than-three-is-rejected",
+            "name": "A chain may follow at most three references",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_tag=search-chained-test&subject:Patient.organization.partof.partof.name=x",
+                        "encodeRequestUrl": false,
+                        "description": "Four references: subject, organization, partof, partof."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The search is rejected with an OperationOutcome",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

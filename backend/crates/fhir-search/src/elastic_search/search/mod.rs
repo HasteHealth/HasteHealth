@@ -597,7 +597,7 @@ mod tests {
             name: "p".to_string(),
             modifier: modifier.map(str::to_string),
             value: values.iter().map(|v| (*v).to_string()).collect(),
-            chains: None,
+            chains: Vec::new(),
         }
     }
 
