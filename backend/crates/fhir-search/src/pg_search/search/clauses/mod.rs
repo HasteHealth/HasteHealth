@@ -377,12 +377,7 @@ fn shared_column(column: &str) -> String {
 
 /// `[NOT] EXISTS (SELECT 1 FROM {table} v WHERE <correlate> AND
 /// v.param_identity = $1 [AND (predicate)])`.
-fn dynamic_exists(
-    table: &str,
-    correlate: &str,
-    negate: bool,
-    predicate: Option<&str>,
-) -> String {
+fn dynamic_exists(table: &str, correlate: &str, negate: bool, predicate: Option<&str>) -> String {
     let prefix = if negate { "NOT " } else { "" };
     let extra = predicate.map_or_else(String::new, |p| format!(" AND ({p})"));
 
