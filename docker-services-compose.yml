@@ -3,24 +3,24 @@ services:
     image: postgres:18.1
     ports:
       - 5432:5432
+    # A named volume rather than a host bind mount: Docker creates it on
+    # demand, so the quick start works in any empty directory without the
+    # host path having to exist or be shared with Docker Desktop.
     volumes:
-      - ./data/postgres:/var/lib/postgresql
+      - postgres-data:/var/lib/postgresql/data
+    # The search backend indexes into its own database, kept apart from the
+    # repository's. The entrypoint runs this during initdb, before the server
+    # accepts connections, so it only fires on a fresh data directory. Kept
+    # inline so this compose file stays self-contained: the quick start is a
+    # single curl of this file.
+    configs:
+      - source: create-search-db
+        target: /docker-entrypoint-initdb.d/10-create-search-db.sh
     environment:
       - POSTGRES_DB=haste_health
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-    # The search backend indexes into its own database, kept apart from the
-    # repository's.
-    command:
-      - bash
-      - -c
-      - |
-        docker-entrypoint.sh postgres &
-        until pg_isready -U "$$POSTGRES_USER" -q; do sleep 1; done
-        psql -v ON_ERROR_STOP=1 -U "$$POSTGRES_USER" -tc \
-          "SELECT 1 FROM pg_database WHERE datname = 'haste_health_search'" \
-          | grep -q 1 || createdb -U "$$POSTGRES_USER" haste_health_search
-        wait
+      - PGDATA=/var/lib/postgresql/data
     healthcheck:
       test:
         [
@@ -30,6 +30,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 60s
 
   hastehealth-migrate:
     image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
@@ -49,3 +50,15 @@ services:
       - HASTE_SEARCH.database_url=postgresql://postgres:postgres@postgres:5432/haste_health_search
       - HASTE_SEARCH.max_connections=20
       - HASTE_API_URI=http://localhost:3000
+
+configs:
+  create-search-db:
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      psql -v ON_ERROR_STOP=1 -U "$$POSTGRES_USER" \
+        --dbname "$$POSTGRES_DB" \
+        -c 'CREATE DATABASE haste_health_search'
+
+volumes:
+  postgres-data:
