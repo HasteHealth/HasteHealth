@@ -107,6 +107,41 @@ fn get_parameters(req: HTTPRequest) -> Result<Parameters, FHIRRequestParsingErro
     Ok(params)
 }
 
+/// Search parameters for a POST `_search`, from the form-encoded body combined
+/// with the query string.
+///
+/// Per the spec a parameter means the same thing in either place, and one that
+/// appears in both is the same as repeating it. A repeat is carried as a
+/// comma-joined value, which is how `ParsedParameters` already represents
+/// several values for one parameter.
+///
+/// The body is read as `application/x-www-form-urlencoded` whenever there is
+/// one. An empty body leaves the query string as the whole search, which is
+/// what a client that puts its parameters in the URL expects.
+fn get_search_parameters(req: HTTPRequest) -> Result<ParsedParameters, FHIRRequestParsingError> {
+    let mut parameters = req.query;
+
+    let body = match &req.body {
+        HTTPBody::Bytes(body) => body.as_ref(),
+        // A search carries form data, never a resource.
+        HTTPBody::Resource(_) => return Err(FHIRRequestParsingError::InvalidBody),
+    };
+
+    for (name, value) in url::form_urlencoded::parse(body).into_owned() {
+        parameters
+            .entry(name)
+            .and_modify(|existing| {
+                // The same parameter in both places repeats it, rather than one
+                // side silently winning.
+                existing.push(',');
+                existing.push_str(&value);
+            })
+            .or_insert(value);
+    }
+
+    Ok(ParsedParameters::try_from(&parameters)?)
+}
+
 fn get_bundle(req: HTTPRequest) -> Result<Bundle, FHIRRequestParsingError> {
     let bundle = match req.body {
         HTTPBody::Resource(resource) => {
@@ -165,9 +200,11 @@ fn parse_request_1_non_empty(
         match req.method {
             Method::POST => {
                 match url_chunks[0].as_str() {
-                    "_search" => Err(FHIRRequestParsingError::Unsupported(
-                        "POST search requests are not supported".to_string(),
-                    )),
+                    "_search" => Ok(FHIRRequest::Search(SearchRequest::System(
+                        FHIRSearchSystemRequest {
+                            parameters: get_search_parameters(req)?,
+                        },
+                    ))),
                     _ => {
                         let resource_type = ResourceType::try_from(url_chunks[0].as_str())?;
                         let resource = get_resource(&resource_type, req)?;
@@ -331,9 +368,13 @@ fn parse_request_2(
                 match url_chunks[1].as_str() {
                     "_search" => {
                         // Handle search request
-                        Err(FHIRRequestParsingError::Unsupported(
-                            "POST search requests are not supported".to_string(),
-                        ))
+                        let resource_type = ResourceType::try_from(url_chunks[0].as_str())?;
+                        Ok(FHIRRequest::Search(SearchRequest::Type(
+                            FHIRSearchTypeRequest {
+                                resource_type,
+                                parameters: get_search_parameters(req)?,
+                            },
+                        )))
                     }
                     _ => Err(FHIRRequestParsingError::Unsupported(
                         "To create new resources run post at resource root.".to_string(),
