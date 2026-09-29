@@ -85,7 +85,7 @@ function AssignmentTarget({
         {resourceType && resourceId ? (
           <Link
             className="truncate font-medium text-brand-600 hover:text-brand-700 hover:underline"
-            to={generatePath("/resources/:resourceType/:id", {
+            to={generatePath("/r/:resourceType/:id", {
               resourceType,
               id: resourceId,
             })}

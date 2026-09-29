@@ -28,6 +28,7 @@ import { fhirResourceDocsUrl, getErrorMessage } from "../../utilities";
 import { HistoryPanel } from "./HistoryPanel";
 import { Badge, PanelHeader } from "./PanelHeader";
 import { resourceViews } from "./registry";
+import { GeneratedForm } from "./GeneratedForm";
 import { useViewTabs } from "./useViewTabs";
 import "./views";
 
@@ -284,7 +285,21 @@ export function ResourcePanel({ target }: Readonly<ResourcePanelProps>) {
       title: "JSON",
       content: (
         <JSONResourceEditor
-          resource={resource as Resource}
+          // The draft, so a form edit shows here. The editor keeps its own
+          // text while focused, so this does not disturb typing.
+          resource={(draft ?? resource) as Resource}
+          onChange={readOnly ? undefined : setDraft}
+        />
+      ),
+    },
+    {
+      id: "form",
+      title: "Form",
+      content: (
+        <GeneratedForm
+          // The draft, so a JSON edit shows here.
+          resource={(draft ?? resource) as Resource}
+          resourceType={resourceType}
           onChange={readOnly ? undefined : setDraft}
         />
       ),
