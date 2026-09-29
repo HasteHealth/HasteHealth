@@ -44,8 +44,8 @@ First, create an OAuth client that Gemini will use to authenticate with Haste He
 
 <Tabs>
 <TabItem value="admin-app" label="Admin App" default>
-1. Navigate to **Security/ClientApplications** in your Haste Health Admin App
-2. Click **New**
+1. Open your project's console in the Haste Health Admin App and pick **ClientApplication** from the sidebar's resource types (or type `ClientApplication` into the command bar)
+2. Click **New ClientApplication**
 3. Configure the following settings:
 
 | Field | Value | Description |
@@ -60,7 +60,7 @@ Create the ClientApplication using the Haste Health CLI:
 
 Note that the redirect uri should be `http://localhost:7777/oauth/callback` per Gemini [documentation](https://geminicli.com/docs/tools/mcp-server/#browser-redirect-requirements).
 
-4. Click **Actions/Create**
+4. Click **Actions → Create**
 5. **⚠️ Important**: Copy and save the generated id for later use.
 </TabItem>
 <TabItem value="cli" label="CLI" default>

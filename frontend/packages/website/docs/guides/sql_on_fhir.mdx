@@ -150,7 +150,10 @@ Exactly one of `viewResource` / `viewReference` is required. If `resource` isn't
 
 ## Admin App UI
 
-Creating or editing a `ViewDefinition` resource in the admin app swaps in a dedicated **ViewDefinition editor** (instead of the generic resource JSON form), with three tabs:
+`ViewDefinition`s live under **Projections** in the console sidebar's
+**Operate** section (`/r/ViewDefinition`). Creating or editing one swaps in a
+dedicated **ViewDefinition editor** (instead of the generic Form/JSON tabs),
+with three tabs:
 
 - **ViewDefinition** — a CodeMirror JSON editor for the resource body, plus an output-format selector (CSV/JSON/NDJSON) and **Run**/**Reset** buttons.
 - **SQL Runner Results** — a paginated table (configurable page size) rendering whatever the run produced.

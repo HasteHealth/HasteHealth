@@ -30,8 +30,23 @@ To login to the admin interface for this tenant, use the following credentials:
 - Email: `myuser@health.org`
 - Password: `testing_password`
 
+## Create your first project
+That address is the **system console**, which manages the tenant as a whole. It
+opens on its **Projects** tab:
+
+1. Type a name into **New project** and create it. The form shows the address
+   the project will be reachable at.
+2. Click **Open console** on its row. A project is addressed by subdomain
+   (`my-health_[project].localhost:3001`), so it opens in a new tab.
+
+Inside a project console, every resource type is in the sidebar and anything
+addressable is a FHIR path you can type into the command bar - try
+`Patient?_count=5`. The [Admin App guide](/docs/guides/admin_app) walks through
+both consoles.
+
 ## Next Steps
 To learn more about Haste Health, check out the following sections:
+- [Admin App](/docs/guides/admin_app)
 - [FHIR Intro](../api/rest_api/fhir/intro)
 - [Authentication](/docs/category/oauth-grant-types)
 

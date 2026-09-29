@@ -138,15 +138,18 @@ curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/ClientAp
 
 You can also register clients through the Haste Health Admin App:
 
-1. Navigate to **resources/ClientApplication**
-2. Click **New**
-3. Fill in the client details:
+1. Open your project's console and pick **ClientApplication** from the
+   sidebar's resource types. You can also type `ClientApplication` into the
+   command bar, or pin the type so it stays at the top of the sidebar.
+2. Click **New ClientApplication**.
+3. Fill in the client details on the **Form** tab (or paste the whole resource
+   on the **JSON** tab):
    - Client ID (must be unique)
    - Client Name
    - Grant Types
    - Redirect URIs (for authorization code flow)
    - Scopes
-4. Click **Create**
+4. Choose **Actions → Create**.
 
 
 ## Client Configuration Examples

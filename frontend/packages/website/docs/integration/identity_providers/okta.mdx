@@ -42,10 +42,9 @@ This guide provides step-by-step instructions on integrating Okta as an identity
       - **OAuth 2.0 token endpoint (v2)**: `https://[your-okta-tenant-domain]/oauth2/v1/token`
       - **Json web key set Url**: `https://[your-okta-tenant-domain]/oauth2/v1/keys`
 3. **Create IdentityProvider Resource in Haste Health**
-   - Go to the Haste Health Admin App for your tenant.
-   - Navigate to the system project.
-    - Click Identity Provider
-    - Click **New**
+    - Open the system console for your tenant (`https://[tenant]_system.[haste-health-host]`).
+    - Open the **Identity providers** tab.
+    - Click **New IdentityProvider**.
     - Provide the following details:
       - **Name**: A friendly name for the identity provider (e.g., `Okta`).
       - **Status**: Set to `active`.
@@ -66,6 +65,6 @@ This guide provides step-by-step instructions on integrating Okta as an identity
      `https://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
 
 5. **Test the Integration**
-   - Click Projects in system admin app and modify at the bottom identity providers.
-   - Add the Okta identity provider to the desired project.
+   - In the system console, open the **Projects** tab and click the pencil on the project you want to enable it for.
+   - In the project's **Form** tab, add the Okta identity provider under **identityProvider**, then choose **Actions → Update**.
    - Attempt to log in to your Haste Health application using the Okta identity provider to ensure everything is set up correctly.

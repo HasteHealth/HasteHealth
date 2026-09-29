@@ -60,7 +60,7 @@ This creates a public (no secret) `ClientApplication` with ID `cli` supporting t
 
 The `--scope` above is what `haste-health config create-profile` defaults to as well; adjust it to whatever scopes the logged-in users should be able to request. See the [Scopes documentation](/docs/auth/authorization/scopes) for the full syntax.
 
-To register it through the Admin App instead, navigate to **resources/ClientApplication → New** and set the grant type to `authorization_code`, response type to `code`, add the redirect URI above, and set the same scopes.
+To register it through the Admin App instead, open your project's console, pick **ClientApplication** from the sidebar's resource types, click **New ClientApplication**, and set the grant type to `authorization_code`, response type to `code`, add the redirect URI above, and set the same scopes. Save with **Actions → Create**.
 
 ### 2. Configure Your First Profile
 
@@ -72,8 +72,8 @@ haste-health config create-profile
 
 This interactive command will prompt you for:
 - **Profile name**: A unique identifier for this configuration
-- **FHIR R4 Server URL**: The FHIR R4 endpoint URL (found in your Admin App API Settings/FHIR)
-- **OIDC discovery URI**: Found in your Admin App under Settings/OpenID Connect
+- **FHIR R4 Server URL**: The FHIR R4 endpoint URL (in the Admin App under **Settings → FHIR and OIDC Endpoints**, as **FHIR R4 Base URL**)
+- **OIDC discovery URI**: Same card, as **OIDC Discovery URL**
 - **Client ID**: The `ClientApplication` ID from step 1 (e.g. `cli`)
 - **Auth Mode**: Press Enter to accept the default, `authorization-code`
 - **Loopback Redirect URI**: Press Enter to accept the default, `http://127.0.0.1:8976/callback`
