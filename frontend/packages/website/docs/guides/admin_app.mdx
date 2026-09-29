@@ -1,0 +1,144 @@
+---
+title: Admin App
+description: How to navigate the Haste Health Admin App - the system console for projects, users and identity providers, and the project console for browsing resources, running commands and configuring a project.
+sidebar_position: 0
+tags:
+    - guides
+    - admin app
+    - configuration
+---
+
+# Admin App
+
+The Admin App is the browser UI for a Haste Health tenant. It is two consoles,
+and which one you get is decided by the host you open, not by a link inside the
+app:
+
+| Console | Address | What it is for |
+|---------|---------|----------------|
+| **System console** | `[tenant]_system.[host]` | Projects, users and identity providers for the whole tenant |
+| **Project console** | `[tenant]_[project].[host]` | Everything inside one project: resources, commands, imports, settings |
+
+A project is addressed by subdomain, so opening a project is a new origin
+rather than a route. In a local Docker Compose setup the system console is
+`http://my-health_system.localhost:3001`.
+
+## System console
+
+The system console opens on three tabs:
+
+- **Projects** — the tenant's projects. Each row has **Open console** (opens
+  that project's console in a new tab), a pencil to edit the project resource,
+  and a delete button. **New project** creates one inline; the form shows the
+  address the name will be reachable at.
+- **Users** — the tenant's `User` resources and their tenant-level role.
+- **Identity providers** — the tenant's `IdentityProvider` resources. See the
+  [identity provider guides](/docs/category/identity-providers) for wiring one
+  up.
+
+Each tab is a resource listing at `/r/[ResourceType]`, with a
+**New [ResourceType]** button. Clicking a row opens the editor at
+`/r/[ResourceType]/[id]`.
+
+The system project has no project console of its own: it *is* this console.
+
+## Project console
+
+A project console is one screen: a sidebar on the left, a command bar across
+the top of the workspace, and the results underneath.
+
+### The command bar
+
+Everything addressable in a project is a FHIR path typed into the command bar,
+which sits at `/r/*`. A command is a verb plus a target, and `GET` is implicit:
+
+```
+Patient?name=Smith          search a type
+Patient/123                 read one instance
+Patient/123/_history         that instance's versions
+_history                     everything that changed in the project
+Patient/$validate            invoke an operation
+DELETE Patient?name=Smith    a conditional delete
+```
+
+The verbs are `GET`, `POST`, `PUT`, `PATCH` and `DELETE`. Because a write whose
+target is a search is exactly a conditional write, conditional creates, updates
+and deletes are typed the same way as the reads. The request the console will
+send is shown beneath the bar before you run it, and each command you run is
+kept in the **Recent** rail on the right.
+
+### The sidebar
+
+- **Pinned** — types you starred, kept at the top. The star appears when you
+  hover a type.
+- **Resource types** — every type the server advertises in its
+  `CapabilityStatement`, around 155 of them, grouped into collapsible FHIR
+  modules (Base, Clinical, Financial, Specialized, Foundation, SQL on FHIR,
+  Haste Health). The filter box flattens the groups to a single list of
+  matches.
+- **Operate** — the views that are not a single resource type:
+
+  | Entry | Path | What it does |
+  |-------|------|--------------|
+  | Event history | `/r/_history` | Every change in the project |
+  | Import bundle | `/import` | Upload a Bundle file |
+  | Indexing errors | `/indexing-errors` | Resources that failed search indexing and were parked rather than dropped |
+  | Projections | `/r/ViewDefinition` | SQL on FHIR `ViewDefinition`s, with the [ViewDefinition editor](/docs/guides/sql_on_fhir#admin-app-ui) |
+  | Custom operations | `/r/OperationDefinition` | Author `OperationDefinition`s |
+  | Settings | `/settings` | See [Settings](#settings) below |
+
+### Editing a resource
+
+A resource editor has a **Form** tab generated from the type's
+`StructureDefinition`, a **JSON** tab, and a **History** tab for a resource
+that already exists. Some types bring their own editor in front of those:
+`ViewDefinition`, `OperationDefinition`, `Subscription`, `AccessPolicyV2`,
+`IdentityProvider` and `Questionnaire`.
+
+Saving is under the **Actions** dropdown at the top right: **Create** for a new
+resource, **Update** for an existing one, and **Delete**.
+
+## Settings
+
+**Settings** in the sidebar (or the profile menu) is where a project's own
+configuration lives:
+
+- **Tenant Branding** — display name and logo, for tenant owners.
+- **User and Project Context** — the claims from your current token: subject,
+  role, tenant, project, audience and scope. Click a value to copy it.
+- **Multi-Factor Authentication** — a link out to enrolling authenticator apps.
+- **FHIR and OIDC Endpoints** — the URLs clients need: **FHIR R4 Base URL**,
+  **FHIR Capabilities URL**, **OIDC Discovery URL**, **OIDC Token Endpoint**,
+  **OIDC Authorization Endpoint** and **MCP URL**. Click one to copy it. These
+  are the values the [CLI](/docs/tutorials/cli) and
+  [web app tutorial](/docs/tutorials/web_application) ask for.
+- **Authorized Applications** — apps holding granted scopes, each revocable.
+- **Active Sessions** — refresh tokens currently issued, each revocable.
+
+## Keyboard shortcuts
+
+The sidebar's **Keyboard shortcuts** entry lists the current bindings; `Cmd /`
+(`Ctrl /` off a Mac) opens the same help. The command bar holds focus for most
+of a session, so the navigation chords carry a modifier rather than being bare
+letters.
+
+| Shortcut | Action |
+|----------|--------|
+| `Cmd K` | Focus the command bar and select what is in it |
+| `Cmd Shift R` | Jump to the results |
+| `Cmd B` | Jump to the sidebar |
+| `Cmd Shift G` | Go to the console |
+| `Cmd Shift H` | Go to event history |
+| `Cmd Shift I` | Go to import bundle |
+| `Cmd Shift E` | Go to indexing errors |
+| `Cmd Shift P` | Go to projections |
+| `Cmd ,` | Go to settings |
+| `Cmd /` | Show the shortcut help |
+| `Esc` | Close the help or the sidebar drawer |
+
+## Related documentation
+
+- **[Quick Start →](/docs/getting_started/quick_start)**
+- **[Client Registration →](/docs/auth/authentication/client_registration)**
+- **[SQL on FHIR →](/docs/guides/sql_on_fhir)**
+- **[Platform Architecture →](/docs/core_concepts/platform_architecture)**

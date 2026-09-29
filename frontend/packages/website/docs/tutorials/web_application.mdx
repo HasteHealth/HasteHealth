@@ -14,10 +14,12 @@ This tutorial will guide you through building a simple web application that inte
 By the end of this tutorial, you'll have a basic web app that can read and display patient data.
 
 ## Set up the server
-1. Open the haste health admin application
-2. Go to your project (or create a project).
-3. Click ClientApplication from the left menu.
-4. Click Create Client Application with the following data:
+1. Open the haste health admin application.
+2. Go to your project, or create one from the system console's **Projects**
+   tab and click **Open console**.
+3. Pick **ClientApplication** from the sidebar's resource types, then click
+   **New ClientApplication**.
+4. On the **JSON** tab, paste the following, then choose **Actions → Create**:
   ```json
   {
     "resourceType": "ClientApplication",
@@ -33,10 +35,11 @@ By the end of this tutorial, you'll have a basic web app that can read and displ
     "scope": "offline_access openid email profile fhirUser user/*.*"
   }
   ```
-5. After saving the Client Application, copy the Client ID for later use.
-6. Go to Settings
-   Copy the FHIR Base URL for later use.
-7. Copy your Tenant ID and Project ID.
+5. After saving the Client Application, copy its ID for later use.
+6. Open **Settings** from the sidebar and, under **FHIR and OIDC Endpoints**,
+   click **FHIR R4 Base URL** to copy it.
+7. In the same view, the **User and Project Context** card has your **Tenant**
+   and **Project** IDs. Click either value to copy it.
 
 ## Set up the web application
 1. Clone the following [repository](https://github.com/HasteHealth/Web-Template).

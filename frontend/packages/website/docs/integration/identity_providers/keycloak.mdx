@@ -43,10 +43,9 @@ This guide provides step-by-step instructions on integrating Keycloak as an iden
     - jwks_uri: `https://[keycloak-domain]/realms/[keycloak-realm]/protocol/openid-connect/certs`
 
 3. **Create IdentityProvider Resource in Haste Health**
-   - Go to the Haste Health Admin App for your tenant.
-   - Navigate to the system project.
-    - Click Identity Provider
-    - Click **New**
+    - Open the system console for your tenant (`https://[tenant]_system.[haste-health-host]`).
+    - Open the **Identity providers** tab.
+    - Click **New IdentityProvider**.
     - Provide the following details:
       - **Name**: A friendly name for the identity provider (e.g., `Keycloak`).
       - **Status**: Set to `active`.
@@ -66,8 +65,8 @@ This guide provides step-by-step instructions on integrating Keycloak as an iden
    `https://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
 
 5. **Test the Integration**
-   - Click Projects in system admin app and modify at the bottom identity providers.
-   - Add the Keycloak identity provider to the desired project.
+   - In the system console, open the **Projects** tab and click the pencil on the project you want to enable it for.
+   - In the project's **Form** tab, add the Keycloak identity provider under **identityProvider**, then choose **Actions → Update**.
    - Click the project and log out.
    - At the login screen click the Keycloak button.
    - Confirm redirect to Keycloak and login.

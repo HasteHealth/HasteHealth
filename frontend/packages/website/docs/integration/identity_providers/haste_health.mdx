@@ -19,12 +19,12 @@ tags:
 This guide provides step-by-step instructions on integrating a separate Haste Health tenant as an identity provider for your Project.
 
 ## Prerequisites
-- Two Haste Health tenants and accounts with access to both Haste Health Admin Consoles.
+- Two Haste Health tenants and accounts with access to both tenants' admin apps.
 
 ## Steps to Integrate Haste Health
 1. **Register a New Application for Haste Health Tenant you wish to use as an Identity Provider**
-   - Log in to the Haste Health Admin App.
-   - Navigate to "Security" > "Client Applications".
+   - Log in to the project's console in the admin app.
+   - Open **ClientApplication** from the sidebar, then click **New ClientApplication**.
    - Provide the following details:
      - **Name**: A friendly name for the application (e.g., `Haste Health IDP Client`).
      - **Grant Type**: Select `Authorization Code`
@@ -38,10 +38,9 @@ This guide provides step-by-step instructions on integrating a separate Haste He
    - Copy token_endpoint, authorization_endpoint, jwks_uri
 
 3. **Configure Haste Health Instance for IDP**
-    - Go to the Haste Health Admin App for your tenant where you want to add the identity provider.
-    - Navigate to the system project.
-    - Click Identity Provider
-    - Click **New**
+    - Open the system console for your tenant where you want to add the identity provider (`https://[tenant]_system.[haste-health-host]`).
+    - Open the **Identity providers** tab.
+    - Click **New IdentityProvider**.
     - Provide the following details:
       - **Name**: A friendly name for the identity provider (e.g., `Haste Health IDP`).
       - **Status**: Set to `active`.
@@ -56,13 +55,12 @@ This guide provides step-by-step instructions on integrating a separate Haste He
 
 4. **Set Health Tenant redirect URL in Identity Provider Tenant**
    - Go back to your Haste Health tenant you are using as an identity provider.
-   - Navigate to "Security" > "Client Applications".
-   - Edit the application you created in step 1.
+   - Open **ClientApplication** from the sidebar and click the application you created in step 1.
    - In the "Redirect URIs" section, ensure the redirect URI for your Haste Health tenant that will use this identity provider is added:
       `https://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
 
 5. **Test the Integration**
-   - Click Projects in system admin app and modify at the bottom identity providers.
-   - Add the Haste Health identity provider to the desired project.
+   - In the system console, open the **Projects** tab and click the pencil on the project you want to enable it for.
+   - In the project's **Form** tab, add the Haste Health identity provider under **identityProvider**, then choose **Actions → Update**.
    - Click the project and log out.
    - Click to log in using the newly added Haste Health identity provider to ensure everything is set up correctly.

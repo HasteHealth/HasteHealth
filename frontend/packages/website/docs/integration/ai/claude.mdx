@@ -46,8 +46,8 @@ First, create an OAuth client that Claude will use to authenticate with Haste He
 
 <TabItem value="admin-app" label="Admin App" default>
 
-1. Navigate to **Security/ClientApplications** in your Haste Health Admin App
-2. Click **New**
+1. Open your project's console in the Haste Health Admin App and pick **ClientApplication** from the sidebar's resource types (or type `ClientApplication` into the command bar)
+2. Click **New ClientApplication**
 3. Configure the following settings:
 
 | Field | Value | Description |
@@ -60,7 +60,7 @@ First, create an OAuth client that Claude will use to authenticate with Haste He
 
 Note that the redirect URI should be `https://claude.ai/api/mcp/auth_callback` per Claude Desktop's OAuth configuration requirements.
 
-4. Click **Actions/Create**
+4. Click **Actions → Create**
 5. **⚠️ Important**: Copy and save the generated ID for later use.
 </TabItem>
 <TabItem value="cli" label="CLI" default>
