@@ -131,12 +131,9 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Default social card (og:image / twitter:image) for any page that
-    // doesn't set its own `image` in Layout/frontmatter. TODO: swap for a
-    // dedicated 1200x630 branded social card — this is a product screenshot
-    // used as an interim placeholder because it's the closest asset on hand
-    // to the recommended aspect ratio.
-    image: "img/admin_app.png",
+    // Default social card (og:image / twitter:image), 1200x630, for any page
+    // that doesn't set its own `image` in Layout/frontmatter.
+    image: "img/social-card.png",
     // Global <meta> tags injected on every page. Per-page title/description
     // (set via Layout props or frontmatter) always take precedence over
     // these defaults, but keywords/robots/twitter card have no per-page
