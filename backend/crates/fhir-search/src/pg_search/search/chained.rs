@@ -17,10 +17,13 @@
 //! would silently drop matches. On 2M Observations over 200k Patients a
 //! selective chain answers a 50-row page in 771 buffer hits.
 
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt::Write as _};
 
 use haste_fhir_client::url::Parameter;
-use haste_fhir_model::r4::generated::resources::{ResourceType, SearchParameter};
+use haste_fhir_model::r4::generated::{
+    resources::{ResourceType, SearchParameter},
+    terminology::BoundCode,
+};
 use haste_fhir_operation_error::OperationOutcomeError;
 
 use crate::{
@@ -123,13 +126,14 @@ pub(super) async fn chained_clause<ParameterResolver: SearchParameterResolve>(
 
         // Tenant and project come from the searched row, so a chain cannot
         // reach another tenant's resources.
-        sql.push_str(&format!(
+        let _ = write!(
+            sql,
             "EXISTS (SELECT 1 FROM {anchor_table} {alias}{type_join} \
              WHERE {alias}.tenant = {ANCHOR_TABLE_ALIAS}.tenant \
              AND {alias}.project = {ANCHOR_TABLE_ALIAS}.project \
              AND {alias}.resource_type = '{target}' \
              AND {correlation_sql} AND ("
-        ));
+        );
 
         row = ClauseRow {
             anchor: Cow::Owned(alias),
@@ -174,7 +178,7 @@ fn link_target_type(
         .target
         .iter()
         .flatten()
-        .filter_map(|target| target.as_str())
+        .filter_map(BoundCode::as_str)
         .collect();
 
     let target = match (modifier, targets.as_slice()) {
