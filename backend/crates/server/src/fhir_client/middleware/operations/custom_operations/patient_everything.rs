@@ -330,7 +330,7 @@ fn search_parameters(
             name: name.to_string(),
             value: vec![value],
             modifier: None,
-            chains: None,
+            chains: Vec::new(),
         })
     };
 

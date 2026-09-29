@@ -74,8 +74,9 @@ struct TestState {
     latest_request: Option<FHIRRequest>,
     latest_response: Option<Response>,
     result: BoundCode<ReportResultCodes>,
-    /// The latest write not yet confirmed visible to search.
-    unindexed_write: Option<IndexedWrite>,
+    /// Writes not yet confirmed visible to search. All are waited for, since a
+    /// search (a chained one especially) may filter on any of them.
+    unindexed_writes: Vec<IndexedWrite>,
 }
 
 /// A write that searches must see before they run. Search indexing is
@@ -99,7 +100,7 @@ impl TestState {
             latest_request: None,
             latest_response: None,
             result: ReportResultCodes::pending(),
-            unindexed_write: None,
+            unindexed_writes: Vec::new(),
         }
     }
     fn resolve_fixture<'a>(
@@ -1084,9 +1085,17 @@ async fn run_operation<
 
     if let Some(timeout) = options.index_wait_timeout
         && reads_search_index(&fhir_request)
-        && let Some(write) = state_guard.unindexed_write.take()
+        && !state_guard.unindexed_writes.is_empty()
     {
-        wait_for_index(client, &ctx, &write, timeout).await;
+        // One deadline for the whole set: the worker indexes them together.
+        let deadline = tokio::time::Instant::now() + timeout;
+        for write in std::mem::take(&mut state_guard.unindexed_writes) {
+            let remaining = deadline.saturating_duration_since(tokio::time::Instant::now());
+            if remaining.is_zero() {
+                break;
+            }
+            wait_for_index(client, &ctx, &write, remaining).await;
+        }
     }
 
     let ctx = match testscript_request_headers(&state_guard, &pointer, operation).await? {
@@ -1102,7 +1111,7 @@ async fn run_operation<
     match fhir_response {
         Ok(fhir_response) => {
             if let Some(write) = indexed_write(&fhir_response) {
-                state_guard.unindexed_write = Some(write);
+                state_guard.unindexed_writes.push(write);
             }
             associate_request_response_variables(
                 &mut state_guard,
