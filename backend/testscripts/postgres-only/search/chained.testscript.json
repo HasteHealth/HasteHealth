@@ -5,6 +5,12 @@
     "title": "Chained parameter tests",
     "status": "active",
     "description": "Tests chained search parameters: a chain filters by the referenced resource, may end on a string, token or _id parameter with its own modifier, may follow two references and repeating references into only the named type, and is rejected when ambiguous, too deep, or through a parameter that is not a reference.",
+    "extension": [
+        {
+            "url": "https://haste.health/fhir/StructureDefinition/testscript-search-backend",
+            "valueCode": "postgres"
+        }
+    ],
     "resourceType": "TestScript",
     "contained": [
         {
