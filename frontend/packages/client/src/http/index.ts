@@ -233,19 +233,16 @@ async function toHTTPRequest(
           },
         };
       } else {
+        const queryString = parameters ? `?${parameters}` : "";
+
         let searchURL;
         switch (request.level) {
           case "type":
-            searchURL = new URL(
-              `${request.resource}${parameters ? `?${parameters}` : ""}`,
-              FHIRUrl,
-            ).href;
+            searchURL = new URL(`${request.resource}${queryString}`, FHIRUrl)
+              .href;
             break;
           case "system":
-            searchURL = new URL(
-              `${parameters ? `?${parameters}` : ""}`,
-              FHIRUrl,
-            ).href;
+            searchURL = new URL(queryString, FHIRUrl).href;
             break;
         }
 
