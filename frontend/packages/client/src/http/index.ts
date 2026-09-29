@@ -19,6 +19,13 @@ export type HTTPClientState = {
   authenticate?: () => void;
   getAccessToken?: () => Promise<string>;
   url: string | DeriveFHIRURL;
+  /**
+   * How searches are sent. Defaults to `"GET"` (parameters in the query
+   * string). `"POST"` form-encodes them into a `_search` body, keeping
+   * identifiers out of URLs and lifting the URL length limit.
+   * Allows users to send PHI without worrying about it appearing in URLs.
+   */
+  searchMethod?: "GET" | "POST";
 };
 
 export type HTTPContext = {
@@ -26,7 +33,7 @@ export type HTTPContext = {
 };
 
 function parametersToQueryString(
-  parameters: ParsedParameter<string | number>[]
+  parameters: ParsedParameter<string | number>[],
 ): string {
   return parameters
     .map((p) => {
@@ -41,7 +48,7 @@ function parametersToQueryString(
 async function toHTTPRequest(
   state: HTTPClientState,
   context: HTTPContext,
-  request: FHIRRequest<FHIR_VERSION, AllInteractions>
+  request: FHIRRequest<FHIR_VERSION, AllInteractions>,
 ): Promise<{
   url: string;
   headers?: Record<string, string>;
@@ -94,7 +101,7 @@ async function toHTTPRequest(
           return {
             url: new URL(
               `${request.resource}${queryString ? `?${queryString}` : ""}`,
-              FHIRUrl
+              FHIRUrl,
             ).href,
             method: "PUT",
             body: JSON.stringify(request.body),
@@ -125,7 +132,7 @@ async function toHTTPRequest(
       return {
         url: new URL(
           `${request.resource}/${request.id}/_history/${request.versionId}`,
-          FHIRUrl
+          FHIRUrl,
         ).href,
         method: "GET",
         headers,
@@ -145,7 +152,7 @@ async function toHTTPRequest(
           return {
             url: new URL(
               `${request.resource}${queryString ? `?${queryString}` : ""}`,
-              FHIRUrl
+              FHIRUrl,
             ).href,
             method: "DELETE",
             headers,
@@ -170,7 +177,7 @@ async function toHTTPRequest(
         case "instance": {
           historyUrl = new URL(
             `${request.resource}/${request.id}/_history`,
-            FHIRUrl
+            FHIRUrl,
           ).href;
           break;
         }
@@ -202,28 +209,52 @@ async function toHTTPRequest(
       };
     }
     case "search-request": {
-      const queryString = parametersToQueryString(request.parameters);
-      let searchURL;
-      switch (request.level) {
-        case "type":
-          searchURL = new URL(
-            `${request.resource}${queryString ? `?${queryString}` : ""}`,
-            FHIRUrl
-          ).href;
-          break;
-        case "system":
-          searchURL = new URL(
-            `${queryString ? `?${queryString}` : ""}`,
-            FHIRUrl
-          ).href;
-          break;
-      }
+      // Percent-encoded, so this works as a query string or a form body.
+      const parameters = parametersToQueryString(request.parameters);
 
-      return {
-        url: searchURL,
-        method: "GET",
-        headers,
-      };
+      if (state.searchMethod === "POST") {
+        let searchURL;
+        switch (request.level) {
+          case "type":
+            searchURL = new URL(`${request.resource}/_search`, FHIRUrl).href;
+            break;
+          case "system":
+            searchURL = new URL("_search", FHIRUrl).href;
+            break;
+        }
+
+        return {
+          url: searchURL,
+          method: "POST",
+          body: parameters,
+          headers: {
+            ...headers,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        };
+      } else {
+        let searchURL;
+        switch (request.level) {
+          case "type":
+            searchURL = new URL(
+              `${request.resource}${parameters ? `?${parameters}` : ""}`,
+              FHIRUrl,
+            ).href;
+            break;
+          case "system":
+            searchURL = new URL(
+              `${parameters ? `?${parameters}` : ""}`,
+              FHIRUrl,
+            ).href;
+            break;
+        }
+
+        return {
+          url: searchURL,
+          method: "GET",
+          headers,
+        };
+      }
     }
 
     case "invoke-request": {
@@ -232,13 +263,13 @@ async function toHTTPRequest(
         case "instance":
           invokeURL = new URL(
             `${request.resource}/${request.id}/$${request.operation}`,
-            FHIRUrl
+            FHIRUrl,
           ).href;
           break;
         case "type":
           invokeURL = new URL(
             `${request.resource}/$${request.operation}`,
-            FHIRUrl
+            FHIRUrl,
           ).href;
           break;
         case "system":
@@ -260,7 +291,7 @@ export class ResponseError<Version extends FHIR_VERSION> extends Error {
   private readonly _response: FHIRResponse<Version, "error">;
   constructor(
     request: FHIRRequest<Version, AllInteractions>,
-    response: FHIRErrorResponse<Version>
+    response: FHIRErrorResponse<Version>,
   ) {
     super();
     this._request = request;
@@ -280,7 +311,7 @@ export function isResponseError(e: unknown): e is ResponseError<FHIR_VERSION> {
 
 async function httpResponseToFHIRResponse<Version extends FHIR_VERSION>(
   request: FHIRRequest<Version, AllInteractions>,
-  response: Response
+  response: Response,
 ): Promise<FHIRResponse<Version, AllInteractions>> {
   if (response.status >= 400) {
     switch (response.status) {
@@ -598,7 +629,7 @@ function httpMiddleware(state: HTTPClientState): MiddlewareAsync<HTTPContext> {
         const httpRequest = await toHTTPRequest(
           state,
           context.ctx,
-          context.request
+          context.request,
         );
         const response = await fetch(httpRequest.url, {
           method: httpRequest.method,
@@ -607,7 +638,7 @@ function httpMiddleware(state: HTTPClientState): MiddlewareAsync<HTTPContext> {
         });
         const fhirResponse = await httpResponseToFHIRResponse(
           context.request,
-          response
+          response,
         );
         fhirResponse.http = {
           status: response.status,
@@ -636,7 +667,7 @@ function httpMiddleware(state: HTTPClientState): MiddlewareAsync<HTTPContext> {
 }
 
 export default function createHTTPClient(
-  initialState: HTTPClientState
+  initialState: HTTPClientState,
 ): AsynchronousClient<HTTPContext> {
   // Removing trailing slash
   const middleware = httpMiddleware(initialState);

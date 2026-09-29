@@ -786,7 +786,7 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
 }
 
 export default function Settings() {
-  const hasteHealth = useHasteHealth();
+  const hasteHealth = useHasteHealth({ searchMethod: "POST" });
 
   return (
     <React.Suspense
