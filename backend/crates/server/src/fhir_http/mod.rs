@@ -118,7 +118,9 @@ fn get_parameters(req: HTTPRequest) -> Result<Parameters, FHIRRequestParsingErro
 /// The body is read as `application/x-www-form-urlencoded` whenever there is
 /// one. An empty body leaves the query string as the whole search, which is
 /// what a client that puts its parameters in the URL expects.
-fn get_search_parameters(req: HTTPRequest) -> Result<ParsedParameters, FHIRRequestParsingError> {
+fn get_search_parameters_body(
+    req: HTTPRequest,
+) -> Result<ParsedParameters, FHIRRequestParsingError> {
     let mut parameters = req.query;
 
     let body = match &req.body {
@@ -202,7 +204,7 @@ fn parse_request_1_non_empty(
                 match url_chunks[0].as_str() {
                     "_search" => Ok(FHIRRequest::Search(SearchRequest::System(
                         FHIRSearchSystemRequest {
-                            parameters: get_search_parameters(req)?,
+                            parameters: get_search_parameters_body(req)?,
                         },
                     ))),
                     _ => {
@@ -372,7 +374,7 @@ fn parse_request_2(
                         Ok(FHIRRequest::Search(SearchRequest::Type(
                             FHIRSearchTypeRequest {
                                 resource_type,
-                                parameters: get_search_parameters(req)?,
+                                parameters: get_search_parameters_body(req)?,
                             },
                         )))
                     }
