@@ -387,8 +387,105 @@ async fn index_for_project<
     }
 }
 
+/// Indexes every project of one pass concurrently, at most `semaphore`'s
+/// permits at a time, and returns the rows handed to the search engine across
+/// all of them. Zero means every project was already caught up to the
+/// watermark (or locked by another worker).
+async fn index_projects(
+    projects: Vec<ProjectReturn>,
+    repo: &Arc<PGConnection>,
+    search_engine: &Arc<SearchEngineBackend>,
+    semaphore: &Arc<Semaphore>,
+    max_concurrent_limit: u64,
+    backend: SearchIndexBackend,
+    safe_sequence: i64,
+) -> usize {
+    let handles: Vec<_> = projects
+        .into_iter()
+        .map(|project| {
+            tokio::spawn(index_one_project(
+                project,
+                repo.clone(),
+                search_engine.clone(),
+                semaphore.clone(),
+                max_concurrent_limit,
+                backend,
+                safe_sequence,
+            ))
+        })
+        .collect();
+
+    let mut fetched_this_pass = 0usize;
+    for handle in handles {
+        match handle.await {
+            Ok(fetched) => fetched_this_pass += fetched,
+            Err(join_error) => {
+                tracing::error!("Project indexing task panicked: '{:?}'", join_error);
+            }
+        }
+    }
+    fetched_this_pass
+}
+
+/// Indexes one project up to `safe_sequence` once a permit of `semaphore` is
+/// free, and returns the rows handed to the search engine (zero on failure,
+/// which is logged).
+async fn index_one_project(
+    project: ProjectReturn,
+    repo: Arc<PGConnection>,
+    search_engine: Arc<SearchEngineBackend>,
+    semaphore: Arc<Semaphore>,
+    max_concurrent_limit: u64,
+    backend: SearchIndexBackend,
+    safe_sequence: i64,
+) -> usize {
+    let _permit = match semaphore.acquire_owned().await {
+        Ok(permit) => permit,
+        Err(_closed) => {
+            tracing::warn!(
+                "Project semaphore closed; skipping indexing for tenant '{}' project '{}'.",
+                &project.tenant,
+                project.project.as_ref()
+            );
+            return 0;
+        }
+    };
+
+    tracing::trace!(
+        "Indexing tenant: '{}' project: '{}'",
+        &project.tenant,
+        project.project.as_ref()
+    );
+
+    // Boxed: the search engine's indexing future is large, and this one is
+    // spawned per project.
+    let result = Box::pin(index_for_project(
+        max_concurrent_limit,
+        backend,
+        repo,
+        search_engine,
+        &project.tenant,
+        &project.project,
+        safe_sequence,
+    ))
+    .await;
+
+    match result {
+        Ok(fetched) => fetched,
+        Err(error) => {
+            tracing::error!(
+                "Failed to index tenant: '{}' project: '{}' cause: '{:?}'",
+                &project.tenant,
+                project.project.as_ref(),
+                error
+            );
+            0
+        }
+    }
+}
+
 /// Default `poll_interval_ms`: short enough that a write is searchable within
-/// one poll of the TestScript runner's 100 ms wait, long enough to cap idle
+/// one poll of the `TestScript` runner's 100 ms wait, long enough to cap idle
 /// polling (and with it the watermark scans) at ten passes a second.
 const DEFAULT_POLL_INTERVAL_MS: u64 = 100;
 
@@ -543,78 +640,16 @@ impl Worker for IndexingWorker {
                             cursor = projects_to_check[0].created_at;
                         }
 
-                        let handles: Vec<_> = projects_to_check
-                            .into_iter()
-                            .map(|project| {
-                                let repo = repo.clone();
-                                let search_engine = search_engine.clone();
-                                let semaphore = project_semaphore.clone();
-
-                                tokio::spawn(async move {
-                                    let _permit = match semaphore.acquire_owned().await {
-                                        Ok(permit) => permit,
-                                        Err(_closed) => {
-                                            tracing::warn!(
-                                                "Project semaphore closed; skipping indexing for tenant '{}' project '{}'.",
-                                                &project.tenant,
-                                                project.project.as_ref()
-                                            );
-                                            return 0;
-                                        }
-                                    };
-
-                                    tracing::trace!(
-                                        "Indexing tenant: '{}' project: '{}'",
-                                        &project.tenant,
-                                        project.project.as_ref()
-                                    );
-
-                                    // Boxed: the search engine's indexing future is
-                                    // large, and this one is spawned per project.
-                                    let result = Box::pin(index_for_project(
-                                        max_concurrent_limit,
-                                        backend,
-                                        repo,
-                                        search_engine,
-                                        &project.tenant,
-                                        &project.project,
-                                        safe_sequence,
-                                    ))
-                                    .await;
-
-                                    match result {
-                                        Ok(fetched) => fetched,
-                                        Err(error) => {
-                                            tracing::error!(
-                                                "Failed to index tenant: '{}' project: '{}' cause: '{:?}'",
-                                                &project.tenant,
-                                                project.project.as_ref(),
-                                                error
-                                            );
-                                            0
-                                        }
-                                    }
-                                })
-                            })
-                            .collect();
-
-                        // Rows handed to the search engine this pass, across
-                        // all projects. Zero means every project was already
-                        // caught up to the watermark (or locked by another
-                        // worker).
-                        let mut fetched_this_pass = 0usize;
-                        for handle in handles {
-                            match handle.await {
-                                Ok(fetched) => fetched_this_pass += fetched,
-                                Err(join_error) => {
-                                    tracing::error!(
-                                        "Project indexing task panicked: '{:?}'",
-                                        join_error
-                                    );
-                                }
-                            }
-                        }
-
+                        let fetched_this_pass = index_projects(
+                            projects_to_check,
+                            &repo,
+                            &search_engine,
+                            &project_semaphore,
+                            max_concurrent_limit,
+                            backend,
+                            safe_sequence,
+                        )
+                        .await;
                         if idle {
                             Some(idle_backoff)
                         } else if fetched_this_pass == 0 {
