@@ -8,7 +8,7 @@ import autoprefixer from "autoprefixer";
 
 const config: Config = {
   title: "Haste Health",
-  tagline: "The FHIR Data Layer for AI Agents",
+  tagline: "The open-source FHIR server for AI-native health apps",
   favicon: "/img/favicon.ico",
   trailingSlash: false,
 
@@ -33,7 +33,7 @@ const config: Config = {
         url: "https://haste.health",
         logo: "https://haste.health/img/logo.svg",
         description:
-          "Haste Health is an open-source, self-hosted headless EHR and FHIR R4 clinical data repository that normalizes Epic, Cerner, HL7v2, and other healthcare data sources into one API for apps and AI agents.",
+          "Haste Health is an open-source, self-hosted FHIR R4 server and clinical data repository that normalizes Epic, Oracle Health, HL7v2, and any FHIR R4 API into one API for apps and AI agents.",
         sameAs: ["https://github.com/hastehealth/hastehealth"],
       }),
     },
@@ -133,6 +133,13 @@ const config: Config = {
   themeConfig: {
     // Default social card (og:image / twitter:image), 1200x630, for any page
     // that doesn't set its own `image` in Layout/frontmatter.
+    //
+    // Generated, not hand-made: `pnpm generate-social-card` builds
+    // static/img/social-card.svg and rasterizes it. Its headline has to match
+    // the homepage H1 in src/pages/index.tsx, and its proof figures come from
+    // the same conformance report the site renders. Edit
+    // scripts/social-card.mjs and regenerate; a PNG edited by hand is
+    // overwritten and will drift from the site's copy again.
     image: "img/social-card.png",
     // Global <meta> tags injected on every page. Per-page title/description
     // (set via Layout props or frontmatter) always take precedence over
@@ -142,7 +149,7 @@ const config: Config = {
       {
         name: "keywords",
         content:
-          "headless EHR, FHIR server, FHIR clinical data repository, FHIR CDR, HL7 FHIR R4 API, SMART on FHIR, OAuth2 provider, healthcare interoperability, MCP AI agents, self-hosted EHR, open source FHIR server",
+          "FHIR server, open source FHIR server, FHIR clinical data repository, FHIR CDR, HL7 FHIR R4 API, HL7v2 to FHIR, SMART on FHIR, OAuth2 provider, healthcare interoperability, MCP AI agents, self-hosted FHIR server, Medplum alternative, Aidbox alternative, headless EHR",
       },
       { name: "robots", content: "index, follow" },
       { name: "twitter:card", content: "summary_large_image" },

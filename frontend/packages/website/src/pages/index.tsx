@@ -4,6 +4,7 @@ import Layout from "@theme/Layout";
 import Heading from "@theme/Heading";
 import DataFlowDiagram from "@site/src/components/DataFlowDiagram";
 import McpPreview from "@site/src/components/McpPreview";
+import { QUICK_START_URL, SIGNUP_URL } from "@site/src/links";
 
 const buildCards = [
   {
@@ -262,8 +263,8 @@ export default function Home(): ReactNode {
   return (
     <Layout
       wrapperClassName="bg-background"
-      title="FHIR Data Layer for AI Agents"
-      description="Haste Health is an open-source, self-hosted FHIR R4 clinical data repository built for AI agents via MCP. It normalizes Epic, Cerner, HL7v2, and other healthcare data sources into one API, with OAuth2/SMART on FHIR built in. Often described as a headless EHR, it runs under Apache-2.0."
+      title="Open-Source FHIR Server for AI-Native Health Apps"
+      description="Haste Health is an open-source, self-hosted FHIR R4 server and clinical data repository for AI-native health apps. It normalizes Epic, Oracle Health, HL7v2 and any FHIR R4 API into one API, with OAuth2, SMART standalone launch and MCP tools built in. Apache-2.0, or hosted from $1,500/month with a BAA."
     >
       <meta name="algolia-site-verification" content="A94F28B6A640A6FE" />
       <script type="application/ld+json">
@@ -274,7 +275,7 @@ export default function Home(): ReactNode {
           applicationCategory: "HealthApplication",
           operatingSystem: "Linux, macOS, Windows (Docker)",
           description:
-            "Open-source, self-hosted FHIR R4 clinical data repository built for AI agents, normalizing Epic, Cerner, HL7v2, and other healthcare data sources into one API. Built-in OAuth2 / SMART on FHIR authorization and MCP tools for AI agent access. Often described as a headless EHR.",
+            "Open-source, self-hosted FHIR R4 server and clinical data repository for AI-native health apps, normalizing Epic, Oracle Health, HL7v2 and any FHIR R4 API into one API. Built-in OAuth2 authorization, SMART on FHIR standalone launch and MCP tools for AI agent access.",
           url: "https://haste.health",
           license: "https://www.apache.org/licenses/LICENSE-2.0",
           offers: {
@@ -307,42 +308,64 @@ export default function Home(): ReactNode {
           <div className="pointer-events-none absolute -left-16 bottom-0 h-64 w-64 rounded-full bg-brand-300/20 blur-3xl hero-blob-slow" />
 
           <div className="relative grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
-            <div className="space-y-7 lg:col-span-6">
+            <div className="space-y-7 lg:col-span-7">
+              {/* The H1 and subhead already say open source; the badge carries
+                  the two things a buyer comparing FHIR servers cannot get from
+                  most rivals without a sales call. */}
               <div className="inline-flex items-center rounded-full border border-brand-400/60 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-white backdrop-blur">
-                Open source · Apache-2.0 · Self-hosted
+                Apache-2.0 · Published pricing · BAA available
               </div>
 
+              {/* The category noun a buyer actually shortlists on ("FHIR
+                  server") leads; AI-native is the audience, not the category.
+                  An H1 built on MCP alone competes on a feature every rival
+                  now ships.
+
+                  It breaks into the same two lines as the social card. The
+                  size steps with the viewport so "The Open-Source FHIR Server"
+                  (about 13.7em in a bold system font) fits the text column at
+                  each breakpoint: the full 624px at 768, then a 7-of-12 column
+                  of roughly 497px at 1024, 564px at 1280 and 669px at 1440,
+                  where Infima widens the container. The nowrap spans keep the
+                  compound words whole if it does wrap. */}
               <Heading
                 as="h1"
-                className="text-4xl md:text-6xl font-bold tracking-[-0.025em] leading-[1.05] text-white"
+                className="text-4xl md:text-[2.5rem] lg:text-4xl xl:text-[2.5rem] 2xl:text-5xl font-bold tracking-[-0.025em] leading-[1.05] text-white text-balance"
               >
-                The FHIR Data Layer for AI Agents
+                The <span className="whitespace-nowrap">Open-Source</span>{" "}
+                <span className="whitespace-nowrap">FHIR Server</span>{" "}
+                <span className="lg:block">
+                  for <span className="whitespace-nowrap">AI-Native</span>{" "}
+                  Health Apps
+                </span>
               </Heading>
 
               <p className="max-w-2xl text-lg md:text-2xl text-brand-100 leading-relaxed">
-                Haste Health normalizes Epic, Cerner, HL7v2, and any
-                FHIR-compatible system into one structured API, giving your
-                agents and applications direct, standards-based access to
-                clinical data, not a fragile integration layer.
+                Epic, Oracle Health and HL7v2 in. FHIR, SQL and MCP out.
+                Rust-fast, Apache-2.0, self-host it or run it hosted with a
+                signed BAA.
               </p>
 
+              {/* Same pair as the navbar: the hosted free tenant is the
+                  lowest-friction start and the path to a paid tier; the quick
+                  start keeps self-hosting one click away. */}
               <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center">
                 <Link
                   className="inline-flex items-center justify-center rounded-lg bg-white px-7 py-3 text-lg font-semibold text-brand-900 transition-colors hover:bg-brand-50"
-                  to="/docs/getting_started/quick_start"
+                  to={SIGNUP_URL}
                 >
-                  Start in 5 Minutes
+                  Start for free
                 </Link>
                 <Link
                   className="inline-flex items-center justify-center rounded-lg border border-brand-300/60 bg-white/5 px-7 py-3 text-lg font-semibold text-white transition-colors hover:bg-white/15"
-                  to="/docs/integration/ai/claude"
+                  to={QUICK_START_URL}
                 >
-                  Connect Claude
+                  Self-host in 5 minutes
                 </Link>
               </div>
             </div>
 
-            <div className="lg:col-span-6">
+            <div className="lg:col-span-5">
               <HeroSnippet />
             </div>
           </div>
@@ -428,6 +451,20 @@ export default function Home(): ReactNode {
           />
           <div className="mt-8">
             <McpPreview />
+          </div>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link
+              className="inline-flex items-center justify-center rounded-lg bg-brand-700 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-brand-800"
+              to="/docs/category/ai"
+            >
+              Connect Claude, Gemini or OpenAI
+            </Link>
+            <Link
+              className="inline-flex items-center justify-center rounded-lg border border-brand-300 px-6 py-3 text-base font-semibold text-brand-900 transition-colors hover:bg-brand-100"
+              to="/docs/api/rest_api/model_context_protocol/tools"
+            >
+              Browse the MCP tools
+            </Link>
           </div>
         </section>
 

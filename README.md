@@ -4,7 +4,9 @@
 
 ## Overview
 
-Haste Health is a headless EHR. Store clinical data as FHIR R4 and serve it to your applications, analytics, and AI agents.
+Haste Health is the open-source FHIR server for AI-native health apps. It stores clinical data as FHIR R4 and serves it to your applications, analytics and AI agents through one API, with OAuth2, SMART on FHIR and MCP built in.
+
+Epic, Oracle Health and HL7v2 in. FHIR, SQL-on-FHIR and MCP out. Written in Rust, licensed Apache-2.0, and yours to self-host, or [hosted with a signed BAA](https://haste.health/pricing).
 
 ## Running Locally
 
