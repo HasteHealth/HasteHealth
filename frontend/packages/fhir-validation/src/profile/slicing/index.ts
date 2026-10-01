@@ -260,33 +260,40 @@ export async function validateSlice(
   root: object,
   sliceValueLocs: Loc<any, any, any>[]
 ) {
-  for (const sliceValueLoc of sliceValueLocs) {
-    const sliceElement = elements[sliceIndex];
-    const patternCheck = await fp.evaluate("$this.pattern", sliceElement);
-    const sliceValue = get(sliceValueLoc, root);
-    const fixedValueCheck = await fp.evaluate("$this.fixed", sliceElement);
+  const sliceElement = elements[sliceIndex];
+  // Both constraints come from the slice's element, not from the values, so
+  // they are evaluated once for every location checked against them.
+  const [patternCheck, fixedValueCheck] = await Promise.all([
+    fp.evaluate("$this.pattern", sliceElement),
+    fp.evaluate("$this.fixed", sliceElement),
+  ]);
 
-    if (patternCheck && !conformsToPattern(patternCheck[0], sliceValue)) {
-      throw new OperationError(outcomeError("exception", "pattern mismatch"));
-    }
-    if (fixedValueCheck) {
-      if (JSON.stringify(fixedValueCheck[0]) !== JSON.stringify(sliceValue)) {
-        throw new OperationError(
-          outcomeError("exception", "fixed value mismatch")
+  await Promise.all(
+    sliceValueLocs.map(async (sliceValueLoc) => {
+      const sliceValue = get(sliceValueLoc, root);
+
+      if (patternCheck && !conformsToPattern(patternCheck[0], sliceValue)) {
+        throw new OperationError(outcomeError("exception", "pattern mismatch"));
+      }
+      if (fixedValueCheck) {
+        if (JSON.stringify(fixedValueCheck[0]) !== JSON.stringify(sliceValue)) {
+          throw new OperationError(
+            outcomeError("exception", "fixed value mismatch")
+          );
+        }
+
+        const childrenIndices = eleIndexToChildIndices(elements, sliceIndex);
+
+        await Promise.all(
+          childrenIndices.map((child) => {
+            const field = fieldName(elements[child]);
+            const fieldLoc = descend(sliceValueLoc, field);
+            return validateSlice(elements, child, root, [fieldLoc]);
+          })
         );
       }
-
-      const childrenIndices = eleIndexToChildIndices(elements, sliceIndex);
-
-      await Promise.all(
-        childrenIndices.map((child) => {
-          const field = fieldName(elements[child]);
-          const fieldLoc = descend(sliceValueLoc, field);
-          return validateSlice(elements, child, root, [fieldLoc]);
-        })
-      );
-    }
-  }
+    })
+  );
 }
 
 async function splitSlicing(
