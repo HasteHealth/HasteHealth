@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img">
+  <title>Haste Health — The Open-Source FHIR Server for AI-Native Health Apps</title>
+
+  <!-- Rendered standalone via file:// when rasterizing, where the SVG becomes
+       the document root and picks up the UA's default body margin. Pinning it
+       to the viewport keeps the screenshot flush to the card's edges. -->
+  <style>
+    @media screen { :root { margin: 0; padding: 0; } }
+  </style>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f766e"/>
+      <stop offset="55%" stop-color="#0d9488"/>
+      <stop offset="100%" stop-color="#115e59"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- The pulse line from the site's hero, as a quiet watermark. Kept low and
+       to the right of the logo so it never crosses the headline or the proof
+       strip: at a Slack thumbnail's size, a stroke through the text reads as an
+       artefact rather than as texture. -->
+  <path d="M600 196 L760 196 L788 196 L812 132 L840 260 L864 196 L944 196 L972 146 L996 246 L1020 196 L1200 196"
+        fill="none" stroke="#ffffff" stroke-width="3" opacity="0.16"/>
+
+  <!-- Logo mark: the three bars from static/img/logo.svg. -->
+  <g transform="translate(80, 74) scale(0.46)">
+    <rect x="6"  y="22" width="24" height="56"  rx="6" fill="#ffffff" opacity="0.5"/>
+    <rect x="38" y="0"  width="24" height="100" rx="6" fill="#ffffff"/>
+    <rect x="70" y="32" width="24" height="36"  rx="6" fill="#ffffff" opacity="0.75"/>
+  </g>
+  <text x="140" y="112" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="38" font-weight="600" fill="#ffffff">haste<tspan opacity="0.72">.health</tspan></text>
+
+    <text x="80" y="300" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="58" font-weight="700" fill="#ffffff" letter-spacing="-1.2">The Open-Source FHIR Server</text>
+    <text x="80" y="368" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="58" font-weight="700" fill="#ffffff" letter-spacing="-1.2">for AI-Native Health Apps</text>
+
+  <text x="80" y="428" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="400" fill="#d9f2ee">Epic, Oracle Health and HL7v2 in. FHIR, SQL and MCP out.</text>
+
+  <!-- Proof strip. -->
+  <line x1="80" y1="486" x2="1120" y2="486" stroke="#ffffff" stroke-width="1.5" opacity="0.28"/>
+  <text x="80" y="536" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" font-weight="500" fill="#ffffff" opacity="0.93">154 / 155 FHIR resource types pass every conformance check   ·   Apache-2.0</text>
+</svg>

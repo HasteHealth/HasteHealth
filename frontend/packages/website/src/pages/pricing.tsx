@@ -12,10 +12,7 @@ import {
   isUnlimited,
   limitCount,
 } from "@site/src/pricing/tiers";
-
-const SIGNUP_URL = "https://api.haste.health/auth/signup";
-const DEMO_URL = "https://calendly.com/rp-haste/book-a-demo";
-const QUICK_START_URL = "/docs/getting_started/quick_start";
+import { DEMO_URL, QUICK_START_URL, SIGNUP_URL } from "@site/src/links";
 
 /**
  * The editorial part of a tier: what we say about it, as opposed to what the
