@@ -17,7 +17,15 @@ pub async fn create_transaction(
                 .await
                 .map_err(StoreError::from)?
             } else {
-                pool.begin().await.map_err(StoreError::from)?
+                // Sequence consumers read the watermark (`max_safe_seq`) and
+                // the rows in separate statements and rely on the second one
+                // taking its snapshot after the first's lock scan, which only
+                // READ COMMITTED's per-statement snapshots guarantee. Pin it so
+                // a non-default `default_transaction_isolation` cannot turn
+                // that into silently skipped rows.
+                pool.begin_with("BEGIN ISOLATION LEVEL READ COMMITTED")
+                    .await
+                    .map_err(StoreError::from)?
             };
 
             Ok(Arc::new(Mutex::new(tx)))
