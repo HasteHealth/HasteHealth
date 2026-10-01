@@ -60,10 +60,9 @@ function validateTypeIfMultipleTypesConstrained(
 ): boolean {
   if (element.type) {
     return (
-      element.type.find((t) => t.code === type) !== undefined ||
+      element.type.some((t) => t.code === type) ||
       (type === "Element" &&
-        element.type.find((t) => isPrimitiveType(ctx.fhirVersion, t.code)) !==
-          undefined)
+        element.type.some((t) => isPrimitiveType(ctx.fhirVersion, t.code)))
     );
   }
   return true;

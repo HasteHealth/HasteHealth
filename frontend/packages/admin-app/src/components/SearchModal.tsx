@@ -112,27 +112,31 @@ function SearchResultItem({
   onHover: () => void;
 }>) {
   return (
-    // Arrow keys and Enter are handled by the search input, which owns the
-    // keyboard interaction for this list; these rows are its options.
-    <div
-      role="option"
-      aria-selected={active}
-      onClick={onSelect}
-      onMouseEnter={onHover}
-      className={classNames(
-        "group cursor-pointer px-2 py-1.5 rounded",
-        active ? "bg-gray-50" : "",
-      )}
-    >
-      <span className="text-sm group-hover:text-slate-700 font-medium">
-        {item.label}
-      </span>
-      {item.kind === "resource" && item.profile && (
-        <div className="text-xs text-slate-400 group-hover:text-slate-500">
-          {item.profile}
-        </div>
-      )}
-    </div>
+    // A real button: focusable on its own, and Enter/Space activate it
+    // natively. Arrow keys still move the highlight from anywhere in the
+    // modal, and focusing a row moves the highlight with it.
+    <li>
+      <button
+        type="button"
+        aria-current={active ? "true" : undefined}
+        onClick={onSelect}
+        onMouseEnter={onHover}
+        onFocus={onHover}
+        className={classNames(
+          "group block w-full text-left cursor-pointer px-2 py-1.5 rounded",
+          active ? "bg-gray-50" : "",
+        )}
+      >
+        <span className="block text-sm group-hover:text-slate-700 font-medium">
+          {item.label}
+        </span>
+        {item.kind === "resource" && item.profile && (
+          <span className="block text-xs text-slate-400 group-hover:text-slate-500">
+            {item.profile}
+          </span>
+        )}
+      </button>
+    </li>
   );
 }
 
@@ -254,15 +258,23 @@ function SearchModal(props: SearchModalProps) {
         if (e.key === "ArrowDown") {
           e.preventDefault();
           setSearchIndex((v) => Math.min(v + 1, flatResults.length - 1));
+          // The input owns arrow-key navigation: bring focus back to it so
+          // Enter opens the highlighted result, not a row tabbed to earlier.
+          inputSearch?.focus();
           return;
         }
         if (e.key === "ArrowUp") {
           e.preventDefault();
           setSearchIndex((v) => Math.max(v - 1, 0));
+          inputSearch?.focus();
           return;
         }
         if (e.key === "Enter") {
-          goToItem(flatResults[searchIndex]);
+          // A focused button (a result row, or ESC) activates itself on
+          // Enter; only drive the highlighted result from anywhere else.
+          if (!(e.target instanceof HTMLButtonElement)) {
+            goToItem(flatResults[searchIndex]);
+          }
           return;
         }
       }
@@ -273,6 +285,7 @@ function SearchModal(props: SearchModalProps) {
     };
   }, [
     openModal,
+    inputSearch,
     flatResults,
     searchIndex,
     setOpenModal,
@@ -307,27 +320,21 @@ function SearchModal(props: SearchModalProps) {
         </button>
       </div>
       <div className="w-full" />
-      <div
-        role="listbox"
+      <ul
         aria-label="Search results"
         className="text-slate-600 px-2 py-2 max-h-96 overflow-y-auto"
       >
         {flatResults.length === 0 && (
-          <div className="px-2 py-4 text-sm text-slate-400">No results.</div>
+          <li className="px-2 py-4 text-sm text-slate-400">No results.</li>
         )}
         {groupedResults.map(
           (group) =>
             group.items.length > 0 && (
-              <div
-                key={group.category}
-                role="group"
-                aria-label={group.category}
-                className="mb-2"
-              >
+              <li key={group.category} className="mb-2">
                 <div className="px-2 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                   {group.category}
                 </div>
-                <div className="space-y-0.5">
+                <ul aria-label={group.category} className="space-y-0.5">
                   {group.items.map((item) => {
                     renderedIndex += 1;
                     const index = renderedIndex;
@@ -341,11 +348,11 @@ function SearchModal(props: SearchModalProps) {
                       />
                     );
                   })}
-                </div>
-              </div>
+                </ul>
+              </li>
             ),
         )}
-      </div>
+      </ul>
     </Modal>
   );
 }

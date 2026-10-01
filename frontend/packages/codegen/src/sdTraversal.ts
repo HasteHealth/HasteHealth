@@ -40,13 +40,12 @@ function traversalBottomUpSdElements<T>(
   elements: Array<ElementDefinition>,
   index: number,
   visitorFunction: VisitorFunction<T>
-) {
+): T[] {
   const childIndices = eleIndexToChildIndices(elements, index);
-  const childTraversalValues: ReturnType<VisitorFunction<T>> = childIndices
-    .map((childIndex) => {
-      return traversalBottomUpSdElements(elements, childIndex, visitorFunction);
-    })
-    .flat();
+  const childTraversalValues: ReturnType<VisitorFunction<T>> =
+    childIndices.flatMap((childIndex) =>
+      traversalBottomUpSdElements(elements, childIndex, visitorFunction)
+    );
   return visitorFunction(elements[index], childTraversalValues, {
     curIndex: index,
   });

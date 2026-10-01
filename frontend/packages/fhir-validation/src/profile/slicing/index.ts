@@ -278,11 +278,13 @@ export async function validateSlice(
 
       const childrenIndices = eleIndexToChildIndices(elements, sliceIndex);
 
-      for (const child of childrenIndices) {
-        const field = fieldName(elements[child]);
-        const fieldLoc = descend(sliceValueLoc, field);
-        await validateSlice(elements, child, root, [fieldLoc]);
-      }
+      await Promise.all(
+        childrenIndices.map((child) => {
+          const field = fieldName(elements[child]);
+          const fieldLoc = descend(sliceValueLoc, field);
+          return validateSlice(elements, child, root, [fieldLoc]);
+        })
+      );
     }
   }
 }

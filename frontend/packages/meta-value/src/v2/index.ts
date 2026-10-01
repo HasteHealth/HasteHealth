@@ -376,11 +376,13 @@ function attemptDetermineType(value: unknown): uri | undefined {
 }
 
 export function metaValue<T>(
-  metaOptions: Partial<TypeInfo> | undefined = DEFAULT_META_OPTIONS,
+  metaOptions: Partial<TypeInfo> | undefined,
   value: T | T[],
   location: Location = []
 ): IMetaValue<NonNullable<T>> | IMetaValueArray<NonNullable<T>> | undefined {
-  let { type, fhirVersion } = metaOptions;
+  // `undefined` selects the defaults, as the former default parameter did.
+  const options = metaOptions ?? DEFAULT_META_OPTIONS;
+  let { type, fhirVersion } = options;
   if (!fhirVersion) {
     fhirVersion = R4;
   }
@@ -400,7 +402,7 @@ export function metaValue<T>(
         return new MetaValueV2Array(
           value.map(
             (v, i) =>
-              metaValue(metaOptions, v, [
+              metaValue(options, v, [
                 ...location,
                 i,
               ]) as MetaValueV2Singular<unknown>

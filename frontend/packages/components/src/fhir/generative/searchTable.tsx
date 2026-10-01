@@ -128,10 +128,31 @@ interface SearchColumnModalBodyProps {
   onChange: (v: ParsedParameter<string | number | undefined>) => void;
   searchParameter: Resource<FHIR_VERSION, "SearchParameter">;
 }
+// Keys for the editable value rows. Keying on the index remounts a row's
+// input when an earlier row is removed, and keying on the value remounts it
+// on every keystroke, so each row keeps an id for as long as it exists.
+let nextValueRowId = 0;
+function newValueRowId(): string {
+  nextValueRowId += 1;
+  return `value-row-${nextValueRowId}`;
+}
+
 function SearchColumnModalBody({
   value,
   ...props
 }: Readonly<SearchColumnModalBodyProps>) {
+  const [rowIds, setRowIds] = useState<string[]>(() =>
+    value.value.map(() => newValueRowId()),
+  );
+  // Rows the parent adds outside the "Add Value" button get ids on the next
+  // render; ids of rows it removed are dropped with them.
+  useEffect(() => {
+    if (rowIds.length !== value.value.length) {
+      setRowIds((ids) => value.value.map((_, i) => ids[i] ?? newValueRowId()));
+    }
+  }, [rowIds.length, value.value]);
+  const rowKeys = value.value.map((_, i) => rowIds[i] ?? `unkeyed-${i}`);
+
   return (
     <div className="space-y-4 text-slate-600">
       <fieldset className="text-sm">
@@ -159,7 +180,7 @@ function SearchColumnModalBody({
         <div className="space-y-1">
           {value.value.map((v, i) => {
             return (
-              <div key={i} className="flex items-center">
+              <div key={rowKeys[i]} className="flex items-center">
                 <div>
                   <SearchColumnModalBodyInput
                     value={value}
@@ -171,6 +192,7 @@ function SearchColumnModalBody({
                   type="button"
                   aria-label={`Remove value ${i + 1}`}
                   onClick={() => {
+                    setRowIds((ids) => ids.filter((_, j) => j !== i));
                     props.onChange({
                       ...value,
                       value: value.value
@@ -188,6 +210,7 @@ function SearchColumnModalBody({
             type="button"
             className="cursor-pointer mt-1 text-xs hover:text-brand-500 text-slate-400"
             onClick={() => {
+              setRowIds((ids) => [...ids, newValueRowId()]);
               props.onChange({
                 ...value,
                 value: [...value.value, undefined],
