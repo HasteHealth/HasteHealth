@@ -18,7 +18,10 @@ use haste_repository::{
 };
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, query_as, types::time::OffsetDateTime};
-use std::{sync::Arc, time::Instant};
+use std::{
+    sync::Arc,
+    time::{Duration, Instant},
+};
 use tokio::{
     sync::{Mutex, Semaphore},
     task::JoinHandle,
@@ -225,7 +228,8 @@ async fn index_project_next_sequence<
     repo: &Repo,
     tenant_id: &TenantId,
     project_id: &ProjectId,
-) -> Result<(), IndexingWorkerError> {
+    safe_sequence: i64,
+) -> Result<usize, IndexingWorkerError> {
     let start = std::time::Instant::now();
     let lock_key = (tenant_id.clone(), project_id.clone());
     let project_locks = repo.get_available_locks(backend, vec![&lock_key]).await?;
@@ -237,7 +241,7 @@ async fn index_project_next_sequence<
             tenant_id,
             project_id.as_ref()
         );
-        return Ok(());
+        return Ok(0);
     }
 
     tracing::trace!(
@@ -253,6 +257,7 @@ async fn index_project_next_sequence<
             tenant_id,
             project_id,
             project_locks[0].index_sequence_position.cast_unsigned(),
+            safe_sequence,
             Some(max_concurrent_limit),
         )
         .await?;
@@ -328,7 +333,7 @@ async fn index_project_next_sequence<
         *(TOTAL_INDEXED.lock().await) += outcome.succeeded;
     }
 
-    Ok(())
+    Ok(resources_total)
 }
 
 async fn index_for_project<
@@ -344,7 +349,8 @@ async fn index_for_project<
     search_client: Arc<Search>,
     tenant_id: &TenantId,
     project_id: &ProjectId,
-) -> Result<(), IndexingWorkerError> {
+    safe_sequence: i64,
+) -> Result<usize, IndexingWorkerError> {
     let tx = repo
         .transaction(false)
         .await
@@ -356,6 +362,7 @@ async fn index_for_project<
         &tx,
         tenant_id,
         project_id,
+        safe_sequence,
     )
     .await;
 
@@ -380,9 +387,15 @@ async fn index_for_project<
     }
 }
 
+/// Default `poll_interval_ms`: short enough that a write is searchable within
+/// one poll of the TestScript runner's 100 ms wait, long enough to cap idle
+/// polling (and with it the watermark scans) at ten passes a second.
+const DEFAULT_POLL_INTERVAL_MS: u64 = 100;
+
 pub struct IndexingWorker {
     max_concurrent_limit: Option<u64>,
     tenant_concurrency: Option<u64>,
+    poll_interval: Duration,
     running: Arc<tokio::sync::Mutex<bool>>,
     repo: Arc<PGConnection>,
     search_engine: Arc<SearchEngineBackend>,
@@ -397,6 +410,11 @@ pub struct WorkerEnvironment {
     /// locking moved from tenant- to project-level, but this still bounds
     /// the same underlying semaphore.
     pub tenant_concurrency: Option<u64>,
+    /// How long a pass sleeps before polling again when no project had
+    /// anything new to index. Bounds the idle poll rate, and with it the
+    /// `max_safe_seq` watermark scans; passes that found rows run back to
+    /// back.
+    pub poll_interval_ms: Option<u64>,
     pub repo: RepoConfig,
     pub search: SearchConfig,
 }
@@ -407,6 +425,7 @@ impl Default for WorkerEnvironment {
             max_concurrent_limit: Some(1000),
             // Matches `PostgresRepoConfig::default`'s `max_connections`.
             tenant_concurrency: Some(10),
+            poll_interval_ms: Some(DEFAULT_POLL_INTERVAL_MS),
             repo: RepoConfig::default(),
             search: SearchConfig::default(),
         }
@@ -461,6 +480,9 @@ impl IndexingWorker {
         Ok(Self {
             max_concurrent_limit: config.max_concurrent_limit,
             tenant_concurrency: config.tenant_concurrency,
+            poll_interval: Duration::from_millis(
+                config.poll_interval_ms.unwrap_or(DEFAULT_POLL_INTERVAL_MS),
+            ),
             running: Arc::new(tokio::sync::Mutex::new(true)),
             repo,
             search_engine,
@@ -482,18 +504,37 @@ impl Worker for IndexingWorker {
         let backend = search_engine.lock_kind();
         let running = self.running.clone();
         let max_concurrent_limit = self.max_concurrent_limit.unwrap_or(1000);
+        let poll_interval = self.poll_interval;
+        // With nothing to poll at all (no projects, or the fetch failed) there
+        // is no reason to look again soon.
+        let idle_backoff = Duration::from_secs(1);
         let project_semaphore = Arc::new(Semaphore::new(
             usize::try_from(self.tenant_concurrency.unwrap_or(10).max(1)).unwrap_or(usize::MAX),
         ));
 
         let spawned = tokio::spawn(async move {
             while *running.lock().await {
+                // One watermark per pass. It is a property of the sequence, not
+                // of a project, and it is the expensive half of a poll (a scan
+                // of `pg_locks`), so every project in this pass reads up to the
+                // same value.
+                let safe_sequence = match repo.max_safe_sequence().await {
+                    Ok(safe_sequence) => safe_sequence,
+                    Err(error) => {
+                        tracing::error!("Failed to read the safe sequence watermark: {:?}", error);
+                        tokio::time::sleep(idle_backoff).await;
+                        continue;
+                    }
+                };
+
                 let projects_to_check =
                     get_projects(repo.as_ref(), &cursor, projects_limit.cast_signed()).await;
 
-                // Nothing to do this iteration (no projects, or the fetch itself
-                // failed) - back off instead of hammering Postgres in a tight spin.
-                let idle = match projects_to_check {
+                // How long to wait before the next pass: `idle_backoff` with
+                // nothing to poll (no projects, or the fetch failed), the poll
+                // interval when the projects had nothing new, and none at all
+                // while rows are flowing.
+                let backoff = match projects_to_check {
                     Ok(projects_to_check) => {
                         let idle = projects_to_check.is_empty();
                         if idle || (projects_to_check.len() as u64) < projects_limit {
@@ -518,7 +559,7 @@ impl Worker for IndexingWorker {
                                                 &project.tenant,
                                                 project.project.as_ref()
                                             );
-                                            return;
+                                            return 0;
                                         }
                                     };
 
@@ -537,35 +578,54 @@ impl Worker for IndexingWorker {
                                         search_engine,
                                         &project.tenant,
                                         &project.project,
+                                        safe_sequence,
                                     ))
                                     .await;
 
-                                    if let Err(error) = result {
-                                        tracing::error!(
-                                            "Failed to index tenant: '{}' project: '{}' cause: '{:?}'",
-                                            &project.tenant,
-                                            project.project.as_ref(),
-                                            error
-                                        );
+                                    match result {
+                                        Ok(fetched) => fetched,
+                                        Err(error) => {
+                                            tracing::error!(
+                                                "Failed to index tenant: '{}' project: '{}' cause: '{:?}'",
+                                                &project.tenant,
+                                                project.project.as_ref(),
+                                                error
+                                            );
+                                            0
+                                        }
                                     }
                                 })
                             })
                             .collect();
 
+                        // Rows handed to the search engine this pass, across
+                        // all projects. Zero means every project was already
+                        // caught up to the watermark (or locked by another
+                        // worker).
+                        let mut fetched_this_pass = 0usize;
                         for handle in handles {
-                            if let Err(join_error) = handle.await {
-                                tracing::error!(
-                                    "Project indexing task panicked: '{:?}'",
-                                    join_error
-                                );
+                            match handle.await {
+                                Ok(fetched) => fetched_this_pass += fetched,
+                                Err(join_error) => {
+                                    tracing::error!(
+                                        "Project indexing task panicked: '{:?}'",
+                                        join_error
+                                    );
+                                }
                             }
                         }
 
-                        idle
+                        if idle {
+                            Some(idle_backoff)
+                        } else if fetched_this_pass == 0 {
+                            Some(poll_interval)
+                        } else {
+                            None
+                        }
                     }
                     Err(error) => {
                         tracing::error!("Failed to retrieve projects: {:?}", error);
-                        true
+                        Some(idle_backoff)
                     }
                 };
 
@@ -574,8 +634,8 @@ impl Worker for IndexingWorker {
                     tracing::info!("TOTAL INDEXED SO FAR: {}", k);
                 }
 
-                if idle {
-                    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+                if let Some(backoff) = backoff {
+                    tokio::time::sleep(backoff).await;
                 }
             }
         });

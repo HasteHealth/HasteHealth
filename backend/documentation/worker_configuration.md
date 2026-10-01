@@ -33,6 +33,7 @@ This is the same `HASTE_` prefix and TOML file used by the [server](./server_con
 | Key                    | Env var                      | Default | Notes                                                                                 |
 | ---------------------- | ---------------------------- | ------- | ------------------------------------------------------------------------------------- |
 | `max_concurrent_limit` | `HASTE_MAX_CONCURRENT_LIMIT` | `1000`  | Max number of resources fetched/indexed per tenant on each pass of the indexing loop. |
+| `poll_interval_ms`     | `HASTE_POLL_INTERVAL_MS`     | `100`   | How long the loop sleeps after a pass in which no project had anything new to index. Passes that found rows run back to back. |
 
 #### `[repo]` — resource storage backend
 
@@ -76,6 +77,7 @@ With `backend = "elasticsearch"`:
 
 ```toml
 max_concurrent_limit = 1000
+poll_interval_ms = 100
 
 [repo]
 backend = "postgres"
