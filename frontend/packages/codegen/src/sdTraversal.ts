@@ -46,7 +46,7 @@ function traversalBottomUpSdElements<T>(
     .map((childIndex) => {
       return traversalBottomUpSdElements(elements, childIndex, visitorFunction);
     })
-    .flatMap((x) => x);
+    .flat();
   return visitorFunction(elements[index], childTraversalValues, {
     curIndex: index,
   });

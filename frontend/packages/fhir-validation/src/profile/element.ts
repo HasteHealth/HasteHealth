@@ -59,15 +59,12 @@ function validateTypeIfMultipleTypesConstrained(
   type: uri
 ): boolean {
   if (element.type) {
-    if (element.type.find((t) => t.code === type) !== undefined) {
-      return true;
-    } else if (
-      type === "Element" &&
-      element.type.find((t) => isPrimitiveType(ctx.fhirVersion, t.code))
-    ) {
-      return true;
-    }
-    return false;
+    return (
+      element.type.find((t) => t.code === type) !== undefined ||
+      (type === "Element" &&
+        element.type.find((t) => isPrimitiveType(ctx.fhirVersion, t.code)) !==
+          undefined)
+    );
   }
   return true;
 }

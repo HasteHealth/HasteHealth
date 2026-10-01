@@ -112,7 +112,11 @@ function SearchResultItem({
   onHover: () => void;
 }>) {
   return (
+    // Arrow keys and Enter are handled by the search input, which owns the
+    // keyboard interaction for this list; these rows are its options.
     <div
+      role="option"
+      aria-selected={active}
       onClick={onSelect}
       onMouseEnter={onHover}
       className={classNames(
@@ -303,14 +307,23 @@ function SearchModal(props: SearchModalProps) {
         </button>
       </div>
       <div className="w-full" />
-      <div className="text-slate-600 px-2 py-2 max-h-96 overflow-y-auto">
+      <div
+        role="listbox"
+        aria-label="Search results"
+        className="text-slate-600 px-2 py-2 max-h-96 overflow-y-auto"
+      >
         {flatResults.length === 0 && (
           <div className="px-2 py-4 text-sm text-slate-400">No results.</div>
         )}
         {groupedResults.map(
           (group) =>
             group.items.length > 0 && (
-              <div key={group.category} className="mb-2">
+              <div
+                key={group.category}
+                role="group"
+                aria-label={group.category}
+                className="mb-2"
+              >
                 <div className="px-2 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                   {group.category}
                 </div>

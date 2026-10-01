@@ -34,7 +34,7 @@ exports[`QLexer Test 1`] = `
       "startOffset": 5,
       "tokenType": {
         "CATEGORIES": [],
-        "PATTERN": /\\\\\\+\\|-\\|&/,
+        "PATTERN": /\\[\\+\\\\-&\\]/,
         "categoryMatches": [],
         "categoryMatchesMap": {},
         "isParent": false,

@@ -281,7 +281,7 @@ export async function validateSlice(
       for (const child of childrenIndices) {
         const field = fieldName(elements[child]);
         const fieldLoc = descend(sliceValueLoc, field);
-        validateSlice(elements, child, root, [fieldLoc]);
+        await validateSlice(elements, child, root, [fieldLoc]);
       }
     }
   }
@@ -361,8 +361,8 @@ function validateSliceCardinality(
     );
   }
 
-  if (!isNaN(parseInt(sliceElement.max ?? "1"))) {
-    const max = parseInt(sliceElement.max ?? "1");
+  if (!Number.isNaN(Number.parseInt(sliceElement.max ?? "1"))) {
+    const max = Number.parseInt(sliceElement.max ?? "1");
     if (paths.length > max) {
       issues.push(
         issueError(

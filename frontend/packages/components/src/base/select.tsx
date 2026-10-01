@@ -41,7 +41,7 @@ export const Select = ({
     <Combobox
       value={
         value
-          ? options.filter((o) => o.value === value)[0] || {
+          ? options.find((o) => o.value === value) || {
               value,
               label: value,
             }

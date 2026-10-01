@@ -90,9 +90,9 @@ function getElementField(element: ElementDefinition, type?: string) {
 function primitiveToTypescriptType(
   primitiveSd: Resource<FHIR_VERSION, "StructureDefinition">
 ): string | void {
-  const primitiveValueType = primitiveSd.snapshot?.element.filter((element) =>
+  const primitiveValueType = primitiveSd.snapshot?.element.find((element) =>
     element.path.endsWith(".value")
-  )[0]?.type?.[0]?.code;
+  )?.type?.[0]?.code;
   // http://hl7.org/fhir/StructureDefinition/uri
   // Skip over these primitive types as already exist in typescript
   if (primitiveValueType) {
@@ -130,7 +130,7 @@ function isCollection(elementDefinition: ElementDefinition) {
       return true;
     default:
       if (!elementDefinition.max) return false;
-      return parseInt(elementDefinition.max) > 1;
+      return Number.parseInt(elementDefinition.max) > 1;
   }
 }
 
@@ -187,9 +187,9 @@ function contentReference(
   element: ElementDefinition
 ) {
   const contentReference = element.contentReference?.split("#")[1];
-  const referenceElement = sd.snapshot?.element.filter(
+  const referenceElement = sd.snapshot?.element.find(
     (element) => element.id === contentReference
-  )[0];
+  );
   if (!referenceElement)
     throw new Error(
       "unable to resolve contentreference: '" + element.contentReference + "'"

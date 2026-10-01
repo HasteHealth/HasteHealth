@@ -45,7 +45,10 @@ function RenderCell({
 }: Readonly<{ column: Columns; row: unknown }>) {
   const [value, setValue] = useState<unknown[]>([]);
   useEffect(() => {
-    extract(row, column.selector, column.selectorType).then(setValue);
+    extract(row, column.selector, column.selectorType).then(setValue, (e) => {
+      console.error(`Failed to extract column '${column.id}'`, e);
+      setValue([]);
+    });
   }, [column, row]);
 
   const render = useMemo(() => {

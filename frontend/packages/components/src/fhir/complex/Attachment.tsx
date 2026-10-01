@@ -18,9 +18,12 @@ const convertFileToBase64 = (file: File): Promise<string> => {
       const data = reader.result;
       if (typeof data === "string") {
         resolve(data.split(",")[1]);
+      } else {
+        reject(new Error("FileReader result was not a string"));
       }
     };
-    reader.onerror = (error) => reject(error);
+    reader.onerror = () =>
+      reject(reader.error ?? new Error(`Could not read '${file.name}'`));
   });
 };
 
@@ -41,15 +44,18 @@ export const FHIRAttachmentEditable = ({
           onChange={(e) => {
             const file = e.target?.files?.[0];
             if (!file) return;
-            convertFileToBase64(file).then((data) => {
-              onChange?.call(this, {
-                data,
-                contentType: file.type,
-                size: file.size,
-                title: file.name,
-                creation: new Date(file.lastModified).toString(),
-              } as Attachment);
-            });
+            convertFileToBase64(file).then(
+              (data) => {
+                onChange?.call(this, {
+                  data,
+                  contentType: file.type,
+                  size: file.size,
+                  title: file.name,
+                  creation: new Date(file.lastModified).toString(),
+                } as Attachment);
+              },
+              (e) => console.error(`Failed to read '${file.name}'`, e)
+            );
           }}
         />
         {value && value.data && (
@@ -59,15 +65,19 @@ export const FHIRAttachmentEditable = ({
               buttonSize="medium"
               onClick={() => {
                 const data = value.data;
-                if (data === undefined) alert("No data to download");
+                if (data === undefined) {
+                  alert("No data to download");
+                  return;
+                }
                 fileDownload(
                   data as string,
                   value?.title || "data",
                   value?.contentType,
                 );
               }}
-              children="Download"
-            />
+            >
+              Download
+            </Button>
           </div>
         )}
       </div>

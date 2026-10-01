@@ -59,11 +59,11 @@ test("Test ValueSet Expands", async () => {
     return output;
   };
 
-  expect(
+  await expect(
     invoke(ValueSetExpand.Op, ctx, { url: "asdf" as uri }),
   ).resolves.toEqual(output);
 
-  expect(
+  await expect(
     invoke(
       ValueSetExpand.Op,
       ctx,
@@ -84,7 +84,7 @@ test("Test ValueSet Expands", async () => {
     return output;
   };
 
-  expect(
+  await expect(
     badOutput(ValueSetExpand.Op, ctx, { url: "asdf" as uri }),
   ).rejects.toThrow();
 });

@@ -239,7 +239,7 @@ class FPParser extends EmbeddedActionsParser {
           return {
             type: "literal",
             literalType: "number",
-            value: parseFloat(numberToken.image),
+            value: Number.parseFloat(numberToken.image),
           };
         },
       },

@@ -29,6 +29,11 @@ import {
 import { ElementNode, getMeta, getStartingMeta, resolveMeta } from "./meta.js";
 import { SpoofMetaValueV2 } from "./spoof.js";
 
+/** Shared default so each call does not allocate a fresh options object. */
+const DEFAULT_META_OPTIONS: Partial<TypeInfo> = Object.freeze({
+  fhirVersion: R4,
+});
+
 function conversion<T>(
   fhirVersion: FHIR_VERSION,
   meta: ElementNode,
@@ -49,7 +54,7 @@ function conversion<T>(
 class MetaValueV2Array<T> implements IMetaValueArray<T> {
   private readonly _value: Array<MetaValueV2Singular<unknown>>;
 
-  private _location: Location;
+  private readonly _location: Location;
 
   constructor(value: MetaValueV2Singular<unknown>[], location: Location) {
     this._value = value;
@@ -108,11 +113,11 @@ function deriveFHIRPrimitives(
 }
 
 class MetaValueV2Singular<T> implements IMetaValue<T> {
-  private _value: T | FHIRPrimitive<RawPrimitive>;
+  private readonly _value: T | FHIRPrimitive<RawPrimitive>;
   private readonly _meta: ElementNode | FPPrimitiveNode;
-  private _fhirVersion: FHIR_VERSION;
+  private readonly _fhirVersion: FHIR_VERSION;
 
-  private _location: Location;
+  private readonly _location: Location;
 
   constructor(
     fhirVersion: FHIR_VERSION,
@@ -253,9 +258,9 @@ class MetaValueV2Singular<T> implements IMetaValue<T> {
 }
 
 class NonMetaValue<T> implements IMetaValue<T> {
-  private _value: T;
-  private _fhirVersion: FHIR_VERSION;
-  private _location: Location;
+  private readonly _value: T;
+  private readonly _fhirVersion: FHIR_VERSION;
+  private readonly _location: Location;
 
   constructor(fhirVersion: FHIR_VERSION, value: T, location: Location) {
     this._value = value;
@@ -371,7 +376,7 @@ function attemptDetermineType(value: unknown): uri | undefined {
 }
 
 export function metaValue<T>(
-  metaOptions: Partial<TypeInfo> | undefined = { fhirVersion: R4 },
+  metaOptions: Partial<TypeInfo> | undefined = DEFAULT_META_OPTIONS,
   value: T | T[],
   location: Location = []
 ): IMetaValue<NonNullable<T>> | IMetaValueArray<NonNullable<T>> | undefined {

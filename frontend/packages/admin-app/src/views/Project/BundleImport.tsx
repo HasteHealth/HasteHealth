@@ -20,10 +20,11 @@ const getData = (file: File): Promise<string> => {
       if (typeof data === "string") {
         resolve(data.split(",")[1]);
       } else {
-        reject("FileReader result was not a string");
+        reject(new Error("FileReader result was not a string"));
       }
     };
-    reader.onerror = (error) => reject(error);
+    reader.onerror = () =>
+      reject(reader.error ?? new Error(`Could not read '${file.name}'`));
   });
 };
 
@@ -77,20 +78,25 @@ export default function BatchImportView() {
             if (!file) return;
             setFileName(file.name);
 
-            getData(file).then((data) => {
-              try {
-                const json = JSON.parse(atob(data));
-                if (
-                  json.resourceType !== "Bundle" ||
-                  (json.type !== "batch" && json.type !== "transaction")
-                ) {
-                  throw new Error("File is not a batch or transaction Bundle");
+            getData(file).then(
+              (data) => {
+                try {
+                  const json = JSON.parse(atob(data));
+                  if (
+                    json.resourceType !== "Bundle" ||
+                    (json.type !== "batch" && json.type !== "transaction")
+                  ) {
+                    throw new Error(
+                      "File is not a batch or transaction Bundle",
+                    );
+                  }
+                  setBundle(json);
+                } catch (e) {
+                  setIssues([`${e}`]);
                 }
-                setBundle(json);
-              } catch (e) {
-                setIssues([`${e}`]);
-              }
-            });
+              },
+              (e) => setIssues([`${e}`]),
+            );
           }}
         />
 

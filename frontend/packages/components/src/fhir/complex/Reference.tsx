@@ -92,8 +92,9 @@ const SearchResult = ({
   onChange: FHIRReferenceEditableProps["onChange"];
 }) => {
   return (
-    <div
-      className="hover:bg-brand-200 py-2 px-4 cursor-pointer border "
+    <button
+      type="button"
+      className="hover:bg-brand-200 py-2 px-4 cursor-pointer border w-full text-left"
       onClick={(_e) =>
         onChange?.call(this, {
           reference: `${resource.resourceType}/${resource.id}`,
@@ -103,7 +104,7 @@ const SearchResult = ({
       <span className="font-semibold text-slate-700">
         {resource.resourceType}/{resource.id}
       </span>
-    </div>
+    </button>
   );
 };
 
@@ -200,17 +201,22 @@ export const FHIRReferenceEditable = ({
               issues={issue ? [issue] : []}
             >
               <div className="flex items-center gap-1.5">
-                <div onClick={() => openDisplay(true)}>
-                  <a className="text-brand-400 hover:text-brand-500 cursor-pointer">
-                    {value?.reference}
-                  </a>
-                </div>
+                <button
+                  type="button"
+                  className="text-brand-400 hover:text-brand-500 cursor-pointer"
+                  onClick={() => openDisplay(true)}
+                >
+                  {value?.reference}
+                </button>
                 {!disabled && (
-                  <span onClick={() => openSearch(true)}>
-                    <a className="text-slate-700 hover:text-brand-700 cursor-pointer font-semibold">
-                      {<MagnifyingGlassCircleIcon className="w-5 h-5" />}
-                    </a>
-                  </span>
+                  <button
+                    type="button"
+                    aria-label="Search for a resource to reference"
+                    className="text-slate-700 hover:text-brand-700 cursor-pointer font-semibold"
+                    onClick={() => openSearch(true)}
+                  >
+                    <MagnifyingGlassCircleIcon className="w-5 h-5" />
+                  </button>
                 )}
               </div>
             </InputContainer>
