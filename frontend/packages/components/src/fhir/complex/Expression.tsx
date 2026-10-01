@@ -32,7 +32,7 @@ export function FHIRExpressionEditable({
           },
         }}
         onChange={(expression) => {
-          onChange?.call(undefined, {
+          onChange?.({
             ...value,
             language: "text/fhirpath" as code,
             expression: expression,

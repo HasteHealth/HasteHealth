@@ -36,9 +36,12 @@ function SMARTSelector() {
   useEffect(() => {
     fetch(host + "/.well-known/openid-configuration" + path)
       .then((res) => res.json())
-      .then((wellKnown: Record<string, string>) => {
-        setWellKnown(wellKnown);
-      });
+      .then(
+        (wellKnown: Record<string, string>) => {
+          setWellKnown(wellKnown);
+        },
+        (e) => console.error("Failed to load openid-configuration", e)
+      );
   }, [setWellKnown]);
 
   return wellKnown === undefined ? (

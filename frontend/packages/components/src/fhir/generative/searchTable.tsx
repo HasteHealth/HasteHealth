@@ -95,7 +95,9 @@ function SearchColumnModalBodyInput({
     case "number": {
       return (
         <FHIRDecimalEditable
-          value={parseFloat(value.value[index]?.toString() ?? "") as decimal}
+          value={
+            Number.parseFloat(value.value[index]?.toString() ?? "") as decimal
+          }
           onChange={onChange}
         />
       );
@@ -103,19 +105,7 @@ function SearchColumnModalBodyInput({
     case "date":
     case "string":
     case "token":
-      return (
-        <FHIRStringEditable
-          value={(value.value[index]?.toString() ?? "") as string}
-          onChange={onChange}
-        />
-      );
     case "reference":
-      return (
-        <FHIRStringEditable
-          value={(value.value[index]?.toString() ?? "") as string}
-          onChange={onChange}
-        />
-      );
     case "quantity":
       return (
         <FHIRStringEditable
@@ -138,16 +128,35 @@ interface SearchColumnModalBodyProps {
   onChange: (v: ParsedParameter<string | number | undefined>) => void;
   searchParameter: Resource<FHIR_VERSION, "SearchParameter">;
 }
+// Keys for the editable value rows. Keying on the index remounts a row's
+// input when an earlier row is removed, and keying on the value remounts it
+// on every keystroke, so each row keeps an id for as long as it exists.
+let nextValueRowId = 0;
+function newValueRowId(): string {
+  nextValueRowId += 1;
+  return `value-row-${nextValueRowId}`;
+}
+
 function SearchColumnModalBody({
   value,
   ...props
 }: Readonly<SearchColumnModalBodyProps>) {
+  const [rowIds, setRowIds] = useState<string[]>(() =>
+    value.value.map(() => newValueRowId()),
+  );
+  // Rows the parent adds outside the "Add Value" button get ids on the next
+  // render; ids of rows it removed are dropped with them.
+  useEffect(() => {
+    if (rowIds.length !== value.value.length) {
+      setRowIds((ids) => value.value.map((_, i) => ids[i] ?? newValueRowId()));
+    }
+  }, [rowIds.length, value.value]);
+  const rowKeys = value.value.map((_, i) => rowIds[i] ?? `unkeyed-${i}`);
+
   return (
     <div className="space-y-4 text-slate-600">
-      <div className="text-sm">
-        <div className="mb-1">
-          <label>Modifiers</label>
-        </div>
+      <fieldset className="text-sm">
+        <legend className="mb-1">Modifiers</legend>
         <div>
           <Select
             value={value.modifier}
@@ -164,16 +173,14 @@ function SearchColumnModalBody({
             }}
           />
         </div>
-      </div>
+      </fieldset>
 
-      <div className=" text-sm">
-        <div className="mb-1">
-          <label>Values</label>
-        </div>
+      <fieldset className=" text-sm">
+        <legend className="mb-1">Values</legend>
         <div className="space-y-1">
           {value.value.map((v, i) => {
             return (
-              <div className="flex items-center">
+              <div key={rowKeys[i]} className="flex items-center">
                 <div>
                   <SearchColumnModalBodyInput
                     value={value}
@@ -181,9 +188,11 @@ function SearchColumnModalBody({
                     {...props}
                   />
                 </div>
-                <XMarkIcon
-                  className="cursor-pointer hover:text-red-400 ml-2 w-4 h-4"
+                <button
+                  type="button"
+                  aria-label={`Remove value ${i + 1}`}
                   onClick={() => {
+                    setRowIds((ids) => ids.filter((_, j) => j !== i));
                     props.onChange({
                       ...value,
                       value: value.value
@@ -191,13 +200,17 @@ function SearchColumnModalBody({
                         .concat(value.value?.slice(i + 1)),
                     });
                   }}
-                />
+                >
+                  <XMarkIcon className="cursor-pointer hover:text-red-400 ml-2 w-4 h-4" />
+                </button>
               </div>
             );
           })}
-          <div
+          <button
+            type="button"
             className="cursor-pointer mt-1 text-xs hover:text-brand-500 text-slate-400"
             onClick={() => {
+              setRowIds((ids) => [...ids, newValueRowId()]);
               props.onChange({
                 ...value,
                 value: [...value.value, undefined],
@@ -205,9 +218,9 @@ function SearchColumnModalBody({
             }}
           >
             Add Value
-          </div>
+          </button>
         </div>
-      </div>
+      </fieldset>
     </div>
   );
 }
@@ -621,7 +634,7 @@ export interface FHIRGenerativeSearchTableDisplayProps<
   data: { total?: number; resources: Resource<Version, AllResourceTypes>[] };
   loading?: boolean;
   columns?: TableProps["columns"];
-  onRowClick?: TableProps["onRowClick"];
+  onRowClick?: NonNullable<TableProps["onRowClick"]>;
   pagination?: number;
 }
 
@@ -664,6 +677,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
                   );
                   return (
                     <Tag
+                      key={`${p.name}:${p.modifier ?? ""}`}
                       color={searchParameterTypeToColor(
                         searchParameters?.[paramIndex ?? 0]?.type,
                       )}
@@ -699,7 +713,9 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
                     id: searchParameter.id,
                     content: (
                       <div className="space-x-2 flex items-center">
-                        <div
+                        <button
+                          type="button"
+                          aria-label={`Filter by ${searchParameter.code}`}
                           className="flex flex-1"
                           onClick={() => {
                             setSelectedSearchParameter(i);
@@ -708,7 +724,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
                         >
                           <div className="mr-2">{searchParameter.code}</div>
                           <FunnelIcon className="hover:text-brand-400 cursor-pointer w-4 h-4" />
-                        </div>
+                        </button>
                         <div className="flex justify-end">
                           <SearchParameterSortControl
                             sortParam={sortParam}
@@ -740,14 +756,14 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
             <div className="flex items-center">
               <div className="flex flex-1 ">
                 <span className="text-xs text-slate-500 mr-2 overflow-ellipsis">
-                  {parseInt(
+                  {Number.parseInt(
                     (
                       parameters.find((p) => p.name === "_offset")?.value[0] ??
                       0
                     ).toString(),
                   )}{" "}
                   to{" "}
-                  {parseInt(
+                  {Number.parseInt(
                     (
                       parameters.find((p) => p.name === "_offset")?.value[0] ??
                       0
@@ -760,7 +776,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
                 <Pagination
                   currentPage={
                     Math.floor(
-                      parseInt(
+                      Number.parseInt(
                         (
                           parameters.find((p) => p.name === "_offset")
                             ?.value[0] ?? 0

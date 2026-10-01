@@ -272,7 +272,7 @@ test("us-core patient slicing", async () => {
 });
 
 test("Validate US-CORE", async () => {
-  expect(
+  await expect(
     validateProfile(CTX, usCorePatientProfile, usCorePatient)
   ).resolves.toEqual([]);
 });

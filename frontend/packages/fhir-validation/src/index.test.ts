@@ -84,5 +84,5 @@ test("TEST with extensions", async () => {
       },
     ],
   };
-  expect(validate(CTX, "Patient" as uri, patient)).resolves.toEqual([]);
+  await expect(validate(CTX, "Patient" as uri, patient)).resolves.toEqual([]);
 });

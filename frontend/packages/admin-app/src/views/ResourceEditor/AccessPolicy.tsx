@@ -90,8 +90,8 @@ const AccessPolicyInvoke = ({
                       value={requestURL}
                       onChange={(url) => setRequestURL(url)}
                     />
-                    <div>
-                      <label>Body</label>
+                    <fieldset>
+                      <legend>Body</legend>
                       <CodeMirror
                         extensions={[basicSetup, json()]}
                         value={body}
@@ -105,7 +105,7 @@ const AccessPolicyInvoke = ({
                           setBody(value);
                         }}
                       />
-                    </div>
+                    </fieldset>
                   </div>
                 </div>
               </div>

@@ -16,9 +16,12 @@ const convertFileToBase64 = (file: File): Promise<string> => {
       const data = reader.result;
       if (typeof data === "string") {
         resolve(data.split(",")[1]);
+      } else {
+        reject(new Error("FileReader result was not a string"));
       }
     };
-    reader.onerror = (error) => reject(error);
+    reader.onerror = () =>
+      reject(reader.error ?? new Error(`Could not read '${file.name}'`));
   });
 };
 
@@ -51,9 +54,12 @@ export const FHIRBase64BinaryEditable = ({
           onChange={(e) => {
             const file = e.target?.files?.[0];
             if (!file) return;
-            convertFileToBase64(file).then((data) => {
-              onChange?.call(this, data);
-            });
+            convertFileToBase64(file).then(
+              (data) => {
+                onChange?.call(this, data);
+              },
+              (e) => console.error(`Failed to read '${file.name}'`, e)
+            );
           }}
         />
         {value && (
@@ -64,8 +70,9 @@ export const FHIRBase64BinaryEditable = ({
               onClick={() => {
                 fileDownload(value, "data");
               }}
-              children="Download"
-            />
+            >
+              Download
+            </Button>
           </div>
         )}
       </div>

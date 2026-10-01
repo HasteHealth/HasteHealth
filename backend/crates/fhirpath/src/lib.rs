@@ -1240,6 +1240,7 @@ impl<'a> Context<'a> {
             .unwrap_or_else(std::sync::PoisonError::into_inner)
             .allocate_literal(value)
     }
+
     #[must_use]
     pub fn iter(&'a self) -> Box<dyn Iterator<Item = &'a dyn MetaValue> + 'a> {
         Box::new(self.values.iter().copied())

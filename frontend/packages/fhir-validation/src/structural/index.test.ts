@@ -573,7 +573,7 @@ test("validate regexes", async () => {
     {
       code: "value",
       diagnostics:
-        "Invalid value '-1' at path '/priority'. Value must conform to regex '/^([0]|([1-9][0-9]*))$/'",
+        "Invalid value '-1' at path '/priority'. Value must conform to regex '/^(0|([1-9][0-9]*))$/'",
       expression: ["/priority"],
       severity: "error",
     },

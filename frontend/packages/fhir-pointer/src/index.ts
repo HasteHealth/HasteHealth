@@ -49,9 +49,9 @@ export function ascend<T, R, P extends Parent<T>>(
   const field = unescapeField(loc.substring(lastIndexSlash + 1));
   return {
     parent: loc.slice(0, lastIndexSlash) as NonNullable<P>,
-    field: Number.isNaN(parseInt(field))
+    field: Number.isNaN(Number.parseInt(field))
       ? field
-      : (parseInt(field) as keyof NonNullable<ReturnType<P>>),
+      : (Number.parseInt(field) as keyof NonNullable<ReturnType<P>>),
   };
 }
 

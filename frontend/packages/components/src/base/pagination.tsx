@@ -36,7 +36,9 @@ const PaginationItem = ({
 }: PaginationItemProps) => {
   return (
     <li {...liProps}>
-      <a
+      <button
+        type="button"
+        aria-current={active ? "page" : undefined}
         className={classNames(
           "cursor-pointer flex items-center justify-center px-2 h-6 leading-tight",
           {
@@ -49,7 +51,7 @@ const PaginationItem = ({
         )}
       >
         {children}
-      </a>
+      </button>
     </li>
   );
 };

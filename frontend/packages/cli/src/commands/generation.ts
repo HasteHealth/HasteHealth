@@ -1,7 +1,7 @@
 import { Command } from "commander";
-import { mkdirSync, readFileSync, writeFileSync } from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { generateIndexFile, loadArtifacts } from "@haste-health/artifacts";
 import { generateMetaData } from "@haste-health/codegen/generate/meta-data";

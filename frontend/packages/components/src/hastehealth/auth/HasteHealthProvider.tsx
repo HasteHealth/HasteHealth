@@ -346,7 +346,7 @@ export function HasteHealthProvider({
                   } catch {
                     // In event that refresh fails we will reauthorize.
                     // This could happen if refresh token is expired.
-                    authorize({
+                    await authorize({
                       refresh,
                       method: authorize_method,
                       authorize_endpoint: well_known.authorization_endpoint,
@@ -359,7 +359,7 @@ export function HasteHealthProvider({
                   }
                 }
               } else {
-                authorize({
+                await authorize({
                   refresh,
                   method: authorize_method,
                   authorize_endpoint: well_known.authorization_endpoint,
@@ -380,7 +380,7 @@ export function HasteHealthProvider({
             "path",
             window.location.href.replace(window.location.origin, ""),
           );
-          authorize({
+          await authorize({
             refresh,
             method: authorize_method,
             authorize_endpoint: well_known.authorization_endpoint,
@@ -390,8 +390,9 @@ export function HasteHealthProvider({
           });
         }
       } catch (error) {
+        // Nothing can catch a rejection from this effect, so log and stop
+        // here rather than rethrowing into an unhandled rejection.
         console.error(error);
-        throw error;
       } finally {
         dispatch({ type: "SET_LOADING", loading: false });
       }

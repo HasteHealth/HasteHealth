@@ -49,14 +49,13 @@ export function mapToParameter(
           name: definition.name,
           [fieldName]: value,
         };
-      } else {
-        if (!definition.part)
-          throw new OperationError(
-            outcomeError(
-              "invalid",
-              `No type or part found on parameter definition ${definition.name}`
-            )
-          );
+      } else if (!definition.part) {
+        throw new OperationError(
+          outcomeError(
+            "invalid",
+            `No type or part found on parameter definition ${definition.name}`
+          )
+        );
       }
 
       return {
@@ -179,7 +178,7 @@ function parseParameter(
     );
   if (
     definition.max !== "*" &&
-    parsedParameters.length > parseInt(definition.max)
+    parsedParameters.length > Number.parseInt(definition.max)
   ) {
     throw new OperationError(
       outcomeError("too-costly", `Too many parameters ${definition.name}`)
@@ -272,7 +271,10 @@ function validateCardinalities(
         `Must have '${definition.min}' minimum for field ${definition.min}`
       )
     );
-  if (definition.max !== "*" && value.length > parseInt(definition.max)) {
+  if (
+    definition.max !== "*" &&
+    value.length > Number.parseInt(definition.max)
+  ) {
     throw new OperationError(
       outcomeError("too-costly", `Too many parameters ${definition.name}`)
     );
@@ -308,36 +310,34 @@ async function validateParameter<Use extends "in" | "out">(
           descend(typedPointer<typeof arr, (typeof arr)[number]>(), index)
         )),
       ];
+    } else if (!paramDefinition.part) {
+      issues = [
+        ...issues,
+        issueError(
+          "invalid",
+          `Invalid definition '${paramDefinition.name}' must have either part or type`
+        ),
+      ];
     } else {
-      if (!paramDefinition.part) {
-        issues = [
-          ...issues,
-          issueError(
-            "invalid",
-            `Invalid definition '${paramDefinition.name}' must have either part or type`
-          ),
-        ];
-      } else {
-        issues = [
-          ...issues,
-          ...validateRequired(paramDefinition.part, arr[index]),
-        ];
+      issues = [
+        ...issues,
+        ...validateRequired(paramDefinition.part, arr[index]),
+      ];
 
-        for (const part of paramDefinition.part) {
-          if (!isRecord(arr[index])) {
-            issues = [
-              ...issues,
-              issueError(
-                "invalid",
-                `Parameter ${part.name} must be an object found: '${arr[index]}'`
-              ),
-            ];
-          }
+      for (const part of paramDefinition.part) {
+        if (!isRecord(arr[index])) {
           issues = [
             ...issues,
-            ...(await validateParameter(ctx, part, use, arr[index][part.name])),
+            issueError(
+              "invalid",
+              `Parameter ${part.name} must be an object found: '${arr[index]}'`
+            ),
           ];
         }
+        issues = [
+          ...issues,
+          ...(await validateParameter(ctx, part, use, arr[index][part.name])),
+        ];
       }
     }
   }
@@ -448,7 +448,7 @@ export type OPMetadata<O> = O extends IOperation<infer Input, infer Output>
   : never;
 
 export class Operation<I, O> implements IOperation<I, O> {
-  private _operationDefinition: OperationDefinition;
+  private readonly _operationDefinition: OperationDefinition;
   code: code;
   constructor(operationDefinition: OperationDefinition) {
     this.code = operationDefinition.code;

@@ -20,8 +20,13 @@ export type Options = {
   variables?: Record<string, unknown> | ((v: string) => Promise<unknown>);
 };
 
+/** Shared default so each call does not allocate a fresh options object. */
+const DEFAULT_OPTIONS: Options & { type?: uri } = Object.freeze({
+  fhirVersion: R4,
+});
+
 function flatten<T>(arr: T[][]): T[] {
-  return arr.reduce((acc, v) => [...acc, ...v], []);
+  return arr.flat();
 }
 
 async function getVariableValue(
@@ -506,8 +511,8 @@ function typeChecking<T extends ValidOperandType>(
 }
 
 export class InvalidOperandError extends Error {
-  private args: unknown[];
-  private operator: string;
+  private readonly args: unknown[];
+  private readonly operator: string;
   constructor(args: unknown[], operator: string) {
     super(
       `Invalid operands for operator: '${operator}' Found types '${typeof args[0]}' and '${typeof args[1]}'`
@@ -787,7 +792,7 @@ function compileAST(expression: string): ExpressionAST {
 export async function evaluateWithMeta(
   expression: string,
   ctx: unknown,
-  options: Options & { type?: uri } = { fhirVersion: R4 }
+  options: Options & { type?: uri } = DEFAULT_OPTIONS
 ): Promise<IMetaValue<NonNullable<unknown>>[]> {
   const ast = compileAST(expression);
   const context = metaUtils.flatten(

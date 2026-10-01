@@ -21,8 +21,8 @@ export const FHIRDecimalEditable = ({
       value={value}
       step="0.1"
       onChange={(e) => {
-        const value = parseFloat(e.target.value);
-        if (onChange && !isNaN(value)) {
+        const value = Number.parseFloat(e.target.value);
+        if (onChange && !Number.isNaN(value)) {
           onChange(value as decimal);
         }
       }}

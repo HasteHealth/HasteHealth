@@ -14,7 +14,6 @@ const TestPromise = ({
   return (
     <div>
       <Button
-        children="Click Me"
         onClick={() => {
           promise(
             new Promise((resolve) => {
@@ -29,7 +28,9 @@ const TestPromise = ({
             },
           );
         }}
-      />
+      >
+        Click Me
+      </Button>
       <Toaster />
     </div>
   );

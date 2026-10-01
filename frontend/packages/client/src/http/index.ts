@@ -38,11 +38,16 @@ function parametersToQueryString(
   return parameters
     .map((p) => {
       const name = p.chains ? [p.name, ...p.chains].join(".") : p.name;
-      return `${name}${p.modifier ? `:${p.modifier}` : ""}=${p.value
-        .map((v) => encodeURIComponent(v))
-        .join(",")}`;
+      const modifier = p.modifier ? `:${p.modifier}` : "";
+      const value = p.value.map((v) => encodeURIComponent(v)).join(",");
+      return `${name}${modifier}=${value}`;
     })
     .join("&");
+}
+
+/** Renders a query string as a URL suffix, empty when there is none. */
+function querySuffix(queryString: string): string {
+  return queryString ? `?${queryString}` : "";
 }
 
 async function toHTTPRequest(
@@ -100,7 +105,7 @@ async function toHTTPRequest(
           const queryString = parametersToQueryString(request.parameters);
           return {
             url: new URL(
-              `${request.resource}${queryString ? `?${queryString}` : ""}`,
+              `${request.resource}${querySuffix(queryString)}`,
               FHIRUrl,
             ).href,
             method: "PUT",
@@ -151,7 +156,7 @@ async function toHTTPRequest(
           const queryString = parametersToQueryString(request.parameters);
           return {
             url: new URL(
-              `${request.resource}${queryString ? `?${queryString}` : ""}`,
+              `${request.resource}${querySuffix(queryString)}`,
               FHIRUrl,
             ).href,
             method: "DELETE",
@@ -161,8 +166,7 @@ async function toHTTPRequest(
         case "system": {
           const queryString = parametersToQueryString(request.parameters);
           return {
-            url: new URL(`${queryString ? `?${queryString}` : ""}`, FHIRUrl)
-              .href,
+            url: new URL(querySuffix(queryString), FHIRUrl).href,
             method: "DELETE",
             headers,
           };
@@ -192,8 +196,7 @@ async function toHTTPRequest(
       }
 
       return {
-        url: new URL(`${queryString ? `?${queryString}` : ""}`, historyUrl)
-          .href,
+        url: new URL(querySuffix(queryString), historyUrl).href,
         method: "GET",
         headers,
       };
@@ -233,7 +236,7 @@ async function toHTTPRequest(
           },
         };
       } else {
-        const queryString = parameters ? `?${parameters}` : "";
+        const queryString = querySuffix(parameters);
 
         let searchURL;
         switch (request.level) {
