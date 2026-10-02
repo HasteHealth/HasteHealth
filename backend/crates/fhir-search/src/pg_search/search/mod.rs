@@ -310,11 +310,13 @@ async fn apply_result_parameter<ParameterResolver: SearchParameterResolve>(
 ) -> Result<QueryState, OperationOutcomeError> {
     Ok(match param.name.as_str() {
         "_count" => QueryState {
-            max_count: parse_u64(param)?,
+            max_count: parse_u64(param)?.min(ABSOLUTE_MAX),
             ..state
         },
+        // Bound to what Postgres accepts as an OFFSET: a value past i64::MAX
+        // wrapped negative on the way to the bind and failed the query.
         "_offset" => QueryState {
-            offset: parse_u64(param)?,
+            offset: parse_u64(param)?.min(i64::MAX.cast_unsigned()),
             ..state
         },
         // `accurate` also gets the estimate; an exact count scans every match.
