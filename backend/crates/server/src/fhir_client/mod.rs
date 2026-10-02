@@ -17,9 +17,10 @@ use haste_fhir_client::{
         DeleteRequest, DeleteResponse, FHIRBatchRequest, FHIRConditionalUpdateRequest,
         FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
         FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest, FHIRHistorySystemRequest,
-        FHIRHistoryTypeRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest,
-        FHIRTransactionRequest, FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest,
-        HistoryResponse, SearchRequest, SearchResponse, UpdateRequest,
+        FHIRHistoryTypeRequest, FHIRReadRequest, FHIRRequest, FHIRResponse,
+        FHIRSearchSystemRequest, FHIRSearchTypeRequest, FHIRTransactionRequest,
+        FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest, HistoryResponse,
+        SearchRequest, SearchResponse, UpdateRequest,
     },
     url::ParsedParameters,
 };
@@ -518,10 +519,26 @@ impl<
 
     async fn search_system(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _parameters: ParsedParameters,
+        ctx: Arc<ServerCTX<Self>>,
+        parameters: ParsedParameters,
     ) -> Result<Bundle, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::Search(SearchRequest::System(FHIRSearchSystemRequest {
+                    parameters,
+                })),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Search(SearchResponse::System(search_response))) => {
+                Ok(search_response.bundle)
+            }
+            _ => panic!("Unexpected response type"),
+        }
     }
 
     async fn search_type(

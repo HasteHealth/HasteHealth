@@ -47,6 +47,74 @@ pub fn validate_id(id: &str) -> Result<(), OperationOutcomeError> {
     }
 }
 
+/// Joins a tenant id and a project id into the admin app's hostname label:
+/// `{tenant}--{project}`.
+pub const HOSTNAME_ID_SEPARATOR: &str = "--";
+
+/// A DNS label holds 63 characters. 8 stay unused, as room for a later
+/// prefix or suffix such as `-staging`.
+const HOSTNAME_LABEL_MAX_LEN: usize = 63 - 8;
+
+/// Validates a tenant or project id: not empty, and free of
+/// [`HOSTNAME_ID_SEPARATOR`], so `{tenant}--{project}` can be split again.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] naming the rule `id` breaks.
+pub fn validate_hostname_id(id: &str) -> Result<(), OperationOutcomeError> {
+    let invalid = |message: &str| {
+        Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            message.to_string(),
+        ))
+    };
+
+    if id.is_empty() {
+        return invalid("An id cannot be empty.");
+    }
+
+    if !ID_REGEX.is_match(id) {
+        return invalid("An id may only contain lowercase letters, digits and hyphens.");
+    }
+
+    if id.contains(HOSTNAME_ID_SEPARATOR) {
+        return invalid("An id cannot contain two hyphens in a row.");
+    }
+
+    Ok(())
+}
+
+/// A random id that passes [`validate_hostname_id`].
+pub fn generate_hostname_id(len: Option<usize>) -> String {
+    loop {
+        let id = generate_id(len);
+        if validate_hostname_id(&id).is_ok() {
+            return id;
+        }
+    }
+}
+
+/// Validates a project id, and that `{tenant}--{id}` is at most 55 characters:
+/// a DNS label, less the spare room.
+///
+/// # Errors
+///
+/// Returns an [`OperationOutcomeError`] if `id` breaks
+/// [`validate_hostname_id`] or is too long for `tenant`.
+pub fn validate_project_id(tenant: &str, id: &str) -> Result<(), OperationOutcomeError> {
+    validate_hostname_id(id)?;
+
+    let max_len = HOSTNAME_LABEL_MAX_LEN.saturating_sub(tenant.len() + HOSTNAME_ID_SEPARATOR.len());
+    if id.len() > max_len {
+        return Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            format!("A project id in tenant '{tenant}' can be at most {max_len} characters long."),
+        ));
+    }
+
+    Ok(())
+}
+
 #[derive(OperationOutcomeError)]
 pub enum DataTransformError {
     #[error(code = "invalid", diagnostic = "Invalid data: '{arg0}'")]

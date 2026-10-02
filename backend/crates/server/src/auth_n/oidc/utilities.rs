@@ -25,12 +25,11 @@ pub fn is_valid_redirect_url(redirect_url: &str, client: &ClientApplication) -> 
     k.is_some() && !redirect_url.is_empty()
 }
 
-pub async fn set_user_password<Repo: Repository>(
-    repo: &Repo,
-    tenant: &TenantId,
-    user_email: &str,
-    user_id: &str,
+/// Rejects a password that is too easy to guess. The error carries the
+/// feedback to show.
+pub fn check_password_strength(
     password: &str,
+    user_email: &str,
 ) -> Result<(), OperationOutcomeError> {
     let password_strength = zxcvbn::zxcvbn(password, &[user_email]);
 
@@ -45,6 +44,18 @@ pub async fn set_user_password<Repo: Repository>(
             feedback,
         ));
     }
+
+    Ok(())
+}
+
+pub async fn set_user_password<Repo: Repository>(
+    repo: &Repo,
+    tenant: &TenantId,
+    user_email: &str,
+    user_id: &str,
+    password: &str,
+) -> Result<(), OperationOutcomeError> {
+    check_password_strength(password, user_email)?;
 
     TenantModelAdmin::<CreateUser, _, _, _, String>::update(
         repo,

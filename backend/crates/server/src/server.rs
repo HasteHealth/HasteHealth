@@ -6,7 +6,7 @@ use crate::{
     mcp,
     middleware::{
         errors::{log_operationoutcome_errors, operation_outcome_error_handle},
-        security_headers::SecurityHeaderLayer,
+        security_headers::security_headers,
     },
     openapi,
     services::{ConfigError, ServerState, create_services, get_pool},
@@ -323,7 +323,7 @@ pub async fn server(
                 // 4mb by default.
                 .layer(DefaultBodyLimit::max(config.max_request_body_size))
                 .layer(CompressionLayer::new())
-                .layer(SecurityHeaderLayer::new())
+                .layer(security_headers(config.signup.turnstile.is_some()))
                 .layer(SetResponseHeaderLayer::overriding(
                     HeaderName::from_static("x-api-version"),
                     HeaderValue::from_static(SERVER_VERSION),

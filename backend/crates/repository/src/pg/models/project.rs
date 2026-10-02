@@ -2,7 +2,7 @@ use crate::{
     admin::TenantModelAdmin,
     pg::{PGConnection, StoreError},
     types::project::{CreateProject, Project, ProjectSearchClaims},
-    utilities::{generate_id, validate_id},
+    utilities::{generate_hostname_id, validate_project_id},
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -17,9 +17,11 @@ async fn create_project<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
-    let id = project.id.unwrap_or(ProjectId::new(generate_id(None)));
+    let id = project
+        .id
+        .unwrap_or_else(|| ProjectId::new(generate_hostname_id(None)));
 
-    validate_id(id.as_ref())?;
+    validate_project_id(tenant.as_ref(), id.as_ref())?;
 
     let project = sqlx::query_as::<_, Project>(
         r"

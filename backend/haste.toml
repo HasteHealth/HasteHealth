@@ -16,6 +16,16 @@ max_connections = 20
 [monitoring]
 audit_enabled = false
 
+# Sign-up and login codes are written to the server log instead of emailed.
+# Set `backend = "sendgrid"` with `api_key` and `from_address` to send them.
+[email]
+backend = "log"
+
+# Optional Cloudflare Turnstile bot check on the sign-up and login forms.
+# [signup.turnstile]
+# site_key = "..."
+# secret_key = "..."
+
 [security]
 publicize_fhir_metadata = true
 aes_key = "AES_KEY"

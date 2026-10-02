@@ -29,7 +29,7 @@ use haste_repository::{
         SupportedFHIRVersions,
         project::{CreateProject, Project as ProjectModel},
     },
-    utilities::generate_id,
+    utilities::generate_hostname_id,
 };
 use std::sync::Arc;
 
@@ -83,7 +83,10 @@ impl<
                                 }?;
 
                                 let name = project.name.clone();
-                                let id = project.id.clone().unwrap_or(generate_id(Some(8)));
+                                let id = project
+                                    .id
+                                    .clone()
+                                    .unwrap_or_else(|| generate_hostname_id(Some(8)));
 
                                 let project_model = TenantModelAdmin::create(
                                     state.repo.as_ref(),

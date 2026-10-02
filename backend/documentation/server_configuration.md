@@ -84,13 +84,22 @@ With `backend = "elasticsearch"`:
 
 #### `[email]` — optional
 
-`None`/absent by default (email sending disabled). Tagged by `backend`; only `sendgrid` exists today.
+`None`/absent by default (email sending disabled, so sign-up and password reset fail). Tagged by `backend`: `sendgrid` sends through SendGrid; `log` writes each message to the server log instead of sending it, for local development, where the sign-up code can be read off the console.
 
-| Key                  | Env var                            |
-| -------------------- | ---------------------------------- |
-| `email.backend`      | `HASTE_EMAIL.backend` (`sendgrid`) |
-| `email.api_key`      | `HASTE_EMAIL.api_key`              |
-| `email.from_address` | `HASTE_EMAIL.from_address`         |
+| Key                  | Env var                                    |
+| -------------------- | ------------------------------------------ |
+| `email.backend`      | `HASTE_EMAIL.backend` (`sendgrid` / `log`) |
+| `email.api_key`      | `HASTE_EMAIL.api_key` (sendgrid only)      |
+| `email.from_address` | `HASTE_EMAIL.from_address` (sendgrid only) |
+
+#### `[signup]`
+
+Self-service sign-up and login at `/auth/signup` and `/auth/login`. Optional: a [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) check on the form, enabled by setting both keys. The Content-Security-Policy opens to `challenges.cloudflare.com` only when it is configured.
+
+| Key                           | Env var                             | Default |
+| ----------------------------- | ----------------------------------- | ------- |
+| `signup.turnstile.site_key`   | `HASTE_SIGNUP.turnstile.site_key`   | unset   |
+| `signup.turnstile.secret_key` | `HASTE_SIGNUP.turnstile.secret_key` | unset   |
 
 #### `[rate_limits]`
 
@@ -154,6 +163,16 @@ max_connections = 20
 
 [monitoring]
 audit_enabled = false
+
+# Sign-up codes are logged rather than emailed. Use `backend = "sendgrid"`
+# with `api_key` and `from_address` to send them.
+[email]
+backend = "log"
+
+# Optional bot check on the sign-up and login forms.
+# [signup.turnstile]
+# site_key = "..."
+# secret_key = "..."
 
 [security]
 publicize_fhir_metadata = true
