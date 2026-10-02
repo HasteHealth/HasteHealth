@@ -93,11 +93,7 @@ pub(crate) async fn resources_for_patients<
         }
 
         let bundle = client
-            .search_type(
-                context.clone(),
-                target_resource_type.clone(),
-                search_params.into(),
-            )
+            .search_type(context.clone(), target_resource_type, search_params.into())
             .await?;
 
         for entry in bundle.entry.into_iter().flatten() {

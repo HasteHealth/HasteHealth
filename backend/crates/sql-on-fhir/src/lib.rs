@@ -247,7 +247,7 @@ async fn get_resources_to_process<
         let mut page = client
             .history_type(
                 context.clone(),
-                resource_type.clone(),
+                resource_type,
                 vec![
                     ("_since".to_string(), vec![since.to_string()]),
                     ("_count".to_string(), vec![HISTORY_PAGE_SIZE.to_string()]),

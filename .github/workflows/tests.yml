@@ -38,6 +38,7 @@ jobs:
           -p haste-fhir-client \
           -p haste-fhir-converter \
           -p haste-fhir-generated-ops \
+          -p haste-fhir-model \
           -p haste-fhir-operation-error \
           -p haste-fhir-operation-error-derive \
           -p haste-fhir-ops \

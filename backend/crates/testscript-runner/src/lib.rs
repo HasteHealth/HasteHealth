@@ -1025,7 +1025,7 @@ async fn wait_for_index<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
         return;
     };
     let request = FHIRRequest::Search(SearchRequest::Type(FHIRSearchTypeRequest {
-        resource_type: write.resource_type.clone(),
+        resource_type: write.resource_type,
         parameters,
     }));
     let deadline = tokio::time::Instant::now() + timeout;

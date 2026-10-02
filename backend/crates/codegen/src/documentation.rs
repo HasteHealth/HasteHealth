@@ -4,6 +4,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 pub(crate) fn format_documentation(documentation: &str) -> String {
+    let documentation = normalize_malformed_markdown_links(documentation);
     let mut output = String::with_capacity(documentation.len());
     let mut position = 0;
 
@@ -16,6 +17,11 @@ pub(crate) fn format_documentation(documentation: &str) -> String {
         }
 
         if let Some(consumed) = normalize_http_operation(remaining, &mut output) {
+            position += consumed;
+            continue;
+        }
+
+        if let Some(consumed) = normalize_url(remaining, &mut output) {
             position += consumed;
             continue;
         }
@@ -40,6 +46,11 @@ pub(crate) fn format_documentation(documentation: &str) -> String {
             continue;
         }
 
+        if let Some(consumed) = normalize_filename(remaining, &mut output) {
+            position += consumed;
+            continue;
+        }
+
         if let Some(consumed) = normalize_identifier(remaining, &mut output) {
             position += consumed;
             continue;
@@ -52,6 +63,136 @@ pub(crate) fn format_documentation(documentation: &str) -> String {
 
     let documentation = normalize_single_quoted_literals(&output);
     normalize_canonical_examples(&documentation)
+}
+
+fn normalize_filename(documentation: &str, output: &mut String) -> Option<usize> {
+    let end = find_filename_end(documentation)?;
+
+    let filename = &documentation[..end];
+
+    if !filename.contains('.') {
+        return None;
+    }
+
+    output.push('`');
+    output.push_str(filename);
+    output.push('`');
+
+    Some(end)
+}
+
+fn find_filename_end(documentation: &str) -> Option<usize> {
+    let mut end = 0;
+    let mut has_dot = false;
+
+    for (offset, character) in documentation.char_indices() {
+        if character.is_ascii_alphanumeric() || character == '_' || character == '-' {
+            end = offset + character.len_utf8();
+        } else if character == '.' {
+            has_dot = true;
+            end = offset + character.len_utf8();
+        } else {
+            break;
+        }
+    }
+
+    if has_dot && end > 0 && !documentation[..end].ends_with('.') {
+        Some(end)
+    } else {
+        None
+    }
+}
+
+fn normalize_malformed_markdown_links(documentation: &str) -> String {
+    let mut output = String::with_capacity(documentation.len());
+    let mut position = 0;
+
+    while position < documentation.len() {
+        let remaining = &documentation[position..];
+
+        if let Some(consumed) = normalize_malformed_markdown_link(remaining, &mut output) {
+            position += consumed;
+            continue;
+        }
+
+        let character = remaining.chars().next().unwrap();
+        output.push(character);
+        position += character.len_utf8();
+    }
+
+    output
+}
+
+fn normalize_malformed_markdown_link(documentation: &str, output: &mut String) -> Option<usize> {
+    if !documentation.starts_with('[') || documentation.starts_with("[`") {
+        return None;
+    }
+
+    let code_start = documentation[1..].find('`')? + 1;
+
+    let code_end = documentation[code_start + 1..].find('`')? + code_start + 1;
+
+    if documentation.get(code_end + 1..code_end + 3) != Some("](") {
+        return None;
+    }
+
+    let target_start = code_end + 3;
+    let target_end = documentation[target_start..].find(')')? + target_start;
+
+    let target = &documentation[target_start..target_end];
+
+    if !target.contains("fhirpath.html") {
+        return None;
+    }
+
+    let prefix = documentation[1..code_start].trim();
+    let code = documentation[code_start + 1..code_end].trim();
+
+    if prefix.is_empty() || code != "FHIRPath" {
+        return None;
+    }
+
+    output.push_str(prefix);
+    output.push_str(" [`FHIRPath`](");
+    output.push_str(target);
+    output.push(')');
+
+    Some(target_end + 1)
+}
+
+fn normalize_url(documentation: &str, output: &mut String) -> Option<usize> {
+    if documentation.starts_with('<')
+        && (documentation.starts_with("<http://") || documentation.starts_with("<https://"))
+    {
+        let end = documentation.find('>')?;
+
+        output.push('`');
+        output.push_str(&documentation[..=end]);
+        output.push('`');
+
+        return Some(end + 1);
+    }
+
+    if !(documentation.starts_with("http://") || documentation.starts_with("https://")) {
+        return None;
+    }
+
+    let end = documentation
+        .char_indices()
+        .find(|(_, character)| character.is_whitespace())
+        .map_or(documentation.len(), |(offset, _)| offset);
+
+    let url = documentation[..end].trim_end_matches('.');
+
+    output.push('`');
+    output.push_str(url);
+    output.push('`');
+
+    if end > url.len() {
+        output.push('.');
+    }
+
+    Some(end)
 }
 
 fn normalize_http_operation(documentation: &str, output: &mut String) -> Option<usize> {
@@ -221,7 +362,31 @@ fn normalize_markdown(documentation: &str, output: &mut String) -> Option<usize>
         return Some(consumed);
     }
 
-    normalize_quoted_bracket_expression(documentation, output)
+    if let Some(consumed) = normalize_quoted_bracket_expression(documentation, output) {
+        return Some(consumed);
+    }
+
+    normalize_bracketed_identifier(documentation, output)
+}
+
+fn normalize_bracketed_identifier(documentation: &str, output: &mut String) -> Option<usize> {
+    let close = documentation.find(']')?;
+
+    let value = &documentation[1..close];
+
+    if value.is_empty()
+        || !value
+            .chars()
+            .all(|character| character.is_ascii_alphanumeric() || character == '_')
+    {
+        return None;
+    }
+
+    output.push_str("[`");
+    output.push_str(value);
+    output.push_str("`]");
+
+    Some(close + 1)
 }
 
 fn normalize_markdown_link(documentation: &str, output: &mut String) -> Option<usize> {
@@ -229,6 +394,21 @@ fn normalize_markdown_link(documentation: &str, output: &mut String) -> Option<u
 
     let link = &documentation[..end];
     let after_link = &documentation[end..];
+
+    if link.starts_with("[``") {
+        let close_bracket = link.find("](")?;
+
+        let text = &link[1..close_bracket];
+        let clean_text = strip_markdown_code_ticks(text);
+
+        output.push_str("[`");
+        output.push_str(clean_text);
+        output.push_str("`]");
+
+        output.push_str(&link[close_bracket..]);
+
+        return Some(end);
+    }
 
     if link.starts_with("[`") {
         output.push_str(link);
@@ -366,7 +546,15 @@ fn normalize_identifier(documentation: &str, output: &mut String) -> Option<usiz
 
     let has_internal_uppercase = word.chars().skip(1).any(|c| c.is_ascii_uppercase());
 
-    if !(starts_uppercase && has_lowercase && has_internal_uppercase) {
+    let is_uppercase_snake_case = word.contains('_')
+        && word
+            .chars()
+            .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == '_');
+
+    let is_identifier =
+        (starts_uppercase && has_lowercase && has_internal_uppercase) || is_uppercase_snake_case;
+
+    if !is_identifier {
         return None;
     }
 
@@ -457,7 +645,16 @@ fn normalize_canonical_examples(documentation: &str) -> String {
 
     output.push_str(&documentation[..start]);
     output.push('`');
-    output.push_str(&documentation[start..value_end]);
+
+    let value = &documentation[start..value_end];
+
+    if let Some(url_offset) = value.find(URL_PREFIX) {
+        output.push_str(value[..url_offset].trim_end_matches('`'));
+        output.push_str(value[url_offset..].trim_matches('`'));
+    } else {
+        output.push_str(value);
+    }
+
     output.push('`');
 
     if value_end < url_end {
