@@ -275,12 +275,6 @@ fn wrap_if_vec(
     should_box: bool,
 ) -> TokenStream {
     match extract::cardinality(element).1 {
-        extract::Max::Unlimited => {
-            quote! {
-                Vec<#field_value>
-            }
-        }
-
         extract::Max::Fixed(1) => {
             if should_box {
                 quote! {
@@ -290,8 +284,7 @@ fn wrap_if_vec(
                 field_value.clone()
             }
         }
-
-        extract::Max::Fixed(_) => {
+        extract::Max::Unlimited | extract::Max::Fixed(_) => {
             quote! {
                 Vec<#field_value>
             }
@@ -484,7 +477,7 @@ fn create_type_choice(
         }
     });
 
-    let default_enum = rust_resource_ident(&types[0]);
+    let default_enum = rust_resource_ident(types[0]);
 
     let default_impl = if conditionals::should_be_boxed(types[0]) {
         quote! {
@@ -564,6 +557,7 @@ fn from_rust_type_to_fhir_primitive(
         .map(|snapshot| &snapshot.element)
         .and_then(|elements| {
             elements.iter().find(|element| {
+                #[allow(clippy::case_sensitive_file_extension_comparisons)]
                 element
                     .path
                     .value
@@ -913,136 +907,23 @@ fn generate_resource_type_letter_helpers(resource_types: &[ResourceTypeInfo]) ->
 }
 
 fn generate_resource_type(resource_types: &[ResourceTypeInfo]) -> TokenStream {
-    let enum_variants = resource_types.iter().map(|resource_type_info| {
-        let struct_name = format_ident!(
-            "{}",
-            generate::capitalize(&resource_type_info.rust_type_name)
-        );
+    let definition = generate_resource_type_definition(resource_types);
+    let deserializers_and_filters =
+        generate_resource_type_deserializers_and_filters(resource_types);
+    let resource_type_impl = generate_resource_type_impl(resource_types);
 
-        let type_name = &resource_type_info.resource_type;
-
-        if resource_type_info.rust_type_name == resource_type_info.resource_type {
-            quote! {
-                #struct_name
-            }
-        } else {
-            quote! {
-                #[serde(rename = #type_name)]
-                #struct_name
-            }
-        }
-    });
-
-    let resource_type_names = resource_types.iter().map(|resource_type_info| {
-        let resource_name = &resource_type_info.resource_type;
-
-        quote! {
-            #resource_name
-        }
-    });
-
-    let deserializer_functions = resource_types.iter().map(|resource_type_info| {
-        let struct_name = format_ident!(
-            "{}",
-            generate::capitalize(&resource_type_info.rust_type_name)
-        );
-
-        let function_name = format_ident!(
-            "deserialize_{}",
-            resource_type_info.rust_type_name.to_ascii_lowercase()
-        );
-
-        quote! {
-            #[inline]
-            fn #function_name(
-                data: &[u8],
-            ) -> Result<
-                Resource,
-                haste_fhir_serialization_json::errors::DeserializeError,
-            > {
-                Ok(Resource::#struct_name(
-                    serde_json::from_slice::<#struct_name>(data)?
-                ))
-            }
-        }
-    });
-
-    let deserializer_table = resource_types.iter().map(|resource_type_info| {
-        let function_name = format_ident!(
-            "deserialize_{}",
-            resource_type_info.rust_type_name.to_ascii_lowercase()
-        );
-
-        quote! {
-            #function_name
-        }
-    });
-
-    let filter_functions = resource_types.iter().map(|resource_type_info| {
-        let struct_name = format_ident!(
-            "{}",
-            generate::capitalize(&resource_type_info.rust_type_name)
-        );
-
-        let function_name = format_ident!(
-            "filter_{}",
-            resource_type_info.rust_type_name.to_ascii_lowercase()
-        );
-
-        quote! {
-            #[inline]
-            fn #function_name(
-                resource: Resource,
-                fields: &[&str],
-            ) -> Result<Resource, FilterFieldsError> {
-                match resource {
-                    Resource::#struct_name(resource) => {
-                        resource
-                            .filter(fields)
-                            .map(Resource::#struct_name)
-                    }
-
-                    _ => Err(
-                        FilterFieldsError::ResourceTypeMismatch
-                    ),
-                }
-            }
-        }
-    });
-
-    let filter_table = resource_types.iter().map(|resource_type_info| {
-        let function_name = format_ident!(
-            "filter_{}",
-            resource_type_info.rust_type_name.to_ascii_lowercase()
-        );
-
-        quote! {
-            #function_name
-        }
-    });
-
-    let mut first_bytes = BTreeSet::new();
-
-    for resource_type_info in resource_types {
-        if let Some(&first_byte) = resource_type_info.resource_type.as_bytes().first() {
-            first_bytes.insert(first_byte);
-        }
+    quote! {
+        #definition
+        #deserializers_and_filters
+        #resource_type_impl
     }
+}
 
-    let first_byte_dispatch = first_bytes.iter().map(|&first_byte| {
-        let letter = first_byte as char;
-
-        let helper_name = format_ident!("resource_type_from_{}", letter.to_ascii_lowercase());
-
-        let byte_literal = proc_macro2::Literal::byte_character(first_byte);
-
-        quote! {
-            Some(#byte_literal) =>
-                Self::#helper_name(s),
-        }
-    });
-
-    let letter_helpers = generate_resource_type_letter_helpers(resource_types);
+fn generate_resource_type_definition(resource_types: &[ResourceTypeInfo]) -> TokenStream {
+    let enum_variants = generate_resource_type_enum_variants(resource_types);
+    let resource_type_names = generate_resource_type_names(resource_types);
+    let deserializer_table = generate_resource_type_deserializer_table(resource_types);
+    let filter_table = generate_resource_type_filter_table(resource_types);
 
     quote! {
         #[derive(Error, Debug)]
@@ -1092,11 +973,26 @@ fn generate_resource_type(resource_types: &[ResourceTypeInfo]) -> TokenStream {
         const RESOURCE_FILTERS: &[ResourceFilter] = &[
             #(#filter_table),*
         ];
+    }
+}
 
+fn generate_resource_type_deserializers_and_filters(
+    resource_types: &[ResourceTypeInfo],
+) -> TokenStream {
+    let deserializer_functions = generate_resource_type_deserializers(resource_types);
+    let filter_functions = generate_resource_type_filters(resource_types);
+
+    quote! {
         #(#deserializer_functions)*
-
         #(#filter_functions)*
+    }
+}
 
+fn generate_resource_type_impl(resource_types: &[ResourceTypeInfo]) -> TokenStream {
+    let letter_helpers = generate_resource_type_letter_helpers(resource_types);
+    let first_byte_dispatch = generate_resource_type_first_byte_dispatch(resource_types);
+
+    quote! {
         impl ResourceType {
             #letter_helpers
 
@@ -1181,6 +1077,166 @@ fn generate_resource_type(resource_types: &[ResourceTypeInfo]) -> TokenStream {
             }
         }
     }
+}
+
+fn generate_resource_type_enum_variants(
+    resource_types: &[ResourceTypeInfo],
+) -> impl Iterator<Item = TokenStream> + '_ {
+    resource_types.iter().map(|resource_type_info| {
+        let struct_name = format_ident!(
+            "{}",
+            generate::capitalize(&resource_type_info.rust_type_name)
+        );
+
+        let type_name = &resource_type_info.resource_type;
+
+        if resource_type_info.rust_type_name == resource_type_info.resource_type {
+            quote! {
+                #struct_name
+            }
+        } else {
+            quote! {
+                #[serde(rename = #type_name)]
+                #struct_name
+            }
+        }
+    })
+}
+
+fn generate_resource_type_names(
+    resource_types: &[ResourceTypeInfo],
+) -> impl Iterator<Item = TokenStream> + '_ {
+    resource_types.iter().map(|resource_type_info| {
+        let resource_name = &resource_type_info.resource_type;
+
+        quote! {
+            #resource_name
+        }
+    })
+}
+
+fn generate_resource_type_deserializers(
+    resource_types: &[ResourceTypeInfo],
+) -> impl Iterator<Item = TokenStream> + '_ {
+    resource_types.iter().map(|resource_type_info| {
+        let struct_name = format_ident!(
+            "{}",
+            generate::capitalize(&resource_type_info.rust_type_name)
+        );
+
+        let function_name = format_ident!(
+            "deserialize_{}",
+            resource_type_info.rust_type_name.to_ascii_lowercase()
+        );
+
+        quote! {
+            #[inline]
+            fn #function_name(
+                data: &[u8],
+            ) -> Result<
+                Resource,
+                haste_fhir_serialization_json::errors::DeserializeError,
+            > {
+                Ok(Resource::#struct_name(
+                    serde_json::from_slice::<#struct_name>(data)?
+                ))
+            }
+        }
+    })
+}
+
+fn generate_resource_type_deserializer_table(
+    resource_types: &[ResourceTypeInfo],
+) -> impl Iterator<Item = TokenStream> + '_ {
+    resource_types.iter().map(|resource_type_info| {
+        let function_name = format_ident!(
+            "deserialize_{}",
+            resource_type_info.rust_type_name.to_ascii_lowercase()
+        );
+
+        quote! {
+            #function_name
+        }
+    })
+}
+
+fn generate_resource_type_filters(
+    resource_types: &[ResourceTypeInfo],
+) -> impl Iterator<Item = TokenStream> + '_ {
+    resource_types.iter().map(|resource_type_info| {
+        let struct_name = format_ident!(
+            "{}",
+            generate::capitalize(&resource_type_info.rust_type_name)
+        );
+
+        let function_name = format_ident!(
+            "filter_{}",
+            resource_type_info.rust_type_name.to_ascii_lowercase()
+        );
+
+        quote! {
+            #[inline]
+            fn #function_name(
+                resource: Resource,
+                fields: &[&str],
+            ) -> Result<Resource, FilterFieldsError> {
+                match resource {
+                    Resource::#struct_name(resource) => {
+                        resource
+                            .filter(fields)
+                            .map(Resource::#struct_name)
+                    }
+
+                    _ => Err(
+                        FilterFieldsError::ResourceTypeMismatch
+                    ),
+                }
+            }
+        }
+    })
+}
+
+fn generate_resource_type_filter_table(
+    resource_types: &[ResourceTypeInfo],
+) -> impl Iterator<Item = TokenStream> + '_ {
+    resource_types.iter().map(|resource_type_info| {
+        let function_name = format_ident!(
+            "filter_{}",
+            resource_type_info.rust_type_name.to_ascii_lowercase()
+        );
+
+        quote! {
+            #function_name
+        }
+    })
+}
+
+fn generate_resource_type_first_byte_dispatch(
+    resource_types: &[ResourceTypeInfo],
+) -> Vec<TokenStream> {
+    let mut first_bytes = BTreeSet::new();
+
+    for resource_type_info in resource_types {
+        if let Some(&first_byte) = resource_type_info.resource_type.as_bytes().first() {
+            first_bytes.insert(first_byte);
+        }
+    }
+
+    first_bytes
+        .into_iter()
+        .map(|first_byte| {
+            let letter = first_byte as char;
+
+            let helper_name = format_ident!("resource_type_from_{}", letter.to_ascii_lowercase());
+
+            let byte_literal = proc_macro2::Literal::byte_character(first_byte);
+
+            quote! {
+                Some(#byte_literal) =>
+                    Self::#helper_name(s),
+            }
+        })
+        .collect()
 }
 
 fn generate_filter_fields_error() -> TokenStream {
@@ -1414,7 +1470,7 @@ static PRIMITIVE_TYPES: &[&str] = &[
 ];
 
 pub fn generate(
-    file_paths: &Vec<String>,
+    file_paths: &[String],
     level: Option<&'static str>,
     inlined_terminology: &HashMap<String, String>,
 ) -> Result<GeneratedCode, String> {
