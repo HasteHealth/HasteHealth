@@ -4,6 +4,7 @@ use crate::{
             error::{OIDCError, OIDCErrorCode},
             extract::client_app::OIDCClientApplication,
             routes::route_string::oidc_route_string,
+            utilities::is_valid_redirect_url,
         },
         session,
     },
@@ -82,11 +83,17 @@ pub async fn scope_post<
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Form(scope_data): Form<ScopeForm>,
 ) -> Result<Response, OIDCError> {
+    // The form's redirect URI is only redirected to once it is known to be
+    // registered for the client (RFC 6749 §4.1.2.1); errors on a request that
+    // names some other URI are answered in the response instead.
+    let error_redirect_uri = is_valid_redirect_url(&scope_data.redirect_uri, &client_app)
+        .then(|| scope_data.redirect_uri.clone());
+
     if csrf_token != scope_data.csrf_token {
         return Err(OIDCError::new(
             OIDCErrorCode::InvalidRequest,
             Some("Invalid CSRF Token.".to_string()),
-            Some(scope_data.redirect_uri.clone()),
+            error_redirect_uri,
         ));
     }
 
@@ -96,7 +103,7 @@ pub async fn scope_post<
             OIDCError::new(
                 OIDCErrorCode::ServerError,
                 Some("Failed to retrieve user from session.".to_string()),
-                Some(scope_data.redirect_uri.clone()),
+                error_redirect_uri.clone(),
             )
         })?;
 
@@ -127,7 +134,7 @@ pub async fn scope_post<
             OIDCError::new(
                 OIDCErrorCode::ServerError,
                 Some("Failed to create scope authorization.".to_string()),
-                Some(scope_data.redirect_uri.clone()),
+                error_redirect_uri.clone(),
             )
         })?;
 
@@ -155,7 +162,7 @@ pub async fn scope_post<
         Err(OIDCError::new(
             OIDCErrorCode::AccessDenied,
             Some("User did not accept the requested scopes.".to_string()),
-            Some(scope_data.redirect_uri),
+            error_redirect_uri,
         ))
     }
 }

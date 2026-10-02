@@ -592,7 +592,7 @@ pub async fn client_credentials_to_token_response<
         return Err(OIDCError::new(
             OIDCErrorCode::InvalidRequest,
             Some("client_id is required for client_credentials grant type.".to_string()),
-            token_body.redirect_uri.clone(),
+            None,
         ));
     };
 
@@ -693,14 +693,14 @@ pub async fn token<
                 return Err(OIDCError::new(
                     OIDCErrorCode::InvalidRequest,
                     Some("client_id is required for refresh_token grant type.".to_string()),
-                    token_body.redirect_uri.clone(),
+                    None,
                 ));
             };
             let refresh_token = &token_body.refresh_token.as_ref().ok_or_else(|| {
                 OIDCError::new(
                     OIDCErrorCode::InvalidRequest,
                     Some("refresh_token is required for refresh_token grant type.".to_string()),
-                    token_body.redirect_uri.clone(),
+                    None,
                 )
             })?;
 
@@ -724,7 +724,7 @@ pub async fn token<
                 OIDCError::new(
                     OIDCErrorCode::InvalidGrant,
                     Some("Invalid refresh token.".to_string()),
-                    token_body.redirect_uri.clone(),
+                    None,
                 )
             })?;
 
@@ -732,7 +732,7 @@ pub async fn token<
                 return Err(OIDCError::new(
                     OIDCErrorCode::InvalidGrant,
                     Some("Invalid refresh token.".to_string()),
-                    token_body.redirect_uri.clone(),
+                    None,
                 ));
             }
 
@@ -740,7 +740,7 @@ pub async fn token<
                 return Err(OIDCError::new(
                     OIDCErrorCode::InvalidGrant,
                     Some("Refresh token has expired.".to_string()),
-                    token_body.redirect_uri.clone(),
+                    None,
                 ));
             }
 
@@ -764,7 +764,7 @@ pub async fn token<
                 OIDCError::new(
                     OIDCErrorCode::ServerError,
                     Some("Failed to delete used refresh token.".to_string()),
-                    token_body.redirect_uri.clone(),
+                    None,
                 )
             })?;
 
@@ -775,7 +775,7 @@ pub async fn token<
                         OIDCError::new(
                             OIDCErrorCode::ServerError,
                             Some("Failed to retrieve user.".to_string()),
-                            token_body.redirect_uri.clone(),
+                            None,
                         )
                     })?;
 
@@ -834,7 +834,7 @@ pub async fn token<
                 return Err(OIDCError::new(
                     OIDCErrorCode::InvalidRequest,
                     Some("client_id is required for authorization_code grant type.".to_string()),
-                    token_body.redirect_uri.clone(),
+                    None,
                 ));
             };
 

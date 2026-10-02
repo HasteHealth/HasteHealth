@@ -1,7 +1,11 @@
 // Custom OIDC error types
 // Based on https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2.1 and https://openid.net/specs/openid-connect-core-1_0.html and 3.1.2.6
 
-use axum::response::{IntoResponse, Redirect};
+use axum::{
+    http::{HeaderValue, StatusCode, header},
+    response::{IntoResponse, Redirect},
+};
+use url::Url;
 
 #[derive(serde::Serialize, Debug)]
 pub enum OIDCErrorCode {
@@ -95,6 +99,14 @@ impl From<&OIDCErrorCode> for &str {
 pub struct OIDCError {
     pub code: OIDCErrorCode,
     pub description: Option<String>,
+    /// Where the user agent is sent with the error, per RFC 6749 §4.1.2.1.
+    ///
+    /// Only a redirect URI that has already been validated against the client
+    /// application's registered redirect URIs may be set here. The response
+    /// redirects to it without further checks, so an unvalidated value turns
+    /// the authorization server into an open redirector. RFC 6749 §4.1.2.1
+    /// says a request with an invalid redirect URI must not redirect at all,
+    /// and the token endpoint (§5.2) never redirects: both leave this `None`.
     #[serde(skip_serializing)]
     pub redirect_uri: Option<String>,
 }
@@ -111,46 +123,61 @@ impl OIDCError {
             redirect_uri,
         }
     }
+
+    /// The URL the user agent is redirected to, with `error` and
+    /// `error_description` added as query parameters.
+    ///
+    /// `None` when the error carries no redirect URI, or when that URI does
+    /// not parse as an absolute URL: a malformed URI cannot be redirected to.
+    /// The parameters are appended to any query the URI already has, and are
+    /// percent-encoded, so neither the description nor an existing query can
+    /// break the URL.
+    fn error_redirect_url(&self) -> Option<Url> {
+        let mut url = Url::parse(self.redirect_uri.as_deref()?).ok()?;
+        let error_code: &str = (&self.code).into();
+
+        {
+            let mut query = url.query_pairs_mut();
+            query.append_pair("error", error_code);
+
+            if let Some(description) = self.description.as_deref() {
+                query.append_pair("error_description", description);
+            }
+        }
+
+        Some(url)
+    }
 }
 
 impl IntoResponse for OIDCError {
     fn into_response(self) -> axum::response::Response {
-        let error_code: &str = (&self.code).into();
-
-        if let Some(error_uri) = self.redirect_uri {
-            let mut redirect_uri = error_uri + "?error=" + error_code;
-
-            if let Some(description) = self.description {
-                redirect_uri = redirect_uri + "&error_description=" + description.as_str();
-            }
-
-            Redirect::to(&redirect_uri).into_response()
+        if let Some(redirect_url) = self.error_redirect_url() {
+            Redirect::to(redirect_url.as_str()).into_response()
         } else {
+            // RFC 6749 §5.2: a JSON body with the error code and description.
             let json_body = serde_json::to_string(&self).unwrap_or_default();
 
-            match self.code {
+            let status = match self.code {
                 OIDCErrorCode::InvalidRequest
                 | OIDCErrorCode::InvalidGrant
                 | OIDCErrorCode::InvalidClient
-                | OIDCErrorCode::InvalidScope => {
-                    (axum::http::StatusCode::BAD_REQUEST, json_body).into_response()
-                }
-                OIDCErrorCode::UnauthorizedClient => {
-                    (axum::http::StatusCode::UNAUTHORIZED, json_body).into_response()
-                }
-                OIDCErrorCode::UnsupportedResponseType => {
-                    (axum::http::StatusCode::UNPROCESSABLE_ENTITY, json_body).into_response()
-                }
-                OIDCErrorCode::ServerError => {
-                    (axum::http::StatusCode::INTERNAL_SERVER_ERROR, json_body).into_response()
-                }
-                OIDCErrorCode::TemporarilyUnavailable => {
-                    (axum::http::StatusCode::SERVICE_UNAVAILABLE, json_body).into_response()
-                }
-                OIDCErrorCode::AccessDenied => {
-                    (axum::http::StatusCode::FORBIDDEN, json_body).into_response()
-                }
-            }
+                | OIDCErrorCode::InvalidScope => StatusCode::BAD_REQUEST,
+                OIDCErrorCode::UnauthorizedClient => StatusCode::UNAUTHORIZED,
+                OIDCErrorCode::UnsupportedResponseType => StatusCode::UNPROCESSABLE_ENTITY,
+                OIDCErrorCode::ServerError => StatusCode::INTERNAL_SERVER_ERROR,
+                OIDCErrorCode::TemporarilyUnavailable => StatusCode::SERVICE_UNAVAILABLE,
+                OIDCErrorCode::AccessDenied => StatusCode::FORBIDDEN,
+            };
+
+            (
+                status,
+                [(
+                    header::CONTENT_TYPE,
+                    HeaderValue::from_static("application/json"),
+                )],
+                json_body,
+            )
+                .into_response()
         }
     }
 }
