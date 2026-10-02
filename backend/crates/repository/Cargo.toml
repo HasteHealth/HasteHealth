@@ -34,7 +34,6 @@ sqlx = { workspace = true, features = [
     "tls-native-tls",
     "postgres",
     "time",
-    "chrono",
 ] }
 sqlx-postgres = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }

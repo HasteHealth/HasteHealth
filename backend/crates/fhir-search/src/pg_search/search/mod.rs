@@ -7,7 +7,7 @@ use haste_fhir_client::{
 use haste_fhir_model::r4::generated::{resources::ResourceType, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
-use sqlx::{Pool, Postgres, Row, postgres::PgRow};
+use sqlx::{AssertSqlSafe, Pool, Postgres, Row, postgres::PgRow};
 
 use crate::{
     ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions, SearchParameterResolve,
@@ -559,13 +559,14 @@ fn sort_expression(entry: &SortEntry, params: Vec<SqlParam>) -> (Option<String>,
 }
 
 fn bind_params<'q>(sql: &'q str, params: &'q [SqlParam]) -> PgQuery<'q> {
-    params
-        .iter()
-        .fold(sqlx::query(sql), |query, param| match param {
+    params.iter().fold(
+        sqlx::query(AssertSqlSafe(sql)),
+        |query, param| match param {
             SqlParam::Text(v) => query.bind(v.as_str()),
             SqlParam::Int64(v) => query.bind(*v),
             SqlParam::Float64(v) => query.bind(*v),
-        })
+        },
+    )
 }
 
 async fn fetch_page(

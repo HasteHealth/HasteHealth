@@ -16,7 +16,7 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::FPEngine;
 use haste_repository::types::FHIRMethod;
-use sqlx::{Pool, Postgres, Row, postgres::PgRow};
+use sqlx::{AssertSqlSafe, Pool, Postgres, Row, postgres::PgRow};
 
 use super::{
     PgSearchError, keys, resource_to_search_index,
@@ -861,7 +861,7 @@ async fn insert_shared_table(
     debug_assert_eq!(values.len(), shared_value_columns(table).len());
 
     let sql = dynamic_insert_sql(&shared_table_name(&registry.version, table), table);
-    let query = sqlx::query(&sql)
+    let query = sqlx::query(AssertSqlSafe(sql))
         .bind(keys.res_key.as_slice())
         .bind(keys.param_identity.as_slice());
 
@@ -1020,7 +1020,7 @@ async fn delete_anchors(
         anchor = resource_table_name(&schema_registry.version),
     );
 
-    let rows = sqlx::query(&sql)
+    let rows = sqlx::query(AssertSqlSafe(sql))
         .bind(column(|key| &key.tenant))
         .bind(column(|key| &key.project))
         .bind(column(|key| &key.resource_type))
@@ -1082,19 +1082,21 @@ async fn upsert_anchors(
             values = values_clause(chunk.len(), per_row),
         );
 
-        let query = chunk.iter().fold(sqlx::query(&sql), |query, entry| {
-            let query = query
-                .bind(&entry.key.tenant)
-                .bind(&entry.key.project)
-                .bind(&entry.key.resource_type)
-                .bind(&entry.key.resource_id)
-                .bind(&entry.version_id)
-                .bind(entry.sequence);
-            match &entry.write {
-                Some(write) => bind_columns(query, &write.anchor_row, &anchor.columns),
-                None => query,
-            }
-        });
+        let query = chunk
+            .iter()
+            .fold(sqlx::query(AssertSqlSafe(sql)), |query, entry| {
+                let query = query
+                    .bind(&entry.key.tenant)
+                    .bind(&entry.key.project)
+                    .bind(&entry.key.resource_type)
+                    .bind(&entry.key.resource_id)
+                    .bind(&entry.version_id)
+                    .bind(entry.sequence);
+                match &entry.write {
+                    Some(write) => bind_columns(query, &write.anchor_row, &anchor.columns),
+                    None => query,
+                }
+            });
 
         let rows = query.fetch_all(&mut *conn).await.map_err(|e| {
             OperationOutcomeError::fatal(
@@ -1169,11 +1171,13 @@ async fn delete_by_res_key(
     table: &str,
     res_keys: &[i64],
 ) -> Result<(), OperationOutcomeError> {
-    sqlx::query(&format!("DELETE FROM {table} WHERE res_key = ANY($1)"))
-        .bind(res_keys)
-        .execute(conn)
-        .await
-        .map_err(PgSearchError::from)?;
+    sqlx::query(AssertSqlSafe(format!(
+        "DELETE FROM {table} WHERE res_key = ANY($1)"
+    )))
+    .bind(res_keys)
+    .execute(conn)
+    .await
+    .map_err(PgSearchError::from)?;
     Ok(())
 }
 
@@ -1238,12 +1242,14 @@ async fn insert_type_rows(
             values_clause(chunk.len(), per_row),
         );
 
-        let query = chunk.iter().fold(sqlx::query(&sql), |query, row| {
-            let query = query
-                .bind(row.res_key)
-                .bind(keys::scope_key(&row.key.tenant, &row.key.project));
-            bind_columns(query, row.slots, &schema.columns)
-        });
+        let query = chunk
+            .iter()
+            .fold(sqlx::query(AssertSqlSafe(sql)), |query, row| {
+                let query = query
+                    .bind(row.res_key)
+                    .bind(keys::scope_key(&row.key.tenant, &row.key.project));
+                bind_columns(query, row.slots, &schema.columns)
+            });
 
         query.execute(&mut *conn).await.map_err(|e| {
             OperationOutcomeError::fatal(

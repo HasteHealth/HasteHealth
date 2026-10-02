@@ -98,17 +98,28 @@ serde = { version = "1.0.229", default-features = false, features = ["alloc"] }
 serde_json = { version = "1.0.151", default-features = false, features = [
     "alloc",
 ] }
-sqlx = { version = "0.8", default-features = false, features = [
+sqlx = { version = "0.9.0", default-features = false, features = [
     "derive",
     "macros",
     "migrate",
 ] }
-sqlx-postgres = { version = "0.8.6", default-features = false }
+sqlx-postgres = { version = "0.9.0", default-features = false }
 syn = { version = "2.0.119", default-features = false }
 thiserror = { version = "2.0.20", default-features = false }
 tokio = { version = "1.53.1", default-features = false }
 tracing = { version = "0.1.44", default-features = false }
 walkdir = { version = "2.5.0", default-features = false }
+
+# sqlx from the head of upstream main (still version 0.9.0) for the fix to
+# transact-rs/sqlx#4385: a request cancelled during BEGIN returned the pooled
+# connection with its transaction still open, which pinned max_safe_seq and
+# stalled the indexing worker. Patched rather than depended on directly so
+# that every `sqlx = "0.9"` requirement in the graph, including
+# tower-sessions-sqlx-store's, resolves to this one copy. Drop once a
+# crates.io release carries the fix.
+[patch.crates-io]
+sqlx = { git = "https://github.com/transact-rs/sqlx", rev = "b54008a329541c0ce230d8b203e0c00fc8e8ea48" }
+sqlx-postgres = { git = "https://github.com/transact-rs/sqlx", rev = "b54008a329541c0ce230d8b203e0c00fc8e8ea48" }
 
 [dependencies]
 base64 = { workspace = true, features = ["alloc"] }
