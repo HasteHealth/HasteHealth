@@ -438,8 +438,8 @@ where
     }
 }
 
-fn process_history_parameters<'a>(
-    parameters: &'a ParsedParameters,
+fn process_history_parameters(
+    parameters: &ParsedParameters,
     clauses: &mut Separated<'_, Postgres, &str>,
 ) -> Result<(), OperationOutcomeError> {
     for parameter in parameters.parameters() {
