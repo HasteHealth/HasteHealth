@@ -137,11 +137,15 @@ pub async fn authorize<
         )
     })?;
 
+    // RFC 6749 §4.1.2.1: a redirect URI that is not registered for the client
+    // must not be redirected to, not even to report the error. Doing so would
+    // make this endpoint an open redirector, so these two errors are answered
+    // in the response instead of carrying the URI.
     if !is_valid_redirect_url(redirect_uri, &client_app) {
         return Err(OIDCError::new(
             OIDCErrorCode::InvalidRequest,
             Some("Invalid redirect URI.".to_string()),
-            Some(redirect_uri.to_string()),
+            None,
         ));
     }
 
@@ -149,7 +153,7 @@ pub async fn authorize<
         OIDCError::new(
             OIDCErrorCode::InvalidRequest,
             Some("Invalid redirect URI.".to_string()),
-            Some(redirect_uri.to_string()),
+            None,
         )
     })?;
 
