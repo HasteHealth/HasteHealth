@@ -85,6 +85,7 @@ pub fn validate_hostname_id(id: &str) -> Result<(), OperationOutcomeError> {
 }
 
 /// A random id that passes [`validate_hostname_id`].
+#[must_use]
 pub fn generate_hostname_id(len: Option<usize>) -> String {
     loop {
         let id = generate_id(len);
