@@ -12,7 +12,7 @@ use super::{
 use haste_repository::types::SupportedFHIRVersions;
 use haste_repository::{Repository, fhir::CachePolicy};
 use moka::future::{Cache, CacheBuilder};
-use sqlx::{Pool, Postgres, Row};
+use sqlx::{AssertSqlSafe, Pool, Postgres, Row};
 use std::sync::{Arc, LazyLock};
 
 use crate::{
@@ -67,7 +67,7 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
         token_table = shared_table_name(&SupportedFHIRVersions::R4, SharedTable::Token),
     );
 
-    let rows = sqlx::query(&sql)
+    let rows = sqlx::query(AssertSqlSafe(sql))
         .bind(tenant.as_ref())
         .bind(project.as_ref())
         .bind(keys::param_identity(

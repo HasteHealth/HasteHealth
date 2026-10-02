@@ -109,10 +109,12 @@ tower-http = { version = "0.6.11", default-features = false, features = [
     "set-header",
     "catch-panic",
 ] }
-tower-sessions = { version = "0.14.0", default-features = false, features = [
+tower-sessions = { version = "0.15.0", default-features = false, features = [
     "axum-core",
 ] }
-tower-sessions-sqlx-store = { version = "0.15.0", default-features = false, features = [
+# Head of upstream main: the published 0.15.0 still requires sqlx 0.8 and
+# tower-sessions-core 0.14. Drop the git pin once a release supports sqlx 0.9.
+tower-sessions-sqlx-store = { git = "https://github.com/maxcountryman/tower-sessions-stores", rev = "d18c9bf76f1d4fb73130dbe5aa643197f14b5d2d", default-features = false, features = [
     "postgres",
 ] }
 tracing = { workspace = true }

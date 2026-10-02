@@ -2,7 +2,7 @@ use std::fmt::Write as _;
 
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use sqlx::{Pool, Postgres};
+use sqlx::{AssertSqlSafe, Pool, Postgres};
 
 use super::schema::{
     ColumnDef, IndexKind, ResourceTypeSchema, SHARED_TABLES, SchemaRegistry, SharedTable,
@@ -88,7 +88,7 @@ async fn execute_ddl(
     sql: &str,
     context: &str,
 ) -> Result<(), OperationOutcomeError> {
-    sqlx::raw_sql(sql)
+    sqlx::raw_sql(AssertSqlSafe(sql))
         .execute(pool)
         .await
         .map(|_| ())
