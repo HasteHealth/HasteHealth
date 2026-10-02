@@ -220,6 +220,7 @@ pub async fn totp_verification_post<
         .into_response());
     }
 
+    session::user::rotate_session_id(&current_session).await?;
     session::user::set_completed_authorization_state(&current_session, user).await?;
 
     Ok(Redirect::to(&query.redirect_to).into_response())

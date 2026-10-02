@@ -110,6 +110,21 @@ pub async fn set_completed_authorization_state(
         })
 }
 
+/// Gives the session a new id, keeping its data.
+///
+/// Called whenever the session's authorization level rises: at password or
+/// federated login and when MFA completes. A session id handed to the browser
+/// before login (by an attacker who planted the cookie, or just one that was
+/// observed) then never becomes an authenticated session.
+pub async fn rotate_session_id(session: &Session) -> Result<(), OperationOutcomeError> {
+    session.cycle_id().await.map_err(|_e| {
+        OperationOutcomeError::fatal(
+            IssueType::exception(),
+            "Failed to rotate the session id.".to_string(),
+        )
+    })
+}
+
 pub async fn clear_authorization_state(session: &Session) -> Result<(), OperationOutcomeError> {
     session
         .remove::<SessionAuthorizationState>(AUTHORIZATION_STATE_KEY)

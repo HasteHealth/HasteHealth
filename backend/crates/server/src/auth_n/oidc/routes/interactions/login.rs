@@ -179,6 +179,7 @@ pub async fn login_post<
     match login_result {
         LoginResult::Success { user } => {
             let authorization_redirect = redirect_authorize_uri(&uri, "/interactions/login");
+            session::user::rotate_session_id(&current_session).await?;
             session::user::set_initial_authorization_state(
                 state.repo.as_ref(),
                 &current_session,

@@ -681,6 +681,7 @@ pub async fn federated_callback<
         ));
     };
 
+    session::user::rotate_session_id(&session).await?;
     session::user::set_initial_authorization_state(app_state.repo.as_ref(), &session, user_model)
         .await?;
 
