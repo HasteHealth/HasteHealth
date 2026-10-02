@@ -365,12 +365,12 @@ const OpenChoiceRenderer: QuestionnaireItemRenderer = ({
         {rows(item, answers).map(({ answer, answerIndex }) => {
           const selectedIndex = findSelectedOptionIndex(answer, options);
           const currentCustom = answer?.valueString;
+          const selectedCustom =
+            currentCustom && currentCustom.length > 0
+              ? currentCustom
+              : undefined;
           const selectValue =
-            selectedIndex >= 0
-              ? selectedIndex
-              : currentCustom && currentCustom.length > 0
-                ? currentCustom
-                : undefined;
+            selectedIndex >= 0 ? selectedIndex : selectedCustom;
 
           return (
             <div

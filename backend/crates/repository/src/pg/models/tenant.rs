@@ -48,7 +48,7 @@ fn validate_tenant_customization(
     Ok(())
 }
 
-async fn create_tenant<'a, 'e, E>(
+async fn create_tenant<'e, E>(
     executor: E,
     tenant: CreateTenant,
 ) -> Result<Tenant, OperationOutcomeError>
@@ -132,10 +132,7 @@ where
     Ok(tenant)
 }
 
-async fn update_tenant<'a, 'e, E>(
-    executor: E,
-    tenant: Tenant,
-) -> Result<Tenant, OperationOutcomeError>
+async fn update_tenant<'e, E>(executor: E, tenant: Tenant) -> Result<Tenant, OperationOutcomeError>
 where
     E: PgExecutor<'e>,
 {

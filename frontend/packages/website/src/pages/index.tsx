@@ -119,7 +119,7 @@ const START_DELAY_MS = 500;
 function renderCommand(typed: number) {
   let offset = 0;
   let cursorPlaced = false;
-  return COMMAND_SEGMENTS.map((seg, i) => {
+  return COMMAND_SEGMENTS.map((seg) => {
     const start = offset;
     offset += seg.text.length;
     const localTyped = Math.max(0, Math.min(seg.text.length, typed - start));
@@ -128,7 +128,7 @@ function renderCommand(typed: number) {
     const showCursorHere = !cursorPlaced && hidden.length > 0;
     if (showCursorHere) cursorPlaced = true;
     return (
-      <React.Fragment key={i}>
+      <React.Fragment key={seg.text}>
         {seg.highlight ? (
           <span className="text-brand-300">{visible}</span>
         ) : (

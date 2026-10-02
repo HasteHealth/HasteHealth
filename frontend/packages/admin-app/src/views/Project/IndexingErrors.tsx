@@ -67,6 +67,99 @@ function StatusBadge({ resolvedAt }: Readonly<{ resolvedAt?: string }>) {
   );
 }
 
+/** The failures table, or what stands in for it while loading or empty. */
+function FailedResources({
+  loading,
+  errors,
+}: Readonly<{
+  loading: boolean;
+  errors: ErrorRecord[];
+}>) {
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 py-4 text-sm text-slate-500">
+        <Loading />
+        <span>Loading indexing errors...</span>
+      </div>
+    );
+  }
+
+  if (errors.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-2 py-10 text-sm text-slate-500">
+        <ExclamationTriangleIcon className="h-8 w-8 text-slate-300" />
+        <span>No indexing errors recorded.</span>
+      </div>
+    );
+  }
+
+  return (
+    <Table
+      columns={[
+        {
+          id: "id",
+          content: "ID",
+          selectorType: "fhirpath",
+          selector: "$this.id",
+        },
+        {
+          id: "version_id",
+          content: "Version ID",
+          selectorType: "fhirpath",
+          selector: "$this.version_id",
+        },
+        {
+          id: "resource_type",
+          content: "Resource Type",
+          selectorType: "fhirpath",
+          selector: "$this.resource_type",
+        },
+        {
+          id: "fhir_method",
+          content: "Method",
+          selectorType: "fhirpath",
+          selector: "$this.fhir_method",
+        },
+        {
+          id: "attempt_count",
+          content: "Attempts",
+          selectorType: "fhirpath",
+          selector: "$this.attempt_count",
+        },
+        {
+          id: "error_message",
+          content: "Error",
+          selectorType: "fhirpath",
+          selector: "$this.error_message",
+        },
+        {
+          id: "first_failed_at",
+          content: "First Failed",
+          selectorType: "fhirpath",
+          selector: "$this.first_failed_at",
+        },
+        {
+          id: "last_failed_at",
+          content: "Last Failed",
+          selectorType: "fhirpath",
+          selector: "$this.last_failed_at",
+        },
+        {
+          id: "status",
+          content: "Status",
+          selectorType: "fhirpath",
+          selector: "$this",
+          renderer: (data) => {
+            const error = data[0] as ErrorRecord | undefined;
+            return <StatusBadge resolvedAt={error?.resolved_at} />;
+          },
+        },
+      ]}
+      data={errors}
+    />
+  );
+}
+
 export default function IndexingErrors() {
   const client = useAtomValue(getClient);
 
@@ -167,81 +260,7 @@ export default function IndexingErrors() {
           </div>
         }
       >
-        {loading ? (
-          <div className="flex items-center gap-2 py-4 text-sm text-slate-500">
-            <Loading />
-            <span>Loading indexing errors...</span>
-          </div>
-        ) : (errors?.length ?? 0) === 0 ? (
-          <div className="flex flex-col items-center gap-2 py-10 text-sm text-slate-500">
-            <ExclamationTriangleIcon className="h-8 w-8 text-slate-300" />
-            <span>No indexing errors recorded.</span>
-          </div>
-        ) : (
-          <Table
-            columns={[
-              {
-                id: "id",
-                content: "ID",
-                selectorType: "fhirpath",
-                selector: "$this.id",
-              },
-              {
-                id: "version_id",
-                content: "Version ID",
-                selectorType: "fhirpath",
-                selector: "$this.version_id",
-              },
-              {
-                id: "resource_type",
-                content: "Resource Type",
-                selectorType: "fhirpath",
-                selector: "$this.resource_type",
-              },
-              {
-                id: "fhir_method",
-                content: "Method",
-                selectorType: "fhirpath",
-                selector: "$this.fhir_method",
-              },
-              {
-                id: "attempt_count",
-                content: "Attempts",
-                selectorType: "fhirpath",
-                selector: "$this.attempt_count",
-              },
-              {
-                id: "error_message",
-                content: "Error",
-                selectorType: "fhirpath",
-                selector: "$this.error_message",
-              },
-              {
-                id: "first_failed_at",
-                content: "First Failed",
-                selectorType: "fhirpath",
-                selector: "$this.first_failed_at",
-              },
-              {
-                id: "last_failed_at",
-                content: "Last Failed",
-                selectorType: "fhirpath",
-                selector: "$this.last_failed_at",
-              },
-              {
-                id: "status",
-                content: "Status",
-                selectorType: "fhirpath",
-                selector: "$this",
-                renderer: (data) => {
-                  const error = data[0] as ErrorRecord | undefined;
-                  return <StatusBadge resolvedAt={error?.resolved_at} />;
-                },
-              },
-            ]}
-            data={errors ?? []}
-          />
-        )}
+        <FailedResources loading={loading} errors={errors ?? []} />
       </SectionCard>
     </div>
   );

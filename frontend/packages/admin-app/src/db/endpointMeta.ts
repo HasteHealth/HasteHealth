@@ -5,7 +5,7 @@ import { TenantEndpointInformation } from "@haste-health/generated-ops/r4";
 
 import { getClient } from "./client";
 
-export const getEndpointMetadata = atom(async (get) => {
+export const getEndpointMetadata = atom((get) => {
   const client = get(getClient);
   const endpointMetadata = client.invoke_system(
     TenantEndpointInformation.Op,

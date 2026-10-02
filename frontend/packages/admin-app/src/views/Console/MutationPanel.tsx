@@ -47,7 +47,7 @@ async function execute(
       if (target.level !== "type") {
         throw new Error("Creating is only supported at the type level.");
       }
-      return client.create({}, R4, {
+      return await client.create({}, R4, {
         ...(parsed as Resource),
         resourceType: target.resourceType,
       } as Resource);
@@ -55,7 +55,7 @@ async function execute(
     case "PUT":
       // A search makes the update conditional; otherwise it addresses one id.
       if (target.level === "instance") {
-        return client.update(
+        return await client.update(
           {},
           R4,
           target.resourceType as ResourceType<R4>,
@@ -64,7 +64,7 @@ async function execute(
         );
       }
       if (target.level === "type") {
-        return client.conditionalUpdate(
+        return await client.conditionalUpdate(
           {},
           R4,
           target.resourceType as ResourceType<R4>,
@@ -78,7 +78,7 @@ async function execute(
       if (target.level !== "instance") {
         throw new Error("Patching is only supported on one resource.");
       }
-      return client.patch(
+      return await client.patch(
         {},
         R4,
         target.resourceType as ResourceType<R4>,
@@ -89,21 +89,21 @@ async function execute(
     case "DELETE":
       switch (target.level) {
         case "instance":
-          return client.delete_instance(
+          return await client.delete_instance(
             {},
             R4,
             target.resourceType as ResourceType<R4>,
             target.id as id,
           );
         case "type":
-          return client.delete_type(
+          return await client.delete_type(
             {},
             R4,
             target.resourceType as ResourceType<R4>,
             target.search,
           );
         case "system":
-          return client.delete_system({}, R4, target.search);
+          return await client.delete_system({}, R4, target.search);
       }
     // eslint-disable-next-line no-fallthrough
     default:

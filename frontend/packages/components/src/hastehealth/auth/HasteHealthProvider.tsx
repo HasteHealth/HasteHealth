@@ -255,7 +255,7 @@ export function HasteHealthProvider({
     }
     isInitialized.current = true;
 
-    (async (): Promise<void> => {
+    void (async (): Promise<void> => {
       dispatch({ type: "SET_LOADING", loading: true });
       try {
         const well_known_uri = new URL(
