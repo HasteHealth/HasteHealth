@@ -6582,7 +6582,6 @@ dependencies = [
  "base64 0.22.1",
  "bytes",
  "cfg-if",
- "chrono",
  "crc",
  "crossbeam-queue",
  "either",
@@ -6735,7 +6734,6 @@ dependencies = [
  "bitflags 2.13.1",
  "byteorder",
  "bytes",
- "chrono",
  "crc",
  "digest 0.11.3",
  "dotenvy",
@@ -6800,7 +6798,6 @@ dependencies = [
  "base64 0.22.1",
  "bitflags 2.13.1",
  "byteorder",
- "chrono",
  "crc",
  "dotenvy",
  "etcetera 0.11.0",
@@ -6857,7 +6854,6 @@ version = "0.9.0"
 source = "git+https://github.com/transact-rs/sqlx?rev=b54008a329541c0ce230d8b203e0c00fc8e8ea48#b54008a329541c0ce230d8b203e0c00fc8e8ea48"
 dependencies = [
  "atoi",
- "chrono",
  "flume 0.12.0",
  "form_urlencoded",
  "futures-channel",

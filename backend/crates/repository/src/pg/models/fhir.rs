@@ -23,7 +23,9 @@ use haste_fhir_model::r4::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId, claims::UserTokenClaims};
 use moka::future::Cache;
-use sqlx::{PgExecutor, Postgres, QueryBuilder, Row, query_builder::Separated};
+use sqlx::{
+    PgExecutor, Postgres, QueryBuilder, Row, query_builder::Separated, types::time::OffsetDateTime,
+};
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::Mutex;
 
@@ -452,14 +454,26 @@ fn process_history_parameters<'a>(
                             )
                         })?;
 
-                        clauses.push(" created_at >= ").push_bind_unseparated(
-                            chrono::DateTime::try_from(date_time).map_err(|e| {
-                                OperationOutcomeError::fatal(
-                                    IssueType::invalid(),
-                                    format!("Invalid _since parameter datetime: {e:?}"),
-                                )
-                            })?,
-                        );
+                        let since = chrono::DateTime::try_from(date_time).map_err(|e| {
+                            OperationOutcomeError::fatal(
+                                IssueType::invalid(),
+                                format!("Invalid _since parameter datetime: {e:?}"),
+                            )
+                        })?;
+                        // Bound as a `time` value: sqlx's `chrono` feature stays off so
+                        // its query macros map timestamps to one crate only.
+                        let since = OffsetDateTime::from_unix_timestamp_nanos(
+                            i128::from(since.timestamp()) * 1_000_000_000
+                                + i128::from(since.timestamp_subsec_nanos()),
+                        )
+                        .map_err(|e| {
+                            OperationOutcomeError::fatal(
+                                IssueType::invalid(),
+                                format!("Invalid _since parameter datetime: {e}"),
+                            )
+                        })?;
+
+                        clauses.push(" created_at >= ").push_bind_unseparated(since);
                     }
                 } else {
                     // Ignore offset and count parameter as these parameters are held separately and not used in the where clause.
