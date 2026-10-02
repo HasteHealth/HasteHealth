@@ -10,7 +10,7 @@ use crate::{
 };
 use axum::{
     Form,
-    extract::{OriginalUri, Query, State},
+    extract::{FromRequestParts, OriginalUri, Query, State},
     response::{IntoResponse, Redirect, Response},
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
@@ -103,6 +103,15 @@ pub struct TOTPVerificationQuery {
     pub redirect_to: String,
 }
 
+/// Where a verification request sits in the login flow: the URI it was made
+/// to, which the form posts back to, and where to go once the code is verified.
+#[derive(FromRequestParts)]
+pub struct TOTPVerificationLocation {
+    #[from_request(via(Query))]
+    query: TOTPVerificationQuery,
+    uri: OriginalUri,
+}
+
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/totp-verification")]
 pub struct TOTPVerificationGET;
@@ -117,8 +126,7 @@ pub async fn totp_verification_get<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: TOTPVerificationGET,
-    Query(query): Query<TOTPVerificationQuery>,
-    uri: OriginalUri,
+    TOTPVerificationLocation { query, uri }: TOTPVerificationLocation,
     CSRFToken(csrf_token): CSRFToken,
     Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
@@ -151,8 +159,7 @@ pub async fn totp_verification_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: TOTPVerificationPOST,
-    Query(query): Query<TOTPVerificationQuery>,
-    uri: OriginalUri,
+    TOTPVerificationLocation { query, uri }: TOTPVerificationLocation,
     CSRFToken(csrf_token): CSRFToken,
     Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,

@@ -32,10 +32,12 @@ pub(crate) enum AuthModeChoice {
 #[derive(Subcommand, Debug)]
 pub(crate) enum ConfigCommands {
     /// Print the currently active profile (never includes secrets or tokens).
-    ShowProfile,
+    #[command(name = "show-profile")]
+    Show,
     /// Create a new profile and set it as active. Prompts interactively for any option
     /// not passed on the command line.
-    CreateProfile {
+    #[command(name = "create-profile")]
+    Create {
         /// Name to identify this profile by.
         #[arg(short, long)]
         name: Option<String>,
@@ -63,7 +65,8 @@ pub(crate) enum ConfigCommands {
         scope: Option<String>,
     },
     /// Delete a profile and its stored secrets.
-    DeleteProfile {
+    #[command(name = "delete-profile")]
+    Delete {
         /// Name of the profile to delete.
         #[arg(short, long)]
         name: Option<String>,
@@ -72,7 +75,8 @@ pub(crate) enum ConfigCommands {
         confirm: Option<bool>,
     },
     /// Change which profile is used by default.
-    SetActiveProfile {
+    #[command(name = "set-active-profile")]
+    SetActive {
         /// Name of the profile to activate.
         #[arg(short, long)]
         name: Option<String>,
@@ -121,7 +125,7 @@ pub(crate) async fn run(
     command: &ConfigCommands,
 ) -> Result<(), OperationOutcomeError> {
     match command {
-        ConfigCommands::ShowProfile => {
+        ConfigCommands::Show => {
             let state = state.lock().await;
             if let Some(active_profile) = state.config.current_profile() {
                 println!("{:#?}", active_profile);
@@ -131,7 +135,7 @@ pub(crate) async fn run(
 
             Ok(())
         }
-        ConfigCommands::CreateProfile {
+        ConfigCommands::Create {
             name,
             r4_url,
             discovery_uri,
@@ -292,7 +296,7 @@ pub(crate) async fn run(
 
             persist(&state.config)
         }
-        ConfigCommands::DeleteProfile { name, confirm } => {
+        ConfigCommands::Delete { name, confirm } => {
             let name: String = if let Some(name) = name {
                 name.clone()
             } else {
@@ -327,7 +331,7 @@ pub(crate) async fn run(
             secrets::write_secrets(&SECRETS_LOCATION, &state.secrets)?;
             persist(&state.config)
         }
-        ConfigCommands::SetActiveProfile { name } => {
+        ConfigCommands::SetActive { name } => {
             let mut state = state.lock().await;
             let name: String = if let Some(name) = name {
                 name.clone()

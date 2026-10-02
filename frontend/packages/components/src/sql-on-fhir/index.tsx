@@ -12,6 +12,7 @@ import {
 
 import { Button } from "../base/button";
 import { CodeMirror } from "../base/codemirror";
+import { contentKeys } from "../base/keys";
 import { Loading } from "../base/loading";
 import { Pagination } from "../base/pagination";
 import { Tab, Tabs } from "../base/tabs";
@@ -388,6 +389,7 @@ function ResultsTable({
   headers: string[];
   rows: string[][];
 }) {
+  const rowKeys = contentKeys(rows);
   return (
     <div className="flex-1 overflow-auto">
       <table className="w-full min-w-[42rem] text-left text-xs text-slate-700">
@@ -406,7 +408,7 @@ function ResultsTable({
         <tbody>
           {rows.map((row, rowIndex) => (
             <tr
-              key={`row-${rowIndex}`}
+              key={rowKeys[rowIndex]}
               className="odd:bg-white even:bg-slate-50/40"
             >
               {row.map((value, colIndex) => (

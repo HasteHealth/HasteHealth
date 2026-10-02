@@ -31,6 +31,7 @@ import {
 } from "@haste-health/fhir-types/versions";
 
 import { Button, Modal, Select, Tag, Toaster } from "../../base";
+import { contentKeys, useRowKeys } from "../../base/keys";
 import { Pagination } from "../../base/pagination";
 import { Table, TableProps } from "../../base/table";
 import {
@@ -128,30 +129,15 @@ interface SearchColumnModalBodyProps {
   onChange: (v: ParsedParameter<string | number | undefined>) => void;
   searchParameter: Resource<FHIR_VERSION, "SearchParameter">;
 }
-// Keys for the editable value rows. Keying on the index remounts a row's
-// input when an earlier row is removed, and keying on the value remounts it
-// on every keystroke, so each row keeps an id for as long as it exists.
-let nextValueRowId = 0;
-function newValueRowId(): string {
-  nextValueRowId += 1;
-  return `value-row-${nextValueRowId}`;
-}
-
 function SearchColumnModalBody({
   value,
   ...props
 }: Readonly<SearchColumnModalBodyProps>) {
-  const [rowIds, setRowIds] = useState<string[]>(() =>
-    value.value.map(() => newValueRowId()),
-  );
-  // Rows the parent adds outside the "Add Value" button get ids on the next
-  // render; ids of rows it removed are dropped with them.
-  useEffect(() => {
-    if (rowIds.length !== value.value.length) {
-      setRowIds((ids) => value.value.map((_, i) => ids[i] ?? newValueRowId()));
-    }
-  }, [rowIds.length, value.value]);
-  const rowKeys = value.value.map((_, i) => rowIds[i] ?? `unkeyed-${i}`);
+  const {
+    keys: rowKeys,
+    onAdd: onRowAdd,
+    onRemove: onRowRemove,
+  } = useRowKeys(value.value.length);
 
   return (
     <div className="space-y-4 text-slate-600">
@@ -192,7 +178,7 @@ function SearchColumnModalBody({
                   type="button"
                   aria-label={`Remove value ${i + 1}`}
                   onClick={() => {
-                    setRowIds((ids) => ids.filter((_, j) => j !== i));
+                    onRowRemove(i);
                     props.onChange({
                       ...value,
                       value: value.value
@@ -210,7 +196,7 @@ function SearchColumnModalBody({
             type="button"
             className="cursor-pointer mt-1 text-xs hover:text-brand-500 text-slate-400"
             onClick={() => {
-              setRowIds((ids) => [...ids, newValueRowId()]);
+              onRowAdd();
               props.onChange({
                 ...value,
                 value: [...value.value, undefined],
@@ -413,11 +399,12 @@ function describePeriod(value: Period): string {
  * @param value Some Value
  */
 export function DataDisplay(searchType: string, value: unknown[]) {
+  const keys = contentKeys(value);
   switch (searchType) {
     case "number": {
       return (value as number[]).map((v, i) => {
         return (
-          <TruncatedCell key={i} title={`${v}`}>
+          <TruncatedCell key={keys[i]} title={`${v}`}>
             {v}
           </TruncatedCell>
         );
@@ -428,19 +415,21 @@ export function DataDisplay(searchType: string, value: unknown[]) {
         if (typeof v === "object") {
           if (Object.hasOwnProperty.call(v, "start")) {
             return (
-              <TruncatedCell key={i} title={describePeriod(v as Period)}>
+              <TruncatedCell key={keys[i]} title={describePeriod(v as Period)}>
                 <FHIRPeriodReadOnly value={v as Period} />
               </TruncatedCell>
             );
           } else {
             return (
-              <TruncatedCell key={i}>
+              <TruncatedCell key={keys[i]}>
                 <FHIRTimingReadOnly value={v as Timing} />
               </TruncatedCell>
             );
           }
         }
-        return <TruncatedCell key={i} title={`${v}`}>{`${v}`}</TruncatedCell>;
+        return (
+          <TruncatedCell key={keys[i]} title={`${v}`}>{`${v}`}</TruncatedCell>
+        );
       });
     }
     case "string": {
@@ -451,19 +440,27 @@ export function DataDisplay(searchType: string, value: unknown[]) {
             Object.hasOwnProperty.call(v, "given")
           ) {
             return (
-              <TruncatedCell key={i} title={describeHumanName(v as HumanName)}>
+              <TruncatedCell
+                key={keys[i]}
+                title={describeHumanName(v as HumanName)}
+              >
                 <FHIRHumanNameReadOnly value={v as HumanName} />
               </TruncatedCell>
             );
           } else {
             return (
-              <TruncatedCell key={i} title={describeAddress(v as Address)}>
+              <TruncatedCell
+                key={keys[i]}
+                title={describeAddress(v as Address)}
+              >
                 <FHIRAddressReadOnly value={v as Address} />
               </TruncatedCell>
             );
           }
         }
-        return <TruncatedCell key={i} title={`${v}`}>{`${v}`}</TruncatedCell>;
+        return (
+          <TruncatedCell key={keys[i]} title={`${v}`}>{`${v}`}</TruncatedCell>
+        );
       });
     }
     case "token": {
@@ -472,7 +469,7 @@ export function DataDisplay(searchType: string, value: unknown[]) {
           if (Object.hasOwnProperty.call(v, "coding")) {
             return (
               <TruncatedCell
-                key={i}
+                key={keys[i]}
                 title={describeCodeableConcept(v as CodeableConcept)}
               >
                 <FHIRCodeableConceptReadOnly value={v as CodeableConcept} />
@@ -480,14 +477,14 @@ export function DataDisplay(searchType: string, value: unknown[]) {
             );
           } else if (Object.hasOwnProperty.call(v, "code")) {
             return (
-              <TruncatedCell key={i} title={describeCoding(v as Coding)}>
+              <TruncatedCell key={keys[i]} title={describeCoding(v as Coding)}>
                 <FHIRCodingReadOnly value={v as Coding} />
               </TruncatedCell>
             );
           } else {
             return (
               <TruncatedCell
-                key={i}
+                key={keys[i]}
                 title={describeIdentifier(v as Identifier)}
               >
                 <FHIRIdentifierReadOnly value={v as Identifier} />
@@ -495,19 +492,26 @@ export function DataDisplay(searchType: string, value: unknown[]) {
             );
           }
         }
-        return <TruncatedCell key={i} title={`${v}`}>{`${v}`}</TruncatedCell>;
+        return (
+          <TruncatedCell key={keys[i]} title={`${v}`}>{`${v}`}</TruncatedCell>
+        );
       });
     }
     case "reference": {
       return value.map((v, i) => {
         if (typeof v === "object") {
           return (
-            <TruncatedCell key={i} title={describeReference(v as Reference)}>
+            <TruncatedCell
+              key={keys[i]}
+              title={describeReference(v as Reference)}
+            >
               <FHIRReferenceReadOnly value={v as Reference} />
             </TruncatedCell>
           );
         }
-        return <TruncatedCell key={i} title={`${v}`}>{`${v}`}</TruncatedCell>;
+        return (
+          <TruncatedCell key={keys[i]} title={`${v}`}>{`${v}`}</TruncatedCell>
+        );
       });
     }
     case "quantity": {
@@ -515,24 +519,31 @@ export function DataDisplay(searchType: string, value: unknown[]) {
         if (typeof v === "object") {
           if (Object.hasOwnProperty.call(v, "value")) {
             return (
-              <TruncatedCell key={i} title={describeQuantity(v as Quantity)}>
+              <TruncatedCell
+                key={keys[i]}
+                title={describeQuantity(v as Quantity)}
+              >
                 <FHIRQuantityReadOnly value={v as Quantity} />
               </TruncatedCell>
             );
           } else {
             return (
-              <TruncatedCell key={i} title={describeRange(v as Range)}>
+              <TruncatedCell key={keys[i]} title={describeRange(v as Range)}>
                 <FHIRRangeReadOnly value={v as Range} />
               </TruncatedCell>
             );
           }
         }
-        return <TruncatedCell key={i} title={`${v}`}>{`${v}`}</TruncatedCell>;
+        return (
+          <TruncatedCell key={keys[i]} title={`${v}`}>{`${v}`}</TruncatedCell>
+        );
       });
     }
     case "uri": {
       return value.map((v, i) => {
-        return <TruncatedCell key={i} title={`${v}`}>{`${v}`}</TruncatedCell>;
+        return (
+          <TruncatedCell key={keys[i]} title={`${v}`}>{`${v}`}</TruncatedCell>
+        );
       });
     }
     default: {

@@ -100,9 +100,9 @@ export async function invoke(
 
   switch (target.level) {
     case "system":
-      return client.invoke_system(op, {}, R4, input as never);
+      return await client.invoke_system(op, {}, R4, input as never);
     case "type":
-      return client.invoke_type(
+      return await client.invoke_type(
         op,
         {},
         R4,
@@ -110,7 +110,7 @@ export async function invoke(
         input as never,
       );
     case "instance":
-      return client.invoke_instance(
+      return await client.invoke_instance(
         op,
         {},
         R4,

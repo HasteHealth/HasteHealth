@@ -6,6 +6,7 @@ import { EditableProps } from "../types";
 import { complexFieldGridClass } from "./layout";
 import { XMarkIcon } from "@heroicons/react/16/solid";
 import { Add } from "../../base";
+import { useRowKeys } from "../../base/keys";
 
 export type FHIRTimingEditableProps = EditableProps<Timing>;
 
@@ -15,11 +16,17 @@ export const FHIRTimingEditable = ({
   issue,
   label,
 }: FHIRTimingEditableProps) => {
+  const {
+    keys: eventKeys,
+    onAdd: onEventAdd,
+    onRemove: onEventRemove,
+  } = useRowKeys(value?.event?.length ?? 0);
+
   return (
     <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
       <div className={complexFieldGridClass}>
         {(value?.event ?? []).map((ev, idx) => (
-          <div key={idx} className="flex gap-2 items-center">
+          <div key={eventKeys[idx]} className="flex gap-2 items-center">
             <FHIRDateTimeEditable
               label={`Event ${idx + 1}`}
               value={ev}
@@ -33,6 +40,7 @@ export const FHIRTimingEditable = ({
               type="button"
               className=" rounded-sm p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
               onClick={() => {
+                onEventRemove(idx);
                 const events = value?.event
                   ? value.event.filter((_, i) => i !== idx)
                   : [];
@@ -46,6 +54,7 @@ export const FHIRTimingEditable = ({
 
         <Add
           onChange={() => {
+            onEventAdd();
             const events = value?.event ? [...value.event, ""] : [""];
             onChange?.({ ...value, event: events as dateTime[] });
           }}
