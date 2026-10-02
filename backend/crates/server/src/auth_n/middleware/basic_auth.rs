@@ -1,9 +1,7 @@
 use crate::{
     auth_n::oidc::{
         error::{OIDCError, OIDCErrorCode},
-        routes::token::{
-            ClientCredentialsMethod, TOKEN_EXPIRATION, client_credentials_to_token_response,
-        },
+        routes::token::{ClientCredentialsMethod, client_credentials_to_token_response},
         schemas::token_body::{OAuth2TokenBody, OAuth2TokenBodyGrantType},
     },
     extract::{
@@ -23,32 +21,39 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::Repository;
 
+use sha2::{Digest, Sha256};
 use std::{
     sync::{Arc, LazyLock},
     time::Duration,
 };
 
+/// How long a token minted for a Basic-auth credential is reused before the
+/// credential is checked against the client application again.
+const CACHED_TOKEN_TTL: Duration = Duration::from_secs(5 * 60);
+
 #[derive(Hash, PartialEq, Eq)]
-struct CacheTokenKey(String);
+struct CacheTokenKey([u8; 32]);
 impl CacheTokenKey {
     fn new(tenant: &TenantId, project: &ProjectId, client_id: &str, client_secret: &str) -> Self {
-        Self(format!(
-            "{}:{}:{}:{}",
-            tenant, project, client_id, client_secret
-        ))
+        let mut hasher = Sha256::new();
+        // Length-prefixed so that no two different credentials can digest to the
+        // same byte string by shifting characters across the field boundaries.
+        for part in [tenant.as_ref(), project.as_ref(), client_id, client_secret] {
+            hasher.update((part.len() as u64).to_be_bytes());
+            hasher.update(part.as_bytes());
+        }
+
+        Self(hasher.finalize().into())
     }
 }
 
 // Token creation is expensive so caching for performance.
-static CACHED_BASIC_TOKENS: LazyLock<
-    // Tenant, Project, ClientId, ClientSecret
-    moka::future::Cache<CacheTokenKey, String>,
-> = LazyLock::new(|| {
-    moka::future::Cache::builder()
-        // Set as slightly less than the token expiration to ensure tokens are refreshed before they expire.
-        .time_to_live(Duration::from_secs(TOKEN_EXPIRATION as u64 - 500))
-        .build()
-});
+static CACHED_BASIC_TOKENS: LazyLock<moka::future::Cache<CacheTokenKey, String>> =
+    LazyLock::new(|| {
+        moka::future::Cache::builder()
+            .time_to_live(CACHED_TOKEN_TTL)
+            .build()
+    });
 
 pub async fn basic_auth_middleware<
     Repo: Repository + Send + Sync + 'static,
