@@ -78,7 +78,7 @@ pub(super) async fn chained_clause<ParameterResolver: SearchParameterResolve>(
     let mut params: Vec<SqlParam> = Vec::new();
     // The row holding the next reference: the searched row, then each level.
     let mut row = scope.root_row();
-    let mut resource_type = scope.resource_type.cloned();
+    let mut resource_type = scope.resource_type.copied();
 
     for (level, (name, modifier)) in links.enumerate() {
         let reference = resolve_parameter(scope, resource_type.as_ref(), name).await?;
