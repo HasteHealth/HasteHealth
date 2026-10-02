@@ -19,7 +19,7 @@ use haste_repository::{
         tenant::{CreateTenant, Tenant},
         user::CreateUser,
     },
-    utilities::generate_id,
+    utilities::{generate_hostname_id, validate_hostname_id},
 };
 use std::sync::Arc;
 
@@ -102,6 +102,120 @@ pub fn tenant_name(tenant: &Tenant) -> TenantName {
     TenantName(tenant.display_name.clone())
 }
 
+pub const TENANT_ID_MIN_LEN: usize = 3;
+pub const TENANT_ID_MAX_LEN: usize = 32;
+
+/// Names that would read as something else in a URL path or an admin app
+/// hostname. The system tenant is refused separately, by type.
+const RESERVED_TENANT_IDS: &[&str] = &[
+    "admin",
+    "api",
+    "auth",
+    "www",
+    "haste",
+    "haste-health",
+    "hastehealth",
+    "login",
+    "signup",
+    "support",
+    "help",
+];
+
+/// Domains that say nothing about an organisation.
+const PUBLIC_MAIL_DOMAINS: &[&str] = &[
+    "gmail.com",
+    "googlemail.com",
+    "outlook.com",
+    "hotmail.com",
+    "live.com",
+    "msn.com",
+    "yahoo.com",
+    "ymail.com",
+    "icloud.com",
+    "me.com",
+    "mac.com",
+    "aol.com",
+    "proton.me",
+    "protonmail.com",
+    "pm.me",
+    "mail.com",
+    "gmx.com",
+    "gmx.net",
+    "fastmail.com",
+    "hey.com",
+    "yandex.com",
+    "zoho.com",
+];
+
+/// Checks an id chosen for a new tenant. The length cap leaves a project id
+/// room in the hostname label the two share. Refuses the system tenant and
+/// the reserved names.
+pub fn validate_tenant_id(id: &str) -> Result<TenantId, OperationOutcomeError> {
+    let invalid = |message: String| OperationOutcomeError::error(IssueType::invalid(), message);
+
+    let length = id.chars().count();
+    if !(TENANT_ID_MIN_LEN..=TENANT_ID_MAX_LEN).contains(&length) {
+        return Err(invalid(format!(
+            "A tenant id is {TENANT_ID_MIN_LEN} to {TENANT_ID_MAX_LEN} characters long."
+        )));
+    }
+
+    validate_hostname_id(id)?;
+
+    let tenant = TenantId::new(id.to_string());
+    if tenant == TenantId::System || RESERVED_TENANT_IDS.contains(&id) {
+        return Err(invalid(format!(
+            "'{id}' is reserved. Choose another tenant id."
+        )));
+    }
+
+    Ok(tenant)
+}
+
+fn random_tenant_id() -> TenantId {
+    TenantId::new(generate_hostname_id(Some(16)))
+}
+
+/// A valid tenant id to propose for an email address: the organisation from a
+/// work address, otherwise the mailbox name. It may already be taken.
+pub fn suggested_tenant_id(email: &str) -> String {
+    let (mailbox, domain) = email.rsplit_once('@').unwrap_or((email, ""));
+    let domain = domain.to_ascii_lowercase();
+    let base = if domain.is_empty() || PUBLIC_MAIL_DOMAINS.contains(&domain.as_str()) {
+        mailbox
+    } else {
+        domain.split('.').next().unwrap_or(mailbox)
+    };
+
+    // Runs of anything but ASCII letters and digits become one hyphen.
+    let id = base
+        .to_ascii_lowercase()
+        .split(|character: char| !character.is_ascii_alphanumeric())
+        .filter(|part| !part.is_empty())
+        .collect::<Vec<_>>()
+        .join("-");
+    let id = id[..id.len().min(TENANT_ID_MAX_LEN)].trim_end_matches('-');
+
+    validate_tenant_id(id)
+        .unwrap_or_else(|_| random_tenant_id())
+        .as_ref()
+        .to_string()
+}
+
+/// `base`, a valid tenant id, with a short random suffix, for when `base` is
+/// taken.
+pub fn suggested_tenant_id_variant(base: &str) -> String {
+    const SUFFIX_LEN: usize = 4;
+
+    let base: String = base
+        .chars()
+        .take(TENANT_ID_MAX_LEN - SUFFIX_LEN - 1)
+        .collect();
+    let base = base.trim_end_matches('-');
+
+    format!("{base}-{}", generate_hostname_id(Some(SUFFIX_LEN)))
+}
+
 pub async fn create_tenant<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -109,18 +223,22 @@ pub async fn create_tenant<
 >(
     services: &ServerState<Repo, Search, Terminology>,
     tenant_id: Option<String>,
-    _name: &str,
     subscription_tier: &SubscriptionTier,
     owner: haste_fhir_model::r4::generated::resources::User,
     owner_password: Option<&str>,
 ) -> Result<CreateTenantOutput, OperationOutcomeError> {
+    let id = match tenant_id {
+        Some(id) => validate_tenant_id(&id)?,
+        None => random_tenant_id(),
+    };
+
     let services = services.transaction().await?;
 
     let new_tenant = TenantModelAdmin::create(
         &*services.repo,
         &TenantId::System,
         CreateTenant {
-            id: Some(TenantId::new(tenant_id.unwrap_or(generate_id(Some(16))))),
+            id: Some(id),
             subscription_tier: Some(subscription_tier.clone().into()),
             display_name: None,
             logo_data: None,

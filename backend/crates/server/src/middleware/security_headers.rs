@@ -1,80 +1,78 @@
-use axum::response::IntoResponse;
-use axum::{body::Body, extract::Request, response::Response};
-use std::pin::Pin;
-use std::task::{Context, Poll};
-use tower::{Layer, Service};
+//! Security headers on every response. Mostly helmet's defaults.
 
-#[derive(Clone)]
-pub struct SecurityHeaderLayer {}
+use axum::{
+    http::{
+        HeaderMap, HeaderName, HeaderValue,
+        header::{
+            CONTENT_SECURITY_POLICY, REFERRER_POLICY, STRICT_TRANSPORT_SECURITY,
+            X_CONTENT_TYPE_OPTIONS, X_DNS_PREFETCH_CONTROL, X_FRAME_OPTIONS,
+        },
+    },
+    response::Response,
+};
+use tower::util::MapResponseLayer;
 
-impl<S> Layer<S> for SecurityHeaderLayer {
-    type Service = SecurityHeaderService<S>;
+/// Origin of the Cloudflare Turnstile widget's script and frame.
+pub const TURNSTILE_ORIGIN: &str = "https://challenges.cloudflare.com";
 
-    fn layer(&self, inner: S) -> Self::Service {
-        SecurityHeaderService { inner }
-    }
+const STATIC_HEADERS: [(HeaderName, HeaderValue); 10] = [
+    (
+        HeaderName::from_static("cross-origin-opener-policy"),
+        HeaderValue::from_static("same-origin"),
+    ),
+    (
+        HeaderName::from_static("cross-origin-resource-policy"),
+        HeaderValue::from_static("same-origin"),
+    ),
+    (
+        HeaderName::from_static("origin-agent-cluster"),
+        HeaderValue::from_static("?1"),
+    ),
+    (REFERRER_POLICY, HeaderValue::from_static("no-referrer")),
+    (
+        STRICT_TRANSPORT_SECURITY,
+        HeaderValue::from_static("max-age=31536000; includeSubDomains"),
+    ),
+    (X_CONTENT_TYPE_OPTIONS, HeaderValue::from_static("nosniff")),
+    (X_DNS_PREFETCH_CONTROL, HeaderValue::from_static("off")),
+    (
+        HeaderName::from_static("x-download-options"),
+        HeaderValue::from_static("noopen"),
+    ),
+    (X_FRAME_OPTIONS, HeaderValue::from_static("SAMEORIGIN")),
+    (
+        HeaderName::from_static("x-permitted-cross-domain-policies"),
+        HeaderValue::from_static("none"),
+    ),
+];
+
+/// `turnstile` lets the sign-up form load the Turnstile widget's script and frame.
+fn content_security_policy(turnstile: bool) -> HeaderValue {
+    let (script_src, frame_src) = if turnstile {
+        (
+            format!("'self' {TURNSTILE_ORIGIN}"),
+            format!(";frame-src 'self' {TURNSTILE_ORIGIN}"),
+        )
+    } else {
+        ("'self'".to_string(), String::new())
+    };
+
+    format!(
+        "default-src 'self';base-uri 'self';font-src 'self' https: data:;frame-ancestors 'self'{frame_src};img-src 'self' data:;object-src 'none';script-src {script_src};script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+    )
+    .parse()
+    .expect("content security policy is a valid header value")
 }
 
-impl SecurityHeaderLayer {
-    pub fn new() -> Self {
-        SecurityHeaderLayer {}
-    }
-}
+/// Layer that sets the security headers on every response.
+pub fn security_headers(
+    turnstile: bool,
+) -> MapResponseLayer<impl Fn(Response) -> Response + Clone> {
+    let mut headers = HeaderMap::from_iter(STATIC_HEADERS);
+    headers.insert(CONTENT_SECURITY_POLICY, content_security_policy(turnstile));
 
-#[derive(Clone)]
-pub struct SecurityHeaderService<S> {
-    inner: S,
-}
-
-impl<'a, T> Service<Request<Body>> for SecurityHeaderService<T>
-where
-    T: Service<Request, Response = Response> + Send + 'static + Clone,
-    T::Future: Send + 'static,
-    T::Error: IntoResponse,
-{
-    type Response = T::Response;
-    type Error = T::Error;
-    type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send>>;
-
-    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        self.inner.poll_ready(cx)
-    }
-
-    fn call(&mut self, request: Request) -> Self::Future {
-        // https://docs.rs/tower/latest/tower/trait.Service.html#be-careful-when-cloning-inner-services
-        let clone = self.inner.clone();
-        // take the service that was ready
-        let mut inner = std::mem::replace(&mut self.inner, clone);
-
-        Box::pin(async move {
-            let future = inner.call(request);
-            let mut response: Response = future.await?;
-            let headers = response.headers_mut();
-
-            // Most of these headers are pulled from default helmet in other products.
-            headers.insert("Content-Security-Policy" ,"default-src 'self';base-uri 'self';font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests".parse().unwrap());
-            headers.insert("Cross-Origin-Opener-Policy", "same-origin".parse().unwrap());
-            headers.insert(
-                "Cross-Origin-Resource-Policy",
-                "same-origin".parse().unwrap(),
-            );
-            headers.insert("Origin-Agent-Cluster", "?1".parse().unwrap());
-            headers.insert("Referrer-Policy", "no-referrer".parse().unwrap());
-            headers.insert(
-                "Strict-Transport-Security",
-                "max-age=31536000; includeSubDomains".parse().unwrap(),
-            );
-            headers.insert("X-Content-Type-Options", "nosniff".parse().unwrap());
-            headers.insert("X-DNS-Prefetch-Control", "off".parse().unwrap());
-            headers.insert("X-Download-Options", "noopen".parse().unwrap());
-            headers.insert("X-Frame-Options", "SAMEORIGIN".parse().unwrap());
-            headers.insert(
-                "X-Permitted-Cross-Domain-Policies",
-                " none".parse().unwrap(),
-            );
-            headers.insert("X-Powered-By", "0".parse().unwrap());
-
-            Ok(response)
-        })
-    }
+    MapResponseLayer::new(move |mut response: Response| {
+        response.headers_mut().extend(headers.clone());
+        response
+    })
 }

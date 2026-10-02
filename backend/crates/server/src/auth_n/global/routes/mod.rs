@@ -6,9 +6,11 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
 use std::sync::Arc;
 
+mod flow;
 mod login;
 mod signup;
 mod tenant_select;
+mod verify;
 
 pub fn create_router<
     Repo: Repository + Send + Sync,
@@ -24,4 +26,9 @@ pub fn create_router<
         .typed_post(signup::global_signup_post)
         .typed_get(login::global_login_get)
         .typed_post(login::global_login_post)
+        .typed_get(verify::verify_get)
+        .typed_post(verify::verify_post)
+        .typed_post(verify::resend_post)
+        .typed_get(verify::tenant_get)
+        .typed_post(verify::create_post)
 }

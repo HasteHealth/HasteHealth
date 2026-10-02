@@ -1,200 +1,70 @@
+//! `/auth/signup`: one email field. The code it sends is checked at
+//! `/auth/verify`.
+
 use crate::{
-    auth_n::email,
+    auth_n::global::{
+        email_code::Purpose,
+        routes::flow::{self, EmailForm, client_ip},
+    },
     extract::csrf_token::CSRFToken,
     services::ServerState,
-    tenants::create_tenant,
-    ui::{
-        components::{banner, page_html},
-        pages::message::message_html,
-    },
+    ui::pages::global_auth::email_form_html,
 };
-use axum::{Form, response::IntoResponse};
-use axum::{extract::State, response::Response};
-use axum_extra::routing::TypedPath;
-use email_address::EmailAddress;
-use haste_fhir_model::r4::generated::{
-    terminology::{self, IssueType},
-    types::{FHIRString, HumanName},
+use axum::{
+    Form,
+    extract::State,
+    response::{IntoResponse, Response},
 };
+use axum_client_ip::ClientIp;
+use axum_extra::{extract::Cached, routing::TypedPath};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::ProjectId;
-use haste_repository::{
-    Repository,
-    admin::SystemAdmin,
-    types::user::{User, UserRole, UserSearchClauses},
-};
-use maud::html;
+use haste_repository::Repository;
 use std::sync::Arc;
+use tower_sessions::Session;
 
 #[derive(serde::Deserialize, TypedPath)]
 #[typed_path("/signup")]
-pub struct GlobalSignupGet {}
+pub struct GlobalSignup;
 
 pub async fn global_signup_get<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    _: GlobalSignupGet,
+    _: GlobalSignup,
     CSRFToken(csrf_token): CSRFToken,
-    State(_app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Response, OperationOutcomeError> {
-    Ok(page_html(&html! {
-        (banner("Sign up", None))
-        div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow  md:mt-0  xl:p-0 " {
-            form class="space-y-4 p-6 sm:p-8" action=("/auth/signup") method="POST" {
-                input type="hidden" name="csrf_token" value=(csrf_token) {}
-                div class="grid grid-cols-4 gap-1 space-y-1" {
-                    div class="col-span-4" {
-                        label for="email" class="block text-sm font-medium text-slate-600 dark:text-white" {
-                            "Email address"
-                        }
-                        input type="email" id="email" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="name@company.com" required="" name="email" {}
-                    }
-
-                    div class="col-span-2" {
-                        label for="first-name" class="block text-sm font-medium text-slate-600" { "First name" }
-                        input id="first-name" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5 " required name="first-name" value="" {}
-                    }
-
-                    div class="col-span-2" {
-                        label for="last-name" class="block text-sm font-medium text-slate-600" { "Last name" }
-                        input id="last-name" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5 " required name="last-name" {}
-                    }
-                }
-                div class="flex w-full" {
-                    button type="submit" class="cursor-pointer w-full text-white bg-brand-600 hover:bg-brand-500 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" {
-                        "Continue"
-                    }
-                }
-            }
-        }
-    }).into_response())
-}
-
-#[derive(serde::Deserialize)]
-pub struct GlobalSignupForm {
-    pub csrf_token: String,
-    pub email: EmailAddress,
-    #[serde(rename = "first-name")]
-    pub first_name: String,
-    #[serde(rename = "last-name")]
-    pub last_name: String,
-}
-
-async fn create_or_retrieve_user_tenant<
-    Repo: Repository + Send + Sync,
-    Search: SearchEngine + Send + Sync,
-    Terminology: FHIRTerminology + Send + Sync,
->(
-    app_state: &ServerState<Repo, Search, Terminology>,
-    signup_form: &GlobalSignupForm,
-) -> Result<User, OperationOutcomeError> {
-    let mut result = SystemAdmin::search(
-        app_state.repo.as_ref(),
-        &UserSearchClauses {
-            email: Some(signup_form.email.to_string()),
-            role: Some(UserRole::Owner),
-            method: None,
-        },
+    Ok(email_form_html(
+        Purpose::Signup,
+        &csrf_token,
+        flow::turnstile_site_key(state.as_ref()),
+        None,
     )
-    .await?;
-
-    if let Some(user) = result.pop() {
-        Ok(user)
-    } else {
-        let result = create_tenant(
-            app_state,
-            None,
-            "default",
-            &haste_subscription::DEFAULT_TIER,
-            haste_fhir_model::r4::generated::resources::User {
-                role: terminology::UserRole::owner(),
-                email: Some(Box::new(FHIRString {
-                    value: Some(signup_form.email.to_string()),
-                    ..Default::default()
-                })),
-                name: Some(Box::new(HumanName {
-                    given: Some(vec![FHIRString {
-                        value: Some(signup_form.first_name.to_string()),
-                        ..Default::default()
-                    }]),
-                    family: Some(Box::new(FHIRString {
-                        value: Some(signup_form.last_name.to_string()),
-                        ..Default::default()
-                    })),
-                    ..Default::default()
-                })),
-                ..Default::default()
-            },
-            None,
-        )
-        .await?;
-
-        Ok(result.owner)
-    }
+    .into_response())
 }
-
-#[derive(serde::Deserialize, axum_extra::routing::TypedPath)]
-#[typed_path("/signup")]
-pub struct GlobalSignupPost {}
 
 pub async fn global_signup_post<
-    Repo: Repository + Send + Sync,
-    Search: SearchEngine + Send + Sync,
-    Terminology: FHIRTerminology + Send + Sync,
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    _: GlobalSignupPost,
+    _: GlobalSignup,
     CSRFToken(csrf_token): CSRFToken,
-    State(app_state): State<Arc<ServerState<Repo, Search, Terminology>>>,
-    Form(form): Form<GlobalSignupForm>,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
+    Cached(session): Cached<Session>,
+    ip: Result<ClientIp, axum_client_ip::Rejection>,
+    Form(form): Form<EmailForm>,
 ) -> Result<Response, OperationOutcomeError> {
-    if form.csrf_token != csrf_token {
-        return Err(OperationOutcomeError::error(
-            IssueType::invalid(),
-            "Invalid CSRF Token".to_string(),
-        ));
-    }
-
-    let user = create_or_retrieve_user_tenant(app_state.as_ref(), &form).await?;
-
-    email::send_password_reset_email(
-        app_state.as_ref(),
-        &user.tenant,
-        &ProjectId::System,
-        &user,
-        email::Message {
-            subject: Some("Welcome to Haste Health".to_string()),
-            body: Some(html! {
-            div {
-                span {
-                    "To set your password and complete your signup, please click the button below. If you did not request this email, please ignore it."
-                }
-            }
-        })
-    },
+    flow::begin(
+        state.as_ref(),
+        &session,
+        &csrf_token,
+        client_ip(ip),
+        Purpose::Signup,
+        form,
     )
-    .await?;
-
-    Ok(message_html(
-None,
-        None,
-        &html! {
-            div {
-                span {
-                    "Welcome to Haste Health"
-                }
-            }
-            div {
-                span {
-                    r#"An email has been sent to your email address "#
-                    span class="underline text-brand-600" { (user.email.unwrap_or("unknown".to_string())) }
-                    r#" to reset your password"#
-                }
-            }
-        },
-        None,
-    ).into_response())
+    .await
 }

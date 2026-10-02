@@ -227,7 +227,6 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                 let result = create_tenant(
                     services.as_ref(),
                     Some(id.clone()),
-                    id,
                     &SubscriptionTier::from(
                         subscription_tier
                             .clone()

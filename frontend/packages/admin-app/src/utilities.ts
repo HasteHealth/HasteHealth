@@ -62,11 +62,23 @@ export function resourceInstancePath(
   return `${resourceListPath(resourceType)}/${resourceId}`;
 }
 
-/**
- * A project id shares a 63 character DNS label with its tenant, so it takes
- * well under half of that budget.
- */
 const MAX_SLUG_LENGTH = 40;
+/** A DNS label holds 63 characters; 8 are kept spare. */
+const HOSTNAME_LABEL_MAX_LENGTH = 63 - 8;
+const HOSTNAME_ID_SEPARATOR = "--";
+
+/**
+ * A project id shares one DNS label with its tenant (`{tenant}--{project}`),
+ * so a longer tenant id leaves less room. Matches `validate_project_id` in
+ * the repository crate.
+ */
+function maxSlugLength(): number {
+  const tenantLength = (deriveTenantId() as string | undefined)?.length ?? 0;
+  const room =
+    HOSTNAME_LABEL_MAX_LENGTH - HOSTNAME_ID_SEPARATOR.length - tenantLength;
+
+  return Math.max(0, Math.min(MAX_SLUG_LENGTH, room));
+}
 
 /**
  * Turns a typed name into an id the server accepts: lowercase alphanumerics
@@ -87,7 +99,7 @@ export function slugifyProjectName(name: string): string {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "")
-      .slice(0, MAX_SLUG_LENGTH)
+      .slice(0, maxSlugLength())
       // Slicing can leave a trailing dash behind.
       .replace(/-$/, "")
   );
@@ -95,7 +107,7 @@ export function slugifyProjectName(name: string): string {
 
 /**
  * A slug no existing project uses. Appends `-2`, `-3` and so on, trimming the
- * base rather than the suffix to stay within [`MAX_SLUG_LENGTH`].
+ * base rather than the suffix to stay within `maxSlugLength`.
  */
 export function uniqueProjectSlug(
   slug: string,
@@ -106,9 +118,10 @@ export function uniqueProjectSlug(
     return slug;
   }
 
+  const maxLength = maxSlugLength();
   for (let suffix = 2; ; suffix += 1) {
     const tail = `-${suffix}`;
-    const base = slug.slice(0, MAX_SLUG_LENGTH - tail.length).replace(/-$/, "");
+    const base = slug.slice(0, maxLength - tail.length).replace(/-$/, "");
     const candidate = `${base}${tail}`;
     if (!used.has(candidate)) {
       return candidate;

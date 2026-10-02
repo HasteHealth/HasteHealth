@@ -28,6 +28,25 @@ pub struct ServerConfig {
     pub monitoring: MonitoringConfig,
     pub security: SecurityConfig,
     pub operations: OperationsConfig,
+    pub signup: SignupConfig,
+}
+
+/// Sign-up and login at `/auth/signup` and `/auth/login`.
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
+pub struct SignupConfig {
+    /// Optional Cloudflare Turnstile bot check on the email form.
+    pub turnstile: Option<TurnstileConfig>,
+}
+
+#[derive(Derivative, Clone, Deserialize, Serialize)]
+#[derivative(Debug)]
+pub struct TurnstileConfig {
+    /// Public key rendered into the widget.
+    pub site_key: String,
+    /// Server-side key used to verify the widget's token.
+    #[derivative(Debug = "ignore")]
+    pub secret_key: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -91,6 +110,8 @@ pub enum EmailConfig {
         #[derivative(Debug = "ignore")]
         from_address: String,
     },
+    /// Logs each message instead of sending it. For local development.
+    Log,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -133,6 +154,7 @@ impl Default for ServerConfig {
             monitoring: MonitoringConfig::default(),
             security: SecurityConfig::default(),
             operations: OperationsConfig::default(),
+            signup: SignupConfig::default(),
         }
     }
 }

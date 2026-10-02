@@ -1,5 +1,6 @@
 pub mod email_form;
 pub mod error;
+pub mod global_auth;
 pub mod login;
 pub mod message;
 pub mod mfa;

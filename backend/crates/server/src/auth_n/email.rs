@@ -66,7 +66,54 @@ pub async fn send_email(
 
             Ok(())
         }
+        EmailConfig::Log => {
+            tracing::info!(to = %to, subject, body, "Email logged instead of sent");
+
+            Ok(())
+        }
     }
+}
+
+/// Emails a one-time code. The subject carries it too, so it can be read from
+/// a notification.
+pub async fn send_email_code(
+    config: &Option<EmailConfig>,
+    api_uri: &str,
+    to: &EmailAddress,
+    code: &str,
+    valid_for: Duration,
+) -> Result<(), OperationOutcomeError> {
+    let api_url = Uri::try_from(api_uri).map_err(|_| {
+        OperationOutcomeError::fatal(IssueType::exception(), "API Url is invalid".to_string())
+    })?;
+
+    let minutes = valid_for.as_secs() / 60;
+
+    let body = crate::ui::email::base::base(
+        &api_url,
+        &html! {
+            div style="padding-top: 24px;" {
+                "Enter this code to continue to Haste Health:"
+            }
+            div style="font-size: 32px; font-weight: 700; letter-spacing: 8px; padding: 24px 0px;" {
+                (code)
+            }
+            div style="color: #475569; font-size: 14px;" {
+                "The code expires in " (minutes) " minutes and only works in the browser where you requested it."
+            }
+            div style="color: #475569; font-size: 14px; padding-top: 12px;" {
+                "If you did not request this, you can ignore this email."
+            }
+        },
+    );
+
+    send_email(
+        config,
+        to,
+        &format!("{code} is your Haste Health code"),
+        &body.into_string(),
+    )
+    .await
 }
 
 #[derive(Default)]
