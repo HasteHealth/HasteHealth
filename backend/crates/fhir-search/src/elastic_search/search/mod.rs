@@ -397,12 +397,15 @@ fn parse_count_parameter(result_param: &Parameter) -> Result<u64, OperationOutco
         )
     })?;
 
-    count_parameter_string.parse::<u64>().map_err(|_| {
-        OperationOutcomeError::fatal(
-            IssueType::invalid(),
-            format!("Invalid _count value: '{count_parameter_string}'. Make sure it's a positive number."),
-        )
-    })
+    count_parameter_string
+        .parse::<u64>()
+        .map(|count| count.min(ABSOLUTE_MAX))
+        .map_err(|_| {
+            OperationOutcomeError::fatal(
+                IssueType::invalid(),
+                format!("Invalid _count value: '{count_parameter_string}'. Make sure it's a positive number."),
+            )
+        })
 }
 
 fn parse_offset_parameter(result_param: &Parameter) -> Result<u64, OperationOutcomeError> {
@@ -413,14 +416,17 @@ fn parse_offset_parameter(result_param: &Parameter) -> Result<u64, OperationOutc
         )
     })?;
 
-    offset_param_string.parse::<u64>().map_err(|_| {
-        OperationOutcomeError::fatal(
-            IssueType::invalid(),
-            format!(
-                "Invalid _offset value: '{offset_param_string}'. Make sure it's a positive number."
-            ),
-        )
-    })
+    offset_param_string
+        .parse::<u64>()
+        .map(|offset| offset.min(i64::MAX.cast_unsigned()))
+        .map_err(|_| {
+            OperationOutcomeError::fatal(
+                IssueType::invalid(),
+                format!(
+                    "Invalid _offset value: '{offset_param_string}'. Make sure it's a positive number."
+                ),
+            )
+        })
 }
 
 fn parse_total_parameter(result_param: &Parameter) -> Result<bool, OperationOutcomeError> {
