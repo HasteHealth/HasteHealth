@@ -91,13 +91,20 @@ This tenant and user are created automatically when you run the migration in the
 
 ## Binaries
 
-- [Linux x86_64](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health-x86_64-unknown-linux-musl)
-- [Linux arm64](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health-aarch64-unknown-linux-musl)
-- [macOS (Apple Silicon)](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health-aarch64-apple-darwin)
+One `haste-health` binary runs the server, the worker and the CLI. Install it with npm:
 
-The Linux binaries are static and run on any distribution. On Windows, use the Linux binary under WSL.
+```bash
+npm install -g haste-health
+haste-health --help
+```
 
-The original [Linux](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_linux) (x86_64) and [MacOS](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_macos) (Apple Silicon) links still work.
+Or try it without installing:
+
+```bash
+npx haste-health --help
+```
+
+Builds exist for Linux (x64 and arm64) and macOS on Apple Silicon. The Linux builds are static and run on any distribution. On Windows, use it inside WSL. Each [GitHub release](https://github.com/HasteHealth/HasteHealth/releases/latest) also has the binaries attached, for machines without Node.js.
 
 Configuration (`haste.toml` or environment variables) is documented [here for the server](./backend/documentation/server_configuration.md) and [here for the worker](./backend/documentation/worker_configuration.md).
 

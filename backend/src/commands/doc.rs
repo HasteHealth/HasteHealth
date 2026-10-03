@@ -7,11 +7,13 @@ pub(crate) async fn run(output: &str) -> Result<(), OperationOutcomeError> {
     let markdown: String = clap_markdown::help_markdown::<Cli>();
 
     let top_string = "
-| Context | Invocation                     |
-| ------- | ------------------------------ |
-| Source  | `cargo run <command>`          |
-| Binary  | `./haste-health <command>`     |
-| Docker  | `docker run <image> <command>` |
+| Context | Invocation                                                   |
+| ------- | ------------------------------------------------------------ |
+| npm     | `npm install -g haste-health`, then `haste-health <command>` |
+| npx     | `npx haste-health <command>`                                 |
+| Source  | `cargo run <command>`                                        |
+| Binary  | `./haste-health <command>`                                   |
+| Docker  | `docker run <image> <command>`                               |
 ";
 
     let markdown = format!("{top_string}\n\n{markdown}");

@@ -67,7 +67,7 @@ There is currently **no FHIRPath filter available in Jinja templates** (the crat
 
 ## Running the Receiver
 
-The receiver is a subcommand of the **Haste Health server binary** — the same binary.
+The receiver is a subcommand of the `haste-health` binary, the same one that runs the server and the CLI. See [Setting Up CLI](/docs/tutorials/cli#installation) to install it.
 
 ```bash
 haste-health hl7v2 receiver \
@@ -83,7 +83,7 @@ haste-health hl7v2 receiver \
 
 ## Authenticating the Receiver
 
-The receiver writes converted resources to your FHIR API as an authenticated client, using the same profile-based config as the server binary's other CLI commands (stored at `~/.haste_health/config.toml`, separate from the npm CLI's config).
+The receiver writes converted resources to your FHIR API as an authenticated client, using the same profile-based config as the binary's other CLI commands (stored at `~/.haste_health/config.toml`).
 
 1. Register an OAuth client with system-level scope — see **[Client Registration](/docs/auth/authentication/client_registration)** and **[Scopes & Permissions](/docs/auth/authorization/scopes)**. The receiver requests `openid system/*.*`, so the client needs access to that scope.
 2. Create and activate a profile:
@@ -93,6 +93,7 @@ haste-health config create-profile \
   --name hl7v2-receiver \
   --r4-url https://api.haste.health/w/[tenant]/[project]/api/v1/fhir \
   --discovery-uri https://api.haste.health/.well-known/openid-configuration/w/[tenant]/[project] \
+  --auth-mode client-credentials \
   --id <client_id> \
   --secret <client_secret>
 

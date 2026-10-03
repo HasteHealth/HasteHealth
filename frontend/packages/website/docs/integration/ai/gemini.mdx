@@ -66,7 +66,7 @@ Note that the redirect uri should be `http://localhost:7777/oauth/callback` per 
 <TabItem value="cli" label="CLI" default>
 
 ```bash
-haste-health api create ClientApplication '{
+haste-health api create ClientApplication --data '{
   "resourceType": "ClientApplication",
   "name": "Gemini",
   "grantType": [
@@ -208,7 +208,7 @@ List all patients with diabetes and their latest HbA1c readings
 - ✅ Check the `scope` field in your ClientApplication resource
 - ✅ Ensure requested scopes match what's configured in the ClientApplication
 - ✅ Verify access policies grant permissions to your given user.
-- ✅ Update scopes: `haste-health api update r4 ClientApplication gemini --data '{ "scope": "system/*.*" }'`
+- ✅ Update scopes: `haste-health api patch ClientApplication gemini --data '[{"op": "replace", "path": "/scope", "value": "openid profile email offline_access user/*.*"}]'`
 
 
 ### Enable Debug Logging
