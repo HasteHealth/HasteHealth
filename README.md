@@ -91,8 +91,13 @@ This tenant and user are created automatically when you run the migration in the
 
 ## Binaries
 
-- [Linux](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_linux)
-- [MacOS](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_macos)
+- [Linux x86_64](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health-x86_64-unknown-linux-musl)
+- [Linux arm64](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health-aarch64-unknown-linux-musl)
+- [macOS (Apple Silicon)](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health-aarch64-apple-darwin)
+
+The Linux binaries are static and run on any distribution. On Windows, use the Linux binary under WSL.
+
+The original [Linux](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_linux) (x86_64) and [MacOS](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_macos) (Apple Silicon) links still work.
 
 Configuration (`haste.toml` or environment variables) is documented [here for the server](./backend/documentation/server_configuration.md) and [here for the worker](./backend/documentation/worker_configuration.md).
 

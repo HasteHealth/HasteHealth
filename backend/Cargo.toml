@@ -75,7 +75,7 @@ criterion = { version = "0.8", default-features = false }
 derivative = { version = "2.2.0", default-features = false }
 dotenvy = { version = "0.15.7", default-features = false }
 elasticsearch = { version = "9.0.0-alpha.1", default-features = false, features = [
-    "native-tls",
+    "rustls-tls",
 ] }
 figment = { version = "0.10.19", default-features = false }
 json-patch = { version = "4.2.0", default-features = false }

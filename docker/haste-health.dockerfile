@@ -1,6 +1,4 @@
-FROM rust:1.98.0-bookworm AS builder
-
-RUN apt update && apt install -y openssl pkg-config libssl-dev && apt clean
+FROM rust:1.98.1-bookworm AS builder
 
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 ENV NVM_DIR=/root/.nvm
@@ -18,6 +16,6 @@ FROM debian:bookworm-slim
 
 COPY --from=builder /build/backend/target/release/haste-health /haste-health
 
-RUN apt-get update && apt-get upgrade -y && apt-get install -y ca-certificates openssl pkg-config libssl-dev && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get upgrade -y && apt-get install -y ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["/haste-health"]

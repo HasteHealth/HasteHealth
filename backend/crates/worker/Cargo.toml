@@ -24,7 +24,7 @@ elasticsearch = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 sqlx = { workspace = true, features = [
     "runtime-tokio",
-    "tls-native-tls",
+    "tls-rustls-ring-native-roots",
     "postgres",
     "time",
 ] }
