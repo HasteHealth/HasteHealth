@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/smart-launch",
-  "version": "0.126.4",
+  "version": "0.126.5",
   "scripts": {
     "build-css": "pnpm postcss -o dist/css/index.css index.css",
     "build": "pnpm rollup -c -i src/launch.tsx -o dist/launch.js & pnpm build-css",

@@ -1,7 +1,7 @@
 {
   "name": "@haste-health/hl7.fhir.r4b.test-data",
   "type": "module",
-  "version": "0.126.4",
+  "version": "0.126.5",
   "title": "Hl7 Test data for R4B",
   "description": "HasteHealth package that contains hl7 R4B test data.",
   "fhirVersions": [

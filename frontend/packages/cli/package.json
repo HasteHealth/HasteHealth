@@ -1,7 +1,7 @@
 {
   "name": "@haste-health/cli",
   "private": true,
-  "version": "0.126.4",
+  "version": "0.126.5",
   "homepage": "https://haste.health",
   "repository": {
     "type": "git",
