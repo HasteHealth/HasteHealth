@@ -1,0 +1,20 @@
+{
+  "name": "haste-health",
+  "description": "The Haste Health CLI and FHIR server.",
+  "homepage": "https://haste.health",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HasteHealth/HasteHealth.git",
+    "directory": "npm/haste-health"
+  },
+  "license": "Apache-2.0",
+  "bin": {
+    "haste-health": "bin/haste-health.js"
+  },
+  "files": [
+    "bin"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}
