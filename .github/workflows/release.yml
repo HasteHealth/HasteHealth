@@ -59,8 +59,11 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y musl-tools
 
+      # Run from backend/: cargo only reads backend/.cargo/config.toml (the
+      # arm64 musl link flag) when started there.
       - name: Build
-        run: cargo build --locked --release --target ${{ matrix.target }} --manifest-path backend/Cargo.toml
+        working-directory: backend
+        run: cargo build --locked --release --target ${{ matrix.target }}
 
       - name: Name binary for its target
         run: cp "backend/target/${{ matrix.target }}/release/haste-health" "haste-health-${{ matrix.target }}"
