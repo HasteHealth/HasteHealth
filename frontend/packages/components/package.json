@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/components",
-  "version": "0.21.3",
+  "version": "0.126.3",
   "homepage": "https://haste.health",
   "repository": {
     "type": "git",
@@ -72,7 +72,6 @@
   "dependencies": {
     "@codemirror/lang-json": "^6.0.1",
     "@codemirror/lang-markdown": "^6.3.2",
-    "codemirror": "^6.0.1",
     "@codemirror/merge": "^6.10.0",
     "@haste-health/client": "workspace:^",
     "@haste-health/fhir-patch-building": "workspace:^",
@@ -83,6 +82,7 @@
     "@headlessui/react": "^2.2.10",
     "@heroicons/react": "^2.2.0",
     "classnames": "^2.5.1",
+    "codemirror": "^6.0.1",
     "dayjs": "^1.11.21",
     "fast-json-patch": "^3.1.1",
     "immer": "^10.2.0",
