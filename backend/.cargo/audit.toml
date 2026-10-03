@@ -1,0 +1,21 @@
+# cargo-audit configuration.
+# https://docs.rs/cargo-audit/latest/cargo_audit/config/index.html
+[advisories]
+informational_warnings = ["unmaintained"]
+ignore = [
+    # Ignoring for RSA as not possible to use in timing attack
+    # And no fix available.
+    "RUSTSEC-2023-0071",
+    # Unmaintained crates (no vulnerability). None has an easy replacement:
+    # anymap2 through liquid-core, whose latest release (0.26.11) still uses it.
+    "RUSTSEC-2026-0319",
+    # bincode 1 through deno_core 0.409; only a breaking deno_core upgrade drops it.
+    "RUSTSEC-2025-0141",
+    # derivative is used directly for Debug impls across our crates, including
+    # the secret redaction (format_with = "crate::redact").
+    "RUSTSEC-2024-0388",
+    # paste through v8 (deno_core).
+    "RUSTSEC-2024-0436",
+    # smartstring through swc_ecma_parser/swc_ecma_lexer (deno_ast).
+    "RUSTSEC-2026-0249",
+]

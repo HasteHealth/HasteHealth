@@ -6,14 +6,14 @@ on:
     paths:
       - "backend/Cargo.lock"
       - "backend/**/Cargo.toml"
-      - "backend/audit.toml"
+      - "backend/.cargo/audit.toml"
       - ".github/workflows/cargo_audit.yml"
   pull_request:
     branches: ["main"]
     paths:
       - "backend/Cargo.lock"
       - "backend/**/Cargo.toml"
-      - "backend/audit.toml"
+      - "backend/.cargo/audit.toml"
       - ".github/workflows/cargo_audit.yml"
   schedule:
     # Catches newly published RustSec advisories against dependencies that
@@ -31,4 +31,4 @@ jobs:
           tool: cargo-audit
       - name: cargo audit
         working-directory: ./backend
-        run: cargo audit --file ./audit.toml
+        run: cargo audit
