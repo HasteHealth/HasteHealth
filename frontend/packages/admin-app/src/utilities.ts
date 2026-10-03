@@ -8,6 +8,31 @@ import { ProjectId, TenantId } from "@haste-health/jwt/types";
  */
 const HOSTNAME_ID_SEPARATOR = "--";
 
+/**
+ * The separator consoles used before `--`: `{tenant}_{project}`. Old links
+ * and bookmarks still carry it.
+ */
+const LEGACY_HOSTNAME_ID_SEPARATOR = "_";
+
+/**
+ * Where a console on a legacy `{tenant}_{project}` subdomain lives now, keeping
+ * the port, path, search and hash. Undefined when the subdomain is current.
+ */
+export function legacyHostnameRedirectUrl(): string | undefined {
+  const url = new URL(window.location.href);
+  const [label, ...domain] = url.hostname.split(".");
+  if (!label?.includes(LEGACY_HOSTNAME_ID_SEPARATOR)) {
+    return undefined;
+  }
+
+  url.hostname = [
+    label.replace(LEGACY_HOSTNAME_ID_SEPARATOR, HOSTNAME_ID_SEPARATOR),
+    ...domain,
+  ].join(".");
+
+  return url.toString();
+}
+
 /** The `[tenant, project]` ids in this console's subdomain. */
 function hostnameIds(): string[] {
   return window.location.host.split(".")[0]?.split(HOSTNAME_ID_SEPARATOR) ?? [];
