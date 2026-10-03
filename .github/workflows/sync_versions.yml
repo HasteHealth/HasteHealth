@@ -1,0 +1,68 @@
+name: Sync Versions
+
+# On release, commits the release's version to every crate and npm package on
+# main, then publishes them. The release's binaries and images are built from
+# the tag, so release.yml and docker.yml set the version themselves.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-versions
+  cancel-in-progress: false
+
+jobs:
+  commit:
+    name: Commit versions to main
+    # Prereleases don't touch main or the registries.
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ github.event.release.tag_name }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      # set-version.mjs needs pnpm 11, the version frontend/package.json pins.
+      - name: Setup pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: frontend/package.json
+          standalone: true
+
+      - name: Set versions
+        run: node .github/scripts/set-version.mjs "$VERSION" --forward-only
+
+      - name: Commit and push
+        run: |
+          # Nothing changed: main already has this version or a newer one.
+          git diff --quiet && exit 0
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --all --message "Set versions to ${VERSION#v}"
+
+          # Rebase and retry if main moved since checkout.
+          for attempt in 1 2 3 4 5; do
+            git push origin HEAD:main && exit 0
+            git pull --rebase origin main
+          done
+          exit 1
+
+  # Pushes made with GITHUB_TOKEN don't trigger workflows, so publish here.
+  publish:
+    name: Publish packages
+    needs: commit
+    uses: ./.github/workflows/publish_packages.yml
+    with:
+      ref: main
+    permissions:
+      contents: write
+    secrets: inherit

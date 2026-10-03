@@ -1,6 +1,6 @@
 [package]
 name = "haste-health"
-version = "0.23.1"
+version.workspace = true
 edition = "2024"
 description = "Haste Health binary."
 publish = false
