@@ -98,8 +98,6 @@ jobs:
         run: pnpm ci:build
         working-directory: ./frontend
 
-      # ci:publish passes --tag latest because npm 11 won't implicitly tag a
-      # version below the current latest (cli moves from 1.13.0 to 0.x).
       - name: Create and publish versions
         run: pnpm ci:publish
         working-directory: ./frontend

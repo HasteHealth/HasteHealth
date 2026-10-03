@@ -1,5 +1,6 @@
 {
   "name": "@haste-health/cli",
+  "private": true,
   "version": "0.126.3",
   "homepage": "https://haste.health",
   "repository": {

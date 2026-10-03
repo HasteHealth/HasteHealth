@@ -4,7 +4,7 @@
   "scripts": {
     "generate-documentation": "pnpm typedoc",
     "generate-indexes": "pnpm --recursive --if-present run generate-index",
-    "ci:publish": "pnpm publish -r --tag latest",
+    "ci:publish": "pnpm publish -r",
     "ci:build": "pnpm --recursive run build"
   },
   "devDependencies": {
