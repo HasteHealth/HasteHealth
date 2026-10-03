@@ -1,6 +1,6 @@
 use crate::{
     auth_n::oidc::routes::{federated::FederatedInitiate, route_string::oidc_route_string},
-    ui::components::{TenantContext, page_banner, page_html},
+    ui::components::{TenantContext, page_banner, page_html, version_watermark},
 };
 use haste_fhir_model::r4::generated::resources::{ClientApplication, IdentityProvider};
 use haste_jwt::ProjectId;
@@ -83,5 +83,6 @@ pub fn login_form_html(
 
             }
         }
+        (version_watermark())
     })
 }

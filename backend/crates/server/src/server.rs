@@ -1,4 +1,5 @@
 use crate::{
+    SERVER_VERSION,
     auth_n::{self, certificates::get_certification_provider, middleware::jwt::User},
     config::ServerConfig,
     fhir_client::ServerCTX,
@@ -51,8 +52,6 @@ use tower_sessions::{
     cookie::{SameSite, time::Duration},
 };
 use tower_sessions_sqlx_store::PostgresStore;
-
-const SERVER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// The project a route addresses. The FHIR version is not part of it: it comes
 /// from the project, and the URL only optionally repeats it.

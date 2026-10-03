@@ -1,4 +1,5 @@
 use crate::{
+    SERVER_VERSION,
     load_artifacts::{get_all_sds, get_all_sps},
     services::ServerState,
 };
@@ -121,7 +122,6 @@ async fn ensure_schemas_generated<
     .await?;
 
     let api_url = &state.config.api_uri;
-    let api_version = env!("CARGO_PKG_VERSION");
     let supported_names = get_supported_resource_names(&sds);
 
     // The schema_base_url points to the endpoint that serves individual resource schemas
@@ -129,7 +129,7 @@ async fn ensure_schemas_generated<
 
     let openapi_document = haste_openapi_schema_generator::open_api_schema_generator(
         api_url,
-        api_version,
+        SERVER_VERSION,
         &schema_base_url,
         &sds,
         &sps,

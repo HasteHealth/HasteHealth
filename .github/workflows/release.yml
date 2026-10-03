@@ -13,6 +13,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The tag still has the previous release's versions, so set this release's.
+      - name: Stamp release version
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
+        run: node .github/scripts/set-version.mjs "$VERSION" --crates-only
       - run: rustup update
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
@@ -35,6 +40,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The tag still has the previous release's versions, so set this release's.
+      - name: Stamp release version
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
+        run: node .github/scripts/set-version.mjs "$VERSION" --crates-only
       - run: rustup update
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:

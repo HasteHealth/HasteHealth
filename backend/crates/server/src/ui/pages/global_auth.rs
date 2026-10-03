@@ -7,7 +7,7 @@ use crate::{
     },
     middleware::security_headers::TURNSTILE_ORIGIN,
     tenants::{TENANT_ID_MAX_LEN, TENANT_ID_MIN_LEN},
-    ui::components::{banner, otp_code_input, page_html},
+    ui::components::{banner, otp_code_input, page_html, version_watermark},
 };
 use maud::{Markup, html};
 
@@ -83,6 +83,7 @@ pub fn email_form_html(
                 p class="text-sm text-slate-500" { (switch) }
             }
         }
+        (version_watermark())
     })
 }
 

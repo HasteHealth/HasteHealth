@@ -1,3 +1,5 @@
+pub(crate) const SERVER_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 pub mod auth_n;
 pub mod config;
 mod extract;
