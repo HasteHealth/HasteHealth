@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/testscript-runner",
-  "version": "0.126.5",
+  "version": "0.126.6",
   "target": "node",
   "type": "module",
   "main": "lib/index.js",
