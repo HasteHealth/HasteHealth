@@ -17,6 +17,7 @@ import { id, Project } from "@haste-health/fhir-types/lib/generated/r4/types";
 import { getClient } from "../../db/client";
 import {
   getErrorMessage,
+  MIN_SLUG_LENGTH,
   openProject,
   slugifyProjectName,
   uniqueProjectSlug,
@@ -49,7 +50,8 @@ function SlugHint({
   if (typed && !slug) {
     return (
       <span className="text-amber-700">
-        Add a letter or number: a name needs one to make an address.
+        Add more letters or numbers: an address needs at least {MIN_SLUG_LENGTH}{" "}
+        characters.
       </span>
     );
   }

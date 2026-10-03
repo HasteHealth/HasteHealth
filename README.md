@@ -17,7 +17,7 @@ curl -O https://raw.githubusercontent.com/HasteHealth/HasteHealth/main/docker-co
 docker compose up
 ```
 
-Once the containers are healthy, open `http://my-health_system.localhost:3001` and log in with:
+Once the containers are healthy, open `http://my-health--system.localhost:3001` and log in with:
 
 - username: `myuser@health.org`
 - password: `testing_password`
@@ -82,7 +82,7 @@ cd <repo-root>/frontend/packages/admin-app
 pnpm dev
 ```
 
-Then go to `http://my-health_system.localhost:3001` and fill in the following credentials:
+Then go to `http://my-health--system.localhost:3001` and fill in the following credentials:
 
 - username: `myuser@health.org`
 - password: `testing_password`

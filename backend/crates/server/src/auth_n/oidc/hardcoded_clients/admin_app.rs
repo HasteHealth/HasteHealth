@@ -5,6 +5,7 @@ use haste_fhir_model::r4::generated::{
     types::FHIRString,
 };
 use haste_jwt::{ProjectId, TenantId};
+use haste_repository::utilities::HOSTNAME_ID_SEPARATOR;
 
 pub fn get_admin_app(config: &ServerConfig) -> Option<ClientApplication> {
     let redirect_uri = &config.admin_app_redirect_uri;
@@ -32,26 +33,23 @@ pub fn get_admin_app(config: &ServerConfig) -> Option<ClientApplication> {
     })
 }
 
-// Return the Admin app redirect url for the current tenant.
+/// The admin app URL for a project: the redirect uri with `*` replaced by the
+/// `{tenant}--{project}` subdomain.
 pub fn redirect_url(
     config: &ServerConfig,
     tenant_id: &TenantId,
     project_id: &ProjectId,
 ) -> Option<String> {
-    let admin_app = get_admin_app(config);
+    let subdomain = format!(
+        "{}{HOSTNAME_ID_SEPARATOR}{}",
+        tenant_id.as_ref(),
+        project_id.as_ref()
+    );
 
-    if let Some(app) = admin_app {
-        app.redirectUri
-            .as_ref()
-            .and_then(|uris| uris.first())
-            .and_then(|uri| uri.value.as_ref())
-            .map(|uri| {
-                uri.replace(
-                    "*",
-                    &(tenant_id.as_ref().to_string() + "_" + project_id.as_ref()),
-                )
-            })
-    } else {
-        None
-    }
+    get_admin_app(config)?
+        .redirectUri?
+        .first()?
+        .value
+        .as_ref()
+        .map(|uri| uri.replace('*', &subdomain))
 }
