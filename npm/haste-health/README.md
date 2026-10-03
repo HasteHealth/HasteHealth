@@ -17,7 +17,7 @@ npm install -g haste-health
 haste-health --help
 ```
 
-Builds exist for Linux (x64 and arm64) and macOS on Apple Silicon. npm installs only the one for your machine. The Linux builds are static, so they run on any distribution.
+Builds exist for Linux (x64 and arm64) and macOS on Apple Silicon, and npm installs only the one for your machine. The Linux builds are static, so they run on any distribution.
 
 ### Windows
 

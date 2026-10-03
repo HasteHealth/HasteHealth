@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Assembles the npm packages for one release from its binaries.
+// Builds the npm packages for a release from its binaries.
 //
 //   node npm/build.mjs <version> <binaries-dir> <out-dir>
 //
@@ -23,7 +23,7 @@ import { fileURLToPath } from "node:url";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const LICENSE = join(HERE, "..", "LICENSE");
 
-// Node's process.platform-process.arch, and the Rust target built for it.
+// `${process.platform}-${process.arch}` -> the Rust target built for it.
 const PLATFORMS = {
   "linux-x64": "x86_64-unknown-linux-musl",
   "linux-arm64": "aarch64-unknown-linux-musl",
@@ -39,7 +39,7 @@ if (!version || !binariesDir || !outDir) {
 const writeJson = (file, value) =>
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 
-const { name, ...main } = JSON.parse(
+const main = JSON.parse(
   readFileSync(join(HERE, "haste-health", "package.json"), "utf8"),
 );
 const optionalDependencies = {};
@@ -81,10 +81,12 @@ const mainDir = join(outDir, "haste-health");
 cpSync(join(HERE, "haste-health"), mainDir, { recursive: true });
 copyFileSync(LICENSE, join(mainDir, "LICENSE"));
 writeJson(join(mainDir, "package.json"), {
-  name,
+  name: main.name,
   version,
   ...main,
   optionalDependencies,
 });
 
-console.log(`Built haste-health ${version} for ${Object.keys(PLATFORMS).join(", ")} in ${outDir}`);
+console.log(
+  `Built haste-health ${version} (${Object.keys(PLATFORMS).join(", ")}) in ${outDir}`,
+);

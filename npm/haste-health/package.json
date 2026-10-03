@@ -4,7 +4,7 @@
   "homepage": "https://haste.health",
   "repository": {
     "type": "git",
-    "url": "https://github.com/HasteHealth/HasteHealth.git",
+    "url": "git+https://github.com/HasteHealth/HasteHealth.git",
     "directory": "npm/haste-health"
   },
   "license": "Apache-2.0",
