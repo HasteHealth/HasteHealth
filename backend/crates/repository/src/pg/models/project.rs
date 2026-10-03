@@ -17,9 +17,10 @@ async fn create_project<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
+    // Short enough to fit beside the longest tenant id (see `validate_project_id`).
     let id = project
         .id
-        .unwrap_or_else(|| ProjectId::new(generate_hostname_id(None)));
+        .unwrap_or_else(|| ProjectId::new(generate_hostname_id(Some(8))));
 
     validate_project_id(tenant.as_ref(), id.as_ref())?;
 

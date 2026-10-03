@@ -9,6 +9,7 @@ use crate::{
     tenants::{TENANT_ID_MAX_LEN, TENANT_ID_MIN_LEN},
     ui::components::{banner, otp_code_input, page_html, version_watermark},
 };
+use haste_repository::utilities::HOSTNAME_ID_PATTERN;
 use maud::{Markup, html};
 
 const CARD: &str =
@@ -190,10 +191,10 @@ pub fn create_workspace_html(
                 div {
                     label for="tenant" class="block mb-2 text-sm font-medium text-slate-600" { "Tenant id" }
                     input type="text" id="tenant" name="tenant" class=(INPUT) value=(tenant_id) required
-                        minlength=(TENANT_ID_MIN_LEN) maxlength=(TENANT_ID_MAX_LEN) pattern="(?!.*--)[a-z0-9-]+"
+                        minlength=(TENANT_ID_MIN_LEN) maxlength=(TENANT_ID_MAX_LEN) pattern=(HOSTNAME_ID_PATTERN)
                         autocomplete="off" autocapitalize="none" spellcheck="false" {}
                     p class="mt-1 text-xs text-slate-400" {
-                        (TENANT_ID_MIN_LEN) " to " (TENANT_ID_MAX_LEN) " lowercase letters, digits and hyphens, never two hyphens in a row. It becomes part of your workspace address and cannot be changed later."
+                        (TENANT_ID_MIN_LEN) " to " (TENANT_ID_MAX_LEN) " lowercase letters, digits and single hyphens between them. It becomes part of your workspace address and cannot be changed later."
                     }
                 }
                 div {

@@ -44,7 +44,11 @@ import { ShortcutHelp } from "./components/ShortcutHelp";
 import Settings from "./views/Project/Settings";
 import Projects from "./views/System/Projects";
 // import ViewDefinitionEditor from "./views/Analytics/ViewDefinitionEditor";
-import { deriveProjectId, deriveTenantId } from "./utilities";
+import {
+  deriveProjectId,
+  deriveTenantId,
+  legacyHostnameRedirectUrl,
+} from "./utilities";
 import * as r4Types from "@haste-health/fhir-types/r4/types";
 import SystemResources from "./views/System";
 import { ProjectInformation } from "@haste-health/generated-ops/r4";
@@ -680,15 +684,23 @@ function App() {
   return <RouterProvider router={router} />;
 }
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement,
-);
+const legacyUrl = legacyHostnameRedirectUrl();
 
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+if (legacyUrl) {
+  // Not rendered first: sign-in would start on the old origin, and its
+  // redirect could replace this one.
+  window.location.replace(legacyUrl);
+} else {
+  const root = ReactDOM.createRoot(
+    document.getElementById("root") as HTMLElement,
+  );
+
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  );
+}
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

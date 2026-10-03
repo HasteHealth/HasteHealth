@@ -16,12 +16,12 @@ app:
 
 | Console | Address | What it is for |
 |---------|---------|----------------|
-| **System console** | `[tenant]_system.[host]` | Projects, users and identity providers for the whole tenant |
-| **Project console** | `[tenant]_[project].[host]` | Everything inside one project: resources, commands, imports, settings |
+| **System console** | `[tenant]--system.[host]` | Projects, users and identity providers for the whole tenant |
+| **Project console** | `[tenant]--[project].[host]` | Everything inside one project: resources, commands, imports, settings |
 
 A project is addressed by subdomain, so opening a project is a new origin
 rather than a route. In a local Docker Compose setup the system console is
-`http://my-health_system.localhost:3001`.
+`http://my-health--system.localhost:3001`.
 
 ## System console
 

@@ -19,7 +19,7 @@ use haste_repository::{
         tenant::{CreateTenant, Tenant},
         user::CreateUser,
     },
-    utilities::{generate_hostname_id, validate_hostname_id},
+    utilities::{HOSTNAME_ID_MIN_LEN, generate_hostname_id, validate_hostname_id},
 };
 use std::sync::Arc;
 
@@ -102,7 +102,7 @@ pub fn tenant_name(tenant: &Tenant) -> TenantName {
     TenantName(tenant.display_name.clone())
 }
 
-pub const TENANT_ID_MIN_LEN: usize = 3;
+pub const TENANT_ID_MIN_LEN: usize = HOSTNAME_ID_MIN_LEN;
 pub const TENANT_ID_MAX_LEN: usize = 32;
 
 /// Names that would read as something else in a URL path or an admin app
