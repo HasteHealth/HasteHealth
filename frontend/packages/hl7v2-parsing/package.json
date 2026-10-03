@@ -1,6 +1,6 @@
 {
   "name": "@haste-health/hl7v2-parsing",
-  "version": "0.126.7",
+  "version": "0.126.8",
   "type": "module",
   "main": "lib/index.js",
   "scripts": {
