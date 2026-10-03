@@ -34,6 +34,8 @@ use maud::{Markup, html};
 use serde::Deserialize;
 use std::sync::Arc;
 
+use crate::auth_n::oidc::utilities::revoke_refresh_tokens;
+
 #[derive(TypedPath)]
 #[typed_path("/password-reset")]
 pub struct PasswordResetInitiate;
@@ -265,6 +267,8 @@ pub async fn password_reset_verify_post<
         })?;
 
         set_user_password(&*state.repo, &tenant, email, &user.id, &body.password).await?;
+        // Whoever held a refresh token before the reset must not keep access.
+        revoke_refresh_tokens(&*state.repo, &tenant, &user.id).await?;
 
         let admin_app_url = admin_app::redirect_url(state.config.as_ref(), &tenant, &project);
 

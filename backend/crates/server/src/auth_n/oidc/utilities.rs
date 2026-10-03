@@ -4,7 +4,12 @@ use haste_jwt::TenantId;
 use haste_repository::{
     Repository,
     admin::TenantModelAdmin,
-    types::user::{CreateUser, UpdateUser},
+    types::{
+        authorization_code::{
+            AuthorizationCodeKind, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
+        },
+        user::{CreateUser, UpdateUser},
+    },
 };
 use regex::Regex;
 
@@ -70,6 +75,43 @@ pub async fn set_user_password<Repo: Repository>(
         },
     )
     .await?;
+
+    Ok(())
+}
+
+/// Deletes every refresh token issued to `user_id` in `tenant`, in every
+/// project.
+///
+/// A password reset is how a compromised account is recovered, and a refresh
+/// token issued before it would otherwise let whoever holds it keep minting
+/// access tokens for up to twelve hours after the password changed.
+pub async fn revoke_refresh_tokens<Repo: Repository>(
+    repo: &Repo,
+    tenant: &TenantId,
+    user_id: &str,
+) -> Result<(), OperationOutcomeError> {
+    let refresh_tokens = TenantModelAdmin::<CreateAuthorizationCode, _, _, _, _>::search(
+        repo,
+        tenant,
+        &AuthorizationCodeSearchClaims {
+            client_id: None,
+            code: None,
+            kind: Some(AuthorizationCodeKind::RefreshToken),
+            user_id: Some(user_id.to_string()),
+            user_agent: None,
+            is_expired: None,
+        },
+    )
+    .await?;
+
+    for refresh_token in refresh_tokens {
+        TenantModelAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
+            repo,
+            tenant,
+            &refresh_token.code,
+        )
+        .await?;
+    }
 
     Ok(())
 }
