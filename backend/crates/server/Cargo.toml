@@ -75,7 +75,8 @@ rust-embed = { workspace = true, features = ["axum-ex"] }
 sendgrid = { version = "0.26.0", default-features = false }
 sentry = { workspace = true, features = [
     "tower-axum-matched-path",
-    "transport",
+    "reqwest",
+    "rustls",
     "panic",
     "backtrace",
 ] }
@@ -89,7 +90,7 @@ sha1 = { version = "0.10.7", default-features = false }
 sha2 = { version = "0.10.9", default-features = false }
 sqlx = { workspace = true, features = [
     "runtime-tokio",
-    "tls-native-tls",
+    "tls-rustls-ring-native-roots",
     "postgres",
     "time",
 ] }

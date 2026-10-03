@@ -1,60 +1,100 @@
 name: Release Binaries
+
+# Builds haste-health for each platform and attaches the binaries to the release.
+# Run by hand to test the builds from any branch (artifacts only, no release).
 on:
   release:
     types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Match docker/haste-health.dockerfile.
+  RUST_VERSION: "1.98.1"
 
 jobs:
-  linux:
+  build:
+    name: Build ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux builds are static (musl), so they run on any distribution.
+          # Each target builds on a runner of its own architecture: the V8
+          # snapshot made at build time is architecture specific.
+          - target: x86_64-unknown-linux-musl
+            runner: ubuntu-latest
+          - target: aarch64-unknown-linux-musl
+            runner: ubuntu-24.04-arm
+          - target: aarch64-apple-darwin
+            runner: macos-latest
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          workspaces: "./backend -> target"
+          key: ${{ matrix.target }}
+
+      # The tag still has the previous release's versions.
+      - name: Stamp release version
+        if: github.event_name == 'release'
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
+        run: node .github/scripts/set-version.mjs "$VERSION" --crates-only
+
+      # musl-gcc compiles the C dependencies (aws-lc, mimalloc, zstd) for musl.
+      - name: Install musl tools
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+      - name: Build
+        run: cargo build --locked --release --target ${{ matrix.target }} --manifest-path backend/Cargo.toml
+
+      - name: Name binary for its target
+        run: cp "backend/target/${{ matrix.target }}/release/haste-health" "haste-health-${{ matrix.target }}"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: haste-health-${{ matrix.target }}
+          path: haste-health-${{ matrix.target }}
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Attach to release
+    needs: build
+    if: github.event_name == 'release'
     environment: production
     runs-on: ubuntu-latest
     permissions:
-      packages: write
       contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # The tag still has the previous release's versions, so set this release's.
-      - name: Stamp release version
-        env:
-          VERSION: ${{ github.event.release.tag_name }}
-        run: node .github/scripts/set-version.mjs "$VERSION" --crates-only
-      - run: rustup update
-      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          workspaces: "./backend -> target"
-      - name: Build
-        run: cd backend && cargo build --locked --release
-      - name: Move to linux filename
-        run: mv backend/target/release/haste-health ./haste-health_linux
+          pattern: haste-health-*
+          merge-multiple: true
+
+      # Keep the old asset names so existing download links still work.
+      - name: Add legacy names
+        run: |
+          cp haste-health-x86_64-unknown-linux-musl haste-health_linux
+          cp haste-health-aarch64-apple-darwin haste-health_macos
+
       - name: Release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           files: |
+            haste-health-*
             haste-health_linux
-  mac:
-    environment: production
-    runs-on: macos-latest
-    permissions:
-      packages: write
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # The tag still has the previous release's versions, so set this release's.
-      - name: Stamp release version
-        env:
-          VERSION: ${{ github.event.release.tag_name }}
-        run: node .github/scripts/set-version.mjs "$VERSION" --crates-only
-      - run: rustup update
-      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
-        with:
-          workspaces: "./backend -> target"
-      - name: Build
-        run: cd backend && cargo build --locked --release
-      - name: Move to macos filename
-        run: mv backend/target/release/haste-health ./haste-health_macos
-      - name: Release
-        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
-        with:
-          files: |
             haste-health_macos

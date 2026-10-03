@@ -26,7 +26,7 @@ moka = { workspace = true, features = ["future"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 sha2 = { version = "0.10.9", default-features = false }
-sqlx = { workspace = true, features = ["runtime-tokio", "tls-native-tls", "postgres"] }
+sqlx = { workspace = true, features = ["runtime-tokio", "tls-rustls-ring-native-roots", "postgres"] }
 sqlx-postgres = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
 tracing = { workspace = true }
