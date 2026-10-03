@@ -40,6 +40,15 @@ auditConfig:
     # Transitive dep in mocha test package
     # for js-yaml
     - 'GHSA-52cp-r559-cp3m'
+    # No patched release yet (braces <=3.0.3, latest 3.0.3). Only reached by
+    # build tooling: micromatch/chokidar in devDependencies and the website's
+    # Docusaurus build. Remove once braces ships a fix.
+    - 'GHSA-vfj7-8cjw-p6xm'
+    # No patched release yet (http-cache-semantics <=4.2.0, latest 4.2.0).
+    # Only reached by Docusaurus's update-notifier in the website build, a
+    # single-user client cache rather than a shared one. Remove once
+    # http-cache-semantics ships a fix.
+    - 'GHSA-ch52-4w7c-c8xp'
 
 minimumReleaseAgeExclude:
   - brace-expansion@1.1.16 || 1.1.18 || 1.1.21 || 2.1.2 || 2.1.4 || 2.1.7 || 5.0.8 || 5.0.9 || 5.0.12
