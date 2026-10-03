@@ -14,18 +14,29 @@ The Haste Health CLI is a powerful command-line tool for interacting with FHIR s
 
 ## Installation
 
-Download the CLI via https://github.com/HasteHealth/HasteHealth by downloading precompiled binaries for your OS, 
-or build locally from source via:
+Install the CLI globally with npm (requires Node.js 18 or later):
+
+```bash
+npm install -g haste-health
+```
+
+To try it without installing, run it with npx:
+
+```bash
+npx haste-health --help
+```
+
+Builds exist for Linux (x64 and arm64) and macOS on Apple Silicon, and npm installs only the one for your machine. The Linux builds are static, so they run on any distribution. On Windows, run the CLI inside [WSL](https://learn.microsoft.com/windows/wsl/install).
+
+The same `haste-health` binary also runs the server and the worker.
+
+### Without Node.js
+
+Each [GitHub release](https://github.com/HasteHealth/HasteHealth/releases/latest) has the binaries attached, or you can build from source:
 
 ```bash
 cd backend
 cargo install --path . --locked
-```
-
-Once installed, you can use the binary as follows:
-
-```bash
-haste-health --help
 ```
 
 ## Quick Start

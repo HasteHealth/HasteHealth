@@ -1,9 +1,11 @@
 
-| Context | Invocation                     |
-| ------- | ------------------------------ |
-| Source  | `cargo run <command>`          |
-| Binary  | `./haste-health <command>`     |
-| Docker  | `docker run <image> <command>` |
+| Context | Invocation                                                   |
+| ------- | ------------------------------------------------------------ |
+| npm     | `npm install -g haste-health`, then `haste-health <command>` |
+| npx     | `npx haste-health <command>`                                 |
+| Source  | `cargo run <command>`                                        |
+| Binary  | `./haste-health <command>`                                   |
+| Docker  | `docker run <image> <command>`                               |
 
 
 # Command-Line Help for `haste-health`

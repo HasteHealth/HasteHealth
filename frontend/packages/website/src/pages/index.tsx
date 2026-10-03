@@ -9,7 +9,7 @@ import { QUICK_START_URL, SIGNUP_URL } from "@site/src/links";
 const buildCards = [
   {
     title: "Open Source, Self-Hosted",
-    body: "Apache-2.0 licensed. docker compose up runs the full stack locally, with pre-built binaries and container images for production. Own your infrastructure and your data from day one.",
+    body: "Apache-2.0 licensed. docker compose up runs the full stack locally, with pre-built binaries on npm and container images for production. Own your infrastructure and your data from day one.",
     href: "/docs/getting_started/quick_start",
   },
   {
