@@ -31,10 +31,27 @@ use haste_repository::{
 use serde::Deserialize;
 use std::sync::Arc;
 use tower_sessions::Session;
-use url::form_urlencoded;
+use url::{Url, form_urlencoded};
 
+/// Whether `path` stays on this origin when a browser follows it.
+///
+/// Browsers parse a `Location` with the WHATWG URL algorithm, which treats a
+/// backslash like a slash for http(s), so `/\evil.example` is navigated to
+/// as `//evil.example`: a second origin, which the plain `//` check missed.
+/// The path is therefore resolved against a stand-in origin the way a browser
+/// would, and accepted only when it still points at that origin.
 fn is_safe_local_redirect_path(path: &str) -> bool {
-    path.starts_with('/') && !path.starts_with("//")
+    if !path.starts_with('/') || path.chars().any(|c| c.is_control() || c == '\\') {
+        return false;
+    }
+
+    let Ok(base) = Url::parse("http://redirect.invalid") else {
+        return false;
+    };
+
+    base.join(path).is_ok_and(|resolved| {
+        resolved.scheme() == "http" && resolved.host_str() == Some("redirect.invalid")
+    })
 }
 
 pub fn totp_verification_route(tenant: &TenantId, redirect_to: &str) -> String {
