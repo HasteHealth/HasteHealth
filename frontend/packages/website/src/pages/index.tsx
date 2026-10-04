@@ -708,9 +708,8 @@ function OpenSource() {
           title="Yours to run, with or without us"
         >
           Everything we build lands in the Apache-2.0 repository, with no
-          feature gates and no license key. Self-hosted and hosted deployments
-          run the same server on the same storage schema, so you can move
-          between them in either direction.
+          feature gates and no license key. The hosted service runs the same
+          server, on the same storage schema, that you can run yourself.
         </SectionHeader>
 
         <div className="mt-12 grid gap-5 lg:mt-14 lg:grid-cols-3">

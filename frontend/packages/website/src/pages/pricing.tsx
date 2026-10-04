@@ -35,6 +35,12 @@ import { DEMO_URL, QUICK_START_URL, SIGNUP_URL } from "@site/src/links";
 type TierCopy = {
   /** Selling points that are not already one of the enforced limits. */
   includes: string[];
+  /**
+   * On the roadmap for this tier but not built yet. Listed apart from
+   * `includes` and labelled, so the card never ticks off something a customer
+   * cannot use today. Move an entry up to `includes` when it ships.
+   */
+  planned?: string[];
   body: string;
   cta: { label: string; href: string };
 };
@@ -67,10 +73,10 @@ const COPY: Record<TierId, TierCopy> = {
     includes: [
       "Signed BAA before any PHI reaches us",
       "Daily backups with point-in-time recovery",
-      "Bulk $export and versioned dataset snapshots",
       "Custom search parameters, operations and Subscriptions",
       "Your own tenant name and logo",
     ],
+    planned: ["Bulk $export and versioned dataset snapshots"],
   },
   team: {
     body: "For hundreds of millions of resources, machine-volume ingest, or a compliance posture that needs its own conversation. Priced on your actual footprint rather than a seat count.",
@@ -124,11 +130,6 @@ const overages = [
     note: `A read costs ${OPERATION_POINTS.read} point, a search ${OPERATION_POINTS.search}, a write ${OPERATION_POINTS.write}.`,
   },
   {
-    what: "Bulk $export egress",
-    cost: "$0.09 per GB",
-    note: "First 100 GB each month is included on Production and Scale.",
-  },
-  {
     what: "Attachment storage",
     cost: "$0.03 per GB / month",
     note: "Binary and DocumentReference content in object storage.",
@@ -150,7 +151,7 @@ const faqs = [
   },
   {
     q: "Can I move between self-hosted and hosted?",
-    a: "In both directions. It is the same server and the same storage schema, so a migration is a bulk export and a bulk import.",
+    a: "It is the same server and the same storage schema in both places. To move from hosted to self-hosted today, ask us for an export of your data and we will provide it. A self-serve bulk export is planned.",
   },
 ];
 
@@ -245,6 +246,26 @@ function TierCard(props: Readonly<{ tier: Tier }>): ReactNode {
           >
             <Icon name="check" className="mt-0.5 h-4 w-4 text-brand-700" />
             <span>{item}</span>
+          </li>
+        ))}
+        {/* Not built yet: a hollow marker and a label, never a tick. */}
+        {copy.planned?.map((item) => (
+          <li
+            key={item}
+            className="flex gap-2.5 text-[0.9375rem] leading-snug text-slate-500"
+          >
+            <span
+              className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center"
+              aria-hidden="true"
+            >
+              <span className="h-1.5 w-1.5 rounded-full border border-slate-400" />
+            </span>
+            <span>
+              {item}{" "}
+              <span className="ml-0.5 whitespace-nowrap rounded-full border border-slate-300 px-2 py-0.5 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-slate-500">
+                Planned
+              </span>
+            </span>
           </li>
         ))}
       </ul>
