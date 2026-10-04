@@ -1,0 +1,255 @@
+/*
+ * Homepage-only styles: backdrops, and the few animations Tailwind utilities
+ * cannot express. Everything that moves is switched off under
+ * `prefers-reduced-motion` at the bottom of this file.
+ */
+
+/* ---------------------------------------------------------------------------
+ * Dark sections
+ * ------------------------------------------------------------------------- */
+
+/* The hero's backdrop is its own layer so it can clip its glows while the
+   product panel in front of it hangs over the section's bottom edge. */
+.heroBackdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      58rem 30rem at 50% -6rem,
+      color-mix(in oklab, var(--color-brand-600) 30%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      38rem 30rem at 100% 55%,
+      color-mix(in oklab, var(--color-brand-800) 34%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      38rem 30rem at 0% 80%,
+      color-mix(in oklab, var(--color-brand-900) 44%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(180deg, var(--color-ink-950), var(--color-ink-900));
+}
+
+/* A faint engineering grid, fading out from the top centre. */
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  background-size: 4rem 4rem;
+  background-position: center top;
+  mask-image: radial-gradient(
+    ellipse 75% 70% at 50% 0%,
+    black 15%,
+    transparent 78%
+  );
+}
+
+.darkBackdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      46rem 26rem at 88% 0%,
+      color-mix(in oklab, var(--color-brand-700) 26%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      40rem 28rem at 0% 100%,
+      color-mix(in oklab, var(--color-brand-900) 40%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(180deg, var(--color-ink-950), var(--color-ink-900));
+}
+
+/* ---------------------------------------------------------------------------
+ * Load-in choreography (hero)
+ *
+ * Pure CSS, so it needs no hydration and cannot leave the hero blank: each
+ * piece rises into place after `--rise-delay`.
+ * ------------------------------------------------------------------------- */
+
+.rise {
+  animation: rise 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1rem, 0);
+  }
+}
+
+/* A trace step's tick lands just after the step itself. */
+.tick {
+  animation: tick 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: calc(var(--rise-delay, 0ms) + 180ms);
+}
+
+@keyframes tick {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+/* The "connected" light: a soft halo that breathes. */
+.live {
+  position: relative;
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-brand-400);
+}
+
+.live::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: halo 2.6s ease-out infinite;
+}
+
+@keyframes halo {
+  from {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+}
+
+/* The pulse line is wiped in once from the left, then left as a watermark.
+   A clip, not a dash offset: the line is stretched to the hero's width, and
+   dashes on a non-uniformly scaled path do not render alike across browsers. */
+.pulseLine {
+  animation: wipe 2.6s cubic-bezier(0.65, 0, 0.35, 1) 500ms both;
+}
+
+@keyframes wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Cards
+ * ------------------------------------------------------------------------- */
+
+.card {
+  transition:
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.card:hover {
+  transform: translate3d(0, -0.1875rem, 0);
+  border-color: var(--color-brand-400);
+  box-shadow:
+    0 1px 2px rgb(8 47 47 / 0.04),
+    0 18px 40px -18px rgb(8 47 47 / 0.22);
+}
+
+/* The arrow on a card or text link leans forward when its link is hovered. */
+.arrow {
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+a:hover .arrow,
+.card:hover .arrow {
+  transform: translate3d(0.1875rem, 0, 0);
+}
+
+/* ---------------------------------------------------------------------------
+ * Conformance cells
+ *
+ * One square per resource type. The block is a reveal target, but it stays in
+ * place and lets its squares fill in as a wave instead of sliding as a slab.
+ * ------------------------------------------------------------------------- */
+
+.cells {
+  display: grid;
+  grid-template-columns: repeat(var(--cells-per-row, 31), minmax(0, 1fr));
+  gap: 0.1875rem;
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: 0.125rem;
+  background: var(--color-brand-700);
+}
+
+.cell[data-result="warn"] {
+  background: #f59e0b;
+}
+
+.cell[data-result="fail"] {
+  background: #dc2626;
+}
+
+.cells[data-reveal="armed"] {
+  opacity: 1;
+  transform: none;
+}
+
+.cells[data-reveal="armed"] .cell {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.cells[data-reveal="in"] .cell {
+  transition:
+    opacity 420ms ease calc(var(--i) * 5ms),
+    transform 520ms cubic-bezier(0.16, 1, 0.3, 1) calc(var(--i) * 5ms);
+}
+
+@media (max-width: 640px) {
+  .cells {
+    --cells-per-row: 20;
+  }
+}
+
+@media print {
+  .cells[data-reveal="armed"] .cell {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Reduced motion: everything holds still, fully drawn.
+ * ------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .tick,
+  .live::after,
+  .pulseLine {
+    animation: none;
+  }
+
+  .card,
+  .arrow {
+    transition: none;
+  }
+
+  .card:hover,
+  a:hover .arrow,
+  .card:hover .arrow {
+    transform: none;
+  }
+}

@@ -29,6 +29,11 @@
   --color-brand-800: oklch(51.1% 0.096 186.391);
   --color-brand-900: oklch(43.7% 0.078 188.216);
   --color-brand-950: oklch(38.6% 0.063 188.416);
+
+  /* Ink: the near-black teal behind the dark marketing sections, where
+     brand-950 (a mid teal) is too light to carry white text at length. */
+  --color-ink-900: oklch(21.5% 0.032 202);
+  --color-ink-950: oklch(17% 0.027 205);
 }
 
 
@@ -338,6 +343,32 @@
   transform: rotate(180deg) !important;
 }
 
+
+/*
+ * Scroll reveal. An element opts in with a `data-reveal` attribute, and
+ * useScrollReveal() (src/components/home/motion.tsx) arms the ones still below
+ * the fold, then releases each as it scrolls into view. Nothing is hidden in
+ * the markup itself: without JavaScript, or with reduced motion, no element is
+ * ever armed and the page is simply all there.
+ */
+[data-reveal="armed"] {
+  opacity: 0;
+  transform: translate3d(0, 1.25rem, 0);
+}
+
+[data-reveal="in"] {
+  transition:
+    opacity 700ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
+}
+
+/* Paper has no scroll position: print everything, armed or not. */
+@media print {
+  [data-reveal="armed"] {
+    opacity: 1;
+    transform: none;
+  }
+}
 
 @keyframes move {
   to {
