@@ -44,10 +44,11 @@ where
                     AuthMethod,
                     Option<String>,
                     Option<String>,
+                    bool,
                 ),
             >(
                 r"
-                    SELECT id, tenant, email, role, method, provider_id, password
+                    SELECT id, tenant, email, role, method, provider_id, password, email_verified
                     FROM users
                     WHERE tenant = $1 AND method = $2 AND email = $3
                 ",
@@ -59,13 +60,22 @@ where
             .await
             .map_err(StoreError::from)?;
 
-            let Some((id, tenant_id, email_val, role, method_val, provider_id, password_hash)) =
-                row
+            let Some((
+                id,
+                tenant_id,
+                email_val,
+                role,
+                method_val,
+                provider_id,
+                password_hash,
+                email_verified,
+            )) = row
             else {
                 return Ok(LoginResult::Failure);
             };
 
-            let verified = password_hash
+            // Always check the hash, so both refusals take the same time.
+            let password_matches = password_hash
                 .as_deref()
                 .and_then(|hash| PasswordHash::new(hash).ok())
                 .is_some_and(|parsed_hash| {
@@ -74,7 +84,7 @@ where
                         .is_ok()
                 });
 
-            if !verified {
+            if !password_matches || !email_verified {
                 return Ok(LoginResult::Failure);
             }
 
@@ -86,6 +96,7 @@ where
                     role,
                     method: method_val,
                     provider_id,
+                    email_verified,
                 },
             })
         }
@@ -127,7 +138,7 @@ where
 {
     let mut query_builder = QueryBuilder::new(
         r"
-            INSERT INTO users(tenant, id, email, role, method, provider_id, password)
+            INSERT INTO users(tenant, id, email, role, method, email_verified, provider_id, password)
         ",
     );
 
@@ -140,7 +151,8 @@ where
         .push_bind(new_user.id)
         .push_bind(new_user.email)
         .push_bind(new_user.role)
-        .push_bind(new_user.method);
+        .push_bind(new_user.method)
+        .push_bind(new_user.email_verified);
 
     if let Some(provider_id) = new_user.provider_id {
         seperator.push_bind(provider_id);
@@ -155,7 +167,7 @@ where
         seperator.push_bind(None::<String>);
     }
 
-    query_builder.push(r") RETURNING id, tenant, provider_id, email, role, method");
+    query_builder.push(r") RETURNING id, tenant, provider_id, email, role, method, email_verified");
 
     let query = query_builder.build_query_as::<User>();
 
@@ -177,7 +189,7 @@ where
 {
     let user = sqlx::query_as::<_, User>(
         r"
-            SELECT id, tenant, provider_id, email, role, method
+            SELECT id, tenant, provider_id, email, role, method, email_verified
             FROM users
             WHERE tenant = $1 AND id = $2
         ",
@@ -236,6 +248,12 @@ where
             .push_bind_unseparated(hashed_password);
     }
 
+    if let Some(email_verified) = model.email_verified {
+        update_clauses
+            .push(" email_verified = ")
+            .push_bind_unseparated(email_verified);
+    }
+
     update_clauses
         .push(" tenant = ")
         .push_bind_unseparated(tenant.as_ref());
@@ -243,7 +261,7 @@ where
     query_builder.push(" WHERE id = ");
     query_builder.push_bind(model.id);
 
-    query_builder.push(r" RETURNING id, tenant, provider_id, email, role, method");
+    query_builder.push(r" RETURNING id, tenant, provider_id, email, role, method, email_verified");
 
     let query = query_builder.build_query_as::<User>();
 
@@ -286,8 +304,9 @@ async fn search_user<'a, 'e, E>(
 where
     E: PgExecutor<'e>,
 {
-    let mut query_builder: QueryBuilder<sqlx::Postgres> =
-        QueryBuilder::new(r"SELECT id, tenant, email, role, method, provider_id FROM users WHERE ");
+    let mut query_builder: QueryBuilder<sqlx::Postgres> = QueryBuilder::new(
+        r"SELECT id, tenant, email, role, method, provider_id, email_verified FROM users WHERE ",
+    );
 
     let mut seperator = query_builder.separated(" AND ");
     seperator

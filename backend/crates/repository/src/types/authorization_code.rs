@@ -13,6 +13,9 @@ pub enum AuthorizationCodeKind {
     OAuth2CodeGrant,
     #[sqlx(rename = "refresh_token")]
     RefreshToken,
+    /// An emailed link to accept or decline an invitation.
+    #[sqlx(rename = "invitation")]
+    Invitation,
 }
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]

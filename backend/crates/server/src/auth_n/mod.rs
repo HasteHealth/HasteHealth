@@ -1,6 +1,7 @@
 pub mod certificates;
 mod email;
 pub mod global;
+pub mod invitations;
 pub mod mfa;
 pub mod middleware;
 pub mod oidc;

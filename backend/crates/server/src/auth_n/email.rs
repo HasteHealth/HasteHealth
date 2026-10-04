@@ -1,4 +1,9 @@
-use crate::{config::EmailConfig, route_path::api_v1_oidc_path, services::ServerState};
+use crate::{
+    config::{EmailConfig, ServerConfig},
+    route_path::api_v1_oidc_path,
+    services::ServerState,
+    ui::pages::global_auth::INVITATION_ROUTE,
+};
 use axum::http::Uri;
 use email_address::EmailAddress;
 use haste_fhir_model::r4::generated::terminology::IssueType;
@@ -111,6 +116,61 @@ pub async fn send_email_code(
         config,
         to,
         &format!("{code} is your Haste Health code"),
+        &body.into_string(),
+    )
+    .await
+}
+
+pub fn invitation_subject(tenant_name: &str) -> String {
+    format!("You're invited to {tenant_name} on Haste Health")
+}
+
+/// Emails an invited address a link to accept or decline.
+pub async fn send_invitation_email(
+    config: &ServerConfig,
+    tenant: &TenantId,
+    tenant_name: &str,
+    to: &EmailAddress,
+    code: &str,
+    valid_for: Duration,
+) -> Result<(), OperationOutcomeError> {
+    let invalid_api_url =
+        || OperationOutcomeError::fatal(IssueType::exception(), "API Url is invalid".to_string());
+
+    let mut link = Url::parse(&config.api_uri).map_err(|_| invalid_api_url())?;
+    link.set_path(INVITATION_ROUTE);
+    link.query_pairs_mut()
+        .append_pair("tenant", tenant.as_ref())
+        .append_pair("code", code);
+
+    let days = valid_for.as_secs() / (24 * 60 * 60);
+
+    let body = crate::ui::email::base::base(
+        &Uri::try_from(link.as_str()).map_err(|_| invalid_api_url())?,
+        &html! {
+            div style="padding-top: 24px;" {
+                span style="font-weight: 600;" { (tenant_name) }
+                " invited " span style="font-weight: 600;" { (to.as_str()) }
+                " to join its workspace on Haste Health."
+            }
+            div style="padding-top: 12px;" {
+                "Nothing happens until you accept. Review the invitation to accept it or decline it:"
+            }
+            div style="padding: 24px 0px;" {
+                a href=(link.as_str()) style="color:#ffffff;font-size:14px;font-weight:bold;background-color:#00786f;display:inline-block;padding:12px 24px;text-decoration:none" target="_blank" {
+                    span { "Review invitation" }
+                }
+            }
+            div style="color: #475569; font-size: 14px;" {
+                "The link works for " (days) " days. If you don't know this workspace, you can ignore this email."
+            }
+        },
+    );
+
+    send_email(
+        &config.email,
+        to,
+        &invitation_subject(tenant_name),
         &body.into_string(),
     )
     .await

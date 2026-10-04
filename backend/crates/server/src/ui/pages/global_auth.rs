@@ -23,7 +23,9 @@ pub const LOGIN_ROUTE: &str = "/auth/login";
 pub const VERIFY_ROUTE: &str = "/auth/verify";
 pub const RESEND_ROUTE: &str = "/auth/verify/resend";
 pub const TENANT_ROUTE: &str = "/auth/verify/tenant";
+pub const DECIDE_ROUTE: &str = "/auth/verify/decide";
 pub const CREATE_ROUTE: &str = "/auth/verify/create";
+pub const INVITATION_ROUTE: &str = "/auth/invitation";
 
 fn error_html(error: Option<&str>) -> Markup {
     html! {
@@ -129,30 +131,146 @@ pub struct TenantChoice {
     pub id: String,
     pub name: Option<String>,
     pub href: String,
+    /// Not accepted yet.
+    pub invited: bool,
 }
 
-/// For a verified address with users in more than one tenant.
-pub fn tenant_chooser_html(email: &str, tenants: &[TenantChoice]) -> Markup {
+fn tenant_label(tenant: &TenantChoice) -> Markup {
+    html! {
+        (tenant.name.as_deref().unwrap_or(&tenant.id))
+        @if tenant.name.is_some() {
+            span class="block text-xs text-slate-400" { (tenant.id) }
+        }
+    }
+}
+
+/// For a verified address with several tenants or any invitations: open a
+/// tenant, accept or decline an invitation, or create a tenant if it has none.
+pub fn tenant_chooser_html(csrf_token: &str, email: &str, tenants: &[TenantChoice]) -> Markup {
+    let (invited, accepted): (Vec<_>, Vec<_>) = tenants.iter().partition(|tenant| tenant.invited);
+
     page_html(&html! {
-        (banner("Choose a tenant", None))
+        (banner("Choose a workspace", None))
         div class=(CARD) {
-            div class="p-6 space-y-4 sm:p-8" {
-                p class="text-sm text-slate-500" {
-                    span class="font-semibold text-slate-700" { (email) } " belongs to more than one tenant. Pick the one to open."
-                }
-                div class="grid grid-cols-1 gap-3" {
-                    @for tenant in tenants {
-                        a href=(tenant.href) class="block w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-900 transition-colors hover:bg-brand-50 hover:border-brand-200" {
-                            (tenant.name.as_deref().unwrap_or(&tenant.id))
-                            @if tenant.name.is_some() {
-                                span class="block text-xs text-slate-400" { (tenant.id) }
+            div class="p-6 space-y-6 sm:p-8" {
+                @if !accepted.is_empty() {
+                    div class="space-y-3" {
+                        p class="text-sm text-slate-500" {
+                            "Pick the workspace to open as " span class="font-semibold text-slate-700" { (email) } "."
+                        }
+                        @for tenant in &accepted {
+                            a href=(tenant.href) class="block w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-900 transition-colors hover:bg-brand-50 hover:border-brand-200" {
+                                (tenant_label(tenant))
                             }
                         }
+                    }
+                }
+                @if !invited.is_empty() {
+                    div class="space-y-3" {
+                        h2 class="text-base font-semibold text-slate-900" { "Invitations" }
+                        p class="text-sm text-slate-500" {
+                            "These workspaces created an account for " span class="font-semibold text-slate-700" { (email) } ". Nothing is shared with them until you accept."
+                        }
+                        @for tenant in &invited {
+                            div class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-4 py-2.5" {
+                                div class="text-sm font-medium text-slate-900" { (tenant_label(tenant)) }
+                                form class="flex gap-2" action=(DECIDE_ROUTE) method="POST" {
+                                    input type="hidden" name="csrf_token" value=(csrf_token) {}
+                                    input type="hidden" name="tenant" value=(tenant.id) {}
+                                    button type="submit" name="decision" value="accept" class="cursor-pointer rounded-lg px-4 py-2 text-sm font-medium bg-brand-600 text-white hover:bg-brand-500" { "Accept" }
+                                    button type="submit" name="decision" value="decline" class="cursor-pointer rounded-lg px-4 py-2 text-sm font-medium border border-gray-300 text-slate-700 hover:bg-gray-50" { "Decline" }
+                                }
+                            }
+                        }
+                    }
+                }
+                @if accepted.is_empty() {
+                    p class="text-sm text-slate-500" {
+                        "Not here to join anyone? " a href=(CREATE_ROUTE) class=(LINK) { "Create your own workspace" }
                     }
                 }
             }
         }
     })
+}
+
+/// The page behind an emailed invitation link.
+pub fn invitation_html(
+    csrf_token: &str,
+    tenant_id: &str,
+    tenant_name: &str,
+    email: &str,
+    code: &str,
+) -> Markup {
+    page_html(&html! {
+        (banner("You're invited", None))
+        div class=(CARD) {
+            form class="p-6 space-y-4 sm:p-8" action=(INVITATION_ROUTE) method="POST" {
+                input type="hidden" name="csrf_token" value=(csrf_token) {}
+                input type="hidden" name="tenant" value=(tenant_id) {}
+                input type="hidden" name="code" value=(code) {}
+                h1 class="text-xl font-bold leading-tight tracking-tight text-slate-900 md:text-2xl" { "Join " (tenant_name) "?" }
+                p class="text-sm text-slate-500" {
+                    span class="font-semibold text-slate-700" { (tenant_name) }
+                    @if tenant_name != tenant_id {
+                        " (" (tenant_id) ")"
+                    }
+                    " created an account for " span class="font-semibold text-slate-700" { (email) } " on Haste Health. Accepting logs you in there; nothing is shared with the workspace until you do."
+                }
+                button type="submit" name="decision" value="accept" class=(BUTTON) { "Accept and continue" }
+                button type="submit" name="decision" value="decline" class="cursor-pointer w-full rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-gray-50" { "Decline" }
+                p class="text-xs text-slate-400" {
+                    "Declining removes the account. If you don't know this workspace, decline or just close this page."
+                }
+            }
+        }
+    })
+}
+
+fn notice_html(title: &str, heading: &str, text: Markup) -> Markup {
+    page_html(&html! {
+        (banner(title, None))
+        div class=(CARD) {
+            div class="p-6 space-y-4 sm:p-8" {
+                h1 class="text-xl font-bold leading-tight tracking-tight text-slate-900 md:text-2xl" { (heading) }
+                p class="text-sm text-slate-500" { (text) }
+            }
+        }
+    })
+}
+
+pub fn invitation_invalid_html() -> Markup {
+    notice_html(
+        "Invitation",
+        "This link no longer works",
+        html! {
+            "It may have expired or been used already. "
+            a href=(LOGIN_ROUTE) class=(LINK) { "Log in with your email" }
+            " to see the invitations waiting for you."
+        },
+    )
+}
+
+pub fn invitation_accepted_already_html() -> Markup {
+    notice_html(
+        "Invitation",
+        "Already accepted",
+        html! {
+            "This invitation was accepted before. "
+            a href=(LOGIN_ROUTE) class=(LINK) { "Log in" }
+            " to open the workspace."
+        },
+    )
+}
+
+pub fn invitation_declined_html(tenant_name: &str) -> Markup {
+    notice_html(
+        "Invitation",
+        "Invitation declined",
+        html! {
+            span class="font-semibold text-slate-700" { (tenant_name) } " no longer has an account for you. You can close this page."
+        },
+    )
 }
 
 /// For a verified address with no account: a tenant id, prefilled with a
