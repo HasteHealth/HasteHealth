@@ -3,7 +3,10 @@
 use crate::{
     auth_n::global::{
         email_code::{self, CheckOutcome},
-        routes::flow::{self, check_csrf, client_ip},
+        routes::{
+            flow::{self, check_csrf, client_ip},
+            invitation::Decision,
+        },
     },
     extract::csrf_token::CSRFToken,
     services::ServerState,
@@ -143,6 +146,7 @@ pub async fn tenant_get<
 >(
     _: VerifyTenant,
     Query(query): Query<TenantQuery>,
+    CSRFToken(csrf_token): CSRFToken,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
@@ -153,10 +157,49 @@ pub async fn tenant_get<
     flow::choose_tenant(
         state.as_ref(),
         &session,
+        &csrf_token,
         verified,
         &TenantId::new(query.tenant),
     )
     .await
+}
+
+#[derive(TypedPath, Deserialize)]
+#[typed_path("/verify/decide")]
+pub struct VerifyDecide;
+
+#[derive(Deserialize)]
+pub struct DecideForm {
+    pub csrf_token: String,
+    pub tenant: String,
+    pub decision: Decision,
+}
+
+/// Accept or Decline on the tenant chooser.
+pub async fn decide_post<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+>(
+    _: VerifyDecide,
+    CSRFToken(csrf_token): CSRFToken,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
+    Cached(session): Cached<Session>,
+    Form(form): Form<DecideForm>,
+) -> Result<Response, OperationOutcomeError> {
+    check_csrf(&csrf_token, &form.csrf_token)?;
+
+    let Some(verified) = email_code::verified(&session).await? else {
+        return Ok(Redirect::to(LOGIN_ROUTE).into_response());
+    };
+    let tenant = TenantId::new(form.tenant);
+
+    match form.decision {
+        Decision::Accept => flow::accept_tenant(state.as_ref(), &session, verified, &tenant).await,
+        Decision::Decline => {
+            flow::decline_tenant(state.as_ref(), &session, &csrf_token, verified, &tenant).await
+        }
+    }
 }
 
 #[derive(TypedPath, Deserialize)]
@@ -169,6 +212,25 @@ pub struct CreateForm {
     pub tenant: String,
     #[serde(default)]
     pub password: String,
+}
+
+/// The "name your workspace" form, linked from a chooser with only
+/// invitations.
+pub async fn create_get<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+>(
+    _: VerifyCreate,
+    CSRFToken(csrf_token): CSRFToken,
+    State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
+    Cached(session): Cached<Session>,
+) -> Result<Response, OperationOutcomeError> {
+    let Some(verified) = email_code::verified(&session).await? else {
+        return Ok(Redirect::to(LOGIN_ROUTE).into_response());
+    };
+
+    flow::workspace_form(state.as_ref(), &csrf_token, &verified, None, None).await
 }
 
 /// The "name your workspace" form.

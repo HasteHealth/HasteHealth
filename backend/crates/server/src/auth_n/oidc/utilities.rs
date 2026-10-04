@@ -72,6 +72,7 @@ pub async fn set_user_password<Repo: Repository>(
             role: None,
             method: None,
             provider_id: None,
+            email_verified: None,
         },
     )
     .await?;

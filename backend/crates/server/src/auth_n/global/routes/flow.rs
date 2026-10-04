@@ -1,6 +1,8 @@
 //! The steps shared by sign-up and login: send a code to an address and, once
 //! it is verified, put the person in a tenant. An address with no account is
-//! offered a tenant of its own, with an id and a password to choose.
+//! offered a tenant of its own, with an id and a password to choose. An
+//! invitation (a user a tenant created for the address) must be accepted
+//! before it can be entered.
 
 use crate::{
     auth_n::{
@@ -9,6 +11,7 @@ use crate::{
             bot_check::{self, Verdict},
             email_code::{self, CODE_VALID_FOR, Purpose, VerifiedEmail},
         },
+        invitations,
         mfa::routes::totp_verification::totp_verification_route,
         oidc::{
             hardcoded_clients::admin_app, routes::route_string::tenant_route_string,
@@ -288,8 +291,38 @@ async fn users_for_email<
         .collect())
 }
 
-/// What follows a verified address: its only tenant, a choice between
-/// several, or the form to create one.
+/// The email-password user `tenant` holds for `email`.
+async fn user_in_tenant<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+>(
+    state: &ServerState<Repo, Search, Terminology>,
+    tenant: &TenantId,
+    email: &str,
+) -> Result<User, OperationOutcomeError> {
+    TenantModelAdmin::<_, User, _, _, String>::search(
+        state.repo.as_ref(),
+        tenant,
+        &UserSearchClauses {
+            email: Some(email.to_string()),
+            role: None,
+            method: Some(AuthMethod::EmailPassword),
+        },
+    )
+    .await?
+    .into_iter()
+    .next()
+    .ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::not_found(),
+            "No user with the verified email address in that tenant.".to_string(),
+        )
+    })
+}
+
+/// What follows a verified address: its only tenant, the form to create one,
+/// or a chooser listing its tenants and invitations.
 pub async fn finish<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -302,9 +335,9 @@ pub async fn finish<
 ) -> Result<Response, OperationOutcomeError> {
     let mut users = users_for_email(state, &verified.email).await?;
 
-    match users.len() {
-        0 => workspace_form(state, csrf_token, &verified, None, None).await,
-        1 => {
+    match users.as_slice() {
+        [] => workspace_form(state, csrf_token, &verified, None, None).await,
+        [user] if user.email_verified => {
             email_code::clear_verified(session).await?;
             login_user(state, session, users.remove(0), None).await
         }
@@ -319,10 +352,14 @@ pub async fn finish<
                     id: user.tenant.as_ref().to_string(),
                     name,
                     href: tenant_choice_route(&user.tenant),
+                    invited: !user.email_verified,
                 });
             }
 
-            Ok(global_auth::tenant_chooser_html(&verified.email, &choices).into_response())
+            Ok(
+                global_auth::tenant_chooser_html(csrf_token, &verified.email, &choices)
+                    .into_response(),
+            )
         }
     }
 }
@@ -335,8 +372,31 @@ fn tenant_choice_route(tenant: &TenantId) -> String {
     format!("{}?{query}", global_auth::TENANT_ROUTE)
 }
 
-/// Logs the verified address into `tenant`, which must hold a user for it.
+/// Logs the verified address into `tenant`. An unaccepted invitation goes
+/// back to the chooser instead.
 pub async fn choose_tenant<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+>(
+    state: &ServerState<Repo, Search, Terminology>,
+    session: &Session,
+    csrf_token: &str,
+    verified: VerifiedEmail,
+    tenant: &TenantId,
+) -> Result<Response, OperationOutcomeError> {
+    let user = user_in_tenant(state, tenant, &verified.email).await?;
+
+    if !user.email_verified {
+        return finish(state, session, csrf_token, verified).await;
+    }
+
+    email_code::clear_verified(session).await?;
+    login_user(state, session, user, None).await
+}
+
+/// Accepts `tenant`'s invitation for the verified address and logs it in.
+pub async fn accept_tenant<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
@@ -346,32 +406,35 @@ pub async fn choose_tenant<
     verified: VerifiedEmail,
     tenant: &TenantId,
 ) -> Result<Response, OperationOutcomeError> {
-    let user = TenantModelAdmin::<_, User, _, _, String>::search(
-        state.repo.as_ref(),
-        tenant,
-        &UserSearchClauses {
-            email: Some(verified.email.clone()),
-            role: None,
-            method: Some(AuthMethod::EmailPassword),
-        },
-    )
-    .await?
-    .into_iter()
-    .next()
-    .ok_or_else(|| {
-        OperationOutcomeError::error(
-            IssueType::not_found(),
-            "No user with the verified email address in that tenant.".to_string(),
-        )
-    })?;
+    let user = user_in_tenant(state, tenant, &verified.email).await?;
+    let user = invitations::accept(state, user).await?;
 
     email_code::clear_verified(session).await?;
     login_user(state, session, user, None).await
 }
 
+/// Declines `tenant`'s invitation for the verified address, then shows what
+/// is left.
+pub async fn decline_tenant<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+>(
+    state: &ServerState<Repo, Search, Terminology>,
+    session: &Session,
+    csrf_token: &str,
+    verified: VerifiedEmail,
+    tenant: &TenantId,
+) -> Result<Response, OperationOutcomeError> {
+    let user = user_in_tenant(state, tenant, &verified.email).await?;
+    invitations::decline(state, &user).await?;
+
+    finish(state, session, csrf_token, verified).await
+}
+
 /// The "name your workspace" page. `tenant_id` defaults to a free suggestion
 /// for the address.
-async fn workspace_form<
+pub async fn workspace_form<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
@@ -459,7 +522,12 @@ pub async fn create_workspace<
     password: &str,
 ) -> Result<Response, OperationOutcomeError> {
     // A double submit must not create two tenants for one address.
-    if let Some(existing) = users_for_email(state, &verified.email).await?.pop() {
+    // Invitations don't count.
+    if let Some(existing) = users_for_email(state, &verified.email)
+        .await?
+        .into_iter()
+        .find(|user| user.email_verified)
+    {
         email_code::clear_verified(session).await?;
         return login_user(state, session, existing, None).await;
     }
@@ -585,7 +653,7 @@ async fn preapprove_admin_app<
 /// the tenant's project page without one. A user with MFA enrolled goes
 /// through TOTP and then the project page: that route only returns to a
 /// local path.
-async fn login_user<
+pub async fn login_user<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
@@ -597,6 +665,7 @@ async fn login_user<
 ) -> Result<Response, OperationOutcomeError> {
     let tenant = user.tenant.clone();
 
+    session::user::rotate_session_id(session).await?;
     session::user::set_initial_authorization_state(state.repo.as_ref(), session, user).await?;
 
     let project_select = tenant_route_string(&tenant)

@@ -1,6 +1,7 @@
 use crate::{
     auth_n::{
-        email::{Message, send_password_reset_email},
+        email::{Message, invitation_subject, send_password_reset_email},
+        invitations,
         oidc::{hardcoded_clients::admin_app, utilities::set_user_password},
     },
     extract::{
@@ -99,8 +100,21 @@ pub async fn password_reset_initiate_post<
     .await?;
 
     if let Some(user) = user_search_results.into_iter().next() {
-        send_password_reset_email(state.as_ref(), &tenant, &project, &user, Message::default())
-            .await?;
+        // Tell an invited user that setting a password accepts the invitation.
+        let message = if user.email_verified {
+            Message::default()
+        } else {
+            let tenant_name = branding.0.as_deref().unwrap_or(tenant.as_ref());
+            Message {
+                subject: Some(invitation_subject(tenant_name)),
+                body: Some(html! {
+                    span class="font-semibold" { (tenant_name) }
+                    " created an account for this address. Setting a password accepts the invitation. If you don't know this workspace, ignore this email and nothing will happen."
+                }),
+            }
+        };
+
+        send_password_reset_email(state.as_ref(), &tenant, &project, &user, message).await?;
 
         Ok(message_html(
             Some(&tenant),
@@ -269,6 +283,9 @@ pub async fn password_reset_verify_post<
         set_user_password(&*state.repo, &tenant, email, &user.id, &body.password).await?;
         // Whoever held a refresh token before the reset must not keep access.
         revoke_refresh_tokens(&*state.repo, &tenant, &user.id).await?;
+
+        // The emailed link proves the address, so this accepts an invitation.
+        invitations::accept(state.as_ref(), user).await?;
 
         let admin_app_url = admin_app::redirect_url(state.config.as_ref(), &tenant, &project);
 

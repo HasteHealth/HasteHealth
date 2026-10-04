@@ -7,6 +7,7 @@ use haste_repository::Repository;
 use std::sync::Arc;
 
 mod flow;
+mod invitation;
 mod login;
 mod signup;
 mod tenant_select;
@@ -30,5 +31,9 @@ pub fn create_router<
         .typed_post(verify::verify_post)
         .typed_post(verify::resend_post)
         .typed_get(verify::tenant_get)
+        .typed_post(verify::decide_post)
+        .typed_get(verify::create_get)
         .typed_post(verify::create_post)
+        .typed_get(invitation::invitation_get)
+        .typed_post(invitation::invitation_post)
 }

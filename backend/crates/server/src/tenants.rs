@@ -1,11 +1,13 @@
 use crate::{
-    auth_n::oidc::utilities::set_user_password, fhir_client::ServerCTX, services::ServerState,
+    auth_n::{invitations::set_resource_email_verified, oidc::utilities::set_user_password},
+    fhir_client::ServerCTX,
+    services::ServerState,
     ui::components::TenantName,
 };
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::{Project, Resource, ResourceType, User},
-    terminology::{IssueType, SupportedFhirVersion},
+    terminology::{IssueType, SupportedFhirVersion, UserRole},
     types::FHIRString,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -30,9 +32,15 @@ pub async fn create_user<
 >(
     services: &ServerState<Repo, Search, Terminology>,
     tenant: &TenantId,
-    user_resource: User,
+    mut user_resource: User,
     password: Option<&str>,
 ) -> Result<User, OperationOutcomeError> {
+    // Owners and users given a password are accepted already. Anyone else
+    // is an invitation.
+    if password.is_some() || user_resource.role == UserRole::owner() {
+        set_resource_email_verified(&mut user_resource, true);
+    }
+
     let ctx = Arc::new(ServerCTX::system(
         tenant.clone(),
         ProjectId::System,
