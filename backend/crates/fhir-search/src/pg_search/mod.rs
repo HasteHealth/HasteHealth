@@ -37,12 +37,13 @@ pub enum PgSearchError {
         diagnostic = "PG search does not support the fhir method: '{arg0:?}'"
     )]
     UnsupportedFHIRMethod(FHIRMethod),
-    #[fatal(code = "exception", diagnostic = "PG search database error: '{arg0}'")]
+    #[fatal(code = "exception", diagnostic = "PG search database error.")]
     SqlxError(String),
 }
 
 impl From<sqlx::Error> for PgSearchError {
     fn from(e: sqlx::Error) -> Self {
+        tracing::error!(error = %e, "PG search database error");
         PgSearchError::SqlxError(e.to_string())
     }
 }
@@ -91,9 +92,10 @@ impl<Resolver: SearchParameterResolve + 'static> PgSearchEngine<Resolver> {
             .await
             .map(|_| ())
             .map_err(|e| {
+                tracing::error!(error = %e, "PG search database is not reachable");
                 OperationOutcomeError::fatal(
                     IssueType::exception(),
-                    format!("PG search database is not reachable: {e}"),
+                    "Search database is not reachable.".to_string(),
                 )
             })
     }
