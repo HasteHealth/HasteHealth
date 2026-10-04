@@ -577,10 +577,8 @@ async fn fetch_page(
     params: &[SqlParam],
 ) -> Result<Vec<PgRow>, OperationOutcomeError> {
     bind_params(sql, params).fetch_all(pool).await.map_err(|e| {
-        OperationOutcomeError::fatal(
-            IssueType::exception(),
-            format!("PG search query failed: {e}"),
-        )
+        tracing::error!(error = %e, "PG search query failed");
+        OperationOutcomeError::fatal(IssueType::exception(), "Search query failed.".to_string())
     })
 }
 
@@ -594,9 +592,10 @@ async fn estimate_rows(
         .fetch_one(pool)
         .await
         .map_err(|e| {
+            tracing::error!(error = %e, "PG search estimate failed");
             OperationOutcomeError::fatal(
                 IssueType::exception(),
-                format!("PG search estimate failed: {e}"),
+                "Search estimate failed.".to_string(),
             )
         })?
         .get(0);
