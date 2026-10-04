@@ -31,36 +31,38 @@ impl TryFrom<&str> for ParsedHL7V2Message {
 
         let segment_lines = value.split(['\r', '\n']).filter(|s| !s.is_empty());
 
-        let header = value[..3].to_string();
-
-        if header != "MSH" {
+        // A malformed message is a caller error, so every rejection is
+        // `invalid` (HTTP 400).
+        if !value.starts_with("MSH") {
             return Err(OperationOutcomeError::error(
-                IssueType::exception(),
+                IssueType::invalid(),
                 "Message does not start with MSH segment".to_string(),
             ));
         }
 
-        let field_seperator = value.chars().nth(3).ok_or_else(|| {
+        // `MSH|^~\&|...`: the 4th character is the field separator, and the
+        // encoding characters run up to the next one.
+        let mut header_chars = value.chars();
+        let field_seperator = header_chars.nth(3).ok_or_else(|| {
             OperationOutcomeError::error(
-                IssueType::exception(),
+                IssueType::invalid(),
                 "Missing field separator".to_string(),
             )
         })?;
 
-        let encoding_characters = value[4..].split(field_seperator).next().ok_or_else(|| {
-            OperationOutcomeError::error(
-                IssueType::exception(),
+        let encoding_characters: String =
+            header_chars.take_while(|&c| c != field_seperator).collect();
+        if encoding_characters.is_empty() {
+            return Err(OperationOutcomeError::error(
+                IssueType::invalid(),
                 "Missing encoding characters".to_string(),
-            )
-        })?;
+            ));
+        }
 
         for segment in segment_lines {
             let mut segment = segment.split(field_seperator);
             let segment_id = segment.next().ok_or_else(|| {
-                OperationOutcomeError::error(
-                    IssueType::exception(),
-                    "Missing segment ID".to_string(),
-                )
+                OperationOutcomeError::error(IssueType::invalid(), "Missing segment ID".to_string())
             })?;
 
             let segment_fields = segment.map(|field| {
