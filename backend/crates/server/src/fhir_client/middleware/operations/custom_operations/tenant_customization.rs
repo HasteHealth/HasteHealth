@@ -23,14 +23,29 @@ use std::sync::Arc;
 
 const LOGO_SIZE: u32 = 150;
 
+/// The largest logo accepted, per side. The logo is resized to `LOGO_SIZE`
+/// anyway, and the decoder allocates width x height x 4 bytes before anything
+/// is checked, so a small file declaring a huge canvas is otherwise a cheap
+/// way to make the server allocate hundreds of megabytes per request.
+const MAX_LOGO_DIMENSION: u32 = 2048;
+
 fn invalid(message: impl Into<String>) -> OperationOutcomeError {
     OperationOutcomeError::fatal(IssueType::invalid(), message.into())
 }
 
 /// Decodes a PNG logo, requires it be square, and resizes it to `LOGO_SIZE`x`LOGO_SIZE`.
 fn process_png_logo(decoded: &[u8]) -> Result<Vec<u8>, OperationOutcomeError> {
-    let decoded_image = image::load_from_memory_with_format(decoded, image::ImageFormat::Png)
-        .map_err(|_| invalid("Logo attachment must be a valid PNG image."))?;
+    let mut reader = image::ImageReader::with_format(Cursor::new(decoded), image::ImageFormat::Png);
+    let mut limits = image::Limits::default();
+    limits.max_image_width = Some(MAX_LOGO_DIMENSION);
+    limits.max_image_height = Some(MAX_LOGO_DIMENSION);
+    reader.limits(limits);
+
+    let decoded_image = reader.decode().map_err(|_| {
+        invalid(format!(
+            "Logo attachment must be a valid PNG image of at most {MAX_LOGO_DIMENSION}x{MAX_LOGO_DIMENSION} pixels."
+        ))
+    })?;
 
     if decoded_image.width() != decoded_image.height() {
         return Err(invalid(format!(
