@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
+import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
-import Heading from "@theme/Heading";
 
 import {
   EMPHASIZED_TIER,
@@ -12,6 +12,19 @@ import {
   isUnlimited,
   limitCount,
 } from "@site/src/pricing/tiers";
+import { Icon } from "@site/src/components/site/icons";
+import {
+  revealDelay,
+  riseDelay,
+  useScrollReveal,
+} from "@site/src/components/site/motion";
+import site from "@site/src/components/site/styles.module.css";
+import {
+  Button,
+  Container,
+  PageHero,
+  SectionHeader,
+} from "@site/src/components/site/ui";
 import { DEMO_URL, QUICK_START_URL, SIGNUP_URL } from "@site/src/links";
 
 /**
@@ -22,6 +35,12 @@ import { DEMO_URL, QUICK_START_URL, SIGNUP_URL } from "@site/src/links";
 type TierCopy = {
   /** Selling points that are not already one of the enforced limits. */
   includes: string[];
+  /**
+   * On the roadmap for this tier but not built yet. Listed apart from
+   * `includes` and labelled, so the card never ticks off something a customer
+   * cannot use today. Move an entry up to `includes` when it ships.
+   */
+  planned?: string[];
   body: string;
   cta: { label: string; href: string };
 };
@@ -54,10 +73,10 @@ const COPY: Record<TierId, TierCopy> = {
     includes: [
       "Signed BAA before any PHI reaches us",
       "Daily backups with point-in-time recovery",
-      "Bulk $export and versioned dataset snapshots",
       "Custom search parameters, operations and Subscriptions",
       "Your own tenant name and logo",
     ],
+    planned: ["Bulk $export and versioned dataset snapshots"],
   },
   team: {
     body: "For hundreds of millions of resources, machine-volume ingest, or a compliance posture that needs its own conversation. Priced on your actual footprint rather than a seat count.",
@@ -111,11 +130,6 @@ const overages = [
     note: `A read costs ${OPERATION_POINTS.read} point, a search ${OPERATION_POINTS.search}, a write ${OPERATION_POINTS.write}.`,
   },
   {
-    what: "Bulk $export egress",
-    cost: "$0.09 per GB",
-    note: "First 100 GB each month is included on Production and Scale.",
-  },
-  {
     what: "Attachment storage",
     cost: "$0.03 per GB / month",
     note: "Binary and DocumentReference content in object storage.",
@@ -137,34 +151,24 @@ const faqs = [
   },
   {
     q: "Can I move between self-hosted and hosted?",
-    a: "In both directions. It is the same server and the same storage schema, so a migration is a bulk export and a bulk import.",
+    a: "It is the same server and the same storage schema in both places. To move from hosted to self-hosted today, ask us for an export of your data and we will provide it. A self-serve bulk export is planned.",
   },
 ];
 
-function SectionTitle(
-  props: Readonly<{ title: string; subtitle?: string; eyebrow?: string }>,
-) {
-  return (
-    <div className="space-y-4">
-      {props.eyebrow ? (
-        <div className="inline-flex items-center rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-brand-800">
-          {props.eyebrow}
-        </div>
-      ) : null}
-      <Heading
-        as="h2"
-        className="text-2xl md:text-3xl font-bold tracking-tight text-brand-950"
-      >
-        {props.title}
-      </Heading>
-      {props.subtitle ? (
-        <p className="max-w-3xl text-base text-slate-700 leading-relaxed">
-          {props.subtitle}
-        </p>
-      ) : null}
-    </div>
-  );
-}
+const compliance = [
+  {
+    title: "BAA, ready to sign",
+    body: "Our standard Business Associate Agreement, signed before any PHI reaches us. Available on Production and Scale.",
+  },
+  {
+    title: "Pre-answered questionnaire",
+    body: "CAIQ and SIG Lite answered in advance, plus our subprocessor list, data-flow diagram and incident response policy.",
+  },
+  {
+    title: "Where we are on SOC 2",
+    body: "We do not have a SOC 2 report yet, and we would rather tell you that here than in month two of your procurement. Ask us where the work stands and we will be specific about scope and timing.",
+  },
+];
 
 /**
  * One tier card.
@@ -191,19 +195,19 @@ function TierCard(props: Readonly<{ tier: Tier }>): ReactNode {
 
   return (
     <article
-      className={[
+      className={clsx(
         "grid rounded-2xl border bg-white p-6",
         "row-span-11 grid-rows-subgrid",
         emphasis
-          ? "border-brand-700 shadow-lg ring-1 ring-brand-700"
-          : "border-brand-200",
-      ].join(" ")}
+          ? "border-brand-700 shadow-[0_24px_60px_-28px_rgb(2_44_40/0.5)] ring-1 ring-brand-700"
+          : "border-slate-200 shadow-[0_1px_2px_rgb(15_23_42/0.04)]",
+      )}
     >
       {/* Row 1: the emphasis badge. Present but empty in the other cards so
           their headings stay on the same line as the emphasized one. */}
       <div>
         {emphasis ? (
-          <div className="inline-flex items-center rounded-full bg-brand-700 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-white">
+          <div className="inline-flex items-center rounded-full bg-brand-800 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-white">
             Most common
           </div>
         ) : null}
@@ -211,37 +215,57 @@ function TierCard(props: Readonly<{ tier: Tier }>): ReactNode {
 
       {/* Row 2: name and audience. */}
       <div>
-        <h3 className="text-xl font-bold text-brand-950">
+        <h3 className="text-xl font-semibold tracking-tight text-ink-950">
           {tier.display_name}
         </h3>
-        <p className="mt-1 text-sm text-slate-600">{tier.audience}</p>
+        <p className="mt-1 text-sm text-slate-500">{tier.audience}</p>
       </div>
 
       {/* Row 3: price. */}
       <div className="flex items-baseline gap-1">
-        <span className="text-3xl font-bold tracking-tight text-brand-950">
+        <span className="text-3xl font-semibold tracking-tight text-ink-950">
           {tier.price}
         </span>
         {tier.cadence ? (
-          <span className="text-sm text-slate-600">{tier.cadence}</span>
+          <span className="text-sm text-slate-500">{tier.cadence}</span>
         ) : null}
       </div>
 
       {/* Row 4: the pitch. */}
-      <p className="text-sm text-slate-700 leading-6">{copy.body}</p>
+      <p className="text-[0.9375rem] leading-relaxed text-slate-600">
+        {copy.body}
+      </p>
 
       {/* Row 5: what you get. Starts at the top of its band so the bullets
           align across cards even when the paragraphs above differ in length. */}
-      <ul className="space-y-2 list-none pl-0 self-start">
+      <ul className="list-none space-y-2.5 self-start pl-0">
         {copy.includes.map((item) => (
           <li
             key={item}
-            className="flex gap-2 text-sm text-slate-700 leading-6"
+            className="flex gap-2.5 text-[0.9375rem] leading-snug text-slate-700"
           >
-            <span aria-hidden="true" className="mt-0.5 text-brand-700">
-              &#10003;
-            </span>
+            <Icon name="check" className="mt-0.5 h-4 w-4 text-brand-700" />
             <span>{item}</span>
+          </li>
+        ))}
+        {/* Not built yet: a hollow marker and a label, never a tick. */}
+        {copy.planned?.map((item) => (
+          <li
+            key={item}
+            className="flex gap-2.5 text-[0.9375rem] leading-snug text-slate-500"
+          >
+            <span
+              className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center"
+              aria-hidden="true"
+            >
+              <span className="h-1.5 w-1.5 rounded-full border border-slate-400" />
+            </span>
+            <span>
+              {item}{" "}
+              <span className="ml-0.5 whitespace-nowrap rounded-full border border-slate-300 px-2 py-0.5 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-slate-500">
+                Planned
+              </span>
+            </span>
           </li>
         ))}
       </ul>
@@ -252,7 +276,7 @@ function TierCard(props: Readonly<{ tier: Tier }>): ReactNode {
           that band in every card at once. Nesting these in a plain grid instead
           lets each card size its own cells, which is what knocks the Support
           and Uptime SLA labels out of line between cards. */}
-      <dl className="row-span-4 grid grid-cols-2 grid-rows-subgrid gap-x-4 rounded-xl border border-brand-200 bg-brand-50/40 p-4">
+      <dl className="row-span-4 grid grid-cols-2 grid-rows-subgrid gap-x-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
         {limitsFor(tier).map((limit, index) => {
           // Two pairs per row of the card's subgrid: the label sits in the band
           // above its value, so `dt` and `dd` are placed explicitly rather than
@@ -262,13 +286,13 @@ function TierCard(props: Readonly<{ tier: Tier }>): ReactNode {
           return (
             <React.Fragment key={limit.label}>
               <dt
-                className="text-xs font-semibold uppercase tracking-[0.06em] text-slate-500"
+                className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500"
                 style={{ gridRow: band + 1, gridColumn: (index % 2) + 1 }}
               >
                 {limit.label}
               </dt>
               <dd
-                className="ml-0 text-sm font-semibold text-brand-900"
+                className="ml-0 text-sm font-semibold text-ink-950"
                 style={{ gridRow: band + 2, gridColumn: (index % 2) + 1 }}
               >
                 {limit.value}
@@ -279,20 +303,17 @@ function TierCard(props: Readonly<{ tier: Tier }>): ReactNode {
       </dl>
 
       {/* Row 10: what the budget buys. */}
-      <p className="text-xs text-slate-500 leading-4">{hint}</p>
+      <p className="text-xs leading-4 text-slate-500">{hint}</p>
 
       {/* Row 11: the call to action, pinned to the bottom of the card. */}
-      <Link
-        href={copy.cta.href}
-        className={[
-          "inline-flex w-full items-center justify-center self-end rounded-lg px-4 py-2.5 text-sm font-semibold no-underline hover:no-underline",
-          emphasis
-            ? "bg-brand-700 text-white hover:bg-brand-800"
-            : "border border-brand-300 bg-white text-brand-800 hover:bg-brand-50",
-        ].join(" ")}
+      <Button
+        to={copy.cta.href}
+        size="sm"
+        variant={emphasis ? "primary" : "secondary"}
+        className="w-full self-end"
       >
         {copy.cta.label}
-      </Link>
+      </Button>
     </article>
   );
 }
@@ -367,205 +388,236 @@ const comparisonRows: ComparisonRow[] = [
 ];
 
 export default function Pricing(): ReactNode {
+  const page = useScrollReveal<HTMLElement>();
+
   return (
     <Layout
-      wrapperClassName="bg-background"
+      wrapperClassName="bg-white"
       title="Pricing"
       description="Haste Health pricing: the FHIR server is free and Apache-2.0 forever when self-hosted. Hosted tiers start free and run from $1,500/month with a BAA and an uptime SLA."
     >
-      <main
-        id="tw-scope"
-        className="container mx-auto px-4 py-8 md:py-12 text-brand-950"
-      >
-        <section className="rounded-3xl border border-brand-200 bg-white px-6 py-12 md:px-10 md:py-16">
-          <div className="max-w-4xl space-y-4">
-            <div className="inline-flex items-center rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-brand-800">
-              Published pricing
-            </div>
-            <Heading
-              as="h1"
-              className="text-4xl md:text-5xl font-bold tracking-tight text-brand-950"
-            >
-              Pricing
-            </Heading>
-            <p className="max-w-3xl text-lg text-slate-700 leading-relaxed">
-              The server is free with self-hosting and licensed under
-              Apache-2.0. The hosted tiers cover the operational work of
-              running it in production: backups, upgrades, a signed BAA, and
-              dedicated support.
-            </p>
-            <div className="flex flex-wrap gap-3 pt-2">
-              <Link
-                href={SIGNUP_URL}
-                className="inline-flex items-center justify-center rounded-lg bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white no-underline hover:bg-brand-800 hover:no-underline"
-              >
+      <main id="tw-scope" ref={page} className="text-ink-950">
+        <PageHero
+          badge="Published pricing"
+          title="Pricing"
+          overlap
+          actions={
+            <>
+              <Button to={SIGNUP_URL} on="dark">
                 Start for free
-              </Link>
-              <Link
-                href={DEMO_URL}
-                className="inline-flex items-center justify-center rounded-lg border border-brand-300 bg-white px-5 py-2.5 text-sm font-semibold text-brand-800 no-underline hover:bg-brand-50 hover:no-underline"
-              >
+              </Button>
+              <Button to={DEMO_URL} variant="secondary" on="dark">
                 Book a demo
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* The cards are subgrids of this grid, which is what keeps each
-            section of every card on a shared baseline. */}
-        <section
-          className={`mt-10 grid gap-5 lg:grid-cols-2 xl:grid-cols-4 ${CARD_ROWS}`}
+              </Button>
+            </>
+          }
         >
-          {TIERS.map((tier) => (
-            <TierCard key={tier.tier} tier={tier} />
-          ))}
+          The server is free with self-hosting and licensed under Apache-2.0.
+          The hosted tiers cover the operational work of running it in
+          production: backups, upgrades, a signed BAA, and dedicated support.
+        </PageHero>
+
+        {/* The cards ride up over the bottom of the hero. They are subgrids of
+            this grid, which is what keeps each section of every card on a
+            shared baseline. */}
+        <section className="relative z-10 -mt-28 pb-16 md:-mt-32 md:pb-24">
+          <Container>
+            <div className={site.rise} style={riseDelay(300)}>
+              <div
+                className={`grid gap-5 lg:grid-cols-2 xl:grid-cols-4 ${CARD_ROWS}`}
+              >
+                {TIERS.map((tier) => (
+                  <TierCard key={tier.tier} tier={tier} />
+                ))}
+              </div>
+            </div>
+
+            <p className="mt-8 text-center text-base text-slate-600">
+              Doesn&apos;t fit your situation? Tell us at{" "}
+              <Link
+                href="mailto:business@haste.health"
+                className="font-semibold text-brand-800 underline decoration-brand-300 underline-offset-4 hover:text-brand-900 hover:decoration-brand-600"
+              >
+                business@haste.health
+              </Link>
+              .
+            </p>
+          </Container>
         </section>
 
-        <p className="mt-4 text-center text-sm text-slate-600">
-          Doesn&apos;t fit your situation? Tell us at{" "}
-          <Link href="mailto:business@haste.health">business@haste.health</Link>
-          .
-        </p>
-
-        <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
-          <SectionTitle
-            eyebrow="Side by side"
-            title="Every limit, per tier"
-            subtitle="Generated from the same table the server enforces, so a figure here is the figure your tenant is held to."
-          />
-          <div className="mt-6 overflow-x-auto">
-            <table className="w-full min-w-[48rem] text-left text-sm">
-              <thead>
-                <tr className="border-b border-brand-200">
-                  <th className="px-4 py-3 font-semibold text-brand-900">
-                    Limit
-                  </th>
-                  {TIERS.map((tier) => (
-                    <th
-                      key={tier.tier}
-                      className="px-4 py-3 font-semibold text-brand-900"
-                    >
-                      {tier.display_name}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonRows.map((row) => (
-                  <tr key={row.label} className="border-b border-brand-100">
-                    <th
-                      scope="row"
-                      className="px-4 py-3 text-left font-medium text-brand-900"
-                    >
-                      {row.label}
+        <section className="border-y border-slate-200/80 bg-slate-50 py-20 md:py-28">
+          <Container>
+            <SectionHeader eyebrow="Side by side" title="Every limit, per tier">
+              Generated from the same table the server enforces, so a figure
+              here is the figure your tenant is held to.
+            </SectionHeader>
+            <div
+              className="mt-10 overflow-x-auto rounded-2xl border border-slate-200 bg-white md:mt-12"
+              data-reveal=""
+            >
+              <table className="table w-full min-w-[48rem] text-left text-[0.9375rem]">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-transparent">
+                    <th className="px-5 py-4 font-semibold text-ink-950">
+                      Limit
                     </th>
                     {TIERS.map((tier) => (
-                      <td key={tier.tier} className="px-4 py-3 text-slate-700">
-                        {row.value(tier)}
-                      </td>
+                      <th
+                        key={tier.tier}
+                        className={clsx(
+                          "px-5 py-4 font-semibold text-ink-950",
+                          tier.tier === EMPHASIZED_TIER && "bg-brand-50/60",
+                        )}
+                      >
+                        {tier.display_name}
+                      </th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {comparisonRows.map((row) => (
+                    <tr
+                      key={row.label}
+                      className="border-b border-slate-200 bg-transparent last:border-b-0"
+                    >
+                      <th
+                        scope="row"
+                        className="px-5 py-3.5 text-left font-medium text-ink-950"
+                      >
+                        {row.label}
+                      </th>
+                      {TIERS.map((tier) => (
+                        <td
+                          key={tier.tier}
+                          className={clsx(
+                            "px-5 py-3.5 text-slate-600",
+                            tier.tier === EMPHASIZED_TIER && "bg-brand-50/60",
+                          )}
+                        >
+                          {row.value(tier)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Container>
         </section>
 
-        <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
-          <SectionTitle
-            eyebrow="Metering"
-            title="Usage beyond what your plan includes"
-            subtitle="On the paid tiers overage is metered, never throttled. If your usage settles above your plan, we move you to the plan that costs less."
-          />
-          <div className="mt-6 overflow-x-auto">
-            <table className="w-full min-w-[42rem] text-left text-sm">
-              <thead>
-                <tr className="border-b border-brand-200">
-                  <th className="px-4 py-3 font-semibold text-brand-900">
-                    What
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-brand-900">
-                    Rate
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-brand-900">
-                    How it is counted
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {overages.map((row) => (
-                  <tr key={row.what} className="border-b border-brand-100">
-                    <td className="px-4 py-3 font-medium text-brand-900">
-                      {row.what}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-slate-800">
-                      {row.cost}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700">{row.note}</td>
+        <section className="bg-white py-20 md:py-28">
+          <Container>
+            <SectionHeader
+              eyebrow="Metering"
+              title="Usage beyond what your plan includes"
+            >
+              On the paid tiers overage is metered, never throttled. If your
+              usage settles above your plan, we move you to the plan that costs
+              less.
+            </SectionHeader>
+            <div
+              className="mt-10 overflow-x-auto rounded-2xl border border-slate-200 bg-white md:mt-12"
+              data-reveal=""
+            >
+              <table className="table w-full min-w-[42rem] text-left text-[0.9375rem]">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-transparent">
+                    <th className="px-5 py-4 font-semibold text-ink-950">
+                      What
+                    </th>
+                    <th className="px-5 py-4 font-semibold text-ink-950">
+                      Rate
+                    </th>
+                    <th className="px-5 py-4 font-semibold text-ink-950">
+                      How it is counted
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {overages.map((row) => (
+                    <tr
+                      key={row.what}
+                      className="border-b border-slate-200 bg-transparent last:border-b-0"
+                    >
+                      <td className="px-5 py-3.5 font-medium text-ink-950">
+                        {row.what}
+                      </td>
+                      <td className="px-5 py-3.5 font-mono text-[0.875rem] text-ink-900">
+                        {row.cost}
+                      </td>
+                      <td className="px-5 py-3.5 text-slate-600">{row.note}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Container>
         </section>
 
-        <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
-          <SectionTitle
-            eyebrow="Compliance"
-            title="What your security reviewer gets on day one"
-            subtitle="None of this is gated behind a sales call, and we are straight about what we do not have yet."
+        <section className="relative isolate py-20 text-white md:py-28">
+          <div
+            className={clsx(site.darkBackdrop, "-z-10")}
+            aria-hidden="true"
           />
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {[
-              {
-                title: "BAA, ready to sign",
-                body: "Our standard Business Associate Agreement, signed before any PHI reaches us. Available on Production and Scale.",
-              },
-              {
-                title: "Pre-answered questionnaire",
-                body: "CAIQ and SIG Lite answered in advance, plus our subprocessor list, data-flow diagram and incident response policy.",
-              },
-              {
-                title: "Where we are on SOC 2",
-                body: "We do not have a SOC 2 report yet, and we would rather tell you that here than in month two of your procurement. Ask us where the work stands and we will be specific about scope and timing.",
-              },
-            ].map((card) => (
-              <article
-                key={card.title}
-                className="flex flex-col rounded-xl border border-brand-200 bg-brand-50/40 p-5"
+          <Container>
+            <SectionHeader
+              eyebrow="Compliance"
+              title="What your security reviewer gets on day one"
+              on="dark"
+            >
+              None of this is gated behind a sales call, and we are straight
+              about what we do not have yet.
+            </SectionHeader>
+            <div className="mt-12 grid gap-5 md:grid-cols-3 lg:mt-14">
+              {compliance.map((card, index) => (
+                <article
+                  key={card.title}
+                  className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-6 md:p-7"
+                  data-reveal=""
+                  style={revealDelay(index)}
+                >
+                  <h3 className="text-xl font-semibold tracking-tight text-white">
+                    {card.title}
+                  </h3>
+                  <p className="mt-2 flex-1 text-base leading-relaxed text-slate-300">
+                    {card.body}
+                  </p>
+                </article>
+              ))}
+            </div>
+            <p className="mt-8 text-base text-slate-300" data-reveal="">
+              Request the pack at{" "}
+              <Link
+                href="mailto:security@haste.health"
+                className="font-semibold text-brand-300 underline decoration-brand-300/40 underline-offset-4 hover:text-brand-200 hover:decoration-brand-200"
               >
-                <h3 className="text-lg font-semibold text-brand-900">
-                  {card.title}
-                </h3>
-                <p className="mt-2 flex-1 text-sm text-slate-700 leading-6">
-                  {card.body}
-                </p>
-              </article>
-            ))}
-          </div>
-          <p className="mt-6 text-sm text-slate-700">
-            Request the pack at{" "}
-            <Link href="mailto:security@haste.health">
-              security@haste.health
-            </Link>
-            .
-          </p>
+                security@haste.health
+              </Link>
+              .
+            </p>
+          </Container>
         </section>
 
-        <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
-          <SectionTitle eyebrow="Questions" title="Frequently asked" />
-          <div className="mt-6 divide-y divide-brand-100">
-            {faqs.map((faq) => (
-              <div key={faq.q} className="py-5 first:pt-0 last:pb-0">
-                <h3 className="text-base font-semibold text-brand-900">
-                  {faq.q}
-                </h3>
-                <p className="mt-2 max-w-3xl text-sm text-slate-700 leading-6">
-                  {faq.a}
-                </p>
+        <section className="bg-white py-20 md:py-28">
+          <Container>
+            <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+              <div className="lg:col-span-4">
+                <SectionHeader eyebrow="Questions" title="Frequently asked" />
               </div>
-            ))}
-          </div>
+              <div className="divide-y divide-slate-200 border-y border-slate-200 lg:col-span-8">
+                {faqs.map((faq) => (
+                  <div key={faq.q} className="py-7" data-reveal="">
+                    <h3 className="text-xl font-semibold tracking-tight text-ink-950">
+                      {faq.q}
+                    </h3>
+                    <p className="mt-3 text-[1.0625rem] leading-relaxed text-slate-600">
+                      {faq.a}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Container>
         </section>
       </main>
     </Layout>

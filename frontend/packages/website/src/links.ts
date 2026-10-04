@@ -13,3 +13,6 @@ export const DEMO_URL = "https://calendly.com/rp-haste/book-a-demo";
 
 /** Self-hosting with docker compose. */
 export const QUICK_START_URL = "/docs/getting_started/quick_start";
+
+/** The open-source repository. */
+export const GITHUB_URL = "https://github.com/hastehealth/hastehealth";
