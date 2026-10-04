@@ -51,8 +51,20 @@ const HEIGHT = 630;
 const HEADLINE = ["The Open-Source FHIR Server", "for AI-Native Health Apps"];
 const SUBHEAD = "Epic, Oracle Health and HL7v2 in. FHIR, SQL and MCP out.";
 
-/** The logo's teal, from static/img/logo.svg. */
-const TEAL = "#0d9488";
+/**
+ * The card wears the homepage hero's colours (src/css/custom.css and
+ * src/components/site/styles.module.css), as hex because the rasterizer's SVG
+ * path has no oklch: the deep teal (deep-950 to deep-900), the teal glows
+ * over it, and the brighter teal that picks out the accent word and the logo.
+ */
+const DEEP_TOP = "#002e2d";
+const DEEP_BOTTOM = "#003c39";
+const GLOW = "#00bba7";
+const GLOW_DEEP = "#00786f";
+const ACCENT = "#46edd5";
+
+/** The word of the headline set in the accent colour, as on the homepage. */
+const ACCENT_WORD = "AI-Native";
 
 /**
  * The proof strip, read from the same conformance report the site renders.
@@ -89,7 +101,7 @@ function buildSvg() {
 
   const headline = HEADLINE.map(
     (line, index) =>
-      `    <text x="80" y="${300 + index * 68}" font-family="${font}" font-size="58" font-weight="700" fill="#ffffff" letter-spacing="-1.2">${line}</text>`,
+      `    <text x="80" y="${300 + index * 68}" font-family="${font}" font-size="58" font-weight="700" fill="#ffffff" letter-spacing="-1.2">${line.replace(ACCENT_WORD, `<tspan fill="${ACCENT}">${ACCENT_WORD}</tspan>`)}</text>`,
   ).join("\n");
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img">
@@ -103,14 +115,23 @@ function buildSvg() {
   </style>
 
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0f766e"/>
-      <stop offset="55%" stop-color="#0d9488"/>
-      <stop offset="100%" stop-color="#115e59"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${DEEP_TOP}"/>
+      <stop offset="100%" stop-color="${DEEP_BOTTOM}"/>
     </linearGradient>
+    <radialGradient id="glow-top" cx="0.5" cy="-0.15" r="0.8">
+      <stop offset="0%" stop-color="${GLOW}" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="${GLOW}" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-right" cx="1" cy="0.75" r="0.6">
+      <stop offset="0%" stop-color="${GLOW_DEEP}" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="${GLOW_DEEP}" stop-opacity="0"/>
+    </radialGradient>
   </defs>
 
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#bg)"/>
+  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#glow-top)"/>
+  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#glow-right)"/>
 
   <!-- The pulse line from the site's hero, as a quiet watermark. Kept low and
        to the right of the logo so it never crosses the headline or the proof
@@ -121,15 +142,15 @@ function buildSvg() {
 
   <!-- Logo mark: the three bars from static/img/logo.svg. -->
   <g transform="translate(80, 74) scale(0.46)">
-    <rect x="6"  y="22" width="24" height="56"  rx="6" fill="#ffffff" opacity="0.5"/>
-    <rect x="38" y="0"  width="24" height="100" rx="6" fill="#ffffff"/>
-    <rect x="70" y="32" width="24" height="36"  rx="6" fill="#ffffff" opacity="0.75"/>
+    <rect x="6"  y="22" width="24" height="56"  rx="6" fill="${ACCENT}" opacity="0.5"/>
+    <rect x="38" y="0"  width="24" height="100" rx="6" fill="${ACCENT}"/>
+    <rect x="70" y="32" width="24" height="36"  rx="6" fill="${ACCENT}" opacity="0.75"/>
   </g>
   <text x="140" y="112" font-family="${font}" font-size="38" font-weight="600" fill="#ffffff">haste<tspan opacity="0.72">.health</tspan></text>
 
 ${headline}
 
-  <text x="80" y="428" font-family="${font}" font-size="30" font-weight="400" fill="#d9f2ee">${SUBHEAD}</text>
+  <text x="80" y="428" font-family="${font}" font-size="30" font-weight="400" fill="#cad5e2">${SUBHEAD}</text>
 
   <!-- Proof strip. -->
   <line x1="80" y1="486" x2="1120" y2="486" stroke="#ffffff" stroke-width="1.5" opacity="0.28"/>

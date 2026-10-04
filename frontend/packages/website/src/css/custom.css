@@ -16,7 +16,6 @@
   --color-brand-950: oklch(26.6% 0.079 36.259);
 
   /* Write teal */
-  --color-background: color-mix(in srgb, white 90%, var(--color-brand-50));
   --color-brand: oklch(77.7% 0.152 181.912);
   --color-brand-50: oklch(98.4% 0.014 180.72);
   --color-brand-100: oklch(95.3% 0.051 180.801);
@@ -30,10 +29,15 @@
   --color-brand-900: oklch(43.7% 0.078 188.216);
   --color-brand-950: oklch(38.6% 0.063 188.416);
 
-  /* Ink: the near-black teal behind the dark marketing sections, where
-     brand-950 (a mid teal) is too light to carry white text at length. */
+  /* Ink: the near-black teal of headings and other text on light surfaces. */
   --color-ink-900: oklch(21.5% 0.032 202);
   --color-ink-950: oklch(17% 0.027 205);
+
+  /* Deep: the dark teal the heroes, dark sections and footer are painted in.
+     It sits between ink, which reads as black across a whole section, and
+     brand-950, a mid teal too light to carry white text at length. */
+  --color-deep-900: oklch(32% 0.055 190);
+  --color-deep-950: oklch(27% 0.05 192);
 }
 
 
@@ -51,8 +55,8 @@
 
 [data-theme='light'] .DocSearch {
   --docsearch-primary-color: var(--color-brand-500); 
-  --docsearch-text-color: var(--color-brand-950);
-  --docsearch-secondary-text-color: var(--color-brand-950);
+  --docsearch-text-color: var(--color-ink-950);
+  --docsearch-secondary-text-color: var(--color-slate-600);
   --docsearch-highlight-color: var(--color-brand-700);
 
   --docsearch-muted-color: var(--ifm-color-secondary-darkest);
@@ -68,12 +72,12 @@
   --docsearch-hit-background: var(--ifm-color-white);
   /* Footer */
   --docsearch-footer-background: var(--ifm-color-white);
-  --docsearch-logo-color: var(--color-brand-950);
+  --docsearch-logo-color: var(--color-ink-950);
 }
 
 /* See https: //github.com/algolia/docsearch/pull/1949 */
 .cls-1, .cls-2 {
-  fill: var(--color-brand-950) !important;
+  fill: var(--color-ink-950) !important;
 }
 
 /**
@@ -96,15 +100,88 @@
   --ifm-code-font-size: 95%;
   --ifm-font-size-base: 90%;
   --ifm-line-height-base: 1.75;
-  --ifm-font-color-base: var(--color-brand-950);
 
-  --ifm-hover-overlay: var(--color-brand-100);
+  /*
+   * The docs and blog wear the marketing pages' palette: near-black ink for
+   * headings and the navbar, slate for running text, white surfaces with slate
+   * hairlines, and teal kept for links and for whatever is current.
+   */
+  --ifm-font-color-base: var(--color-slate-700);
+  --ifm-heading-color: var(--color-ink-950);
+  --ifm-heading-font-weight: 600;
+  --ifm-navbar-link-color: var(--color-ink-900);
+  --ifm-global-radius: 0.5rem;
+
+  --ifm-hover-overlay: var(--color-slate-100);
+  --ifm-menu-color: var(--color-slate-600);
+  --ifm-menu-color-active: var(--color-brand-800);
+  --ifm-menu-color-background-active: var(--color-brand-50);
+  --ifm-breadcrumb-color-active: var(--color-brand-800);
+  --ifm-breadcrumb-item-background-active: var(--color-brand-50);
+  --ifm-toc-link-color: var(--color-slate-500);
+  --ifm-toc-border-color: var(--color-slate-200);
+  --ifm-table-border-color: var(--color-slate-200);
 
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-  background-color: var(--color-background);
+  background-color: white;
   font-family: var(--ifm-heading-font-family);
-  color: var(--color-brand-950);
-  --ifm-heading-color: var(--color-brand-950);
+  color: var(--color-slate-700);
+}
+
+/* Headings set tight, as on the marketing pages. Scoped to prose, because
+   those pages size and track their own headings with utilities, which an
+   unlayered rule on bare h1-h3 would override. */
+.markdown :is(h1, h2, h3),
+article > header :is(h1, h2) {
+  letter-spacing: -0.02em;
+}
+
+/* A post title that links to its post is still a heading: ink, not link teal,
+   until it is hovered. */
+article > header :is(h1, h2) a {
+  color: inherit;
+}
+
+article > header :is(h1, h2) a:hover {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+/* Bold in running text takes the heading ink, so it reads as emphasis. */
+.markdown strong {
+  color: var(--color-ink-950);
+}
+
+/* Sidebar group labels: see sidebars.ts. */
+.sidebar-label {
+  display: block;
+  padding: 1rem 0.75rem 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-slate-500);
+  cursor: default;
+}
+
+.menu__list > li:first-child > .sidebar-label {
+  padding-top: 0.25rem;
+}
+
+.menu__link--active:not(.menu__link--sublist) {
+  font-weight: 600;
+}
+
+/* The footer is the same deep teal as the heroes. */
+.footer--dark {
+  --ifm-footer-background-color: var(--color-deep-950);
+  --ifm-footer-link-color: var(--color-slate-300);
+  --ifm-footer-link-hover-color: white;
+  --ifm-footer-title-color: white;
+}
+
+.footer--dark .footer__copyright {
+  color: var(--color-slate-400);
 }
 
 .header-github-link::before {
@@ -131,13 +208,14 @@
 }
 
 .navbar .navbar-button--secondary {
-  border: 1px solid var(--color-brand-700);
-  color: var(--color-brand-800);
+  border: 1px solid var(--color-slate-300);
+  color: var(--color-ink-900);
 }
 
 .navbar .navbar-button--secondary:hover {
-  background: var(--color-brand-50);
-  color: var(--color-brand-900);
+  border-color: var(--color-slate-400);
+  background: var(--color-slate-50);
+  color: var(--color-ink-900);
 }
 
 .navbar .navbar-button--primary {
@@ -346,7 +424,7 @@
 
 /*
  * Scroll reveal. An element opts in with a `data-reveal` attribute, and
- * useScrollReveal() (src/components/home/motion.tsx) arms the ones still below
+ * useScrollReveal() (src/components/site/motion.tsx) arms the ones still below
  * the fold, then releases each as it scrolls into view. Nothing is hidden in
  * the markup itself: without JavaScript, or with reduced motion, no element is
  * ever armed and the page is simply all there.

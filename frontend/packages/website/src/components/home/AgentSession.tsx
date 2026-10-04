@@ -1,8 +1,9 @@
 import React from "react";
 import clsx from "clsx";
 
-import { Icon, LogoMark } from "./icons";
-import { riseDelay } from "./motion";
+import { Icon, LogoMark } from "../site/icons";
+import { riseDelay } from "../site/motion";
+import site from "../site/styles.module.css";
 import styles from "./styles.module.css";
 
 /**
@@ -43,7 +44,7 @@ const ANSWER_AT = TRACE_AT + TRACE.length * TRACE_STEP + 150;
 
 function Label({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-slate-400">
+    <div className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-slate-300">
       {children}
     </div>
   );
@@ -64,12 +65,12 @@ export default function AgentSession() {
       </p>
       <div
         aria-hidden="true"
-        className="overflow-hidden rounded-2xl border border-white/10 bg-ink-900 text-left shadow-[0_40px_80px_-30px_rgb(2_20_22/0.75)] ring-1 ring-black/20"
+        className="overflow-hidden rounded-2xl border border-white/10 bg-deep-900 text-left shadow-[0_40px_80px_-30px_rgb(2_20_22/0.75)] ring-1 ring-black/20"
       >
         <div className="flex items-center gap-3 border-b border-white/10 bg-white/[0.03] px-5 py-3.5 text-sm">
           <LogoMark className="h-4 w-4 text-brand-400" />
           <span className="font-semibold text-white">care-copilot</span>
-          <span className="hidden font-mono text-[0.8125rem] text-slate-400 sm:inline">
+          <span className="hidden font-mono text-[0.8125rem] text-slate-300 sm:inline">
             acme-health / production
           </span>
           <span className="ml-auto inline-flex items-center gap-2.5 text-[0.8125rem] font-medium text-slate-300">
@@ -81,7 +82,7 @@ export default function AgentSession() {
         <div className="grid md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
           <div className="flex min-w-0 flex-col gap-4 border-b border-white/10 p-5 md:border-b-0 md:border-r md:p-7">
             <div
-              className={clsx(styles.rise, "space-y-2")}
+              className={clsx(site.rise, "space-y-2")}
               style={riseDelay(QUESTION_AT)}
             >
               <Label>Clinician</Label>
@@ -93,21 +94,21 @@ export default function AgentSession() {
 
             <div
               className={clsx(
-                styles.rise,
+                site.rise,
                 "flex items-center gap-2.5 rounded-lg border border-white/10 px-3 py-2 text-[0.8125rem] text-slate-300",
               )}
               style={riseDelay(TOOL_AT)}
             >
               <Icon name="tools" className="h-4 w-4 text-brand-400" />
               <span className="font-mono text-brand-200">fhir_r4_search</span>
-              <span className="text-slate-400">Observation</span>
-              <span className="ml-auto whitespace-nowrap text-slate-400">
+              <span className="text-slate-300">Observation</span>
+              <span className="ml-auto whitespace-nowrap text-slate-300">
                 4 results
               </span>
             </div>
 
             <div
-              className={clsx(styles.rise, "space-y-2")}
+              className={clsx(site.rise, "space-y-2")}
               style={riseDelay(ANSWER_AT)}
             >
               <Label>Agent</Label>
@@ -120,9 +121,9 @@ export default function AgentSession() {
                   {READINGS.map((reading) => (
                     <div
                       key={reading.date}
-                      className="whitespace-nowrap rounded-md bg-ink-950/60 px-1 py-1.5 text-center"
+                      className="whitespace-nowrap rounded-md bg-deep-950/70 px-1 py-1.5 text-center"
                     >
-                      <dt className="text-[0.6875rem] text-slate-400">
+                      <dt className="text-[0.6875rem] text-slate-300">
                         {reading.date}
                       </dt>
                       <dd className="m-0 font-mono text-[0.75rem] text-brand-100 sm:text-[0.8125rem]">
@@ -138,7 +139,7 @@ export default function AgentSession() {
           <div className="min-w-0 p-5 md:p-7">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
               <Label>What the server did</Label>
-              <span className="font-mono text-[0.75rem] text-slate-400">
+              <span className="font-mono text-[0.75rem] text-slate-300">
                 POST /w/acme-health/production/api/v1/mcp
               </span>
             </div>
@@ -150,7 +151,7 @@ export default function AgentSession() {
                 return (
                   <li
                     key={step.title}
-                    className={clsx(styles.rise, "relative flex gap-3.5 pb-4")}
+                    className={clsx(site.rise, "relative flex gap-3.5 pb-4")}
                     style={delay}
                   >
                     {last ? null : (
@@ -172,7 +173,7 @@ export default function AgentSession() {
                       <div className="text-[0.9375rem] font-semibold leading-6 text-white">
                         {step.title}
                       </div>
-                      <div className="font-mono text-[0.8125rem] leading-5 text-slate-400 [overflow-wrap:anywhere]">
+                      <div className="font-mono text-[0.8125rem] leading-5 text-slate-300 [overflow-wrap:anywhere]">
                         {step.detail}
                       </div>
                     </div>
@@ -183,14 +184,14 @@ export default function AgentSession() {
 
             <div
               className={clsx(
-                styles.rise,
+                site.rise,
                 "flex items-center gap-2.5 rounded-lg bg-white/[0.05] px-3.5 py-2.5 font-mono text-[0.8125rem] text-slate-300",
               )}
               style={riseDelay(ANSWER_AT - 150)}
             >
               <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
               200 OK
-              <span className="text-slate-400">
+              <span className="text-slate-300">
                 Bundle, searchset, 4 entries
               </span>
             </div>

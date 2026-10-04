@@ -1,7 +1,15 @@
 import React, { ReactNode } from "react";
-import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
-import Heading from "@theme/Heading";
+
+import { GitHubMark } from "@site/src/components/site/icons";
+import { revealDelay, useScrollReveal } from "@site/src/components/site/motion";
+import {
+  Container,
+  IconTile,
+  LinkCard,
+  PageHero,
+  SectionHeader,
+} from "@site/src/components/site/ui";
 
 const contactChannels = [
   {
@@ -40,88 +48,65 @@ const communityLinks = [
 ];
 
 export default function Contact(): ReactNode {
+  const page = useScrollReveal<HTMLElement>();
+
   return (
     <Layout
-      wrapperClassName="bg-background"
+      wrapperClassName="bg-white"
       title="Contact"
       description="Get in touch with the Haste Health team about business partnerships, developer support for the open-source FHIR server and MCP tools, or security disclosures."
     >
-      <main
-        id="tw-scope"
-        className="container mx-auto px-4 py-8 md:py-12 text-brand-950"
-      >
-        <section className="rounded-3xl border border-brand-200 bg-white px-6 py-12 md:px-10 md:py-16">
-          <div className="max-w-4xl space-y-4">
-            <Heading
-              as="h1"
-              className="text-4xl md:text-5xl font-bold tracking-tight text-brand-950"
-            >
-              Contact Us
-            </Heading>
-            <p className="max-w-3xl text-lg text-slate-700 leading-relaxed">
-              Reach out to the right team, or connect with us on GitHub.
-            </p>
-          </div>
+      <main id="tw-scope" ref={page} className="text-ink-950">
+        <PageHero title="Contact Us">
+          Reach out to the right team, or connect with us on GitHub.
+        </PageHero>
+
+        <section className="bg-white py-20 md:py-28">
+          <Container>
+            <SectionHeader title="Email Us" />
+            <div className="mt-10 grid gap-5 md:mt-12 md:grid-cols-3">
+              {contactChannels.map((channel, index) => (
+                <div
+                  key={channel.title}
+                  data-reveal=""
+                  style={revealDelay(index)}
+                >
+                  <LinkCard
+                    to={channel.href}
+                    icon={<IconTile name="mail" />}
+                    title={channel.title}
+                    label={channel.label}
+                  >
+                    {channel.body}
+                  </LinkCard>
+                </div>
+              ))}
+            </div>
+          </Container>
         </section>
 
-        <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
-          <Heading
-            as="h2"
-            className="text-2xl md:text-3xl font-bold text-brand-950"
-          >
-            Email Us
-          </Heading>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {contactChannels.map((channel) => (
-              <article
-                key={channel.title}
-                className="flex flex-col rounded-xl border border-brand-200 bg-brand-50/40 p-5"
-              >
-                <h3 className="text-lg font-semibold text-brand-900">
-                  {channel.title}
-                </h3>
-                <p className="mt-2 flex-1 text-sm text-slate-700 leading-6">
-                  {channel.body}
-                </p>
-                <Link
-                  href={channel.href}
-                  className="mt-4 inline-flex items-center justify-center rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800"
-                >
-                  {channel.label}
-                </Link>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
-          <Heading
-            as="h2"
-            className="text-2xl md:text-3xl font-bold text-brand-950"
-          >
-            Connect on GitHub
-          </Heading>
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {communityLinks.map((link) => (
-              <article
-                key={link.title}
-                className="flex flex-col rounded-xl border border-brand-200 bg-brand-50/40 p-5"
-              >
-                <h3 className="text-lg font-semibold text-brand-900">
-                  {link.title}
-                </h3>
-                <p className="mt-2 flex-1 text-sm text-slate-700 leading-6">
-                  {link.body}
-                </p>
-                <Link
-                  href={link.href}
-                  className="mt-4 inline-flex items-center justify-center rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800"
-                >
-                  {link.label}
-                </Link>
-              </article>
-            ))}
-          </div>
+        <section className="border-t border-slate-200/80 bg-slate-50 py-20 md:py-28">
+          <Container>
+            <SectionHeader title="Connect on GitHub" />
+            <div className="mt-10 grid gap-5 md:mt-12 md:grid-cols-2">
+              {communityLinks.map((link, index) => (
+                <div key={link.title} data-reveal="" style={revealDelay(index)}>
+                  <LinkCard
+                    to={link.href}
+                    icon={
+                      <IconTile>
+                        <GitHubMark className="h-[1.375rem] w-[1.375rem]" />
+                      </IconTile>
+                    }
+                    title={link.title}
+                    label={link.label}
+                  >
+                    {link.body}
+                  </LinkCard>
+                </div>
+              ))}
+            </div>
+          </Container>
         </section>
       </main>
     </Layout>

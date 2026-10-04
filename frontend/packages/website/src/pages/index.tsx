@@ -10,26 +10,31 @@ import McpPreview from "@site/src/components/McpPreview";
 import AgentSession from "@site/src/components/home/AgentSession";
 import ConformanceGrid from "@site/src/components/home/ConformanceGrid";
 import { useHomepageFacts } from "@site/src/components/home/facts";
-import {
-  GitHubMark,
-  Icon,
-  type IconName,
-} from "@site/src/components/home/icons";
+import home from "@site/src/components/home/styles.module.css";
+import { GitHubMark, type IconName } from "@site/src/components/site/icons";
 import {
   CountUp,
   revealDelay,
   riseDelay,
   useScrollReveal,
-} from "@site/src/components/home/motion";
-import styles from "@site/src/components/home/styles.module.css";
+} from "@site/src/components/site/motion";
+import site from "@site/src/components/site/styles.module.css";
+import {
+  ArrowLink,
+  Button,
+  Container,
+  HeroBadge,
+  IconTile,
+  LinkCard,
+  SectionHeader,
+} from "@site/src/components/site/ui";
 import {
   DEMO_URL,
   GITHUB_URL,
   QUICK_START_URL,
-  SECURITY_EMAIL,
   SIGNUP_URL,
 } from "@site/src/links";
-import { TIERS, type Tier, type TierId } from "@site/src/pricing/tiers";
+import { EMPHASIZED_TIER, TIERS } from "@site/src/pricing/tiers";
 
 // ---------------------------------------------------------------------------
 // Content
@@ -45,21 +50,6 @@ const standards = [
   "SQL on FHIR",
   "HL7v2",
   "FHIRPath",
-];
-
-const flowSteps = [
-  {
-    title: "Bring data in",
-    body: "Load from EHR FHIR APIs, HL7v2 feeds over MLLP, or plain FHIR transactions and batches. Everything is validated and stored as FHIR R4.",
-  },
-  {
-    title: "Govern it once",
-    body: "Tenants and projects isolate data. OAuth scopes and access policies decide who can see what, and every write is versioned.",
-  },
-  {
-    title: "Serve every consumer",
-    body: "Apps use REST and SMART on FHIR, analysts use SQL on FHIR, and agents use MCP. All of them read the same governed data.",
-  },
 ];
 
 type Feature = { icon: IconName; title: string; body: string };
@@ -98,7 +88,10 @@ const agentUseCases = [
   "Data quality audits",
 ];
 
-const platform: (Feature & { href: string })[] = [
+/** A feature that links somewhere. The label defaults to "Read the docs". */
+type LinkedFeature = Feature & { href: string; label?: string };
+
+const platform: LinkedFeature[] = [
   {
     icon: "database",
     title: "A complete FHIR R4 API",
@@ -191,67 +184,43 @@ const controls: Feature[] = [
   },
 ];
 
-const managedAssurances = [
-  "A signed BAA before any PHI reaches us",
-  "Daily backups with point-in-time recovery",
-  "An uptime SLA and a committed support response time",
-  "BAA template, subprocessor list, data-flow diagram and pre-answered CAIQ and SIG Lite, on request",
-];
-
 /**
- * The editorial half of a deployment card. Price, SLA and support terms are
- * read from the generated tier table (src/pricing/tiers.ts), the same one the
- * pricing page and the server use, so they are not restated here.
+ * The hosted tier most buyers land on. The homepage quotes its price from the
+ * generated tier table (src/pricing/tiers.ts), the same one the pricing page
+ * and the server use, so the figure is not restated here.
  */
-type DeploymentOption = {
-  tier: TierId;
-  icon: IconName;
-  where: string;
-  body: string;
-  points: (tier: Tier) => string[];
-  cta: { label: string; href: string };
-};
+const production = TIERS.find((tier) => tier.tier === EMPHASIZED_TIER);
 
-function baa(tier: Tier): string[] {
-  return tier.baa_available ? ["Signed BAA"] : [];
+function productionTerms(): string {
+  if (!production) return "";
+  const price = `${production.price}${production.cadence ?? ""}`;
+  return production.baa_available
+    ? ` Production plans add a signed BAA and start at ${price}.`
+    : ` Production plans start at ${price}.`;
 }
 
-const deployments: DeploymentOption[] = [
+/** The ways to take the project, and where its development can be followed. */
+const ways: LinkedFeature[] = [
   {
-    tier: "unlimited",
     icon: "server",
-    where: "Your cloud or data center",
-    body: "The whole server under Apache-2.0. Run it with Docker Compose, container images or a single binary from npm, and keep your data where it already is.",
-    points: () => [
-      "Every feature, with no license key",
-      "PostgreSQL only, Elasticsearch optional",
-      "Community support on GitHub",
-    ],
-    cta: { label: "Read the quick start", href: QUICK_START_URL },
+    title: "Run it yourself",
+    body: "The whole server, free under Apache-2.0. Docker Compose brings up the full stack locally, and container images or a single binary from npm take it to production.",
+    href: QUICK_START_URL,
+    label: "Self-host in 5 minutes",
   },
   {
-    tier: "professional",
     icon: "cloud",
-    where: "Managed by Haste Health",
-    body: "A dedicated hosted tenant that we run, back up and upgrade. Start on the free Developer tier and move up when you carry real patient data.",
-    points: (tier) => [
-      ...baa(tier),
-      `${tier.uptime_sla} uptime SLA`,
-      `Support response in ${tier.support}`,
-    ],
-    cta: { label: "Start for free", href: SIGNUP_URL },
+    title: "Or have it hosted",
+    body: `The same server, operated for you. Start on a free tenant with no credit card.${productionTerms()}`,
+    href: "/pricing",
+    label: "See pricing",
   },
   {
-    tier: "team",
-    icon: "building",
-    where: "Dedicated, or in your VPC",
-    body: "Single-tenant infrastructure for population-scale data: a dedicated database, tunable read replicas and Elasticsearch scale-out for search.",
-    points: (tier) => [
-      ...baa(tier),
-      `${tier.uptime_sla} uptime SLA`,
-      `Support response in ${tier.support}, with a named engineer`,
-    ],
-    cta: { label: "Book a demo", href: DEMO_URL },
+    icon: "branch",
+    title: "Built in the open",
+    body: "Development happens in the public repository, and each month's changes are written up in a feature update. The conformance tests are public too, known gaps included.",
+    href: "/blog",
+    label: "Read the latest updates",
   },
 ];
 
@@ -259,148 +228,16 @@ const deployments: DeploymentOption[] = [
 // Building blocks
 // ---------------------------------------------------------------------------
 
-function Container({
-  children,
-  className,
-}: Readonly<{ children: ReactNode; className?: string }>) {
+function FeatureCard({ feature }: Readonly<{ feature: LinkedFeature }>) {
   return (
-    <div
-      className={clsx("mx-auto w-full max-w-[84rem] px-5 sm:px-8", className)}
+    <LinkCard
+      to={feature.href}
+      icon={<IconTile name={feature.icon} />}
+      title={feature.title}
+      label={feature.label ?? "Read the docs"}
     >
-      {children}
-    </div>
-  );
-}
-
-/** Which surface a control sits on, so it can pick legible colours. */
-type Surface = "light" | "dark";
-
-const BUTTON =
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 text-[1.0625rem] font-semibold no-underline transition-colors hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2";
-
-const BUTTON_STYLES: Record<
-  "primary" | "secondary",
-  Record<Surface, string>
-> = {
-  primary: {
-    dark: "bg-white text-ink-950 hover:bg-brand-100 hover:text-ink-950 focus-visible:outline-white",
-    light:
-      "bg-brand-800 text-white hover:bg-brand-900 hover:text-white focus-visible:outline-brand-800",
-  },
-  secondary: {
-    dark: "border border-white/25 text-white hover:border-white/50 hover:bg-white/10 hover:text-white focus-visible:outline-white",
-    light:
-      "border border-slate-300 bg-white text-ink-900 hover:border-slate-400 hover:bg-slate-50 hover:text-ink-900 focus-visible:outline-brand-800",
-  },
-};
-
-function Button({
-  to,
-  children,
-  variant = "primary",
-  on = "light",
-}: Readonly<{
-  to: string;
-  children: ReactNode;
-  variant?: "primary" | "secondary";
-  on?: Surface;
-}>) {
-  return (
-    <Link to={to} className={clsx(BUTTON, BUTTON_STYLES[variant][on])}>
-      {children}
-    </Link>
-  );
-}
-
-/** A quiet text link with an arrow that leans forward on hover. */
-function ArrowLink({
-  to,
-  children,
-  on = "light",
-}: Readonly<{ to: string; children: ReactNode; on?: Surface }>) {
-  return (
-    <Link
-      to={to}
-      // A mail link opens the mail client; it should not open a blank tab too.
-      {...(to.startsWith("mailto:") ? { target: "_self" } : {})}
-      className={clsx(
-        "inline-flex items-center gap-1.5 text-[1.0625rem] font-semibold no-underline hover:no-underline",
-        on === "dark"
-          ? "text-brand-300 hover:text-brand-200"
-          : "text-brand-800 hover:text-brand-900",
-      )}
-    >
-      {children}
-      <Icon name="arrowRight" className={clsx("h-4 w-4", styles.arrow)} />
-    </Link>
-  );
-}
-
-function SectionHeader({
-  eyebrow,
-  title,
-  children,
-  on = "light",
-  centered = false,
-}: Readonly<{
-  eyebrow: string;
-  title: string;
-  children?: ReactNode;
-  on?: Surface;
-  centered?: boolean;
-}>) {
-  return (
-    <div
-      className={clsx("max-w-[52rem]", centered && "mx-auto text-center")}
-      data-reveal=""
-    >
-      <p
-        className={clsx(
-          "text-[0.8125rem] font-semibold uppercase tracking-[0.16em]",
-          on === "dark" ? "text-brand-300" : "text-brand-800",
-        )}
-      >
-        {eyebrow}
-      </p>
-      <Heading
-        as="h2"
-        className={clsx(
-          "mt-4 text-[2rem] font-semibold leading-[1.12] tracking-[-0.025em] text-balance md:text-[2.75rem]",
-          on === "dark" ? "text-white" : "text-ink-950",
-        )}
-      >
-        {title}
-      </Heading>
-      {children ? (
-        <p
-          className={clsx(
-            "mt-5 text-lg leading-relaxed md:text-xl",
-            on === "dark" ? "text-slate-300" : "text-slate-600",
-          )}
-        >
-          {children}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
-/** An icon in a tinted tile, the lead-in to a feature. */
-function IconTile({
-  name,
-  on = "light",
-}: Readonly<{ name: IconName; on?: Surface }>) {
-  return (
-    <span
-      className={clsx(
-        "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl",
-        on === "dark"
-          ? "bg-white/[0.06] text-brand-300 ring-1 ring-white/10"
-          : "bg-brand-50 text-brand-800 ring-1 ring-brand-200/70",
-      )}
-    >
-      <Icon name={name} className="h-[1.375rem] w-[1.375rem]" />
-    </span>
+      {feature.body}
+    </LinkCard>
   );
 }
 
@@ -411,11 +248,11 @@ function IconTile({
 function Hero() {
   return (
     <section className="relative z-10 text-white">
-      <div className={styles.heroBackdrop} aria-hidden="true">
-        <div className={styles.grid} />
+      <div className={site.heroBackdrop} aria-hidden="true">
+        <div className={site.grid} />
         <svg
           className={clsx(
-            styles.pulseLine,
+            home.pulseLine,
             "absolute inset-x-0 bottom-36 h-40 w-full",
           )}
           viewBox="0 0 1600 200"
@@ -439,18 +276,9 @@ function Hero() {
           {/* The H1 and subhead already say open source; the badge carries
               the two things a buyer comparing FHIR servers cannot get from
               most rivals without a sales call. */}
-          <p
-            className={clsx(
-              styles.rise,
-              "inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.06] px-4 py-1.5 text-[0.8125rem] font-medium tracking-wide text-brand-100",
-            )}
-          >
-            <span
-              className="h-1.5 w-1.5 rounded-full bg-brand-400"
-              aria-hidden="true"
-            />
+          <HeroBadge className={site.rise}>
             Apache-2.0 · Published pricing · BAA available
-          </p>
+          </HeroBadge>
 
           {/* The category noun a buyer actually shortlists on ("FHIR
               server") leads; AI-native is the audience, not the category.
@@ -466,7 +294,7 @@ function Hero() {
           <Heading
             as="h1"
             className={clsx(
-              styles.rise,
+              site.rise,
               "mt-7 text-[2.375rem] font-semibold leading-[1.05] tracking-[-0.035em] text-white text-balance md:text-5xl lg:text-6xl xl:text-7xl",
             )}
             style={riseDelay(60)}
@@ -487,7 +315,7 @@ function Hero() {
               opens say the same thing. */}
           <p
             className={clsx(
-              styles.rise,
+              site.rise,
               "mt-7 max-w-[46rem] text-lg leading-relaxed text-slate-300 md:text-xl",
             )}
             style={riseDelay(140)}
@@ -505,7 +333,7 @@ function Hero() {
               Self-hosting stays one click away on the line below. */}
           <div
             className={clsx(
-              styles.rise,
+              site.rise,
               "mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row",
             )}
             style={riseDelay(220)}
@@ -518,7 +346,7 @@ function Hero() {
             </Button>
           </div>
           <p
-            className={clsx(styles.rise, "mt-5 text-sm text-slate-400")}
+            className={clsx(site.rise, "mt-5 text-sm text-slate-300")}
             style={riseDelay(280)}
           >
             Free hosted tenant, no credit card. Or{" "}
@@ -534,7 +362,7 @@ function Hero() {
 
         <div
           className={clsx(
-            styles.rise,
+            site.rise,
             "relative mx-auto -mb-24 mt-14 w-full max-w-[70rem] md:-mb-32 md:mt-16",
           )}
           style={riseDelay(380)}
@@ -589,27 +417,6 @@ function HowItFits() {
         >
           <DataFlowDiagram />
         </div>
-
-        <ol className="mt-12 grid list-none gap-10 p-0 md:mt-16 md:grid-cols-3 md:gap-12">
-          {flowSteps.map((step, index) => (
-            <li
-              key={step.title}
-              className="border-t border-slate-200 pt-6"
-              data-reveal=""
-              style={revealDelay(index)}
-            >
-              <span className="font-mono text-sm font-medium text-brand-800">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <h3 className="mt-3 text-xl font-semibold tracking-tight text-ink-950">
-                {step.title}
-              </h3>
-              <p className="mt-2 text-[1.0625rem] leading-relaxed text-slate-600">
-                {step.body}
-              </p>
-            </li>
-          ))}
-        </ol>
       </Container>
     </section>
   );
@@ -620,7 +427,7 @@ function AiNative() {
 
   return (
     <section className="relative isolate py-20 text-white md:py-28">
-      <div className={clsx(styles.darkBackdrop, "-z-10")} aria-hidden="true" />
+      <div className={clsx(site.darkBackdrop, "-z-10")} aria-hidden="true" />
       <Container>
         <SectionHeader
           eyebrow="AI-native"
@@ -637,7 +444,7 @@ function AiNative() {
           className="mt-8 flex flex-wrap items-center gap-x-2.5 gap-y-2.5"
           data-reveal=""
         >
-          <span className="mr-1.5 text-base font-medium text-slate-400">
+          <span className="mr-1.5 text-base font-medium text-slate-300">
             What you can build:
           </span>
           {agentUseCases.map((useCase) => (
@@ -657,7 +464,7 @@ function AiNative() {
               <h3 className="mt-5 text-lg font-semibold tracking-tight text-white">
                 {feature.title}
               </h3>
-              <p className="mt-2 text-base leading-relaxed text-slate-400">
+              <p className="mt-2 text-base leading-relaxed text-slate-300">
                 {feature.body}
               </p>
             </div>
@@ -672,7 +479,7 @@ function AiNative() {
           className="mt-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between"
           data-reveal=""
         >
-          <p className="max-w-[36rem] text-base leading-relaxed text-slate-400">
+          <p className="max-w-[36rem] text-base leading-relaxed text-slate-300">
             Works with Claude, Gemini and any other client that speaks MCP, and
             with the same OAuth 2.0 flows your applications already use.
           </p>
@@ -703,35 +510,13 @@ function Platform() {
           title="Everything a production FHIR backend needs, already built"
         >
           The plumbing most healthcare teams end up writing themselves ships in
-          the box. All of it is in the open-source repository, with no feature
-          gates and no license key.
+          the box.
         </SectionHeader>
 
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:mt-14 lg:grid-cols-3">
           {platform.map((item, index) => (
             <div key={item.title} data-reveal="" style={revealDelay(index % 3)}>
-              <Link
-                to={item.href}
-                className={clsx(
-                  styles.card,
-                  "flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 no-underline hover:no-underline md:p-7",
-                )}
-              >
-                <IconTile name={item.icon} />
-                <h3 className="mt-5 text-xl font-semibold tracking-tight text-ink-950">
-                  {item.title}
-                </h3>
-                <p className="mt-2 flex-1 text-base leading-relaxed text-slate-600">
-                  {item.body}
-                </p>
-                <span className="mt-5 inline-flex items-center gap-1.5 text-base font-semibold text-brand-800">
-                  Read the docs
-                  <Icon
-                    name="arrowRight"
-                    className={clsx("h-4 w-4", styles.arrow)}
-                  />
-                </span>
-              </Link>
+              <FeatureCard feature={item} />
             </div>
           ))}
         </div>
@@ -877,61 +662,25 @@ function Security() {
           people, services and autonomous agents alike.
         </SectionHeader>
 
-        <div className="mt-12 grid gap-10 lg:mt-14 lg:grid-cols-12 lg:gap-12">
-          <div className="grid gap-x-10 gap-y-9 sm:grid-cols-2 lg:col-span-8">
-            {controls.map((control, index) => (
-              <div
-                key={control.title}
-                className="flex gap-4"
-                data-reveal=""
-                style={revealDelay(index % 2)}
-              >
-                <IconTile name={control.icon} />
-                <div>
-                  <h3 className="text-lg font-semibold tracking-tight text-ink-950">
-                    {control.title}
-                  </h3>
-                  <p className="mt-1.5 text-base leading-relaxed text-slate-600">
-                    {control.body}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <aside
-            className="relative isolate overflow-hidden rounded-2xl p-7 text-white md:p-8 lg:col-span-4"
-            data-reveal=""
-            style={revealDelay(2)}
-          >
+        <div className="mt-12 grid gap-x-10 gap-y-9 sm:grid-cols-2 lg:mt-14 lg:grid-cols-3">
+          {controls.map((control, index) => (
             <div
-              className={clsx(styles.darkBackdrop, "-z-10")}
-              aria-hidden="true"
-            />
-            <Icon name="document" className="h-6 w-6 text-brand-300" />
-            <h3 className="mt-4 text-xl font-semibold tracking-tight text-white">
-              On the managed service
-            </h3>
-            <ul className="mt-5 list-none space-y-3.5 p-0">
-              {managedAssurances.map((assurance) => (
-                <li
-                  key={assurance}
-                  className="flex gap-3 text-base leading-snug text-slate-200"
-                >
-                  <Icon
-                    name="check"
-                    className="mt-0.5 h-4 w-4 text-brand-300"
-                  />
-                  {assurance}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-7">
-              <ArrowLink to={SECURITY_EMAIL} on="dark">
-                Request the security pack
-              </ArrowLink>
+              key={control.title}
+              className="flex gap-4"
+              data-reveal=""
+              style={revealDelay(index % 3)}
+            >
+              <IconTile name={control.icon} />
+              <div>
+                <h3 className="text-lg font-semibold tracking-tight text-ink-950">
+                  {control.title}
+                </h3>
+                <p className="mt-1.5 text-base leading-relaxed text-slate-600">
+                  {control.body}
+                </p>
+              </div>
             </div>
-          </aside>
+          ))}
         </div>
 
         <div className="mt-12 flex flex-col gap-3 sm:flex-row" data-reveal="">
@@ -950,94 +699,27 @@ function Security() {
   );
 }
 
-function Deployment() {
+function OpenSource() {
   return (
     <section className="border-t border-slate-200/80 bg-slate-50 py-20 md:py-28">
       <Container>
         <SectionHeader
-          eyebrow="Deployment"
-          title="Your infrastructure or ours. The same server either way."
+          eyebrow="Open source"
+          title="Yours to run, with or without us"
         >
-          Self-hosted and managed deployments run the same open-source server on
-          the same storage schema, so you can move between them in either
-          direction.
+          Everything we build lands in the Apache-2.0 repository, with no
+          feature gates and no license key. Self-hosted and hosted deployments
+          run the same server on the same storage schema, so you can move
+          between them in either direction.
         </SectionHeader>
 
         <div className="mt-12 grid gap-5 lg:mt-14 lg:grid-cols-3">
-          {deployments.map((deployment, index) => {
-            const tier = TIERS.find(
-              (candidate) => candidate.tier === deployment.tier,
-            );
-            if (!tier) return null;
-            return (
-              <article
-                key={deployment.tier}
-                className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42/0.04)] md:p-8"
-                data-reveal=""
-                style={revealDelay(index)}
-              >
-                <div className="flex items-center gap-3.5">
-                  <IconTile name={deployment.icon} />
-                  <div>
-                    <h3 className="text-xl font-semibold leading-tight tracking-tight text-ink-950">
-                      {tier.display_name}
-                    </h3>
-                    <p className="text-sm text-slate-500">{deployment.where}</p>
-                  </div>
-                </div>
-
-                <p className="mt-6 flex items-baseline gap-1.5">
-                  <span className="text-3xl font-semibold tracking-tight text-ink-950">
-                    {tier.price}
-                  </span>
-                  {tier.cadence ? (
-                    <span className="text-base text-slate-500">
-                      {tier.cadence}
-                    </span>
-                  ) : (
-                    <span className="text-base text-slate-500">Apache-2.0</span>
-                  )}
-                </p>
-
-                <p className="mt-4 text-base leading-relaxed text-slate-600">
-                  {deployment.body}
-                </p>
-
-                <ul className="mt-6 flex-1 list-none space-y-3 border-t border-slate-200 p-0 pt-6">
-                  {deployment.points(tier).map((point) => (
-                    <li
-                      key={point}
-                      className="flex gap-3 text-base leading-snug text-slate-700"
-                    >
-                      <Icon
-                        name="check"
-                        className="mt-0.5 h-4 w-4 text-brand-700"
-                      />
-                      {point}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-7">
-                  <ArrowLink to={deployment.cta.href}>
-                    {deployment.cta.label}
-                  </ArrowLink>
-                </div>
-              </article>
-            );
-          })}
+          {ways.map((way, index) => (
+            <div key={way.title} data-reveal="" style={revealDelay(index)}>
+              <FeatureCard feature={way} />
+            </div>
+          ))}
         </div>
-
-        <p className="mt-8 text-base text-slate-600" data-reveal="">
-          Prices and limits are published in full.{" "}
-          <Link
-            to="/pricing"
-            className="font-semibold text-brand-800 underline decoration-brand-300 underline-offset-4 hover:text-brand-900 hover:decoration-brand-600"
-          >
-            Compare every plan
-          </Link>
-          .
-        </p>
       </Container>
     </section>
   );
@@ -1051,11 +733,8 @@ function FinalCta() {
           className="relative isolate overflow-hidden rounded-3xl px-6 py-14 text-center text-white sm:px-10 md:py-20"
           data-reveal=""
         >
-          <div
-            className={clsx(styles.heroBackdrop, "-z-10")}
-            aria-hidden="true"
-          >
-            <div className={styles.grid} />
+          <div className={clsx(site.heroBackdrop, "-z-10")} aria-hidden="true">
+            <div className={site.grid} />
           </div>
           <Heading
             as="h2"
@@ -1065,7 +744,7 @@ function FinalCta() {
           </Heading>
           <p className="mx-auto mt-5 max-w-[40rem] text-lg leading-relaxed text-slate-300 md:text-xl">
             Start on a free hosted tenant in under a minute, self-host in five,
-            or talk to an engineer about your architecture.
+            or book a demo and talk it through with the founder.
           </p>
           <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
             <Button to={SIGNUP_URL} on="dark">
@@ -1127,7 +806,7 @@ export default function Home(): ReactNode {
         <Platform />
         <Proof />
         <Security />
-        <Deployment />
+        <OpenSource />
         <FinalCta />
       </main>
     </Layout>

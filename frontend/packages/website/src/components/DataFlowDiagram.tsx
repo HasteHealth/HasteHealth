@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "@docusaurus/Link";
 
-import { Icon, LogoMark } from "./home/icons";
+import { Icon, LogoMark } from "./site/icons";
 import styles from "./DataFlowDiagram.module.css";
 
 type Endpoint = {
@@ -183,7 +183,7 @@ function Core() {
         className="absolute -inset-6 rounded-[2rem] bg-brand-300/25 blur-2xl"
         aria-hidden="true"
       />
-      <div className="relative w-[14rem] rounded-2xl bg-ink-950 p-5 text-white shadow-[0_24px_48px_-20px_rgb(2_20_22/0.55)] ring-1 ring-white/10 @5xl:w-[17.5rem] @5xl:p-6">
+      <div className="relative w-[14rem] rounded-2xl bg-deep-950 p-5 text-white shadow-[0_24px_48px_-20px_rgb(2_20_22/0.55)] ring-1 ring-white/10 @5xl:w-[17.5rem] @5xl:p-6">
         <LogoMark className="h-8 w-8 text-brand-400" />
         <div className="mt-3 text-lg font-semibold leading-tight text-white">
           Haste Health

@@ -86,7 +86,7 @@ function EnumSummary({ values }: Readonly<{ values: unknown[] }>) {
       <button
         type="button"
         onClick={() => setExpanded((e) => !e)}
-        className="cursor-pointer font-medium text-brand-600 hover:underline"
+        className="cursor-pointer border-0 bg-transparent p-0 font-medium text-brand-800 hover:underline"
       >
         {expanded ? "Hide options ▲" : `${strings.length} supported types ▾`}
       </button>
@@ -119,7 +119,7 @@ function TypeSummary({ schema }: Readonly<{ schema: JSONSchema | undefined }>) {
         href={schema.$ref}
         target="_blank"
         rel="noreferrer"
-        className="text-xs font-medium text-brand-600 hover:underline"
+        className="text-xs font-medium text-brand-800 hover:underline"
       >
         {refLabel(schema.$ref)} schema ↗
       </a>
@@ -169,7 +169,7 @@ function PropertyRow({
     schema.type === "array" ? (schema.items?.required ?? []) : (schema.required ?? []);
 
   return (
-    <div className={depth > 0 ? "border-l border-slate-150 pl-4" : ""}>
+    <div className={depth > 0 ? "border-l border-slate-200 pl-4" : ""}>
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 py-2.5">
         <code className="text-[13px] font-semibold text-slate-900">{name}</code>
         {required ? (
@@ -249,7 +249,7 @@ function RawSchemaToggle({
       <button
         type="button"
         onClick={() => setShow((s) => !s)}
-        className="cursor-pointer text-xs font-medium text-slate-400 hover:text-brand-600 hover:underline"
+        className="cursor-pointer border-0 bg-transparent p-0 text-xs font-medium text-slate-500 hover:text-brand-800 hover:underline"
       >
         {show ? "Hide" : "View"} raw {label} schema
       </button>
@@ -289,17 +289,17 @@ function ToolCard({
   return (
     <div
       id={tool.name}
-      className="scroll-mt-24 rounded-xl border border-slate-200 bg-white transition-colors hover:border-brand-300"
+      className="scroll-mt-24 rounded-xl border border-slate-200 bg-white transition-colors hover:border-brand-500"
     >
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
-        className="flex w-full cursor-pointer items-start justify-between gap-4 px-5 py-4 text-left"
+        className="flex w-full cursor-pointer items-start justify-between gap-4 rounded-xl border-0 bg-transparent px-5 py-4 text-left font-[inherit]"
       >
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <code className="text-[13px] font-semibold text-slate-900">
+            <code className="border-0 bg-transparent p-0 text-[13px] font-semibold text-ink-950">
               {tool.name}
             </code>
             <span
@@ -309,7 +309,7 @@ function ToolCard({
             </span>
           </div>
           {tool.description ? (
-            <p className="mt-1.5 text-sm leading-6 text-slate-600">
+            <p className="mb-0 mt-1.5 text-sm leading-6 text-slate-600">
               {tool.description}
             </p>
           ) : null}
@@ -325,14 +325,14 @@ function ToolCard({
         <div className="overflow-hidden">
           <div className="space-y-5 border-t border-slate-100 px-5 py-5">
             <section>
-              <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Parameters
               </h4>
               <ParametersSection schema={tool.inputSchema} />
               <RawSchemaToggle label="input" schema={tool.inputSchema} />
             </section>
             <section>
-              <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Returns
               </h4>
               <ReturnsSection schema={tool.outputSchema} />
@@ -424,7 +424,7 @@ export default function McpToolsDisplay() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Filter tools by name or description…"
-          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-brand-400 focus:outline-none sm:w-72"
+          className="w-full rounded-lg border border-solid border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-500 focus:outline-none sm:w-72"
         />
       </div>
 
@@ -445,7 +445,7 @@ export default function McpToolsDisplay() {
       <div className="space-y-8">
         {grouped.map(({ key, category, tools: groupTools }) => (
           <div key={key} id={`mcp-category-${key}`} className="scroll-mt-24">
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
               {category.label}
             </h3>
             <div className="space-y-3">

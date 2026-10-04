@@ -1,4 +1,4 @@
-import React, { type CSSProperties } from "react";
+import { type CSSProperties } from "react";
 
 import { useHomepageFacts } from "./facts";
 import styles from "./styles.module.css";

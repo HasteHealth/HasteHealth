@@ -1,0 +1,138 @@
+/*
+ * Styles the marketing pages share (home, pricing, contact): the dark
+ * backdrops, and the few animations Tailwind utilities cannot express.
+ * Everything that moves is switched off under `prefers-reduced-motion` at the
+ * bottom of this file.
+ */
+
+/* ---------------------------------------------------------------------------
+ * Dark sections
+ * ------------------------------------------------------------------------- */
+
+/* A hero's backdrop is its own layer, so it can clip its glows while whatever
+   sits in front of it hangs over the section's bottom edge. */
+.heroBackdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      58rem 30rem at 50% -6rem,
+      color-mix(in oklab, var(--color-brand-600) 30%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      38rem 30rem at 100% 55%,
+      color-mix(in oklab, var(--color-brand-800) 34%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      38rem 30rem at 0% 80%,
+      color-mix(in oklab, var(--color-brand-900) 44%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(180deg, var(--color-deep-950), var(--color-deep-900));
+}
+
+/* A faint engineering grid, fading out from the top centre. */
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  background-size: 4rem 4rem;
+  background-position: center top;
+  mask-image: radial-gradient(
+    ellipse 75% 70% at 50% 0%,
+    black 15%,
+    transparent 78%
+  );
+}
+
+.darkBackdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      46rem 26rem at 88% 0%,
+      color-mix(in oklab, var(--color-brand-700) 26%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      40rem 28rem at 0% 100%,
+      color-mix(in oklab, var(--color-brand-900) 40%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(180deg, var(--color-deep-950), var(--color-deep-900));
+}
+
+/* ---------------------------------------------------------------------------
+ * Load-in choreography (heroes)
+ *
+ * Pure CSS, so it needs no hydration and cannot leave a hero blank: each
+ * piece rises into place after `--rise-delay`.
+ * ------------------------------------------------------------------------- */
+
+.rise {
+  animation: rise 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1rem, 0);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Cards
+ * ------------------------------------------------------------------------- */
+
+.card {
+  transition:
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.card:hover {
+  transform: translate3d(0, -0.1875rem, 0);
+  border-color: var(--color-brand-400);
+  box-shadow:
+    0 1px 2px rgb(8 47 47 / 0.04),
+    0 18px 40px -18px rgb(8 47 47 / 0.22);
+}
+
+/* The arrow on a card or text link leans forward when its link is hovered. */
+.arrow {
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+a:hover .arrow,
+.card:hover .arrow {
+  transform: translate3d(0.1875rem, 0, 0);
+}
+
+/* ---------------------------------------------------------------------------
+ * Reduced motion: everything holds still, fully drawn.
+ * ------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+
+  .card,
+  .arrow {
+    transition: none;
+  }
+
+  .card:hover,
+  a:hover .arrow,
+  .card:hover .arrow {
+    transform: none;
+  }
+}

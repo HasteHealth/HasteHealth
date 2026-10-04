@@ -334,6 +334,27 @@ const config: Config = {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
     },
+    // Diagrams in the docs take the site's palette (src/css/custom.css)
+    // instead of Mermaid's default lilac. Mermaid derives its shades from
+    // these, and only understands hex.
+    mermaid: {
+      theme: { light: "base", dark: "base" },
+      options: {
+        themeVariables: {
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+          primaryColor: "#f0fdfa", // brand-50
+          primaryBorderColor: "#00786f", // brand-800
+          primaryTextColor: "#011315", // ink-950
+          lineColor: "#62748e", // slate-500
+          secondaryColor: "#f8fafc", // slate-50
+          tertiaryColor: "#ffffff",
+          edgeLabelBackground: "#ffffff",
+          noteBkgColor: "#f8fafc",
+          noteBorderColor: "#cad5e2", // slate-300
+          noteTextColor: "#314158", // slate-700
+        },
+      },
+    },
     algolia: {
       // The application ID provided by Algolia
       appId: "9M3PZB2S4M",

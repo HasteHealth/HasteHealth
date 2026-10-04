@@ -16,6 +16,3 @@ export const QUICK_START_URL = "/docs/getting_started/quick_start";
 
 /** The open-source repository. */
 export const GITHUB_URL = "https://github.com/hastehealth/hastehealth";
-
-/** Where a security reviewer asks for the BAA and the questionnaire pack. */
-export const SECURITY_EMAIL = "mailto:security@haste.health";

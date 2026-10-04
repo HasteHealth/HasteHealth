@@ -1,8 +1,8 @@
-import React, { type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 /**
- * The homepage's line icons: one 24px grid, one stroke weight, so a row of
- * them reads as a set. They are decorative (the label beside each carries the
+ * The site's line icons: one 24px grid, one stroke weight, so a row of them
+ * reads as a set. They are decorative (the label beside each carries the
  * meaning), so every icon is hidden from assistive technology.
  */
 const PATHS = {
@@ -54,12 +54,6 @@ const PATHS = {
       <path d="M16.5 13.5v6M13.5 16.5h6" />
     </>
   ),
-  sparkles: (
-    <>
-      <path d="M11 4l1.7 4.8L17.5 10.5l-4.8 1.7L11 17l-1.7-4.8L4.5 10.5l4.8-1.7L11 4z" />
-      <path d="M18.5 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z" />
-    </>
-  ),
   clipboard: (
     <>
       <rect x="5" y="4.5" width="14" height="16.5" rx="2" />
@@ -82,12 +76,6 @@ const PATHS = {
   cloud: (
     <path d="M7 18.5a4.5 4.5 0 0 1-.7-8.95 6 6 0 0 1 11.6 1.2A3.9 3.9 0 0 1 17.5 18.5H7z" />
   ),
-  building: (
-    <>
-      <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16M3 21h18" />
-      <path d="M9 7.5h1.5M13.5 7.5H15M9 11.5h1.5M13.5 11.5H15M10 21v-4.5h4V21" />
-    </>
-  ),
   badge: (
     <>
       <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -107,13 +95,19 @@ const PATHS = {
       <path d="M3 19c.5-3.2 2.8-5 6-5s5.5 1.8 6 5M16 5a3.2 3.2 0 0 1 0 6M17.5 14.4c2 .6 3.2 2.2 3.5 4.6" />
     </>
   ),
-  document: (
+  branch: (
     <>
-      <path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
-      <path d="M14 3v5h5M9 14.5l2 2 4-4" />
+      <circle cx="18" cy="6.5" r="2.5" />
+      <circle cx="6" cy="17.5" r="2.5" />
+      <path d="M6 3.5V15M18 9a9 9 0 0 1-9.5 8.5" />
     </>
   ),
-  bolt: <path d="M13 3L5 13.5h6L10 21l8-10.5h-6L13 3z" />,
+  mail: (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="M3.5 7l8.5 6 8.5-6" />
+    </>
+  ),
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof PATHS;

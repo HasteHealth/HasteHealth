@@ -9,14 +9,23 @@
   </style>
 
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0f766e"/>
-      <stop offset="55%" stop-color="#0d9488"/>
-      <stop offset="100%" stop-color="#115e59"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#002e2d"/>
+      <stop offset="100%" stop-color="#003c39"/>
     </linearGradient>
+    <radialGradient id="glow-top" cx="0.5" cy="-0.15" r="0.8">
+      <stop offset="0%" stop-color="#00bba7" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="#00bba7" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-right" cx="1" cy="0.75" r="0.6">
+      <stop offset="0%" stop-color="#00786f" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#00786f" stop-opacity="0"/>
+    </radialGradient>
   </defs>
 
   <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow-top)"/>
+  <rect width="1200" height="630" fill="url(#glow-right)"/>
 
   <!-- The pulse line from the site's hero, as a quiet watermark. Kept low and
        to the right of the logo so it never crosses the headline or the proof
@@ -27,16 +36,16 @@
 
   <!-- Logo mark: the three bars from static/img/logo.svg. -->
   <g transform="translate(80, 74) scale(0.46)">
-    <rect x="6"  y="22" width="24" height="56"  rx="6" fill="#ffffff" opacity="0.5"/>
-    <rect x="38" y="0"  width="24" height="100" rx="6" fill="#ffffff"/>
-    <rect x="70" y="32" width="24" height="36"  rx="6" fill="#ffffff" opacity="0.75"/>
+    <rect x="6"  y="22" width="24" height="56"  rx="6" fill="#46edd5" opacity="0.5"/>
+    <rect x="38" y="0"  width="24" height="100" rx="6" fill="#46edd5"/>
+    <rect x="70" y="32" width="24" height="36"  rx="6" fill="#46edd5" opacity="0.75"/>
   </g>
   <text x="140" y="112" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="38" font-weight="600" fill="#ffffff">haste<tspan opacity="0.72">.health</tspan></text>
 
     <text x="80" y="300" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="58" font-weight="700" fill="#ffffff" letter-spacing="-1.2">The Open-Source FHIR Server</text>
-    <text x="80" y="368" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="58" font-weight="700" fill="#ffffff" letter-spacing="-1.2">for AI-Native Health Apps</text>
+    <text x="80" y="368" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="58" font-weight="700" fill="#ffffff" letter-spacing="-1.2">for <tspan fill="#46edd5">AI-Native</tspan> Health Apps</text>
 
-  <text x="80" y="428" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="400" fill="#d9f2ee">Epic, Oracle Health and HL7v2 in. FHIR, SQL and MCP out.</text>
+  <text x="80" y="428" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="400" fill="#cad5e2">Epic, Oracle Health and HL7v2 in. FHIR, SQL and MCP out.</text>
 
   <!-- Proof strip. -->
   <line x1="80" y1="486" x2="1120" y2="486" stroke="#ffffff" stroke-width="1.5" opacity="0.28"/>

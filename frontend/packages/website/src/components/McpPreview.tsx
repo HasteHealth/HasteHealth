@@ -105,7 +105,7 @@ function PaneLabel({ children }: Readonly<{ children: ReactNode }>) {
 /** One MCP tool call, as the agent sends it and as the server answers it. */
 export default function McpPreview() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-ink-950 text-left shadow-[0_30px_70px_-30px_rgb(0_0_0/0.7)]">
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-deep-950 text-left shadow-[0_30px_70px_-30px_rgb(0_0_0/0.7)]">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-white/10 bg-white/[0.03] px-5 py-3.5 font-mono text-[0.8125rem]">
         <span className="font-semibold text-brand-300">POST</span>
         <span className="text-slate-300 [overflow-wrap:anywhere]">

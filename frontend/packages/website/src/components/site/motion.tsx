@@ -1,4 +1,4 @@
-import React, {
+import {
   type CSSProperties,
   type RefObject,
   useEffect,
@@ -72,7 +72,7 @@ export function revealDelay(index: number, step = 70): CSSProperties {
 /**
  * When a piece of the hero rises into place, in milliseconds after page load:
  * `style={riseDelay(ms)}` on an element with the `rise` class
- * (src/components/home/styles.module.css).
+ * (src/components/site/styles.module.css).
  */
 export function riseDelay(ms: number): CSSProperties {
   return { "--rise-delay": `${ms}ms` } as CSSProperties;
