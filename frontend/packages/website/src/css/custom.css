@@ -155,17 +155,24 @@ article > header :is(h1, h2) a:hover {
 /* Sidebar group labels: see sidebars.ts. */
 .sidebar-label {
   display: block;
+  margin-top: 0.75rem;
   padding: 1rem 0.75rem 0.375rem;
+  /* A rule above each group, and a label darker than its links, so the
+     sidebar reads as groups. Not an underline: underlined text in a menu
+     looks like a link, and these are not. */
+  border-top: 1px solid var(--color-slate-200);
   font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-slate-500);
+  color: var(--color-ink-950);
   cursor: default;
 }
 
 .menu__list > li:first-child > .sidebar-label {
+  margin-top: 0;
   padding-top: 0.25rem;
+  border-top: 0;
 }
 
 .menu__link--active:not(.menu__link--sublist) {
