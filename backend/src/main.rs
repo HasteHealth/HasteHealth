@@ -22,6 +22,7 @@ use tracing_tree::HierarchicalLayer;
 
 mod cli;
 mod commands;
+mod utilities;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)] // Read from `Cargo.toml`
@@ -33,6 +34,7 @@ pub struct Cli {
 #[derive(Subcommand)]
 enum CliCommand {
     /// Evaluate a FHIRPath expression against a FHIR resource read from stdin.
+    #[command(name = "fhirpath")]
     FHIRPath {
         /// FHIRPath expression to evaluate
         fhirpath: String,

@@ -1,4 +1,4 @@
-use crate::cli::state::CliState;
+use crate::{cli::state::CliState, utilities};
 use clap::Subcommand;
 use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_model::r4::generated::{
@@ -204,13 +204,7 @@ async fn derive_resource_data_arg_file_arg_or_stdin<Type: serde::de::Deserialize
     } else {
         // Read from stdin
         let mut buffer = String::new();
-
-        std::io::stdin().read_line(&mut buffer).map_err(|e| {
-            OperationOutcomeError::error(
-                IssueType::exception(),
-                format!("Failed to read from stdin: {}", e),
-            )
-        })?;
+        utilities::read_stdin(&mut buffer)?;
 
         serde_json::from_str::<Type>(&buffer).map_err(|e| {
             OperationOutcomeError::error(

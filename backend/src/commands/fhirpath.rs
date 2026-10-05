@@ -1,11 +1,12 @@
 use haste_fhir_model::r4::generated::{resources::Resource, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
 
+use crate::utilities;
+
 fn parse_fhir_data() -> Result<Resource, OperationOutcomeError> {
     let mut buffer = String::new();
-    std::io::stdin().read_line(&mut buffer).map_err(|_| {
-        OperationOutcomeError::fatal(IssueType::exception(), "Failed to read from stdin.".into())
-    })?;
+    utilities::read_stdin(&mut buffer)?;
+
     let resource = serde_json::from_str::<Resource>(&buffer).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::exception(),
