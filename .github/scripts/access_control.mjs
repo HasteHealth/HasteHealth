@@ -123,6 +123,8 @@ if (!phase) {
 
 mkdirSync(reportsDir, { recursive: true });
 const failed = [];
+// One at a time: scenarios share the CLI's active profile and the login's
+// loopback port.
 for (const scenario of loadScenarios()) {
   console.log(`=== ${phaseName}: ${scenario.name}`);
   try {

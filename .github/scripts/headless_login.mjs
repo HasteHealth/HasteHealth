@@ -49,71 +49,78 @@ export async function headlessLogin(cliPath, email, password) {
 // CLI's redirect URI, submitting each page's form as a browser would.
 async function submitForms(authorizeUrl, email, password) {
   const redirectUri = new URL(authorizeUrl).searchParams.get("redirect_uri");
+  if (!redirectUri) throw new Error(`No redirect_uri in ${authorizeUrl}`);
+
   // By hand: a cookie jar won't return the `Secure` session cookie over http.
   const cookies = new Map();
-  let request = { url: new URL(authorizeUrl), method: "GET" };
-  let signedIn = false;
+  const session = { redirectUri, email, password, cookies, signedIn: false };
+  await follow(session, { url: new URL(authorizeUrl), method: "GET" }, 0);
+}
 
-  for (let i = 0; i < MAX_REQUESTS; i++) {
-    const headers = {
-      cookie: [...cookies]
-        .map(([name, value]) => `${name}=${value}`)
-        .join("; "),
-    };
-    // Without fetch's `;charset=UTF-8`, which the server rejects.
-    if (request.body) {
-      headers["content-type"] = "application/x-www-form-urlencoded";
-    }
-    const response = await fetch(request.url, {
-      method: request.method,
-      body: request.body,
-      headers,
-      redirect: "manual",
-    });
-    for (const cookie of response.headers.getSetCookie()) {
-      const [name, value] = cookie.split(";")[0].split(/=(.*)/);
-      cookies.set(name.trim(), value.trim());
-    }
-
-    const location = response.headers.get("location");
-    if (location) {
-      const next = new URL(location, request.url);
-      if (next.href.startsWith(redirectUri)) {
-        const error = next.searchParams.get("error");
-        if (error) throw new Error(`Authorization failed: ${error}`);
-        // Hands the code to the CLI's listener.
-        await fetch(next);
-        return;
-      }
-      request = { url: next, method: "GET" };
-      continue;
-    }
-
-    const body = await response.text();
-    if (!response.ok) {
-      throw new Error(
-        `${request.url} answered ${response.status}: ${body.slice(0, 500)}`,
-      );
-    }
-    const form = firstForm(body);
-    if (!form) {
-      throw new Error(`No form at ${request.url}: ${body.slice(0, 500)}`);
-    }
-    if (form.fields.has("password")) {
-      // The sign-in form again means the credentials were rejected.
-      if (signedIn) throw new Error(`Sign-in as ${email} was rejected.`);
-      form.fields.set("email", email);
-      form.fields.set("password", password);
-      signedIn = true;
-    }
-    request = {
-      url: new URL(form.action, request.url),
-      method: "POST",
-      body: form.fields,
-    };
+// Sends `request`, then whatever it leads to, until the code reaches the CLI.
+async function follow(session, request, sent) {
+  if (sent === MAX_REQUESTS) {
+    throw new Error(`No authorization code after ${MAX_REQUESTS} requests.`);
   }
+  const response = await send(session.cookies, request);
+  const location = response.headers.get("location");
+  const next = location
+    ? await followRedirect(session, new URL(location, request.url))
+    : await submitForm(session, request.url, response);
+  if (next) await follow(session, next, sent + 1);
+}
 
-  throw new Error(`No authorization code after ${MAX_REQUESTS} requests.`);
+async function send(cookies, { url, method, body }) {
+  const headers = {
+    cookie: [...cookies].map(([name, value]) => `${name}=${value}`).join("; "),
+  };
+  // Without fetch's `;charset=UTF-8`, which the server rejects.
+  if (body) headers["content-type"] = "application/x-www-form-urlencoded";
+
+  const response = await fetch(url, {
+    method,
+    body,
+    headers,
+    redirect: "manual",
+  });
+  for (const cookie of response.headers.getSetCookie()) {
+    const [name, value] = cookie.split(";")[0].split(/=(.*)/);
+    cookies.set(name.trim(), value.trim());
+  }
+  return response;
+}
+
+// The next request, or none once the redirect has handed the code to the CLI.
+async function followRedirect(session, url) {
+  if (!url.href.startsWith(session.redirectUri)) return { url, method: "GET" };
+
+  const error = url.searchParams.get("error");
+  if (error) throw new Error(`Authorization failed: ${error}`);
+  await fetch(url);
+  return undefined;
+}
+
+// Submits the page's form, filling in the credentials on the sign-in form.
+async function submitForm(session, url, response) {
+  const body = await response.text();
+  if (!response.ok) {
+    throw new Error(
+      `${url} answered ${response.status}: ${body.slice(0, 500)}`,
+    );
+  }
+  const form = firstForm(body);
+  if (!form) throw new Error(`No form at ${url}: ${body.slice(0, 500)}`);
+
+  if (form.fields.has("password")) {
+    // The sign-in form again means the credentials were rejected.
+    if (session.signedIn) {
+      throw new Error(`Sign-in as ${session.email} was rejected.`);
+    }
+    form.fields.set("email", session.email);
+    form.fields.set("password", session.password);
+    session.signedIn = true;
+  }
+  return { url: new URL(form.action, url), method: "POST", body: form.fields };
 }
 
 // The page's first form and the fields a browser would submit: the sign-in
@@ -136,12 +143,13 @@ function firstForm(html) {
   return { action: parseAttributes(form[1]).action ?? "", fields };
 }
 
+// Attributes as the server's templates write them: `name` or `name="value"`.
 function parseAttributes(tag) {
   const attributes = {};
-  for (const [, name, double, single, bare] of tag.matchAll(
-    /([^\s=/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g,
+  for (const [, name, value = ""] of tag.matchAll(
+    /([^\s=/>]+)(?:="([^"]*)")?/g,
   )) {
-    attributes[name.toLowerCase()] = (double ?? single ?? bare ?? "").replace(
+    attributes[name.toLowerCase()] = value.replace(
       /&(amp|lt|gt|quot|#39);/g,
       (_, entity) => ENTITIES[entity],
     );
