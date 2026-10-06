@@ -13,6 +13,7 @@ use crate::{
         csrf_token::CSRFToken,
         path_tenant::{Project, ProjectIdentifier},
     },
+    route_path::api_fhir_root_url,
     services::ServerState,
     ui::{components::TenantContext, pages},
 };
@@ -25,7 +26,7 @@ use axum::{
 use axum_extra::{extract::Cached, routing::TypedPath};
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::{ProjectId, TenantId};
+use haste_jwt::{ProjectId, SupportedFHIRVersions, TenantId};
 use haste_repository::{
     Repository,
     admin::ProjectModelAdmin,
@@ -41,6 +42,27 @@ use haste_repository::{
 use std::{sync::Arc, time::Duration};
 use tower_sessions::Session;
 use tracing::warn;
+use url::Url;
+
+/// Whether `aud` names this project's FHIR endpoint. The version segment is
+/// optional in FHIR URLs, so `…/fhir` and `…/fhir/r4` are the same endpoint.
+fn is_project_fhir_base(aud: &str, fhir_root: &Url) -> bool {
+    let Ok(aud) = Url::parse(aud) else {
+        return false;
+    };
+
+    if aud.query().is_some() || aud.fragment().is_some() {
+        return false;
+    }
+
+    let aud = aud.as_str().trim_end_matches('/');
+    let root = fhir_root.as_str().trim_end_matches('/');
+
+    aud == root
+        || SupportedFHIRVersions::ALL
+            .iter()
+            .any(|version| aud == format!("{root}/{version}"))
+}
 
 pub fn redirect_authorize_uri(uri: &OriginalUri, replace_path: &str) -> String {
     uri.path()
@@ -156,6 +178,28 @@ pub async fn authorize<
             None,
         )
     })?;
+
+    // SMART App Launch: `aud` names the FHIR server the app will send the
+    // token to. Tokens from here only work at this project's FHIR endpoint, so
+    // any other value means the app was pointed at a different server.
+    if let Some(aud) = oidc_params.parameters.get("aud") {
+        let fhir_root =
+            api_fhir_root_url(&app_state.config.api_uri, &tenant, &project).map_err(|_| {
+                OIDCError::new(
+                    OIDCErrorCode::ServerError,
+                    Some("Failed to derive the FHIR base URL.".to_string()),
+                    Some(redirect_uri.to_string()),
+                )
+            })?;
+
+        if !is_project_fhir_base(aud, &fhir_root) {
+            return Err(OIDCError::new(
+                OIDCErrorCode::InvalidRequest,
+                Some("aud must be this project's FHIR base URL.".to_string()),
+                Some(redirect_uri.to_string()),
+            ));
+        }
+    }
 
     let completed_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await

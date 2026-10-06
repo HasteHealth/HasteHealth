@@ -135,6 +135,7 @@ Host: api.haste.health
 | `state` | Recommended | Random value to prevent CSRF attacks |
 | `code_challenge` | **Required** | PKCE code challenge (SHA-256 hash of code_verifier) |
 | `code_challenge_method` | **Required** | Must be `S256` (SHA-256 hash method) |
+| `aud` | Optional (SMART apps send it) | The project's FHIR base URL, `.../api/v1/fhir` (`.../api/v1/fhir/r4` is accepted too). Any other value is rejected with `invalid_request` |
 | `nonce` | Optional | Random value included in ID token to prevent replay attacks |
 | `prompt` | Optional | `none`, `login`, `consent`, or `select_account` |
 | `max_age` | Optional | Maximum authentication age in seconds |
