@@ -195,7 +195,7 @@ async fn config_to_fhir_http_state(
         &active_profile.r4_url.clone(),
         match active_profile.auth {
             ProfileAuth::Public {} => None,
-            ProfileAuth::ClientCredentails { client_id } => {
+            ProfileAuth::ClientCredentails { client_id, scope } => {
                 let Some(client_secret) = client_secret else {
                     return Err(OperationOutcomeError::error(
                         IssueType::invalid(),
@@ -211,6 +211,9 @@ async fn config_to_fhir_http_state(
                         let state = state.clone();
                         let client_id = client_id.clone();
                         let client_secret = client_secret.clone();
+                        let scope = scope
+                            .clone()
+                            .unwrap_or_else(|| "openid system/*.*".to_string());
                         Box::pin(async move {
                             {
                                 let current_state = state.lock().await;
@@ -226,7 +229,7 @@ async fn config_to_fhir_http_state(
                                 ("grant_type", "client_credentials"),
                                 ("client_id", &client_id),
                                 ("client_secret", &client_secret),
-                                ("scope", "openid system/*.*"),
+                                ("scope", &scope),
                             ];
 
                             let res: reqwest::Response = reqwest::Client::new()

@@ -1,5 +1,6 @@
 {
     "description": "A patient (member User linked to Patient/ac-patient-a) signing in to an app allowed only patient/*.rs.",
+    "grantType": "authorization_code",
     "userEmail": "ac-patient-a@example.org",
     "clientId": "ac-patient-app",
     "redirectUri": "http://127.0.0.1:8976/callback",

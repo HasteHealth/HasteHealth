@@ -646,7 +646,7 @@ Create a new profile and set it as active. Prompts interactively for any option 
 * `-i`, `--id <ID>` — OIDC client ID
 * `-s`, `--secret <SECRET>` — Client secret. Required for --auth-mode client-credentials, ignored otherwise. Stored in the secrets file, not the profile itself
 * `--redirect-uri <REDIRECT_URI>` — Loopback redirect URI for --auth-mode authorization-code (must be registered on the server client)
-* `--scope <SCOPE>` — OAuth scope to request for --auth-mode authorization-code
+* `--scope <SCOPE>` — OAuth scope to request. For --auth-mode client-credentials, defaults to `openid system/*.*`
 
 
 

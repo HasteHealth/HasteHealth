@@ -1,0 +1,556 @@
+{
+    "id": "access-control-system-scopes-setup",
+    "url": "https://haste.health/fhir/TestScript/access-control-system-scopes-setup",
+    "name": "Access Control System Scopes Setup",
+    "title": "System scopes: data and login",
+    "status": "active",
+    "description": "Run as admin. Writes two patients with data of every type the tests use, and the login: a client-credentials client (its secret is set in the sign-in phase) and a full-access policy, allowed only system/Patient.rs system/Observation.crs system/Encounter.r.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "acs-patient-a",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-system-scopes"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Alex"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acs-patient-b",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-system-scopes"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Blake"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acs-practitioner",
+            "resourceType": "Practitioner",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-system-scopes"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Pat"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acs-observation-a",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-system-scopes"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acs-patient-a"
+            },
+            "performer": [
+                {
+                    "reference": "Practitioner/acs-practitioner"
+                }
+            ]
+        },
+        {
+            "id": "acs-observation-b",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-system-scopes"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acs-patient-b"
+            }
+        },
+        {
+            "id": "acs-observation-update",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-system-scopes"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acs-patient-a"
+            }
+        },
+        {
+            "id": "acs-observation-delete",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-system-scopes"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acs-patient-a"
+            }
+        },
+        {
+            "id": "acs-encounter",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-system-scopes"
+                    }
+                ]
+            },
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/acs-patient-a"
+            }
+        },
+        {
+            "id": "acs-policy",
+            "resourceType": "AccessPolicyV2",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-system-scopes"
+                    }
+                ]
+            },
+            "name": "Access control: system scopes",
+            "description": "Full access, so only the system scopes limit this login.",
+            "engine": "full-access"
+        },
+        {
+            "id": "acs-policy-assignment",
+            "resourceType": "AccessPolicyV2Assignment",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-system-scopes"
+                    }
+                ]
+            },
+            "accessPolicy": {
+                "reference": "AccessPolicyV2/acs-policy"
+            },
+            "link": {
+                "reference": "ClientApplication/acs-client"
+            }
+        },
+        {
+            "id": "acs-client",
+            "resourceType": "ClientApplication",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-system-scopes"
+                    }
+                ]
+            },
+            "name": "Access control: system scopes client",
+            "grantType": [
+                "client_credentials"
+            ],
+            "responseTypes": "token",
+            "scope": "system/Patient.rs system/Observation.crs system/Encounter.r"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-acs-patient-a",
+            "resource": {
+                "reference": "#acs-patient-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acs-patient-b",
+            "resource": {
+                "reference": "#acs-patient-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acs-practitioner",
+            "resource": {
+                "reference": "#acs-practitioner"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acs-observation-a",
+            "resource": {
+                "reference": "#acs-observation-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acs-observation-b",
+            "resource": {
+                "reference": "#acs-observation-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acs-observation-update",
+            "resource": {
+                "reference": "#acs-observation-update"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acs-observation-delete",
+            "resource": {
+                "reference": "#acs-observation-delete"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acs-encounter",
+            "resource": {
+                "reference": "#acs-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acs-policy",
+            "resource": {
+                "reference": "#acs-policy"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acs-policy-assignment",
+            "resource": {
+                "reference": "#acs-policy-assignment"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acs-client",
+            "resource": {
+                "reference": "#acs-client"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-data",
+            "name": "Two patients and data of every type the tests use",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-acs-patient-a",
+                        "sourceId": "fixture-acs-patient-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient/acs-patient-a is written",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-acs-patient-b",
+                        "sourceId": "fixture-acs-patient-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient/acs-patient-b is written",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Practitioner",
+                        "targetId": "fixture-acs-practitioner",
+                        "sourceId": "fixture-acs-practitioner",
+                        "encodeRequestUrl": false,
+                        "description": "No scope grants Practitioner."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Practitioner/acs-practitioner is written",
+                        "resource": "Practitioner",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acs-observation-a",
+                        "sourceId": "fixture-acs-observation-a",
+                        "encodeRequestUrl": false,
+                        "description": "Its performer is the practitioner."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/acs-observation-a is written",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acs-observation-b",
+                        "sourceId": "fixture-acs-observation-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/acs-observation-b is written",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acs-observation-update",
+                        "sourceId": "fixture-acs-observation-update",
+                        "encodeRequestUrl": false,
+                        "description": "Target of the refused update."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/acs-observation-update is written",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acs-observation-delete",
+                        "sourceId": "fixture-acs-observation-delete",
+                        "encodeRequestUrl": false,
+                        "description": "Target of the refused delete."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/acs-observation-delete is written",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Encounter",
+                        "targetId": "fixture-acs-encounter",
+                        "sourceId": "fixture-acs-encounter",
+                        "encodeRequestUrl": false,
+                        "description": "Readable but not searchable: Encounter.r only."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Encounter/acs-encounter is written",
+                        "resource": "Encounter",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-login",
+            "name": "The system-scopes login, its access policy and client",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2",
+                        "targetId": "fixture-acs-policy",
+                        "sourceId": "fixture-acs-policy",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2/acs-policy is written",
+                        "resource": "AccessPolicyV2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "targetId": "fixture-acs-policy-assignment",
+                        "sourceId": "fixture-acs-policy-assignment",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2Assignment/acs-policy-assignment is written",
+                        "resource": "AccessPolicyV2Assignment",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-acs-client",
+                        "sourceId": "fixture-acs-client",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ClientApplication/acs-client is written",
+                        "resource": "ClientApplication",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-indexed",
+            "name": "The access policy can be found the way token issuance finds it",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "params": "link=ClientApplication/acs-client",
+                        "encodeRequestUrl": false,
+                        "description": "Waits for indexing: token issuance finds access policies through search."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The assignment is found by its principal",
+                        "expression": "Bundle.entry.resource.where(id = 'acs-policy-assignment').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

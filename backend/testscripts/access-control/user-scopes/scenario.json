@@ -1,0 +1,8 @@
+{
+    "description": "A member User, not linked to a patient, signing in to an app allowed only user/Patient.rs user/Observation.crs user/Encounter.r.",
+    "grantType": "authorization_code",
+    "userEmail": "acu-user@example.org",
+    "clientId": "acu-app",
+    "redirectUri": "http://127.0.0.1:8976/callback",
+    "scope": "openid offline_access user/Patient.rs user/Observation.crs user/Encounter.r"
+}

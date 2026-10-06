@@ -1,0 +1,643 @@
+{
+    "id": "access-control-user-scopes-setup",
+    "url": "https://haste.health/fhir/TestScript/access-control-user-scopes-setup",
+    "name": "Access Control User Scopes Setup",
+    "title": "User scopes: data and login",
+    "status": "active",
+    "description": "Run as admin. Writes two patients with data of every type the tests use, and the login: a member User with no patient link, a full-access policy, and a public client, allowed only user/Patient.rs user/Observation.crs user/Encounter.r.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "acu-patient-a",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Alex"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acu-patient-b",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Blake"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acu-practitioner",
+            "resourceType": "Practitioner",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Pat"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acu-observation-a",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acu-patient-a"
+            },
+            "performer": [
+                {
+                    "reference": "Practitioner/acu-practitioner"
+                }
+            ]
+        },
+        {
+            "id": "acu-observation-b",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acu-patient-b"
+            }
+        },
+        {
+            "id": "acu-observation-update",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acu-patient-a"
+            }
+        },
+        {
+            "id": "acu-observation-delete",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acu-patient-a"
+            }
+        },
+        {
+            "id": "acu-encounter",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/acu-patient-a"
+            }
+        },
+        {
+            "id": "acu-user",
+            "resourceType": "User",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "role": "member",
+            "email": "acu-user@example.org"
+        },
+        {
+            "id": "acu-membership",
+            "resourceType": "Membership",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "user": {
+                "reference": "User/acu-user"
+            }
+        },
+        {
+            "id": "acu-policy",
+            "resourceType": "AccessPolicyV2",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "name": "Access control: user scopes",
+            "description": "Full access, so only the user scopes limit this login.",
+            "engine": "full-access"
+        },
+        {
+            "id": "acu-policy-assignment",
+            "resourceType": "AccessPolicyV2Assignment",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "accessPolicy": {
+                "reference": "AccessPolicyV2/acu-policy"
+            },
+            "link": {
+                "reference": "Membership/acu-membership"
+            }
+        },
+        {
+            "id": "acu-app",
+            "resourceType": "ClientApplication",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "name": "Access control: user scopes app",
+            "grantType": [
+                "authorization_code",
+                "refresh_token"
+            ],
+            "responseTypes": "code",
+            "redirectUri": [
+                "http://127.0.0.1:8976/callback"
+            ],
+            "scope": "openid offline_access user/Patient.rs user/Observation.crs user/Encounter.r"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-acu-patient-a",
+            "resource": {
+                "reference": "#acu-patient-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-patient-b",
+            "resource": {
+                "reference": "#acu-patient-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-practitioner",
+            "resource": {
+                "reference": "#acu-practitioner"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-observation-a",
+            "resource": {
+                "reference": "#acu-observation-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-observation-b",
+            "resource": {
+                "reference": "#acu-observation-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-observation-update",
+            "resource": {
+                "reference": "#acu-observation-update"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-observation-delete",
+            "resource": {
+                "reference": "#acu-observation-delete"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-encounter",
+            "resource": {
+                "reference": "#acu-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-user",
+            "resource": {
+                "reference": "#acu-user"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-membership",
+            "resource": {
+                "reference": "#acu-membership"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-policy",
+            "resource": {
+                "reference": "#acu-policy"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-policy-assignment",
+            "resource": {
+                "reference": "#acu-policy-assignment"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-app",
+            "resource": {
+                "reference": "#acu-app"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-data",
+            "name": "Two patients and data of every type the tests use",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-acu-patient-a",
+                        "sourceId": "fixture-acu-patient-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient/acu-patient-a is written",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-acu-patient-b",
+                        "sourceId": "fixture-acu-patient-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient/acu-patient-b is written",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Practitioner",
+                        "targetId": "fixture-acu-practitioner",
+                        "sourceId": "fixture-acu-practitioner",
+                        "encodeRequestUrl": false,
+                        "description": "No scope grants Practitioner."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Practitioner/acu-practitioner is written",
+                        "resource": "Practitioner",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acu-observation-a",
+                        "sourceId": "fixture-acu-observation-a",
+                        "encodeRequestUrl": false,
+                        "description": "Its performer is the practitioner."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/acu-observation-a is written",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acu-observation-b",
+                        "sourceId": "fixture-acu-observation-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/acu-observation-b is written",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acu-observation-update",
+                        "sourceId": "fixture-acu-observation-update",
+                        "encodeRequestUrl": false,
+                        "description": "Target of the refused update."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/acu-observation-update is written",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acu-observation-delete",
+                        "sourceId": "fixture-acu-observation-delete",
+                        "encodeRequestUrl": false,
+                        "description": "Target of the refused delete."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/acu-observation-delete is written",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Encounter",
+                        "targetId": "fixture-acu-encounter",
+                        "sourceId": "fixture-acu-encounter",
+                        "encodeRequestUrl": false,
+                        "description": "Readable but not searchable: Encounter.r only."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Encounter/acu-encounter is written",
+                        "resource": "Encounter",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-login",
+            "name": "The user-scopes login, its access policy and client",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "User",
+                        "targetId": "fixture-acu-user",
+                        "sourceId": "fixture-acu-user",
+                        "encodeRequestUrl": false,
+                        "description": "Its password is set in the sign-in phase."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "User/acu-user is written",
+                        "resource": "User",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Membership",
+                        "targetId": "fixture-acu-membership",
+                        "sourceId": "fixture-acu-membership",
+                        "encodeRequestUrl": false,
+                        "description": "No link: user scopes need no patient in context."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Membership/acu-membership is written",
+                        "resource": "Membership",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2",
+                        "targetId": "fixture-acu-policy",
+                        "sourceId": "fixture-acu-policy",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2/acu-policy is written",
+                        "resource": "AccessPolicyV2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "targetId": "fixture-acu-policy-assignment",
+                        "sourceId": "fixture-acu-policy-assignment",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2Assignment/acu-policy-assignment is written",
+                        "resource": "AccessPolicyV2Assignment",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-acu-app",
+                        "sourceId": "fixture-acu-app",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ClientApplication/acu-app is written",
+                        "resource": "ClientApplication",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-indexed",
+            "name": "The access policy can be found the way token issuance finds it",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "params": "link=Membership/acu-membership",
+                        "encodeRequestUrl": false,
+                        "description": "Waits for indexing: token issuance finds access policies through search."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The assignment is found by its principal",
+                        "expression": "Bundle.entry.resource.where(id = 'acu-policy-assignment').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -60,7 +60,8 @@ pub(crate) enum ConfigCommands {
         /// Loopback redirect URI for --auth-mode authorization-code (must be registered on the server client).
         #[arg(long)]
         redirect_uri: Option<String>,
-        /// OAuth scope to request for --auth-mode authorization-code.
+        /// OAuth scope to request. For --auth-mode client-credentials, defaults to
+        /// `openid system/*.*`.
         #[arg(long)]
         scope: Option<String>,
     },
@@ -230,6 +231,7 @@ pub(crate) async fn run(
                     (
                         ProfileAuth::ClientCredentails {
                             client_id: client_id.clone(),
+                            scope: scope.clone(),
                         },
                         Some(client_secret),
                     )

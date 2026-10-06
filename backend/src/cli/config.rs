@@ -42,6 +42,9 @@ pub(crate) enum ProfileAuth {
     /// A confidential (server-to-server) client authenticated with a client secret.
     ClientCredentails {
         client_id: String,
+        /// Scope to request; `None` requests `openid system/*.*`.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        scope: Option<String>,
     },
     /// A public (no secret) OIDC client authenticated by a human via the browser-based
     /// authorization_code + PKCE flow. Run `haste-health login` to obtain tokens.
