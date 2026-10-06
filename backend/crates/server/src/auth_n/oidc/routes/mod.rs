@@ -30,8 +30,12 @@ static AUTHORIZE_PARAMETERS: LazyLock<Arc<ParameterConfig>> = LazyLock::new(|| {
             "code_challenge".to_string(),
             "code_challenge_method".to_string(),
         ],
-        optional_parameters: vec!["scope".to_string(), "redirect_uri".to_string()],
-        allow_launch_parameters: true,
+        optional_parameters: vec![
+            "scope".to_string(),
+            "redirect_uri".to_string(),
+            // SMART App Launch: the FHIR server the app will call.
+            "aud".to_string(),
+        ],
     })
 });
 
@@ -39,7 +43,6 @@ static LOGOUT_PARAMETERS: LazyLock<Arc<ParameterConfig>> = LazyLock::new(|| {
     Arc::new(ParameterConfig {
         required_parameters: vec!["client_id".to_string()],
         optional_parameters: vec!["redirect_uri".to_string()],
-        allow_launch_parameters: true,
     })
 });
 

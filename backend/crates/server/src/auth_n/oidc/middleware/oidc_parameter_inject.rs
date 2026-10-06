@@ -14,14 +14,12 @@ use tower::{Layer, Service};
 #[derive(Deserialize, Clone, Debug)]
 pub struct OIDCParameters {
     pub parameters: HashMap<String, String>,
-    pub launch_parameters: Option<HashMap<String, String>>,
 }
 
 #[derive(Clone, Debug)]
 pub struct ParameterConfig {
     pub required_parameters: Vec<String>,
     pub optional_parameters: Vec<String>,
-    pub allow_launch_parameters: bool,
 }
 
 #[derive(Clone)]
@@ -149,7 +147,6 @@ where
 
             let mut oidc_parameters = OIDCParameters {
                 parameters: HashMap::new(),
-                launch_parameters: None,
             };
 
             // Check for required parameters
@@ -183,31 +180,6 @@ where
                     )
                         .into_response());
                 }
-            }
-            // Launch parameters are for SMART apps e.g. launch/patient
-            if parameter_config.allow_launch_parameters {
-                let mut launch_parameters = HashMap::new();
-                for launch_param_name in unvalidated_parameters
-                    .keys()
-                    .filter(|k| k.starts_with("launch/"))
-                {
-                    let launch_param_value = unvalidated_parameters
-                        .get(launch_param_name)
-                        .cloned()
-                        .unwrap_or_default();
-
-                    let parts = launch_param_name.split('/').collect::<Vec<_>>();
-                    if parts.len() != 2 {
-                        return Ok((
-                            StatusCode::BAD_REQUEST,
-                            format!("Invalid launch parameter: '{launch_param_name}'"),
-                        )
-                            .into_response());
-                    }
-
-                    launch_parameters.insert(launch_param_name.to_string(), launch_param_value);
-                }
-                oidc_parameters.launch_parameters = Some(launch_parameters);
             }
 
             let new_body = Body::from(bytes);
