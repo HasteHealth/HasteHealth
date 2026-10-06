@@ -1,4 +1,5 @@
 use axum::{
+    Form,
     extract::{OriginalUri, State},
     response::{IntoResponse as _, Response},
 };
@@ -37,6 +38,11 @@ use crate::{
 #[typed_path("/create")]
 pub struct MFACreatePOST;
 
+#[derive(Deserialize)]
+pub struct MFACreatePOSTBody {
+    pub csrf_token: String,
+}
+
 // Creates User MFA credentials if user is allowed further MFA credentials.
 // If user has reached the maximum allowed MFA credentials, an error is returned.
 pub async fn create_post<
@@ -50,7 +56,15 @@ pub async fn create_post<
     Cached(context): Cached<TenantContext>,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
+    Form(create_body): Form<MFACreatePOSTBody>,
 ) -> Result<Response, OperationOutcomeError> {
+    if create_body.csrf_token != csrf_token {
+        return Err(OperationOutcomeError::error(
+            IssueType::security(),
+            "Invalid CSRF token.".to_string(),
+        ));
+    }
+
     let get_auth_state = session::user::get_completed_authorization_state(&current_session)
         .await
         .map_err(|_e| {
