@@ -13,6 +13,16 @@ use argon2::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::TenantId;
 use sqlx::{PgExecutor, QueryBuilder};
+use std::sync::LazyLock;
+
+/// A hash to verify against when there is no user, or the user has no
+/// password. Verifying costs the same as a real check, so a login attempt
+/// takes as long whether or not the address has an account: without this an
+/// unknown address answered in a few milliseconds and a known one only after
+/// the Argon2 work, which told a caller which addresses exist.
+static NO_PASSWORD_HASH: LazyLock<String> = LazyLock::new(|| {
+    hash_password("no such user").expect("hashing a constant password cannot fail")
+});
 
 fn hash_password(password: &str) -> Result<String, StoreError> {
     let salt = SaltString::generate(&mut OsRng);
@@ -60,45 +70,50 @@ where
             .await
             .map_err(StoreError::from)?;
 
-            let Some((
-                id,
-                tenant_id,
-                email_val,
-                role,
-                method_val,
-                provider_id,
-                password_hash,
-                email_verified,
-            )) = row
-            else {
+            // The stored hash when the user exists and has a password, or a
+            // stand-in that is verified (and always fails) otherwise, so both
+            // outcomes take the same time.
+            let (user, password_hash) = match row {
+                Some((
+                    id,
+                    tenant_id,
+                    email_val,
+                    role,
+                    method_val,
+                    provider_id,
+                    hash,
+                    email_verified,
+                )) => {
+                    let user = User {
+                        id,
+                        tenant: tenant_id,
+                        email: email_val,
+                        role,
+                        method: method_val,
+                        provider_id,
+                        email_verified,
+                    };
+                    match hash {
+                        Some(hash) => (Some(user), hash),
+                        None => (None, NO_PASSWORD_HASH.clone()),
+                    }
+                }
+                None => (None, NO_PASSWORD_HASH.clone()),
+            };
+
+            let password_matches = PasswordHash::new(&password_hash).is_ok_and(|parsed_hash| {
+                Argon2::default()
+                    .verify_password(password.as_bytes(), &parsed_hash)
+                    .is_ok()
+            });
+
+            // An unverified address is refused only after the hash check, so
+            // that refusal takes the same time too.
+            let Some(user) = user.filter(|user| password_matches && user.email_verified) else {
                 return Ok(LoginResult::Failure);
             };
 
-            // Always check the hash, so both refusals take the same time.
-            let password_matches = password_hash
-                .as_deref()
-                .and_then(|hash| PasswordHash::new(hash).ok())
-                .is_some_and(|parsed_hash| {
-                    Argon2::default()
-                        .verify_password(password.as_bytes(), &parsed_hash)
-                        .is_ok()
-                });
-
-            if !password_matches || !email_verified {
-                return Ok(LoginResult::Failure);
-            }
-
-            Ok(LoginResult::Success {
-                user: User {
-                    id,
-                    tenant: tenant_id,
-                    email: email_val,
-                    role,
-                    method: method_val,
-                    provider_id,
-                    email_verified,
-                },
-            })
+            Ok(LoginResult::Success { user })
         }
         LoginMethod::OIDC {
             email: _,
