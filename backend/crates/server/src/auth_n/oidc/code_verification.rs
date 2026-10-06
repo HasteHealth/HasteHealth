@@ -1,4 +1,4 @@
-use base64::{Engine as _, engine::general_purpose::URL_SAFE};
+use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use haste_fhir_model::r4::generated::{resources::ClientApplication, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
@@ -19,19 +19,20 @@ pub fn generate_code_verifier() -> String {
     generate_id(Some(100))
 }
 
+/// RFC 7636 §4.2: `BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))`, without
+/// padding.
 pub fn generate_code_challenge(
     code_verifier: &str,
-    _method: &PKCECodeChallengeMethod,
+    method: &PKCECodeChallengeMethod,
 ) -> Result<String, OperationOutcomeError> {
-    let mut hasher = Sha256::new();
-    hasher.update(code_verifier.as_bytes());
-    let hashed = hasher.finalize();
+    match method {
+        PKCECodeChallengeMethod::S256 => {
+            let mut hasher = Sha256::new();
+            hasher.update(code_verifier.as_bytes());
 
-    let mut computed_challenge = URL_SAFE.encode(hashed);
-    // Remove last character which is an equal.
-    computed_challenge.pop();
-
-    Ok(computed_challenge)
+            Ok(URL_SAFE_NO_PAD.encode(hasher.finalize()))
+        }
+    }
 }
 
 pub fn verify_code_verifier(
@@ -107,18 +108,31 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
             ));
         }
 
-        if let Some(code_verifier) = code_verifier
-            && verify_code_verifier(
-                &code.pkce_code_challenge,
-                &code.pkce_code_challenge_method,
-                code_verifier,
-            )
-            .is_err()
-        {
-            return Err(OperationOutcomeError::fatal(
-                IssueType::invalid(),
-                "Failed to verify PKCE code verifier.".to_string(),
-            ));
+        match code_verifier {
+            Some(code_verifier) => {
+                if verify_code_verifier(
+                    &code.pkce_code_challenge,
+                    &code.pkce_code_challenge_method,
+                    code_verifier,
+                )
+                .is_err()
+                {
+                    return Err(OperationOutcomeError::fatal(
+                        IssueType::invalid(),
+                        "Failed to verify PKCE code verifier.".to_string(),
+                    ));
+                }
+            }
+            // RFC 7636 §4.6: a code issued to a request that carried a
+            // code_challenge can only be redeemed with its verifier. Leaving
+            // the verifier out must not skip the check.
+            None if code.pkce_code_challenge.is_some() => {
+                return Err(OperationOutcomeError::fatal(
+                    IssueType::invalid(),
+                    "code_verifier is required: the authorization request used PKCE.".to_string(),
+                ));
+            }
+            None => {}
         }
 
         if code.client_id.as_deref() != client.id.as_deref() {
