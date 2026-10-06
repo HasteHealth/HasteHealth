@@ -30,7 +30,7 @@ pub(crate) async fn run(
         CliCommand::Server { command } => server::run(command).await,
         CliCommand::Worker { command } => worker::run(command).await,
         CliCommand::Config { command } => config::run(state, command).await,
-        CliCommand::Login => login::run(state).await,
+        CliCommand::Login { no_browser } => login::run(state, *no_browser).await,
         CliCommand::Api { command } => api::run(state, command).await,
         CliCommand::Testscript { command } => testscript::run(state, command).await,
         CliCommand::Admin { command } => admin::run(command).await,

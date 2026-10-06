@@ -59,13 +59,8 @@ fn parse_redirect_port(redirect_uri: &str) -> Result<u16, OperationOutcomeError>
     })
 }
 
-/// Blocks waiting for the browser to redirect back with `?code=&state=`, on a single
-/// connection to the loopback listener. Returns (code, state).
-fn wait_for_callback(
-    port: u16,
-    expected_path: &str,
-) -> Result<(String, String), OperationOutcomeError> {
-    let listener = TcpListener::bind(("127.0.0.1", port)).map_err(|e| {
+fn bind_callback_listener(port: u16) -> Result<TcpListener, OperationOutcomeError> {
+    TcpListener::bind(("127.0.0.1", port)).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::exception(),
             format!(
@@ -73,8 +68,15 @@ fn wait_for_callback(
                 port, e
             ),
         )
-    })?;
+    })
+}
 
+/// Blocks waiting for the browser to redirect back with `?code=&state=`, on a single
+/// connection to the loopback listener. Returns (code, state).
+fn wait_for_callback(
+    listener: TcpListener,
+    expected_path: &str,
+) -> Result<(String, String), OperationOutcomeError> {
     let (stream, _) = listener.accept().map_err(|e| {
         OperationOutcomeError::error(
             IssueType::exception(),
@@ -160,8 +162,12 @@ fn wait_for_callback(
 }
 
 /// Runs the `login` command: the browser-based authorization_code + PKCE login flow for
-/// the active profile, caching the resulting tokens in the secrets file.
-pub(crate) async fn run(state: Arc<Mutex<CliState>>) -> Result<(), OperationOutcomeError> {
+/// the active profile, caching the resulting tokens in the secrets file. With
+/// `no_browser`, prints the authorization URL instead of opening it.
+pub(crate) async fn run(
+    state: Arc<Mutex<CliState>>,
+    no_browser: bool,
+) -> Result<(), OperationOutcomeError> {
     let (client_id, redirect_uri, scope, profile_name) = {
         let current_state = state.lock().await;
         let Some(profile) = current_state.config.current_profile().cloned() else {
@@ -219,12 +225,19 @@ pub(crate) async fn run(state: Arc<Mutex<CliState>>) -> Result<(), OperationOutc
         .append_pair("code_challenge", &code_challenge)
         .append_pair("code_challenge_method", "S256");
 
-    println!("Opening your browser to log in...");
-    println!("If it doesn't open automatically, visit: {}", authorize_url);
-    open_in_browser(authorize_url.as_str());
+    // Bound before the URL is shown, so the redirect can't arrive first.
+    let listener = bind_callback_listener(port)?;
+
+    if no_browser {
+        println!("Open this URL to log in: {}", authorize_url);
+    } else {
+        println!("Opening your browser to log in...");
+        println!("If it doesn't open automatically, visit: {}", authorize_url);
+        open_in_browser(authorize_url.as_str());
+    }
 
     let (code, returned_state) =
-        tokio::task::spawn_blocking(move || wait_for_callback(port, &expected_path))
+        tokio::task::spawn_blocking(move || wait_for_callback(listener, &expected_path))
             .await
             .map_err(|e| {
                 OperationOutcomeError::error(

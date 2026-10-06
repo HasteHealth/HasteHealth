@@ -18,8 +18,15 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_jwt::{ProjectId, TenantId, claims::SubscriptionTier};
-use haste_repository::admin::Migrate;
+use haste_repository::{
+    admin::{Migrate, TenantModelAdmin},
+    types::user::{AuthMethod, CreateUser, UserSearchClauses},
+};
 use haste_server::{
+    auth_n::{
+        invitations,
+        oidc::utilities::{revoke_refresh_tokens, set_user_password},
+    },
     config::ServerConfig,
     fhir_client::ServerCTX,
     load_artifacts::{self, reset_artifacts},
@@ -167,6 +174,18 @@ pub(crate) enum UserCommands {
         #[arg(short, long)]
         tenant: String,
     },
+    /// Set a user's password, accept their invitation and revoke their refresh tokens.
+    SetPassword {
+        /// Email address of the user.
+        #[arg(short, long)]
+        email: String,
+        /// New password for the user.
+        #[arg(short, long)]
+        password: String,
+        /// Tenant the user belongs to.
+        #[arg(short, long)]
+        tenant: String,
+    },
 }
 
 async fn migrate_repo(config: Arc<ServerConfig>) -> Result<(), OperationOutcomeError> {
@@ -288,6 +307,49 @@ pub(crate) async fn run(command: &AdminCommands) -> Result<(), OperationOutcomeE
                     Some(password),
                 )
                 .await?;
+
+                services.commit().await?;
+
+                Ok(())
+            }
+            UserCommands::SetPassword {
+                email,
+                password,
+                tenant,
+            } => {
+                let services = services::create_services(config)
+                    .await?
+                    .transaction()
+                    .await?;
+
+                let tenant = TenantId::new(tenant.clone());
+
+                let Some(user) = TenantModelAdmin::<CreateUser, _, _, _, String>::search(
+                    services.repo.as_ref(),
+                    &tenant,
+                    &UserSearchClauses {
+                        email: Some(email.clone()),
+                        role: None,
+                        method: Some(AuthMethod::EmailPassword),
+                    },
+                )
+                .await?
+                .into_iter()
+                .next() else {
+                    return Err(OperationOutcomeError::error(
+                        IssueType::not_found(),
+                        format!(
+                            "No email/password user with email '{}' in tenant '{}'.",
+                            email, tenant
+                        ),
+                    ));
+                };
+
+                set_user_password(services.repo.as_ref(), &tenant, email, &user.id, password)
+                    .await?;
+                revoke_refresh_tokens(services.repo.as_ref(), &tenant, &user.id).await?;
+                // Sign-in requires an accepted (email-verified) user.
+                invitations::accept(&services, user).await?;
 
                 services.commit().await?;
 

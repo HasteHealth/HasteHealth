@@ -1,0 +1,661 @@
+{
+    "id": "access-control-patient-scopes-setup",
+    "url": "https://haste.health/fhir/TestScript/access-control-patient-scopes-setup",
+    "name": "Access Control Patient Scopes Setup",
+    "title": "Patient scopes: data and login",
+    "status": "active",
+    "description": "Run as admin. Writes two patients, data in and out of ac-patient-a's compartment, and the login the tests use: a member User linked to ac-patient-a, a full-access policy, and a client allowed only patient/*.rs.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "ac-patient-a",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Alex"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ac-patient-b",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Blake"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ac-practitioner",
+            "resourceType": "Practitioner",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Pat"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ac-observation-a",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/ac-patient-a"
+            }
+        },
+        {
+            "id": "ac-observation-shared",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Blood pressure"
+            },
+            "subject": {
+                "reference": "Patient/ac-patient-a"
+            },
+            "performer": [
+                {
+                    "reference": "Patient/ac-patient-b"
+                },
+                {
+                    "reference": "Practitioner/ac-practitioner"
+                }
+            ]
+        },
+        {
+            "id": "ac-observation-a-delete",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Respiratory rate"
+            },
+            "subject": {
+                "reference": "Patient/ac-patient-a"
+            }
+        },
+        {
+            "id": "ac-observation-b",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/ac-patient-b"
+            }
+        },
+        {
+            "id": "ac-questionnaire",
+            "resourceType": "Questionnaire",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "status": "active",
+            "name": "AccessControlQuestionnaire"
+        },
+        {
+            "id": "ac-patient-user",
+            "resourceType": "User",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "role": "member",
+            "email": "ac-patient-a@example.org"
+        },
+        {
+            "id": "ac-patient-membership",
+            "resourceType": "Membership",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "user": {
+                "reference": "User/ac-patient-user"
+            },
+            "link": {
+                "reference": "Patient/ac-patient-a"
+            }
+        },
+        {
+            "id": "ac-patient-policy",
+            "resourceType": "AccessPolicyV2",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "name": "Access control: patient scopes",
+            "description": "Full access, so only the patient scopes limit this login.",
+            "engine": "full-access"
+        },
+        {
+            "id": "ac-patient-policy-assignment",
+            "resourceType": "AccessPolicyV2Assignment",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "accessPolicy": {
+                "reference": "AccessPolicyV2/ac-patient-policy"
+            },
+            "link": {
+                "reference": "Membership/ac-patient-membership"
+            }
+        },
+        {
+            "id": "ac-patient-app",
+            "resourceType": "ClientApplication",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-patient-scopes"
+                    }
+                ]
+            },
+            "name": "Access control: patient app",
+            "grantType": [
+                "authorization_code",
+                "refresh_token"
+            ],
+            "responseTypes": "code",
+            "redirectUri": [
+                "http://127.0.0.1:8976/callback"
+            ],
+            "scope": "openid fhirUser offline_access launch/patient patient/*.rs"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-ac-patient-a",
+            "resource": {
+                "reference": "#ac-patient-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-patient-b",
+            "resource": {
+                "reference": "#ac-patient-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-practitioner",
+            "resource": {
+                "reference": "#ac-practitioner"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-observation-a",
+            "resource": {
+                "reference": "#ac-observation-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-observation-shared",
+            "resource": {
+                "reference": "#ac-observation-shared"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-observation-a-delete",
+            "resource": {
+                "reference": "#ac-observation-a-delete"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-observation-b",
+            "resource": {
+                "reference": "#ac-observation-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-questionnaire",
+            "resource": {
+                "reference": "#ac-questionnaire"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-patient-user",
+            "resource": {
+                "reference": "#ac-patient-user"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-patient-membership",
+            "resource": {
+                "reference": "#ac-patient-membership"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-patient-policy",
+            "resource": {
+                "reference": "#ac-patient-policy"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-patient-policy-assignment",
+            "resource": {
+                "reference": "#ac-patient-policy-assignment"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-patient-app",
+            "resource": {
+                "reference": "#ac-patient-app"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-data",
+            "name": "Two patients, data in and out of the first one's compartment",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-ac-patient-a",
+                        "sourceId": "fixture-ac-patient-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient/ac-patient-a is written",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-ac-patient-b",
+                        "sourceId": "fixture-ac-patient-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient/ac-patient-b is written",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Practitioner",
+                        "targetId": "fixture-ac-practitioner",
+                        "sourceId": "fixture-ac-practitioner",
+                        "encodeRequestUrl": false,
+                        "description": "Shared reference data."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Practitioner/ac-practitioner is written",
+                        "resource": "Practitioner",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-ac-observation-a",
+                        "sourceId": "fixture-ac-observation-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/ac-observation-a is written",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-ac-observation-shared",
+                        "sourceId": "fixture-ac-observation-shared",
+                        "encodeRequestUrl": false,
+                        "description": "Subject ac-patient-a; performers ac-patient-b and the practitioner."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/ac-observation-shared is written",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-ac-observation-a-delete",
+                        "sourceId": "fixture-ac-observation-a-delete",
+                        "encodeRequestUrl": false,
+                        "description": "Target of the refused delete, so a wrongful success affects no other test."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/ac-observation-a-delete is written",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-ac-observation-b",
+                        "sourceId": "fixture-ac-observation-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Observation/ac-observation-b is written",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Questionnaire",
+                        "targetId": "fixture-ac-questionnaire",
+                        "sourceId": "fixture-ac-questionnaire",
+                        "encodeRequestUrl": false,
+                        "description": "Outside every compartment and not shared."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Questionnaire/ac-questionnaire is written",
+                        "resource": "Questionnaire",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-login",
+            "name": "The member User linked to the first patient, its access policy and client application",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "User",
+                        "targetId": "fixture-ac-patient-user",
+                        "sourceId": "fixture-ac-patient-user",
+                        "encodeRequestUrl": false,
+                        "description": "Its password is set in the sign-in phase."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "User/ac-patient-user is written",
+                        "resource": "User",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Membership",
+                        "targetId": "fixture-ac-patient-membership",
+                        "sourceId": "fixture-ac-patient-membership",
+                        "encodeRequestUrl": false,
+                        "description": "Binds the token's patient scopes to ac-patient-a."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Membership/ac-patient-membership is written",
+                        "resource": "Membership",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2",
+                        "targetId": "fixture-ac-patient-policy",
+                        "sourceId": "fixture-ac-patient-policy",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2/ac-patient-policy is written",
+                        "resource": "AccessPolicyV2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "targetId": "fixture-ac-patient-policy-assignment",
+                        "sourceId": "fixture-ac-patient-policy-assignment",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2Assignment/ac-patient-policy-assignment is written",
+                        "resource": "AccessPolicyV2Assignment",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-ac-patient-app",
+                        "sourceId": "fixture-ac-patient-app",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ClientApplication/ac-patient-app is written",
+                        "resource": "ClientApplication",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-indexed",
+            "name": "The access policy can be found the way token issuance finds it",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "params": "link=Membership/ac-patient-membership",
+                        "encodeRequestUrl": false,
+                        "description": "Waits for indexing: token issuance finds access policies through search."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The assignment is found by its Membership",
+                        "expression": "Bundle.entry.resource.where(id = 'ac-patient-policy-assignment').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "AccessPolicyV2",
+                        "params": "_id=ac-patient-policy",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The policy is found by id",
+                        "expression": "Bundle.entry.resource.where(id = 'ac-patient-policy').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}
