@@ -18,6 +18,16 @@ impl OperationOutcomeError {
                     axum::http::StatusCode::CONFLICT
                 } else if issue.code == IssueType::throttled() {
                     axum::http::StatusCode::TOO_MANY_REQUESTS
+                } else if issue.code == IssueType::login()
+                    || issue.code == IssueType::unknown()
+                    || issue.code == IssueType::expired()
+                {
+                    // The caller is not (or no longer) authenticated.
+                    axum::http::StatusCode::UNAUTHORIZED
+                } else if issue.code == IssueType::security()
+                    || issue.code == IssueType::suppressed()
+                {
+                    axum::http::StatusCode::FORBIDDEN
                 } else {
                     axum::http::StatusCode::INTERNAL_SERVER_ERROR
                 }
