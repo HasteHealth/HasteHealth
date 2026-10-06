@@ -69,9 +69,9 @@ pub struct PasswordResetFormInitiate {
 }
 
 pub async fn password_reset_initiate_post<
-    Repo: Repository + Send + Sync,
-    Search: SearchEngine + Send + Sync,
-    Terminology: FHIRTerminology + Send + Sync,
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     _: PasswordResetInitiate,
     Cached(TenantContext { tenant, branding }): Cached<TenantContext>,
@@ -99,6 +99,10 @@ pub async fn password_reset_initiate_post<
     )
     .await?;
 
+    // The answer is the same whether or not the address belongs to a user, so
+    // this form cannot be used to find out which addresses have accounts. The
+    // email is sent off the request for the same reason: waiting for it would
+    // make a known address answer measurably slower than an unknown one.
     if let Some(user) = user_search_results.into_iter().next() {
         // Tell an invited user that setting a password accepts the invitation.
         let message = if user.email_verified {
@@ -114,20 +118,27 @@ pub async fn password_reset_initiate_post<
             }
         };
 
-        send_password_reset_email(state.as_ref(), &tenant, &project, &user, message).await?;
+        let state = state.clone();
+        let tenant = tenant.clone();
+        let project = project.clone();
 
-        Ok(message_html(
-            Some(&tenant),
-            Some(&project_resource.0),
-            &html! {"An email will arrive in the next few minutes with the next steps to reset your password."},
-            Some(&branding),
-        ))
+        tokio::spawn(async move {
+            if let Err(error) =
+                send_password_reset_email(state.as_ref(), &tenant, &project, &user, message).await
+            {
+                tracing::error!(?error, "Failed to send password reset email");
+            }
+        });
     } else {
-        Err(OperationOutcomeError::error(
-            IssueType::not_found(),
-            "No user found with provided email address.".to_string(),
-        ))?
+        tracing::info!("Password reset requested for an unknown email address");
     }
+
+    Ok(message_html(
+        Some(&tenant),
+        Some(&project_resource.0),
+        &html! {"If an account exists for that email address, a message will arrive in the next few minutes with the next steps to reset your password."},
+        Some(&branding),
+    ))
 }
 
 #[derive(TypedPath)]
