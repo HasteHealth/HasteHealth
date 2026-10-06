@@ -101,14 +101,11 @@ where
                 None => (None, NO_PASSWORD_HASH.clone()),
             };
 
-            let password_matches =
-                PasswordHash::new(&password_hash)
-                    .ok()
-                    .is_some_and(|parsed_hash| {
-                        Argon2::default()
-                            .verify_password(password.as_bytes(), &parsed_hash)
-                            .is_ok()
-                    });
+            let password_matches = PasswordHash::new(&password_hash).is_ok_and(|parsed_hash| {
+                Argon2::default()
+                    .verify_password(password.as_bytes(), &parsed_hash)
+                    .is_ok()
+            });
 
             // An unverified address is refused only after the hash check, so
             // that refusal takes the same time too.
