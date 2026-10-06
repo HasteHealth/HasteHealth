@@ -1,0 +1,6 @@
+{
+    "description": "A client signing in on its own, allowed only system/Patient.rs system/Observation.crs system/Encounter.r.",
+    "grantType": "client_credentials",
+    "clientId": "acs-client",
+    "scope": "system/Patient.rs system/Observation.crs system/Encounter.r"
+}

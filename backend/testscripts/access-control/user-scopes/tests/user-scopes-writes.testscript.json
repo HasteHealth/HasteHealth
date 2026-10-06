@@ -1,0 +1,206 @@
+{
+    "id": "access-control-user-scopes-writes",
+    "url": "https://haste.health/fhir/TestScript/access-control-user-scopes-writes",
+    "name": "Access Control User Scopes Writes",
+    "title": "User scopes: writes",
+    "status": "active",
+    "description": "Run as the user-scopes login (user/Patient.rs user/Observation.crs user/Encounter.r). Observation.crs creates but cannot update or delete; Patient.rs cannot create.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "new-observation",
+            "resourceType": "Observation",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acu-patient-a"
+            }
+        },
+        {
+            "id": "new-patient",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-user-scopes"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "New"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acu-observation-update",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acu-patient-a"
+            }
+        },
+        {
+            "id": "acu-observation-delete",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/acu-patient-a"
+            }
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-new-observation",
+            "resource": {
+                "reference": "#new-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-new-patient",
+            "resource": {
+                "reference": "#new-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-observation-update",
+            "resource": {
+                "reference": "#acu-observation-update"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-acu-observation-delete",
+            "resource": {
+                "reference": "#acu-observation-delete"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create-granted",
+            "name": "Creating an Observation is allowed by Observation.c",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Observation",
+                        "sourceId": "fixture-new-observation",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The created Observation is returned",
+                        "resource": "Observation",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-create-not-granted",
+            "name": "Creating a Patient is refused: Patient.rs has no c",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Patient",
+                        "sourceId": "fixture-new-patient",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The create is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-update-not-granted",
+            "name": "Updating an Observation is refused: Observation.crs has no u",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acu-observation-update",
+                        "sourceId": "fixture-acu-observation-update",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The update is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-delete-not-granted",
+            "name": "Deleting an Observation is refused: Observation.crs has no d",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-acu-observation-delete",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The delete is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -171,17 +171,17 @@ jobs:
           exit 1
         working-directory: ./backend
 
-      # The admin writes each scenario's data, user and client.
+      # The admin writes each scenario's data, client and any user.
       - name: "Access control: setup"
         run: node .github/scripts/access_control.mjs setup
         env:
           RUST_LOG: info
 
-      # Each scenario's user gets a fresh password and signs in through its client.
+      # Each scenario's user or client signs in with a fresh password or secret.
       - name: "Access control: sign in"
         run: node .github/scripts/access_control.mjs sign-in
 
-      # Each scenario's tests run as its user.
+      # Each scenario's tests run as its signed-in user or client.
       - name: "Access control: test"
         run: node .github/scripts/access_control.mjs test
         env:
