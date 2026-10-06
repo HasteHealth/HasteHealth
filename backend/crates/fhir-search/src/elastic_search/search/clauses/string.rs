@@ -25,11 +25,13 @@ pub fn string(
                     }
                 }
             }),
-            // Case-insensitive substring.
+            // Case-insensitive substring. The value is escaped so that `*`
+            // and `?` typed by the caller match themselves instead of acting
+            // as further wildcards.
             Modifier::Contains => json!({
                 "wildcard": {
                     &column_name: {
-                        "value": format!("*{value}*"),
+                        "value": format!("*{}*", escape_wildcard(value)),
                         "case_insensitive": true
                     }
                 }
@@ -51,4 +53,17 @@ pub fn string(
             "should": string_params
         }
     })
+}
+
+/// Escapes the characters Elasticsearch's `wildcard` query treats specially
+/// (`\`, `*`, `?`), so a search value is matched literally.
+fn escape_wildcard(value: &str) -> String {
+    let mut escaped = String::with_capacity(value.len());
+    for character in value.chars() {
+        if matches!(character, '\\' | '*' | '?') {
+            escaped.push('\\');
+        }
+        escaped.push(character);
+    }
+    escaped
 }
