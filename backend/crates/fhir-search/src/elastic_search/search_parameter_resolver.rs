@@ -53,6 +53,7 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
         }),
         Some(SearchOptions {
             count_limit: Some(10_000),
+            any_of: None,
         })
         .as_ref(),
     )

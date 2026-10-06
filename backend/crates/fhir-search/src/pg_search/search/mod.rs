@@ -10,7 +10,7 @@ use haste_jwt::{ProjectId, TenantId};
 use sqlx::{AssertSqlSafe, Pool, Postgres, Row, postgres::PgRow};
 
 use crate::{
-    ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions, SearchParameterResolve,
+    AnyOf, ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions, SearchParameterResolve,
     SearchReturn,
     pg_search::{
         keys,
@@ -115,6 +115,12 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
         }
     }
 
+    // ANDed with the client's parameters like any other clause, so nothing in
+    // the URL can widen it.
+    if let Some(any_of) = options.and_then(|options| options.any_of.as_ref()) {
+        where_clauses.push(any_of_clause(&scope, any_of).await?);
+    }
+
     let query = build_final_query(
         &where_clauses,
         schema_registry,
@@ -205,6 +211,32 @@ async fn resource_clause<ParameterResolver: SearchParameterResolve>(
     let parameter = resolve_parameter(scope, scope.resource_type, &param.name).await?;
     let target = clause_target(scope, &scope.root_row(), &parameter);
     Ok(parameter_to_sql_clause(&parameter, &target, param)?)
+}
+
+/// `(a) OR (b) OR ...` over `any_of`'s parameters, each built as it would be
+/// on its own. Empty is `FALSE`: a filter with no branch must fail closed.
+async fn any_of_clause<ParameterResolver: SearchParameterResolve>(
+    scope: &SearchScope<'_, ParameterResolver>,
+    any_of: &AnyOf,
+) -> Result<SqlClause, OperationOutcomeError> {
+    let mut branches = Vec::with_capacity(any_of.0.len());
+    let mut params = Vec::new();
+    for param in &any_of.0 {
+        let clause = resource_clause(scope, param).await?;
+        branches.push(rebase_placeholders(
+            &clause.sql,
+            clause.params.len(),
+            params.len(),
+        ));
+        params.extend(clause.params);
+    }
+
+    let sql = if branches.is_empty() {
+        "FALSE".to_string()
+    } else {
+        format!("({})", branches.join(" OR "))
+    };
+    Ok(SqlClause { sql, params })
 }
 
 /// A resource row clauses are read against: its anchor row, and its type

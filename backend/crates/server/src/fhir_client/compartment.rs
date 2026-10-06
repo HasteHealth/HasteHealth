@@ -13,7 +13,12 @@ use haste_fhir_model::r4::generated::{
     terminology::{BoundCode, CompartmentType, IssueType},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use std::sync::{Arc, LazyLock};
+use haste_fhir_search::{indexing_conversion, memory::R4_SEARCH_PARAMETERS_INDEX};
+use haste_fhirpath::FPEngine;
+use std::{
+    collections::HashMap,
+    sync::{Arc, LazyLock},
+};
 
 // Supported Compartment Definitions from R4.
 static COMPARTMENTS: LazyLock<Vec<&'static CompartmentDefinition>> = LazyLock::new(|| {
@@ -25,6 +30,106 @@ static COMPARTMENTS: LazyLock<Vec<&'static CompartmentDefinition>> = LazyLock::n
         })
         .collect::<Vec<_>>()
 });
+
+static FP_ENGINE: LazyLock<FPEngine> = LazyLock::new(FPEngine::new);
+
+/// Each Patient compartment member type with the codes of the search
+/// parameters that place a resource of that type in a patient's compartment.
+static PATIENT_COMPARTMENT_PARAMETERS: LazyLock<HashMap<String, Vec<String>>> =
+    LazyLock::new(|| {
+        COMPARTMENTS
+            .iter()
+            .find(|compartment| compartment.code == CompartmentType::patient())
+            .and_then(|compartment| compartment.resource.as_ref())
+            .into_iter()
+            .flatten()
+            .filter_map(|resource| {
+                let code = resource.code.as_str()?;
+                let parameters: Vec<String> = resource
+                    .param
+                    .as_ref()?
+                    .iter()
+                    .filter_map(|p| p.value.clone())
+                    .collect();
+                (!parameters.is_empty()).then(|| (code.to_string(), parameters))
+            })
+            .collect()
+    });
+
+/// The same membership as FHIRPath: the expression of each parameter above,
+/// so a resource can be placed without the index.
+static PATIENT_COMPARTMENT_EXPRESSIONS: LazyLock<HashMap<String, Vec<String>>> =
+    LazyLock::new(|| {
+        let parameters = R4_SEARCH_PARAMETERS_INDEX.all_parameters();
+        let expressions: HashMap<(&str, &str), &str> = parameters
+            .iter()
+            .flat_map(|parameter| {
+                let parameter = &parameter.search_parameter;
+                let code = parameter.code.value.as_deref();
+                let expression = parameter
+                    .expression
+                    .as_ref()
+                    .and_then(|e| e.value.as_deref());
+                parameter
+                    .base
+                    .iter()
+                    .filter_map(move |base| Some(((base.as_str()?, code?), expression?)))
+            })
+            .collect();
+
+        PATIENT_COMPARTMENT_PARAMETERS
+            .iter()
+            .map(|(resource_type, codes)| {
+                let found = codes
+                    .iter()
+                    .filter_map(|code| expressions.get(&(resource_type.as_str(), code.as_str())))
+                    .map(ToString::to_string)
+                    .collect();
+                (resource_type.clone(), found)
+            })
+            .collect()
+    });
+
+/// The search parameters that place a `resource_type` in a Patient
+/// compartment; `None` when the type is not a member.
+#[must_use]
+pub fn patient_compartment_parameters(resource_type: &ResourceType) -> Option<&'static [String]> {
+    PATIENT_COMPARTMENT_PARAMETERS
+        .get(resource_type.as_ref())
+        .map(Vec::as_slice)
+}
+
+/// Whether `resource` is in `patient_id`'s compartment: the Patient itself, or
+/// a resource one of its compartment parameters, evaluated as indexing does,
+/// points at `Patient/{patient_id}`.
+pub async fn in_patient_compartment(resource: &Resource, patient_id: &str) -> bool {
+    let resource_type = resource.resource_type();
+    if resource_type == ResourceType::Patient && resource.id().as_deref() == Some(patient_id) {
+        return true;
+    }
+
+    let Some(expressions) = PATIENT_COMPARTMENT_EXPRESSIONS.get(resource_type.as_ref()) else {
+        return false;
+    };
+    for expression in expressions {
+        match FP_ENGINE.evaluate(expression, vec![resource]).await {
+            Ok(values) => {
+                let references_patient = values
+                    .iter()
+                    .flat_map(indexing_conversion::index_reference_values)
+                    .any(|r| r.resource_type() == Some("Patient") && r.id() == Some(patient_id));
+                if references_patient {
+                    return true;
+                }
+            }
+            Err(e) => tracing::warn!(
+                "compartment: failed to evaluate '{expression}' for {}: {e}",
+                resource_type.as_ref()
+            ),
+        }
+    }
+    false
+}
 
 fn compartment_type_to_resource_type(
     compartment_type: &BoundCode<CompartmentType>,

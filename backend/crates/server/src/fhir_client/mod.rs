@@ -85,6 +85,10 @@ pub struct ServerCTX<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> {
     #[derivative(Debug = "ignore")]
     pub rate_limit: Arc<dyn haste_rate_limit::RateLimit>,
     pub tracing_id: Option<String>,
+    /// The Patient whose compartment the caller is confined to, set by the
+    /// scope middleware when a `patient/` scope grants the request. Storage
+    /// filters every search by it.
+    pub compartment: Option<String>,
 }
 
 impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
@@ -100,6 +104,22 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             client: new_client,
             rate_limit: self.rate_limit.clone(),
             tracing_id: self.tracing_id.clone(),
+            compartment: self.compartment.clone(),
+        }
+    }
+
+    /// This context confined to `patient_id`'s compartment.
+    #[must_use]
+    pub fn with_compartment(&self, patient_id: String) -> Self {
+        ServerCTX {
+            tenant: self.tenant.clone(),
+            project: self.project.clone(),
+            fhir_version: self.fhir_version.clone(),
+            user: self.user.clone(),
+            client: self.client.clone(),
+            rate_limit: self.rate_limit.clone(),
+            tracing_id: self.tracing_id.clone(),
+            compartment: Some(patient_id),
         }
     }
 
@@ -119,6 +139,7 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             client,
             rate_limit,
             tracing_id: None,
+            compartment: None,
         }
     }
 
@@ -156,6 +177,7 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
                         },
                     ))]),
                     fhir_user: None,
+                    patient: None,
                     user_id: AuthorId::System,
                     resource_type: AuthorKind::System,
                     access_policy_version_ids: vec![],
@@ -166,6 +188,7 @@ impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
             client,
             rate_limit,
             tracing_id: None,
+            compartment: None,
         }
     }
 

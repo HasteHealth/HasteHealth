@@ -34,7 +34,11 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{
     AuthorId, AuthorKind, ProjectId, TenantId, UserRole, VersionId,
     claims::{SubscriptionTier, UserTokenClaims},
-    scopes::{OIDCScope, Scope, Scopes, SmartScope},
+    scopes::{
+        LaunchType, LaunchTypeScope, OIDCScope, SMARTResourceScope, Scope, Scopes,
+        SmartResourceScopePermission, SmartResourceScopePermissions, SmartResourceScopeUser,
+        SmartScope,
+    },
 };
 use haste_repository::{
     Repository,
@@ -76,6 +80,12 @@ pub struct TokenResponse {
     pub id_token: Option<String>,
     token_type: TokenType,
     expires_in: usize,
+    /// The scopes granted, which SMART lets differ from those requested.
+    #[serde(default)]
+    scope: String,
+    /// SMART launch context: the Patient the `patient/` scopes are bound to.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    patient: Option<String>,
 }
 
 struct TokenResponseArguments {
@@ -89,6 +99,98 @@ struct TokenResponseArguments {
     membership: Option<String>,
     access_policy_version_ids: Vec<VersionId>,
     fhir_user: Option<FHIRUrl>,
+    patient: Option<String>,
+}
+
+/// Whether `scope` needs a patient in context.
+fn is_patient_bound_scope(scope: &Scope) -> bool {
+    matches!(
+        scope,
+        Scope::SMART(SmartScope::Resource(SMARTResourceScope {
+            user: SmartResourceScopeUser::Patient,
+            ..
+        })) | Scope::SMART(SmartScope::LaunchType(LaunchTypeScope {
+            launch_type: LaunchType::Patient,
+        }))
+    )
+}
+
+/// What the membership link binds a token to.
+struct SmartContext {
+    fhir_user: Option<FHIRUrl>,
+    patient: Option<String>,
+    scopes: Scopes,
+}
+
+/// Filters SMART resource scopes to only include read and search permissions.
+fn smart_read_only_scopes(scope: SMARTResourceScope) -> Option<SMARTResourceScope> {
+    let kept: Vec<_> = [
+        SmartResourceScopePermission::Read,
+        SmartResourceScopePermission::Search,
+    ]
+    .into_iter()
+    .filter(|permission| scope.permissions.has_permission(permission))
+    .collect();
+
+    (!kept.is_empty()).then(|| SMARTResourceScope {
+        permissions: SmartResourceScopePermissions::new(kept),
+        ..scope
+    })
+}
+
+/// How a requested `scope` is issued. A patient-bound scope needs a patient
+/// in context and is then read-only; without one it is dropped rather than
+/// issued unbound. Anything else is issued as requested.
+fn issued_scope(scope: Scope, has_patient: bool) -> Option<Scope> {
+    match scope {
+        // For patient-level resource scopes, only issue them if a patient is in context, and make them read-only.
+        Scope::SMART(SmartScope::Resource(resource))
+            if resource.user == SmartResourceScopeUser::Patient =>
+        {
+            has_patient
+                .then(|| smart_read_only_scopes(resource))
+                .flatten()
+                .map(|resource| Scope::SMART(SmartScope::Resource(resource)))
+        }
+        Scope::SMART(SmartScope::LaunchType(LaunchTypeScope {
+            launch_type: LaunchType::Patient,
+        })) => has_patient.then_some(scope),
+        scope => Some(scope),
+    }
+}
+
+/// Binds `scopes` to the resource the membership links to: `fhirUser` names
+/// it, and a linked Patient is the patient in context. The response's
+/// `scope` tells the client what was issued.
+fn bind_smart_context(scopes: Scopes, link: Option<String>) -> SmartContext {
+    let patient = link
+        .as_deref()
+        .and_then(|link| link.strip_prefix("Patient/"))
+        .filter(|id| !id.is_empty())
+        .map(str::to_string);
+
+    let fhir_user = if scopes.contains_scope(&Scope::SMART(SmartScope::FHIRUser)) {
+        link.map(|reference| FHIRUrl {
+            value: Some(reference),
+            ..Default::default()
+        })
+    } else {
+        None
+    };
+
+    let scopes = Scopes(
+        scopes
+            .0
+            .into_iter()
+            .filter_map(|scope| issued_scope(scope, patient.is_some()))
+            .collect(),
+    );
+
+    SmartContext {
+        fhir_user,
+        patient,
+        scopes,
+    }
 }
 
 async fn create_token_response<Repo: Repository>(
@@ -181,6 +283,7 @@ async fn create_token_response<Repo: Repository>(
             resource_type: args.user_kind,
             access_policy_version_ids: args.access_policy_version_ids,
             fhir_user: args.fhir_user.clone(),
+            patient: args.patient.clone(),
             fhir_version: project_fhir_version,
         },
         &encoding_key.encoding_key,
@@ -199,6 +302,11 @@ async fn create_token_response<Repo: Repository>(
         expires_in: TOKEN_EXPIRATION,
         refresh_token: None,
         token_type: TokenType::Bearer,
+        scope: String::from(args.scopes.clone()),
+        patient: args
+            .patient
+            .clone()
+            .filter(|_| args.scopes.0.iter().any(is_patient_bound_scope)),
     };
 
     if args.scopes.contains_scope(&Scope::OIDC(OIDCScope::OpenId)) {
@@ -508,7 +616,8 @@ async fn find_users_access_policy_version_ids<Repo: Repository, Search: SearchEn
     Ok(version_ids)
 }
 
-async fn get_fhir_user_from_membership_link<
+/// The resource the membership links to (`Patient/123`), if any.
+async fn membership_link<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
@@ -517,12 +626,7 @@ async fn get_fhir_user_from_membership_link<
     tenant: &TenantId,
     project: &ProjectId,
     membership_id: Option<&str>,
-    scopes: &Scopes,
-) -> Result<Option<FHIRUrl>, OIDCError> {
-    if !scopes.contains_scope(&Scope::SMART(SmartScope::FHIRUser)) {
-        return Ok(None);
-    }
-
+) -> Result<Option<String>, OIDCError> {
     let Some(membership_id) = membership_id else {
         return Ok(None);
     };
@@ -545,7 +649,7 @@ async fn get_fhir_user_from_membership_link<
         .map_err(|_| {
             OIDCError::new(
                 OIDCErrorCode::ServerError,
-                Some("Failed to retrieve membership resource for fhirUser claim.".to_string()),
+                Some("Failed to retrieve membership resource for its link.".to_string()),
                 None,
             )
         })?;
@@ -564,10 +668,7 @@ async fn get_fhir_user_from_membership_link<
         _ => None,
     };
 
-    Ok(membership_link_reference.map(|reference| FHIRUrl {
-        value: Some(reference),
-        ..Default::default()
-    }))
+    Ok(membership_link_reference)
 }
 
 #[derive(PartialEq, Eq)]
@@ -641,11 +742,13 @@ pub async fn client_credentials_to_token_response<
             user_role: UserRole::Member,
             user_kind: AuthorKind::ClientApplication,
             client_id: client_app.id.clone().unwrap_or_default(),
-            scopes: requested_scopes,
+            // A client has no patient in context.
+            scopes: bind_smart_context(requested_scopes, None).scopes,
             tenant: tenant.clone(),
             project: project.clone(),
             membership: None,
             fhir_user: None,
+            patient: None,
             access_policy_version_ids: find_users_access_policy_version_ids(
                 state.repo.as_ref(),
                 state.search.as_ref(),
@@ -779,14 +882,13 @@ pub async fn token<
                         )
                     })?;
 
-            let fhir_user = get_fhir_user_from_membership_link(
-                &state,
-                &tenant,
-                &project,
-                code.membership.as_deref(),
-                &approved_scopes,
-            )
-            .await?;
+            let link =
+                membership_link(&state, &tenant, &project, code.membership.as_deref()).await?;
+            let SmartContext {
+                fhir_user,
+                patient,
+                scopes: approved_scopes,
+            } = bind_smart_context(approved_scopes, link);
 
             let response = create_token_response(
                 state.config.as_ref(),
@@ -823,6 +925,7 @@ pub async fn token<
                     },
                     membership: code.membership.clone(),
                     fhir_user,
+                    patient,
                 },
             )
             .await?;
@@ -938,14 +1041,13 @@ pub async fn token<
                         )
                     })?;
 
-            let fhir_user = get_fhir_user_from_membership_link(
-                &state,
-                &tenant,
-                &project,
-                code.membership.as_deref(),
-                &approved_scopes,
-            )
-            .await?;
+            let link =
+                membership_link(&state, &tenant, &project, code.membership.as_deref()).await?;
+            let SmartContext {
+                fhir_user,
+                patient,
+                scopes: approved_scopes,
+            } = bind_smart_context(approved_scopes, link);
 
             let response = create_token_response(
                 state.config.as_ref(),
@@ -982,6 +1084,7 @@ pub async fn token<
                     },
                     membership: code.membership.clone(),
                     fhir_user,
+                    patient,
                 },
             )
             .await?;

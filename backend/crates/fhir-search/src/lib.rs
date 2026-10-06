@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use haste_fhir_client::request::SearchRequest;
+use haste_fhir_client::{request::SearchRequest, url::Parameter};
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId};
@@ -47,8 +47,17 @@ pub struct SearchReturn {
     pub entries: Vec<SearchEntry>,
 }
 
+/// Parameters a resource must match at least one of, ANDed with the search's
+/// own parameters. Empty matches nothing. The server adds it on the caller's
+/// behalf (a `patient/` scope confining a search to one compartment); it
+/// never comes from a URL.
+#[derive(Debug, Clone)]
+pub struct AnyOf(pub Vec<Parameter>);
+
+#[derive(Debug, Default)]
 pub struct SearchOptions {
     pub count_limit: Option<u64>,
+    pub any_of: Option<AnyOf>,
 }
 
 #[derive(Clone, Debug)]

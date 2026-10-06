@@ -509,6 +509,7 @@ mod tests {
                 subscription_tier: SubscriptionTier::Free,
                 scope: Scopes(vec![]),
                 fhir_user: None,
+                patient: None,
                 user_id: AuthorId::new(user_id.to_string()),
                 resource_type: AuthorKind::Membership,
                 access_policy_version_ids: vec![],
