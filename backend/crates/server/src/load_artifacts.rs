@@ -309,6 +309,7 @@ pub async fn get_all_sds<Repo: Repository, Search: SearchEngine>(
             &SearchRequest::Type(sd_search),
             Some(SearchOptions {
                 count_limit: Some(10_000),
+                any_of: None,
             }),
         )
         .await?;
@@ -352,6 +353,7 @@ pub async fn get_all_sps<Repo: Repository, Search: SearchEngine>(
             &SearchRequest::Type(sp_search),
             Some(SearchOptions {
                 count_limit: Some(10_000),
+                any_of: None,
             }),
         )
         .await?;

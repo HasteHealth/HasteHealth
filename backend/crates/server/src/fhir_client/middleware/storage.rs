@@ -7,7 +7,7 @@ use crate::{
         compartment::process_compartment_request,
         middleware::{
             ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-            ServerMiddlewareState, search_includes,
+            ServerMiddlewareState, auth_z::patient_scope, search_includes,
         },
     },
     route_path::{api_fhir_root_url, append_path_segments},
@@ -170,6 +170,24 @@ pub fn to_bundle_entry(
     entry.resource = Some(Box::new(resource));
 
     entry
+}
+
+/// The options a search runs with. A caller confined to a patient's
+/// compartment gets the filter that keeps every search there.
+fn search_options(
+    compartment: Option<&str>,
+    request: &SearchRequest,
+    count_limit: Option<u64>,
+) -> Option<SearchOptions> {
+    let resource_type = match request {
+        SearchRequest::Type(search) => Some(&search.resource_type),
+        SearchRequest::System(_) => None,
+    };
+    Some(SearchOptions {
+        count_limit,
+        any_of: compartment
+            .and_then(|patient_id| patient_scope::search_filter(patient_id, resource_type)),
+    })
 }
 
 /// The parameters of a search request, whichever level it is at.
@@ -344,9 +362,11 @@ impl<
                                 &context.ctx.tenant,
                                 &context.ctx.project,
                                 &delete_search_request,
-                                Some(SearchOptions {
-                                    count_limit: Some(delete_limit + 1),
-                                }),
+                                search_options(
+                                    context.ctx.compartment.as_deref(),
+                                    &delete_search_request,
+                                    Some(delete_limit + 1),
+                                ),
                             )
                             .await?;
 
@@ -596,17 +616,22 @@ impl<
                             })
                             .collect();
 
+                        let update_search = SearchRequest::Type(FHIRSearchTypeRequest {
+                            resource_type: update_request.resource_type.clone(),
+                            parameters: ParsedParameters::new(update_parameters),
+                        });
                         let search_results = state
                             .search
                             .search(
                                 &context.ctx.fhir_version,
                                 &context.ctx.tenant,
                                 &context.ctx.project,
-                                &SearchRequest::Type(FHIRSearchTypeRequest {
-                                    resource_type: update_request.resource_type.clone(),
-                                    parameters: ParsedParameters::new(update_parameters),
-                                }),
-                                None,
+                                &update_search,
+                                search_options(
+                                    context.ctx.compartment.as_deref(),
+                                    &update_search,
+                                    None,
+                                ),
                             )
                             .await?;
                         // No matches, no id provided:
@@ -729,7 +754,11 @@ impl<
                                 &context.ctx.tenant,
                                 &context.ctx.project,
                                 search_request,
-                                None,
+                                search_options(
+                                    context.ctx.compartment.as_deref(),
+                                    search_request,
+                                    None,
+                                ),
                             )
                             .await?;
                         let version_ids = search_results
@@ -789,7 +818,11 @@ impl<
                                 &context.ctx.tenant,
                                 &context.ctx.project,
                                 search_request,
-                                None,
+                                search_options(
+                                    context.ctx.compartment.as_deref(),
+                                    search_request,
+                                    None,
+                                ),
                             )
                             .await?;
                         let version_ids = search_results

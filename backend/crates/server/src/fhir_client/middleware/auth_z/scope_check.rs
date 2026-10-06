@@ -1,12 +1,23 @@
+//! SMART resource scope enforcement.
+//!
+//! Picks the scope that grants a request. A `system/` or `user/` grant reaches
+//! every resource of the type. A `patient/` grant reaches one Patient
+//! compartment: [`patient_scope`] checks the request, the context is confined
+//! to the patient so storage filters its searches, and the response is checked
+//! against the resources it holds.
+
 use crate::fhir_client::{
     ServerCTX,
-    middleware::{ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput},
+    middleware::{
+        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+        auth_z::{forbidden, patient_scope},
+    },
     utilities::{is_search_match, map_search_entries, request_to_resource_type},
 };
 
 use haste_fhir_client::{
     FHIRClient,
-    middleware::MiddlewareChain,
+    middleware::{Context, MiddlewareChain},
     request::{FHIRRequest, FHIRResponse},
 };
 use haste_fhir_model::r4::generated::{
@@ -71,6 +82,13 @@ fn get_user_weight_scope(user: &SmartResourceScopeUser) -> u8 {
     }
 }
 
+fn resource_scopes(scopes: &Scopes) -> impl Iterator<Item = &SMARTResourceScope> {
+    scopes.0.iter().filter_map(|s| match s {
+        Scope::SMART(SmartScope::Resource(scope)) => Some(scope),
+        _ => None,
+    })
+}
+
 fn get_highest_value_for_request_scope<'a>(
     scopes: &'a Scopes,
     request: &FHIRRequest,
@@ -78,13 +96,7 @@ fn get_highest_value_for_request_scope<'a>(
     let request_scope_requested = request_type_to_permission(request)?;
     let request_resource_type = request_to_resource_type(request);
 
-    let found_scopes = scopes
-        .0
-        .iter()
-        .filter_map(|s| match s {
-            Scope::SMART(SmartScope::Resource(scope)) => Some(scope),
-            _ => None,
-        })
+    let found_scopes = resource_scopes(scopes)
         .filter(|s| {
             fits_resource_type(s, request_resource_type)
                 && s.permissions.has_permission(&request_scope_requested)
@@ -104,36 +116,86 @@ fn get_highest_value_for_request_scope<'a>(
     Ok(sorted_scopes.first().copied())
 }
 
-/// Whether `scopes` grant `read` on `resource_type` (patient-level scopes
-/// excluded, matching the top-level check).
-fn resource_type_has_read_scope(scopes: &Scopes, resource_type: &ResourceType) -> bool {
-    scopes.0.iter().any(|scope| match scope {
-        Scope::SMART(SmartScope::Resource(scope)) => {
-            scope.user != SmartResourceScopeUser::Patient
-                && fits_resource_type(scope, Some(resource_type))
+/// The broadest level at which `scopes` grant `read` on `resource_type`.
+fn read_scope_level<'a>(
+    scopes: &'a Scopes,
+    resource_type: &ResourceType,
+) -> Option<&'a SmartResourceScopeUser> {
+    resource_scopes(scopes)
+        .filter(|scope| {
+            fits_resource_type(scope, Some(resource_type))
                 && scope
                     .permissions
                     .has_permission(&SmartResourceScopePermission::Read)
-        }
-        _ => false,
-    })
+        })
+        .map(|scope| &scope.user)
+        .max_by_key(|user| get_user_weight_scope(user))
 }
 
-/// Drops include/revinclude entries whose type the caller's scopes don't
-/// cover — the top-level check only looked at the primary search's own type.
-async fn filter_unauthorized_includes(
+/// Whether every resource scope in the token is patient-level.
+fn only_patient_scopes(scopes: &Scopes) -> bool {
+    let mut scopes = resource_scopes(scopes).peekable();
+    scopes.peek().is_some() && scopes.all(|scope| scope.user == SmartResourceScopeUser::Patient)
+}
+
+/// Keeps the matches, which the engine already filtered, and the includes the
+/// caller's scopes allow: an include needs a read scope on its own type, and
+/// at patient level it must be in the compartment of `patient`, the token's
+/// patient.
+async fn filter_entries(
     entries: Vec<BundleEntry>,
     scopes: &Scopes,
+    patient: Option<&str>,
 ) -> Vec<BundleEntry> {
-    entries
-        .into_iter()
-        .filter(|entry| {
-            is_search_match(entry)
-                || entry.resource.as_deref().is_some_and(|resource| {
-                    resource_type_has_read_scope(scopes, &resource.resource_type())
-                })
-        })
-        .collect()
+    let mut kept = Vec::with_capacity(entries.len());
+    let mut includes = Vec::new();
+
+    // Matches are already filtered in SQL. Includes need to be checked against the caller's scopes.
+    for entry in entries {
+        if is_search_match(&entry) {
+            kept.push(entry);
+        } else {
+            includes.push(entry);
+        }
+    }
+
+    // Includes linked by ID they need to have a pass through to confirm they are allowed by the caller's scopes.
+    for entry in includes {
+        let Some(resource) = entry.resource.as_deref() else {
+            continue;
+        };
+        let allowed = match (read_scope_level(scopes, &resource.resource_type()), patient) {
+            (None, _) | (Some(SmartResourceScopeUser::Patient), None) => false,
+            (Some(SmartResourceScopeUser::Patient), Some(patient_id)) => {
+                patient_scope::resource_in_scope(patient_id, resource).await
+            }
+            (Some(SmartResourceScopeUser::User | SmartResourceScopeUser::System), _) => true,
+        };
+        if allowed {
+            kept.push(entry);
+        }
+    }
+
+    kept
+}
+
+/// The response as the caller may see it: a read is checked against the
+/// `compartment` the request was confined to, a search page's includes
+/// against the caller's scopes.
+async fn filter_response(
+    response: FHIRResponse,
+    scopes: &Scopes,
+    patient: Option<&str>,
+    compartment: Option<&str>,
+) -> Option<FHIRResponse> {
+    match (compartment, response) {
+        (Some(patient_id), response @ (FHIRResponse::Read(_) | FHIRResponse::VersionRead(_))) => {
+            patient_scope::filter_read(patient_id, response).await
+        }
+        (_, response) => Some(
+            map_search_entries(response, |entries| filter_entries(entries, scopes, patient)).await,
+        ),
+    }
 }
 
 pub struct SMARTScopeAccessMiddleware {}
@@ -158,10 +220,27 @@ impl<
             match &context.request {
                 // Batch and transaction will call back into this middleware for their individual requests
                 // at which point the permissions will be checked.
-                FHIRRequest::Capabilities
-                | FHIRRequest::Batch(_)
-                | FHIRRequest::Transaction(_)
-                | FHIRRequest::Invocation(_) => {
+                FHIRRequest::Capabilities | FHIRRequest::Batch(_) | FHIRRequest::Transaction(_) => {
+                    if let Some(next) = next {
+                        Ok(next(state, context).await?)
+                    } else {
+                        Ok(context)
+                    }
+                }
+                // An operation's own data access comes back through this
+                // client and is checked there.
+                FHIRRequest::Invocation(invocation) => {
+                    let claims = &context.ctx.user.claims;
+                    if only_patient_scopes(&claims.scope)
+                        && !claims.patient.as_deref().is_some_and(|patient_id| {
+                            patient_scope::allows_invocation(patient_id, invocation)
+                        })
+                    {
+                        return Err(forbidden(
+                            "Operations are not supported under a patient-level scope, except \
+                             the patient's own $everything",
+                        ));
+                    }
                     if let Some(next) = next {
                         Ok(next(state, context).await?)
                     } else {
@@ -177,47 +256,49 @@ impl<
                 | FHIRRequest::Delete(_)
                 | FHIRRequest::Search(_)
                 | FHIRRequest::History(_) => {
-                    let user_scopes = &context.ctx.user.claims.scope;
+                    let ctx = context.ctx.clone();
+                    let claims = &ctx.user.claims;
+                    let Some(matched_scope) =
+                        get_highest_value_for_request_scope(&claims.scope, &context.request)?
+                    else {
+                        return Err(forbidden("Insufficient SMART scope for this request"));
+                    };
 
-                    let matched_scope =
-                        get_highest_value_for_request_scope(user_scopes, &context.request)?;
+                    // The compartment this request is confined to: the token's
+                    // patient, when a `patient/` scope is what grants it.
+                    let patient = claims.patient.as_deref();
+                    let compartment = match (&matched_scope.user, patient) {
+                        (SmartResourceScopeUser::Patient, Some(patient_id)) => Some(patient_id),
+                        (SmartResourceScopeUser::Patient, None) => {
+                            return Err(forbidden(
+                                "A patient-level scope grants nothing without a patient in context",
+                            ));
+                        }
+                        (SmartResourceScopeUser::User | SmartResourceScopeUser::System, _) => None,
+                    };
 
-                    if let Some(matched_scope) = matched_scope
-                        && matched_scope.user == SmartResourceScopeUser::Patient
-                    {
-                        return Err(OperationOutcomeError::error(
-                            IssueType::security(),
-                            "Patient-level SMART scopes are not supported for this request"
-                                .to_string(),
-                        ));
-                    }
-
-                    match matched_scope {
-                        Some(_scope) => {
-                            // Permission granted
-                            if let Some(next) = next {
-                                let mut result = next(state, context).await?;
-                                if let Some(response) = result.response.take() {
-                                    let scopes = &result.ctx.user.claims.scope;
-                                    let filtered = map_search_entries(response, |entries| {
-                                        filter_unauthorized_includes(entries, scopes)
-                                    })
-                                    .await;
-                                    result.response = Some(filtered);
-                                }
-                                Ok(result)
-                            } else {
-                                Ok(context)
+                    let context = match compartment {
+                        None => context,
+                        Some(patient_id) => {
+                            patient_scope::check_request(&context.request)?;
+                            Context {
+                                ctx: Arc::new(ctx.with_compartment(patient_id.to_string())),
+                                request: context.request,
+                                response: context.response,
                             }
                         }
-                        None => {
-                            // No matching scope found, deny access
-                            Err(OperationOutcomeError::error(
-                                IssueType::security(),
-                                "Insufficient SMART scope for this request".to_string(),
-                            ))
-                        }
+                    };
+
+                    let Some(next) = next else {
+                        return Ok(context);
+                    };
+
+                    let mut result = next(state, context).await?;
+                    if let Some(response) = result.response.take() {
+                        result.response =
+                            filter_response(response, &claims.scope, patient, compartment).await;
                     }
+                    Ok(result)
                 }
             }
         })

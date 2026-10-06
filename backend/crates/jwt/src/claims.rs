@@ -62,6 +62,15 @@ pub struct UserTokenClaims {
     #[derivative(Debug = "ignore")]
     #[serde(rename = "fhirUser")]
     pub fhir_user: Option<FHIRUrl>,
+    /// The Patient (an id in the token's project) that `patient/` scopes are
+    /// bound to. Issued only when the user is that patient.
+    #[serde(
+        rename = "https://haste.health/patient",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[derivative(Debug = "ignore")]
+    pub patient: Option<String>,
 
     // Haste Health claims.
     #[serde(rename = "https://haste.health/tenant")]

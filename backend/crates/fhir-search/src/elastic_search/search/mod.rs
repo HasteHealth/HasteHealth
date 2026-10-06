@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions, SearchParameterResolve,
+    AnyOf, ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions, SearchParameterResolve,
     SearchReturn,
     elastic_search::{
         DYNAMIC_PARAMETER_INDEX_FIELD, ElasticSearchResponse, SearchError,
@@ -298,6 +298,14 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
         }
     }
 
+    // `ANDed` with the client's parameters like any other clause, so nothing in
+    // the URL can widen it.
+    if let Some(any_of) = options.and_then(|options| options.any_of.as_ref()) {
+        clauses.push(
+            any_of_clause(&parameter_resolver, tenant, project, resource_type, any_of).await?,
+        );
+    }
+
     add_context_clauses(&mut clauses, resource_type, tenant, project);
 
     Ok(build_elastic_query(
@@ -322,6 +330,30 @@ fn get_max_count(options: Option<&SearchOptions>) -> Result<u64, OperationOutcom
     } else {
         Ok(DEFAULT_MAX_COUNT)
     }
+}
+
+/// `any_of`'s parameters as a `bool.should` with one branch required. Empty
+/// matches nothing: a filter with no branch must fail closed.
+async fn any_of_clause<ParameterResolver: SearchParameterResolve>(
+    parameter_resolver: &Arc<ParameterResolver>,
+    tenant: &TenantId,
+    project: &ProjectId,
+    resource_type: Option<&ResourceType>,
+    any_of: &AnyOf,
+) -> Result<serde_json::Value, OperationOutcomeError> {
+    if any_of.0.is_empty() {
+        return Ok(json!({ "match_none": {} }));
+    }
+
+    let mut branches = Vec::with_capacity(any_of.0.len());
+    for param in &any_of.0 {
+        branches.push(
+            build_resource_clause(parameter_resolver, tenant, project, resource_type, param)
+                .await?,
+        );
+    }
+
+    Ok(json!({ "bool": { "should": branches, "minimum_should_match": 1 } }))
 }
 
 async fn build_resource_clause<ParameterResolver: SearchParameterResolve>(

@@ -537,7 +537,8 @@ pub fn create_smart_configuration(
             "email".to_string(),
             "offline_access".to_string(),
             "fhirUser".to_string(),
-            // SMART scopes supported TODO patient scopes.
+            "launch/patient".to_string(),
+            "patient/*.rs".to_string(),
             "user/*.cruds".to_string(),
             "system/*.cruds".to_string(),
         ]),
