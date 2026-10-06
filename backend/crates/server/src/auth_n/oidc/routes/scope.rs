@@ -119,12 +119,20 @@ pub async fn scope_post<
             ),
         )?;
 
+        let client_id = client_app.id.clone().ok_or_else(|| {
+            OIDCError::new(
+                OIDCErrorCode::ServerError,
+                Some("Failed to retrieve client ID.".to_string()),
+                None,
+            )
+        })?;
+
         ProjectModelAdmin::create(
             &*app_state.repo,
             &tenant,
             &project,
             CreateScope {
-                client: ClientId::new(scope_data.client_id.clone()),
+                client: ClientId::new(client_id.clone()),
                 user_: UserId::new(completed_auth_state.user.id),
                 scope: scope_data.scope.clone(),
             },
@@ -143,7 +151,7 @@ pub async fn scope_post<
             .expect("Could not create authorize route.")
             .to_string()
             + "?client_id="
-            + scope_data.client_id.as_str()
+            + client_id.as_str()
             + "&response_type="
             + scope_data.response_type.as_str()
             + "&state="
