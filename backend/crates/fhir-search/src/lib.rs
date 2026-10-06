@@ -47,7 +47,7 @@ pub struct SearchReturn {
     pub entries: Vec<SearchEntry>,
 }
 
-/// Parameters a resource must match at least one of, ANDed with the search's
+/// Parameters a resource must match at least one of, `ANDed` with the search's
 /// own parameters. Empty matches nothing. The server adds it on the caller's
 /// behalf (a `patient/` scope confining a search to one compartment); it
 /// never comes from a URL.

@@ -298,7 +298,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
         }
     }
 
-    // ANDed with the client's parameters like any other clause, so nothing in
+    // `ANDed` with the client's parameters like any other clause, so nothing in
     // the URL can widen it.
     if let Some(any_of) = options.and_then(|options| options.any_of.as_ref()) {
         clauses.push(
