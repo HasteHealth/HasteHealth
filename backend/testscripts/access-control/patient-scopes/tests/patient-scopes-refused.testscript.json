@@ -1,0 +1,385 @@
+{
+    "id": "access-control-patient-scopes-refused",
+    "url": "https://haste.health/fhir/TestScript/access-control-patient-scopes-refused",
+    "name": "Access Control Patient Scopes Refused",
+    "title": "Patient scopes: refused requests",
+    "status": "active",
+    "description": "Run as ac-patient-a with patient/*.rs. Writes, history, system search, chained parameters, types outside the compartment, and operations other than the patient's own $everything are refused with 403.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "ac-patient-a",
+            "resourceType": "Patient",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Alex"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ac-patient-b",
+            "resourceType": "Patient",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Blake"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "new-observation",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "Heart rate"
+            },
+            "subject": {
+                "reference": "Patient/ac-patient-a"
+            }
+        },
+        {
+            "id": "ac-observation-a-delete",
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "text": "Respiratory rate"
+            },
+            "subject": {
+                "reference": "Patient/ac-patient-a"
+            }
+        },
+        {
+            "id": "ac-questionnaire",
+            "resourceType": "Questionnaire",
+            "status": "active",
+            "name": "AccessControlQuestionnaire"
+        },
+        {
+            "id": "no-params",
+            "resourceType": "Parameters"
+        },
+        {
+            "id": "expand-gender",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "url",
+                    "valueUri": "http://hl7.org/fhir/ValueSet/administrative-gender"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-ac-patient-a",
+            "resource": {
+                "reference": "#ac-patient-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-patient-b",
+            "resource": {
+                "reference": "#ac-patient-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-new-observation",
+            "resource": {
+                "reference": "#new-observation"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-observation-a-delete",
+            "resource": {
+                "reference": "#ac-observation-a-delete"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-ac-questionnaire",
+            "resource": {
+                "reference": "#ac-questionnaire"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-no-params",
+            "resource": {
+                "reference": "#no-params"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-expand-gender",
+            "resource": {
+                "reference": "#expand-gender"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-create",
+            "name": "Creating a resource in the patient's compartment is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Observation",
+                        "sourceId": "fixture-new-observation",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The create is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-update",
+            "name": "Updating the patient's own record is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-ac-patient-a",
+                        "sourceId": "fixture-ac-patient-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The update is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-delete",
+            "name": "Deleting the patient's own data is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "resource": "Observation",
+                        "targetId": "fixture-ac-observation-a-delete",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The delete is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-history",
+            "name": "History of the patient's own record is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "history"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-ac-patient-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "History is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-system-search",
+            "name": "A system-level search is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "params": "_id=ac-patient-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The system-level search is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-chained-parameter",
+            "name": "A chained parameter is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "subject:Patient.family=Access",
+                        "encodeRequestUrl": false,
+                        "description": "A chain can reach another patient's record."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The chained search is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-type-outside-compartment",
+            "name": "A type outside the compartment and not shared is refused, even when it exists",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Questionnaire",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Questionnaire search is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "resource": "Questionnaire",
+                        "targetId": "fixture-ac-questionnaire",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Questionnaire read is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "08-other-everything",
+            "name": "$everything on another patient is refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "everything",
+                        "resource": "Patient",
+                        "targetId": "fixture-ac-patient-b",
+                        "sourceId": "fixture-no-params",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The other patient's $everything is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "09-other-operation",
+            "name": "Operations other than the patient's own $everything are refused",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "expand",
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-expand-gender",
+                        "encodeRequestUrl": false,
+                        "description": "Operations can read the repository around the scope's filter."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "$expand is forbidden",
+                        "expression": "OperationOutcome.issue.where(code = 'forbidden').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

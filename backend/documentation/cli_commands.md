@@ -15,7 +15,7 @@ This document contains the help content for the `haste-health` command-line prog
 **Command Overview:**
 
 * [`haste-health`↴](#haste-health)
-* [`haste-health fhir-path`↴](#haste-health-fhir-path)
+* [`haste-health fhirpath`↴](#haste-health-fhirpath)
 * [`haste-health generate`↴](#haste-health-generate)
 * [`haste-health generate types`↴](#haste-health-generate-types)
 * [`haste-health generate operations`↴](#haste-health-generate-operations)
@@ -24,6 +24,9 @@ This document contains the help content for the `haste-health` command-line prog
 * [`haste-health artifacts`↴](#haste-health-artifacts)
 * [`haste-health artifacts build`↴](#haste-health-artifacts-build)
 * [`haste-health artifacts diff`↴](#haste-health-artifacts-diff)
+* [`haste-health subscription`↴](#haste-health-subscription)
+* [`haste-health subscription export`↴](#haste-health-subscription-export)
+* [`haste-health subscription show`↴](#haste-health-subscription-show)
 * [`haste-health server`↴](#haste-health-server)
 * [`haste-health server start`↴](#haste-health-server-start)
 * [`haste-health api`↴](#haste-health-api)
@@ -62,6 +65,7 @@ This document contains the help content for the `haste-health` command-line prog
 * [`haste-health admin tenant create`↴](#haste-health-admin-tenant-create)
 * [`haste-health admin user`↴](#haste-health-admin-user)
 * [`haste-health admin user create`↴](#haste-health-admin-user-create)
+* [`haste-health admin user set-password`↴](#haste-health-admin-user-set-password)
 * [`haste-health admin client`↴](#haste-health-admin-client)
 * [`haste-health admin client create`↴](#haste-health-admin-client-create)
 * [`haste-health admin migrate`↴](#haste-health-admin-migrate)
@@ -83,9 +87,10 @@ Haste Health binary.
 
 ###### **Subcommands:**
 
-* `fhir-path` — Evaluate a FHIRPath expression against a FHIR resource read from stdin
+* `fhirpath` — Evaluate a FHIRPath expression against a FHIR resource read from stdin
 * `generate` — Code generators (Rust FHIR types, operations, TestScripts) used to build this crate
 * `artifacts` — Patch externally provided (HL7) artifacts without editing the upstream files
+* `subscription` — Publish what each subscription tier allows
 * `server` — Run the FHIR server
 * `api` — Make FHIR REST API calls against the active profile's server
 * `config` — Manage named server connection profiles used by other commands
@@ -98,11 +103,11 @@ Haste Health binary.
 
 
 
-## `haste-health fhir-path`
+## `haste-health fhirpath`
 
 Evaluate a FHIRPath expression against a FHIR resource read from stdin
 
-**Usage:** `haste-health fhir-path <FHIRPATH>`
+**Usage:** `haste-health fhirpath <FHIRPATH>`
 
 ###### **Arguments:**
 
@@ -226,6 +231,42 @@ List every change the patches and rules make to the upstream resources
 * `-r`, `--resource <RESOURCE>` — Only show resources whose `ResourceType/id` contains this text
 * `-o`, `--origin <ORIGIN>` — Only show changes whose origin (`patch <file>` or `rule <name>`) contains this text
 * `--summary` — Print a count of changes per origin instead of the changes
+
+
+
+## `haste-health subscription`
+
+Publish what each subscription tier allows
+
+**Usage:** `haste-health subscription <COMMAND>`
+
+###### **Subcommands:**
+
+* `export` — Write the subscription tiers to JSON for the website's pricing page
+* `show` — Print what each tier allows, as a table
+
+
+
+## `haste-health subscription export`
+
+Write the subscription tiers to JSON for the website's pricing page
+
+**Usage:** `haste-health subscription export [OPTIONS]`
+
+###### **Options:**
+
+* `-o`, `--output <OUTPUT>` — Where to write the tiers
+
+  Default value: `../frontend/packages/website/static/pricing/tiers.json`
+* `--check` — Fail if the output is out of date instead of writing it
+
+
+
+## `haste-health subscription show`
+
+Print what each tier allows, as a table
+
+**Usage:** `haste-health subscription show`
 
 
 
@@ -641,7 +682,11 @@ Change which profile is used by default
 
 Log in as a human user via the browser (authorization_code + PKCE flow)
 
-**Usage:** `haste-health login`
+**Usage:** `haste-health login [OPTIONS]`
+
+###### **Options:**
+
+* `--no-browser` — Print the authorization URL instead of opening a browser
 
 
 
@@ -697,6 +742,8 @@ Run every TestScript resource found under the given input path(s), in parallel, 
 * `-i`, `--input <INPUT>` — File or directory to search for TestScript resources (JSON). Repeatable
 * `-o`, `--output <OUTPUT>` — Write the resulting TestReport bundle to this file instead of stdout
 * `-w`, `--wait-between-operations-ms <WAIT_BETWEEN_OPERATIONS_MS>` — Delay between operations within a TestScript, in milliseconds
+* `--index-wait-ms <INDEX_WAIT_MS>` — Before a search (or conditional delete/update), wait up to this many milliseconds for the TestScript's latest write to be indexed. Search indexing is asynchronous; this waits only as long as it takes
+* `--allow-failure <TESTSCRIPT_ID>` — A TestScript id whose failure is known and shouldn't fail the run. Its TestReport is still recorded as `fail`. Repeatable
 
 
 
@@ -754,6 +801,7 @@ Manage users
 ###### **Subcommands:**
 
 * `create` — Create an admin user within a tenant
+* `set-password` — Set a user's password, accept their invitation and revoke their refresh tokens
 
 
 
@@ -768,6 +816,20 @@ Create an admin user within a tenant
 * `-e`, `--email <EMAIL>` — Email address for the new user
 * `-p`, `--password <PASSWORD>` — Password for the new user
 * `-t`, `--tenant <TENANT>` — Tenant to create the user in
+
+
+
+## `haste-health admin user set-password`
+
+Set a user's password, accept their invitation and revoke their refresh tokens
+
+**Usage:** `haste-health admin user set-password --email <EMAIL> --password <PASSWORD> --tenant <TENANT>`
+
+###### **Options:**
+
+* `-e`, `--email <EMAIL>` — Email address of the user
+* `-p`, `--password <PASSWORD>` — New password for the user
+* `-t`, `--tenant <TENANT>` — Tenant the user belongs to
 
 
 
@@ -875,7 +937,7 @@ Bridge HL7v2 messages to and from the FHIR server
 ###### **Subcommands:**
 
 * `receiver` — Listen for MLLP-framed HL7v2 messages, convert them to FHIR, and submit them
-* `sender` — Send HL7v2 messages over MLLP. Not yet implemented
+* `sender` — Send HL7v2 messages over MLLP
 
 
 
@@ -883,27 +945,42 @@ Bridge HL7v2 messages to and from the FHIR server
 
 Listen for MLLP-framed HL7v2 messages, convert them to FHIR, and submit them
 
-**Usage:** `haste-health hl7v2 receiver --address <ADDRESS> --port <PORT> --main <MAIN> --template-dir <TEMPLATE_DIR>`
+**Usage:** `haste-health hl7v2 receiver [OPTIONS] --port <PORT> --main <MAIN> --template-dir <TEMPLATE_DIR>`
 
 ###### **Options:**
 
 * `-a`, `--address <ADDRESS>` — Address to bind the MLLP listener to
+
+  Default value: `0.0.0.0`
 * `-p`, `--port <PORT>` — Port to bind the MLLP listener to
 * `-m`, `--main <MAIN>` — Entry template file name (resolved within --template-dir) used to convert incoming HL7v2 messages to FHIR
 * `-t`, `--template-dir <TEMPLATE_DIR>` — Directory containing the conversion templates
+* `--max-connections <MAX_CONNECTIONS>` — Maximum connections served at once. Further senders wait rather than being refused, since a refused connection looks like an outage
+
+  Default value: `64`
+* `--idle-timeout-secs <IDLE_TIMEOUT_SECS>` — Close a connection that sends nothing for this long, in seconds. Bounds half-open sockets, which TCP alone will not detect
+
+  Default value: `300`
+* `--read-timeout-secs <READ_TIMEOUT_SECS>` — Give up on a partially received message after this long, in seconds
+
+  Default value: `30`
 
 
 
 ## `haste-health hl7v2 sender`
 
-Send HL7v2 messages over MLLP. Not yet implemented
+Send HL7v2 messages over MLLP
 
-**Usage:** `haste-health hl7v2 sender --address <ADDRESS> --port <PORT>`
+**Usage:** `haste-health hl7v2 sender [OPTIONS] --address <ADDRESS> --port <PORT>`
 
 ###### **Options:**
 
 * `-a`, `--address <ADDRESS>` — Address of the MLLP receiver to send to
 * `-p`, `--port <PORT>` — Port of the MLLP receiver to send to
+* `-f`, `--file <FILE>` — File containing the HL7v2 message to send. Reads stdin when absent
+* `--timeout-secs <TIMEOUT_SECS>` — How long to wait for the ACK, in seconds
+
+  Default value: `30`
 
 
 

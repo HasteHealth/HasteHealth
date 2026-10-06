@@ -98,6 +98,8 @@ haste-health login
 
 This opens your browser to sign in against the active profile's OIDC provider, then stores the resulting access/refresh tokens in the CLI config.
 
+Without a browser (over SSH, for example), run `haste-health login --no-browser` and open the printed URL in a browser that can reach the loopback redirect URI. Over SSH, forward its port.
+
 ### Configuration File Location
 
 The CLI stores configuration at:

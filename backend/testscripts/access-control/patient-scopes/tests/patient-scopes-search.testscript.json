@@ -1,0 +1,306 @@
+{
+    "id": "access-control-patient-scopes-search",
+    "url": "https://haste.health/fhir/TestScript/access-control-patient-scopes-search",
+    "name": "Access Control Patient Scopes Search",
+    "title": "Patient scopes: searches",
+    "status": "active",
+    "description": "Run as ac-patient-a with patient/*.rs. Searches return only the patient's compartment, includes outside it are dropped, and the patient's own $everything works.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "ac-patient-a",
+            "resourceType": "Patient",
+            "name": [
+                {
+                    "family": "Access",
+                    "given": [
+                        "Alex"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "no-params",
+            "resourceType": "Parameters"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-ac-patient-a",
+            "resource": {
+                "reference": "#ac-patient-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-no-params",
+            "resource": {
+                "reference": "#no-params"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-search-without-parameters",
+            "name": "A search without parameters returns only the patient's compartment",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_count=100",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient's Observation is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'ac-observation-a').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An Observation that also names the other patient, as performer, is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'ac-observation-shared').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The other patient's Observation is not returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'ac-observation-b').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Every Observation returned has the patient as subject",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(subject.reference != 'Patient/ac-patient-a').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-search-for-other-patient",
+            "name": "Searching by another patient's reference finds nothing",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "subject=Patient/ac-patient-b",
+                        "encodeRequestUrl": false,
+                        "description": "Without the scope's filter this matches ac-observation-b."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No Observation is returned",
+                        "expression": "Bundle.entry.empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-patient-search",
+            "name": "A Patient search returns only the patient",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_count=100",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient is returned",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'ac-patient-a').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No other patient is returned",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id != 'ac-patient-a').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-patient-search-by-other-id",
+            "name": "Searching for another patient by id finds nothing",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_id=ac-patient-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "No Patient is returned",
+                        "expression": "Bundle.entry.empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-include-outside-compartment",
+            "name": "An include outside the compartment is dropped, shared reference data is kept",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_id=ac-observation-shared&_include=Observation:performer",
+                        "encodeRequestUrl": false,
+                        "description": "Performers: ac-patient-b and the practitioner."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The Observation matches",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'ac-observation-shared').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The practitioner is included",
+                        "expression": "Bundle.entry.resource.ofType(Practitioner).where(id = 'ac-practitioner').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The other patient is not included",
+                        "expression": "Bundle.entry.resource.ofType(Patient).empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-include-inside-compartment",
+            "name": "An include of the patient's own record is kept",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Observation",
+                        "params": "_id=ac-observation-a&_include=Observation:subject",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient is included",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'ac-patient-a').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-own-everything",
+            "name": "$everything on the patient's own record returns their compartment only",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "url": "everything",
+                        "resource": "Patient",
+                        "targetId": "fixture-ac-patient-a",
+                        "sourceId": "fixture-no-params",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "$everything answers with a searchset Bundle",
+                        "expression": "Bundle.type = 'searchset'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient is returned",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'ac-patient-a').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient's Observation is returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'ac-observation-a').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The other patient's Observation is not returned",
+                        "expression": "Bundle.entry.resource.ofType(Observation).where(id = 'ac-observation-b').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The other patient is not returned",
+                        "expression": "Bundle.entry.resource.ofType(Patient).where(id = 'ac-patient-b').empty()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

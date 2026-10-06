@@ -70,7 +70,11 @@ enum CliCommand {
         command: commands::config::ConfigCommands,
     },
     /// Log in as a human user via the browser (authorization_code + PKCE flow).
-    Login,
+    Login {
+        /// Print the authorization URL instead of opening a browser.
+        #[arg(long)]
+        no_browser: bool,
+    },
     /// Run background workers (search indexing, WAL processing).
     Worker {
         #[command(subcommand)]
