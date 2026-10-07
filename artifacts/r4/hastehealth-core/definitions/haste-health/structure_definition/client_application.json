@@ -169,6 +169,19 @@
                 "max": "5"
             },
             {
+                "id": "ClientApplication.launchUri",
+                "path": "ClientApplication.launchUri",
+                "definition": "URL an EHR opens to start the app in a SMART App Launch EHR launch. The iss (the FHIR base URL) and launch (an opaque launch identifier) parameters are added to its query.",
+                "short": "URL the app is opened at for a SMART EHR launch.",
+                "type": [
+                    {
+                        "code": "uri"
+                    }
+                ],
+                "min": 0,
+                "max": "1"
+            },
+            {
                 "id": "ClientApplication.uri",
                 "path": "ClientApplication.uri",
                 "short": "URL string of a web page providing information about the client.",
