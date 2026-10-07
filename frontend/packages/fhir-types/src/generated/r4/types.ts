@@ -4360,6 +4360,14 @@ resourceType: "ClientApplication"
    */
   _redirectUri?: Array<Element>
   /** 
+   * URL the app is opened at for a SMART EHR launch.
+   */
+  launchUri?: uri;
+  /** 
+   * URL the app is opened at for a SMART EHR launch.
+   */
+  _launchUri?: Element
+  /** 
    * URL string of a web page providing information about the client.
    */
   uri?: uri;

@@ -273,6 +273,9 @@ pub struct ClientApplication {
     #[doc = "Array of redirection URI strings for use in redirect-based flows such as the authorization code and implicit flows.  As required by Section 2 of OAuth 2.0 [RFC6749], clients using flows with redirection MUST register their redirection URI values. Authorization servers that support dynamic registration for redirect-based flows MUST implement support for this metadata value."]
     pub redirectUri: Option<Vec<FHIRString>>,
     #[primitive]
+    #[doc = "URL an EHR opens to start the app in a SMART App Launch EHR launch. The iss (the FHIR base URL) and launch (an opaque launch identifier) parameters are added to its query."]
+    pub launchUri: Option<Box<FHIRUri>>,
+    #[primitive]
     #[doc = "ClientApplication.uri"]
     pub uri: Option<Box<FHIRUri>>,
     #[primitive]
@@ -302,6 +305,7 @@ impl ClientApplication {
                 "responseTypes",
                 "secret",
                 "redirectUri",
+                "launchUri",
                 "uri",
                 "logoUri",
                 "scope",
@@ -331,6 +335,9 @@ impl ClientApplication {
         }
         if fields.contains(&"redirectUri") {
             out.redirectUri = self.redirectUri;
+        }
+        if fields.contains(&"launchUri") {
+            out.launchUri = self.launchUri;
         }
         if fields.contains(&"uri") {
             out.uri = self.uri;
