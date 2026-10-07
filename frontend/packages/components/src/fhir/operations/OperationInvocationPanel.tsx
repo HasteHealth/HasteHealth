@@ -72,6 +72,22 @@ function SectionTitle({ children }: Readonly<{ children: React.ReactNode }>) {
   );
 }
 
+/** Where the operation runs, from the level and the fields filled in for it. */
+function invocationTarget(
+  level: InvocationLevel,
+  resourceType: string,
+  id: string,
+): InvocationTarget {
+  switch (level) {
+    case "system":
+      return { level };
+    case "type":
+      return { level, resourceType };
+    case "instance":
+      return { level, resourceType, id: id.trim() };
+  }
+}
+
 function StatusChip({ result }: Readonly<{ result: Result }>) {
   if (result.status === "idle") return null;
   if (result.status === "running") {
@@ -147,18 +163,14 @@ export function OperationInvocationPanel({
 
   const typeOptions = useMemo(
     () =>
-      (allowedTypes.length > 0 ? allowedTypes : [...resourceTypes].sort()).map(
-        (type) => ({ value: type, label: type }),
-      ),
+      (allowedTypes.length > 0
+        ? allowedTypes
+        : [...resourceTypes].sort((a, b) => a.localeCompare(b))
+      ).map((type) => ({ value: type, label: type })),
     [typesKey],
   );
 
-  const target: InvocationTarget =
-    level === "system"
-      ? { level }
-      : level === "type"
-        ? { level, resourceType }
-        : { level, resourceType, id: id.trim() };
+  const target = invocationTarget(level, resourceType, id);
   const path = invocationPath(target, operationDefinition.code);
   const missing = missingRequired(
     input.parameter,
@@ -291,7 +303,7 @@ export function OperationInvocationPanel({
             disabled={!canRun}
             onClick={(event) => {
               event.preventDefault();
-              run();
+              void run();
             }}
           >
             <span className="flex items-center gap-1">

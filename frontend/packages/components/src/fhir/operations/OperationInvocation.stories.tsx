@@ -214,7 +214,8 @@ export const Failure: Story = {
     fhirVersion: R4,
     invoke: async () => {
       await new Promise((resolve) => setTimeout(resolve, 200));
-      throw {
+      // Shaped like the client's ResponseError, which the panel reads by shape.
+      throw Object.assign(new Error("Parameter 'limit' is required."), {
         response: {
           http: { status: 400 },
           body: {
@@ -229,7 +230,7 @@ export const Failure: Story = {
             ],
           },
         },
-      };
+      });
     },
   },
 };
@@ -266,7 +267,7 @@ export const OutputView: StoryObj = {
   render: function Render() {
     const [value, setValue] = useState<Parameters>();
     React.useEffect(() => {
-      fakeInvoke({ level: "system" }, { resourceType: "Parameters" }).then(
+      void fakeInvoke({ level: "system" }, { resourceType: "Parameters" }).then(
         setValue,
       );
     }, []);

@@ -6,6 +6,7 @@ import {
   ParametersParameter,
 } from "@haste-health/fhir-types/r4/types";
 
+import { contentKeys } from "../../base/keys";
 import { JSONValueView, ParameterValueView } from "./ParameterValue";
 import { ParameterDocumentation, ParameterHeader } from "./controls";
 import {
@@ -45,11 +46,11 @@ function EntryValue({ entry }: Readonly<{ entry: ParametersParameter }>) {
   if (entry.resource !== undefined)
     return <JSONValueView value={entry.resource} />;
   if (entry.part) {
+    const keys = contentKeys(entry.part);
     return (
       <div className="space-y-3 border-l-2 border-slate-200 pl-3">
         {entry.part.map((part, index) => (
-          // Parts have no identity of their own; their position is their key.
-          <div key={index} className="space-y-1">
+          <div key={keys[index]} className="space-y-1">
             <span className="font-mono text-sm font-medium text-slate-900">
               {part.name}
             </span>
@@ -110,6 +111,7 @@ function ParameterList({
     <div className="space-y-4">
       {definitions.map((definition) => {
         const entries = list.filter((entry) => entry.name === definition.name);
+        const keys = contentKeys(entries);
         return (
           <div key={definition.name} className="space-y-1.5">
             <ParameterHeader definition={definition} />
@@ -120,9 +122,8 @@ function ParameterList({
               </span>
             ) : (
               entries.map((entry, index) => (
-                // Entries have no identity of their own; position is the key.
                 <DeclaredEntryValue
-                  key={index}
+                  key={keys[index]}
                   definition={definition}
                   entry={entry}
                 />
@@ -177,14 +178,17 @@ export function OperationParametersView({
   const undeclared = list.filter((entry) => !declared.has(entry.name));
 
   if (definitions.length === 0 && undeclared.length === 0) {
+    const direction = use === "in" ? "input" : "output";
     return (
       <p className="text-sm text-slate-500">
         {ran
           ? "The response carried no parameters."
-          : `This operation declares no ${use === "in" ? "input" : "output"} parameters.`}
+          : `This operation declares no ${direction} parameters.`}
       </p>
     );
   }
+
+  const undeclaredKeys = contentKeys(undeclared);
 
   return (
     <div className="space-y-4">
@@ -195,7 +199,7 @@ export function OperationParametersView({
             Not declared by the operation
           </p>
           {undeclared.map((entry, index) => (
-            <div key={index} className="space-y-1">
+            <div key={undeclaredKeys[index]} className="space-y-1">
               <span className="font-mono text-sm font-medium text-slate-900">
                 {entry.name}
               </span>

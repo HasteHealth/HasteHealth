@@ -9,6 +9,7 @@ import {
 } from "@haste-health/fhir-types/r4/types";
 
 import { Add } from "../../base/Add";
+import { useRowKeys } from "../../base/keys";
 import { JSONResourceEditor } from "../resources/JSONResourceEditor";
 import { ClientProps } from "../types";
 import { ParameterValueEditor } from "./ParameterValue";
@@ -139,6 +140,60 @@ type FieldProps = ClientProps & {
   onEntries: (entries: ParametersParameter[]) => void;
 };
 
+/** A parameter that repeats: one removable row per value, and a way to add one. */
+function RepeatingParameterField({
+  definition,
+  entries,
+  onEntries,
+  ...client
+}: FieldProps) {
+  const { keys, onAdd, onRemove } = useRowKeys(entries.length);
+  return (
+    <div className="space-y-1.5">
+      <ParameterHeader definition={definition} />
+      <ParameterDocumentation definition={definition} />
+      {entries.map((entry, index) => (
+        <div key={keys[index]} className="flex items-start gap-2">
+          <div className="min-w-0 flex-1">
+            <EntryEditor
+              {...client}
+              definition={definition}
+              entry={entry}
+              keepWhenEmpty={true}
+              onEntry={(next) =>
+                onEntries(
+                  entries.map((current, i) =>
+                    i === index ? (next ?? current) : current,
+                  ),
+                )
+              }
+            />
+          </div>
+          <button
+            type="button"
+            aria-label={`Remove ${definition.name} ${index + 1}`}
+            className="mt-1.5 text-slate-400 hover:text-red-600"
+            onClick={() => {
+              onRemove(index);
+              onEntries(entries.filter((_, i) => i !== index));
+            }}
+          >
+            <XMarkIcon className="h-4 w-4" />
+          </button>
+        </div>
+      ))}
+      <Add
+        onChange={() => {
+          onAdd();
+          onEntries([...entries, { name: definition.name }]);
+        }}
+      >
+        Add {definition.name}
+      </Add>
+    </div>
+  );
+}
+
 /** A parameter: its name and type, then one editor per value it may take. */
 function ParameterField({
   definition,
@@ -148,43 +203,12 @@ function ParameterField({
 }: FieldProps) {
   if (isRepeating(definition)) {
     return (
-      <div className="space-y-1.5">
-        <ParameterHeader definition={definition} />
-        <ParameterDocumentation definition={definition} />
-        {entries.map((entry, index) => (
-          // Rows have no identity of their own; their position is their key.
-          <div key={index} className="flex items-start gap-2">
-            <div className="min-w-0 flex-1">
-              <EntryEditor
-                {...client}
-                definition={definition}
-                entry={entry}
-                keepWhenEmpty={true}
-                onEntry={(next) =>
-                  onEntries(
-                    entries.map((current, i) =>
-                      i === index ? (next ?? current) : current,
-                    ),
-                  )
-                }
-              />
-            </div>
-            <button
-              type="button"
-              aria-label={`Remove ${definition.name} ${index + 1}`}
-              className="mt-1.5 text-slate-400 hover:text-red-600"
-              onClick={() => onEntries(entries.filter((_, i) => i !== index))}
-            >
-              <XMarkIcon className="h-4 w-4" />
-            </button>
-          </div>
-        ))}
-        <Add
-          onChange={() => onEntries([...entries, { name: definition.name }])}
-        >
-          Add {definition.name}
-        </Add>
-      </div>
+      <RepeatingParameterField
+        {...client}
+        definition={definition}
+        entries={entries}
+        onEntries={onEntries}
+      />
     );
   }
 
@@ -250,6 +274,37 @@ export function OperationParametersEditor({
     );
   };
 
+  let body: React.ReactNode;
+  if (mode === "json") {
+    body = (
+      <div className="flex h-72 flex-col">
+        <JSONResourceEditor
+          resource={pruneParameters(value)}
+          onChange={(resource) => {
+            if (resource.resourceType === "Parameters") onChange(resource);
+          }}
+        />
+      </div>
+    );
+  } else if (definitions.length === 0) {
+    body = (
+      <p className="text-sm text-slate-500">
+        This operation declares no {use === "in" ? "input" : "output"}{" "}
+        parameters.
+      </p>
+    );
+  } else {
+    body = (
+      <ParameterFields
+        client={client}
+        fhirVersion={fhirVersion}
+        definitions={definitions}
+        list={list}
+        onChange={setList}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
@@ -268,29 +323,7 @@ export function OperationParametersEditor({
         />
       </div>
 
-      {mode === "json" ? (
-        <div className="flex h-72 flex-col">
-          <JSONResourceEditor
-            resource={pruneParameters(value)}
-            onChange={(resource) => {
-              if (resource.resourceType === "Parameters") onChange(resource);
-            }}
-          />
-        </div>
-      ) : definitions.length === 0 ? (
-        <p className="text-sm text-slate-500">
-          This operation declares no {use === "in" ? "input" : "output"}{" "}
-          parameters.
-        </p>
-      ) : (
-        <ParameterFields
-          client={client}
-          fhirVersion={fhirVersion}
-          definitions={definitions}
-          list={list}
-          onChange={setList}
-        />
-      )}
+      {body}
 
       {undeclared.length > 0 && (
         <p className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1.5 text-xs text-amber-800">

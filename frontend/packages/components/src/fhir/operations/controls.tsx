@@ -26,8 +26,7 @@ export function Segmented<T extends string>({
   ariaLabel: string;
 }>) {
   return (
-    <div
-      role="group"
+    <fieldset
       aria-label={ariaLabel}
       className="inline-flex overflow-hidden rounded-md border border-slate-300 text-xs"
     >
@@ -52,7 +51,7 @@ export function Segmented<T extends string>({
           {option.label}
         </button>
       ))}
-    </div>
+    </fieldset>
   );
 }
 

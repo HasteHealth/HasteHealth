@@ -54,6 +54,53 @@ const INPUT_TYPES = new Set([
   "time",
 ]);
 
+type ValueEditorProps = { value: any; onChange: (value: unknown) => void };
+
+/** Editors for types that need nothing but the value. */
+const VALUE_EDITORS = new Map<string, React.ComponentType<ValueEditorProps>>([
+  ["string", Primitives.FHIRStringEditable],
+  ["id", Primitives.FHIRIdEditable],
+  ["uri", Primitives.FHIRUriEditable],
+  ["url", Primitives.FHIRUrlEditable],
+  ["canonical", Primitives.FHIRCanonicalEditable],
+  ["oid", Primitives.FHIROIDEditable],
+  ["uuid", Primitives.FHIRUUIDEditable],
+  ["markdown", Primitives.FHIRMarkdownEditable],
+  ["base64Binary", Primitives.FHIRBase64BinaryEditable],
+  ["integer", Primitives.FHIRIntegerEditable],
+  ["unsignedInt", Primitives.FHIRUnsignedIntegerEditable],
+  ["positiveInt", Primitives.FHIRPositiveIntegerEditable],
+  ["decimal", Primitives.FHIRDecimalEditable],
+  ["date", Primitives.FHIRDateEditable],
+  ["dateTime", Primitives.FHIRDateTimeEditable],
+  ["instant", Primitives.FHIRInstantEditable],
+  ["time", Primitives.FHIRTimeEditable],
+  ["Period", Complex.FHIRPeriodEditable],
+  ["Range", Complex.FHIRRangeEditable],
+  ["Ratio", Complex.FHIRRatioEditable],
+  ["HumanName", Complex.FHIRHumanNameEditable],
+  ["Address", Complex.FHIRAddressEditable],
+  ["Annotation", Complex.FHIRAnnotationEditable],
+  ["Attachment", Complex.FHIRAttachmentEditable],
+  ["Expression", Complex.FHIRExpressionEditable],
+  ["Timing", Complex.FHIRTimingEditable],
+  ["SampledData", Complex.FHIRSampledDataEditable],
+]);
+
+/** Editors for types that also look things up through the client. */
+const CLIENT_EDITORS = new Map<
+  string,
+  React.ComponentType<ValueEditorProps & ClientProps>
+>([
+  ["Coding", Complex.FHIRCodingEditable],
+  ["CodeableConcept", Complex.FhirCodeableConceptEditable],
+  ["Identifier", Complex.FHIRIdentifierEditable],
+  ["ContactPoint", Complex.FHIRContactPointEditable],
+  ["ContactDetail", Complex.FHIRContactDetailEditable],
+  ["Money", Complex.FHIRMoneyEditable],
+  ["Signature", Complex.FHIRSignatureEditable],
+]);
+
 export type ParameterValueEditorProps = ClientProps & {
   /** The parameter the value is for: its `type` picks the editor. */
   definition: OperationDefinitionParameter;
@@ -169,10 +216,6 @@ export function ParameterValueEditor({
   switch (type) {
     case "boolean":
       return <BooleanToggle value={value} onChange={onChange} />;
-    case "string":
-      return <Primitives.FHIRStringEditable {...shared} />;
-    case "id":
-      return <Primitives.FHIRIdEditable {...shared} />;
     case "code":
       return definition.binding?.valueSet ? (
         <Primitives.FHIRCodeEditable
@@ -184,44 +227,6 @@ export function ParameterValueEditor({
       ) : (
         <Primitives.FHIRStringEditable {...shared} />
       );
-    case "uri":
-      return <Primitives.FHIRUriEditable {...shared} />;
-    case "url":
-      return <Primitives.FHIRUrlEditable {...shared} />;
-    case "canonical":
-      return <Primitives.FHIRCanonicalEditable {...shared} />;
-    case "oid":
-      return <Primitives.FHIROIDEditable {...shared} />;
-    case "uuid":
-      return <Primitives.FHIRUUIDEditable {...shared} />;
-    case "markdown":
-      return <Primitives.FHIRMarkdownEditable {...shared} />;
-    case "base64Binary":
-      return <Primitives.FHIRBase64BinaryEditable {...shared} />;
-    case "integer":
-      return <Primitives.FHIRIntegerEditable {...shared} />;
-    case "unsignedInt":
-      return <Primitives.FHIRUnsignedIntegerEditable {...shared} />;
-    case "positiveInt":
-      return <Primitives.FHIRPositiveIntegerEditable {...shared} />;
-    case "decimal":
-      return <Primitives.FHIRDecimalEditable {...shared} />;
-    case "date":
-      return <Primitives.FHIRDateEditable {...shared} />;
-    case "dateTime":
-      return <Primitives.FHIRDateTimeEditable {...shared} />;
-    case "instant":
-      return <Primitives.FHIRInstantEditable {...shared} />;
-    case "time":
-      return <Primitives.FHIRTimeEditable {...shared} />;
-    case "Coding":
-      return <Complex.FHIRCodingEditable {...shared} {...clientProps} />;
-    case "CodeableConcept":
-      return (
-        <Complex.FhirCodeableConceptEditable {...shared} {...clientProps} />
-      );
-    case "Identifier":
-      return <Complex.FHIRIdentifierEditable {...shared} {...clientProps} />;
     case "Reference":
       return (
         <Complex.FHIRReferenceEditable
@@ -232,37 +237,13 @@ export function ParameterValueEditor({
           )}
         />
       );
-    case "Period":
-      return <Complex.FHIRPeriodEditable {...shared} />;
-    case "Range":
-      return <Complex.FHIRRangeEditable {...shared} />;
-    case "Ratio":
-      return <Complex.FHIRRatioEditable {...shared} />;
-    case "HumanName":
-      return <Complex.FHIRHumanNameEditable {...shared} />;
-    case "Address":
-      return <Complex.FHIRAddressEditable {...shared} />;
-    case "ContactPoint":
-      return <Complex.FHIRContactPointEditable {...shared} {...clientProps} />;
-    case "ContactDetail":
-      return <Complex.FHIRContactDetailEditable {...shared} {...clientProps} />;
-    case "Annotation":
-      return <Complex.FHIRAnnotationEditable {...shared} />;
-    case "Attachment":
-      return <Complex.FHIRAttachmentEditable {...shared} />;
-    case "Expression":
-      return <Complex.FHIRExpressionEditable {...shared} />;
-    case "Money":
-      return <Complex.FHIRMoneyEditable {...shared} {...clientProps} />;
-    case "Timing":
-      return <Complex.FHIRTimingEditable {...shared} />;
-    case "SampledData":
-      return <Complex.FHIRSampledDataEditable {...shared} />;
-    case "Signature":
-      return <Complex.FHIRSignatureEditable {...shared} {...clientProps} />;
-    default:
-      return <JSONValueEditor value={value} onChange={onChange} />;
   }
+
+  const ValueEditor = VALUE_EDITORS.get(type);
+  if (ValueEditor) return <ValueEditor {...shared} />;
+  const ClientEditor = CLIENT_EDITORS.get(type);
+  if (ClientEditor) return <ClientEditor {...shared} {...clientProps} />;
+  return <JSONValueEditor value={value} onChange={onChange} />;
 }
 
 /** A resource or other structure as read-only JSON. */
@@ -300,7 +281,11 @@ export function ParameterValueView({
     return <span className="text-sm text-slate-400">No value</span>;
   }
 
-  if (typeof value !== "object") {
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  ) {
     return (
       <span className="break-all font-mono text-sm text-slate-800">
         {String(value)}
