@@ -22,7 +22,7 @@ const DEFAULT_OPERATION_CODE = `interface Context {
 
 export default async function (context: Context) {
   // \`parameters\` holds the inputs declared on this OperationDefinition.
-  const { input } = context.request.parameters as { input?: string };
+  const input = context.request.parameters.parameter.find(i => i.name === "input").valueString;
 
   // Each output is a named parameter, so the resource is returned inside a
   // Parameters under the name this operation declares.
