@@ -87,7 +87,8 @@ jobs:
           cluster.routing.allocation.disk.watermark.flood_stage: 1gb
 
       postgres:
-        image: postgres:18.1
+        # Google's mirror of Docker Hub, which rate-limits anonymous pulls from runners.
+        image: mirror.gcr.io/library/postgres:18.1
         ports:
           - 5432:5432
         options: >-
