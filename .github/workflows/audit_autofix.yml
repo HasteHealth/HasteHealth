@@ -1,4 +1,4 @@
-name: Audit Autofix
+name: <Audit> Autofix
 
 # When an audit fails on main: apply the tooling's fixes, let Claude fix what
 # is left, audit again, and open a pull request (.github/scripts/autofix).
