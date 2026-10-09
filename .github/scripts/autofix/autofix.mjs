@@ -95,8 +95,12 @@ const commands = {
   // CLAUDE_DAILY_SESSIONS sessions started in the last 24 hours, and this job
   // had none in that time (manual runs skip that last check).
   quota() {
-    if (!existsSync(join(out, "remaining.md")))
+    if (!existsSync(join(out, "remaining.md"))) {
+      console.log(
+        "::notice::No Claude session: the automatic fixes cleared every finding.",
+      );
       return setOutput("claude", "false");
+    }
     const deny = (reason) => {
       console.log(`::notice::No Claude session: ${reason}`);
       writeMarkdown("claude.md", ["### Claude", `Not run: ${reason}`]);
@@ -241,7 +245,11 @@ End with a Markdown summary for the pull request under "### Claude": what you ch
   // with the same changes stays closed.
   publish() {
     const results = join(RUNNER_TEMP, "results");
-    const jobs = readdirSync(results).map((dir) => join(results, dir));
+    // download-artifact gives each artifact its own directory only when there
+    // are several.
+    const jobs = existsSync(join(results, "changes.patch"))
+      ? [results]
+      : readdirSync(results).map((dir) => join(results, dir));
     const read = (file) =>
       existsSync(file) ? readFileSync(file, "utf8").trim() : "";
     const branch = `autofix/${name}`;
