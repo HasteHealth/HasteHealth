@@ -12,6 +12,12 @@ on:
     paths:
       - "frontend/**"
       - "artifacts/**"
+  # Run by audit_autofix.yml on its pull request branches.
+  workflow_dispatch: {}
+
+# Also runs on Audit Autofix branches, so the token stays read-only.
+permissions:
+  contents: read
 
 jobs:
   pnpm:

@@ -1,5 +1,7 @@
 name: anthropic-wif-test
-on: push
+on:
+  push:
+    branches: ["main"]
 permissions:
   id-token: write
   contents: read

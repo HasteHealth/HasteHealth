@@ -10,7 +10,7 @@ RUN corepack enable
 RUN pnpm install
 RUN pnpm -r run build
 
-FROM nginx:1.31.6-alpine
+FROM nginx:1.31.6-alpine AS runtime
 
 RUN apk upgrade --no-cache
 
