@@ -1,4 +1,4 @@
-name: Sync Versions
+name: <Release> Sync Versions
 
 # On release, commits the release's version to every crate and npm package on
 # main, then publishes them. The release's binaries and images are built from
@@ -60,7 +60,7 @@ jobs:
   publish:
     name: Publish packages
     needs: commit
-    uses: ./.github/workflows/publish_packages.yml
+    uses: ./.github/workflows/release_packages.yml
     with:
       ref: main
     permissions:

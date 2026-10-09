@@ -1,4 +1,4 @@
-name: Build frontend packages
+name: <Test> Build frontend packages
 
 # When frontend files are changed
 on:

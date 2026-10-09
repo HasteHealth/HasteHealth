@@ -1,4 +1,4 @@
-name: Release Binaries
+name: <Release> Binaries
 
 # Builds haste-health for each platform, attaches the binaries to the release
 # and publishes them to npm. Run by hand to test the builds from any branch

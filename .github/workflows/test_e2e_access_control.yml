@@ -1,13 +1,7 @@
-name: Core TestScripts
+name: <Test> E2E access control
 
-# Runs backend/testscripts/core (CRUD + search coverage for every R4 resource
-# type) against both search backends. Search indexing is asynchronous, so the
-# runner waits before each search until its latest write is indexed
-# (`--index-wait-ms`), which takes about as long as indexing does rather than
-# a fixed delay after every operation.
-#
-# Runs on main, plus `ci/core-testscripts` (and `ci/core-testscripts/**`) for
-# iterating on the scripts without touching main.
+# Runs backend/testscripts/access-control (see .github/scripts/access_control.mjs).
+# Both search backends: each applies a patient scope's compartment filter itself.
 on:
   push:
     branches: ["main"]
@@ -22,7 +16,7 @@ permissions:
 
 # A newer push to the same branch supersedes a running check.
 concurrency:
-  group: core-testscripts-${{ github.ref }}
+  group: access-control-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -55,11 +49,11 @@ jobs:
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: haste-health-binary
+          name: haste-health-access-control-binary
           path: haste-health.tar.gz
           retention-days: 1
 
-  core-testscripts:
+  access-control:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -112,7 +106,7 @@ jobs:
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: haste-health-binary
+          name: haste-health-access-control-binary
 
       - name: Install binary
         run: |
@@ -154,25 +148,21 @@ jobs:
         run: ./target/debug/haste-health admin migrate search && ./target/debug/haste-health admin migrate repo
         working-directory: ./backend
 
-      # One worker per repo database: the indexing position is per tenant, not
-      # per backend, so a second worker would take half the resources.
       - name: Start server and worker
         run: |
           ./target/debug/haste-health server start > server.log 2>&1 &
           ./target/debug/haste-health worker > worker.log 2>&1 &
         working-directory: ./backend
 
-      - name: Set up tenant and client
+      # `testing` is the admin client that runs each scenario's setup.
+      - name: Set up tenant and admin client
         run: |
           ./target/debug/haste-health admin tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited
           ./target/debug/haste-health admin client create --id testing --secret testing --tenant my-health --project system --grant-type client-credentials
           ./target/debug/haste-health config create-profile -n testing --auth-mode client-credentials --r4-url http://localhost:3000/w/my-health/system/api/v1/fhir/r4 --discovery-uri http://localhost:3000/.well-known/openid-configuration/w/my-health/system --id testing --secret testing
         working-directory: ./backend
 
-      # The client's access policy is found through search when a token is
-      # issued, and the CLI caches its token. A token issued before the worker
-      # indexes the policy carries none, and every request with it is denied,
-      # so wait before the first authenticated call (the check below).
+      # A token's access policies come from search, so index before the first one.
       - name: Wait for indexing
         run: bash .github/scripts/wait_for_indexing.sh 600
 
@@ -188,106 +178,36 @@ jobs:
           exit 1
         working-directory: ./backend
 
-      # Exits non-zero if any TestScript fails. `--index-wait-ms` is a
-      # ceiling, not a delay: each search waits only until the latest write is
-      # indexed (about 0.2s on Postgres and 1s on Elasticsearch locally).
-      #
-      # `--allow-failure` lists known gaps: their TestReports stay `fail`,
-      # marked as expected (the website shows them as known issues), and they
-      # don't fail the job. Remove an entry once it's fixed; the run warns when
-      # a listed script passes.
-      #   core-bundle: `composition`/`message` searches over
-      #   `Bundle.entry[0].resource` aren't indexed yet.
-      #
-      # These run in the `system` project: Project and IdentityProvider can
-      # only be created there.
-      - name: Run core TestScripts
-        run: >-
-          ./target/debug/haste-health testscript run -i testscripts/core
-          -w 0 --index-wait-ms 30000
-          --allow-failure core-bundle
-          -o ${{ matrix.search-backend }}.json
-        working-directory: ./backend
+      # The admin writes each scenario's data, client and any user.
+      - name: "Access control: setup"
+        run: node .github/scripts/access_control.mjs setup
         env:
           RUST_LOG: info
 
-      # One TestReport bundle per backend, as the website's test coverage page
-      # expects (frontend/packages/website: generate-test-support).
+      # Each scenario's user or client signs in with a fresh password or secret.
+      - name: "Access control: sign in"
+        run: node .github/scripts/access_control.mjs sign-in
+
+      # Each scenario's tests run as its signed-in user or client.
+      - name: "Access control: test"
+        run: node .github/scripts/access_control.mjs test
+        env:
+          RUST_LOG: info
+
       - name: Upload TestReports
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: core-testreports-${{ matrix.search-backend }}
-          path: backend/${{ matrix.search-backend }}.json
+          name: access-control-testreports-${{ matrix.search-backend }}
+          path: backend/access-control-reports/
           if-no-files-found: ignore
 
       - name: Upload server logs
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: core-logs-${{ matrix.search-backend }}
+          name: access-control-logs-${{ matrix.search-backend }}
           path: |
             backend/server.log
             backend/worker.log
           if-no-files-found: ignore
-
-  # Deploys the website on every push to main, with the conformance page's
-  # data refreshed from this run's TestReports. `continue-on-error` plus the
-  # file check below mean a build/test failure upstream (no artifacts to
-  # download)
-  deploy-website:
-    needs: core-testscripts
-    if: always() && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    environment: production
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Download TestReports
-        continue-on-error: true
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          pattern: core-testreports-*
-          path: reports
-
-      - name: Generate merged coverage data
-        run: |
-          postgres=reports/core-testreports-postgres/postgres.json
-          elasticsearch=reports/core-testreports-elasticsearch/elasticsearch.json
-          if [ -f "$postgres" ] && [ -f "$elasticsearch" ]; then
-            node frontend/packages/website/scripts/generate-test-support.mjs \
-              --testscripts backend/testscripts/core \
-              --postgres "$postgres" \
-              --elasticsearch "$elasticsearch" \
-              --output frontend/packages/website/static/test-reports/support.json
-          else
-            echo "TestReports unavailable this run; deploying with the previously committed coverage data."
-          fi
-
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          version: 11.9.0
-
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 23
-          cache: pnpm
-          cache-dependency-path: frontend/pnpm-lock.yaml
-
-      - name: Install dependencies
-        run: pnpm install
-        working-directory: ./frontend
-
-      - name: Build frontend packages
-        run: pnpm ci:build
-        working-directory: ./frontend
-
-      - name: Build & Deploy Worker
-        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
-        with:
-          wranglerVersion: "4.130.0"
-          workingDirectory: "frontend/packages/website"
-          packageManager: pnpm
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

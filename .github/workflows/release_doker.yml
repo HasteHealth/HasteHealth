@@ -1,4 +1,4 @@
-name: Release Docker
+name: <Release> Docker
 on:
   release:
     types: [published]
