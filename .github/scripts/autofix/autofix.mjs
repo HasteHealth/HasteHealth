@@ -173,24 +173,22 @@ End with a Markdown summary for the pull request under "### Claude": what you ch
       ),
     ];
     const args = [
-      ...[
-        "--print",
-        prompt,
-        "--model",
-        env.CLAUDE_MODEL,
-        "--effort",
-        env.CLAUDE_EFFORT,
-      ],
-      ...[
-        "--max-budget-usd",
-        env.CLAUDE_BUDGET_USD,
-        "--permission-mode",
-        "dontAsk",
-        "--no-session-persistence",
-      ],
+      "--print",
+      prompt,
+      "--model",
+      env.CLAUDE_MODEL,
+      "--effort",
+      env.CLAUDE_EFFORT,
+      "--max-budget-usd",
+      env.CLAUDE_BUDGET_USD,
+      "--permission-mode",
+      "dontAsk",
+      "--no-session-persistence",
       // On Linux Claude Code looks for CLAUDE.md, not the repository's Claude.md.
-      ...["--append-system-prompt-file", "Claude.md"],
-      ...["--allowedTools", ...tools],
+      "--append-system-prompt-file",
+      "Claude.md",
+      "--allowedTools",
+      ...tools,
     ];
     const claude = spawn("claude", args, {
       cwd: root,
@@ -201,6 +199,23 @@ End with a Markdown summary for the pull request under "### Claude": what you ch
     claude.stdout.on("data", (chunk) => (summary += chunk));
     const code = await new Promise((resolve) => claude.on("close", resolve));
     clearInterval(refresher);
+
+    // The repository is public: a token in Claude's summary or changes would
+    // be published. Discard them instead.
+    const token = env.CLAUDE_CODE_OAUTH_TOKEN;
+    run(cmd`git add --all`);
+    const changes = output(cmd`git diff --cached --text`);
+    run(cmd`git reset --quiet`);
+    if (token && (summary.includes(token) || changes.includes(token))) {
+      run(cmd`git reset --quiet --hard`);
+      run(cmd`git clean --force -d --quiet`);
+      writeMarkdown("claude.md", [
+        "### Claude",
+        "Its output contained the Claude token, so it was discarded along with all changes.",
+      ]);
+      process.exitCode = 1;
+      return;
+    }
 
     if (code === 0) writeFileSync(join(out, "claude.md"), summary);
     else

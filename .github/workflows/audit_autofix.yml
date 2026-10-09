@@ -10,6 +10,9 @@ name: Audit Autofix
 # - Claude signs in with the CLAUDE_CODE_OAUTH_TOKEN secret (your Claude
 #   subscription, from `claude setup-token`), or else with workload identity
 #   federation (the ANTHROPIC_* repository variables, billed as API usage).
+# - Only runs from main open pull requests. The fix job's `autofix`
+#   environment should allow only main, and hold the CLAUDE_CODE_OAUTH_TOKEN
+#   secret, so no other branch can read it.
 # - Opening pull requests needs "Allow GitHub Actions to create and approve
 #   pull requests" in the repository's Actions settings.
 on:
@@ -44,8 +47,12 @@ env:
 
 jobs:
   plan:
-    # A failed audit on main, or a manual run.
-    if: inputs.audit || (github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.head_branch == 'main')
+    # From main only: a failed audit on main (not a fork's), or a manual run.
+    if: >-
+      github.ref == 'refs/heads/main' && (inputs.audit || (
+        github.event.workflow_run.conclusion == 'failure' &&
+        github.event.workflow_run.head_branch == 'main' &&
+        github.event.workflow_run.head_repository.full_name == github.repository))
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -68,6 +75,7 @@ jobs:
     name: Fix ${{ matrix.image || matrix.audit }}
     needs: plan
     if: needs.plan.outputs.audit
+    environment: autofix
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
@@ -120,6 +128,9 @@ jobs:
           ANTHROPIC_FEDERATION_RULE_ID: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
         run: node .github/scripts/autofix/autofix.mjs quota "$AUDIT" "$IMAGE"
 
+      - if: steps.quota.outputs.claude == 'true'
+        run: npm install --global "@anthropic-ai/claude-code@$CLAUDE_CODE_VERSION"
+
       # The quota step counts earlier sessions by this name.
       - name: Fix the rest with Claude (${{ matrix.image || matrix.audit }})
         id: claude
@@ -132,10 +143,10 @@ jobs:
           ANTHROPIC_ORGANIZATION_ID: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
           ANTHROPIC_SERVICE_ACCOUNT_ID: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
           ANTHROPIC_WORKSPACE_ID: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
+          # Keeps credentials out of the commands Claude runs (on by default in Actions).
+          CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
           SQLX_OFFLINE: true
-        run: |
-          npm install --global "@anthropic-ai/claude-code@$CLAUDE_CODE_VERSION"
-          node .github/scripts/autofix/autofix.mjs claude "$AUDIT" "$IMAGE"
+        run: node .github/scripts/autofix/autofix.mjs claude "$AUDIT" "$IMAGE"
 
       - name: Audit again
         if: steps.claude.outcome != 'skipped'
