@@ -8,7 +8,7 @@
 //                  access policies, the client and any user
 //   tests/         TestScripts run as the principal
 //
-// Run the phases in order against a running server (e2e_access_control.yml):
+// Run the phases in order against a running server (test_e2e_access_control.yml):
 //   node .github/scripts/access_control.mjs setup
 //   node .github/scripts/access_control.mjs sign-in
 //   node .github/scripts/access_control.mjs test

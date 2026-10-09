@@ -2,7 +2,7 @@ name: <Release> Sync Versions
 
 # On release, commits the release's version to every crate and npm package on
 # main, then publishes them. The release's binaries and images are built from
-# the tag, so release.yml and docker.yml set the version themselves.
+# the tag, so release_binaries.yml and release_docker.yml set the version themselves.
 on:
   release:
     types: [published]

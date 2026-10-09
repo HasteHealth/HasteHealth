@@ -63,14 +63,14 @@ export function run(
 }
 
 const cargo = {
-  workflow: "Cargo Audit",
+  workflow: "<Audit> Cargo",
   paths: ["backend"],
   checks: [
-    "tests.yml",
-    "e2e.yml",
-    "e2e_access_control.yml",
-    "e2e_core_testscripts.yml",
-    "e2e_hl7v2.yml",
+    "test_units.yml",
+    "test_e2e.yml",
+    "test_e2e_access_control.yml",
+    "test_e2e_core_testscripts.yml",
+    "test_e2e_hl7v2.yml",
   ],
   claude: {
     commands: [
@@ -82,7 +82,7 @@ const cargo = {
       "cargo clippy",
     ],
     verify:
-      "In backend/, run `cargo audit` and `cargo check --workspace --all-targets`, and `cargo clippy` with the flags in .github/workflows/tests.yml on the crates whose code you changed.",
+      "In backend/, run `cargo audit` and `cargo check --workspace --all-targets`, and `cargo clippy` with the flags in .github/workflows/test_units.yml on the crates whose code you changed.",
     ignores: "backend/.cargo/audit.toml",
   },
 
@@ -134,9 +134,9 @@ function dependents(crate) {
 }
 
 const frontend = {
-  workflow: "Audit frontend packages",
+  workflow: "<Audit> Frontend Packages",
   paths: ["frontend", "artifacts"],
-  checks: ["frontend_build.yml"],
+  checks: ["test_build_frontend.yml"],
   claude: {
     commands: [
       "pnpm audit",
@@ -218,7 +218,7 @@ const images = {
 const published = (image) => `ghcr.io/hastehealth/hastehealth/${image}:latest`;
 
 const docker = {
-  workflow: "Docker Image Audit",
+  workflow: "<Audit> Docker Image",
   paths: ["docker"],
   checks: [], // The fix job already rebuilt, smoke tested and scanned the image.
   images: Object.keys(images),
@@ -293,7 +293,7 @@ const docker = {
   },
 };
 
-// Scans an image the way docker_audit.yml does.
+// Scans an image the way audit_docker.yml does.
 function trivy(image) {
   const report = JSON.parse(
     output(

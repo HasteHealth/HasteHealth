@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - release-packages
-  # Called by sync_versions.yml after it commits a release's versions to main.
+  # Called by release_version_bump.yml after it commits a release's versions to main.
   workflow_call:
     inputs:
       ref:

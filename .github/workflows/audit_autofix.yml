@@ -17,7 +17,7 @@ name: <Audit> Autofix
 #   pull requests" in the repository's Actions settings.
 on:
   workflow_run:
-    workflows: ["Cargo Audit", "Audit frontend packages", "Docker Image Audit"]
+    workflows: ["<Audit> Cargo", "<Audit> Frontend Packages", "<Audit> Docker Image"]
     types: [completed]
   workflow_dispatch:
     inputs:
@@ -26,7 +26,7 @@ on:
         required: true
         type: choice
         options:
-          ["Cargo Audit", "Audit frontend packages", "Docker Image Audit"]
+          ["<Audit> Cargo", "<Audit> Frontend Packages", "<Audit> Docker Image"]
 
 permissions: {}
 
@@ -111,7 +111,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 23
-      # The Trivy version docker_audit.yml's trivy-action uses.
+      # The Trivy version audit_docker.yml's trivy-action uses.
       - if: matrix.audit == 'docker'
         uses: aquasecurity/setup-trivy@3fb12ec12f41e471780db15c232d5dd185dcb514 # v0.2.6
         with:

@@ -3,7 +3,7 @@
 //
 //   node npm/build.mjs <version> <binaries-dir> <out-dir>
 //
-// <binaries-dir> holds the haste-health-<target> files that release.yml builds.
+// <binaries-dir> holds the haste-health-<target> files that release_binaries.yml builds.
 // <out-dir> gets one package per platform plus haste-health itself. Publish the
 // platform packages first, since haste-health depends on them.
 

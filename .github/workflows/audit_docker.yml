@@ -2,7 +2,7 @@ name: <Audit> Docker Image
 
 on:
   workflow_run:
-    workflows: ["Release Docker"] # Must exactly match the name of the first workflow
+    workflows: ["<Release> Docker"] # Must exactly match the name of the first workflow
     types:
       - completed
   schedule:

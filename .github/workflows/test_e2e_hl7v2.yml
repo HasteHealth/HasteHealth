@@ -3,7 +3,7 @@ name: <Test> E2E HL7v2 ingest
 # Sends real HL7 v2 messages over MLLP to the listener and confirms, through
 # TestScripts, that the resulting FHIR resources are correct.
 #
-# Separate from e2e.yml because it exercises a different entry point: every
+# Separate from test_e2e.yml because it exercises a different entry point: every
 # other job drives the FHIR REST API, while this one drives a TCP socket and
 # checks the REST API for the result. It runs on Postgres only -- the ingest
 # path does not vary by search backend, and the assertions here are about the
