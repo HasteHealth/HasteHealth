@@ -7,7 +7,7 @@
 //   node autofix.mjs publish <audit>          open the pull request
 // A fix job keeps its files in $RUNNER_TEMP/autofix; publish reads each job's
 // from $RUNNER_TEMP/results.
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import {
   appendFileSync,
   existsSync,
@@ -27,6 +27,11 @@ const { RUNNER_TEMP, GITHUB_REPOSITORY, GITHUB_SERVER_URL, GITHUB_RUN_ID } =
 const out = join(RUNNER_TEMP, "autofix");
 // The Claude step's name in audit_autofix.yml, which quota counts.
 const claudeStep = "Fix the rest with Claude";
+// Where audit_autofix.yml installs Claude Code.
+const claudeBin = join(
+  RUNNER_TEMP,
+  "claude-code/node_modules/@anthropic-ai/claude-code-linux-x64/claude",
+);
 
 const [command, name, image = ""] = process.argv.slice(2);
 const audit = audits[name];
@@ -150,13 +155,19 @@ const commands = {
     }
 
     const { commands: allowed, verify, ignores } = audit.claude;
-    const prompt = `The ${name} audit on main${image ? ` (${image} image)` : ""} still finds these after the automatic fixes:
+    const subject = image
+      ? `${name} audit on main (${image} image)`
+      : `${name} audit on main`;
+    const ignoreRule = ignores
+      ? `Only add an ignore (${ignores}) if the vulnerable code can't be reached, with a comment saying why.`
+      : "";
+    const prompt = `The ${subject} still finds these after the automatic fixes:
 
 ${readFileSync(join(out, "remaining.md"), "utf8")}
 Fix them in this checkout.
 - Make the smallest change: a patched version within the current requirement, then a newer requirement, then an upgrade of the dependency that pulls it in. Make the code changes a breaking upgrade needs.
 - If the fix is only on an upstream branch, use a git dependency pinned to a rev (through [patch.crates-io] if other crates need it). Never vendor code.
-- Leave what you can't fix and say why.${ignores ? ` Only add an ignore (${ignores}) if the vulnerable code can't be reached, with a comment saying why.` : ""}
+- Leave what you can't fix and say why. ${ignoreRule}
 - Don't add tests, commit or push.
 - ${verify.replace("<image>", image)} Fix anything that fails.
 
@@ -190,7 +201,7 @@ End with a Markdown summary for the pull request under "### Claude": what you ch
       "--allowedTools",
       ...tools,
     ];
-    const claude = spawn("claude", args, {
+    const claude = spawn(claudeBin, args, {
       cwd: root,
       env,
       stdio: ["ignore", "pipe", "inherit"],
@@ -251,36 +262,19 @@ End with a Markdown summary for the pull request under "### Claude": what you ch
       .join("\n\n");
     appendFileSync(process.env.GITHUB_STEP_SUMMARY, `# ${title}\n\n${body}\n`);
 
-    // The fix jobs ran untrusted code, so only take changes to the audit's paths.
-    const only = (flag) => audit.paths.map((path) => `--${flag}=${path}/*`);
     run(cmd`git checkout --quiet -b ${branch}`);
-    for (const job of jobs) {
-      const patch = join(job, "changes.patch");
-      if (!statSync(patch).size) continue;
-      const outside = output([
-        "git",
-        "apply",
-        "--numstat",
-        ...only("exclude"),
-        patch,
-      ]).trim();
-      if (outside)
-        console.log(
-          `::warning::Leaving out changes outside ${audit.paths.join(", ")}:\n${outside}`,
-        );
-      run(["git", "apply", "--index", ...only("include"), patch]);
-    }
+    jobs.forEach(applyChanges);
 
     if (!output(cmd`git diff --cached --name-only`).trim()) {
       console.log("No changes to propose.");
     } else {
       run(cmd`git -c user.name=github-actions[bot] -c user.email=41898282+github-actions[bot]@users.noreply.github.com
         commit --quiet --message ${title}`);
-      const fetched =
-        spawnSync("git", ["fetch", "--quiet", "--depth=2", "origin", branch], {
-          cwd: root,
-        }).status === 0;
-      if (fetched && patchId("FETCH_HEAD") === patchId("HEAD")) {
+      const proposed = output(
+        cmd`git ls-remote origin refs/heads/${branch}`,
+      ).trim();
+      if (proposed) run(cmd`git fetch --quiet --depth=2 origin ${branch}`);
+      if (proposed && patchId("FETCH_HEAD") === patchId("HEAD")) {
         console.log(
           `::notice::These changes were proposed on ${branch} before, and that pull request was closed.`,
         );
@@ -304,6 +298,26 @@ End with a Markdown summary for the pull request under "### Claude": what you ch
     }
   },
 };
+
+// Stages a fix job's changes, only within the audit's paths: the fix jobs ran
+// untrusted code.
+function applyChanges(job) {
+  const patch = join(job, "changes.patch");
+  if (!statSync(patch).size) return;
+  const only = (flag) => audit.paths.map((path) => `--${flag}=${path}/*`);
+  const outside = output([
+    "git",
+    "apply",
+    "--numstat",
+    ...only("exclude"),
+    patch,
+  ]).trim();
+  if (outside)
+    console.log(
+      `::warning::Leaving out changes outside ${audit.paths.join(", ")}:\n${outside}`,
+    );
+  run(["git", "apply", "--index", ...only("include"), patch]);
+}
 
 // Names of the Claude steps that started (running or finished) since `time`.
 function claudeSessionsSince(time) {
@@ -354,7 +368,7 @@ const writeMarkdown = (file, sections) =>
   writeFileSync(join(out, file), `${sections.join("\n\n")}\n`);
 
 function table(findings) {
-  const cell = (text) => String(text ?? "").replaceAll("|", "\\|");
+  const cell = (text) => String(text ?? "").replaceAll("|", String.raw`\|`);
   const rows = findings.map(
     (f) =>
       `| [${cell(f.id)}](${f.url}) | ${[f.package, f.installed, f.fixed, f.title].map(cell).join(" | ")} |`,

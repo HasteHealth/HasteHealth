@@ -128,8 +128,11 @@ jobs:
           ANTHROPIC_FEDERATION_RULE_ID: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
         run: node .github/scripts/autofix/autofix.mjs quota "$AUDIT" "$IMAGE"
 
+      # Just the Linux binary: its package has no install scripts.
       - if: steps.quota.outputs.claude == 'true'
-        run: npm install --global "@anthropic-ai/claude-code@$CLAUDE_CODE_VERSION"
+        run: >-
+          npm install --prefix "$RUNNER_TEMP/claude-code" --ignore-scripts --no-audit --no-fund
+          "@anthropic-ai/claude-code-linux-x64@$CLAUDE_CODE_VERSION"
 
       # The quota step counts earlier sessions by this name.
       - name: Fix the rest with Claude (${{ matrix.image || matrix.audit }})
