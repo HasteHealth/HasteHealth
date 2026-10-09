@@ -12,7 +12,7 @@ WORKDIR /build/backend
 RUN . /root/.nvm/nvm.sh --no-use && nvm install 24 && nvm use 24 && nvm alias default 24 && node -v && cargo build --locked --release
 
 
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim AS runtime
 
 COPY --from=builder /build/backend/target/release/haste-health /haste-health
 

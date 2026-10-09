@@ -70,6 +70,9 @@ jobs:
             runnumber=${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          # Build the runtime stage fresh, so its OS package upgrade isn't a
+          # cached layer from an earlier release.
+          no-cache-filters: runtime
 
   admin-app:
     environment: production
@@ -111,3 +114,6 @@ jobs:
             runnumber=${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          # Build the runtime stage fresh, so its OS package upgrade isn't a
+          # cached layer from an earlier release.
+          no-cache-filters: runtime

@@ -5,6 +5,8 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+  # Run by audit_autofix.yml on its pull request branches.
+  workflow_dispatch: {}
 
 env:
   CARGO_TERM_COLOR: always
