@@ -328,6 +328,9 @@ async fn evaluate_function<'a>(
         "descendants" => evaluate_descendants(context, config).await,
         "type" => evaluate_type(function, &context),
         "first" => evaluate_first(function, &context),
+        "startsWith" => evaluate_string_match(StringMatch::StartsWith, function, &context),
+        "endsWith" => evaluate_string_match(StringMatch::EndsWith, function, &context),
+        "contains" => evaluate_string_match(StringMatch::Contains, function, &context),
         "getReferenceKey" => evaluate_get_reference_key(function, &context),
         "getResourceKey" => evaluate_get_resource_key(function, &context, config),
 
@@ -635,6 +638,112 @@ fn evaluate_first<'a>(
         Some(value) => Ok(context.new_context_from(vec![*value])),
         None => Ok(context.new_context_from(vec![])),
     }
+}
+
+fn expression_to_literal(expression: &Expression) -> Result<&Literal, FHIRPathError> {
+    match expression {
+        Expression::Singular(vec) if vec.len() == 1 => match &vec[0] {
+            Term::Literal(lit) => Ok(lit),
+            _ => Err(FHIRPathError::InternalError(
+                "Expected a literal expression".to_string(),
+            )),
+        },
+        _ => Err(FHIRPathError::InternalError(
+            "Expected a singular expression".to_string(),
+        )),
+    }
+}
+
+/// The string functions that test their input against one string argument.
+#[derive(Clone, Copy)]
+enum StringMatch {
+    StartsWith,
+    EndsWith,
+    Contains,
+}
+
+impl StringMatch {
+    /// The function's name, as written in an expression.
+    fn name(self) -> &'static str {
+        match self {
+            StringMatch::StartsWith => "startsWith",
+            StringMatch::EndsWith => "endsWith",
+            StringMatch::Contains => "contains",
+        }
+    }
+
+    /// What the function calls its argument, for error messages.
+    fn argument(self) -> &'static str {
+        match self {
+            StringMatch::StartsWith => "prefix",
+            StringMatch::EndsWith => "suffix",
+            StringMatch::Contains => "substring",
+        }
+    }
+
+    fn matches(self, value: &str, argument: &str) -> bool {
+        match self {
+            StringMatch::StartsWith => value.starts_with(argument),
+            StringMatch::EndsWith => value.ends_with(argument),
+            StringMatch::Contains => value.contains(argument),
+        }
+    }
+}
+
+/// `startsWith`, `endsWith` and `contains`, per
+/// <https://hl7.org/fhirpath/N1/#startswithprefix-string-boolean> and the two
+/// that follow it: empty when the input is empty, an error when it has more
+/// than one value.
+fn evaluate_string_match<'a>(
+    string_match: StringMatch,
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    let name = string_match.name();
+    let argument = string_match.argument();
+
+    if context.values.is_empty() {
+        return Ok(context.new_context_from(vec![]));
+    }
+
+    if context.values.len() > 1 {
+        return Err(FHIRPathError::InternalError(format!(
+            "{name} function requires no more than one context value"
+        )));
+    }
+
+    if function.arguments.is_empty() {
+        return Ok(context.new_context_from(vec![]));
+    }
+
+    validate_arguments(&function.arguments, &Cardinality::Custom(1, 1))?;
+
+    let literal = if let Some(arg) = function.arguments.first() {
+        expression_to_literal(arg)?
+    } else {
+        return Err(FHIRPathError::InternalError(format!(
+            "{name} function requires a {argument} argument"
+        )));
+    };
+
+    let Literal::String(literal) = literal else {
+        return Err(FHIRPathError::InternalError(format!(
+            "{name} function requires a string {argument}"
+        )));
+    };
+
+    let value_string = context
+        .values
+        .first()
+        .and_then(|k| downcast_string(*k).ok())
+        .unwrap_or_default();
+
+    Ok(
+        context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
+            value: Some(string_match.matches(&value_string, literal)),
+            ..Default::default()
+        })]),
+    )
 }
 
 fn evaluate_get_reference_key<'a>(
@@ -2736,5 +2845,96 @@ mod tests {
             .downcast_ref::<FHIRBoolean>()
             .unwrap();
         assert_eq!(b.value, Some(true));
+    }
+
+    #[tokio::test]
+    async fn string_match() {
+        let engine = FPEngine::new();
+
+        let result = engine
+            .evaluate("'test'.startsWith('te')", vec![])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(true));
+
+        let context: &FHIRString = &"Hello".to_string().into();
+
+        let result = engine
+            .evaluate("$this.startsWith('He')", vec![context])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(true));
+
+        let result = engine
+            .evaluate("$this.startsWith('EH')", vec![context])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(false));
+
+        let result = engine
+            .evaluate("$this.endsWith('lo')", vec![context])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(true));
+
+        let result = engine
+            .evaluate("$this.endsWith('ll')", vec![context])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(false));
+
+        let result = engine
+            .evaluate("$this.contains('ll')", vec![context])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(true));
+
+        let result = engine
+            .evaluate("$this.contains('ele')", vec![context])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(false));
     }
 }
