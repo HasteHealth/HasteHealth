@@ -691,7 +691,7 @@ impl StringMatch {
 }
 
 /// `startsWith`, `endsWith` and `contains`, per
-/// https://hl7.org/fhirpath/N1/#startswithprefix-string-boolean and the two
+/// <https://hl7.org/fhirpath/N1/#startswithprefix-string-boolean> and the two
 /// that follow it: empty when the input is empty, an error when it has more
 /// than one value.
 fn evaluate_string_match<'a>(
@@ -736,7 +736,7 @@ fn evaluate_string_match<'a>(
         .values
         .first()
         .and_then(|k| downcast_string(*k).ok())
-        .unwrap_or("".to_string());
+        .unwrap_or(String::new());
 
     Ok(
         context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
