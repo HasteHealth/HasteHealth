@@ -640,7 +640,7 @@ fn evaluate_first<'a>(
     }
 }
 
-fn expression_to_literal<'a>(expression: &'a Expression) -> Result<&'a Literal, FHIRPathError> {
+fn expression_to_literal(expression: &Expression) -> Result<&Literal, FHIRPathError> {
     match expression {
         Expression::Singular(vec) if vec.len() == 1 => match &vec[0] {
             Term::Literal(lit) => Ok(lit),
@@ -736,7 +736,7 @@ fn evaluate_string_match<'a>(
         .values
         .first()
         .and_then(|k| downcast_string(*k).ok())
-        .unwrap_or(String::new());
+        .unwrap_or_default();
 
     Ok(
         context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
