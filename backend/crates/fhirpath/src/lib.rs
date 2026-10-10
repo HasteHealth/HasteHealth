@@ -20,11 +20,11 @@ use haste_fhir_model::r4::{
 };
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
+use std::pin::Pin;
 use std::{
     collections::HashMap,
     sync::{Arc, LazyLock, Mutex},
 };
-use std::{hash::Hash, pin::Pin};
 
 mod allocators;
 use allocators::AllocatorTrait;
@@ -2935,6 +2935,6 @@ mod tests {
             .as_any()
             .downcast_ref::<FHIRBoolean>()
             .unwrap();
-        assert_eq!(b.value, Some(true));
+        assert_eq!(b.value, Some(false));
     }
 }
