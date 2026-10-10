@@ -2846,4 +2846,95 @@ mod tests {
             .unwrap();
         assert_eq!(b.value, Some(true));
     }
+
+    #[tokio::test]
+    async fn string_match() {
+        let engine = FPEngine::new();
+
+        let result = engine
+            .evaluate("'test'.startsWith('te')", vec![])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(true));
+
+        let context: &FHIRString = &"Hello".to_string().into();
+
+        let result = engine
+            .evaluate("$this.startsWith('He')", vec![context])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(true));
+
+        let result = engine
+            .evaluate("$this.startsWith('EH')", vec![context])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(false));
+
+        let result = engine
+            .evaluate("$this.endsWith('lo')", vec![context])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(true));
+
+        let result = engine
+            .evaluate("$this.endsWith('ll')", vec![context])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(false));
+
+        let result = engine
+            .evaluate("$this.contains('ll')", vec![context])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(true));
+
+        let result = engine
+            .evaluate("$this.contains('ele')", vec![context])
+            .await
+            .expect("Failed to evaluate join()");
+
+        assert_eq!(result.values.len(), 1);
+        let b = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .unwrap();
+        assert_eq!(b.value, Some(true));
+    }
 }
