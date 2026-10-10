@@ -20,11 +20,11 @@ use haste_fhir_model::r4::{
 };
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
-use std::pin::Pin;
 use std::{
     collections::HashMap,
     sync::{Arc, LazyLock, Mutex},
 };
+use std::{hash::Hash, pin::Pin};
 
 mod allocators;
 use allocators::AllocatorTrait;
@@ -328,6 +328,9 @@ async fn evaluate_function<'a>(
         "descendants" => evaluate_descendants(context, config).await,
         "type" => evaluate_type(function, &context),
         "first" => evaluate_first(function, &context),
+        "startsWith" => evaluate_starts_with(function, &context),
+        "endsWith" => evaluate_ends_with(function, &context),
+        "contains" => evaluate_contains(function, &context),
         "getReferenceKey" => evaluate_get_reference_key(function, &context),
         "getResourceKey" => evaluate_get_resource_key(function, &context, config),
 
@@ -635,6 +638,166 @@ fn evaluate_first<'a>(
         Some(value) => Ok(context.new_context_from(vec![*value])),
         None => Ok(context.new_context_from(vec![])),
     }
+}
+
+fn expression_to_literal<'a>(expression: &'a Expression) -> Result<&'a Literal, FHIRPathError> {
+    match expression {
+        Expression::Singular(vec) if vec.len() == 1 => match &vec[0] {
+            Term::Literal(lit) => Ok(lit),
+            _ => Err(FHIRPathError::InternalError(
+                "Expected a literal expression".to_string(),
+            )),
+        },
+        _ => Err(FHIRPathError::InternalError(
+            "Expected a singular expression".to_string(),
+        )),
+    }
+}
+
+async fn evaluate_starts_with<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    // Per https://hl7.org/fhirpath/N1/#startswithprefix-string-boolean
+    // return empty context if context is empty
+    if context.values.is_empty() {
+        return Ok(context.new_context_from(vec![]));
+    }
+    // return error if there is more than one context value
+    if context.values.len() > 1 {
+        return Err(FHIRPathError::InternalError(
+            "startsWith function requires no more than one context value".to_string(),
+        ));
+    }
+
+    if function.arguments.len() < 1 {
+        return Ok(context.new_context_from(vec![]));
+    }
+
+    validate_arguments(&function.arguments, &Cardinality::Custom(1, 1))?;
+
+    let prefix = if let Some(arg) = function.arguments.first() {
+        expression_to_literal(arg)?
+    } else {
+        return Err(FHIRPathError::InternalError(
+            "startsWith function requires a prefix argument".to_string(),
+        ));
+    };
+
+    let Literal::String(prefix) = prefix else {
+        return Err(FHIRPathError::InternalError(
+            "startsWith function requires a string prefix".to_string(),
+        ));
+    };
+
+    let value_string = context
+        .values
+        .first()
+        .and_then(|k| downcast_string(*k).ok())
+        .unwrap_or("".to_string());
+
+    Ok(
+        context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
+            value: Some(value_string.starts_with(prefix)),
+            ..Default::default()
+        })]),
+    )
+}
+
+fn evaluate_ends_with<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    if context.values.is_empty() {
+        return Ok(context.new_context_from(vec![]));
+    }
+    // return error if there is more than one context value
+    if context.values.len() > 1 {
+        return Err(FHIRPathError::InternalError(
+            "endsWith function requires no more than one context value".to_string(),
+        ));
+    }
+
+    if function.arguments.len() < 1 {
+        return Ok(context.new_context_from(vec![]));
+    }
+
+    validate_arguments(&function.arguments, &Cardinality::Custom(1, 1))?;
+
+    let prefix = if let Some(arg) = function.arguments.first() {
+        expression_to_literal(arg)?
+    } else {
+        return Err(FHIRPathError::InternalError(
+            "endsWith function requires a suffix argument".to_string(),
+        ));
+    };
+
+    let Literal::String(suffix) = prefix else {
+        return Err(FHIRPathError::InternalError(
+            "endsWith function requires a string suffix".to_string(),
+        ));
+    };
+
+    let value_string = context
+        .values
+        .first()
+        .and_then(|k| downcast_string(*k).ok())
+        .unwrap_or("".to_string());
+
+    Ok(
+        context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
+            value: Some(value_string.ends_with(suffix)),
+            ..Default::default()
+        })]),
+    )
+}
+
+fn evaluate_contains<'a>(
+    function: &FunctionInvocation,
+    context: &Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    if context.values.is_empty() {
+        return Ok(context.new_context_from(vec![]));
+    }
+    // return error if there is more than one context value
+    if context.values.len() > 1 {
+        return Err(FHIRPathError::InternalError(
+            "contains function requires no more than one context value".to_string(),
+        ));
+    }
+
+    if function.arguments.len() < 1 {
+        return Ok(context.new_context_from(vec![]));
+    }
+
+    validate_arguments(&function.arguments, &Cardinality::Custom(1, 1))?;
+
+    let prefix = if let Some(arg) = function.arguments.first() {
+        expression_to_literal(arg)?
+    } else {
+        return Err(FHIRPathError::InternalError(
+            "contains function requires a substring argument".to_string(),
+        ));
+    };
+
+    let Literal::String(substring) = prefix else {
+        return Err(FHIRPathError::InternalError(
+            "contains function requires a string substring".to_string(),
+        ));
+    };
+
+    let value_string = context
+        .values
+        .first()
+        .and_then(|k| downcast_string(*k).ok())
+        .unwrap_or("".to_string());
+
+    Ok(
+        context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
+            value: Some(value_string.contains(substring)),
+            ..Default::default()
+        })]),
+    )
 }
 
 fn evaluate_get_reference_key<'a>(
