@@ -670,6 +670,52 @@ pub mod HasteHealthListScopes {
         }
     }
 }
+#[doc = "Starts a SMART App Launch EHR launch of this client application for a patient, and optionally one of"]
+#[doc = "the patient's encounters. Only a signed-in user can start a launch, and the same user must then"]
+#[doc = "authorize the app. Open the returned url to start the app."]
+pub mod HasteHealthSmartLaunch {
+    use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
+    use haste_fhir_model::r4::generated::types::{FHIRString, FHIRUri, Reference};
+    use haste_fhir_operation_error::OperationOutcomeError;
+    use haste_fhir_ops::derive::{FromParameters, ToParameters};
+    pub const CODE: &str = "launch";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        #[doc = "The patient the app is launched for. The caller must be able to read it."]
+        pub patient: Reference,
+        #[doc = "The encounter the app is launched in. It must be the patient's, and the caller must be able to read"]
+        #[doc = "it."]
+        pub encounter: Option<Reference>,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[doc = "The opaque launch value the app passes back at authorization. It expires five minutes after it is"]
+        #[doc = "created."]
+        pub launch: FHIRString,
+        #[doc = "The FHIR base URL the app is launched against."]
+        pub iss: FHIRUri,
+        #[doc = "The client's launchUri with iss and launch added to its query. Open it to start the app."]
+        pub url: FHIRUri,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
 #[doc = "Set display customization for the current tenant, such as its display name and logo."]
 pub mod HasteHealthTenantCustomization {
     use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};

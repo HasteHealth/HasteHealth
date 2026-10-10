@@ -81,6 +81,7 @@ impl<
             Box::new(custom_operations::tenant_customization_op()),
             Box::new(custom_operations::tenant_branding_op()),
             Box::new(custom_operations::patient_everything()),
+            Box::new(custom_operations::smart_launch_op()),
         ];
 
         Self(Arc::new(executors))
