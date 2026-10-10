@@ -328,9 +328,9 @@ async fn evaluate_function<'a>(
         "descendants" => evaluate_descendants(context, config).await,
         "type" => evaluate_type(function, &context),
         "first" => evaluate_first(function, &context),
-        "startsWith" => evaluate_starts_with(function, &context),
-        "endsWith" => evaluate_ends_with(function, &context),
-        "contains" => evaluate_contains(function, &context),
+        "startsWith" => evaluate_string_match(StringMatch::StartsWith, function, &context),
+        "endsWith" => evaluate_string_match(StringMatch::EndsWith, function, &context),
+        "contains" => evaluate_string_match(StringMatch::Contains, function, &context),
         "getReferenceKey" => evaluate_get_reference_key(function, &context),
         "getResourceKey" => evaluate_get_resource_key(function, &context, config),
 
@@ -654,136 +654,82 @@ fn expression_to_literal<'a>(expression: &'a Expression) -> Result<&'a Literal, 
     }
 }
 
-async fn evaluate_starts_with<'a>(
-    function: &FunctionInvocation,
-    context: &Context<'a>,
-) -> Result<Context<'a>, FHIRPathError> {
-    // Per https://hl7.org/fhirpath/N1/#startswithprefix-string-boolean
-    // return empty context if context is empty
-    if context.values.is_empty() {
-        return Ok(context.new_context_from(vec![]));
-    }
-    // return error if there is more than one context value
-    if context.values.len() > 1 {
-        return Err(FHIRPathError::InternalError(
-            "startsWith function requires no more than one context value".to_string(),
-        ));
-    }
-
-    if function.arguments.len() < 1 {
-        return Ok(context.new_context_from(vec![]));
-    }
-
-    validate_arguments(&function.arguments, &Cardinality::Custom(1, 1))?;
-
-    let prefix = if let Some(arg) = function.arguments.first() {
-        expression_to_literal(arg)?
-    } else {
-        return Err(FHIRPathError::InternalError(
-            "startsWith function requires a prefix argument".to_string(),
-        ));
-    };
-
-    let Literal::String(prefix) = prefix else {
-        return Err(FHIRPathError::InternalError(
-            "startsWith function requires a string prefix".to_string(),
-        ));
-    };
-
-    let value_string = context
-        .values
-        .first()
-        .and_then(|k| downcast_string(*k).ok())
-        .unwrap_or("".to_string());
-
-    Ok(
-        context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
-            value: Some(value_string.starts_with(prefix)),
-            ..Default::default()
-        })]),
-    )
+/// The string functions that test their input against one string argument.
+#[derive(Clone, Copy)]
+enum StringMatch {
+    StartsWith,
+    EndsWith,
+    Contains,
 }
 
-fn evaluate_ends_with<'a>(
-    function: &FunctionInvocation,
-    context: &Context<'a>,
-) -> Result<Context<'a>, FHIRPathError> {
-    if context.values.is_empty() {
-        return Ok(context.new_context_from(vec![]));
-    }
-    // return error if there is more than one context value
-    if context.values.len() > 1 {
-        return Err(FHIRPathError::InternalError(
-            "endsWith function requires no more than one context value".to_string(),
-        ));
+impl StringMatch {
+    /// The function's name, as written in an expression.
+    fn name(self) -> &'static str {
+        match self {
+            StringMatch::StartsWith => "startsWith",
+            StringMatch::EndsWith => "endsWith",
+            StringMatch::Contains => "contains",
+        }
     }
 
-    if function.arguments.len() < 1 {
-        return Ok(context.new_context_from(vec![]));
+    /// What the function calls its argument, for error messages.
+    fn argument(self) -> &'static str {
+        match self {
+            StringMatch::StartsWith => "prefix",
+            StringMatch::EndsWith => "suffix",
+            StringMatch::Contains => "substring",
+        }
     }
 
-    validate_arguments(&function.arguments, &Cardinality::Custom(1, 1))?;
-
-    let prefix = if let Some(arg) = function.arguments.first() {
-        expression_to_literal(arg)?
-    } else {
-        return Err(FHIRPathError::InternalError(
-            "endsWith function requires a suffix argument".to_string(),
-        ));
-    };
-
-    let Literal::String(suffix) = prefix else {
-        return Err(FHIRPathError::InternalError(
-            "endsWith function requires a string suffix".to_string(),
-        ));
-    };
-
-    let value_string = context
-        .values
-        .first()
-        .and_then(|k| downcast_string(*k).ok())
-        .unwrap_or("".to_string());
-
-    Ok(
-        context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
-            value: Some(value_string.ends_with(suffix)),
-            ..Default::default()
-        })]),
-    )
+    fn matches(self, value: &str, argument: &str) -> bool {
+        match self {
+            StringMatch::StartsWith => value.starts_with(argument),
+            StringMatch::EndsWith => value.ends_with(argument),
+            StringMatch::Contains => value.contains(argument),
+        }
+    }
 }
 
-fn evaluate_contains<'a>(
+/// `startsWith`, `endsWith` and `contains`, per
+/// https://hl7.org/fhirpath/N1/#startswithprefix-string-boolean and the two
+/// that follow it: empty when the input is empty, an error when it has more
+/// than one value.
+fn evaluate_string_match<'a>(
+    string_match: StringMatch,
     function: &FunctionInvocation,
     context: &Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
+    let name = string_match.name();
+    let argument = string_match.argument();
+
     if context.values.is_empty() {
         return Ok(context.new_context_from(vec![]));
     }
-    // return error if there is more than one context value
+
     if context.values.len() > 1 {
-        return Err(FHIRPathError::InternalError(
-            "contains function requires no more than one context value".to_string(),
-        ));
+        return Err(FHIRPathError::InternalError(format!(
+            "{name} function requires no more than one context value"
+        )));
     }
 
-    if function.arguments.len() < 1 {
+    if function.arguments.is_empty() {
         return Ok(context.new_context_from(vec![]));
     }
 
     validate_arguments(&function.arguments, &Cardinality::Custom(1, 1))?;
 
-    let prefix = if let Some(arg) = function.arguments.first() {
+    let literal = if let Some(arg) = function.arguments.first() {
         expression_to_literal(arg)?
     } else {
-        return Err(FHIRPathError::InternalError(
-            "contains function requires a substring argument".to_string(),
-        ));
+        return Err(FHIRPathError::InternalError(format!(
+            "{name} function requires a {argument} argument"
+        )));
     };
 
-    let Literal::String(substring) = prefix else {
-        return Err(FHIRPathError::InternalError(
-            "contains function requires a string substring".to_string(),
-        ));
+    let Literal::String(literal) = literal else {
+        return Err(FHIRPathError::InternalError(format!(
+            "{name} function requires a string {argument}"
+        )));
     };
 
     let value_string = context
@@ -794,7 +740,7 @@ fn evaluate_contains<'a>(
 
     Ok(
         context.new_context_from(vec![context.allocate_literal(FHIRBoolean {
-            value: Some(value_string.contains(substring)),
+            value: Some(string_match.matches(&value_string, literal)),
             ..Default::default()
         })]),
     )
