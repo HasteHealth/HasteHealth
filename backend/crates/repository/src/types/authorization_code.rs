@@ -16,6 +16,10 @@ pub enum AuthorizationCodeKind {
     /// An emailed link to accept or decline an invitation.
     #[sqlx(rename = "invitation")]
     Invitation,
+    /// A SMART EHR launch: the opaque `launch` value an app is started with,
+    /// standing for the patient (and encounter) it is launched for.
+    #[sqlx(rename = "smart_launch")]
+    SmartLaunch,
 }
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]

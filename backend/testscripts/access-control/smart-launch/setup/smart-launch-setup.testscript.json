@@ -1,0 +1,547 @@
+{
+    "id": "access-control-smart-launch-setup",
+    "url": "https://haste.health/fhir/TestScript/access-control-smart-launch-setup",
+    "name": "Access Control SMART Launch Setup",
+    "title": "SMART launch: data and login",
+    "status": "active",
+    "description": "Run as admin. Writes two patients with an encounter each, two clients to launch (one without a launchUri), and the login: a member User with no patient link, a full-access policy, and an EHR client allowed only user/Patient.rs user/Encounter.rs.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "sl-patient-a",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-smart-launch"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Launch",
+                    "given": [
+                        "Ada"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "sl-patient-b",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-smart-launch"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Launch",
+                    "given": [
+                        "Ben"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "sl-encounter-a",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-smart-launch"
+                    }
+                ]
+            },
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/sl-patient-a"
+            }
+        },
+        {
+            "id": "sl-encounter-b",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-smart-launch"
+                    }
+                ]
+            },
+            "status": "finished",
+            "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB"
+            },
+            "subject": {
+                "reference": "Patient/sl-patient-b"
+            }
+        },
+        {
+            "id": "sl-user",
+            "resourceType": "User",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-smart-launch"
+                    }
+                ]
+            },
+            "role": "member",
+            "email": "sl-user@example.org"
+        },
+        {
+            "id": "sl-membership",
+            "resourceType": "Membership",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-smart-launch"
+                    }
+                ]
+            },
+            "user": {
+                "reference": "User/sl-user"
+            }
+        },
+        {
+            "id": "sl-policy",
+            "resourceType": "AccessPolicyV2",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-smart-launch"
+                    }
+                ]
+            },
+            "name": "Access control: SMART launch",
+            "description": "Full access, so only the user scopes limit this login.",
+            "engine": "full-access"
+        },
+        {
+            "id": "sl-policy-assignment",
+            "resourceType": "AccessPolicyV2Assignment",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-smart-launch"
+                    }
+                ]
+            },
+            "accessPolicy": {
+                "reference": "AccessPolicyV2/sl-policy"
+            },
+            "link": {
+                "reference": "Membership/sl-membership"
+            }
+        },
+        {
+            "id": "sl-ehr",
+            "resourceType": "ClientApplication",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-smart-launch"
+                    }
+                ]
+            },
+            "name": "Access control: SMART launch EHR",
+            "grantType": [
+                "authorization_code",
+                "refresh_token"
+            ],
+            "responseTypes": "code",
+            "redirectUri": [
+                "http://127.0.0.1:8976/callback"
+            ],
+            "scope": "openid offline_access user/Patient.rs user/Encounter.rs"
+        },
+        {
+            "id": "sl-app",
+            "resourceType": "ClientApplication",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-smart-launch"
+                    }
+                ]
+            },
+            "name": "Access control: SMART launch app",
+            "grantType": [
+                "authorization_code"
+            ],
+            "responseTypes": "code",
+            "redirectUri": [
+                "http://127.0.0.1:9000/index.html"
+            ],
+            "launchUri": "http://127.0.0.1:9000/launch.html?site=test",
+            "scope": "openid fhirUser launch patient/*.rs"
+        },
+        {
+            "id": "sl-app-no-launch",
+            "resourceType": "ClientApplication",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "access-control-smart-launch"
+                    }
+                ]
+            },
+            "name": "Access control: SMART app without a launchUri",
+            "grantType": [
+                "authorization_code"
+            ],
+            "responseTypes": "code",
+            "redirectUri": [
+                "http://127.0.0.1:9000/index.html"
+            ],
+            "scope": "openid fhirUser launch patient/*.rs"
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-sl-patient-a",
+            "resource": {
+                "reference": "#sl-patient-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sl-patient-b",
+            "resource": {
+                "reference": "#sl-patient-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sl-encounter-a",
+            "resource": {
+                "reference": "#sl-encounter-a"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sl-encounter-b",
+            "resource": {
+                "reference": "#sl-encounter-b"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sl-user",
+            "resource": {
+                "reference": "#sl-user"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sl-membership",
+            "resource": {
+                "reference": "#sl-membership"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sl-policy",
+            "resource": {
+                "reference": "#sl-policy"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sl-policy-assignment",
+            "resource": {
+                "reference": "#sl-policy-assignment"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sl-ehr",
+            "resource": {
+                "reference": "#sl-ehr"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sl-app",
+            "resource": {
+                "reference": "#sl-app"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sl-app-no-launch",
+            "resource": {
+                "reference": "#sl-app-no-launch"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-data",
+            "name": "Two patients, an encounter each, and the clients to launch",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-sl-patient-a",
+                        "sourceId": "fixture-sl-patient-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient/sl-patient-a is written",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Patient",
+                        "targetId": "fixture-sl-patient-b",
+                        "sourceId": "fixture-sl-patient-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Patient/sl-patient-b is written",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Encounter",
+                        "targetId": "fixture-sl-encounter-a",
+                        "sourceId": "fixture-sl-encounter-a",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Encounter/sl-encounter-a is written",
+                        "resource": "Encounter",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Encounter",
+                        "targetId": "fixture-sl-encounter-b",
+                        "sourceId": "fixture-sl-encounter-b",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Encounter/sl-encounter-b is written",
+                        "resource": "Encounter",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-sl-app",
+                        "sourceId": "fixture-sl-app",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ClientApplication/sl-app is written",
+                        "resource": "ClientApplication",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-sl-app-no-launch",
+                        "sourceId": "fixture-sl-app-no-launch",
+                        "encodeRequestUrl": false,
+                        "description": "A client that cannot be launched: it has no launchUri."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ClientApplication/sl-app-no-launch is written",
+                        "resource": "ClientApplication",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-login",
+            "name": "A member User with full access, signing in through the EHR client",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "User",
+                        "targetId": "fixture-sl-user",
+                        "sourceId": "fixture-sl-user",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "User/sl-user is written",
+                        "resource": "User",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Membership",
+                        "targetId": "fixture-sl-membership",
+                        "sourceId": "fixture-sl-membership",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Membership/sl-membership is written",
+                        "resource": "Membership",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2",
+                        "targetId": "fixture-sl-policy",
+                        "sourceId": "fixture-sl-policy",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2/sl-policy is written",
+                        "resource": "AccessPolicyV2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "targetId": "fixture-sl-policy-assignment",
+                        "sourceId": "fixture-sl-policy-assignment",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "AccessPolicyV2Assignment/sl-policy-assignment is written",
+                        "resource": "AccessPolicyV2Assignment",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-sl-ehr",
+                        "sourceId": "fixture-sl-ehr",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "ClientApplication/sl-ehr is written",
+                        "resource": "ClientApplication",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-indexed",
+            "name": "The access policy can be found the way token issuance finds it",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "AccessPolicyV2Assignment",
+                        "params": "link=Membership/sl-membership",
+                        "encodeRequestUrl": false,
+                        "description": "Waits for indexing: token issuance finds access policies through search."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The assignment is found by its principal",
+                        "expression": "Bundle.entry.resource.where(id = 'sl-policy-assignment').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

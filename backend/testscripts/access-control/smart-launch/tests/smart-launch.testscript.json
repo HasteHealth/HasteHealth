@@ -1,0 +1,391 @@
+{
+    "id": "access-control-smart-launch",
+    "url": "https://haste.health/fhir/TestScript/access-control-smart-launch",
+    "name": "Access Control SMART Launch",
+    "title": "SMART launch: starting an EHR launch",
+    "status": "active",
+    "description": "Run as sl-user. Starts EHR launches of sl-app with ClientApplication/{id}/$launch, and is refused when the patient, the encounter or the client does not allow one.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "sl-app",
+            "resourceType": "ClientApplication",
+            "name": "sl-app",
+            "grantType": [
+                "authorization_code"
+            ],
+            "responseTypes": "code"
+        },
+        {
+            "id": "sl-app-no-launch",
+            "resourceType": "ClientApplication",
+            "name": "sl-app-no-launch",
+            "grantType": [
+                "authorization_code"
+            ],
+            "responseTypes": "code"
+        },
+        {
+            "id": "sl-no-such-app",
+            "resourceType": "ClientApplication",
+            "name": "sl-no-such-app",
+            "grantType": [
+                "authorization_code"
+            ],
+            "responseTypes": "code"
+        },
+        {
+            "id": "launch-with-encounter",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sl-patient-a"
+                    }
+                },
+                {
+                    "name": "encounter",
+                    "valueReference": {
+                        "reference": "Encounter/sl-encounter-a"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "launch-patient-only",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sl-patient-a"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "launch-unknown-patient",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sl-no-such-patient"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "launch-other-patients-encounter",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Patient/sl-patient-a"
+                    }
+                },
+                {
+                    "name": "encounter",
+                    "valueReference": {
+                        "reference": "Encounter/sl-encounter-b"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "launch-wrong-type",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "patient",
+                    "valueReference": {
+                        "reference": "Observation/sl-patient-a"
+                    }
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-sl-app",
+            "resource": {
+                "reference": "#sl-app"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sl-app-no-launch",
+            "resource": {
+                "reference": "#sl-app-no-launch"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-sl-no-such-app",
+            "resource": {
+                "reference": "#sl-no-such-app"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-launch-with-encounter",
+            "resource": {
+                "reference": "#launch-with-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-launch-patient-only",
+            "resource": {
+                "reference": "#launch-patient-only"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-launch-unknown-patient",
+            "resource": {
+                "reference": "#launch-unknown-patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-launch-other-patients-encounter",
+            "resource": {
+                "reference": "#launch-other-patients-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-launch-wrong-type",
+            "resource": {
+                "reference": "#launch-wrong-type"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-with-encounter",
+            "name": "A launch for a patient and one of their encounters",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "invoke"
+                        },
+                        "url": "launch",
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-sl-app",
+                        "sourceId": "fixture-launch-with-encounter",
+                        "encodeRequestUrl": false,
+                        "description": "Launches sl-app for Patient A in Encounter A."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A launch value is returned",
+                        "expression": "Parameters.parameter.where(name = 'launch').value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The FHIR base URL is returned as iss",
+                        "expression": "Parameters.parameter.where(name = 'iss').value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The URL to open the app at is returned",
+                        "expression": "Parameters.parameter.where(name = 'url').value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Nothing else is returned",
+                        "expression": "Parameters.parameter.count() = 3",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-patient-only",
+            "name": "A launch for a patient alone",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "invoke"
+                        },
+                        "url": "launch",
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-sl-app",
+                        "sourceId": "fixture-launch-patient-only",
+                        "encodeRequestUrl": false,
+                        "description": "No encounter: it is optional."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A launch value is returned",
+                        "expression": "Parameters.parameter.where(name = 'launch').value.exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-unknown-patient",
+            "name": "A patient that does not exist cannot be launched for",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "invoke"
+                        },
+                        "url": "launch",
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-sl-app",
+                        "sourceId": "fixture-launch-unknown-patient",
+                        "encodeRequestUrl": false,
+                        "description": "Patient/sl-no-such-patient was never written."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The patient is not found",
+                        "expression": "OperationOutcome.issue.where(code = 'not-found').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-other-patients-encounter",
+            "name": "An encounter must be the patient's",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "invoke"
+                        },
+                        "url": "launch",
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-sl-app",
+                        "sourceId": "fixture-launch-other-patients-encounter",
+                        "encodeRequestUrl": false,
+                        "description": "Encounter B belongs to Patient B."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The encounter is refused as not the patient's",
+                        "expression": "OperationOutcome.issue.where(code = 'invalid').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-no-launch-uri",
+            "name": "A client without a launchUri cannot be launched",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "invoke"
+                        },
+                        "url": "launch",
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-sl-app-no-launch",
+                        "sourceId": "fixture-launch-patient-only",
+                        "encodeRequestUrl": false,
+                        "description": "There is nowhere to open the app."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The client is refused for having no launchUri",
+                        "expression": "OperationOutcome.issue.where(code = 'invalid').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-unknown-client",
+            "name": "A client that does not exist cannot be launched",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "invoke"
+                        },
+                        "url": "launch",
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-sl-no-such-app",
+                        "sourceId": "fixture-launch-patient-only",
+                        "encodeRequestUrl": false,
+                        "description": "ClientApplication/sl-no-such-app was never written."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The client is not found",
+                        "expression": "OperationOutcome.issue.where(code = 'not-found').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "07-wrong-reference-type",
+            "name": "patient must reference a Patient",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "invoke"
+                        },
+                        "url": "launch",
+                        "resource": "ClientApplication",
+                        "targetId": "fixture-sl-app",
+                        "sourceId": "fixture-launch-wrong-type",
+                        "encodeRequestUrl": false,
+                        "description": "An Observation reference given as the patient."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The reference is refused",
+                        "expression": "OperationOutcome.issue.where(code = 'invalid').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}

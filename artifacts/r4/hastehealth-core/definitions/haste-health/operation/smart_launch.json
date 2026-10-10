@@ -1,0 +1,61 @@
+{
+    "resourceType": "OperationDefinition",
+    "id": "haste-health-smart-launch",
+    "url": "https://haste.health/OperationDefinition/smart-launch",
+    "version": "4.0.1",
+    "name": "SMART EHR launch",
+    "status": "draft",
+    "kind": "operation",
+    "date": "2026-10-07T00:00:00+00:00",
+    "publisher": "HasteHealth",
+    "description": "Starts a SMART App Launch EHR launch of this client application for a patient, and optionally one of the patient's encounters. Only a signed-in user can start a launch, and the same user must then authorize the app. Open the returned url to start the app.",
+    "code": "launch",
+    "system": false,
+    "type": false,
+    "instance": true,
+    "resource": ["ClientApplication"],
+    "parameter": [
+        {
+            "name": "patient",
+            "use": "in",
+            "min": 1,
+            "max": "1",
+            "documentation": "The patient the app is launched for. The caller must be able to read it.",
+            "type": "Reference",
+            "targetProfile": ["http://hl7.org/fhir/StructureDefinition/Patient"]
+        },
+        {
+            "name": "encounter",
+            "use": "in",
+            "min": 0,
+            "max": "1",
+            "documentation": "The encounter the app is launched in. It must be the patient's, and the caller must be able to read it.",
+            "type": "Reference",
+            "targetProfile": ["http://hl7.org/fhir/StructureDefinition/Encounter"]
+        },
+        {
+            "name": "launch",
+            "use": "out",
+            "min": 1,
+            "max": "1",
+            "documentation": "The opaque launch value the app passes back at authorization. It expires five minutes after it is created.",
+            "type": "string"
+        },
+        {
+            "name": "iss",
+            "use": "out",
+            "min": 1,
+            "max": "1",
+            "documentation": "The FHIR base URL the app is launched against.",
+            "type": "uri"
+        },
+        {
+            "name": "url",
+            "use": "out",
+            "min": 1,
+            "max": "1",
+            "documentation": "The client's launchUri with iss and launch added to its query. Open it to start the app.",
+            "type": "uri"
+        }
+    ]
+}
