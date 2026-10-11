@@ -121,16 +121,16 @@ HTTP/1.1 401 Unauthorized
 WWW-Authenticate: Bearer resource_metadata="https://api.haste.health/.well-known/oauth-protected-resource/w/[tenant]/[project]/api/v1/mcp"
 ```
 
-Errors from the OAuth token endpoint itself (bad `client_id`/`client_secret`, invalid grant, unauthorized scope) come back as JSON with a `code`/`description` pair, not a JSON-RPC envelope:
+Errors from the OAuth token endpoint itself (bad `client_id`/`client_secret`, invalid grant, unauthorized scope) come back as an OAuth 2.0 error ([RFC 6749 section 5.2](https://datatracker.ietf.org/doc/html/rfc6749#section-5.2)) with `error` and, when there is more to say, `error_description`, not a JSON-RPC envelope:
 
 ```json
 {
-  "code": "access_denied",
-  "description": "Invalid credentials"
+  "error": "access_denied",
+  "error_description": "Invalid credentials"
 }
 ```
 
-| `code` | HTTP status | Meaning |
+| `error` | HTTP status | Meaning |
 | --- | --- | --- |
 | `invalid_request` | 400 | Missing or malformed parameter |
 | `invalid_client` | 400 | Unknown `client_id`, or client not authorized for the grant type used |

@@ -94,11 +94,15 @@ impl From<&OIDCErrorCode> for &str {
     }
 }
 
+/// An OAuth 2.0 error. Sent as a redirect carrying `error` and
+/// `error_description` (RFC 6749 §4.1.2.1), or as a JSON body with the same
+/// names (§5.2).
 #[allow(dead_code)]
 #[derive(serde::Serialize, Debug)]
 pub struct OIDCError {
-    pub code: OIDCErrorCode,
-    pub description: Option<String>,
+    pub error: OIDCErrorCode,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_description: Option<String>,
     /// Where the user agent is sent with the error, per RFC 6749 §4.1.2.1.
     ///
     /// Only a redirect URI that has already been validated against the client
@@ -113,13 +117,13 @@ pub struct OIDCError {
 
 impl OIDCError {
     pub fn new(
-        code: OIDCErrorCode,
-        description: Option<String>,
+        error: OIDCErrorCode,
+        error_description: Option<String>,
         redirect_uri: Option<String>,
     ) -> Self {
         OIDCError {
-            code,
-            description,
+            error,
+            error_description,
             redirect_uri,
         }
     }
@@ -134,13 +138,13 @@ impl OIDCError {
     /// break the URL.
     fn error_redirect_url(&self) -> Option<Url> {
         let mut url = Url::parse(self.redirect_uri.as_deref()?).ok()?;
-        let error_code: &str = (&self.code).into();
+        let error_code: &str = (&self.error).into();
 
         {
             let mut query = url.query_pairs_mut();
             query.append_pair("error", error_code);
 
-            if let Some(description) = self.description.as_deref() {
+            if let Some(description) = self.error_description.as_deref() {
                 query.append_pair("error_description", description);
             }
         }
@@ -157,7 +161,7 @@ impl IntoResponse for OIDCError {
             // RFC 6749 §5.2: a JSON body with the error code and description.
             let json_body = serde_json::to_string(&self).unwrap_or_default();
 
-            let status = match self.code {
+            let status = match self.error {
                 OIDCErrorCode::InvalidRequest
                 | OIDCErrorCode::InvalidGrant
                 | OIDCErrorCode::InvalidClient
