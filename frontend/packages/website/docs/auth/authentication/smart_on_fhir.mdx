@@ -30,11 +30,9 @@ SMART on FHIR supports two primary launch patterns:
 
 ### 1. EHR Launch (Contextual Launch)
 
-:::caution[EHR Launch is not yet supported in Haste Health]
-This feature is not yet supported in Haste Health. The following is for informational purposes only.
-:::
-
 The application is launched from within an EHR system, automatically receiving context about the patient and user.
+
+Here Haste Health plays the EHR: a signed-in user starts the launch for a patient (and optionally one of their encounters), and the app is opened at its launch URL. This is how you test a SMART app built for Epic, Oracle Health (Cerner) or MEDITECH EHR launch against Haste Health. Apps built on the [SMART JavaScript client](https://docs.smarthealthit.org/client-js/) (`fhirclient`) work as they do against those EHRs.
 
 ```mermaid
 sequenceDiagram
@@ -46,7 +44,7 @@ sequenceDiagram
 
     User->>EHR: Click "Launch App" button
     
-    EHR->>EHR: Generate launch token<br/>Include patient context
+    EHR->>EHR: Create launch<br/>Save patient and encounter
     
     EHR->>App: Redirect with launch parameter
     Note over EHR,App: https://app.example.com/launch?<br/>iss=https://fhir.ehr.com<br/>launch=xyz123
@@ -65,7 +63,7 @@ sequenceDiagram
     App->>Auth: Exchange code for tokens
     
     Auth->>App: Return tokens + context
-    Note over Auth,App: {<br/>  "access_token": "...",<br/>  "patient": "Patient/123",<br/>  "encounter": "Encounter/456"<br/>}
+    Note over Auth,App: {<br/>  "access_token": "...",<br/>  "patient": "123",<br/>  "encounter": "456",<br/>  "need_patient_banner": true<br/>}
     
     App->>FHIR: GET /Patient/123<br/>Authorization: Bearer TOKEN
     
@@ -74,28 +72,89 @@ sequenceDiagram
     App->>User: Display patient information
 ```
 
-**Launch URL Format:**
-```
-https://app.example.com/launch?
-  iss=https://api.haste.health/w/{tenant}/{project}/api/v1/fhir
-  &launch=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+#### Registering the app
+
+Register the app as a `ClientApplication` with a `launchUri`, the page the app is opened at, and include `launch` in the scopes it is allowed to request:
+
+```json
+{
+  "resourceType": "ClientApplication",
+  "id": "smart-app-id",
+  "name": "My SMART app",
+  "grantType": ["authorization_code", "refresh_token"],
+  "responseTypes": "code",
+  "launchUri": "https://app.example.com/launch",
+  "redirectUri": ["https://app.example.com/callback"],
+  "scope": "openid fhirUser launch launch/encounter patient/*.rs offline_access"
+}
 ```
 
-**Authorization Request:**
+`launchUri` is where an EHR launch starts. `redirectUri` is where authorization ends: they are usually different pages of the app.
+
+#### Starting a launch
+
+Invoke `$launch` on the app's `ClientApplication` with the patient, and optionally an encounter of that patient:
+
+```http
+POST /w/{tenant}/{project}/api/v1/fhir/ClientApplication/smart-app-id/$launch
+Authorization: Bearer USER_TOKEN
+Content-Type: application/fhir+json
+
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    { "name": "patient", "valueReference": { "reference": "Patient/123" } },
+    { "name": "encounter", "valueReference": { "reference": "Encounter/456" } }
+  ]
+}
+```
+
+```json
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    { "name": "launch", "valueString": "q4k1v9yo2x7bt0l8c5m3r6f1-p7w2h9e4d0s5n8j3a6" },
+    { "name": "iss", "valueUri": "https://api.haste.health/w/{tenant}/{project}/api/v1/fhir" },
+    { "name": "url", "valueUri": "https://app.example.com/launch?iss=https%3A%2F%2Fapi.haste.health%2Fw%2F%7Btenant%7D%2F%7Bproject%7D%2Fapi%2Fv1%2Ffhir&launch=q4k1v9yo2x7bt0l8c5m3r6f1-p7w2h9e4d0s5n8j3a6" }
+  ]
+}
+```
+
+Open `url` in the browser the user is signed in with.
+
+- Only a signed-in user can start a launch, not a client on its own: the same user then authorizes the app. The patient and encounter are read as that user, so their scopes and access policies decide what they can launch for.
+- The encounter must belong to the patient.
+- A launch expires five minutes after it is created. It can be used more than once within that time.
+
+#### Authorization and token
+
+The app passes `launch` back with the `launch` scope:
+
 ```http
 GET /w/{tenant}/{project}/api/v1/oidc/auth/authorize?
   response_type=code&
   client_id=smart-app-id&
   redirect_uri=https://app.example.com/callback&
-  scope=launch patient/*.read&
+  scope=openid fhirUser launch patient/*.rs&
   state=random-state&
   aud=https://api.haste.health/w/{tenant}/{project}/api/v1/fhir&
-  launch=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  launch=q4k1v9yo2x7bt0l8c5m3r6f1-p7w2h9e4d0s5n8j3a6&
+  code_challenge=CHALLENGE&
+  code_challenge_method=S256
 ```
+
+- The launch must be one the signed-in user started for this app, and must not have expired. Otherwise authorization fails with `invalid_request`.
+- Without the `launch` scope the `launch` parameter is ignored. With the scope but no `launch` value, the token has no launch context and `launch` is not granted.
+- The token response carries `patient`, `encounter` (when the launch has one) and `need_patient_banner`. `patient/` scopes are bound to the launch's patient, and refreshed tokens keep the same context.
+- A user who is themselves linked to a patient can only launch an app for that patient.
 
 ### 2. Standalone Launch
 
 The application launches independently, and the user selects which patient's data to access.
+
+:::note[No patient picker]
+Haste Health does not show a patient picker. With `launch/patient`, a standalone launch gets a patient only when the signed-in user is linked to one (through their `Membership`), as in a patient portal. A clinician who needs a patient in context uses an [EHR launch](#1-ehr-launch-contextual-launch).
+:::
 
 ```mermaid
 sequenceDiagram
@@ -133,7 +192,7 @@ sequenceDiagram
     App->>Auth: Exchange code for tokens
     
     Auth->>App: Return tokens + context
-    Note over Auth,App: {<br/>  "access_token": "...",<br/>  "patient": "Patient/789"<br/>}
+    Note over Auth,App: {<br/>  "access_token": "...",<br/>  "patient": "789"<br/>}
     
     App->>FHIR: GET /Patient/789<br/>Authorization: Bearer TOKEN
     
@@ -163,8 +222,8 @@ SMART on FHIR defines a structured scope syntax that combines permissions with F
 
 Access data for the currently selected patient:
 
-:::caution[`patient/*` scopes are not currently enforced]
-The server rejects any request whose best-matching scope is patient-level, with "Patient-level SMART scopes are not supported for this request." The scopes below are documented for completeness with the SMART spec — use the [user-level scopes](#2-user-level-scopes) for a working client today.
+:::note[`patient/` scopes are read and search only]
+A `patient/` scope is bound to the patient in context, from an EHR launch or the signed-in user's own patient link, and grants read and search within that patient's compartment. Write permissions in a `patient/` scope are dropped from the token: use `user/` scopes to write.
 :::
 
 | Scope | Description |
@@ -217,9 +276,9 @@ Control launch context and behavior:
 
 | Scope | Description |
 |-------|-------------|
-| `launch` | Required for EHR launch flow |
-| `launch/patient` | Request patient picker for standalone launch |
-| `launch/encounter` | Request encounter context |
+| `launch` | Receive the patient and encounter of an EHR launch |
+| `launch/patient` | A patient in context. In a standalone launch, only when the signed-in user is linked to a patient: there is no picker |
+| `launch/encounter` | The encounter of an EHR launch started with one |
 | `online_access` | Request refresh token for long-term access |
 | `offline_access` | Request refresh token for offline/background access |
 
@@ -242,11 +301,12 @@ When using SMART on FHIR, the token response includes additional context informa
 {
   "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
   "token_type": "Bearer",
-  "expires_in": 3600,
-  "scope": "patient/Patient.read patient/Observation.read",
-  "patient": "Patient/123",
-  "encounter": "Encounter/456",
-  "refresh_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expires_in": 7200,
+  "scope": "openid fhirUser launch launch/encounter patient/*.rs offline_access",
+  "patient": "123",
+  "encounter": "456",
+  "need_patient_banner": true,
+  "refresh_token": "...",
   "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
@@ -255,12 +315,11 @@ When using SMART on FHIR, the token response includes additional context informa
 
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| `patient` | FHIR Patient resource ID | `Patient/123` |
-| `encounter` | Current encounter context | `Encounter/456` |
-| `fhirUser` | FHIR resource for authenticated user | `Practitioner/789` or `Patient/123` |
-| `tenant` | Tenant identifier (if multi-tenant) | `org-acme-health` |
-| `need_patient_banner` | Whether to show patient banner | `true` |
-| `intent` | Launch intent (reconcile-medications, etc.) | `reconcile-medications` |
+| `patient` | Id of the Patient in context: the EHR launch's patient, or the signed-in user's own | `123` |
+| `encounter` | Id of the Encounter an EHR launch was started in | `456` |
+| `need_patient_banner` | Returned for an EHR launch, always `true`: Haste Health opens the app on its own, with no patient banner around it | `true` |
+
+The authenticated user's FHIR resource (`fhirUser`, for example `Practitioner/789`) is a claim in the `id_token`, not a token response parameter. `fhirContext`, `intent`, `smart_style_url` and `tenant` are not returned.
 
 ## SMART Configuration Discovery
 
@@ -288,6 +347,10 @@ Host: api.haste.health
     "email",
     "offline_access",
     "fhirUser",
+    "launch",
+    "launch/patient",
+    "launch/encounter",
+    "patient/*.rs",
     "user/*.cruds",
     "system/*.cruds"
   ],
@@ -300,6 +363,10 @@ Host: api.haste.health
     "sso-openid-connect",
     "client-confidential-symmetric",
     "launch-standalone",
+    "launch-ehr",
+    "context-ehr-patient",
+    "context-ehr-encounter",
+    "permission-patient",
     "permission-user",
     "permission-v2"
   ],
@@ -320,17 +387,21 @@ Host: api.haste.health
 
 ### Supported Capabilities
 
-Haste Health currently advertises exactly these five SMART capabilities — no others are included in `capabilities`, even ones a SMART server commonly supports:
+Haste Health advertises exactly these SMART capabilities:
 
 | Capability | Description | Supported |
 |------------|-------------|-----------|
 | `sso-openid-connect` | OpenID Connect on top of OAuth 2.0 | ✅ Yes |
 | `client-confidential-symmetric` | Confidential clients with a shared secret | ✅ Yes |
 | `launch-standalone` | Standalone launch | ✅ Yes |
-| `permission-user` | `user/*` scopes | ✅ Yes |
+| `launch-ehr` | EHR launch, started with `ClientApplication/{id}/$launch` | ✅ Yes |
+| `context-ehr-patient` | The patient of an EHR launch | ✅ Yes |
+| `context-ehr-encounter` | The encounter of an EHR launch | ✅ Yes |
+| `permission-patient` | `patient/` scopes (read and search only) | ✅ Yes |
+| `permission-user` | `user/` scopes | ✅ Yes |
 | `permission-v2` | SMART v2 scope syntax | ✅ Yes |
 
-Not currently advertised or supported: `launch-ehr` (see the caution box above), `client-public`, `context-ehr-*`, `context-standalone-*`, `permission-patient`, and `permission-offline`. If your app depends on any of these, confirm it against the live discovery document for your server rather than assuming.
+Not currently advertised or supported: `client-public`, `context-standalone-*` (there is no patient picker), and `permission-offline`. If your app depends on any of these, confirm it against the live discovery document for your server rather than assuming.
 
 ## Common Use Cases
 

@@ -154,9 +154,9 @@ Launch scopes are used in SMART App Launch workflows to establish context for EH
 
 | Scope | Description |
 |-------|-------------|
-| `launch` | Required for SMART launch from an EHR. Indicates the app is being launched from within an EHR workflow. |
-| `launch/patient` | Requests that a patient be selected and made available in the launch context. |
-| `launch/encounter` | Requests that an encounter be selected and made available in the launch context. |
+| `launch` | Required for SMART launch from an EHR. With the `launch` value the app was opened with, the token response carries the launch's patient and encounter. See [EHR launch](/docs/auth/authentication/smart_on_fhir#1-ehr-launch-contextual-launch). |
+| `launch/patient` | Requests a patient in context. In an EHR launch, the launch's patient; in a standalone launch, only the signed-in user's own patient, as there is no patient picker. |
+| `launch/encounter` | Requests an encounter in context. Granted only for an EHR launch started with an encounter. |
 
 ### Special SMART Scopes
 
