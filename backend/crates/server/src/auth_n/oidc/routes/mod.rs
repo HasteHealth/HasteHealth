@@ -35,6 +35,8 @@ static AUTHORIZE_PARAMETERS: LazyLock<Arc<ParameterConfig>> = LazyLock::new(|| {
             "redirect_uri".to_string(),
             // SMART App Launch: the FHIR server the app will call.
             "aud".to_string(),
+            // SMART EHR launch: the opaque launch value the app was opened with.
+            "launch".to_string(),
         ],
     })
 });

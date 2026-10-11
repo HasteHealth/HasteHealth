@@ -46,6 +46,11 @@ pub struct ScopeForm {
     pub code_challenge_method: String,
     pub scope: haste_jwt::scopes::Scopes,
     pub redirect_uri: String,
+    /// SMART EHR launch: the launch value, carried back to authorize.
+    pub launch: Option<String>,
+    /// SMART App Launch: the FHIR server the app will call, carried back to
+    /// authorize so it is checked there.
+    pub aud: Option<String>,
     pub accept: Option<String>,
 }
 
@@ -146,24 +151,33 @@ pub async fn scope_post<
             )
         })?;
 
+        // Back to authorize with the same request, encoded: the scope has
+        // spaces, and state, redirect_uri and launch are the client's own.
+        let mut query = url::form_urlencoded::Serializer::new(String::new());
+        query
+            .append_pair("client_id", client_id.as_str())
+            .append_pair("response_type", scope_data.response_type.as_str())
+            .append_pair("state", scope_data.state.as_str())
+            .append_pair("code_challenge", scope_data.code_challenge.as_str())
+            .append_pair(
+                "code_challenge_method",
+                scope_data.code_challenge_method.as_str(),
+            )
+            .append_pair("scope", String::from(scope_data.scope).as_str())
+            .append_pair("redirect_uri", scope_data.redirect_uri.as_str());
+        if let Some(launch) = scope_data.launch.as_deref() {
+            query.append_pair("launch", launch);
+        }
+        if let Some(aud) = scope_data.aud.as_deref() {
+            query.append_pair("aud", aud);
+        }
+
         let authorization_route = oidc_route_string(&tenant, &project, "auth/authorize")
             .to_str()
             .expect("Could not create authorize route.")
             .to_string()
-            + "?client_id="
-            + client_id.as_str()
-            + "&response_type="
-            + scope_data.response_type.as_str()
-            + "&state="
-            + scope_data.state.as_str()
-            + "&code_challenge="
-            + scope_data.code_challenge.as_str()
-            + "&code_challenge_method="
-            + scope_data.code_challenge_method.as_str()
-            + "&scope="
-            + String::from(scope_data.scope).as_str()
-            + "&redirect_uri="
-            + scope_data.redirect_uri.as_str();
+            + "?"
+            + query.finish().as_str();
         let redirect = axum::response::Redirect::to(&authorization_route);
         Ok(redirect.into_response())
     } else {
