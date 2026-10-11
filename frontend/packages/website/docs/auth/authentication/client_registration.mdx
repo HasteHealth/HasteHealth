@@ -211,6 +211,34 @@ A mobile app with patient context:
 
 </TabItem>
 
+<TabItem value="smart-ehr-launch" label="SMART EHR Launch App">
+
+An app started from Haste Health with an [EHR launch](/docs/auth/authentication/smart_on_fhir#1-ehr-launch-contextual-launch):
+
+```json
+{
+  "resourceType": "ClientApplication",
+  "id": "smart-ehr-app",
+  "name": "SMART EHR Launch App",
+  "grantType": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "responseTypes": "code",
+  "launchUri": "https://app.example.com/launch",
+  "redirectUri": [
+    "https://app.example.com/callback"
+  ],
+  "scope": "openid fhirUser launch launch/encounter patient/*.rs offline_access"
+}
+```
+**Use Case**: A SMART app opened for a patient a clinician has in view
+**Grant Flow**: `$launch` → app opened at `launchUri` → Authorization Code with PKCE and `launch` → Tokens with patient and encounter
+
+`launchUri` is the page the app is opened at; `redirectUri` is where authorization returns. The scope must include `launch`.
+
+</TabItem>
+
 <TabItem value="backend-service" label="Backend Service">
 A headless server-to-server integration:
 
