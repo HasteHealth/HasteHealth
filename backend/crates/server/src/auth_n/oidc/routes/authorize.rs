@@ -26,19 +26,25 @@ use axum::{
 use axum_extra::{extract::Cached, routing::TypedPath};
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::{ProjectId, SupportedFHIRVersions, TenantId};
+use haste_jwt::{
+    ProjectId, SupportedFHIRVersions, TenantId,
+    scopes::{LaunchSystemScope, Scope, SmartScope},
+};
 use haste_repository::{
     Repository,
     admin::ProjectModelAdmin,
     types::{
         authorization_code::{
-            AuthorizationCodeKind, CreateAuthorizationCode, PKCECodeChallengeMethod,
+            AuthorizationCodeKind, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
+            PKCECodeChallengeMethod,
         },
         membership::{Membership, MembershipSearchClaims},
         scope::{ClientId, CreateScope, ScopeKey, UserId},
         user::{User, UserRole},
     },
 };
+use serde_json::json;
+use sqlx::types::Json;
 use std::{sync::Arc, time::Duration};
 use tower_sessions::Session;
 use tracing::warn;
@@ -62,6 +68,67 @@ fn is_project_fhir_base(aud: &str, fhir_root: &Url) -> bool {
         || SupportedFHIRVersions::ALL
             .iter()
             .any(|version| aud == format!("{root}/{version}"))
+}
+
+/// The context of the SMART EHR launch `launch` names: the patient (and
+/// encounter) `$launch` saved with it.
+///
+/// The launch must be one the signed-in user started for this client, in this
+/// project, and must not have expired. It is not used up here: an app may
+/// retry, and consent sends the browser back through authorize. Anything else
+/// is an `invalid_request`, reported at the client's redirect URI.
+async fn resolve_launch<Repo: Repository>(
+    repo: &Repo,
+    tenant: &TenantId,
+    project: &ProjectId,
+    client_id: &str,
+    user_id: &str,
+    launch: &str,
+    redirect_uri: &str,
+) -> Result<serde_json::Value, OIDCError> {
+    let invalid = |description: &str| {
+        OIDCError::new(
+            OIDCErrorCode::InvalidRequest,
+            Some(description.to_string()),
+            Some(redirect_uri.to_string()),
+        )
+    };
+
+    let launches = ProjectModelAdmin::<CreateAuthorizationCode, _, _, _, _>::search(
+        repo,
+        tenant,
+        project,
+        &AuthorizationCodeSearchClaims {
+            client_id: Some(client_id.to_string()),
+            code: Some(launch.to_string()),
+            kind: Some(AuthorizationCodeKind::SmartLaunch),
+            user_id: Some(user_id.to_string()),
+            user_agent: None,
+            is_expired: None,
+        },
+    )
+    .await
+    .map_err(|_| {
+        OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Failed to look up the launch.".to_string()),
+            Some(redirect_uri.to_string()),
+        )
+    })?;
+
+    // One message for every way a launch can fail to match, so the response
+    // does not tell a caller which launch values exist.
+    let Some(found) = launches.into_iter().next() else {
+        return Err(invalid(
+            "Unknown launch: it was not started by this user for this app.",
+        ));
+    };
+
+    if found.is_expired.unwrap_or(true) {
+        return Err(invalid("The launch has expired. Start the app again."));
+    }
+
+    Ok(found.meta.map(|meta| meta.0).unwrap_or_default())
 }
 
 pub fn redirect_authorize_uri(uri: &OriginalUri, replace_path: &str) -> String {
@@ -287,6 +354,31 @@ pub async fn authorize<
         )
     })?;
 
+    // SMART EHR launch. Checked before consent, so nobody is asked to approve
+    // an app for a launch that cannot be used. Without the `launch` scope a
+    // launch value is ignored; with the scope but no value there is simply no
+    // context, and the scope is not granted when the token is issued.
+    let launch_context = match oidc_params.parameters.get("launch") {
+        Some(launch)
+            if scopes
+                .contains_scope(&Scope::SMART(SmartScope::LaunchSystem(LaunchSystemScope))) =>
+        {
+            Some(
+                resolve_launch(
+                    &*app_state.repo,
+                    &tenant,
+                    &project,
+                    &client_id,
+                    &completed_auth_state.user.id,
+                    launch,
+                    redirect_uri,
+                )
+                .await?,
+            )
+        }
+        _ => None,
+    };
+
     let existing_scopes = ProjectModelAdmin::<CreateScope, _, _, _, _>::read(
         &*app_state.repo,
         &tenant,
@@ -334,6 +426,8 @@ pub async fn authorize<
                 code_challenge: code_challenge.to_string(),
                 code_challenge_method: String::from(code_challenge_method),
                 redirect_uri: redirect_uri.to_string(),
+                launch: oidc_params.parameters.get("launch").cloned(),
+                aud: oidc_params.parameters.get("aud").cloned(),
                 accept: None,
             },
             Some(&branding),
@@ -354,7 +448,8 @@ pub async fn authorize<
             pkce_code_challenge: Some(code_challenge.to_string()),
             pkce_code_challenge_method: Some(code_challenge_method),
             redirect_uri: Some(redirect_uri.to_string()),
-            meta: None,
+            // The token endpoint reads the launch's patient and encounter here.
+            meta: launch_context.map(|context| Json(json!({ "launch": context }))),
         },
     )
     .await

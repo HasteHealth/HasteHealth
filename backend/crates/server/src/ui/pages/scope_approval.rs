@@ -69,6 +69,12 @@ pub fn scope_approval_html(
                             input readonly="" class="hidden" type="text" name="code_challenge_method" value=(authorization_info.code_challenge_method) {}
                             input readonly="" class="hidden" type="text" name="scope" value=(String::from(authorization_info.scope.clone())) {}
                             input readonly="" class="hidden" type="text" name="redirect_uri" value=(authorization_info.redirect_uri) {}
+                            @if let Some(launch) = &authorization_info.launch {
+                                input readonly="" class="hidden" type="text" name="launch" value=(launch) {}
+                            }
+                            @if let Some(aud) = &authorization_info.aud {
+                                input readonly="" class="hidden" type="text" name="aud" value=(aud) {}
+                            }
                             input readonly="" class="hidden" type="checkbox" name="accept" checked {}
                             button type="submit" class="cursor-pointer w-full text-white bg-brand-600 hover:bg-brand-500 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-brand-500 dark:hover:bg-brand-500 dark:focus:ring-brand-800" {
                                 "Allow"
@@ -84,6 +90,12 @@ pub fn scope_approval_html(
                             input readonly="" class="hidden" type="text" name="code_challenge_method" value=(authorization_info.code_challenge_method) {}
                             input readonly="" class="hidden" type="text" name="scope" value=(String::from(authorization_info.scope.clone())) {}
                             input readonly="" class="hidden" type="text" name="redirect_uri" value=(authorization_info.redirect_uri) {}
+                            @if let Some(launch) = &authorization_info.launch {
+                                input readonly="" class="hidden" type="text" name="launch" value=(launch) {}
+                            }
+                            @if let Some(aud) = &authorization_info.aud {
+                                input readonly="" class="hidden" type="text" name="aud" value=(aud) {}
+                            }
                             input readonly="" class="hidden" type="checkbox" name="accept" {}
                             button type="submit" class="cursor-pointer w-full text-slate-900 bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800" {
                                 "Deny"
