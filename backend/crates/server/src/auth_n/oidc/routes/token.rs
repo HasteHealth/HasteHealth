@@ -35,9 +35,9 @@ use haste_jwt::{
     AuthorId, AuthorKind, ProjectId, TenantId, UserRole, VersionId,
     claims::{SubscriptionTier, UserTokenClaims},
     scopes::{
-        LaunchType, LaunchTypeScope, OIDCScope, SMARTResourceScope, Scope, Scopes,
-        SmartResourceScopePermission, SmartResourceScopePermissions, SmartResourceScopeUser,
-        SmartScope,
+        LaunchSystemScope, LaunchType, LaunchTypeScope, OIDCScope, SMARTResourceScope, Scope,
+        Scopes, SmartResourceScopePermission, SmartResourceScopePermissions,
+        SmartResourceScopeUser, SmartScope,
     },
 };
 use haste_repository::{
@@ -46,7 +46,8 @@ use haste_repository::{
     types::{
         SupportedFHIRVersions,
         authorization_code::{
-            AuthorizationCodeKind, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
+            AuthorizationCode, AuthorizationCodeKind, AuthorizationCodeSearchClaims,
+            CreateAuthorizationCode,
         },
         project::CreateProject,
         scope::{ClientId, CreateScope, ScopeSearchClaims, UserId},
@@ -86,6 +87,14 @@ pub struct TokenResponse {
     /// SMART launch context: the Patient the `patient/` scopes are bound to.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     patient: Option<String>,
+    /// SMART launch context: the Encounter an EHR launch was started in.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    encounter: Option<String>,
+    /// SMART launch context: whether the app should show which patient it is
+    /// showing. Haste Health opens a launched app on its own, with no patient
+    /// banner around it, so this is true for every EHR launch.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    need_patient_banner: Option<bool>,
 }
 
 struct TokenResponseArguments {
@@ -100,6 +109,25 @@ struct TokenResponseArguments {
     access_policy_version_ids: Vec<VersionId>,
     fhir_user: Option<FHIRUrl>,
     patient: Option<String>,
+    encounter: Option<String>,
+    /// The token comes from a SMART EHR launch.
+    ehr_launch: bool,
+}
+
+/// The context `$launch` saved and authorize copied onto the authorization
+/// code, under `meta.launch`.
+#[derive(Deserialize, Debug, Clone)]
+struct LaunchContext {
+    patient: String,
+    encounter: Option<String>,
+}
+
+impl LaunchContext {
+    /// The launch context `code` carries, if it came from an EHR launch.
+    fn of(code: &AuthorizationCode) -> Option<LaunchContext> {
+        let launch = code.meta.as_ref()?.0.get("launch")?.clone();
+        serde_json::from_value(launch).ok()
+    }
 }
 
 /// Whether `scope` needs a patient in context.
@@ -115,10 +143,11 @@ fn is_patient_bound_scope(scope: &Scope) -> bool {
     )
 }
 
-/// What the membership link binds a token to.
+/// What the membership link, and an EHR launch, bind a token to.
 struct SmartContext {
     fhir_user: Option<FHIRUrl>,
     patient: Option<String>,
+    encounter: Option<String>,
     scopes: Scopes,
 }
 
@@ -140,9 +169,19 @@ fn smart_read_only_scopes(scope: SMARTResourceScope) -> Option<SMARTResourceScop
 
 /// How a requested `scope` is issued. A patient-bound scope needs a patient
 /// in context and is then read-only; without one it is dropped rather than
-/// issued unbound. Anything else is issued as requested.
-fn issued_scope(scope: Scope, has_patient: bool) -> Option<Scope> {
+/// issued unbound. `launch` needs an EHR launch and `launch/encounter` an
+/// encounter in context. Anything else is issued as requested.
+fn issued_scope(
+    scope: Scope,
+    has_patient: bool,
+    ehr_launch: bool,
+    has_encounter: bool,
+) -> Option<Scope> {
     match scope {
+        Scope::SMART(SmartScope::LaunchSystem(_)) => ehr_launch.then_some(scope),
+        Scope::SMART(SmartScope::LaunchType(LaunchTypeScope {
+            launch_type: LaunchType::Encounter,
+        })) => has_encounter.then_some(scope),
         // For patient-level resource scopes, only issue them if a patient is in context, and make them read-only.
         Scope::SMART(SmartScope::Resource(resource))
             if resource.user == SmartResourceScopeUser::Patient =>
@@ -160,14 +199,40 @@ fn issued_scope(scope: Scope, has_patient: bool) -> Option<Scope> {
 }
 
 /// Binds `scopes` to the resource the membership links to: `fhirUser` names
-/// it, and a linked Patient is the patient in context. The response's
-/// `scope` tells the client what was issued.
-fn bind_smart_context(scopes: Scopes, link: Option<String>) -> SmartContext {
-    let patient = link
+/// it, and a linked Patient is the patient in context. An EHR launch's
+/// patient comes first: it is the patient the user launched the app for. The
+/// response's `scope` tells the client what was issued.
+///
+/// # Errors
+///
+/// A user who is a patient may only launch an app for themselves, so a
+/// launch for another patient is refused.
+fn bind_smart_context(
+    scopes: Scopes,
+    link: Option<String>,
+    launch: Option<&LaunchContext>,
+) -> Result<SmartContext, OIDCError> {
+    let linked_patient = link
         .as_deref()
         .and_then(|link| link.strip_prefix("Patient/"))
         .filter(|id| !id.is_empty())
         .map(str::to_string);
+
+    let patient = match (launch, linked_patient) {
+        (Some(launch), Some(linked)) if linked != launch.patient => {
+            return Err(OIDCError::new(
+                OIDCErrorCode::InvalidGrant,
+                Some(
+                    "The app was launched for a patient other than the signed-in patient."
+                        .to_string(),
+                ),
+                None,
+            ));
+        }
+        (Some(launch), _) => Some(launch.patient.clone()),
+        (None, linked) => linked,
+    };
+    let encounter = launch.and_then(|launch| launch.encounter.clone());
 
     let fhir_user = if scopes.contains_scope(&Scope::SMART(SmartScope::FHIRUser)) {
         link.map(|reference| FHIRUrl {
@@ -182,15 +247,23 @@ fn bind_smart_context(scopes: Scopes, link: Option<String>) -> SmartContext {
         scopes
             .0
             .into_iter()
-            .filter_map(|scope| issued_scope(scope, patient.is_some()))
+            .filter_map(|scope| {
+                issued_scope(
+                    scope,
+                    patient.is_some(),
+                    launch.is_some(),
+                    encounter.is_some(),
+                )
+            })
             .collect(),
     );
 
-    SmartContext {
+    Ok(SmartContext {
         fhir_user,
         patient,
+        encounter,
         scopes,
-    }
+    })
 }
 
 async fn create_token_response<Repo: Repository>(
@@ -296,6 +369,11 @@ async fn create_token_response<Repo: Repository>(
         )
     })?;
 
+    let launch_granted = args.ehr_launch
+        && args
+            .scopes
+            .contains_scope(&Scope::SMART(SmartScope::LaunchSystem(LaunchSystemScope)));
+
     let mut response = TokenResponse {
         access_token: token.clone(),
         id_token: None,
@@ -303,10 +381,14 @@ async fn create_token_response<Repo: Repository>(
         refresh_token: None,
         token_type: TokenType::Bearer,
         scope: String::from(args.scopes.clone()),
+        // An EHR launch returns its context with the `launch` scope; otherwise
+        // the patient is only returned for the scopes it is bound to.
         patient: args
             .patient
             .clone()
-            .filter(|_| args.scopes.0.iter().any(is_patient_bound_scope)),
+            .filter(|_| launch_granted || args.scopes.0.iter().any(is_patient_bound_scope)),
+        encounter: args.encounter.clone().filter(|_| launch_granted),
+        need_patient_banner: launch_granted.then_some(true),
     };
 
     if args.scopes.contains_scope(&Scope::OIDC(OIDCScope::OpenId)) {
@@ -743,12 +825,14 @@ pub async fn client_credentials_to_token_response<
             user_kind: AuthorKind::ClientApplication,
             client_id: client_app.id.clone().unwrap_or_default(),
             // A client has no patient in context.
-            scopes: bind_smart_context(requested_scopes, None).scopes,
+            scopes: bind_smart_context(requested_scopes, None, None)?.scopes,
             tenant: tenant.clone(),
             project: project.clone(),
             membership: None,
             fhir_user: None,
             patient: None,
+            encounter: None,
+            ehr_launch: false,
             access_policy_version_ids: find_users_access_policy_version_ids(
                 state.repo.as_ref(),
                 state.search.as_ref(),
@@ -884,11 +968,14 @@ pub async fn token<
 
             let link =
                 membership_link(&state, &tenant, &project, code.membership.as_deref()).await?;
+            // A refresh token does not carry the launch context yet, so a
+            // launched token's context is not renewed (and fails safe).
             let SmartContext {
                 fhir_user,
                 patient,
+                encounter,
                 scopes: approved_scopes,
-            } = bind_smart_context(approved_scopes, link);
+            } = bind_smart_context(approved_scopes, link, None)?;
 
             let response = create_token_response(
                 state.config.as_ref(),
@@ -926,6 +1013,8 @@ pub async fn token<
                     membership: code.membership.clone(),
                     fhir_user,
                     patient,
+                    encounter,
+                    ehr_launch: false,
                 },
             )
             .await?;
@@ -1043,11 +1132,15 @@ pub async fn token<
 
             let link =
                 membership_link(&state, &tenant, &project, code.membership.as_deref()).await?;
+            // An EHR launch's patient and encounter, saved on the code by authorize.
+            let launch = LaunchContext::of(&code);
+            let ehr_launch = launch.is_some();
             let SmartContext {
                 fhir_user,
                 patient,
+                encounter,
                 scopes: approved_scopes,
-            } = bind_smart_context(approved_scopes, link);
+            } = bind_smart_context(approved_scopes, link, launch.as_ref())?;
 
             let response = create_token_response(
                 state.config.as_ref(),
@@ -1085,6 +1178,8 @@ pub async fn token<
                     membership: code.membership.clone(),
                     fhir_user,
                     patient,
+                    encounter,
+                    ehr_launch,
                 },
             )
             .await?;
