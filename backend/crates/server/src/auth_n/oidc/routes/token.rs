@@ -110,20 +110,22 @@ struct TokenResponseArguments {
     fhir_user: Option<FHIRUrl>,
     patient: Option<String>,
     encounter: Option<String>,
-    /// The token comes from a SMART EHR launch.
-    ehr_launch: bool,
+    /// The SMART EHR launch the token comes from, kept on its refresh token.
+    launch: Option<LaunchContext>,
 }
 
 /// The context `$launch` saved and authorize copied onto the authorization
-/// code, under `meta.launch`.
-#[derive(Deserialize, Debug, Clone)]
+/// code, under `meta.launch`. A refresh token keeps it there too, so a
+/// refreshed token stays bound to the launch.
+#[derive(Serialize, Deserialize, Debug, Clone)]
 struct LaunchContext {
     patient: String,
     encounter: Option<String>,
 }
 
 impl LaunchContext {
-    /// The launch context `code` carries, if it came from an EHR launch.
+    /// The launch context an authorization code or refresh token carries, if
+    /// it came from an EHR launch.
     fn of(code: &AuthorizationCode) -> Option<LaunchContext> {
         let launch = code.meta.as_ref()?.0.get("launch")?.clone();
         serde_json::from_value(launch).ok()
@@ -369,7 +371,7 @@ async fn create_token_response<Repo: Repository>(
         )
     })?;
 
-    let launch_granted = args.ehr_launch
+    let launch_granted = args.launch.is_some()
         && args
             .scopes
             .contains_scope(&Scope::SMART(SmartScope::LaunchSystem(LaunchSystemScope)));
@@ -464,9 +466,17 @@ async fn create_token_response<Repo: Repository>(
                 pkce_code_challenge: None,
                 pkce_code_challenge_method: None,
                 redirect_uri: None,
-                meta: Some(sqlx::types::Json(json!({
-                    "user_agent": user_agent.as_ref().map(|ua| ua.to_string()),
-                }))),
+                meta: Some(sqlx::types::Json(match args.launch {
+                    // The launch goes with the refresh token, so the token it
+                    // is exchanged for keeps the same patient and encounter.
+                    Some(launch) => json!({
+                        "user_agent": user_agent.as_ref().map(|ua| ua.to_string()),
+                        "launch": launch,
+                    }),
+                    None => json!({
+                        "user_agent": user_agent.as_ref().map(|ua| ua.to_string()),
+                    }),
+                })),
             },
         )
         .await
@@ -832,7 +842,7 @@ pub async fn client_credentials_to_token_response<
             fhir_user: None,
             patient: None,
             encounter: None,
-            ehr_launch: false,
+            launch: None,
             access_policy_version_ids: find_users_access_policy_version_ids(
                 state.repo.as_ref(),
                 state.search.as_ref(),
@@ -968,14 +978,15 @@ pub async fn token<
 
             let link =
                 membership_link(&state, &tenant, &project, code.membership.as_deref()).await?;
-            // A refresh token does not carry the launch context yet, so a
-            // launched token's context is not renewed (and fails safe).
+            // The launch the refresh token was issued for, so the new token
+            // keeps its patient and encounter.
+            let launch = LaunchContext::of(&code);
             let SmartContext {
                 fhir_user,
                 patient,
                 encounter,
                 scopes: approved_scopes,
-            } = bind_smart_context(approved_scopes, link, None)?;
+            } = bind_smart_context(approved_scopes, link, launch.as_ref())?;
 
             let response = create_token_response(
                 state.config.as_ref(),
@@ -1014,7 +1025,7 @@ pub async fn token<
                     fhir_user,
                     patient,
                     encounter,
-                    ehr_launch: false,
+                    launch,
                 },
             )
             .await?;
@@ -1134,7 +1145,6 @@ pub async fn token<
                 membership_link(&state, &tenant, &project, code.membership.as_deref()).await?;
             // An EHR launch's patient and encounter, saved on the code by authorize.
             let launch = LaunchContext::of(&code);
-            let ehr_launch = launch.is_some();
             let SmartContext {
                 fhir_user,
                 patient,
@@ -1179,7 +1189,7 @@ pub async fn token<
                     fhir_user,
                     patient,
                     encounter,
-                    ehr_launch,
+                    launch,
                 },
             )
             .await?;
