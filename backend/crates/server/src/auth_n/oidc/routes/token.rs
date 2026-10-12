@@ -589,6 +589,40 @@ fn verify_client(
     Ok(())
 }
 
+async fn refresh_token_client_id<Repo: Repository>(
+    repo: &Repo,
+    tenant: &TenantId,
+    project: &ProjectId,
+    refresh_token: &str,
+) -> Result<String, OIDCError> {
+    let invalid = || {
+        OIDCError::new(
+            OIDCErrorCode::InvalidGrant,
+            Some("Invalid refresh token.".to_string()),
+            None,
+        )
+    };
+
+    ProjectModelAdmin::<CreateAuthorizationCode, _, _, _, _>::search(
+        repo,
+        tenant,
+        project,
+        &AuthorizationCodeSearchClaims {
+            client_id: None,
+            code: Some(refresh_token.to_string()),
+            kind: Some(AuthorizationCodeKind::RefreshToken),
+            user_id: None,
+            user_agent: None,
+            is_expired: None,
+        },
+    )
+    .await
+    .map_err(|_| invalid())?
+    .pop()
+    .and_then(|code| code.client_id)
+    .ok_or_else(invalid)
+}
+
 async fn search_version_ids<Search: SearchEngine>(
     search: &Search,
     tenant: &TenantId,
@@ -886,13 +920,6 @@ pub async fn token<
             Ok(Json(response).into_response())
         }
         schemas::token_body::OAuth2TokenBodyGrantType::RefreshToken => {
-            let Some(client_id) = &token_body.client_id else {
-                return Err(OIDCError::new(
-                    OIDCErrorCode::InvalidRequest,
-                    Some("client_id is required for refresh_token grant type.".to_string()),
-                    None,
-                ));
-            };
             let refresh_token = &token_body.refresh_token.as_ref().ok_or_else(|| {
                 OIDCError::new(
                     OIDCErrorCode::InvalidRequest,
@@ -900,6 +927,22 @@ pub async fn token<
                     None,
                 )
             })?;
+
+            // A public client need not send client_id when refreshing (RFC 6749
+            // section 6, and fhirclient does not by default): the refresh
+            // token names the client it was issued to. A confidential client
+            // still has to authenticate, which verify_client checks.
+            let client_id = match &token_body.client_id {
+                Some(client_id) => client_id.clone(),
+                None => {
+                    refresh_token_client_id(&*state.repo, &tenant, &project, refresh_token).await?
+                }
+            };
+            let token_body = schemas::token_body::OAuth2TokenBody {
+                client_id: Some(client_id.clone()),
+                ..token_body.clone()
+            };
+            let client_id = &client_id;
 
             let client_app =
                 find_client_app(&state, tenant.clone(), project.clone(), client_id.clone()).await?;

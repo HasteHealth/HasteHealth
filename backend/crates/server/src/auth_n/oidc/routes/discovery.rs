@@ -471,6 +471,7 @@ pub fn create_oidc_discovery_document(
         token_endpoint_auth_methods_supported: vec![
             "client_secret_basic".to_string(),
             "client_secret_post".to_string(),
+            "none".to_string(),
         ],
         id_token_signing_alg_values_supported: vec!["RS256".to_string()],
         subject_types_supported: vec!["public".to_string()],
@@ -552,18 +553,23 @@ pub fn create_smart_configuration(
         token_endpoint_auth_methods_supported: Some(vec![
             "client_secret_basic".to_string(),
             "client_secret_post".to_string(),
+            // Public clients, which use PKCE instead of a secret.
+            "none".to_string(),
         ]),
         grant_types_supported: vec![
             "authorization_code".to_string(),
             "client_credentials".to_string(),
+            "refresh_token".to_string(),
         ],
         capabilities: vec![
             "sso-openid-connect".to_string(),
+            "client-public".to_string(),
             "client-confidential-symmetric".to_string(),
             "launch-standalone".to_string(),
             "launch-ehr".to_string(),
             "context-ehr-patient".to_string(),
             "context-ehr-encounter".to_string(),
+            "permission-offline".to_string(),
             "permission-patient".to_string(),
             "permission-user".to_string(),
             "permission-v2".to_string(),
