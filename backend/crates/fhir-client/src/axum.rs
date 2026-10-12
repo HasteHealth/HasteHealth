@@ -51,6 +51,13 @@ fn add_headers(response: &FHIRResponse) -> HeaderMap {
         axum::http::header::CONTENT_TYPE,
         "application/fhir+json; charset=utf-8".parse().unwrap(),
     );
+    // Without this, browsers use Last-Modified to guess a freshness lifetime
+    // and serve reads from their cache for hours after the resource changes.
+    // no-store also keeps responses, which can hold patient data, off disk.
+    header.insert(
+        axum::http::header::CACHE_CONTROL,
+        "no-store".parse().unwrap(),
+    );
 
     match response {
         FHIRResponse::Create(resp) => {

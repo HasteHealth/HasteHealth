@@ -26,6 +26,7 @@ import { ElementInfo, getStructures } from "../../db/structures";
 import { Target } from "../../query/model";
 import { fhirResourceDocsUrl, getErrorMessage } from "../../utilities";
 import { HistoryPanel } from "./HistoryPanel";
+import { LaunchAppButton, canLaunchFrom } from "./LaunchAppButton";
 import { Badge, PanelHeader } from "./PanelHeader";
 import { resourceViews } from "./registry";
 import { GeneratedForm } from "./GeneratedForm";
@@ -372,6 +373,11 @@ export function ResourcePanel({ target }: Readonly<ResourcePanelProps>) {
         }
         actions={
           <>
+            {/* A SMART EHR launch is for the patient or encounter as stored,
+                so it is offered on the current version only. */}
+            {!versionId && canLaunchFrom(resourceType) && (
+              <LaunchAppButton resource={resource} />
+            )}
             <Button
               buttonSize="small"
               buttonType="secondary"
