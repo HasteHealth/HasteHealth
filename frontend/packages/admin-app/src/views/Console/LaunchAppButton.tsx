@@ -29,7 +29,7 @@ import { R4 } from "@haste-health/fhir-types/versions";
 import { HasteHealthSmartLaunch } from "@haste-health/generated-ops/lib/r4/ops";
 
 import { getClient } from "../../db/client";
-import { useRequest } from "../../hooks/useRequest";
+import { RequestState, useRequest } from "../../hooks/useRequest";
 
 /** The resource types a launch can be started from. */
 export function canLaunchFrom(resourceType: string): boolean {
@@ -55,6 +55,64 @@ function launchSubject(resource: Resource): LaunchSubject | string {
     return "This encounter's subject is not a Patient, so there is no patient to launch for.";
   }
   return { patient: subject, encounter: `Encounter/${resource.id}` };
+}
+
+/** The apps that can be launched, or why there are none to pick from. */
+function AppChoices({
+  apps,
+  selected,
+  onSelect,
+}: Readonly<{
+  apps: RequestState<ClientApplication[]>;
+  selected: string | undefined;
+  onSelect: (id: string | undefined) => void;
+}>) {
+  if (apps.loading) {
+    return (
+      <div className="flex justify-center py-6">
+        <Loading />
+      </div>
+    );
+  }
+  if (apps.outcome) {
+    return <OutcomePanel outcome={apps.outcome} />;
+  }
+  if (!apps.data?.length) {
+    return (
+      <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        No client application has a launch URL. Set <code>launchUri</code> on a
+        ClientApplication, and include <code>launch</code> in its scope, to
+        launch it from here.
+      </p>
+    );
+  }
+  return (
+    <ul className="max-h-72 divide-y divide-slate-200 overflow-auto rounded-md border border-slate-200">
+      {apps.data.map((app) => (
+        <li key={app.id}>
+          <button
+            type="button"
+            aria-pressed={selected === app.id}
+            className={classNames(
+              "flex w-full flex-col items-start px-3 py-2 text-left",
+              {
+                "bg-brand-50": selected === app.id,
+                "hover:bg-slate-50": selected !== app.id,
+              },
+            )}
+            onClick={() => onSelect(app.id)}
+          >
+            <span className="text-sm font-medium text-slate-900">
+              {app.name}
+            </span>
+            <span className="font-mono text-xs text-slate-500">
+              {app.launchUri}
+            </span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 function LaunchDialog({
@@ -140,45 +198,7 @@ function LaunchDialog({
         , signed in as you. The launch expires after five minutes.
       </p>
 
-      {apps.loading ? (
-        <div className="flex justify-center py-6">
-          <Loading />
-        </div>
-      ) : apps.outcome ? (
-        <OutcomePanel outcome={apps.outcome} />
-      ) : (apps.data?.length ?? 0) === 0 ? (
-        <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-          No client application has a launch URL. Set <code>launchUri</code> on
-          a ClientApplication, and include <code>launch</code> in its scope, to
-          launch it from here.
-        </p>
-      ) : (
-        <ul className="max-h-72 divide-y divide-slate-200 overflow-auto rounded-md border border-slate-200">
-          {apps.data?.map((app) => (
-            <li key={app.id}>
-              <button
-                type="button"
-                aria-pressed={selected === app.id}
-                className={classNames(
-                  "flex w-full flex-col items-start px-3 py-2 text-left",
-                  {
-                    "bg-brand-50": selected === app.id,
-                    "hover:bg-slate-50": selected !== app.id,
-                  },
-                )}
-                onClick={() => setSelected(app.id)}
-              >
-                <span className="text-sm font-medium text-slate-900">
-                  {app.name}
-                </span>
-                <span className="font-mono text-xs text-slate-500">
-                  {app.launchUri}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <AppChoices apps={apps} selected={selected} onSelect={setSelected} />
 
       {outcome && (
         <OutcomePanel
@@ -206,6 +226,19 @@ function LaunchDialog({
   );
 }
 
+/**
+ * The modal's content for `resource`. `Modal` calls this as a function rather
+ * than mounting it as a component, and building it outside the button keeps
+ * it from reading as a component defined inside another.
+ */
+function launchDialogContent(resource: Resource) {
+  return function renderLaunchDialog(
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  ) {
+    return <LaunchDialog resource={resource} close={() => setOpen(false)} />;
+  };
+}
+
 /** The header button that opens the launch dialog. */
 export function LaunchAppButton({
   resource,
@@ -213,9 +246,7 @@ export function LaunchAppButton({
   return (
     <Modal
       modalTitle="Launch a SMART app"
-      ModalContent={(setOpen) => (
-        <LaunchDialog resource={resource} close={() => setOpen(false)} />
-      )}
+      ModalContent={launchDialogContent(resource)}
     >
       {(setOpen) => (
         <Button
