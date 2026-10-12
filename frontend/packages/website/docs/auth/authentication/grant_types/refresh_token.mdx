@@ -234,7 +234,7 @@ refresh_token=REFRESH_TOKEN_HERE
 |-----------|----------|-------------|
 | `grant_type` | Yes | Must be `refresh_token` |
 | `refresh_token` | Yes | The refresh token received from the initial authorization |
-| `client_id` | Yes | Your application's client identifier |
+| `client_id` | Public clients: optional | Your application's client identifier. A public client may leave it out: the refresh token identifies the client it was issued to. A confidential client authenticates, either with `client_id` and `client_secret` or with Basic auth. |
 | `scope` | Optional | Requested scopes (must be subset of original scopes) |
 
 ### Step 4: Refresh Token Response

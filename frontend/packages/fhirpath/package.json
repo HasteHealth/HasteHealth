@@ -17,13 +17,13 @@
   },
   "dependencies": {
     "@haste-health/meta-value": "workspace:^",
-    "chevrotain": "^11.2.0"
+    "chevrotain": "^13.2.0"
   },
   "devDependencies": {
     "@babel/plugin-syntax-import-attributes": "^7.29.7",
     "@babel/preset-env": "^7.29.7",
     "@babel/preset-typescript": "^7.29.7",
-    "@chevrotain/types": "^11.2.0",
+    "@chevrotain/types": "^13.2.0",
     "@haste-health/artifacts": "workspace:^",
     "@haste-health/fhir-types": "workspace:^",
     "@haste-health/haste-health.fhir.r4.core": "workspace:^",

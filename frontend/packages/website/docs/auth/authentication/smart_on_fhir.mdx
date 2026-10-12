@@ -339,7 +339,8 @@ Host: api.haste.health
   "token_endpoint": "https://api.haste.health/w/{tenant}/{project}/api/v1/oidc/auth/token",
   "token_endpoint_auth_methods_supported": [
     "client_secret_basic",
-    "client_secret_post"
+    "client_secret_post",
+    "none"
   ],
   "scopes_supported": [
     "openid",
@@ -361,11 +362,13 @@ Host: api.haste.health
   ],
   "capabilities": [
     "sso-openid-connect",
+    "client-public",
     "client-confidential-symmetric",
     "launch-standalone",
     "launch-ehr",
     "context-ehr-patient",
     "context-ehr-encounter",
+    "permission-offline",
     "permission-patient",
     "permission-user",
     "permission-v2"
@@ -375,7 +378,8 @@ Host: api.haste.health
   ],
   "grant_types_supported": [
     "authorization_code",
-    "client_credentials"
+    "client_credentials",
+    "refresh_token"
   ]
 }
 ```
@@ -392,16 +396,18 @@ Haste Health advertises exactly these SMART capabilities:
 | Capability | Description | Supported |
 |------------|-------------|-----------|
 | `sso-openid-connect` | OpenID Connect on top of OAuth 2.0 | ✅ Yes |
+| `client-public` | Public clients (no secret), protected with PKCE | ✅ Yes |
 | `client-confidential-symmetric` | Confidential clients with a shared secret | ✅ Yes |
 | `launch-standalone` | Standalone launch | ✅ Yes |
 | `launch-ehr` | EHR launch, started with `ClientApplication/{id}/$launch` | ✅ Yes |
 | `context-ehr-patient` | The patient of an EHR launch | ✅ Yes |
 | `context-ehr-encounter` | The encounter of an EHR launch | ✅ Yes |
+| `permission-offline` | Refresh tokens, requested with `offline_access` | ✅ Yes |
 | `permission-patient` | `patient/` scopes (read and search only) | ✅ Yes |
 | `permission-user` | `user/` scopes | ✅ Yes |
 | `permission-v2` | SMART v2 scope syntax | ✅ Yes |
 
-Not currently advertised or supported: `client-public`, `context-standalone-*` (there is no patient picker), and `permission-offline`. If your app depends on any of these, confirm it against the live discovery document for your server rather than assuming.
+Not currently advertised or supported: `context-standalone-*` (there is no patient picker). If your app depends on any of these, confirm it against the live discovery document for your server rather than assuming.
 
 ## Common Use Cases
 
