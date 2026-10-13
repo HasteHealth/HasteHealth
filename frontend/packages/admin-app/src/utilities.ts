@@ -50,6 +50,15 @@ export function fhirResourceDocsUrl(resourceType: string): string {
   return `https://haste.health/docs/reference/fhir/model/resources/${resourceType}`;
 }
 
+/**
+ * FHIRPath over a history entry giving its author as `Type/id`. The author
+ * extension holds a canonical (`https://haste.health/fhir/Membership/<id>`);
+ * versions written before that hold a `Reference`.
+ */
+export const HISTORY_AUTHOR_SELECTOR =
+  "$this.resource.meta.extension.where(url='https://haste.health/author')" +
+  ".select(value.reference | value.ofType(canonical).select($this.replace('https://haste.health/fhir/', '')))";
+
 export function getErrorMessage(error: any): string {
   if ("response" in error) {
     const message = (error.response.body as OperationOutcome).issue

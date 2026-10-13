@@ -1,4 +1,7 @@
-use crate::{elastic_search::search::clauses::namespace_parameter, query::QueryBuildError};
+use crate::{
+    elastic_search::search::clauses::namespace_parameter,
+    query::{QueryBuildError, reference_value_parts},
+};
 use haste_fhir_client::url::Parameter;
 use haste_fhir_model::r4::generated::resources::SearchParameter;
 use serde_json::json;
@@ -14,7 +17,7 @@ pub fn reference(
         .value
         .iter()
         .map(|value| {
-            let pieces = value.split('/').collect::<Vec<&str>>();
+            let pieces = reference_value_parts(value);
             match pieces.len() {
                 1 => Ok(json!({
                     "nested": {

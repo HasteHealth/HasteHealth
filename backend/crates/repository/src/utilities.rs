@@ -5,7 +5,7 @@ use haste_fhir_model::r4::{
     generated::{
         resources::Resource,
         terminology::IssueType,
-        types::{Extension, ExtensionValueTypeChoice, FHIRId, Meta, Reference},
+        types::{Extension, ExtensionValueTypeChoice, FHIRId, Meta},
     },
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -199,13 +199,37 @@ static HASTE_AUTHOR_ING_EXTENSION_URL: &str = "https://haste.health/author";
 
 static HASTE_EXTENSIONS: &[&str] = &[HASTE_AUTHOR_ING_EXTENSION_URL];
 
+/// Base of Haste Health's canonical URLs. A canonical under it names a
+/// resource by type and id, as in `https://haste.health/fhir/Membership/<id>`.
+static HASTE_CANONICAL_BASE: &str = "https://haste.health/fhir/";
+
+/// The Haste Health canonical URL naming `resource_type/id`.
+#[must_use]
+pub fn haste_canonical(resource_type: &str, id: &str) -> String {
+    format!("{HASTE_CANONICAL_BASE}{resource_type}/{id}")
+}
+
+/// The `(resource type, id)` a Haste Health canonical URL names, ignoring any
+/// `|version`. `None` for a canonical outside Haste Health's namespace or not
+/// shaped `type/id`.
+#[must_use]
+pub fn parse_haste_canonical(canonical: &str) -> Option<(&str, &str)> {
+    let path = canonical.strip_prefix(HASTE_CANONICAL_BASE)?;
+    let path = path.split_once('|').map_or(path, |(path, _version)| path);
+    let (resource_type, id) = path.split_once('/')?;
+    (!resource_type.is_empty() && !id.is_empty() && !id.contains('/'))
+        .then_some((resource_type, id))
+}
+
+// The author is a canonical rather than a Reference: authors can be Haste Health
+// types (Membership, ClientApplication) that other FHIR systems reject as
+// reference targets.
 fn create_haste_extensions(author_type: &AuthorKind, author_id: &AuthorId) -> Vec<Extension> {
     vec![Extension {
         url: HASTE_AUTHOR_ING_EXTENSION_URL.to_string(),
-        value: Some(ExtensionValueTypeChoice::Reference(Box::new(Reference {
-            reference: Some(Box::new(format!("{author_type}/{author_id}").into())),
-            ..Default::default()
-        }))),
+        value: Some(ExtensionValueTypeChoice::Canonical(Box::new(
+            haste_canonical(author_type.as_ref(), author_id.as_ref()).into(),
+        ))),
         ..Default::default()
     }]
 }

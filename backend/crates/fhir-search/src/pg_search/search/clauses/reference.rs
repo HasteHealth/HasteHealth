@@ -4,9 +4,9 @@ use super::{
     ClauseTarget, SqlClause, SqlParam, bind, or_predicates, reference_exprs, require_values,
     target_params, wrap_predicate,
 };
-use crate::query::QueryBuildError;
+use crate::query::{QueryBuildError, reference_value_parts};
 
-/// Matches `id` or `Type/id`.
+/// Matches `id`, `Type/id` or a Haste Health canonical naming `Type/id`.
 pub fn reference_clause(
     parsed_parameter: &Parameter,
     target: &ClauseTarget,
@@ -17,7 +17,7 @@ pub fn reference_clause(
     let (predicate, params) = or_predicates(
         &parsed_parameter.value,
         target_params(target),
-        |value, params| match value.split('/').collect::<Vec<_>>()[..] {
+        |value, params| match reference_value_parts(value)[..] {
             [id] => {
                 let (params, i) = bind(params, [SqlParam::Text(id.to_string())]);
                 Ok((format!("{id_column} = ${i}"), params))

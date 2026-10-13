@@ -1,4 +1,4 @@
-name: Sonar-Scan-Build
+name: <Sonar Scan> Build
 
 on:
   pull_request:

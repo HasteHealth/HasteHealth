@@ -1,4 +1,4 @@
-name: anthropic-wif-test
+name: <Anthropic> WIF
 on:
   push:
     branches: ["main"]
