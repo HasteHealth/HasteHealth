@@ -14,6 +14,7 @@ use haste_fhir_model::r4::{
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_reflect::MetaValue;
+use haste_repository::utilities::parse_haste_canonical;
 use serde::{Deserialize, Serialize};
 
 use crate::ResolvedParameter;
@@ -998,9 +999,17 @@ fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, Inserta
                     InsertableIndexError::FailedDowncast(value.fhir_type().to_string())
                 })?;
             if let Some(canonical) = &fp_canonical.value {
+                // A Haste Health canonical names its target by type and id, so
+                // it also matches a `Type/id` search (the resource author).
+                let (resource_type, id) = parse_haste_canonical(canonical)
+                    .and_then(|(resource_type, id)| {
+                        let resource_type = ResourceType::try_from(resource_type).ok()?;
+                        Some((resource_type.as_ref().to_string(), id.to_string()))
+                    })
+                    .unzip();
                 return Ok(vec![ReferenceIndex {
-                    id: None,
-                    resource_type: None,
+                    id,
+                    resource_type,
                     uri: Some(canonical.clone()),
                 }]);
             }

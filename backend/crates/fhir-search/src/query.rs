@@ -4,6 +4,7 @@
 use haste_fhir_client::url::Parameter;
 use haste_fhir_model::r4::generated::terminology::{BoundCode, SearchParamType};
 use haste_fhir_operation_error::derive::OperationOutcomeError;
+use haste_repository::utilities::parse_haste_canonical;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum QueryBuildError {
@@ -80,6 +81,17 @@ pub fn parse_modifier(
         Some("exact") if is(SearchParamType::string()) => Ok(Modifier::Exact),
         Some("contains") if is(SearchParamType::string()) => Ok(Modifier::Contains),
         Some(modifier) => Err(QueryBuildError::UnsupportedModifier(modifier.to_string())),
+    }
+}
+
+/// A reference search value split into `[id]` or `[type, id]`. A Haste Health
+/// canonical (`https://haste.health/fhir/Membership/<id>`) searches as the
+/// `Type/id` it names, matching how it is indexed.
+#[must_use]
+pub fn reference_value_parts(value: &str) -> Vec<&str> {
+    match parse_haste_canonical(value) {
+        Some((resource_type, id)) => vec![resource_type, id],
+        None => value.split('/').collect(),
     }
 }
 
