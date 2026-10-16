@@ -3,11 +3,12 @@ use crate::{
     mcp::{
         error::{MCPError, MCPErrorDetail},
         operations::{
-            GET_RESOURCE_SCHEMA_TOOL_NAME, GET_SEARCH_PARAMETERS_TOOL_NAME, R4_BATCH_TOOL_NAME,
-            R4_CAPABILITIES_TOOL_NAME, R4_CREATE_TOOL_NAME, R4_DELETE_TOOL_NAME,
-            R4_HISTORY_INSTANCE_TOOL_NAME, R4_HISTORY_TYPE_TOOL_NAME, R4_PATCH_TOOL_NAME,
-            R4_READ_TOOL_NAME, R4_SEARCH_TOOL_NAME, R4_TRANSACTION_TOOL_NAME, R4_UPDATE_TOOL_NAME,
-            R4_VREAD_TOOL_NAME, schema_base_url, search_tool_parameters,
+            GET_RESOURCE_SCHEMA_TOOL_NAME, GET_SEARCH_PARAMETERS_TOOL_NAME, OPERATION_TOOL_PREFIX,
+            R4_BATCH_TOOL_NAME, R4_CAPABILITIES_TOOL_NAME, R4_CREATE_TOOL_NAME,
+            R4_DELETE_TOOL_NAME, R4_HISTORY_INSTANCE_TOOL_NAME, R4_HISTORY_TYPE_TOOL_NAME,
+            R4_PATCH_TOOL_NAME, R4_READ_TOOL_NAME, R4_SEARCH_TOOL_NAME, R4_TRANSACTION_TOOL_NAME,
+            R4_UPDATE_TOOL_NAME, R4_VREAD_TOOL_NAME, discover_operations, invoke_operation,
+            schema_base_url, search_tool_parameters,
         },
         request::CallToolRequest,
         schemas::types::{CallToolResult, ContentBlock, TextContent},
@@ -539,6 +540,34 @@ pub async fn tools_call<
                 )
             })?;
 
+            success_result(&json_value)
+        }
+        // Anything else is either a FHIR operation exposed as a tool -- built-in
+        // or user-created -- or genuinely unknown.
+        name if name.starts_with(OPERATION_TOOL_PREFIX) => {
+            let operations = discover_operations(ctx.clone()).await?;
+
+            let Some(operation) = operations.iter().find(|o| o.tool_name == name) else {
+                return Err(MCPError {
+                    id: request.id.clone(),
+                    jsonrpc: "2.0".to_string(),
+                    error: MCPErrorDetail {
+                        code: 404,
+                        message: format!("Unknown operation tool: '{name}'"),
+                        data: None,
+                    },
+                });
+            };
+
+            let result = invoke_operation(
+                ctx.clone(),
+                operation,
+                request.params.arguments.clone(),
+                &request.id,
+            )
+            .await?;
+
+            let json_value = resource_to_json(&result)?;
             success_result(&json_value)
         }
         _ => Err(MCPError {
