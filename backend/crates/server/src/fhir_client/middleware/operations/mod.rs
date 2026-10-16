@@ -2,7 +2,7 @@ use crate::fhir_client::{
     ServerCTX,
     middleware::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
+        ServerMiddlewareState, operation_definitions,
     },
 };
 use haste_fhir_client::{
@@ -17,7 +17,7 @@ use haste_fhir_model::r4::generated::{
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_ops::OperationInvocation;
+use haste_fhir_ops::{OperationInvocation, defines};
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_operation_executor::{
@@ -87,36 +87,42 @@ impl<
         Self(Arc::new(executors))
     }
 
+    /// The built-in operation whose definition defines `request`: its code,
+    /// at that level, on that resource type.
     pub fn find_operation(
         &self,
-        request: &FHIRRequest,
+        request: &InvocationRequest,
     ) -> Option<
         &dyn OperationInvocation<
             ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
         >,
     > {
-        let code = get_request_operation_code(request)?;
-        for executor in self.0.iter() {
-            if executor.code() == code {
-                return Some(executor.as_ref());
-            }
-        }
-        None
+        self.0
+            .iter()
+            .find(|operation| defines(operation.operation_definition(), request))
+            .map(|operation| operation.as_ref())
     }
 }
 
-fn get_request_operation_code(request: &FHIRRequest) -> Option<&str> {
+/// What `request` invokes: the code, the OperationDefinition search parameter
+/// for its level, and where, for an error message.
+fn invocation(request: &InvocationRequest) -> (&str, &'static str, String) {
     match request {
-        FHIRRequest::Invocation(InvocationRequest::Instance(instance_request)) => {
-            Some(instance_request.operation.name())
-        }
-        FHIRRequest::Invocation(InvocationRequest::Type(type_request)) => {
-            Some(type_request.operation.name())
-        }
-        FHIRRequest::Invocation(InvocationRequest::System(system_request)) => {
-            Some(system_request.operation.name())
-        }
-        _ => None,
+        InvocationRequest::Instance(request) => (
+            request.operation.name(),
+            "instance",
+            format!("on {} instances", request.resource_type.as_ref()),
+        ),
+        InvocationRequest::Type(request) => (
+            request.operation.name(),
+            "type",
+            format!("on the {} type", request.resource_type.as_ref()),
+        ),
+        InvocationRequest::System(request) => (
+            request.operation.name(),
+            "system",
+            "at the system level".to_string(),
+        ),
     }
 }
 
@@ -143,6 +149,16 @@ impl<
             operations: ServerOperations::new(),
             deno_executor,
         }
+    }
+
+    /// The OperationDefinitions of the operations implemented here, which
+    /// take precedence over a project's own.
+    pub fn operation_definitions(&self) -> operation_definitions::Builtins {
+        self.operations
+            .0
+            .iter()
+            .map(|operation| operation.operation_definition())
+            .collect()
     }
 }
 
@@ -177,7 +193,7 @@ impl<
         Box::pin(async move {
             match &context.request {
                 FHIRRequest::Invocation(invoke_request) => {
-                    if let Some(op_executor) = executors.find_operation(&context.request) {
+                    if let Some(op_executor) = executors.find_operation(invoke_request) {
                         let output = op_executor
                             .execute(
                                 ServerOperationContext {
@@ -195,21 +211,42 @@ impl<
                         )));
 
                         Ok(context)
-                    } else if let Some(code) = get_request_operation_code(&context.request)
-                        && let bundle = context
+                    } else {
+                        // The project's definitions of this code at this
+                        // level. The search lists built-ins too, but none
+                        // defines this request or it would have run above.
+                        let (code, level, invoked) = invocation(invoke_request);
+                        let bundle = context
                             .ctx
                             .client
                             .search_type(
                                 context.ctx.clone(),
                                 ResourceType::OperationDefinition,
-                                vec![("code".to_string(), vec![code.to_string()])].into(),
+                                vec![
+                                    ("code".to_string(), vec![code.to_string()]),
+                                    (level.to_string(), vec!["true".to_string()]),
+                                ]
+                                .into(),
                             )
-                            .await?
-                        && let Some(entry) =
-                            bundle.entry.as_deref().unwrap_or_default().iter().next()
-                        && let Some(Resource::OperationDefinition(operation_definition)) =
-                            entry.resource.as_deref()
-                    {
+                            .await?;
+
+                        let Some(operation_definition) = bundle
+                            .entry
+                            .as_deref()
+                            .unwrap_or_default()
+                            .iter()
+                            .filter_map(|entry| match entry.resource.as_deref() {
+                                Some(Resource::OperationDefinition(definition)) => Some(definition),
+                                _ => None,
+                            })
+                            .find(|definition| defines(definition, invoke_request))
+                        else {
+                            return Err(OperationOutcomeError::error(
+                                IssueType::not_found(),
+                                format!("No operation '{code}' is defined {invoked}."),
+                            ));
+                        };
+
                         let output = deno_executor
                             .execute_operation(
                                 context.ctx.clone(),
@@ -226,12 +263,6 @@ impl<
                         )));
 
                         Ok(context)
-                    } else {
-                        // No operation found, return 404
-                        Err(OperationOutcomeError::error(
-                            IssueType::not_found(),
-                            "Operation not found".to_string(),
-                        ))
                     }
                 }
                 _ => Err(OperationOutcomeError::fatal(

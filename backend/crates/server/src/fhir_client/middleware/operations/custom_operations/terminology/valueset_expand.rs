@@ -24,7 +24,7 @@ pub fn valueset_expand_op<
     ValueSetExpand::Output,
 > {
     OperationExecutor::new(
-        ValueSetExpand::CODE.to_string(),
+        &ValueSetExpand::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

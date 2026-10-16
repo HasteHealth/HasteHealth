@@ -107,7 +107,7 @@ pub fn smart_launch_op<
     HasteHealthSmartLaunch::Output,
 > {
     OperationExecutor::new(
-        HasteHealthSmartLaunch::CODE.to_string(),
+        &HasteHealthSmartLaunch::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

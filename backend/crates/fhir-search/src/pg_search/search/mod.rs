@@ -10,16 +10,16 @@ use haste_jwt::{ProjectId, TenantId};
 use sqlx::{AssertSqlSafe, Pool, Postgres, Row, postgres::PgRow};
 
 use crate::{
-    AnyOf, ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions, SearchParameterResolve,
-    SearchReturn,
+    AnyOf, MAX_COUNT, ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions,
+    SearchParameterResolve, SearchReturn,
     pg_search::{
         keys,
         schema::{
-            ParamColumns, ResourceTypeSchema, SchemaRegistry, SharedTable, resource_table_name,
+            ParamColumns, ResourceTypeSchema, SchemaRegistry, resource_table_name,
             shared_table_for, shared_table_name,
         },
     },
-    query::{Modifier, QueryBuildError, parse_modifier},
+    query::{QueryBuildError, max_count, parse_u64, value::Values},
 };
 
 use clauses::{
@@ -29,9 +29,6 @@ use clauses::{
 
 mod chained;
 pub(crate) mod clauses;
-
-static ABSOLUTE_MAX: u64 = 10_000;
-static DEFAULT_MAX_COUNT: u64 = 50;
 
 /// Paging, total and sort settings from the result parameters.
 struct QueryState {
@@ -177,17 +174,6 @@ fn refine_estimate(estimate: i64, returned: usize, offset: u64, limit: u64) -> i
     }
 }
 
-fn max_count(options: Option<&SearchOptions>) -> Result<u64, OperationOutcomeError> {
-    match options.and_then(|o| o.count_limit) {
-        Some(limit) if limit > ABSOLUTE_MAX => Err(OperationOutcomeError::fatal(
-            IssueType::too_costly(),
-            "Count limit exceeds maximum allowed.".to_string(),
-        )),
-        Some(limit) => Ok(limit),
-        None => Ok(DEFAULT_MAX_COUNT),
-    }
-}
-
 async fn resolve_parameter<ParameterResolver: SearchParameterResolve>(
     scope: &SearchScope<'_, ParameterResolver>,
     resource_type: Option<&ResourceType>,
@@ -311,26 +297,17 @@ fn parameter_to_sql_clause(
     target: &ClauseTarget,
     param: &Parameter,
 ) -> Result<SqlClause, QueryBuildError> {
-    let search_param = parameter.search_parameter.as_ref();
-    let modifier = parse_modifier(param, &search_param.type_)?;
-
-    // `:missing` works the same for every stored type.
-    if let Modifier::Missing(missing) = modifier {
-        return Ok(clauses::missing_clause(target, missing));
-    }
-
-    // The same mapping that chose where values are written.
-    match shared_table_for(&search_param.type_) {
-        Some(SharedTable::String) => clauses::string_clause(param, target, modifier),
-        Some(SharedTable::Token) => clauses::token_clause(param, target, modifier == Modifier::Not),
-        Some(SharedTable::Date) => clauses::date_clause(param, target),
-        Some(SharedTable::Number) => clauses::number_clause(param, target),
-        Some(SharedTable::Quantity) => clauses::quantity_clause(param, target),
-        Some(SharedTable::Reference) => clauses::reference_clause(param, target),
-        Some(SharedTable::Uri) => clauses::uri_clause(param, target),
-        None => Err(QueryBuildError::UnsupportedParameter(
-            search_param.name.value.clone().unwrap_or_default(),
-        )),
+    // Parsed as every backend parses them; the type chooses the clause.
+    match &Values::parse(param, &parameter.search_parameter.type_)? {
+        // `:missing` works the same for every stored type.
+        Values::Missing(missing) => Ok(clauses::missing_clause(target, *missing)),
+        Values::String(values) => clauses::string_clause(values, target),
+        Values::Token(values) => clauses::token_clause(values, target),
+        Values::Uri(values) => clauses::uri_clause(values, target),
+        Values::Reference(values) => clauses::reference_clause(values, target),
+        Values::Date(values) => clauses::date_clause(values, target),
+        Values::Number(values) => clauses::number_clause(values, target),
+        Values::Quantity(values) => clauses::quantity_clause(values, target),
     }
 }
 
@@ -342,7 +319,7 @@ async fn apply_result_parameter<ParameterResolver: SearchParameterResolve>(
 ) -> Result<QueryState, OperationOutcomeError> {
     Ok(match param.name.as_str() {
         "_count" => QueryState {
-            max_count: parse_u64(param)?.min(ABSOLUTE_MAX),
+            max_count: parse_u64(param)?.min(MAX_COUNT),
             ..state
         },
         // Bound to what Postgres accepts as an OFFSET: a value past i64::MAX
@@ -372,21 +349,6 @@ async fn apply_result_parameter<ParameterResolver: SearchParameterResolve>(
         // page, so there is nothing for the query to do with it.
         "_summary" | "_elements" | "_include" => state,
         _ => return Err(QueryBuildError::UnsupportedParameter(param.name.clone()).into()),
-    })
-}
-
-fn parse_u64(param: &Parameter) -> Result<u64, OperationOutcomeError> {
-    let value = param.value.first().ok_or_else(|| {
-        OperationOutcomeError::error(
-            IssueType::required(),
-            format!("Missing parameter value: {}", param.name),
-        )
-    })?;
-    value.parse().map_err(|_| {
-        OperationOutcomeError::fatal(
-            IssueType::invalid(),
-            format!("Invalid {} value: '{value}'.", param.name),
-        )
     })
 }
 
@@ -667,7 +629,7 @@ fn search_entry(row: &PgRow) -> SearchEntry {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::pg_search::schema::generate_schemas;
+    use crate::pg_search::schema::{SharedTable, generate_schemas};
     use haste_repository::types::SupportedFHIRVersions;
 
     /// The highest `$n` in `sql`: how many binds Postgres expects.

@@ -315,9 +315,17 @@ static TENANT_AUTH_TYPES: &[ResourceType] = &[
     ResourceType::IdentityProvider,
 ];
 static PROJECT_AUTH_TYPES: &[ResourceType] = &[ResourceType::Membership];
+static OPERATION_DEFINITION_TYPES: &[ResourceType] = &[ResourceType::OperationDefinition];
 
-static SPECIAL_TYPES: LazyLock<Vec<ResourceType>> =
-    LazyLock::new(|| [TENANT_AUTH_TYPES, PROJECT_AUTH_TYPES, ARTIFACT_TYPES].concat());
+static SPECIAL_TYPES: LazyLock<Vec<ResourceType>> = LazyLock::new(|| {
+    [
+        TENANT_AUTH_TYPES,
+        PROJECT_AUTH_TYPES,
+        ARTIFACT_TYPES,
+        OPERATION_DEFINITION_TYPES,
+    ]
+    .concat()
+});
 
 pub struct ServerClientConfig<
     Repo: Repository + Send + Sync + 'static,
@@ -375,6 +383,10 @@ impl<
 > FHIRServerClient<Repo, Search, Terminology>
 {
     pub fn new(config: ServerClientConfig<Repo, Search, Terminology>) -> Self {
+        let operation_executor_middleware =
+            middleware::operations::Middleware::new(config.deno_pool.clone());
+        let builtin_operations = operation_executor_middleware.operation_definitions();
+
         let route_middleware = RouterMiddleware::new(Arc::new(vec![
             // Clinical resources.
             Route {
@@ -413,15 +425,30 @@ impl<
                     Box::new(middleware::storage::Middleware::new()),
                 ]),
             },
+            // OperationDefinitions, served beside the built-in operations' own.
+            Route {
+                filter: Box::new(|req: &FHIRRequest| match req {
+                    FHIRRequest::Invocation(_) => false,
+                    _ => request_to_resource_type(req)
+                        .is_some_and(|rt| OPERATION_DEFINITION_TYPES.contains(rt)),
+                }),
+                middleware: Middleware::new(vec![
+                    // A PATCH runs as an update, so the patched resource gets
+                    // the built-in collision checks.
+                    Box::new(middleware::patch_as_update::Middleware::new()),
+                    Box::new(middleware::operation_definitions::Middleware::new(
+                        builtin_operations,
+                    )),
+                    Box::new(middleware::storage::Middleware::new()),
+                ]),
+            },
             // Operation routes
             Route {
                 filter: Box::new(|req: &FHIRRequest| match req {
                     FHIRRequest::Invocation(_) => true,
                     _ => false,
                 }),
-                middleware: Middleware::new(vec![Box::new(
-                    middleware::operations::Middleware::new(config.deno_pool.clone()),
-                )]),
+                middleware: Middleware::new(vec![Box::new(operation_executor_middleware)]),
             },
             // Authentication routes.
             Route {

@@ -1,7 +1,11 @@
 use std::{pin::Pin, sync::Arc};
 
 use haste_fhir_client::request::InvocationRequest;
-use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
+use haste_fhir_model::r4::generated::{
+    resources::{OperationDefinition, Parameters, ParametersParameter, Resource},
+    terminology::{BoundCode, ResourceTypes},
+    types::FHIRBoolean,
+};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 
@@ -32,6 +36,64 @@ impl<
     }
 }
 
+fn allows(level: &FHIRBoolean) -> bool {
+    level.value.unwrap_or(false)
+}
+
+/// The resource types `definition` is defined on, or `None` for any.
+fn resource_types(definition: &OperationDefinition) -> Option<&[BoundCode<ResourceTypes>]> {
+    definition
+        .resource
+        .as_deref()
+        .filter(|types| !types.is_empty())
+}
+
+/// Whether `definition` defines the operation `request` invokes: its code, at
+/// a level it allows, on a resource type it's defined on.
+#[must_use]
+pub fn defines(definition: &OperationDefinition, request: &InvocationRequest) -> bool {
+    let (operation, level, resource_type) = match request {
+        InvocationRequest::System(request) => (&request.operation, &definition.system, None),
+        InvocationRequest::Type(request) => (
+            &request.operation,
+            &definition.type_,
+            Some(&request.resource_type),
+        ),
+        InvocationRequest::Instance(request) => (
+            &request.operation,
+            &definition.instance,
+            Some(&request.resource_type),
+        ),
+    };
+
+    definition.code.value.as_deref() == Some(operation.name())
+        && allows(level)
+        && resource_type.is_none_or(|resource_type| {
+            resource_types(definition).is_none_or(|types| {
+                types
+                    .iter()
+                    .any(|listed| listed.as_str() == Some(resource_type.as_ref()))
+            })
+        })
+}
+
+/// Whether `a` and `b` both define some invocation: the same code at a level
+/// both allow, on a resource type both are defined on below the system level.
+#[must_use]
+pub fn overlaps(a: &OperationDefinition, b: &OperationDefinition) -> bool {
+    let same_code = a.code.value.is_some() && a.code.value == b.code.value;
+    let shared_resource_type = match (resource_types(a), resource_types(b)) {
+        (Some(a), Some(b)) => a.iter().any(|resource_type| b.contains(resource_type)),
+        _ => true,
+    };
+
+    same_code
+        && ((allows(&a.system) && allows(&b.system))
+            || (shared_resource_type
+                && ((allows(&a.type_) && allows(&b.type_))
+                    || (allows(&a.instance) && allows(&b.instance)))))
+}
+
 pub trait OperationInvocation<CTX: Send>: Send + Sync {
     fn execute<'a>(
         &self,
@@ -40,7 +102,8 @@ pub trait OperationInvocation<CTX: Send>: Send + Sync {
         project: ProjectId,
         request: &'a InvocationRequest,
     ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + 'a>>;
-    fn code(&self) -> &str;
+    /// The `OperationDefinition` this operation implements.
+    fn operation_definition(&self) -> &'static OperationDefinition;
 }
 
 type Executor<CTX, I, O> = Box<
@@ -63,7 +126,7 @@ pub struct OperationExecutor<
     O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError> + Into<Resource> + Send,
 > {
     _ctx: std::marker::PhantomData<CTX>,
-    code: String,
+    operation_definition: &'static OperationDefinition,
     executor: Arc<Executor<CTX, I, O>>,
 }
 
@@ -75,12 +138,18 @@ impl<
     O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError> + Into<Resource> + Send,
 > OperationExecutor<CTX, I, O>
 {
+    /// Runs the operation `operation_definition` (a generated module's
+    /// `OPERATION_DEFINITION`) defines, when it's invoked where the definition
+    /// allows.
     #[must_use]
-    pub fn new(code: String, executor: Executor<CTX, I, O>) -> Self {
+    pub fn new(
+        operation_definition: &'static OperationDefinition,
+        executor: Executor<CTX, I, O>,
+    ) -> Self {
         Self {
             _ctx: std::marker::PhantomData,
             executor: Arc::new(executor),
-            code,
+            operation_definition,
         }
     }
 }
@@ -120,7 +189,7 @@ impl<
         })
     }
 
-    fn code(&self) -> &str {
-        &self.code
+    fn operation_definition(&self) -> &'static OperationDefinition {
+        self.operation_definition
     }
 }

@@ -1,88 +1,71 @@
-use haste_fhir_client::url::{Parameter, parse_prefix};
-use haste_fhir_model::r4::datetime::parse_datetime;
+use haste_fhir_client::url::Prefix;
 
 use super::{
-    ClauseTarget, SqlClause, SqlParam, bind, date_exprs, or_predicates, require_values,
-    target_params, wrap_predicate,
+    ClauseTarget, SqlClause, SqlParam, bind, date_exprs, or_predicates, target_params,
+    wrap_predicate,
 };
-use crate::{
-    indexing_conversion::date_time_range,
-    query::QueryBuildError,
-    search_ranges::{approximate_date, now_ms},
-};
+use crate::query::{QueryBuildError, value::DateValue};
 
 /// Compares each supplied date's range against the indexed period.
 pub fn date_clause(
-    parsed_parameter: &Parameter,
+    values: &[DateValue],
     target: &ClauseTarget,
 ) -> Result<SqlClause, QueryBuildError> {
-    require_values(parsed_parameter)?;
-
     let (start, end) = date_exprs(target)?;
-    let (predicate, params) = or_predicates(
-        &parsed_parameter.value,
-        target_params(target),
-        |value, params| date_predicate(value, &start, &end, params),
-    )?;
+    let (predicate, params) = or_predicates(values, target_params(target), |date, params| {
+        Ok(date_predicate(date, &start, &end, params))
+    })?;
 
     Ok(wrap_predicate(target, false, &predicate, params))
 }
 
 fn date_predicate(
-    value: &str,
+    date: &DateValue,
     start: &str,
     end: &str,
     params: Vec<SqlParam>,
-) -> Result<(String, Vec<SqlParam>), QueryBuildError> {
-    let (prefix, date_str) = parse_prefix(value);
-    let invalid = || QueryBuildError::InvalidDateFormat(date_str.to_string());
-    let date_time = parse_datetime(date_str).map_err(|_e| invalid())?;
-    let range = date_time_range(&date_time).map_err(|_e| invalid())?;
-    let (lower, upper) = (SqlParam::Int64(range.start), SqlParam::Int64(range.end));
+) -> (String, Vec<SqlParam>) {
+    let (lower, upper) = (
+        SqlParam::Int64(date.range.start),
+        SqlParam::Int64(date.range.end),
+    );
 
-    Ok(match prefix {
+    match date.prefix {
         // Starts after the search range ends.
-        Some("gt" | "sa") => {
+        Prefix::Gt | Prefix::Sa => {
             let (params, i) = bind(params, [upper]);
             (format!("{start} > ${i}"), params)
         }
         // Starts before the search range begins.
-        Some("lt") => {
+        Prefix::Lt => {
             let (params, i) = bind(params, [lower]);
             (format!("{start} < ${i}"), params)
         }
         // Ends before the search range begins.
-        Some("eb") => {
+        Prefix::Eb => {
             let (params, i) = bind(params, [lower]);
             (format!("{end} < ${i}"), params)
         }
-        Some("ge") => {
+        Prefix::Ge => {
             let (params, i) = bind(params, [lower]);
             (format!("{start} >= ${i}"), params)
         }
-        Some("le") => {
+        Prefix::Le => {
             let (params, i) = bind(params, [upper]);
             (format!("{end} <= ${i}"), params)
         }
         // Doesn't overlap.
-        Some("ne") => {
+        Prefix::Ne => {
             let (params, i) = bind(params, [lower, upper]);
             (
                 format!("NOT ({start} <= ${} AND {end} >= ${i})", i + 1),
                 params,
             )
         }
-        // Overlaps.
-        Some("eq") | None => {
+        // Overlaps; `ap` was widened when it was parsed.
+        Prefix::Eq | Prefix::Ap => {
             let (params, i) = bind(params, [lower, upper]);
             (format!("({start} <= ${} AND {end} >= ${i})", i + 1), params)
         }
-        // Overlaps the search range widened by 10% of its distance from now.
-        Some("ap") => {
-            let (low, high) = approximate_date(range.start, range.end, now_ms());
-            let (params, i) = bind(params, [SqlParam::Int64(low), SqlParam::Int64(high)]);
-            (format!("({start} <= ${} AND {end} >= ${i})", i + 1), params)
-        }
-        Some(p) => return Err(QueryBuildError::UnsupportedPrefix(p.to_string())),
-    })
+    }
 }

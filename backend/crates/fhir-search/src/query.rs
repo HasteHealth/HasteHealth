@@ -1,10 +1,12 @@
-//! Query-building pieces shared by the Elasticsearch and Postgres backends:
-//! the error type and which modifiers each parameter type accepts.
+//! Query-building pieces shared by the search backends: the error type, how a
+//! parameter's values and modifier are read ([`value`]), and the page size.
 
+pub mod value;
+
+use crate::{DEFAULT_COUNT, MAX_COUNT, SearchOptions};
 use haste_fhir_client::url::Parameter;
-use haste_fhir_model::r4::generated::terminology::{BoundCode, SearchParamType};
-use haste_fhir_operation_error::derive::OperationOutcomeError;
-use haste_repository::utilities::parse_haste_canonical;
+use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum QueryBuildError {
@@ -26,10 +28,10 @@ pub enum QueryBuildError {
     )]
     UnsupportedModifier(String),
     #[error(
-        code = "not-supported",
-        diagnostic = "Prefix '{arg0}' is not supported for this search type."
+        code = "invalid",
+        diagnostic = "Modifier '{arg0}' does not apply to this search parameter type."
     )]
-    UnsupportedPrefix(String),
+    InvalidModifier(String),
     #[error(
         code = "not-supported",
         diagnostic = "Parameter value '{arg0}' is not supported for this search type."
@@ -41,121 +43,46 @@ pub enum QueryBuildError {
     InvalidDateFormat(String),
 }
 
-/// A search parameter's modifier, validated against its type.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Modifier {
-    None,
-    /// `:missing=true` (`true`) or `:missing=false` (`false`). Any stored type.
-    Missing(bool),
-    /// `:not`. Token only.
-    Not,
-    /// `:exact`. String only.
-    Exact,
-    /// `:contains`. String only.
-    Contains,
+impl QueryBuildError {
+    /// A modifier the specification defines that this backend doesn't search.
+    #[must_use]
+    pub fn unsupported_modifier(code: &str) -> Self {
+        QueryBuildError::UnsupportedModifier(code.to_string())
+    }
 }
 
-/// Parses `parameter`'s modifier and checks that `param_type` supports it.
+/// The page size `options` allows: its limit, or the default.
 ///
 /// # Errors
 ///
-/// Returns [`QueryBuildError::UnsupportedModifier`] for a modifier the type
-/// doesn't support, or [`QueryBuildError::InvalidParameterValue`] unless a
-/// `:missing` value is exactly `true` or `false`.
-pub fn parse_modifier(
-    parameter: &Parameter,
-    param_type: &BoundCode<SearchParamType>,
-) -> Result<Modifier, QueryBuildError> {
-    let is = |candidate: BoundCode<SearchParamType>| param_type == &candidate;
-
-    match parameter.modifier.as_deref() {
-        None => Ok(Modifier::None),
-        Some("missing") if is_stored(param_type) => match parameter.value.as_slice() {
-            [value] if value == "true" => Ok(Modifier::Missing(true)),
-            [value] if value == "false" => Ok(Modifier::Missing(false)),
-            _ => Err(QueryBuildError::InvalidParameterValue(
-                parameter.name.clone(),
-            )),
-        },
-        Some("not") if is(SearchParamType::token()) => Ok(Modifier::Not),
-        Some("exact") if is(SearchParamType::string()) => Ok(Modifier::Exact),
-        Some("contains") if is(SearchParamType::string()) => Ok(Modifier::Contains),
-        Some(modifier) => Err(QueryBuildError::UnsupportedModifier(modifier.to_string())),
+/// Returns an error for a limit above [`MAX_COUNT`].
+pub(crate) fn max_count(options: Option<&SearchOptions>) -> Result<u64, OperationOutcomeError> {
+    match options.and_then(|options| options.count_limit) {
+        Some(limit) if limit > MAX_COUNT => Err(OperationOutcomeError::fatal(
+            IssueType::too_costly(),
+            "Count limit exceeds maximum allowed.".to_string(),
+        )),
+        Some(limit) => Ok(limit),
+        None => Ok(DEFAULT_COUNT),
     }
 }
 
-/// A reference search value split into `[id]` or `[type, id]`. A Haste Health
-/// canonical (`https://haste.health/fhir/Membership/<id>`) searches as the
-/// `Type/id` it names, matching how it is indexed.
-#[must_use]
-pub fn reference_value_parts(value: &str) -> Vec<&str> {
-    match parse_haste_canonical(value) {
-        Some((resource_type, id)) => vec![resource_type, id],
-        None => value.split('/').collect(),
-    }
-}
-
-/// Types both backends index (everything except composite and special).
-fn is_stored(param_type: &BoundCode<SearchParamType>) -> bool {
-    [
-        SearchParamType::string(),
-        SearchParamType::token(),
-        SearchParamType::date(),
-        SearchParamType::number(),
-        SearchParamType::quantity(),
-        SearchParamType::uri(),
-        SearchParamType::reference(),
-    ]
-    .contains(param_type)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn parse(
-        type_: &BoundCode<SearchParamType>,
-        modifier: &str,
-        values: &[&str],
-    ) -> Result<Modifier, QueryBuildError> {
-        parse_modifier(
-            &Parameter {
-                name: "p".to_string(),
-                modifier: Some(modifier.to_string()),
-                value: values.iter().map(|v| (*v).to_string()).collect(),
-                chains: Vec::new(),
-            },
-            type_,
+/// A result parameter's single numeric value (`_count`, `_offset`).
+///
+/// # Errors
+///
+/// Returns an error when the value is missing or not a number.
+pub(crate) fn parse_u64(parameter: &Parameter) -> Result<u64, OperationOutcomeError> {
+    let value = parameter.value.first().ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::required(),
+            format!("Missing parameter value: {}", parameter.name),
         )
-    }
-
-    #[test]
-    fn missing_is_accepted_for_every_stored_type() {
-        assert_eq!(
-            parse(&SearchParamType::reference(), "missing", &["true"]).unwrap(),
-            Modifier::Missing(true)
-        );
-        assert_eq!(
-            parse(&SearchParamType::date(), "missing", &["false"]).unwrap(),
-            Modifier::Missing(false)
-        );
-        assert!(parse(&SearchParamType::composite(), "missing", &["true"]).is_err());
-        assert!(parse(&SearchParamType::date(), "missing", &["maybe"]).is_err());
-        assert!(parse(&SearchParamType::date(), "missing", &["true", "false"]).is_err());
-    }
-
-    #[test]
-    fn type_specific_modifiers_are_limited_to_their_type() {
-        assert_eq!(
-            parse(&SearchParamType::token(), "not", &["a"]).unwrap(),
-            Modifier::Not
-        );
-        assert_eq!(
-            parse(&SearchParamType::string(), "exact", &["a"]).unwrap(),
-            Modifier::Exact
-        );
-        assert!(parse(&SearchParamType::string(), "not", &["a"]).is_err());
-        assert!(parse(&SearchParamType::token(), "exact", &["a"]).is_err());
-        assert!(parse(&SearchParamType::reference(), "foo", &["a"]).is_err());
-    }
+    })?;
+    value.parse().map_err(|_| {
+        OperationOutcomeError::fatal(
+            IssueType::invalid(),
+            format!("Invalid {} value: '{value}'.", parameter.name),
+        )
+    })
 }

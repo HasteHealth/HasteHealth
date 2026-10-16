@@ -1,88 +1,64 @@
-use haste_fhir_client::url::{Parameter, parse_prefix};
+use haste_fhir_client::url::Prefix;
 
 use super::{
-    ClauseTarget, QuantityExprs, SqlClause, SqlParam, bind, or_predicates, quantity_exprs,
-    require_values, target_params, wrap_predicate,
+    ClauseTarget, QuantityExprs, SqlClause, SqlParam, all_of, bind, equals, or_predicates,
+    quantity_exprs, target_params, wrap_predicate,
 };
 use crate::{
-    indexing_conversion::get_decimal_range,
-    query::QueryBuildError,
-    search_ranges::{above, approximate_decimal, below},
+    query::{
+        QueryBuildError,
+        value::{NumberValue, QuantityValue},
+    },
+    search_ranges::{above, below},
 };
 
-/// Matches `[prefix]value[|system|code]`; empty segments are unconstrained.
-/// Value and unit share a row, so no recombination is needed.
+/// Matches any of `[prefix]value[|system|code]`; an unconstrained segment is
+/// left out. Value and unit share a row, so no recombination is needed.
 pub fn quantity_clause(
-    parsed_parameter: &Parameter,
+    values: &[QuantityValue],
     target: &ClauseTarget,
 ) -> Result<SqlClause, QueryBuildError> {
-    require_values(parsed_parameter)?;
-
     let exprs = quantity_exprs(target)?;
-    let (predicate, params) = or_predicates(
-        &parsed_parameter.value,
-        target_params(target),
-        |value, params| quantity_predicate(value, &exprs, params),
-    )?;
+    let (predicate, params) = or_predicates(values, target_params(target), |quantity, params| {
+        Ok(quantity_predicate(quantity, &exprs, params))
+    })?;
 
     Ok(wrap_predicate(target, false, &predicate, params))
 }
 
 fn quantity_predicate(
-    value: &str,
+    quantity: &QuantityValue,
     exprs: &QuantityExprs,
     params: Vec<SqlParam>,
-) -> Result<(String, Vec<SqlParam>), QueryBuildError> {
-    let (amount, system, code) = match value.split('|').collect::<Vec<_>>()[..] {
-        // A bare value matches any unit.
-        [amount] => (amount, "", ""),
-        [amount, system, code] => (amount, system, code),
-        [_, _, _, _] => {
-            return Err(QueryBuildError::UnsupportedParameterValue(
-                value.to_string(),
-            ));
+) -> (String, Vec<SqlParam>) {
+    let (params, amount) = match &quantity.amount {
+        None => (params, None),
+        Some(amount) => {
+            let (params, sql) = amount_predicate(amount, exprs, params);
+            (params, Some(sql))
         }
-        _ => return Err(QueryBuildError::InvalidParameterValue(value.to_string())),
     };
+    let (params, system) = equals(params, &exprs.system, quantity.system);
+    let (params, code) = equals(params, &exprs.code, quantity.code);
 
-    let (params, amount) = if amount.is_empty() {
-        (params, None)
-    } else {
-        let (params, sql) = amount_predicate(amount, exprs, params)?;
-        (params, Some(sql))
-    };
-    let (params, system) = equals(params, &exprs.system, system);
-    let (params, code) = equals(params, &exprs.code, code);
-
-    let conditions: Vec<String> = [amount, system, code].into_iter().flatten().collect();
-    let sql = if conditions.is_empty() {
-        "TRUE".to_string()
-    } else {
-        format!("({})", conditions.join(" AND "))
-    };
-
-    Ok((sql, params))
+    (all_of([amount, system, code]), params)
 }
 
 /// Compares the indexed `[start, end]` range against `[prefix]amount`.
 fn amount_predicate(
-    amount: &str,
+    amount: &NumberValue,
     exprs: &QuantityExprs,
     params: Vec<SqlParam>,
-) -> Result<(Vec<SqlParam>, String), QueryBuildError> {
-    let (prefix, number) = parse_prefix(amount);
-    let invalid = || QueryBuildError::InvalidParameterValue(amount.to_string());
-    let range = get_decimal_range(number).map_err(|_e| invalid())?;
+) -> (Vec<SqlParam>, String) {
     let (start, end) = (&exprs.start, &exprs.end);
     let float = SqlParam::Float64;
 
-    Ok(match prefix {
+    match amount.prefix {
         // The value falls inside the indexed range.
-        Some("eq" | "ne") | None => {
-            let point: f64 = number.parse().map_err(|_e| invalid())?;
-            let (params, i) = bind(params, [float(point)]);
+        Prefix::Eq | Prefix::Ne => {
+            let (params, i) = bind(params, [float(amount.value)]);
             let contains = format!("({start} <= ${i} AND {end} >= ${i})");
-            let sql = if prefix == Some("ne") {
+            let sql = if amount.prefix == Prefix::Ne {
                 format!("NOT {contains}")
             } else {
                 contains
@@ -90,37 +66,26 @@ fn amount_predicate(
             (params, sql)
         }
         // Wholly above or below the search value's precision range.
-        Some("gt" | "sa") => {
-            let (params, i) = bind(params, [float(above(&range))]);
+        Prefix::Gt | Prefix::Sa => {
+            let (params, i) = bind(params, [float(above(&amount.range))]);
             (params, format!("{start} >= ${i}"))
         }
-        Some("lt" | "eb") => {
-            let (params, i) = bind(params, [float(below(&range))]);
+        Prefix::Lt | Prefix::Eb => {
+            let (params, i) = bind(params, [float(below(&amount.range))]);
             (params, format!("{end} <= ${i}"))
         }
-        Some("ge") => {
-            let (params, i) = bind(params, [float(range.start)]);
+        Prefix::Ge => {
+            let (params, i) = bind(params, [float(amount.range.start)]);
             (params, format!("{start} >= ${i}"))
         }
-        Some("le") => {
-            let (params, i) = bind(params, [float(range.end)]);
+        Prefix::Le => {
+            let (params, i) = bind(params, [float(amount.range.end)]);
             (params, format!("{end} <= ${i}"))
         }
-        // Overlaps the value widened by 10%.
-        Some("ap") => {
-            let (low, high) = approximate_decimal(&range);
-            let (params, i) = bind(params, [float(low), float(high)]);
+        // Overlaps the range, widened when it was parsed.
+        Prefix::Ap => {
+            let (params, i) = bind(params, [float(amount.range.start), float(amount.range.end)]);
             (params, format!("({start} <= ${} AND {end} >= ${i})", i + 1))
         }
-        Some(p) => return Err(QueryBuildError::UnsupportedPrefix(p.to_string())),
-    })
-}
-
-/// `column = $n`, or nothing for an empty segment.
-fn equals(params: Vec<SqlParam>, column: &str, value: &str) -> (Vec<SqlParam>, Option<String>) {
-    if value.is_empty() {
-        return (params, None);
     }
-    let (params, i) = bind(params, [SqlParam::Text(value.to_string())]);
-    (params, Some(format!("{column} = ${i}")))
 }

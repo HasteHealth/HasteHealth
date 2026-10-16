@@ -1,60 +1,56 @@
-use crate::{elastic_search::search::clauses::namespace_parameter, query::QueryBuildError};
-use haste_fhir_client::url::Parameter;
-use haste_fhir_model::r4::generated::resources::SearchParameter;
+use crate::{
+    elastic_search::search::clauses::{all_of, any_of, match_query, nested},
+    query::{
+        QueryBuildError,
+        value::{TokenSystem, TokenValue, TokenValues},
+    },
+};
 use serde_json::json;
 
-/// Matches any of `[system|]code`. `:not` is applied by the caller, outside
-/// the nested query.
+/// Matches any of the tokens, and whether `:not` negates the match. The
+/// caller applies the negation outside the nested query.
 pub fn token(
-    namespace: Option<&str>,
-    parameter: &Parameter,
-    search_param: &SearchParameter,
-) -> Result<serde_json::Value, QueryBuildError> {
-    let column_name = namespace_parameter(namespace, search_param);
-
-    let params = parameter
-        .value
-        .iter()
-        .map(|value| token_value(&column_name, value))
-        .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
-
-    Ok(json!({
-        "bool": {
-            "should": params
+    field: &str,
+    values: &TokenValues<'_>,
+) -> Result<(serde_json::Value, bool), QueryBuildError> {
+    let (tokens, negate) = match values {
+        TokenValues::Codes(tokens) => (tokens, false),
+        TokenValues::Not(tokens) => (tokens, true),
+        // Subsumption and value set membership need the terminology service;
+        // text and identifier types aren't indexed.
+        TokenValues::Above(_)
+        | TokenValues::Below(_)
+        | TokenValues::Text(_)
+        | TokenValues::In(_)
+        | TokenValues::NotIn(_)
+        | TokenValues::OfType(_) => {
+            return Err(QueryBuildError::unsupported_modifier(values.modifier()));
         }
-    }))
-}
-
-fn token_value(column_name: &str, value: &str) -> Result<serde_json::Value, QueryBuildError> {
-    let field = |name: &str| format!("{column_name}.{name}");
-    let matches = |name: &str, query: &str| json!({ "match": { field(name): { "query": query } } });
-
-    let query = match value.split('|').collect::<Vec<_>>()[..] {
-        // `code`: any system.
-        [code] => matches("code", code),
-        // `|`: any token.
-        ["", ""] => json!({ "match_all": {} }),
-        // `|code`: a code with no system.
-        ["", code] => json!({
-            "bool": {
-                "filter": [matches("code", code)],
-                "must_not": [{ "exists": { "field": field("system") } }]
-            }
-        }),
-        // `system|`: any code in the system.
-        [system, ""] => matches("system", system),
-        [system, code] => json!({
-            "bool": {
-                "filter": [matches("code", code), matches("system", system)]
-            }
-        }),
-        _ => return Err(QueryBuildError::InvalidParameterValue(value.to_string())),
     };
 
-    Ok(json!({
-        "nested": {
-            "path": column_name,
-            "query": query
+    let query = any_of(
+        tokens
+            .iter()
+            .map(|token| nested(field, token_query(field, token)))
+            .collect(),
+    );
+    Ok((query, negate))
+}
+
+/// What the token says of the system and of the code, both required; `|`
+/// says nothing of either and matches any token.
+fn token_query(field: &str, token: &TokenValue<'_>) -> serde_json::Value {
+    let mut filter = Vec::new();
+    let mut must_not = Vec::new();
+    match token.system {
+        TokenSystem::Any => {}
+        TokenSystem::Absent => {
+            must_not.push(json!({ "exists": { "field": format!("{field}.system") } }));
         }
-    }))
+        TokenSystem::Is(system) => filter.push(match_query(field, "system", system)),
+    }
+    if let Some(code) = token.code {
+        filter.push(match_query(field, "code", code));
+    }
+    all_of(filter, must_not)
 }

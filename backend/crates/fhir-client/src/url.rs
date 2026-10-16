@@ -357,16 +357,47 @@ impl TryFrom<&HashMap<String, String>> for ParsedParameters {
     }
 }
 
-/// Splits a FHIR search prefix (`eq`, `ne`, `gt`, `lt`, `ge`, `le`, `sa`, `eb`,
-/// `ap`) off a number, date or quantity value.
+/// The comparison prefix of a number, date or quantity value. A value
+/// without one compares as `eq`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Prefix {
+    Eq,
+    Ne,
+    Gt,
+    Lt,
+    Ge,
+    Le,
+    Sa,
+    Eb,
+    Ap,
+}
+
+impl Prefix {
+    /// The prefix `code` names, if any.
+    #[must_use]
+    pub fn parse(code: &str) -> Option<Self> {
+        Some(match code {
+            "eq" => Prefix::Eq,
+            "ne" => Prefix::Ne,
+            "gt" => Prefix::Gt,
+            "lt" => Prefix::Lt,
+            "ge" => Prefix::Ge,
+            "le" => Prefix::Le,
+            "sa" => Prefix::Sa,
+            "eb" => Prefix::Eb,
+            "ap" => Prefix::Ap,
+            _ => return None,
+        })
+    }
+}
+
+/// Splits the comparison prefix off a number, date or quantity value. A
+/// value without one compares as `eq`; a bare prefix is a value.
 #[must_use]
-pub fn parse_prefix(v: &str) -> (Option<&str>, &str) {
-    match (v.get(..2), v.get(2..)) {
-        (
-            Some(prefix @ ("eq" | "ne" | "gt" | "lt" | "ge" | "le" | "sa" | "eb" | "ap")),
-            Some(remainder),
-        ) if !remainder.is_empty() => (Some(prefix), remainder),
-        _ => (None, v),
+pub fn parse_prefix(value: &str) -> (Prefix, &str) {
+    match (value.get(..2).and_then(Prefix::parse), value.get(2..)) {
+        (Some(prefix), Some(rest)) if !rest.is_empty() => (prefix, rest),
+        _ => (Prefix::Eq, value),
     }
 }
 
@@ -377,19 +408,19 @@ mod tests {
     #[test]
     fn test_parse_prefix() {
         let cases = vec![
-            ("lt5.0", (Some("lt"), "5.0")),
-            ("le10", (Some("le"), "10")),
-            ("gt3.14", (Some("gt"), "3.14")),
-            ("ge2.71", (Some("ge"), "2.71")),
-            ("eq42", (Some("eq"), "42")),
-            ("ne0", (Some("ne"), "0")),
-            ("sa2020", (Some("sa"), "2020")),
-            ("eb2020-01", (Some("eb"), "2020-01")),
-            ("ap70", (Some("ap"), "70")),
-            ("ne", (None, "ne")),
-            ("é5", (None, "é5")),
-            ("5.0", (None, "5.0")),
-            ("10", (None, "10")),
+            ("lt5.0", (Prefix::Lt, "5.0")),
+            ("le10", (Prefix::Le, "10")),
+            ("gt3.14", (Prefix::Gt, "3.14")),
+            ("ge2.71", (Prefix::Ge, "2.71")),
+            ("eq42", (Prefix::Eq, "42")),
+            ("ne0", (Prefix::Ne, "0")),
+            ("sa2020", (Prefix::Sa, "2020")),
+            ("eb2020-01", (Prefix::Eb, "2020-01")),
+            ("ap70", (Prefix::Ap, "70")),
+            ("ne", (Prefix::Eq, "ne")),
+            ("é5", (Prefix::Eq, "é5")),
+            ("5.0", (Prefix::Eq, "5.0")),
+            ("10", (Prefix::Eq, "10")),
         ];
 
         for (input, expected) in cases {

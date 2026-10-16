@@ -1,15 +1,16 @@
 //! Runs a PATCH as an UPDATE, for routes whose middleware only understands
-//! create, update and delete (the tenant and project auth resources: Project,
-//! User, IdentityProvider, Membership).
+//! create, update and delete (Project, User, IdentityProvider, Membership and
+//! OperationDefinition).
 //!
 //! The patch is applied here and the patched resource is sent on as an update,
 //! so it goes through the same checks as a PUT: Project refuses a new
-//! `fhirVersion` or an edit to a system project, and User and Membership keep
-//! their `users` and `memberships` rows in sync. The response goes back to the
-//! caller as a patch response.
+//! `fhirVersion` or an edit to a system project, User and Membership keep
+//! their `users` and `memberships` rows in sync, and OperationDefinition can't
+//! be patched onto a built-in operation. The response goes back to the caller
+//! as a patch response.
 //!
-//! Place after the transaction middleware, so the read, patch and write happen
-//! in one transaction.
+//! Place after the transaction middleware, if the route has one, so the read,
+//! patch and write happen in one transaction.
 use crate::fhir_client::{
     ServerCTX,
     middleware::{

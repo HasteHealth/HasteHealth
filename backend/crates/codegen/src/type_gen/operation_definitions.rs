@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{fmt::Write, path::Path};
 
 use crate::documentation::{format_documentation, generate_doc_attributes};
 use crate::utilities::{FHIR_PRIMITIVES, RUST_KEYWORDS, generate::capitalize, load};
@@ -6,7 +6,7 @@ use haste_fhir_model::r4::generated::{
     resources::{OperationDefinition, OperationDefinitionParameter, Resource, ResourceType},
     terminology::{AllTypes, BoundCode, OperationParameterUse},
 };
-use proc_macro2::{Ident, TokenStream};
+use proc_macro2::{Ident, Literal, TokenStream};
 use quote::{format_ident, quote};
 use walkdir::WalkDir;
 
@@ -359,6 +359,7 @@ fn add_parameter_type(imports: &mut OperationImports, parameter: &OperationDefin
 fn collect_imports(parameters: &[OperationDefinitionParameter]) -> OperationImports {
     let mut imports = OperationImports::new();
 
+    imports.add_resource("OperationDefinition");
     imports.add_resource("Parameters");
     imports.add_resource("ParametersParameter");
     imports.add_resource("Resource");
@@ -369,6 +370,37 @@ fn collect_imports(parameters: &[OperationDefinitionParameter]) -> OperationImpo
 
     imports.sort_and_dedup();
     imports
+}
+
+/// The definition as compact JSON in a raw string literal, so the generated
+/// module carries what it was generated from.
+fn definition_literal(op_def: &OperationDefinition) -> Result<Literal, String> {
+    let json = serde_json::to_string(op_def)
+        .map_err(|e| format!("Failed to serialize OperationDefinition: {e}"))?;
+
+    // Escape non-ASCII (JSON only has it inside strings) so HL7's zero-width
+    // spaces don't sit invisibly in the generated source.
+    let mut ascii = String::with_capacity(json.len());
+    for c in json.chars() {
+        if c.is_ascii() {
+            ascii.push(c);
+        } else {
+            for unit in c.encode_utf16(&mut [0; 2]) {
+                let _ = write!(ascii, "\\u{unit:04x}");
+            }
+        }
+    }
+
+    // A raw string ends at `"` followed by its hashes, so use one more than
+    // any run of them after a `"` in the JSON.
+    let mut hashes = String::from("#");
+    while ascii.contains(&format!("\"{hashes}")) {
+        hashes.push('#');
+    }
+
+    format!("r{hashes}\"{ascii}\"{hashes}")
+        .parse()
+        .map_err(|e| format!("Failed to build OperationDefinition literal: {e}"))
 }
 
 /* ------------------------------------------------------------------------- */
@@ -402,6 +434,8 @@ fn generate_operation_definition(file_path: &Path) -> Result<TokenStream, String
         let operation_doc_attributes = generate_doc_attributes(&operation_description);
 
         let imports = collect_imports(parameters);
+
+        let definition_json = definition_literal(op_def)?;
 
         let generated_input = generate_input(parameters);
         let generated_output = generate_output(parameters);
@@ -437,8 +471,19 @@ fn generate_operation_definition(file_path: &Path) -> Result<TokenStream, String
 
                 use haste_fhir_operation_error::OperationOutcomeError;
                 use haste_fhir_ops::derive::{FromParameters, ToParameters};
+                use std::sync::LazyLock;
 
                 pub const CODE: &str = #op_code;
+
+                // Its own const, so rustfmt can format around the long line.
+                const OPERATION_DEFINITION_JSON: &str = #definition_json;
+
+                #[doc = "The `OperationDefinition` this module was generated from."]
+                pub static OPERATION_DEFINITION: LazyLock<OperationDefinition> =
+                    LazyLock::new(|| {
+                        serde_json::from_str(OPERATION_DEFINITION_JSON)
+                            .expect("Generated OperationDefinition JSON must deserialize.")
+                    });
 
                 #(#generated_input)*
                 #(#generated_output)*

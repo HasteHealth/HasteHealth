@@ -24,7 +24,7 @@ pub fn hl7v2_parse_op<
     Hl7v2Parse::Output,
 > {
     OperationExecutor::new(
-        Hl7v2Parse::CODE.to_string(),
+        &Hl7v2Parse::OPERATION_DEFINITION,
         Box::new(
             |_context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

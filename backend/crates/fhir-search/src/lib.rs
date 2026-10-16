@@ -16,6 +16,13 @@ mod query;
 pub mod search_parameter_cardinality;
 mod search_ranges;
 
+/// The page size of a search that doesn't set `_count`.
+pub const DEFAULT_COUNT: u64 = 50;
+
+/// The largest page a search returns, whatever its `_count`. Elasticsearch's
+/// `index.max_result_window` defaults to the same 10k.
+pub const MAX_COUNT: u64 = 10_000;
+
 #[derive(Clone)]
 pub struct IndexResource {
     pub id: ResourceId,

@@ -1,69 +1,33 @@
 use crate::{
-    elastic_search::search::clauses::namespace_parameter,
-    query::{QueryBuildError, reference_value_parts},
+    elastic_search::search::clauses::{all_of, any_of, match_query, nested},
+    query::{QueryBuildError, value::ReferenceValues},
 };
-use haste_fhir_client::url::Parameter;
-use haste_fhir_model::r4::generated::resources::SearchParameter;
-use serde_json::json;
 
+/// Matches any of the references: by id, and by type when one is named.
 pub fn reference(
-    namespace: Option<&str>,
-    parsed_parameter: &Parameter,
-    search_param: &SearchParameter,
+    field: &str,
+    values: &ReferenceValues<'_>,
 ) -> Result<serde_json::Value, QueryBuildError> {
-    let column_name = namespace_parameter(namespace, search_param);
-
-    let params = parsed_parameter
-        .value
-        .iter()
-        .map(|value| {
-            let pieces = reference_value_parts(value);
-            match pieces.len() {
-                1 => Ok(json!({
-                    "nested": {
-                        "path": &column_name,
-                        "query": {
-                            "match": {
-                                format!("{}.id", &column_name): {
-                                    "query": pieces.first()
-                                }
-                            }
-                        }
-                    }
-                })),
-                2 => Ok(json!({
-                    "nested": {
-                        "path": &column_name,
-                        "query": {
-                            "bool": {
-                                "filter": [
-                                    {
-                                        "match": {
-                                            format!("{}.resource_type", &column_name): {
-                                                "query": pieces.first()
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "match": {
-                                            format!("{}.id", &column_name): {
-                                                "query": pieces.get(1)
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                })),
-                _ => Err(QueryBuildError::InvalidParameterValue(value.clone())),
-            }
-        })
-        .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
-
-    Ok(json!({
-        "bool": {
-            "should": params
+    let references = match values {
+        ReferenceValues::References(references) => references,
+        // A hierarchy of references isn't followed, and a target's
+        // identifier isn't indexed with the reference.
+        ReferenceValues::Above(_) | ReferenceValues::Below(_) | ReferenceValues::Identifier(_) => {
+            return Err(QueryBuildError::unsupported_modifier(values.modifier()));
         }
-    }))
+    };
+
+    Ok(any_of(
+        references
+            .iter()
+            .map(|reference| {
+                let mut filter = Vec::new();
+                if let Some(resource_type) = reference.resource_type {
+                    filter.push(match_query(field, "resource_type", resource_type));
+                }
+                filter.push(match_query(field, "id", reference.id));
+                nested(field, all_of(filter, Vec::new()))
+            })
+            .collect(),
+    ))
 }

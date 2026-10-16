@@ -59,7 +59,7 @@ pub fn evaluate_policy_op<
     HasteHealthEvaluatePolicy::Output,
 > {
     OperationExecutor::new(
-        HasteHealthEvaluatePolicy::CODE.to_string(),
+        &HasteHealthEvaluatePolicy::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

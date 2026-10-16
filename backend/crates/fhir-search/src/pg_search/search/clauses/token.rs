@@ -1,68 +1,57 @@
-use haste_fhir_client::url::Parameter;
-
 use super::{
-    ClauseTarget, SqlClause, SqlParam, bind, or_predicates, require_values, target_params,
-    token_exprs, wrap_predicate,
+    ClauseTarget, SqlClause, SqlParam, all_of, equals, or_predicates, target_params, token_exprs,
+    wrap_predicate,
 };
-use crate::query::QueryBuildError;
+use crate::query::{
+    QueryBuildError,
+    value::{TokenSystem, TokenValue, TokenValues},
+};
 
-/// Matches `[system|]code`, or with `negate` (`:not`) excludes it. System and
-/// code share a row, so no recombination is needed.
+/// Matches any of the tokens, or with `:not` excludes them. System and code
+/// share a row, so no recombination is needed.
 pub fn token_clause(
-    parsed_parameter: &Parameter,
+    values: &TokenValues<'_>,
     target: &ClauseTarget,
-    negate: bool,
 ) -> Result<SqlClause, QueryBuildError> {
-    require_values(parsed_parameter)?;
+    let (tokens, negate) = match values {
+        TokenValues::Codes(tokens) => (tokens, false),
+        TokenValues::Not(tokens) => (tokens, true),
+        // Subsumption and value set membership need the terminology service;
+        // text and identifier types aren't indexed.
+        TokenValues::Above(_)
+        | TokenValues::Below(_)
+        | TokenValues::Text(_)
+        | TokenValues::In(_)
+        | TokenValues::NotIn(_)
+        | TokenValues::OfType(_) => {
+            return Err(QueryBuildError::unsupported_modifier(values.modifier()));
+        }
+    };
 
     let (system_column, code_column) = token_exprs(target)?;
-    let (predicate, params) = or_predicates(
-        &parsed_parameter.value,
-        target_params(target),
-        |value, params| token_predicate(value, &system_column, &code_column, params),
-    )?;
+    let (predicate, params) = or_predicates(tokens, target_params(target), |token, params| {
+        Ok(token_predicate(token, &system_column, &code_column, params))
+    })?;
 
     Ok(wrap_predicate(target, negate, &predicate, params))
 }
 
+/// What the token says of the system and of the code, both required; `|`
+/// says nothing of either and matches any token.
 fn token_predicate(
-    value: &str,
+    token: &TokenValue<'_>,
     system_column: &str,
     code_column: &str,
     params: Vec<SqlParam>,
-) -> Result<(String, Vec<SqlParam>), QueryBuildError> {
-    let text = |s: &str| SqlParam::Text(s.to_string());
+) -> (String, Vec<SqlParam>) {
+    let (params, system) = match token.system {
+        TokenSystem::Any => (params, None),
+        TokenSystem::Absent => (params, Some(format!("{system_column} IS NULL"))),
+        TokenSystem::Is(system) => equals(params, system_column, Some(system)),
+    };
+    let (params, code) = equals(params, code_column, token.code);
 
-    Ok(match value.split('|').collect::<Vec<_>>()[..] {
-        // `code`: any system.
-        [code] => {
-            let (params, i) = bind(params, [text(code)]);
-            (format!("{code_column} = ${i}"), params)
-        }
-        // `|`: any token.
-        ["", ""] => ("TRUE".to_string(), params),
-        // `|code`: no system.
-        ["", code] => {
-            let (params, i) = bind(params, [text(code)]);
-            (
-                format!("({code_column} = ${i} AND {system_column} IS NULL)"),
-                params,
-            )
-        }
-        // `system|`: any code in the system.
-        [system, ""] => {
-            let (params, i) = bind(params, [text(system)]);
-            (format!("{system_column} = ${i}"), params)
-        }
-        [system, code] => {
-            let (params, i) = bind(params, [text(system), text(code)]);
-            (
-                format!("({system_column} = ${i} AND {code_column} = ${})", i + 1),
-                params,
-            )
-        }
-        _ => return Err(QueryBuildError::InvalidParameterValue(value.to_string())),
-    })
+    (all_of([system, code]), params)
 }
 
 #[cfg(test)]
@@ -71,18 +60,13 @@ mod tests {
     use crate::pg_search::{schema::ParamColumns, search::clauses::ANCHOR_TABLE_ALIAS};
 
     fn search(target: &ClauseTarget, values: &[&str]) -> String {
-        token_clause(
-            &Parameter {
-                name: "code".to_string(),
-                modifier: None,
-                value: values.iter().map(|v| (*v).to_string()).collect(),
-                chains: Vec::new(),
-            },
-            target,
-            false,
-        )
-        .expect("a token search builds")
-        .sql
+        let tokens = values
+            .iter()
+            .map(|value| TokenValue::parse(value).expect("a token parses"))
+            .collect::<Vec<_>>();
+        token_clause(&TokenValues::Codes(tokens), target)
+            .expect("a token search builds")
+            .sql
     }
 
     /// `_id` has no system; it reads the anchor's primary key column.
