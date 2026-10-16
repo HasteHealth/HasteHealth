@@ -24,7 +24,7 @@ pub fn valueset_validate_code_op<
     ValueSetValidateCode::Output,
 > {
     OperationExecutor::new(
-        ValueSetValidateCode::CODE.to_string(),
+        &ValueSetValidateCode::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

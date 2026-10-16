@@ -1,40 +1,40 @@
-use haste_fhir_client::url::Parameter;
-
 use super::{
-    ClauseTarget, SqlClause, SqlParam, bind, or_predicates, require_values, target_params,
-    value_expr, wrap_predicate,
+    ClauseTarget, SqlClause, SqlParam, bind, or_predicates, target_params, value_expr,
+    wrap_predicate,
 };
-use crate::query::{Modifier, QueryBuildError};
+use crate::query::{QueryBuildError, value::StringValues};
 
-/// `modifier` is `Exact`, `Contains` or `None` (already validated).
+/// Matches any of the strings, compared as their modifier says.
 pub fn string_clause(
-    parsed_parameter: &Parameter,
+    values: &StringValues<'_>,
     target: &ClauseTarget,
-    modifier: Modifier,
 ) -> Result<SqlClause, QueryBuildError> {
-    require_values(parsed_parameter)?;
-
     let column = value_expr(target)?;
-    let (predicate, params) = or_predicates(
-        &parsed_parameter.value,
-        target_params(target),
-        |value, params| {
-            let (params, i) = bind(params, [SqlParam::Text(value.to_string())]);
-            Ok((string_predicate(modifier, &column, i), params))
-        },
-    )?;
+    let (predicate, params) =
+        or_predicates(values.values(), target_params(target), |value, params| {
+            let (params, i) = bind(params, [SqlParam::Text(value.clone())]);
+            Ok((string_predicate(values, &column, i)?, params))
+        })?;
 
     Ok(wrap_predicate(target, false, &predicate, params))
 }
 
 /// Compares `column` against the term bound at `$i`.
-fn string_predicate(modifier: Modifier, column: &str, i: usize) -> String {
-    match modifier {
+fn string_predicate(
+    values: &StringValues<'_>,
+    column: &str,
+    i: usize,
+) -> Result<String, QueryBuildError> {
+    Ok(match values {
+        // Case-insensitive prefix.
+        StringValues::Prefix(_) => format!("LOWER({column}) LIKE LOWER(${i} || '%')"),
         // Case-sensitive equality.
-        Modifier::Exact => format!("{column} = ${i}"),
+        StringValues::Exact(_) => format!("{column} = ${i}"),
         // Case-insensitive substring.
-        Modifier::Contains => format!("LOWER({column}) LIKE LOWER('%' || ${i} || '%')"),
-        // Default: case-insensitive prefix.
-        _ => format!("LOWER({column}) LIKE LOWER(${i} || '%')"),
-    }
+        StringValues::Contains(_) => format!("LOWER({column}) LIKE LOWER('%' || ${i} || '%')"),
+        // Needs a text index.
+        StringValues::Text(_) => {
+            return Err(QueryBuildError::unsupported_modifier(values.modifier()));
+        }
+    })
 }

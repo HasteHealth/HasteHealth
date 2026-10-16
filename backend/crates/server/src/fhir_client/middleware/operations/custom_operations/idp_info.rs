@@ -33,7 +33,7 @@ pub fn idp_registration_info_op<
     HasteHealthIdpRegistrationInfo::Output,
 > {
     OperationExecutor::new(
-        HasteHealthIdpRegistrationInfo::CODE.to_string(),
+        &HasteHealthIdpRegistrationInfo::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

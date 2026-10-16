@@ -45,7 +45,7 @@ pub fn active_refresh_tokens_op<
     HasteHealthListRefreshTokens::Output,
 > {
     OperationExecutor::new(
-        HasteHealthListRefreshTokens::CODE.to_string(),
+        &HasteHealthListRefreshTokens::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

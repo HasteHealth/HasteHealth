@@ -74,7 +74,7 @@ pub fn patient_everything<
     PatientEverything::Output,
 > {
     OperationExecutor::new(
-        PatientEverything::CODE.to_string(),
+        &PatientEverything::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

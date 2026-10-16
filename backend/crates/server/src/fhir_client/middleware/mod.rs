@@ -12,6 +12,7 @@ pub mod capabilities;
 pub mod check_project;
 pub mod custom_models;
 pub mod element_filtering;
+pub mod operation_definitions;
 pub mod operations;
 pub mod patch_as_update;
 pub mod rate_limit;

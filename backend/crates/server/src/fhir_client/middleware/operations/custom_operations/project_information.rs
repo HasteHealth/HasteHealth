@@ -27,7 +27,7 @@ pub fn project_information_op<
     ProjectInformation::Output,
 > {
     OperationExecutor::new(
-        ProjectInformation::CODE.to_string(),
+        &ProjectInformation::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

@@ -32,7 +32,7 @@ pub fn delete_approved_scope_op<
     HasteHealthDeleteScope::Output,
 > {
     OperationExecutor::new(
-        HasteHealthDeleteScope::CODE.to_string(),
+        &HasteHealthDeleteScope::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

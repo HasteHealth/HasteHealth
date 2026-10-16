@@ -46,7 +46,7 @@ pub fn approved_scopes_op<
     HasteHealthListScopes::Output,
 > {
     OperationExecutor::new(
-        HasteHealthListScopes::CODE.to_string(),
+        &HasteHealthListScopes::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

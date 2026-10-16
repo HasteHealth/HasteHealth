@@ -23,7 +23,7 @@ pub fn view_definition_run<
     ViewDefinitionRun::Output,
 > {
     OperationExecutor::new(
-        ViewDefinitionRun::CODE.to_string(),
+        &ViewDefinitionRun::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

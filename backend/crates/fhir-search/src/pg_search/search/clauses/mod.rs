@@ -1,8 +1,9 @@
 //! Per-type WHERE clause builders.
 //!
-//! Each builder turns one search parameter into a [`SqlClause`] against its
-//! [`ClauseTarget`]. Bind lists are threaded by value: a helper takes the
-//! params so far and returns them extended, so the next placeholder is always
+//! Each builder turns a parameter's parsed values into a [`SqlClause`]
+//! against its [`ClauseTarget`], refusing the modifiers it doesn't search.
+//! Bind lists are threaded by value: a helper takes the params so far and
+//! returns them extended, so the next placeholder is always
 //! `params.len() + 1`.
 
 mod date;
@@ -22,8 +23,6 @@ pub use token::*;
 pub use uri::*;
 
 use std::{borrow::Cow, fmt::Write as _};
-
-use haste_fhir_client::url::Parameter;
 
 use crate::{pg_search::schema::ParamColumns, query::QueryBuildError};
 
@@ -293,10 +292,10 @@ fn presence_columns(columns: &ParamColumns) -> Vec<&str> {
 
 /// Builds one predicate per value and OR-joins them. `predicate` receives the
 /// value and the binds so far, and returns its SQL and the extended binds.
-pub(super) fn or_predicates(
-    values: &[String],
+pub(super) fn or_predicates<T>(
+    values: &[T],
     params: Vec<SqlParam>,
-    predicate: impl Fn(&str, Vec<SqlParam>) -> Result<(String, Vec<SqlParam>), QueryBuildError>,
+    predicate: impl Fn(&T, Vec<SqlParam>) -> Result<(String, Vec<SqlParam>), QueryBuildError>,
 ) -> Result<(String, Vec<SqlParam>), QueryBuildError> {
     let (fragments, params) = values.iter().try_fold(
         (Vec::with_capacity(values.len()), params),
@@ -319,6 +318,32 @@ pub(super) fn bind<const N: usize>(
     let first = params.len() + 1;
     params.extend(values);
     (params, first)
+}
+
+/// `column = $n` with `value` bound at `$n`, or nothing for an unconstrained
+/// (`None`) value.
+pub(super) fn equals(
+    params: Vec<SqlParam>,
+    column: &str,
+    value: Option<&str>,
+) -> (Vec<SqlParam>, Option<String>) {
+    match value {
+        None => (params, None),
+        Some(value) => {
+            let (params, i) = bind(params, [SqlParam::Text(value.to_string())]);
+            (params, Some(format!("{column} = ${i}")))
+        }
+    }
+}
+
+/// The conditions present, `AND`ed: one is bare, none is `TRUE`.
+pub(super) fn all_of<const N: usize>(conditions: [Option<String>; N]) -> String {
+    let conditions = conditions.into_iter().flatten().collect::<Vec<_>>();
+    match conditions.as_slice() {
+        [] => "TRUE".to_string(),
+        [only] => only.clone(),
+        _ => format!("({})", conditions.join(" AND ")),
+    }
 }
 
 /// Adds `offset` to every `$n` placeholder in a clause with `param_count`
@@ -401,20 +426,10 @@ fn direct_predicate(negate: bool, predicate: &str) -> String {
     }
 }
 
-/// Rejects a parameter with no values.
-fn require_values(parsed_parameter: &Parameter) -> Result<(), QueryBuildError> {
-    if parsed_parameter.value.is_empty() {
-        Err(QueryBuildError::InvalidParameterValue(
-            parsed_parameter.name.clone(),
-        ))
-    } else {
-        Ok(())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::query::value::{DateValue, NumberValue, QuantityValue};
 
     fn direct(columns: ParamColumns) -> ClauseTarget {
         ClauseTarget::DirectColumn {
@@ -475,15 +490,6 @@ mod tests {
         assert!(date_exprs(&target).is_err());
     }
 
-    fn param(modifier: Option<&str>, values: &[&str]) -> Parameter {
-        Parameter {
-            name: "p".to_string(),
-            modifier: modifier.map(str::to_string),
-            value: values.iter().map(|v| (*v).to_string()).collect(),
-            chains: Vec::new(),
-        }
-    }
-
     /// A token column pair is missing only when both halves are NULL.
     #[test]
     fn missing_checks_every_column_that_can_hold_the_value() {
@@ -517,9 +523,13 @@ mod tests {
         );
     }
 
+    fn quantity(value: &str) -> QuantityValue<'_> {
+        QuantityValue::parse(value).expect("a quantity parses")
+    }
+
     #[test]
     fn a_bare_quantity_value_matches_any_unit() {
-        let clause = quantity_clause(&param(None, &["70.2"]), &dynamic()).unwrap();
+        let clause = quantity_clause(&[quantity("70.2")], &dynamic()).unwrap();
         assert!(
             clause
                 .sql
@@ -532,7 +542,7 @@ mod tests {
 
     #[test]
     fn quantity_prefixes_compare_the_indexed_range() {
-        let clause = quantity_clause(&param(None, &["gt60||kg"]), &dynamic()).unwrap();
+        let clause = quantity_clause(&[quantity("gt60||kg")], &dynamic()).unwrap();
         assert!(
             clause
                 .sql
@@ -548,25 +558,21 @@ mod tests {
             value: "probability".to_string(),
         });
         for value in ["sa1", "eb1", "ap1"] {
-            assert!(
-                number_clause(&param(None, &[value]), &number).is_ok(),
-                "{value}"
-            );
+            let number_value = NumberValue::parse(value).expect("a number parses");
+            assert!(number_clause(&[number_value], &number).is_ok(), "{value}");
         }
 
         let date = direct(ParamColumns::Date {
             start: "d_start".to_string(),
             end: "d_end".to_string(),
         });
+        let date_value = |value: &str| DateValue::parse(value).expect("a date parses");
         assert_eq!(
-            date_clause(&param(None, &["eb2020"]), &date).unwrap().sql,
+            date_clause(&[date_value("eb2020")], &date).unwrap().sql,
             r#"(rt."d_end" < $1)"#
         );
         for value in ["sa2020", "ap2020"] {
-            assert!(
-                date_clause(&param(None, &[value]), &date).is_ok(),
-                "{value}"
-            );
+            assert!(date_clause(&[date_value(value)], &date).is_ok(), "{value}");
         }
     }
 

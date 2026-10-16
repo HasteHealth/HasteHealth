@@ -1,178 +1,40 @@
 use crate::{
-    elastic_search::search::clauses::namespace_parameter,
-    indexing_conversion::date_time_range,
-    query::QueryBuildError,
-    search_ranges::{approximate_date, now_ms},
+    elastic_search::search::clauses::{all_of, any_of, nested, range_query},
+    query::value::DateValue,
 };
-use haste_fhir_client::url::{Parameter, parse_prefix};
-use haste_fhir_model::r4::{datetime::parse_datetime, generated::resources::SearchParameter};
-use serde_json::json;
+use haste_fhir_client::url::Prefix;
 
-pub fn date(
-    namespace: Option<&str>,
-    parsed_parameter: &Parameter,
-    search_param: &SearchParameter,
-) -> Result<serde_json::Value, QueryBuildError> {
-    let column_name = namespace_parameter(namespace, search_param);
-
-    let params = parsed_parameter
-        .value
-        .iter()
-        .map(|value| build_date_query(value, &column_name))
-        .collect::<Result<Vec<_>, QueryBuildError>>()?;
-
-    Ok(json!({
-        "bool": {
-            "should": params
-        }
-    }))
+/// Compares each supplied date's range against the indexed period.
+pub fn date(field: &str, values: &[DateValue]) -> serde_json::Value {
+    any_of(
+        values
+            .iter()
+            .map(|date| nested(field, date_query(field, date)))
+            .collect(),
+    )
 }
 
-fn build_date_query(value: &str, column_name: &str) -> Result<serde_json::Value, QueryBuildError> {
-    let (prefix, value) = parse_prefix(value);
+fn date_query(field: &str, date: &DateValue) -> serde_json::Value {
+    let bound =
+        |name: &str, comparison: &str, value: i64| range_query(field, name, comparison, value);
+    let (start, end) = (date.range.start, date.range.end);
+    let overlaps = || {
+        all_of(
+            vec![bound("start", "lte", end), bound("end", "gte", start)],
+            Vec::new(),
+        )
+    };
 
-    let date_time = parse_datetime(value)
-        .map_err(|_e| QueryBuildError::InvalidDateFormat(value.to_string()))?;
-
-    let date_range = date_time_range(&date_time)
-        .map_err(|_e| QueryBuildError::InvalidDateFormat(value.to_string()))?;
-
-    match prefix {
+    match date.prefix {
         // Starts after the search range ends.
-        Some("gt" | "sa") => Ok(date_range_query(
-            column_name,
-            "start",
-            &json!({ "gt": date_range.end }),
-        )),
-        Some("lt") => Ok(date_range_query(
-            column_name,
-            "start",
-            &json!({ "lt": date_range.start }),
-        )),
+        Prefix::Gt | Prefix::Sa => bound("start", "gt", end),
+        Prefix::Lt => bound("start", "lt", start),
         // Ends before the search range begins.
-        Some("eb") => Ok(date_range_query(
-            column_name,
-            "end",
-            &json!({ "lt": date_range.start }),
-        )),
-        Some("ge") => Ok(date_range_query(
-            column_name,
-            "start",
-            &json!({ "gte": date_range.start }),
-        )),
-        Some("le") => Ok(date_range_query(
-            column_name,
-            "start",
-            &json!({ "lte": date_range.end }),
-        )),
-        Some("ne") => Ok(date_not_overlapping_query(
-            column_name,
-            date_range.start,
-            date_range.end,
-        )),
-        Some("eq") | None => Ok(date_overlapping_query(
-            column_name,
-            date_range.start,
-            date_range.end,
-        )),
-        // Overlaps the search range widened by 10% of its distance from now.
-        Some("ap") => {
-            let (start, end) = approximate_date(date_range.start, date_range.end, now_ms());
-            Ok(date_overlapping_query(column_name, start, end))
-        }
-        Some(prefix) => Err(QueryBuildError::UnsupportedPrefix(prefix.to_string())),
+        Prefix::Eb => bound("end", "lt", start),
+        Prefix::Ge => bound("start", "gte", start),
+        Prefix::Le => bound("start", "lte", end),
+        Prefix::Ne => all_of(Vec::new(), vec![overlaps()]),
+        // Overlaps; `ap` was widened when it was parsed.
+        Prefix::Eq | Prefix::Ap => overlaps(),
     }
-}
-
-fn date_range_query(
-    column_name: &str,
-    bound: &str,
-    range: &serde_json::Value,
-) -> serde_json::Value {
-    json!({
-        "nested": {
-            "path": column_name,
-            "query": {
-                "bool": {
-                    "filter": [
-                        {
-                            "range": {
-                                format!("{column_name}.{bound}"): range
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-    })
-}
-
-fn date_overlapping_query(
-    column_name: &str,
-    start: impl serde::Serialize,
-    end: impl serde::Serialize,
-) -> serde_json::Value {
-    json!({
-        "nested": {
-            "path": column_name,
-            "query": {
-                "bool": {
-                    "filter": [
-                        {
-                            "range": {
-                                format!("{}.start", column_name): {
-                                    "lte": end
-                                }
-                            }
-                        },
-                        {
-                            "range": {
-                                format!("{}.end", column_name): {
-                                    "gte": start
-                                }
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-    })
-}
-
-fn date_not_overlapping_query(
-    column_name: &str,
-    start: impl serde::Serialize,
-    end: impl serde::Serialize,
-) -> serde_json::Value {
-    json!({
-        "nested": {
-            "path": column_name,
-            "query": {
-                "bool": {
-                    "must_not": [
-                        {
-                            "bool": {
-                                "filter": [
-                                    {
-                                        "range": {
-                                            format!("{}.start", column_name): {
-                                                "lte": end
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "range": {
-                                            format!("{}.end", column_name): {
-                                                "gte": start
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-    })
 }

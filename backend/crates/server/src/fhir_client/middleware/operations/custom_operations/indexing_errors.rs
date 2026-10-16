@@ -48,7 +48,7 @@ pub fn indexing_errors_op<
     HasteHealthIndexingErrors::Output,
 > {
     OperationExecutor::new(
-        HasteHealthIndexingErrors::CODE.to_string(),
+        &HasteHealthIndexingErrors::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

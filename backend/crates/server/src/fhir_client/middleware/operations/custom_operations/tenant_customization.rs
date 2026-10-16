@@ -83,7 +83,7 @@ pub fn tenant_customization_op<
     HasteHealthTenantCustomization::Output,
 > {
     OperationExecutor::new(
-        HasteHealthTenantCustomization::CODE.to_string(),
+        &HasteHealthTenantCustomization::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,
@@ -174,7 +174,7 @@ pub fn tenant_branding_op<
     HasteHealthTenantBranding::Output,
 > {
     OperationExecutor::new(
-        HasteHealthTenantBranding::CODE.to_string(),
+        &HasteHealthTenantBranding::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

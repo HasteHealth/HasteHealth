@@ -1,13 +1,13 @@
 use std::sync::Arc;
 
 use crate::{
-    AnyOf, ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions, SearchParameterResolve,
-    SearchReturn,
+    AnyOf, DEFAULT_COUNT, MAX_COUNT, ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions,
+    SearchParameterResolve, SearchReturn,
     elastic_search::{
         DYNAMIC_PARAMETER_INDEX_FIELD, ElasticSearchResponse, SearchError,
         flatten_parameter_field_name, get_index_name,
     },
-    query::{Modifier, QueryBuildError, parse_modifier},
+    query::{QueryBuildError, value::Values},
 };
 use elasticsearch::{Elasticsearch, SearchParts};
 use haste_fhir_client::{
@@ -16,7 +16,7 @@ use haste_fhir_client::{
 };
 use haste_fhir_model::r4::generated::{
     resources::{ResourceType, SearchParameter},
-    terminology::{IssueType, SearchParamType},
+    terminology::{BoundCode, IssueType, SearchParamType},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
@@ -110,71 +110,19 @@ fn sort_build(
 
 /// Matches documents where the parameter has at least one value. Token, date,
 /// quantity and reference are nested objects; the rest are plain fields.
-fn has_value(
-    namespace: Option<&str>,
-    search_param: &SearchParameter,
-) -> Result<serde_json::Value, QueryBuildError> {
-    let field = clauses::namespace_parameter(namespace, search_param);
-    let param_type = &search_param.type_;
-
-    if [
+fn has_value(field: &str, param_type: &BoundCode<SearchParamType>) -> serde_json::Value {
+    let nested = [
         SearchParamType::token(),
         SearchParamType::date(),
         SearchParamType::quantity(),
         SearchParamType::reference(),
     ]
-    .contains(param_type)
-    {
-        Ok(json!({ "nested": { "path": field, "query": { "match_all": {} } } }))
-    } else if [
-        SearchParamType::string(),
-        SearchParamType::uri(),
-        SearchParamType::number(),
-    ]
-    .contains(param_type)
-    {
-        Ok(json!({ "exists": { "field": field } }))
-    } else {
-        Err(QueryBuildError::UnsupportedModifier("missing".to_string()))
-    }
-}
+    .contains(param_type);
 
-/// The positive query for a parameter's values. `modifier` only matters to
-/// string (`:exact`, `:contains`).
-fn type_clause(
-    namespace: Option<&str>,
-    parsed_parameter: &Parameter,
-    search_param: &SearchParameter,
-    modifier: Modifier,
-) -> Result<serde_json::Value, QueryBuildError> {
-    match &search_param.type_ {
-        param_type if param_type == &SearchParamType::uri() => {
-            Ok(clauses::uri(namespace, parsed_parameter, search_param))
-        }
-        param_type if param_type == &SearchParamType::quantity() => {
-            clauses::quantity(namespace, parsed_parameter, search_param)
-        }
-        param_type if param_type == &SearchParamType::reference() => {
-            clauses::reference(namespace, parsed_parameter, search_param)
-        }
-        param_type if param_type == &SearchParamType::date() => {
-            clauses::date(namespace, parsed_parameter, search_param)
-        }
-        param_type if param_type == &SearchParamType::token() => {
-            clauses::token(namespace, parsed_parameter, search_param)
-        }
-        param_type if param_type == &SearchParamType::number() => {
-            clauses::number(namespace, parsed_parameter, search_param)
-        }
-        param_type if param_type == &SearchParamType::string() => Ok(clauses::string(
-            namespace,
-            parsed_parameter,
-            search_param,
-            modifier,
-        )),
-        _ => Err(QueryBuildError::UnsupportedParameter(
-            search_param.name.value.clone().unwrap_or_default(),
-        )),
+    if nested {
+        json!({ "nested": { "path": field, "query": { "match_all": {} } } })
+    } else {
+        json!({ "exists": { "field": field } })
     }
 }
 
@@ -187,18 +135,21 @@ fn parameter_to_elasticsearch_clauses(
         ParameterLevel::Project => Some(DYNAMIC_PARAMETER_INDEX_FIELD),
     };
     let search_param = parameter.search_parameter.as_ref();
+    let field = clauses::namespace_parameter(namespace, search_param);
 
     // `:not` and `:missing=true` are applied as a `must_not` around the whole
     // clause, outside any `nested` query. Negating inside `nested` would match
     // a resource if *any* of its values failed to match, and never match one
     // with no values at all.
-    let modifier = parse_modifier(parsed_parameter, &search_param.type_)?;
-    let (clause, negate) = match modifier {
-        Modifier::Missing(missing) => (has_value(namespace, search_param)?, missing),
-        _ => (
-            type_clause(namespace, parsed_parameter, search_param, modifier)?,
-            modifier == Modifier::Not,
-        ),
+    let (clause, negate) = match &Values::parse(parsed_parameter, &search_param.type_)? {
+        Values::Missing(missing) => (has_value(&field, &search_param.type_), *missing),
+        Values::String(values) => (clauses::string(&field, values)?, false),
+        Values::Token(values) => clauses::token(&field, values)?,
+        Values::Uri(values) => (clauses::uri(&field, values)?, false),
+        Values::Reference(values) => (clauses::reference(&field, values)?, false),
+        Values::Date(values) => (clauses::date(&field, values), false),
+        Values::Number(values) => (clauses::number(&field, values), false),
+        Values::Quantity(values) => (clauses::quantity(&field, values), false),
     };
 
     let clause = match parameter.level {
@@ -232,11 +183,6 @@ fn parameter_to_elasticsearch_clauses(
         clause
     })
 }
-
-// Default value for Elasticsearch is 10k
-// see index.max_result_window
-static ABSOLUTE_MAX: u64 = 10_000;
-static DEFAULT_MAX_COUNT: u64 = 50;
 
 fn get_resource_type(request: &SearchRequest) -> Option<&ResourceType> {
     match request {
@@ -319,7 +265,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
 
 fn get_max_count(options: Option<&SearchOptions>) -> Result<u64, OperationOutcomeError> {
     if let Some(count_limit) = options.as_ref().and_then(|o| o.count_limit) {
-        if count_limit > ABSOLUTE_MAX {
+        if count_limit > MAX_COUNT {
             return Err(OperationOutcomeError::fatal(
                 IssueType::too_costly(),
                 "Count limit passed exceeds maxiumum allowed by ES".to_string(),
@@ -328,7 +274,7 @@ fn get_max_count(options: Option<&SearchOptions>) -> Result<u64, OperationOutcom
 
         Ok(count_limit)
     } else {
-        Ok(DEFAULT_MAX_COUNT)
+        Ok(DEFAULT_COUNT)
     }
 }
 
@@ -431,7 +377,7 @@ fn parse_count_parameter(result_param: &Parameter) -> Result<u64, OperationOutco
 
     count_parameter_string
         .parse::<u64>()
-        .map(|count| count.min(ABSOLUTE_MAX))
+        .map(|count| count.min(MAX_COUNT))
         .map_err(|_| {
             OperationOutcomeError::fatal(
                 IssueType::invalid(),
@@ -714,11 +660,11 @@ mod tests {
     #[test]
     fn a_bare_quantity_value_matches_any_unit() {
         let query = clause(ParameterLevel::System, "quantity", None, &["70.2"]);
-        let must = query["bool"]["should"][0]["nested"]["query"]["bool"]["must"]
+        let filter = query["bool"]["should"][0]["nested"]["query"]["bool"]["filter"]
             .as_array()
             .unwrap()
             .clone();
-        assert_eq!(must.len(), 2, "only the value range: {query}");
+        assert_eq!(filter.len(), 2, "only the value range: {query}");
     }
 
     #[test]

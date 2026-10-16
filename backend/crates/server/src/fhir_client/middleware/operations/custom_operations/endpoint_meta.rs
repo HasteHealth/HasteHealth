@@ -32,7 +32,7 @@ pub fn endpoint_metadata_op<
     TenantEndpointInformation::Output,
 > {
     OperationExecutor::new(
-        TenantEndpointInformation::CODE.to_string(),
+        &TenantEndpointInformation::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

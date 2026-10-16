@@ -1,0 +1,1094 @@
+{
+    "id": "builtin-operation-definitions",
+    "url": "https://haste.health/fhir/TestScript/builtin-operation-definitions",
+    "name": "Built-in OperationDefinitions",
+    "title": "Built-in OperationDefinitions are listed and protected",
+    "status": "active",
+    "description": "The OperationDefinitions of the server's built-in operations read by id and join OperationDefinition searches ahead of a project's own, matching each search as a stored copy would. A project OperationDefinition cannot take a built-in's id or url, or its code where the built-in applies, but can reuse the code elsewhere.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "ValueSet-expand",
+            "resourceType": "OperationDefinition",
+            "name": "bod-builtin-id",
+            "status": "draft",
+            "kind": "operation",
+            "code": "bod-builtin-id",
+            "system": false,
+            "type": true,
+            "instance": true
+        },
+        {
+            "id": "bod-custom",
+            "resourceType": "OperationDefinition",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "builtin-operation-definitions-test"
+                    }
+                ]
+            },
+            "name": "bod-custom",
+            "status": "draft",
+            "kind": "operation",
+            "code": "bod-custom",
+            "system": false,
+            "type": true,
+            "instance": false,
+            "url": "https://example.org/OperationDefinition/bod-custom"
+        },
+        {
+            "id": "bod-code-collision",
+            "resourceType": "OperationDefinition",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "builtin-operation-definitions-test"
+                    }
+                ]
+            },
+            "name": "bod-code-collision",
+            "status": "draft",
+            "kind": "operation",
+            "code": "expand",
+            "system": false,
+            "type": true,
+            "instance": false,
+            "resource": [
+                "ValueSet"
+            ]
+        },
+        {
+            "resourceType": "OperationDefinition",
+            "id": "bod-stored-expand",
+            "url": "https://example.org/OperationDefinition/bod-stored-expand",
+            "version": "4.0.1",
+            "name": "Value Set Expansion",
+            "status": "draft",
+            "kind": "operation",
+            "date": "2019-10-31T22:29:23+00:00",
+            "publisher": "HL7 (FHIR Project)",
+            "description": "The definition of a value set is used to create a simple collection of codes suitable for use for data entry or validation. \n\nIf the operation is not called at the instance level, one of the in parameters url, context or valueSet must be provided.  An expanded value set will be returned, or an `OperationOutcome` with an error message.",
+            "code": "bod-stored-expand",
+            "resource": [
+                "ValueSet"
+            ],
+            "system": false,
+            "type": true,
+            "instance": true,
+            "meta": {
+                "tag": [
+                    {
+                        "code": "builtin-operation-definitions-test"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "bod-encounter-everything",
+            "resourceType": "OperationDefinition",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "builtin-operation-definitions-test"
+                    }
+                ]
+            },
+            "name": "bod-encounter-everything",
+            "status": "draft",
+            "kind": "operation",
+            "code": "everything",
+            "system": false,
+            "type": false,
+            "instance": true,
+            "resource": [
+                "Encounter"
+            ],
+            "extension": [
+                {
+                    "url": "https://haste.health/Extension/custom-code",
+                    "valueString": "export default async function() {\n  return { resourceType: 'Parameters', parameter: [{ name: 'echo', valueString: 'encounter-everything' }] };\n}\n",
+                    "extension": [
+                        {
+                            "url": "https://haste.health/Extension/custom-code-type",
+                            "valueString": "text/typescript"
+                        }
+                    ]
+                }
+            ],
+            "parameter": [
+                {
+                    "name": "echo",
+                    "use": "out",
+                    "min": 0,
+                    "max": "1",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "id": "bod-encounter",
+            "resourceType": "Encounter",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "builtin-operation-definitions-test"
+                    }
+                ]
+            },
+            "status": "finished",
+            "class": {
+                "code": "AMB"
+            }
+        },
+        {
+            "id": "bod-no-parameters",
+            "resourceType": "Parameters"
+        },
+        {
+            "id": "bod-url-collision",
+            "resourceType": "OperationDefinition",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "builtin-operation-definitions-test"
+                    }
+                ]
+            },
+            "name": "bod-url-collision",
+            "status": "draft",
+            "kind": "operation",
+            "code": "bod-url-collision",
+            "system": false,
+            "type": true,
+            "instance": false,
+            "url": "http://hl7.org/fhir/OperationDefinition/ValueSet-expand"
+        },
+        {
+            "id": "bod-patch-to-expand",
+            "resourceType": "Binary",
+            "contentType": "application/json-patch+json",
+            "data": "W3sib3AiOiAicmVwbGFjZSIsICJwYXRoIjogIi9jb2RlIiwgInZhbHVlIjogImV4cGFuZCJ9XQ=="
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-ValueSet-expand",
+            "resource": {
+                "reference": "#ValueSet-expand"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-bod-custom",
+            "resource": {
+                "reference": "#bod-custom"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-bod-code-collision",
+            "resource": {
+                "reference": "#bod-code-collision"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-bod-stored-expand",
+            "resource": {
+                "reference": "#bod-stored-expand"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-bod-encounter-everything",
+            "resource": {
+                "reference": "#bod-encounter-everything"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-bod-encounter",
+            "resource": {
+                "reference": "#bod-encounter"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-bod-no-parameters",
+            "resource": {
+                "reference": "#bod-no-parameters"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-bod-url-collision",
+            "resource": {
+                "reference": "#bod-url-collision"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-bod-patch-to-expand",
+            "resource": {
+                "reference": "#bod-patch-to-expand"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-read",
+            "name": "A built-in OperationDefinition reads by id",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "targetId": "fixture-ValueSet-expand",
+                        "description": "Read the built-in $expand definition."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "It is the $expand definition",
+                        "expression": "OperationDefinition.code",
+                        "value": "expand",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "With its canonical url",
+                        "expression": "OperationDefinition.url",
+                        "value": "http://hl7.org/fhir/OperationDefinition/ValueSet-expand",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02-search-by-code",
+            "name": "A search lists the built-ins it matches",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "code=expand",
+                        "description": "Search by a built-in's code."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "One match",
+                        "expression": "Bundle.entry.count()",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The built-in",
+                        "expression": "Bundle.entry[0].resource.id",
+                        "value": "ValueSet-expand",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Marked as a match",
+                        "expression": "Bundle.entry[0].search.mode",
+                        "value": "match",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "code:not=expand",
+                        "description": "Exclude a built-in's code."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The excluded built-in is absent",
+                        "expression": "Bundle.entry.resource.where(id = 'ValueSet-expand').exists()",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Other built-ins are listed",
+                        "expression": "Bundle.entry.resource.where(id = 'Patient-everything').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "03-paging",
+            "name": "Built-ins come first and a page never repeats or skips one",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "targetId": "fixture-bod-custom",
+                        "sourceId": "fixture-bod-custom",
+                        "description": "Store a project OperationDefinition."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Stored",
+                        "expression": "OperationDefinition.code",
+                        "value": "bod-custom",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "code=bod-custom,expand&_total=accurate",
+                        "description": "Both, with a total."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The built-in and the project's",
+                        "expression": "Bundle.entry.count()",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The total counts both",
+                        "expression": "Bundle.total",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The built-in first",
+                        "expression": "Bundle.entry[0].resource.id",
+                        "value": "ValueSet-expand",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Then the project's",
+                        "expression": "Bundle.entry[1].resource.id",
+                        "value": "bod-custom",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "code=bod-custom,expand&_count=1",
+                        "description": "First page."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "One entry",
+                        "expression": "Bundle.entry.count()",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The built-in",
+                        "expression": "Bundle.entry[0].resource.id",
+                        "value": "ValueSet-expand",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "code=bod-custom,expand&_count=1&_offset=1",
+                        "description": "Second page."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "One entry",
+                        "expression": "Bundle.entry.count()",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The project's",
+                        "expression": "Bundle.entry[0].resource.id",
+                        "value": "bod-custom",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "code=bod-custom,expand&_count=1&_offset=2",
+                        "description": "Past the end."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Nothing",
+                        "expression": "Bundle.entry.exists()",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "04-refuse-collisions",
+            "name": "A project OperationDefinition cannot take a built-in's id, code or url",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "sourceId": "fixture-bod-code-collision",
+                        "description": "A built-in's code where the built-in applies."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused",
+                        "expression": "OperationOutcome.issue.where(code = 'conflict').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "sourceId": "fixture-bod-url-collision",
+                        "description": "A built-in's url."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused",
+                        "expression": "OperationOutcome.issue.where(code = 'conflict').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "targetId": "fixture-ValueSet-expand",
+                        "sourceId": "fixture-ValueSet-expand",
+                        "description": "A built-in's id."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused",
+                        "expression": "OperationOutcome.issue.where(code = 'conflict').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "delete"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "targetId": "fixture-ValueSet-expand",
+                        "description": "Delete a built-in."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused",
+                        "expression": "OperationOutcome.issue.where(code = 'conflict').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "patch"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "targetId": "fixture-bod-custom",
+                        "sourceId": "fixture-bod-patch-to-expand",
+                        "description": "Patch the project's OperationDefinition to a built-in's code."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Refused",
+                        "expression": "OperationOutcome.issue.where(code = 'conflict').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "targetId": "fixture-ValueSet-expand",
+                        "description": "The built-in is unchanged."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Unchanged",
+                        "expression": "OperationDefinition.name",
+                        "value": "Value Set Expansion",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "05-same-as-stored",
+            "name": "A built-in matches a search exactly as a stored copy of it does",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "targetId": "fixture-bod-stored-expand",
+                        "sourceId": "fixture-bod-stored-expand",
+                        "description": "Store a copy of the built-in $expand definition."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Stored",
+                        "expression": "OperationDefinition.name",
+                        "value": "Value Set Expansion",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "url=http://hl7.org/fhir/OperationDefinition/ValueSet-expand,https://example.org/OperationDefinition/bod-stored-expand&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "uri"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both or neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "name=value&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "string prefix, any case"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both or neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "name:exact=Value&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "string :exact"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "description:contains=collection&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "string :contains"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both or neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "status=draft&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "token"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both or neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "status=active&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "token"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "status:not=active&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "token :not"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both or neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "instance=true&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "boolean token"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both or neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "date=2019&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "date eq"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both or neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "date=le2019-10-31&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "date le"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both or neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "date=gt2019-11-02&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "date gt"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "date=ne2019&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "date ne"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "title:missing=true&_id=ValueSet-expand,bod-stored-expand",
+                        "description": ":missing"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both or neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "context-quantity=5&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "quantity, which only a query compares"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "context-quantity:missing=true&_id=ValueSet-expand,bod-stored-expand",
+                        "description": "quantity :missing"
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Both or neither",
+                        "expression": "Bundle.entry.count()",
+                        "value": "2",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "06-reuse-code-elsewhere",
+            "name": "A built-in's code can be reused where the built-in doesn't apply",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "targetId": "fixture-bod-encounter",
+                        "sourceId": "fixture-bod-encounter",
+                        "description": "An Encounter."
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "targetId": "fixture-bod-encounter-everything",
+                        "sourceId": "fixture-bod-encounter-everything",
+                        "description": "$everything on Encounter instances, which the built-in doesn't handle."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Allowed",
+                        "expression": "OperationDefinition.code",
+                        "value": "everything",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "OperationDefinition",
+                        "params": "code=everything&instance=true",
+                        "description": "Both $everything definitions."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The project's is listed",
+                        "expression": "Bundle.entry.resource.where(id = 'bod-encounter-everything').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Beside the built-in",
+                        "expression": "Bundle.entry.resource.where(id = 'Patient-everything').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "encodeRequestUrl": false,
+                        "resource": "Encounter",
+                        "url": "everything",
+                        "targetId": "fixture-bod-encounter",
+                        "sourceId": "fixture-bod-no-parameters",
+                        "description": "Encounter/[id]/$everything runs the project's operation."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Not the built-in Patient $everything",
+                        "expression": "Parameters.parameter.where(name = 'echo').value",
+                        "value": "encounter-everything",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "invoke"
+                        },
+                        "encodeRequestUrl": false,
+                        "url": "everything",
+                        "sourceId": "fixture-bod-no-parameters",
+                        "description": "$everything at the system level, which nothing defines."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Not found",
+                        "expression": "OperationOutcome.issue.where(code = 'not-found').exists()",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "encodeRequestUrl": false,
+                    "resource": "OperationDefinition",
+                    "params": "_tag=builtin-operation-definitions-test",
+                    "description": "Delete data created during test."
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "encodeRequestUrl": false,
+                    "resource": "Encounter",
+                    "params": "_tag=builtin-operation-definitions-test",
+                    "description": "Delete data created during test."
+                }
+            }
+        ]
+    }
+}

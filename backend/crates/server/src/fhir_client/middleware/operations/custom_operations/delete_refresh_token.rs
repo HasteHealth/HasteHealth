@@ -34,7 +34,7 @@ pub fn delete_refresh_token_op<
     HasteHealthDeleteRefreshToken::Output,
 > {
     OperationExecutor::new(
-        HasteHealthDeleteRefreshToken::CODE.to_string(),
+        &HasteHealthDeleteRefreshToken::OPERATION_DEFINITION,
         Box::new(
             |context: ServerOperationContext<
                 ServerMiddlewareState<Repo, Search, Terminology>,

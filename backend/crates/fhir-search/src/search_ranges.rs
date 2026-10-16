@@ -1,4 +1,4 @@
-//! Range arithmetic for search prefixes, shared by both backends.
+//! Range arithmetic for search prefixes, shared by every backend.
 //!
 //! A decimal's implicit precision range is half-open: `45` covers
 //! `[44.5, 45.5)`, so `44` and `45` share the boundary `44.5` without
