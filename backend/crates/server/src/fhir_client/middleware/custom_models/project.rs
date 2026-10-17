@@ -235,15 +235,21 @@ impl<
                             Ok(res)
                         }
 
-                        // Storage runs a type delete as instance deletes
-                        // through the client, each handled above.
                         FHIRRequest::Read(_)
                         | FHIRRequest::VersionRead(_)
                         | FHIRRequest::Search(SearchRequest::Type(_))
                         | FHIRRequest::History(
                             HistoryRequest::Instance(_) | HistoryRequest::Type(_),
-                        )
-                        | FHIRRequest::Delete(DeleteRequest::Type(_)) => next(state, context).await,
+                        ) => next(state, context).await,
+
+                        // Projects are deleted one at a time, by id.
+                        FHIRRequest::Delete(DeleteRequest::Type(_)) => {
+                            Err(OperationOutcomeError::fatal(
+                                IssueType::not_supported(),
+                                "Projects cannot be deleted by search. Delete each one by id."
+                                    .to_string(),
+                            ))
+                        }
 
                         // Dissallow updates on project because could impact integrity of system. For example project has stored
                         // resources in a specific FHIR version, changing that version would cause issues.
