@@ -55,10 +55,14 @@ function loadArtifacts() {
     .sort()
     .flatMap((name) => readResources(path.join(HL7, name)))
     .map((resource) => ({ resource, source: "hl7" }));
-  const haste = jsonFiles(HASTE, { skip: ["operation-frontend-only"] }).flatMap((file) => {
-    const source = file.includes("/sql-on-fhir/") ? "sql-on-fhir" : "haste-health";
-    return readResources(file).map((resource) => ({ resource, source }));
-  });
+  const haste = jsonFiles(HASTE, { skip: ["operation-frontend-only"] }).flatMap(
+    (file) => {
+      const source = file.includes("/sql-on-fhir/")
+        ? "sql-on-fhir"
+        : "haste-health";
+      return readResources(file).map((resource) => ({ resource, source }));
+    },
+  );
   return [...hl7, ...haste];
 }
 
@@ -71,7 +75,8 @@ function loadHl7Metadata() {
   for (const file of ["profiles-resources.json", "profiles-types.json"]) {
     for (const sd of readResources(path.join(HL7, file))) {
       if (sd.resourceType !== "StructureDefinition") continue;
-      const ext = (name) => sd.extension?.find((e) => e.url === EXT + name) ?? {};
+      const ext = (name) =>
+        sd.extension?.find((e) => e.url === EXT + name) ?? {};
       metadata.set(sd.url, {
         category: ext("category").valueString?.replaceAll("&amp;", "&"),
         status: ext("standards-status").valueCode,
@@ -95,10 +100,16 @@ function loadServer() {
     );
   }
   const capabilities = readJson(METADATA);
-  const rest = capabilities.rest?.find((r) => r.mode === "server") ?? capabilities.rest?.[0] ?? {};
+  const rest =
+    capabilities.rest?.find((r) => r.mode === "server") ??
+    capabilities.rest?.[0] ??
+    {};
   const definitions = jsonFiles(OPERATION_DEFINITIONS)
     .map(readJson)
-    .filter((resource) => resource.resourceType === "OperationDefinition" && resource.code);
+    .filter(
+      (resource) =>
+        resource.resourceType === "OperationDefinition" && resource.code,
+    );
   return { capabilities, rest, definitions };
 }
 
@@ -114,7 +125,9 @@ const SYSTEM_HREF = "/docs/reference/fhir/system";
 /** `http://hl7.org/fhirpath/System.String` with a fhir-type extension is `string`. */
 function typeCode(type) {
   const fhirType = type.extension?.find((e) => e.url === FHIR_TYPE_EXT);
-  return fhirType?.valueUrl ?? type.code.replace("http://hl7.org/fhirpath/", "");
+  return (
+    fhirType?.valueUrl ?? type.code.replace("http://hl7.org/fhirpath/", "")
+  );
 }
 
 const lastSegment = (url) => url.split("|")[0].split("/").pop();
@@ -155,7 +168,8 @@ function elements(sd, pages) {
     }),
     ...(element.isModifier && { modifier: true }),
     ...(element.isSummary && { summary: true }),
-    ...(element.base && element.base.path.split(".")[0] !== type && { inherited: true }),
+    ...(element.base &&
+      element.base.path.split(".")[0] !== type && { inherited: true }),
     ...(binding(element) && { binding: binding(element) }),
   }));
 }
@@ -166,14 +180,18 @@ function elements(sd, pages) {
  * expressions with `|`. Keep only the part for this resource.
  */
 function descriptionFor(description, name) {
-  const line = description.split(/\r?\n/).find((l) => l.startsWith(`* [${name}](`));
+  const line = description
+    .split(/\r?\n/)
+    .find((l) => l.startsWith(`* [${name}](`));
   return line ? line.replace(/^\* \[[^\]]+\]\([^)]*\):\s*/, "") : description;
 }
 
 function expressionFor(expression, name) {
   if (!expression) return undefined;
   const parts = expression.split(/\s\|\s/).map((p) => p.trim());
-  const own = parts.filter((p) => p.startsWith(`${name}.`) || p.startsWith(`(${name}.`));
+  const own = parts.filter(
+    (p) => p.startsWith(`${name}.`) || p.startsWith(`(${name}.`),
+  );
   return (own.length > 0 ? own : parts).join(" | ");
 }
 
@@ -196,7 +214,9 @@ function searchParameters(name, parameters, support) {
       type: p.type,
       description: descriptionFor(p.description ?? "", name),
       expression: expressionFor(p.expression, name),
-      ...(paramCoverage(support, p.code) && { coverage: paramCoverage(support, p.code) }),
+      ...(paramCoverage(support, p.code) && {
+        coverage: paramCoverage(support, p.code),
+      }),
     }))
     .sort((a, b) => a.code.localeCompare(b.code));
 }
@@ -233,7 +253,8 @@ function hl7Link(sd, source) {
 // lists, or to every type when it lists none.
 
 const LEVELS = ["system", "type", "instance"];
-const levelsOf = (definition) => LEVELS.filter((level) => definition[level] === true);
+const levelsOf = (definition) =>
+  LEVELS.filter((level) => definition[level] === true);
 
 function definedOn(definition, type) {
   const types = definition.resource ?? [];
@@ -245,7 +266,9 @@ function hl7Operation(definition) {
   const match = /^http:\/\/hl7\.org\/fhir\/OperationDefinition\/([^|]+)$/.exec(
     definition.url ?? "",
   );
-  return match ? `https://hl7.org/fhir/R4/operation-${match[1].toLowerCase()}.html` : undefined;
+  return match
+    ? `https://hl7.org/fhir/R4/operation-${match[1].toLowerCase()}.html`
+    : undefined;
 }
 
 function parameter(part, pages) {
@@ -255,13 +278,20 @@ function parameter(part, pages) {
     min: part.min ?? 0,
     max: part.max ?? "1",
     ...(part.type && { type: part.type, href: pages.get(part.type) }),
-    ...(part.targetProfile?.length > 0 && { targets: targetLinks(part.targetProfile, pages) }),
+    ...(part.targetProfile?.length > 0 && {
+      targets: targetLinks(part.targetProfile, pages),
+    }),
     ...(part.searchType && { searchType: part.searchType }),
     ...(part.documentation && { documentation: part.documentation }),
     ...(part.binding?.valueSet && {
-      binding: { strength: part.binding.strength, valueSet: part.binding.valueSet.split("|")[0] },
+      binding: {
+        strength: part.binding.strength,
+        valueSet: part.binding.valueSet.split("|")[0],
+      },
     }),
-    ...(part.part?.length > 0 && { parts: part.part.map((p) => parameter(p, pages)) }),
+    ...(part.part?.length > 0 && {
+      parts: part.part.map((p) => parameter(p, pages)),
+    }),
   };
 }
 
@@ -272,7 +302,10 @@ function operation(definition, pages) {
     url: definition.url,
     title: definition.title ?? definition.name,
     levels: levelsOf(definition),
-    resources: (definition.resource ?? []).map((name) => ({ name, href: pages.get(name) })),
+    resources: (definition.resource ?? []).map((name) => ({
+      name,
+      href: pages.get(name),
+    })),
     description: definition.description ?? "",
     affectsState: definition.affectsState === true,
     hl7: hl7Operation(definition),
@@ -286,7 +319,9 @@ const byCode = (a, b) => a.code.localeCompare(b.code);
 /** The operations invoked on `type` or its instances. */
 function operationsFor(type, definitions, pages) {
   return definitions
-    .filter((d) => (d.type === true || d.instance === true) && definedOn(d, type))
+    .filter(
+      (d) => (d.type === true || d.instance === true) && definedOn(d, type),
+    )
     .map((d) => operation(d, pages))
     .sort(byCode);
 }
@@ -316,7 +351,8 @@ function systemData(server, definitions, pages, resources) {
 // rules YAML uses for double-quoted scalars.
 const yamlString = (v) => JSON.stringify(v ?? "");
 
-const GENERATED = "{/* Generated by scripts/generate/fhir.mjs. Do not edit. */}";
+const GENERATED =
+  "{/* Generated by scripts/generate/fhir.mjs. Do not edit. */}";
 
 const KIND_LABEL = {
   resource: "resource",
@@ -345,7 +381,8 @@ function metaDescription(sd, definition) {
   const body = raw.replace(/\s+/g, " ").trim();
   const prefix = `${sd.name} (FHIR R4 ${kind}): `;
   const budget = 155 - prefix.length;
-  const text = body.length > budget ? `${body.slice(0, budget - 1).trimEnd()}…` : body;
+  const text =
+    body.length > budget ? `${body.slice(0, budget - 1).trimEnd()}…` : body;
   return `${prefix}${text}`;
 }
 
@@ -480,13 +517,22 @@ export async function run() {
     .filter((r) => r.resourceType === "SearchParameter");
 
   const pages = new Map(
-    structureDefinitions.map(({ resource: sd }) => [sd.name, pageHref(sd.name, sd.kind)]),
+    structureDefinitions.map(({ resource: sd }) => [
+      sd.name,
+      pageHref(sd.name, sd.kind),
+    ]),
   );
 
   const common = parameters
-    .filter((p) => p.base.includes("Resource") || p.base.includes("DomainResource"))
+    .filter(
+      (p) => p.base.includes("Resource") || p.base.includes("DomainResource"),
+    )
     .filter((p) => p.expression)
-    .map((p) => ({ code: p.code, type: p.type, description: p.description ?? "" }))
+    .map((p) => ({
+      code: p.code,
+      type: p.type,
+      description: p.description ?? "",
+    }))
     .sort((a, b) => a.code.localeCompare(b.code));
 
   const index = [];
@@ -507,7 +553,11 @@ export async function run() {
       raw: `/fhir/R4/${sd.name}.json`,
       elements: elements(sd, pages),
       ...(isResource && {
-        searchParameters: searchParameters(sd.name, parameters, resourceSupport),
+        searchParameters: searchParameters(
+          sd.name,
+          parameters,
+          resourceSupport,
+        ),
         commonParameters: common,
         coverage: coverage(resourceSupport),
         operations: operationsFor(sd.name, server.definitions, pages),
@@ -515,7 +565,10 @@ export async function run() {
     };
 
     writeJson(`${DATA}/${sd.name}.json`, data);
-    writeFile(`${DOCS}/model/${isResource ? "resources" : "types"}/${sd.name}.mdx`, page(sd, data));
+    writeFile(
+      `${DOCS}/model/${isResource ? "resources" : "types"}/${sd.name}.mdx`,
+      page(sd, data),
+    );
     writeJson(`${RAW}/${sd.name}.json`, sd, { pretty: true });
 
     if (isResource && data.operations.length > 0) {
@@ -549,7 +602,12 @@ export async function run() {
   index.sort((a, b) => a.name.localeCompare(b.name));
   writeJson(`${DATA}/index.json`, index);
 
-  const system = systemData(server, server.definitions, pages, resourceOperations);
+  const system = systemData(
+    server,
+    server.definitions,
+    pages,
+    resourceOperations,
+  );
   writeJson(`${DATA}/system.json`, system);
   writeFile(`${DOCS}/system.mdx`, systemPage(system));
 

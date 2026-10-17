@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "@docusaurus/Link";
+import useBrokenLinks from "@docusaurus/useBrokenLinks";
 
 import Markdown from "./Markdown";
 import { Badge } from "./ModelHeader";
@@ -26,12 +27,16 @@ const ENDPOINTS = "/docs/api/rest_api/fhir/endpoints";
  * defined on. The server accepts operations by POST only.
  */
 function requests(operation: Operation, type?: string): string[] {
-  const types = type ? [type] : operation.resources.map((resource) => resource.name);
+  const types = type
+    ? [type]
+    : operation.resources.map((resource) => resource.name);
   const name = `$${operation.code}`;
   return operation.levels.flatMap((level) => {
     if (level === "system") return [`POST [base]/${name}`];
     const tail = level === "type" ? name : `[id]/${name}`;
-    return (types.length > 0 ? types : ["[type]"]).map((t) => `POST [base]/${t}/${tail}`);
+    return (types.length > 0 ? types : ["[type]"]).map(
+      (t) => `POST [base]/${t}/${tail}`,
+    );
   });
 }
 
@@ -39,7 +44,9 @@ function TypeLink({ name, href }: Readonly<{ name: string; href?: string }>) {
   return href ? <Link to={href}>{name}</Link> : <span>{name}</span>;
 }
 
-function ParameterType({ parameter }: Readonly<{ parameter: OperationParameter }>) {
+function ParameterType({
+  parameter,
+}: Readonly<{ parameter: OperationParameter }>) {
   if (!parameter.type) {
     return parameter.parts ? <span className={styles.muted}>parts</span> : null;
   }
@@ -68,7 +75,11 @@ function ParameterRows({
   parameters,
   depth = 0,
   prefix = "",
-}: Readonly<{ parameters: OperationParameter[]; depth?: number; prefix?: string }>) {
+}: Readonly<{
+  parameters: OperationParameter[];
+  depth?: number;
+  prefix?: string;
+}>) {
   return (
     <>
       {parameters.map((parameter) => {
@@ -92,15 +103,24 @@ function ParameterRows({
               </td>
               <td>
                 {parameter.documentation && (
-                  <Markdown text={parameter.documentation} className={styles.paramDescription} />
+                  <Markdown
+                    text={parameter.documentation}
+                    className={styles.paramDescription}
+                  />
                 )}
                 {parameter.searchType && (
-                  <span className={styles.binding}>Search type: {parameter.searchType}</span>
+                  <span className={styles.binding}>
+                    Search type: {parameter.searchType}
+                  </span>
                 )}
                 {parameter.binding && (
                   <span className={styles.binding}>
                     Binding: {parameter.binding.strength}{" "}
-                    <a href={parameter.binding.valueSet} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={parameter.binding.valueSet}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       {lastSegment(parameter.binding.valueSet)}
                     </a>
                   </span>
@@ -108,7 +128,11 @@ function ParameterRows({
               </td>
             </tr>
             {parameter.parts && (
-              <ParameterRows parameters={parameter.parts} depth={depth + 1} prefix={`${key}.`} />
+              <ParameterRows
+                parameters={parameter.parts}
+                depth={depth + 1}
+                prefix={`${key}.`}
+              />
             )}
           </React.Fragment>
         );
@@ -166,8 +190,12 @@ function OperationCard({
   type,
   open,
 }: Readonly<{ operation: Operation; type?: string; open: boolean }>) {
+  const anchor = `op-${operation.code}`;
+  // The system page links here; the build's anchor check only knows anchors
+  // that are declared to it.
+  useBrokenLinks().collectAnchor(anchor);
   return (
-    <section id={`op-${operation.code}`} className={styles.operation}>
+    <section id={anchor} className={styles.operation}>
       <div className={styles.operationHead}>
         <h3 className={styles.operationCode}>${operation.code}</h3>
         <span className={styles.operationBadges}>
@@ -177,7 +205,9 @@ function OperationCard({
             </Badge>
           ))}
           {operation.affectsState && (
-            <Badge title="Invoking it changes data on the server">Affects state</Badge>
+            <Badge title="Invoking it changes data on the server">
+              Affects state
+            </Badge>
           )}
         </span>
       </div>
@@ -185,7 +215,10 @@ function OperationCard({
         <p className={styles.operationTitle}>{operation.title}</p>
       )}
       {operation.description && (
-        <Markdown text={operation.description} className={styles.operationDescription} />
+        <Markdown
+          text={operation.description}
+          className={styles.operationDescription}
+        />
       )}
       <div className={styles.requests}>
         {requests(operation, type).map((line) => (
@@ -223,7 +256,9 @@ export default function Operations({
   if (operations.length === 0) {
     return (
       <p className={styles.muted}>
-        {type ? `${type} has no operations of its own.` : "No system-level operations."}
+        {type
+          ? `${type} has no operations of its own.`
+          : "No system-level operations."}
       </p>
     );
   }
@@ -234,21 +269,27 @@ export default function Operations({
         {type ? (
           <>
             Invoke with <code>POST [base]/{type}/$[name]</code> on the type, or{" "}
-            <code>POST [base]/{type}/[id]/$[name]</code> on one resource, sending a{" "}
-            <code>Parameters</code> resource as the body. See{" "}
+            <code>POST [base]/{type}/[id]/$[name]</code> on one resource,
+            sending a <code>Parameters</code> resource as the body. See{" "}
             <Link to={`${ENDPOINTS}/invoke-type`}>invoke-type</Link> and{" "}
             <Link to={`${ENDPOINTS}/invoke-instance`}>invoke-instance</Link>.
           </>
         ) : (
           <>
-            Invoke with <code>POST [base]/$[name]</code>, sending a <code>Parameters</code>{" "}
-            resource as the body. The out parameters say what comes back: a resource, or a{" "}
-            <code>Parameters</code> resource holding them.
+            Invoke with <code>POST [base]/$[name]</code>, sending a{" "}
+            <code>Parameters</code> resource as the body. The out parameters say
+            what comes back: a resource, or a <code>Parameters</code> resource
+            holding them.
           </>
         )}
       </p>
       {operations.map((operation) => (
-        <OperationCard key={operation.code} operation={operation} type={type} open={open} />
+        <OperationCard
+          key={operation.code}
+          operation={operation}
+          type={type}
+          open={open}
+        />
       ))}
     </div>
   );

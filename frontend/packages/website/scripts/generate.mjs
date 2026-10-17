@@ -45,10 +45,13 @@ function parse(argv) {
 const { steps, options } = parse(process.argv.slice(2));
 const unknown = steps.filter((step) => !STEPS.includes(step));
 if (unknown.length > 0) {
-  console.error(`Unknown step: ${unknown.join(", ")}. Steps: ${STEPS.join(", ")}.`);
+  console.error(
+    `Unknown step: ${unknown.join(", ")}. Steps: ${STEPS.join(", ")}.`,
+  );
   process.exit(2);
 }
-const selected = steps.length > 0 ? STEPS.filter((step) => steps.includes(step)) : STEPS;
+const selected =
+  steps.length > 0 ? STEPS.filter((step) => steps.includes(step)) : STEPS;
 
 for (const name of selected) {
   const step = await import(`./generate/${name}.mjs`);
@@ -58,7 +61,9 @@ for (const name of selected) {
   }
   const started = Date.now();
   try {
-    const summary = await (options.check ? step.check(options) : step.run(options));
+    const summary = await (options.check
+      ? step.check(options)
+      : step.run(options));
     const seconds = ((Date.now() - started) / 1000).toFixed(1);
     console.log(`✓ ${name} (${seconds}s): ${summary}`);
   } catch (error) {

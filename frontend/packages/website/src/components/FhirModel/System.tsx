@@ -8,7 +8,12 @@ import styles from "./styles.module.css";
 
 const ENDPOINTS = "/docs/api/rest_api/fhir/endpoints";
 
-type InteractionInfo = { label: string; request: string; summary: string; docs?: string };
+type InteractionInfo = {
+  label: string;
+  request: string;
+  summary: string;
+  docs?: string;
+};
 
 /**
  * How each system-level interaction is requested. `metadata` is not a code in
@@ -35,7 +40,8 @@ const INTERACTIONS: Record<string, InteractionInfo> = {
   transaction: {
     label: "Transaction",
     request: "POST [base]",
-    summary: "A Bundle of type transaction, applied as one unit: all of it or none of it.",
+    summary:
+      "A Bundle of type transaction, applied as one unit: all of it or none of it.",
   },
   batch: {
     label: "Batch",
@@ -58,14 +64,19 @@ export function SystemHeader({ data }: Readonly<{ data: SystemData }>) {
         {data.formats.map((format) => (
           <Badge key={format}>{format}</Badge>
         ))}
-        {data.cors && <Badge title="Browsers may call the API from other origins">CORS</Badge>}
+        {data.cors && (
+          <Badge title="Browsers may call the API from other origins">
+            CORS
+          </Badge>
+        )}
       </div>
       <p className={styles.definition}>
         What the server offers on the base URL itself,{" "}
-        <code>https://[host]/w/[tenant]/[project]/api/v1/fhir</code>: the interactions that span
-        resource types, the operations invoked at the system level, and which of the{" "}
-        {data.resourceTypes} resource types have operations of their own. Generated from the
-        server&apos;s CapabilityStatement and the OperationDefinitions it serves.
+        <code>https://[host]/w/[tenant]/[project]/api/v1/fhir</code>: the
+        interactions that span resource types, the operations invoked at the
+        system level, and which of the {data.resourceTypes} resource types have
+        operations of their own. Generated from the server&apos;s
+        CapabilityStatement and the OperationDefinitions it serves.
       </p>
       <div className={styles.links}>
         <Link to="#interactions">Interactions</Link>
@@ -98,14 +109,24 @@ export function SystemInteractions({ data }: Readonly<{ data: SystemData }>) {
           </thead>
           <tbody>
             {codes.map((code) => {
-              const info = INTERACTIONS[code] ?? { label: code, request: "", summary: "" };
+              const info = INTERACTIONS[code] ?? {
+                label: code,
+                request: "",
+                summary: "",
+              };
               return (
                 <tr key={code} id={`interaction-${code}`}>
                   <td className={styles.paramCode}>
-                    <span className={styles.interactionLabel}>{info.label}</span>
+                    <span className={styles.interactionLabel}>
+                      {info.label}
+                    </span>
                     <code className={styles.expression}>{code}</code>
                   </td>
-                  <td>{info.request && <code className={styles.request}>{info.request}</code>}</td>
+                  <td>
+                    {info.request && (
+                      <code className={styles.request}>{info.request}</code>
+                    )}
+                  </td>
                   <td>
                     {info.summary}
                     {info.docs && (
@@ -122,8 +143,8 @@ export function SystemInteractions({ data }: Readonly<{ data: SystemData }>) {
         </table>
       </div>
       <p className={styles.legend}>
-        The interactions on a resource type (create, read, update, patch, delete, search and
-        history) are on its page, with their test results.
+        The interactions on a resource type (create, read, update, patch,
+        delete, search and history) are on its page, with their test results.
       </p>
     </div>
   );
@@ -131,13 +152,17 @@ export function SystemInteractions({ data }: Readonly<{ data: SystemData }>) {
 
 export function OperationIndex({ data }: Readonly<{ data: SystemData }>) {
   if (data.resources.length === 0) {
-    return <p className={styles.muted}>No resource type has operations of its own.</p>;
+    return (
+      <p className={styles.muted}>
+        No resource type has operations of its own.
+      </p>
+    );
   }
   return (
     <div className={styles.root}>
       <p>
-        The resource types with type- or instance-level operations. Every other resource type
-        supports the standard interactions only.
+        The resource types with type- or instance-level operations. Every other
+        resource type supports the standard interactions only.
       </p>
       <div className={styles.scroll}>
         <table className={styles.table}>

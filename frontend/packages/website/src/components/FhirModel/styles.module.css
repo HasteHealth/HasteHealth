@@ -693,7 +693,7 @@
   padding-left: calc(var(--depth, 0) * 1.125rem);
   font-family: var(--ifm-font-family-monospace);
   font-weight: 600;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 
 .paramCard {

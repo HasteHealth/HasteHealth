@@ -25,12 +25,16 @@ import {
   writeFile,
 } from "./lib.mjs";
 
-const CATEGORY_URL = "https://haste.health/fhir/StructureDefinition/testscript-category";
+const CATEGORY_URL =
+  "https://haste.health/fhir/StructureDefinition/testscript-category";
 // Set by `testscript run --allow-failure` on a TestReport whose failure is known.
 const EXPECTED_FAILURE_URL =
   "https://haste.health/fhir/StructureDefinition/testreport-expected-failure";
 
-const HL7_SEARCH_PARAMETERS = path.join(ARTIFACTS, "hl7-core/definitions/hl7/search-parameters.json");
+const HL7_SEARCH_PARAMETERS = path.join(
+  ARTIFACTS,
+  "hl7-core/definitions/hl7/search-parameters.json",
+);
 const HASTE_SEARCH_PARAMETERS = path.join(
   ARTIFACTS,
   "hastehealth-core/definitions/haste-health/search_parameter",
@@ -44,7 +48,9 @@ function extensionValue(extension, url) {
 
 function category(action) {
   const source = action.operation ?? action.assert;
-  const extension = source?.extension?.find((item) => item.url === CATEGORY_URL);
+  const extension = source?.extension?.find(
+    (item) => item.url === CATEGORY_URL,
+  );
   if (!extension) return undefined;
   return {
     group: extensionValue(extension, "group"),
@@ -64,7 +70,8 @@ function reportsById(file) {
 
 function isExpectedFailure(report) {
   return (report?.extension ?? []).some(
-    (extension) => extension.url === EXPECTED_FAILURE_URL && extension.valueBoolean === true,
+    (extension) =>
+      extension.url === EXPECTED_FAILURE_URL && extension.valueBoolean === true,
   );
 }
 
@@ -83,7 +90,10 @@ function toResult(result, report) {
 }
 
 function actionResult(report, testIndex, actionIndex, kind) {
-  return toResult(report?.test?.[testIndex]?.action?.[actionIndex]?.[kind]?.result, report);
+  return toResult(
+    report?.test?.[testIndex]?.action?.[actionIndex]?.[kind]?.result,
+    report,
+  );
 }
 
 /**
@@ -91,9 +101,10 @@ function actionResult(report, testIndex, actionIndex, kind) {
  * Health's own parameters (User, AccessPolicyV2...).
  */
 function searchParameterTypes() {
-  const resources = [HL7_SEARCH_PARAMETERS, ...jsonFiles(HASTE_SEARCH_PARAMETERS)].flatMap(
-    readResources,
-  );
+  const resources = [
+    HL7_SEARCH_PARAMETERS,
+    ...jsonFiles(HASTE_SEARCH_PARAMETERS),
+  ].flatMap(readResources);
   return new Map(
     resources
       .filter((resource) => resource?.resourceType === "SearchParameter")
@@ -110,7 +121,11 @@ function resourceSupport(testScript, reports, parameterTypes) {
       const metadata = category(action);
       if (!metadata?.group) continue;
       const kind = action.operation ? "operation" : "assert";
-      const key = [metadata.group, metadata.searchParameterUrl, metadata.variant].join("|");
+      const key = [
+        metadata.group,
+        metadata.searchParameterUrl,
+        metadata.variant,
+      ].join("|");
       const entry = groups.get(key) ?? {
         group: metadata.group,
         searchParameterUrl: metadata.searchParameterUrl,
@@ -118,7 +133,9 @@ function resourceSupport(testScript, reports, parameterTypes) {
         searchParameterType: parameterTypes.get(metadata.searchParameterUrl),
         variant: metadata.variant,
         assertions: [],
-        results: Object.fromEntries(Object.keys(reports).map((backend) => [backend, []])),
+        results: Object.fromEntries(
+          Object.keys(reports).map((backend) => [backend, []]),
+        ),
       };
 
       if (kind === "assert") {
@@ -136,7 +153,9 @@ function resourceSupport(testScript, reports, parameterTypes) {
         });
       }
       for (const [backend, report] of Object.entries(reports)) {
-        entry.results[backend].push(actionResult(report, testIndex, actionIndex, kind));
+        entry.results[backend].push(
+          actionResult(report, testIndex, actionIndex, kind),
+        );
       }
       groups.set(key, entry);
     }
@@ -153,25 +172,34 @@ function resourceSupport(testScript, reports, parameterTypes) {
     groups: [...groups.values()].map((group) => ({
       ...group,
       results: Object.fromEntries(
-        Object.entries(group.results).map(([backend, results]) => [backend, combine(results)]),
+        Object.entries(group.results).map(([backend, results]) => [
+          backend,
+          combine(results),
+        ]),
       ),
     })),
   };
 }
 
 export async function run({ args }) {
-  const testscripts = args.testscripts ?? path.join(BACKEND, "testscripts/core");
+  const testscripts =
+    args.testscripts ?? path.join(BACKEND, "testscripts/core");
   const output = args.output ?? SUPPORT;
   const bundles = {
     postgres: args.postgres ?? path.join(BACKEND, "testreports/postgres.json"),
-    elasticsearch: args.elasticsearch ?? path.join(BACKEND, "testreports/elasticsearch.json"),
+    elasticsearch:
+      args.elasticsearch ??
+      path.join(BACKEND, "testreports/elasticsearch.json"),
   };
   for (const file of [testscripts, ...Object.values(bundles)]) {
     if (!fs.existsSync(file)) throw new Error(`${file} does not exist.`);
   }
 
   const backendReports = Object.fromEntries(
-    Object.entries(bundles).map(([backend, file]) => [backend, reportsById(file)]),
+    Object.entries(bundles).map(([backend, file]) => [
+      backend,
+      reportsById(file),
+    ]),
   );
   const parameterTypes = searchParameterTypes();
 

@@ -6,7 +6,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 /** frontend/packages/website, whatever the current directory is. */
-export const SITE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+export const SITE = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../..",
+);
 export const REPO = path.resolve(SITE, "../../..");
 export const BACKEND = path.join(REPO, "backend");
 export const ARTIFACTS = path.join(REPO, "artifacts/r4");
@@ -33,7 +36,10 @@ export function writeFile(file, content) {
 
 /** Compact by default; `pretty` for files people read, such as the raw FHIR JSON. */
 export function writeJson(file, value, { pretty = false } = {}) {
-  writeFile(file, pretty ? JSON.stringify(value, null, 2) : JSON.stringify(value));
+  writeFile(
+    file,
+    pretty ? JSON.stringify(value, null, 2) : JSON.stringify(value),
+  );
 }
 
 /** The resources in a JSON file: a Bundle's entries, a list, or one. */
@@ -95,10 +101,14 @@ export function combine(results) {
 export function loadEnv(file = site(".env")) {
   if (!fs.existsSync(file)) return;
   for (const line of fs.readFileSync(file, "utf8").split(/\r?\n/)) {
-    const match = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_.]*)\s*=\s*(.*?)\s*$/.exec(line);
+    const match =
+      /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_.]*)\s*=\s*(.*?)\s*$/.exec(line);
     if (!match || line.trimStart().startsWith("#")) continue;
     const [, key, raw] = match;
-    const quoted = raw.length >= 2 && (raw[0] === '"' || raw[0] === "'") && raw.at(-1) === raw[0];
+    const quoted =
+      raw.length >= 2 &&
+      (raw[0] === '"' || raw[0] === "'") &&
+      raw.at(-1) === raw[0];
     process.env[key] ??= quoted ? raw.slice(1, -1) : raw;
   }
 }

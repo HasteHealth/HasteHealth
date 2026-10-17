@@ -18,7 +18,6 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::{SearchEngine, SearchOptions};
 use haste_jwt::{ProjectId, TenantId};
-
 use haste_repository::{Repository, fhir::CachePolicy, types::SupportedFHIRVersions};
 use sha1::{Digest, Sha1};
 

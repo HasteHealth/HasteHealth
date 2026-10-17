@@ -212,7 +212,7 @@ jobs:
           RUST_LOG: info
 
       # One TestReport bundle per backend, as the website's test coverage page
-      # expects (frontend/packages/website: generate-test-support).
+      # expects (frontend/packages/website: `pnpm generate test-support`).
       - name: Upload TestReports
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -256,11 +256,9 @@ jobs:
           postgres=reports/core-testreports-postgres/postgres.json
           elasticsearch=reports/core-testreports-elasticsearch/elasticsearch.json
           if [ -f "$postgres" ] && [ -f "$elasticsearch" ]; then
-            node frontend/packages/website/scripts/generate-test-support.mjs \
-              --testscripts backend/testscripts/core \
+            node frontend/packages/website/scripts/generate.mjs test-support \
               --postgres "$postgres" \
-              --elasticsearch "$elasticsearch" \
-              --output frontend/packages/website/static/test-reports/support.json
+              --elasticsearch "$elasticsearch"
           else
             echo "TestReports unavailable this run; deploying with the previously committed coverage data."
           fi
