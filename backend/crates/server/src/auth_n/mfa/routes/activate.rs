@@ -1,3 +1,4 @@
+use crate::auth_n::constant_time;
 use crate::{
     auth_n::{mfa::utilities::user_mfa_to_totp, session},
     extract::csrf_token::CSRFToken,
@@ -176,7 +177,7 @@ pub async fn activate_post<
     Cached(current_session): Cached<Session>,
     Form(mfa_activate_data): Form<MFAActivatePOSTBody>,
 ) -> Result<Response, OperationOutcomeError> {
-    if mfa_activate_data.csrf_token != csrf_token {
+    if !constant_time::str_eq(&mfa_activate_data.csrf_token, &csrf_token) {
         return Err(OperationOutcomeError::error(
             IssueType::security(),
             "Invalid CSRF token.".to_string(),

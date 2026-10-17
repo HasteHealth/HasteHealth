@@ -1,3 +1,4 @@
+use crate::auth_n::constant_time;
 use crate::{
     auth_n::session,
     extract::{csrf_token::CSRFToken, path_tenant::TenantIdentifier},
@@ -56,7 +57,7 @@ pub async fn mfa_delete_post<
     Cached(current_session): Cached<Session>,
     Form(delete_body): Form<MFADeletePOSTBody>,
 ) -> Result<Response, OperationOutcomeError> {
-    if csrf_token != delete_body.csrf_token {
+    if !constant_time::str_eq(&csrf_token, &delete_body.csrf_token) {
         return Err(OperationOutcomeError::error(
             IssueType::security(),
             "Invalid CSRF token.".to_string(),

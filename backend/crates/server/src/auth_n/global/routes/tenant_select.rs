@@ -5,6 +5,7 @@ use crate::ui::components::{banner, page_html};
 use axum::response::{IntoResponse, Redirect, Response};
 use axum::{Form, extract::State};
 //use axum_client_ip::ClientIp;
+use crate::auth_n::constant_time;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -72,7 +73,7 @@ pub async fn tenant_select_post(
     CSRFToken(csrf_token): CSRFToken,
     Form(form): Form<TenantSelectForm>,
 ) -> Result<Response, OperationOutcomeError> {
-    if form.csrf_token != csrf_token {
+    if !constant_time::str_eq(&form.csrf_token, &csrf_token) {
         return Err(OperationOutcomeError::error(
             haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
             "Invalid CSRF Token".to_string(),

@@ -1,3 +1,4 @@
+use crate::auth_n::constant_time;
 use crate::{
     auth_n::{
         mfa::utilities::user_mfa_to_totp,
@@ -183,7 +184,7 @@ pub async fn totp_verification_post<
     Cached(current_session): Cached<Session>,
     Form(form_data): Form<TOTPVerificationPOSTBody>,
 ) -> Result<Response, OperationOutcomeError> {
-    if form_data.csrf_token != csrf_token {
+    if !constant_time::str_eq(&form_data.csrf_token, &csrf_token) {
         return Err(OperationOutcomeError::error(
             IssueType::security(),
             "Invalid CSRF token.".to_string(),

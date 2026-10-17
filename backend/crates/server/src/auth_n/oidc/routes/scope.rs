@@ -1,3 +1,4 @@
+use crate::auth_n::constant_time;
 use crate::{
     auth_n::{
         oidc::{
@@ -94,7 +95,7 @@ pub async fn scope_post<
     let error_redirect_uri = is_valid_redirect_url(&scope_data.redirect_uri, &client_app)
         .then(|| scope_data.redirect_uri.clone());
 
-    if csrf_token != scope_data.csrf_token {
+    if !constant_time::str_eq(&csrf_token, &scope_data.csrf_token) {
         return Err(OIDCError::new(
             OIDCErrorCode::InvalidRequest,
             Some("Invalid CSRF Token.".to_string()),
