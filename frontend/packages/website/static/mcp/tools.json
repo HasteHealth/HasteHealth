@@ -2822,24 +2822,5 @@
       "description": "The operation result. Operations return either a FHIR Parameters resource or the resource named by the operation's output definition."
     },
     "title": "SMART EHR launch"
-  },
-  {
-    "name": "fhir_op_new_operation",
-    "description": "Invoke the FHIR $new-operation operation. (FHIR operation $new-operation)",
-    "inputSchema": {
-      "type": "object",
-      "properties": {
-        "input": {
-          "type": "string",
-          "description": "Replace with the inputs this operation takes.",
-          "x-fhir-type": "string"
-        }
-      }
-    },
-    "outputSchema": {
-      "type": "object",
-      "description": "The operation result. Operations return either a FHIR Parameters resource or the resource named by the operation's output definition."
-    },
-    "title": "NewOperation"
   }
 ]
