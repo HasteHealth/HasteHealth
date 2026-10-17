@@ -1,0 +1,48 @@
+[package]
+name = "haste-document-storage"
+description = "Backend-agnostic document (blob) storage for Haste Health."
+publish = false
+version = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+homepage = { workspace = true }
+
+[features]
+default = ["gcs"]
+# Google Cloud Storage backend.
+gcs = [
+    "dep:jsonwebtoken",
+    "dep:percent-encoding",
+    "dep:reqwest",
+    "dep:serde",
+    "dep:serde_json",
+    "tokio/fs",
+]
+
+[dependencies]
+haste-fhir-model = { path = "../fhir-model", version = "0.*" }
+haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*", features = [
+    "derive",
+] }
+
+bytes = { workspace = true }
+futures-core = { version = "0.3.34", default-features = false }
+futures-util = { version = "0.3.34", default-features = false }
+time = { version = "0.3.55", default-features = false, features = [
+    "std",
+    "parsing",
+] }
+tokio = { workspace = true, features = ["sync", "time"] }
+tracing = { workspace = true }
+
+jsonwebtoken = { workspace = true, optional = true, features = ["rust_crypto"] }
+percent-encoding = { version = "2.3.2", default-features = false, features = [
+    "std",
+], optional = true }
+reqwest = { workspace = true, optional = true, features = [
+    "default-tls",
+    "form",
+    "stream",
+] }
+serde = { workspace = true, optional = true, features = ["derive"] }
+serde_json = { workspace = true, optional = true }
