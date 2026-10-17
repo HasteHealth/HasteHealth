@@ -1,3 +1,4 @@
+use crate::auth_n::constant_time;
 use crate::{
     auth_n::{
         email::{Message, invitation_subject, send_password_reset_email},
@@ -81,7 +82,7 @@ pub async fn password_reset_initiate_post<
     CSRFToken(csrf_token): CSRFToken,
     form: axum::extract::Form<PasswordResetFormInitiate>,
 ) -> Result<Markup, OperationOutcomeError> {
-    if form.csrf_token != csrf_token {
+    if !constant_time::str_eq(&form.csrf_token, &csrf_token) {
         return Err(OperationOutcomeError::error(
             IssueType::invalid(),
             "Invalid CSRF Token".to_string(),
@@ -232,7 +233,7 @@ pub async fn password_reset_verify_post<
     CSRFToken(csrf_token): CSRFToken,
     Form(body): Form<PasswordVerifyPOSTBODY>,
 ) -> Result<Markup, OperationOutcomeError> {
-    if body.csrf_token != csrf_token {
+    if !constant_time::str_eq(&body.csrf_token, &csrf_token) {
         return Err(OperationOutcomeError::error(
             IssueType::invalid(),
             "Invalid CSRF Token".to_string(),

@@ -2982,6 +2982,7 @@ dependencies = [
  "sha2 0.10.9",
  "sqlx 0.9.0",
  "sqlx-postgres 0.9.0",
+ "subtle",
  "tokio",
  "totp-rs",
  "tower",

@@ -1,6 +1,7 @@
 use crate::{
     auth_n::{
         certificates::get_certification_provider,
+        constant_time,
         oidc::{
             code_verification,
             error::{OIDCError, OIDCErrorCode},
@@ -576,9 +577,10 @@ fn verify_client(
         ));
     }
 
-    if client_app.secret.as_ref().and_then(|s| s.value.as_deref())
-        != token_request_body.client_secret.as_deref()
-    {
+    if !constant_time::optional_str_eq(
+        client_app.secret.as_ref().and_then(|s| s.value.as_deref()),
+        token_request_body.client_secret.as_deref(),
+    ) {
         return Err(OIDCError::new(
             OIDCErrorCode::AccessDenied,
             Some("Invalid credentials".to_string()),
