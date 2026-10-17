@@ -13,7 +13,7 @@
 
 use crate::fhir_client::{
     ServerCTX,
-    middleware::{ServerMiddlewareState, operations::ServerOperationContext},
+    middleware::{Backend, operations::ServerOperationContext},
 };
 use haste_artifacts::ARTIFACT_RESOURCES;
 use haste_fhir_client::{
@@ -32,10 +32,7 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
-use haste_repository::Repository;
 use std::{
     collections::HashSet,
     sync::{Arc, LazyLock},
@@ -63,23 +60,13 @@ static PATIENT_COMPARTMENT: LazyLock<Option<&CompartmentDefinition>> = LazyLock:
     })
 });
 
-pub fn patient_everything<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->() -> OperationExecutor<
-    ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
-    PatientEverything::Input,
-    PatientEverything::Output,
-> {
+pub fn patient_everything<B: Backend>()
+-> OperationExecutor<ServerOperationContext<B>, PatientEverything::Input, PatientEverything::Output>
+{
     OperationExecutor::new(
         &PatientEverything::OPERATION_DEFINITION,
         Box::new(
-            |context: ServerOperationContext<
-                ServerMiddlewareState<Repo, Search, Terminology>,
-                Client,
-            >,
+            |context: ServerOperationContext<B>,
              _tenant: TenantId,
              _project: ProjectId,
              request: &InvocationRequest,

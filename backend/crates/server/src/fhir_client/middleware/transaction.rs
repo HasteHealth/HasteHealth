@@ -1,137 +1,72 @@
 use crate::fhir_client::{
     ClientState, ServerCTX,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
-    },
+    middleware::{Backend, Middleware, Next, Output},
 };
-use haste_fhir_client::{
-    FHIRClient,
-    middleware::MiddlewareChain,
-    request::{FHIRRequest, FHIRResponse},
-};
+use haste_fhir_client::request::FHIRRequest;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::Repository;
+
+use haste_repository::fhir::FHIRRepository;
 use std::sync::Arc;
 use tracing::info;
 
-// Only need a transaction in the context of Create, Update, Patch, Delete, and Conditional Update.
-pub async fn setup_transaction_context<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
->(
-    request: &FHIRRequest,
-    state: ServerMiddlewareState<Repo, Search, Terminology>,
-) -> Result<ServerMiddlewareState<Repo, Search, Terminology>, OperationOutcomeError> {
-    match request {
-        FHIRRequest::Create(_)
-        | FHIRRequest::Delete(_)
-        | FHIRRequest::Update(_)
-        | FHIRRequest::Patch(_) => {
-            if state.repo.in_transaction() {
-                Ok(state)
-            } else {
-                let transaction_client = Arc::new(state.repo.transaction(true).await?);
-                Ok(Arc::new(ClientState {
-                    audit_repo: state.audit_repo.clone(),
-                    repo: transaction_client.clone(),
-                    search: state.search.clone(),
-                    terminology: state.terminology.clone(),
-                    config: state.config.clone(),
-                    deno_pool: state.deno_pool.clone(),
-                }))
-            }
-        }
-        FHIRRequest::Read(_)
-        | FHIRRequest::VersionRead(_)
-        | FHIRRequest::Search(_)
-        | FHIRRequest::History(_) => Ok(state),
-        _ => Err(OperationOutcomeError::fatal(
-            IssueType::not_supported(),
-            "Request type not supported for transaction middleware.".to_string(),
-        )),
-    }
-}
+/// Runs each write in a transaction of its own, committed when the rest of
+/// the pipeline succeeds and rolled back when it fails. Reads run as they
+/// are, and so does everything when the caller already holds a transaction:
+/// that one commits at the caller's site.
+pub struct Transaction;
 
-pub struct Middleware {}
-impl Middleware {
-    pub fn new() -> Self {
-        Middleware {}
-    }
-}
-impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for Middleware
-{
-    fn call(
-        &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext<Client>,
-        next: Option<
-            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
-        >,
-    ) -> ServerMiddlewareOutput<Client> {
+impl<B: Backend> Middleware<B> for Transaction {
+    fn call<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+        next: Next<'a, B>,
+    ) -> Output<'a> {
         Box::pin(async move {
-            if let Some(next) = next {
-                // Skip over commit which will happen from caller site.
-                if state.repo.in_transaction() {
-                    Ok(next(state, context).await?)
-                } else {
-                    let repo_client;
-                    // Place in block so transaction_state gets dropped.
-                    let res = {
-                        let transaction_state =
-                            setup_transaction_context(&context.request, state.clone()).await?;
-                        // Setup so can run a commit after.
-                        repo_client = transaction_state.repo.clone();
-
-                        next(transaction_state.clone(), context).await
-                    };
-
-                    if res.is_ok() && repo_client.in_transaction() {
-                        Arc::try_unwrap(repo_client)
-                            .map_err(|_e| {
-                                OperationOutcomeError::fatal(
-                                    IssueType::exception(),
-                                    "Failed to unwrap transaction client".to_string(),
-                                )
-                            })?
-                            .commit()
-                            .await?;
-                    } else if res.is_err() && repo_client.in_transaction() {
-                        info!("Rolling back transaction due to error");
-                        Arc::try_unwrap(repo_client)
-                            .map_err(|_e| {
-                                OperationOutcomeError::fatal(
-                                    IssueType::exception(),
-                                    "Failed to unwrap transaction client".to_string(),
-                                )
-                            })?
-                            .rollback()
-                            .await?;
-                    }
-
-                    res
+            if state.repo.in_transaction() {
+                return next.run(state, ctx, request).await;
+            }
+            match request {
+                FHIRRequest::Create(_)
+                | FHIRRequest::Delete(_)
+                | FHIRRequest::Update(_)
+                | FHIRRequest::Patch(_) => {}
+                FHIRRequest::Read(_)
+                | FHIRRequest::VersionRead(_)
+                | FHIRRequest::Search(_)
+                | FHIRRequest::History(_) => return next.run(state, ctx, request).await,
+                _ => {
+                    return Err(OperationOutcomeError::fatal(
+                        IssueType::not_supported(),
+                        "Request type not supported for transaction middleware.".to_string(),
+                    ));
                 }
-            } else {
-                Err(OperationOutcomeError::fatal(
+            }
+
+            let repo = Arc::new(state.repo.transaction(true).await?);
+            let result = {
+                let transaction_state = state.with_repo(repo.clone());
+                next.run(&transaction_state, ctx, request).await
+            };
+
+            let repo = Arc::try_unwrap(repo).map_err(|_| {
+                OperationOutcomeError::fatal(
                     IssueType::exception(),
-                    "No next middleware found".to_string(),
-                ))
+                    "Failed to unwrap transaction client".to_string(),
+                )
+            })?;
+            match result {
+                Ok(response) => {
+                    repo.commit().await?;
+                    Ok(response)
+                }
+                Err(error) => {
+                    info!("Rolling back transaction due to error");
+                    repo.rollback().await?;
+                    Err(error)
+                }
             }
         })
     }

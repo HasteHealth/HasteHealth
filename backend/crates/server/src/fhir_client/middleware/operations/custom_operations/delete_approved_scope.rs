@@ -1,8 +1,5 @@
-use crate::fhir_client::{
-    ServerCTX,
-    middleware::{ServerMiddlewareState, operations::ServerOperationContext},
-};
-use haste_fhir_client::{FHIRClient, request::InvocationRequest};
+use crate::fhir_client::middleware::{Backend, operations::ServerOperationContext};
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::HasteHealthDeleteScope;
 use haste_fhir_model::r4::generated::{
     resources::{OperationOutcome, OperationOutcomeIssue},
@@ -11,33 +8,21 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{
-    Repository,
     admin::ProjectModelAdmin,
     types::scope::{ClientId, ScopeKey, UserId},
 };
-use std::sync::Arc;
 
-pub fn delete_approved_scope_op<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->() -> OperationExecutor<
-    ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
+pub fn delete_approved_scope_op<B: Backend>() -> OperationExecutor<
+    ServerOperationContext<B>,
     HasteHealthDeleteScope::Input,
     HasteHealthDeleteScope::Output,
 > {
     OperationExecutor::new(
         &HasteHealthDeleteScope::OPERATION_DEFINITION,
         Box::new(
-            |context: ServerOperationContext<
-                ServerMiddlewareState<Repo, Search, Terminology>,
-                Client,
-            >,
+            |context: ServerOperationContext<B>,
              tenant: TenantId,
              project: ProjectId,
              _request: &InvocationRequest,

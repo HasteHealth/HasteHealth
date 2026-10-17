@@ -9,6 +9,7 @@
 //! readable as a whole.
 
 use crate::fhir_client::{
+    StorageError,
     compartment::{in_patient_compartment, patient_compartment_parameters},
     middleware::auth_z::forbidden,
 };
@@ -130,23 +131,34 @@ pub async fn resource_in_scope(patient_id: &str, resource: &Resource) -> bool {
 
 /// A read as the caller may see it: a resource outside the compartment
 /// answers exactly as one that does not exist.
-pub async fn filter_read(patient_id: &str, response: FHIRResponse) -> Option<FHIRResponse> {
+///
+/// # Errors
+///
+/// A version read of a resource outside the compartment is not found.
+pub async fn filter_read(
+    patient_id: &str,
+    response: FHIRResponse,
+) -> Result<FHIRResponse, OperationOutcomeError> {
     match response {
         FHIRResponse::Read(read) => {
             let resource = match read.resource {
                 Some(resource) if resource_in_scope(patient_id, &resource).await => Some(resource),
                 _ => None,
             };
-            Some(FHIRResponse::Read(FHIRReadResponse { resource }))
+            Ok(FHIRResponse::Read(FHIRReadResponse { resource }))
         }
         FHIRResponse::VersionRead(vread) => {
             if resource_in_scope(patient_id, &vread.resource).await {
-                Some(FHIRResponse::VersionRead(vread))
+                Ok(FHIRResponse::VersionRead(vread))
             } else {
-                None
+                Err(StorageError::NotFound(
+                    vread.resource.resource_type(),
+                    vread.resource.id().clone().unwrap_or_default(),
+                )
+                .into())
             }
         }
-        other => Some(other),
+        other => Ok(other),
     }
 }
 

@@ -12,92 +12,44 @@
 //! Place after the transaction middleware, if the route has one, so the read,
 //! patch and write happen in one transaction.
 use crate::fhir_client::{
-    ServerCTX,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState, storage::apply_patch,
-    },
+    ClientState, ServerCTX,
+    middleware::{Backend, Middleware, Next, Output, storage::apply_patch},
 };
-use haste_fhir_client::{
-    FHIRClient,
-    middleware::MiddlewareChain,
-    request::{
-        FHIRPatchResponse, FHIRRequest, FHIRResponse, FHIRUpdateInstanceRequest, UpdateRequest,
-    },
+use haste_fhir_client::request::{
+    FHIRPatchResponse, FHIRRequest, FHIRResponse, FHIRUpdateInstanceRequest, UpdateRequest,
 };
-use haste_fhir_model::r4::generated::terminology::IssueType;
-use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::Repository;
 use std::sync::Arc;
 
-pub struct Middleware {}
-impl Middleware {
-    pub fn new() -> Self {
-        Middleware {}
-    }
-}
+pub struct PatchAsUpdate;
 
-impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for Middleware
-{
-    fn call(
-        &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext<Client>,
-        next: Option<
-            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
-        >,
-    ) -> ServerMiddlewareOutput<Client> {
+impl<B: Backend> Middleware<B> for PatchAsUpdate {
+    fn call<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+        next: Next<'a, B>,
+    ) -> Output<'a> {
         Box::pin(async move {
-            let Some(next) = next else {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::exception(),
-                    "No next middleware found".to_string(),
-                ));
+            let patch = match request {
+                FHIRRequest::Patch(patch) => patch,
+                other => return next.run(state, ctx, other).await,
             };
 
-            let FHIRRequest::Patch(patch_request) = &context.request else {
-                return next(state, context).await;
-            };
+            let patched =
+                apply_patch(state.repo.as_ref(), &ctx.tenant, &ctx.project, &patch).await?;
+            let update = FHIRRequest::Update(UpdateRequest::Instance(FHIRUpdateInstanceRequest {
+                resource_type: patch.resource_type,
+                id: patch.id,
+                resource: patched,
+            }));
 
-            let patched = apply_patch(
-                state.repo.as_ref(),
-                &context.ctx.tenant,
-                &context.ctx.project,
-                patch_request,
-            )
-            .await?;
-
-            context.request =
-                FHIRRequest::Update(UpdateRequest::Instance(FHIRUpdateInstanceRequest {
-                    resource_type: patch_request.resource_type.clone(),
-                    id: patch_request.id.clone(),
-                    resource: patched,
-                }));
-
-            let mut res = next(state, context).await?;
-            res.response = match res.response {
-                Some(FHIRResponse::Update(update)) => {
-                    Some(FHIRResponse::Patch(FHIRPatchResponse {
-                        resource: update.resource,
-                    }))
-                }
-                other => other,
-            };
-            Ok(res)
+            match next.run(state, ctx, update).await? {
+                FHIRResponse::Update(update) => Ok(FHIRResponse::Patch(FHIRPatchResponse {
+                    resource: update.resource,
+                })),
+                other => Ok(other),
+            }
         })
     }
 }
