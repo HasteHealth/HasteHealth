@@ -41,6 +41,7 @@ jobs:
           -p haste-artifacts \
           -p haste-codegen \
           -p haste-config \
+          -p haste-document-storage \
           -p haste-encryption \
           -p haste-fhir-client \
           -p haste-fhir-converter \

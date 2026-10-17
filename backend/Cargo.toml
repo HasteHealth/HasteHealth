@@ -18,6 +18,7 @@ members = [
     "crates/artifacts",
     "crates/codegen",
     "crates/config",
+    "crates/document-storage",
     "crates/encryption",
     "crates/fhir-client",
     "crates/fhir-converter",
