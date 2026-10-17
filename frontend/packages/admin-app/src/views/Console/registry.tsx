@@ -27,8 +27,30 @@ export interface ResourceView {
   pane?: number;
 }
 
+/**
+ * State the host keeps for its views, so it outlives the tabs. Headless UI
+ * unmounts a tab's content when another is selected, and a view with panes
+ * mounts a component per pane anyway, so anything a view wants shared or kept
+ * across tabs lives here.
+ */
+export interface ViewHostState {
+  /** Sub-pane state the host holds for views that have panes, by key. */
+  paneState: Record<string, number>;
+  onPaneStateChange: (key: string, pane: number) => void;
+  /**
+   * Whatever else a view keeps, by key: a run's results, say. Updated from
+   * its current value, which is undefined until first set. Cleared when the
+   * host shows another resource.
+   */
+  viewState: Record<string, unknown>;
+  onViewStateChange: (
+    key: string,
+    update: (current: unknown) => unknown,
+  ) => void;
+}
+
 /** What a view knows about the resource it is showing. */
-export interface ResourceViewContext {
+export interface ResourceViewContext extends ViewHostState {
   /** The resource as edited; views render this, not the fetched copy. */
   resource: Resource;
   resourceType: string;
@@ -42,9 +64,6 @@ export interface ResourceViewContext {
   saved: boolean;
   /** Replaces the draft. Views edit through this; they never write. */
   onChange: (resource: Resource) => void;
-  /** Sub-pane state the host holds for views that have panes, by key. */
-  paneState: Record<string, number>;
-  onPaneStateChange: (key: string, pane: number) => void;
 }
 
 export interface ResourceViewProvider {
