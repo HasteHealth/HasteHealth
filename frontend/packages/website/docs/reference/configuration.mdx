@@ -89,6 +89,18 @@ Tagged by `backend`; two backends exist: `elasticsearch` (the default) and `post
 | `email.api_key` | `HASTE_EMAIL.api_key` |
 | `email.from_address` | `HASTE_EMAIL.from_address` |
 
+### `[signup]`
+
+Self-service sign-up and login at `/auth/signup` and `/auth/login`.
+
+Set `signup.enabled = false` on a deployment where visitors must not create tenants (workspaces) for themselves. `/auth/signup` then answers `403`, the links to it are hidden, and an address with no account that logs in at `/auth/login` is told there is no account instead of being offered a new tenant. Login for existing users is unaffected, and tenants are created with `haste-health admin tenant create`.
+
+| Key | Env var | Default |
+| --- | --- | --- |
+| `signup.enabled` | `HASTE_SIGNUP.enabled` | `true` |
+| `signup.turnstile.site_key` | `HASTE_SIGNUP.turnstile.site_key` | unset — with `secret_key`, adds a [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) bot check to the forms. |
+| `signup.turnstile.secret_key` | `HASTE_SIGNUP.turnstile.secret_key` | unset |
+
 ### `[rate_limits]`
 
 | Key | Env var | Default |
