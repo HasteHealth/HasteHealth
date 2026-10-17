@@ -463,11 +463,8 @@ pub fn create_oidc_discovery_document(
             "offline_access".to_string(),
             "fhirUser".to_string(),
         ],
-        response_types_supported: vec![
-            "code".to_string(),
-            "id_token".to_string(),
-            "id_token token".to_string(),
-        ],
+        // Only the authorization code flow is implemented.
+        response_types_supported: vec!["code".to_string()],
         token_endpoint_auth_methods_supported: vec![
             "client_secret_basic".to_string(),
             "client_secret_post".to_string(),
@@ -545,11 +542,7 @@ pub fn create_smart_configuration(
             "user/*.cruds".to_string(),
             "system/*.cruds".to_string(),
         ]),
-        response_types_supported: Some(vec![
-            "code".to_string(),
-            "id_token".to_string(),
-            "id_token token".to_string(),
-        ]),
+        response_types_supported: Some(vec!["code".to_string()]),
         token_endpoint_auth_methods_supported: Some(vec![
             "client_secret_basic".to_string(),
             "client_secret_post".to_string(),

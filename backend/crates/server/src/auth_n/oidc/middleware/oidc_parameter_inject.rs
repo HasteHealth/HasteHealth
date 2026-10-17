@@ -55,7 +55,8 @@ fn validate_parameter(param_name: &str, param_value: &str) -> Result<(), String>
         return Err("Parameter cannot be empty".to_string());
     }
 
-    if param_name == "response_type" && !["code", "token"].contains(&param_value) {
+    // implicit flow is deprecated for the token leakage it invites (OAuth 2.0 Security Best Current Practice §2.1.2).
+    if param_name == "response_type" && param_value != "code" {
         return Err(format!("Invalid response_type: {}", param_value));
     }
 
