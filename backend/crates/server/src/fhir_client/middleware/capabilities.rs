@@ -17,14 +17,16 @@ use haste_fhir_model::r4::{
     datetime::DateTime,
     generated::{
         resources::{
-            CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestResource,
-            CapabilityStatementRestResourceInteraction, CapabilityStatementRestResourceOperation,
-            CapabilityStatementRestResourceSearchParam, CapabilityStatementRestSecurity,
-            OperationDefinition, SearchParameter, StructureDefinition,
+            CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestInteraction,
+            CapabilityStatementRestResource, CapabilityStatementRestResourceInteraction,
+            CapabilityStatementRestResourceOperation, CapabilityStatementRestResourceSearchParam,
+            CapabilityStatementRestSecurity, OperationDefinition, SearchParameter,
+            StructureDefinition,
         },
         terminology::{
             BoundCode, CapabilityStatementKind, FHIRVersion, IssueType, PublicationStatus,
-            ResourceTypes, RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy,
+            ResourceTypes, RestfulCapabilityMode, SystemRestfulInteraction, TypeRestfulInteraction,
+            VersioningPolicy,
         },
         types::{FHIRBoolean, FHIRCanonical, FHIRCode, FHIRDateTime, FHIRString},
     },
@@ -157,6 +159,7 @@ fn create_capability_rest_statement(
                 TypeRestfulInteraction::read(),
                 TypeRestfulInteraction::vread(),
                 TypeRestfulInteraction::update(),
+                TypeRestfulInteraction::patch(),
                 TypeRestfulInteraction::delete(),
                 TypeRestfulInteraction::search_type(),
                 TypeRestfulInteraction::create(),
@@ -181,14 +184,19 @@ fn create_capability_rest_statement(
     })
 }
 
-async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
+async fn generate_capabilities<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+>(
+    ctx: Arc<ServerCTX<Client>>,
     repo: &Repo,
     search_engine: &Search,
 ) -> Result<CapabilityStatement, OperationOutcomeError> {
     let (sds, sps, operations) = tokio::join!(
         get_all_sds(&["resource"], repo, search_engine),
         get_all_sps(repo, search_engine),
-        get_all_operation_definitions(repo, search_engine)
+        get_all_operation_definitions(ctx)
     );
 
     let sds = sds?;
@@ -228,6 +236,22 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
                 sds.into_iter()
                     .map(|sd| create_capability_rest_statement(sd, &sps, &operations))
                     .collect::<Result<Vec<_>, _>>()?,
+            ),
+            // Interactions on the base URL itself; each resource type lists
+            // its own above.
+            interaction: Some(
+                vec![
+                    SystemRestfulInteraction::transaction(),
+                    SystemRestfulInteraction::batch(),
+                    SystemRestfulInteraction::search_system(),
+                    SystemRestfulInteraction::history_system(),
+                ]
+                .into_iter()
+                .map(|code| CapabilityStatementRestInteraction {
+                    code,
+                    ..Default::default()
+                })
+                .collect(),
             ),
             operation: Some(system_operations),
             ..Default::default()
@@ -277,9 +301,12 @@ impl<
                                 capabilities: capabilities.clone(),
                             }));
                     } else {
-                        let capabilities =
-                            generate_capabilities(state.repo.as_ref(), state.search.as_ref())
-                                .await?;
+                        let capabilities = generate_capabilities(
+                            context.ctx.clone(),
+                            state.repo.as_ref(),
+                            state.search.as_ref(),
+                        )
+                        .await?;
                         *guard = Some(capabilities.clone());
 
                         context.response =

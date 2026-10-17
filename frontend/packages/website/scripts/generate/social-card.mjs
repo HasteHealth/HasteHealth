@@ -1,0 +1,223 @@
+// The social card (og:image / twitter:image).
+//
+//   static/img/social-card.svg   the source of truth
+//   static/img/social-card.png   its raster, which the social platforms need
+//
+// The card used to be a hand-made PNG with nothing tying it to the site's
+// copy, and it drifted: the homepage H1 changed and the card kept advertising
+// the old product name, so a link preview and the page it opened named two
+// different products. So it is generated: the headline and subhead live here,
+// and the proof figure comes from the conformance report the homepage and the
+// conformance page already use, so the card cannot claim a number the site
+// does not.
+//
+// Rasterizing uses a headless Chrome or Chromium. Without one the SVG is still
+// written and the PNG is left alone, with a warning.
+
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+import { SUPPORT, readJson, relative, site } from "./lib.mjs";
+
+const SVG_PATH = site("static/img/social-card.svg");
+const PNG_PATH = site("static/img/social-card.png");
+
+// Open Graph's recommended size. Slack, LinkedIn and X all crop toward the
+// centre, so nothing load-bearing goes near the edges.
+const WIDTH = 1200;
+const HEIGHT = 630;
+
+// ---------------------------------------------------------------------------
+// The copy. This is the card's whole reason to be generated: it must match the
+// homepage H1 in src/pages/index.tsx and the subhead beneath it.
+// ---------------------------------------------------------------------------
+
+const HEADLINE = ["The Open-Source FHIR Server", "for AI-Native Health Apps"];
+const SUBHEAD = "Epic, Oracle Health and HL7v2 in. FHIR, SQL and MCP out.";
+
+/**
+ * The card wears the homepage hero's colours (src/css/custom.css and
+ * src/components/site/styles.module.css), as hex because the rasterizer's SVG
+ * path has no oklch: the deep teal (deep-950 to deep-900), the teal glows
+ * over it, and the brighter teal that picks out the accent word and the logo.
+ */
+const DEEP_TOP = "#002e2d";
+const DEEP_BOTTOM = "#003c39";
+const GLOW = "#00bba7";
+const GLOW_DEEP = "#00786f";
+const ACCENT = "#46edd5";
+
+/** The word of the headline set in the accent colour, as on the homepage. */
+const ACCENT_WORD = "AI-Native";
+
+/**
+ * The proof strip, read from the same conformance report the site renders.
+ *
+ * Only figures the report actually contains. The licence is a static fact
+ * about the repository rather than a measurement.
+ */
+function proofLine() {
+  const data = readJson(SUPPORT);
+  const total = data.resources.length;
+
+  // A resource type "passes" when no group failed and none is still unrun.
+  // Mirrors groupsResult() in src/components/TestCoverage/data.ts.
+  const passing = data.resources.filter((resource) => {
+    const results = resource.groups.map((group) => group.results.postgres);
+    if (results.some((result) => result === "fail")) return false;
+    if (results.some((result) => result === "warn")) return false;
+    return results.every((result) => result === "pass");
+  }).length;
+
+  return `${passing} / ${total} FHIR resource types pass every conformance check   ·   Apache-2.0`;
+}
+
+/**
+ * The card.
+ *
+ * Text is drawn as SVG `<text>` in a system font stack rather than a webfont:
+ * the renderer has no network, and a missing webfont would silently fall back
+ * to something worse than a deliberate system face.
+ */
+function buildSvg() {
+  const font =
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
+
+  const headline = HEADLINE.map(
+    (line, index) =>
+      `    <text x="80" y="${300 + index * 68}" font-family="${font}" font-size="58" font-weight="700" fill="#ffffff" letter-spacing="-1.2">${line.replace(ACCENT_WORD, `<tspan fill="${ACCENT}">${ACCENT_WORD}</tspan>`)}</text>`,
+  ).join("\n");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img">
+  <title>Haste Health — ${HEADLINE.join(" ")}</title>
+
+  <!-- Rendered standalone via file:// when rasterizing, where the SVG becomes
+       the document root and picks up the UA's default body margin. Pinning it
+       to the viewport keeps the screenshot flush to the card's edges. -->
+  <style>
+    @media screen { :root { margin: 0; padding: 0; } }
+  </style>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${DEEP_TOP}"/>
+      <stop offset="100%" stop-color="${DEEP_BOTTOM}"/>
+    </linearGradient>
+    <radialGradient id="glow-top" cx="0.5" cy="-0.15" r="0.8">
+      <stop offset="0%" stop-color="${GLOW}" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="${GLOW}" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-right" cx="1" cy="0.75" r="0.6">
+      <stop offset="0%" stop-color="${GLOW_DEEP}" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="${GLOW_DEEP}" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#bg)"/>
+  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#glow-top)"/>
+  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#glow-right)"/>
+
+  <!-- The pulse line from the site's hero, as a quiet watermark. Kept low and
+       to the right of the logo so it never crosses the headline or the proof
+       strip: at a Slack thumbnail's size, a stroke through the text reads as an
+       artefact rather than as texture. -->
+  <path d="M600 196 L760 196 L788 196 L812 132 L840 260 L864 196 L944 196 L972 146 L996 246 L1020 196 L1200 196"
+        fill="none" stroke="#ffffff" stroke-width="3" opacity="0.16"/>
+
+  <!-- Logo mark: the three bars from static/img/logo.svg. -->
+  <g transform="translate(80, 74) scale(0.46)">
+    <rect x="6"  y="22" width="24" height="56"  rx="6" fill="${ACCENT}" opacity="0.5"/>
+    <rect x="38" y="0"  width="24" height="100" rx="6" fill="${ACCENT}"/>
+    <rect x="70" y="32" width="24" height="36"  rx="6" fill="${ACCENT}" opacity="0.75"/>
+  </g>
+  <text x="140" y="112" font-family="${font}" font-size="38" font-weight="600" fill="#ffffff">haste<tspan opacity="0.72">.health</tspan></text>
+
+${headline}
+
+  <text x="80" y="428" font-family="${font}" font-size="30" font-weight="400" fill="#cad5e2">${SUBHEAD}</text>
+
+  <!-- Proof strip. -->
+  <line x1="80" y1="486" x2="1120" y2="486" stroke="#ffffff" stroke-width="1.5" opacity="0.28"/>
+  <text x="80" y="536" font-family="${font}" font-size="24" font-weight="500" fill="#ffffff" opacity="0.93">${proofLine()}</text>
+</svg>
+`;
+}
+
+/**
+ * Where to find a headless Chrome to rasterize with.
+ *
+ * Chrome rather than macOS `qlmanage`, which was the obvious choice and is
+ * wrong: `qlmanage -t -s N` fits the render into an N-by-N box and returns a
+ * square, so a 1200x630 card comes back 1200x1200 with the headline and the
+ * proof strip cropped off. `--window-size` renders at exactly the size asked
+ * for.
+ */
+const CHROME_CANDIDATES = [
+  process.env.CHROME_PATH,
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "/Applications/Chromium.app/Contents/MacOS/Chromium",
+  "/usr/bin/google-chrome",
+  "/usr/bin/chromium",
+  "/usr/bin/chromium-browser",
+].filter(Boolean);
+
+function findChrome() {
+  return CHROME_CANDIDATES.find((candidate) => existsSync(candidate)) ?? "";
+}
+
+/** Rasterizes the card at exactly WIDTH x HEIGHT; false when no browser was found. */
+function rasterize(svgPath, pngPath) {
+  const chrome = findChrome();
+
+  if (!chrome) {
+    console.warn(
+      "  ! No Chrome or Chromium found: wrote the SVG but left social-card.png\n" +
+        "    untouched. Set CHROME_PATH, or rasterize the SVG at exactly " +
+        `${WIDTH}x${HEIGHT} elsewhere and commit the PNG, or the preview stays stale.`,
+    );
+    return false;
+  }
+
+  const scratch = mkdtempSync(join(tmpdir(), "social-card-"));
+  try {
+    execFileSync(
+      chrome,
+      [
+        "--headless",
+        "--disable-gpu",
+        // The card is opaque, but without this Chrome composites onto white,
+        // which would fringe the rounded logo bars.
+        "--default-background-color=00000000",
+        "--hide-scrollbars",
+        `--window-size=${WIDTH},${HEIGHT}`,
+        `--screenshot=${join(scratch, "card.png")}`,
+        `file://${svgPath}`,
+      ],
+      { stdio: "ignore" },
+    );
+    const produced = join(scratch, "card.png");
+    if (!existsSync(produced)) throw new Error("Chrome produced no screenshot");
+    writeFileSync(pngPath, readFileSync(produced));
+    return true;
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
+export async function run() {
+  writeFileSync(SVG_PATH, buildSvg());
+  const png = rasterize(SVG_PATH, PNG_PATH);
+  return `Wrote ${relative(SVG_PATH)}${png ? ` and ${relative(PNG_PATH)}` : ""}`;
+}
+
+export async function check() {
+  const current = existsSync(SVG_PATH) ? readFileSync(SVG_PATH, "utf8") : "";
+  if (current !== buildSvg()) {
+    throw new Error(
+      `${relative(SVG_PATH)} is stale. Run \`pnpm generate social-card\` and commit the result.`,
+    );
+  }
+  return `${relative(SVG_PATH)} is up to date`;
+}

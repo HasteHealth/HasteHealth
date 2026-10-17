@@ -381,52 +381,30 @@ pub async fn get_all_sps<Repo: Repository, Search: SearchEngine>(
     Ok(sps.collect())
 }
 
-/// Every `OperationDefinition` installed at the system level.
-///
-/// These are the operations the server ships with, loaded from the embedded
-/// artifacts. Operations a project defines for itself live under that project's
-/// tenant and are deliberately not included here, because the CapabilityStatement
-/// built from this list is cached process-wide and shared across tenants.
-pub async fn get_all_operation_definitions<Repo: Repository, Search: SearchEngine>(
-    repo: &Repo,
-    search_engine: &Search,
+/// Every `OperationDefinition` installed for the user.
+/// Includes the embeded operations we create
+pub async fn get_all_operation_definitions<
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+>(
+    ctx: Arc<ServerCTX<Client>>,
 ) -> Result<Vec<OperationDefinition>, OperationOutcomeError> {
-    let operation_search = FHIRSearchTypeRequest {
-        resource_type: ResourceType::OperationDefinition,
-        parameters: (vec![] as Vec<(String, Vec<String>)>).into(),
-    };
-    let operation_results = search_engine
-        .search(
-            &SupportedFHIRVersions::R4,
-            &TenantId::System,
-            &ProjectId::System,
-            &SearchRequest::Type(operation_search),
-            Some(SearchOptions {
-                count_limit: Some(10_000),
-                any_of: None,
-            }),
-        )
-        .await?;
-
-    let version_ids = operation_results
-        .entries
-        .iter()
-        .map(|v| &v.version_id)
-        .collect::<Vec<_>>();
-
-    let operations = repo
-        .read_by_version_ids(
-            &TenantId::System,
-            &ProjectId::System,
-            version_ids.as_slice(),
-            CachePolicy::NoCache,
+    let operations = ctx
+        .client
+        .search_type(
+            ctx.clone(),
+            ResourceType::OperationDefinition,
+            (vec![] as Vec<(String, Vec<String>)>).into(),
         )
         .await?
+        .entry
+        .unwrap_or_default()
         .into_iter()
-        .filter_map(|r| match r {
+        .filter_map(|e| e.resource)
+        .filter_map(|r| match *r {
             Resource::OperationDefinition(operation) => Some(operation),
             _ => None,
-        });
+        })
+        .collect();
 
-    Ok(operations.collect())
+    Ok(operations)
 }
