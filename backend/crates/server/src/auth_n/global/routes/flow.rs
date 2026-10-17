@@ -1,8 +1,8 @@
 //! The steps shared by sign-up and login: send a code to an address and, once
 //! it is verified, put the person in a tenant. An address with no account is
-//! offered a tenant of its own, with an id and a password to choose. An
-//! invitation (a user a tenant created for the address) must be accepted
-//! before it can be entered.
+//! offered a tenant of its own, with an id and a password to choose, unless
+//! sign-up is turned off (`signup.enabled`). An invitation (a user a tenant
+//! created for the address) must be accepted before it can be entered.
 
 use crate::{
     auth_n::{
@@ -50,6 +50,7 @@ use haste_repository::{
         user::{AuthMethod, User, UserSearchClauses},
     },
 };
+use maud::Markup;
 use serde::Deserialize;
 use std::{collections::HashSet, net::IpAddr, str::FromStr};
 use tower_sessions::Session;
@@ -90,19 +91,29 @@ pub fn check_csrf(expected: &str, submitted: &str) -> Result<(), OperationOutcom
     }
 }
 
-pub fn turnstile_site_key<
+/// The email form for `purpose`, as this server is configured.
+pub fn email_form<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
     state: &ServerState<Repo, Search, Terminology>,
-) -> Option<&str> {
-    state
-        .config
-        .signup
-        .turnstile
-        .as_ref()
-        .map(|turnstile| turnstile.site_key.as_str())
+    purpose: Purpose,
+    csrf_token: &str,
+    error: Option<&str>,
+) -> Markup {
+    let signup = &state.config.signup;
+
+    email_form_html(
+        purpose,
+        csrf_token,
+        signup
+            .turnstile
+            .as_ref()
+            .map(|turnstile| turnstile.site_key.as_str()),
+        signup.enabled,
+        error,
+    )
 }
 
 pub fn start_over_route(purpose: Purpose) -> &'static str {
@@ -195,9 +206,8 @@ pub async fn begin<
 ) -> Result<Response, OperationOutcomeError> {
     check_csrf(csrf_token, &form.csrf_token)?;
 
-    let form_with = |error: &str| {
-        email_form_html(purpose, csrf_token, turnstile_site_key(state), Some(error)).into_response()
-    };
+    let form_with =
+        |error: &str| email_form(state, purpose, csrf_token, Some(error)).into_response();
 
     let Ok(email) = EmailAddress::from_str(form.email.trim()) else {
         return Ok(form_with("Enter a valid email address."));
@@ -322,7 +332,8 @@ async fn user_in_tenant<
 }
 
 /// What follows a verified address: its only tenant, the form to create one,
-/// or a chooser listing its tenants and invitations.
+/// or a chooser listing its tenants and invitations. With sign-up turned off,
+/// an address with no account is told so instead.
 pub async fn finish<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -336,7 +347,13 @@ pub async fn finish<
     let mut users = users_for_email(state, &verified.email).await?;
 
     match users.as_slice() {
-        [] => workspace_form(state, csrf_token, &verified, None, None).await,
+        [] if state.config.signup.enabled => {
+            workspace_form(state, csrf_token, &verified, None, None).await
+        }
+        [] => {
+            email_code::clear_verified(session).await?;
+            Ok(global_auth::no_account_html(&verified.email).into_response())
+        }
         [user] if user.email_verified => {
             email_code::clear_verified(session).await?;
             login_user(state, session, users.remove(0), None).await
@@ -521,6 +538,12 @@ pub async fn create_workspace<
     requested_id: &str,
     password: &str,
 ) -> Result<Response, OperationOutcomeError> {
+    // The form is never offered with sign-up turned off, so this is a direct
+    // request: treat it as a login.
+    if !state.config.signup.enabled {
+        return finish(state, session, csrf_token, verified).await;
+    }
+
     // A double submit must not create two tenants for one address.
     // Invitations don't count.
     if let Some(existing) = users_for_email(state, &verified.email)

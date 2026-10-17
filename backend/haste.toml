@@ -21,6 +21,11 @@ audit_enabled = false
 [email]
 backend = "log"
 
+# Set to false to stop visitors creating tenants for themselves at
+# /auth/signup. Tenants then come only from `admin tenant create`.
+[signup]
+enabled = true
+
 # Optional Cloudflare Turnstile bot check on the sign-up and login forms.
 # [signup.turnstile]
 # site_key = "..."

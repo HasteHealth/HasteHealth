@@ -96,8 +96,11 @@ With `backend = "elasticsearch"`:
 
 Self-service sign-up and login at `/auth/signup` and `/auth/login`. Optional: a [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) check on the form, enabled by setting both keys. The Content-Security-Policy opens to `challenges.cloudflare.com` only when it is configured.
 
+Set `signup.enabled = false` on a deployment where visitors must not create tenants (workspaces) for themselves. `/auth/signup` then answers `403` with a "sign-up is not available" page, the links to it are hidden, and an address with no account that logs in at `/auth/login` is told there is no account instead of being offered a new tenant. Login for existing users is unaffected, and tenants are created with `admin tenant create` (see `cli_commands.md`).
+
 | Key                           | Env var                             | Default |
 | ----------------------------- | ----------------------------------- | ------- |
+| `signup.enabled`              | `HASTE_SIGNUP.enabled`              | `true`  |
 | `signup.turnstile.site_key`   | `HASTE_SIGNUP.turnstile.site_key`   | unset   |
 | `signup.turnstile.secret_key` | `HASTE_SIGNUP.turnstile.secret_key` | unset   |
 
@@ -168,6 +171,11 @@ audit_enabled = false
 # with `api_key` and `from_address` to send them.
 [email]
 backend = "log"
+
+# Set to false to stop visitors creating tenants for themselves at
+# /auth/signup. Tenants then come only from `admin tenant create`.
+[signup]
+enabled = true
 
 # Optional bot check on the sign-up and login forms.
 # [signup.turnstile]

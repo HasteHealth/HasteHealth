@@ -32,9 +32,13 @@ pub struct ServerConfig {
 }
 
 /// Sign-up and login at `/auth/signup` and `/auth/login`.
-#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct SignupConfig {
+    /// Whether a visitor may create a tenant for themselves. If `false`,
+    /// `/auth/signup` is closed and tenants come only from
+    /// `admin tenant create`. Login is unaffected.
+    pub enabled: bool,
     /// Optional Cloudflare Turnstile bot check on the email form.
     pub turnstile: Option<TurnstileConfig>,
 }
@@ -158,6 +162,16 @@ impl Default for ServerConfig {
         }
     }
 }
+
+impl Default for SignupConfig {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            turnstile: None,
+        }
+    }
+}
+
 impl Default for RateLimitsConfig {
     fn default() -> Self {
         Self {

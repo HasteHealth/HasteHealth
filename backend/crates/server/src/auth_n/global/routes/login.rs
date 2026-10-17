@@ -8,7 +8,6 @@ use crate::{
     },
     extract::csrf_token::CSRFToken,
     services::ServerState,
-    ui::pages::global_auth::email_form_html,
 };
 use axum::{
     Form,
@@ -37,13 +36,7 @@ pub async fn global_login_get<
     CSRFToken(csrf_token): CSRFToken,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Response, OperationOutcomeError> {
-    Ok(email_form_html(
-        Purpose::Login,
-        &csrf_token,
-        flow::turnstile_site_key(state.as_ref()),
-        None,
-    )
-    .into_response())
+    Ok(flow::email_form(state.as_ref(), Purpose::Login, &csrf_token, None).into_response())
 }
 
 pub async fn global_login_post<

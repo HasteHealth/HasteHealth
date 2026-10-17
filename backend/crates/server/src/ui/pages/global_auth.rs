@@ -36,11 +36,13 @@ fn error_html(error: Option<&str>) -> Markup {
 }
 
 /// The one-field form that starts either flow. `turnstile_site_key` adds the
-/// Cloudflare widget.
+/// Cloudflare widget. Without `signup_enabled` the login form does not point
+/// to sign-up.
 pub fn email_form_html(
     purpose: Purpose,
     csrf_token: &str,
     turnstile_site_key: Option<&str>,
+    signup_enabled: bool,
     error: Option<&str>,
 ) -> Markup {
     let (title, heading, action, switch) = match purpose {
@@ -48,13 +50,17 @@ pub fn email_form_html(
             "Start for free",
             "Create your workspace",
             SIGNUP_ROUTE,
-            html! { "Already have a workspace? " a href=(LOGIN_ROUTE) class=(LINK) { "Log in" } },
+            Some(
+                html! { "Already have a workspace? " a href=(LOGIN_ROUTE) class=(LINK) { "Log in" } },
+            ),
         ),
         Purpose::Login => (
             "Log in",
             "Welcome back",
             LOGIN_ROUTE,
-            html! { "New to Haste Health? " a href=(SIGNUP_ROUTE) class=(LINK) { "Start for free" } },
+            signup_enabled.then(|| {
+                html! { "New to Haste Health? " a href=(SIGNUP_ROUTE) class=(LINK) { "Start for free" } }
+            }),
         ),
     };
 
@@ -83,7 +89,46 @@ pub fn email_form_html(
                 }
                 (error_html(error))
                 button type="submit" class=(BUTTON) { "Send me a code" }
-                p class="text-sm text-slate-500" { (switch) }
+                @if let Some(switch) = switch {
+                    p class="text-sm text-slate-500" { (switch) }
+                }
+            }
+        }
+    })
+}
+
+/// `/auth/signup` on a server with sign-up turned off.
+pub fn signup_closed_html() -> Markup {
+    page_html(&html! {
+        (banner("Sign-up is closed", None))
+        div class=(CARD) {
+            div class="p-6 space-y-4 sm:p-8" {
+                h1 class="text-xl font-bold leading-tight tracking-tight text-slate-900 md:text-2xl" { "Sign-up is not available" }
+                p class="text-sm text-slate-500" {
+                    "This server does not let you create a workspace yourself. Ask its administrator for an account."
+                }
+                p class="text-sm text-slate-500" {
+                    "Already have a workspace? " a href=(LOGIN_ROUTE) class=(LINK) { "Log in" }
+                }
+            }
+        }
+    })
+}
+
+/// For a verified address with no account, on a server with sign-up turned
+/// off.
+pub fn no_account_html(email: &str) -> Markup {
+    page_html(&html! {
+        (banner("Log in", None))
+        div class=(CARD) {
+            div class="p-6 space-y-4 sm:p-8" {
+                h1 class="text-xl font-bold leading-tight tracking-tight text-slate-900 md:text-2xl" { "No account" }
+                p class="text-sm text-slate-500" {
+                    "There is no account for " span class="font-semibold text-slate-700" { (email) } ", and this server does not let you create a workspace yourself. Ask its administrator for an account."
+                }
+                p class="text-sm text-slate-500" {
+                    a href=(LOGIN_ROUTE) class=(LINK) { "Use a different email" }
+                }
             }
         }
         (version_watermark())

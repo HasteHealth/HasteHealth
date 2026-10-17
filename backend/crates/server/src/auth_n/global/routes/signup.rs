@@ -1,5 +1,5 @@
 //! `/auth/signup`: one email field. The code it sends is checked at
-//! `/auth/verify`.
+//! `/auth/verify`. Closed when `signup.enabled` is off.
 
 use crate::{
     auth_n::global::{
@@ -8,11 +8,12 @@ use crate::{
     },
     extract::csrf_token::CSRFToken,
     services::ServerState,
-    ui::pages::global_auth::email_form_html,
+    ui::pages::global_auth::signup_closed_html,
 };
 use axum::{
     Form,
     extract::State,
+    http::StatusCode,
     response::{IntoResponse, Response},
 };
 use axum_client_ip::ClientIp;
@@ -28,6 +29,10 @@ use tower_sessions::Session;
 #[typed_path("/signup")]
 pub struct GlobalSignup;
 
+fn signup_closed() -> Response {
+    (StatusCode::FORBIDDEN, signup_closed_html()).into_response()
+}
+
 pub async fn global_signup_get<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -37,13 +42,11 @@ pub async fn global_signup_get<
     CSRFToken(csrf_token): CSRFToken,
     State(state): State<Arc<ServerState<Repo, Search, Terminology>>>,
 ) -> Result<Response, OperationOutcomeError> {
-    Ok(email_form_html(
-        Purpose::Signup,
-        &csrf_token,
-        flow::turnstile_site_key(state.as_ref()),
-        None,
-    )
-    .into_response())
+    if !state.config.signup.enabled {
+        return Ok(signup_closed());
+    }
+
+    Ok(flow::email_form(state.as_ref(), Purpose::Signup, &csrf_token, None).into_response())
 }
 
 pub async fn global_signup_post<
@@ -58,6 +61,10 @@ pub async fn global_signup_post<
     ip: Result<ClientIp, axum_client_ip::Rejection>,
     Form(form): Form<EmailForm>,
 ) -> Result<Response, OperationOutcomeError> {
+    if !state.config.signup.enabled {
+        return Ok(signup_closed());
+    }
+
     flow::begin(
         state.as_ref(),
         &session,
