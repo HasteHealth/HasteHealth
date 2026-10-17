@@ -1,20 +1,16 @@
 use crate::{
     fhir_client::{
-        FHIRServerClient, ServerCTX, ServerClientConfig, StorageError,
+        ClientState, FHIRServerClient, ServerCTX, ServerClientConfig, StorageError,
         batch_transaction_processing::{
             build_sorted_transaction_graph, process_batch_bundle, process_transaction_bundle,
         },
         compartment::process_compartment_request,
-        middleware::{
-            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-            ServerMiddlewareState, auth_z::patient_scope, search_includes,
-        },
+        middleware::{Backend, Handler, Output, auth_z::patient_scope, search_includes},
     },
     route_path::{api_fhir_root_url, append_path_segments},
 };
 use haste_fhir_client::{
     FHIRClient,
-    middleware::MiddlewareChain,
     request::{
         DeleteRequest, DeleteResponse, FHIRBatchResponse, FHIRCreateResponse,
         FHIRDeleteInstanceResponse, FHIRDeleteSystemResponse, FHIRDeleteTypeResponse,
@@ -34,7 +30,6 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::{SearchEngine, SearchEntry, SearchOptions};
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, ResourceId, TenantId};
 use haste_reflect::MetaValue;
 use haste_repository::{Repository, fhir::FHIRRepository};
@@ -122,12 +117,8 @@ pub async fn apply_patch<Repo: Repository>(
     Ok(patched_resource)
 }
 
-pub struct Middleware {}
-impl Middleware {
-    pub fn new() -> Self {
-        Middleware {}
-    }
-}
+/// Ends a lane: reads and writes the repository and search index.
+pub struct Storage;
 
 pub fn to_bundle_entry(
     fhir_api_url: &Url,
@@ -251,17 +242,11 @@ pub fn to_bundle(
 /// Deletes every match of `search`, each as its own instance delete through
 /// the client so it gets its lane's checks and sync hooks. The deletes commit
 /// together: in the lane's transaction when it opened one, else in one here.
-async fn delete_matches<Repo, Search, Terminology, Client>(
-    state: &ServerMiddlewareState<Repo, Search, Terminology>,
-    ctx: &ServerCTX<Client>,
+async fn delete_matches<B: Backend>(
+    state: &ClientState<B>,
+    ctx: &ServerCTX<B>,
     search: SearchRequest,
-) -> Result<(), OperationOutcomeError>
-where
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
-{
+) -> Result<(), OperationOutcomeError> {
     let delete_limit = state.config.fhir.delete_limit;
     let found = state
         .search
@@ -302,18 +287,12 @@ where
 }
 
 /// One instance delete per entry, through a client on `repo`.
-async fn delete_each<Repo, Search, Terminology, Client>(
-    state: &ServerMiddlewareState<Repo, Search, Terminology>,
-    repo: Arc<Repo>,
-    ctx: &ServerCTX<Client>,
+async fn delete_each<B: Backend>(
+    state: &ClientState<B>,
+    repo: Arc<B::Repo>,
+    ctx: &ServerCTX<B>,
     entries: Vec<SearchEntry>,
-) -> Result<(), OperationOutcomeError>
-where
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
-{
+) -> Result<(), OperationOutcomeError> {
     let client = FHIRServerClient::new(
         ServerClientConfig::new(
             repo,
@@ -337,517 +316,384 @@ where
     Ok(())
 }
 
-impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for Middleware
-{
-    #[tracing::instrument(name = "storage_middleware", skip(self, state, next))]
-    fn call(
-        &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext<Client>,
-        next: Option<
-            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
-        >,
-    ) -> ServerMiddlewareOutput<Client> {
+impl<B: Backend> Handler<B> for Storage {
+    #[tracing::instrument(name = "storage_middleware", skip(self, state))]
+    fn handle<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+    ) -> Output<'a> {
         Box::pin(async move {
-            let response = match &mut context.request {
+            match request {
                 FHIRRequest::Create(create_request) => {
-                    Ok(Some(FHIRResponse::Create(FHIRCreateResponse {
+                    Ok(FHIRResponse::Create(FHIRCreateResponse {
                         resource: FHIRRepository::create(
                             state.repo.as_ref(),
-                            &context.ctx.tenant,
-                            &context.ctx.project,
-                            &context.ctx.user.claims,
-                            &context.ctx.fhir_version,
-                            create_request.resource.clone(),
+                            &ctx.tenant,
+                            &ctx.project,
+                            &ctx.user.claims,
+                            &ctx.fhir_version,
+                            create_request.resource,
                         )
                         .await?,
-                    })))
+                    }))
                 }
                 FHIRRequest::Read(read_request) => {
                     let resource = state
                         .repo
                         .read_latest(
-                            &context.ctx.tenant,
-                            &context.ctx.project,
+                            &ctx.tenant,
+                            &ctx.project,
                             &read_request.resource_type,
-                            &ResourceId::new(read_request.id.to_string()),
+                            &ResourceId::new(read_request.id),
                         )
                         .await?;
 
-                    Ok(Some(FHIRResponse::Read(FHIRReadResponse { resource })))
+                    Ok(FHIRResponse::Read(FHIRReadResponse { resource }))
                 }
                 FHIRRequest::Delete(DeleteRequest::Instance(delete_request)) => {
                     let current_resource = FHIRRepository::read_latest(
                         state.repo.as_ref(),
-                        &context.ctx.tenant,
-                        &context.ctx.project,
+                        &ctx.tenant,
+                        &ctx.project,
                         &delete_request.resource_type,
-                        &ResourceId::new(delete_request.id.to_string()),
+                        &ResourceId::new(delete_request.id.clone()),
                     )
                     .await?;
-                    if let Some(resource) = current_resource {
-                        Ok(Some(FHIRResponse::Delete(DeleteResponse::Instance(
-                            Box::new(FHIRDeleteInstanceResponse {
-                                resource: FHIRRepository::delete(
-                                    state.repo.as_ref(),
-                                    &context.ctx.tenant,
-                                    &context.ctx.project,
-                                    &context.ctx.user.claims,
-                                    &context.ctx.fhir_version,
-                                    resource,
-                                    &delete_request.id,
-                                )
-                                .await?,
-                            }),
-                        ))))
-                    } else {
-                        Err(OperationOutcomeError::error(
+                    let Some(resource) = current_resource else {
+                        return Err(OperationOutcomeError::error(
                             IssueType::not_found(),
                             format!("Resource with id '{}' not found", delete_request.id),
-                        ))
-                    }
+                        ));
+                    };
+
+                    Ok(FHIRResponse::Delete(DeleteResponse::Instance(Box::new(
+                        FHIRDeleteInstanceResponse {
+                            resource: FHIRRepository::delete(
+                                state.repo.as_ref(),
+                                &ctx.tenant,
+                                &ctx.project,
+                                &ctx.user.claims,
+                                &ctx.fhir_version,
+                                resource,
+                                &delete_request.id,
+                            )
+                            .await?,
+                        },
+                    ))))
                 }
                 FHIRRequest::Delete(DeleteRequest::Type(delete_request)) => {
                     delete_matches(
-                        &state,
-                        &context.ctx,
+                        state,
+                        &ctx,
                         SearchRequest::Type(FHIRSearchTypeRequest {
-                            resource_type: delete_request.resource_type.clone(),
-                            parameters: delete_request.parameters.clone(),
+                            resource_type: delete_request.resource_type,
+                            parameters: delete_request.parameters,
                         }),
                     )
                     .await?;
 
-                    Ok(Some(FHIRResponse::Delete(DeleteResponse::Type(
+                    Ok(FHIRResponse::Delete(DeleteResponse::Type(
                         FHIRDeleteTypeResponse {},
-                    ))))
+                    )))
                 }
                 FHIRRequest::Delete(DeleteRequest::System(delete_request)) => {
                     delete_matches(
-                        &state,
-                        &context.ctx,
+                        state,
+                        &ctx,
                         SearchRequest::System(FHIRSearchSystemRequest {
-                            parameters: delete_request.parameters.clone(),
+                            parameters: delete_request.parameters,
                         }),
                     )
                     .await?;
 
-                    Ok(Some(FHIRResponse::Delete(DeleteResponse::System(
+                    Ok(FHIRResponse::Delete(DeleteResponse::System(
                         FHIRDeleteSystemResponse {},
-                    ))))
+                    )))
                 }
                 FHIRRequest::VersionRead(vread_request) => {
                     let mut vread_resources = state
                         .repo
                         .read_by_version_ids(
-                            &context.ctx.tenant,
-                            &context.ctx.project,
+                            &ctx.tenant,
+                            &ctx.project,
                             &[&vread_request.version_id],
                             haste_repository::fhir::CachePolicy::Cache,
                         )
                         .await?;
 
-                    if !vread_resources.is_empty() {
-                        Ok(Some(FHIRResponse::VersionRead(FHIRVersionReadResponse {
-                            resource: vread_resources.swap_remove(0),
-                        })))
-                    } else {
-                        Ok(None)
+                    if vread_resources.is_empty() {
+                        return Err(OperationOutcomeError::error(
+                            IssueType::not_found(),
+                            format!(
+                                "Version '{}' of resource '{}/{}' not found",
+                                vread_request.version_id.as_ref(),
+                                vread_request.resource_type.as_ref(),
+                                vread_request.id
+                            ),
+                        ));
                     }
+                    Ok(FHIRResponse::VersionRead(FHIRVersionReadResponse {
+                        resource: vread_resources.swap_remove(0),
+                    }))
                 }
-                FHIRRequest::History(history_request) => match history_request {
-                    HistoryRequest::Instance(_) => {
-                        let history_resources = state
-                            .repo
-                            .history(&context.ctx.tenant, &context.ctx.project, history_request)
-                            .await?;
+                FHIRRequest::History(history_request) => {
+                    let history_resources = state
+                        .repo
+                        .history(&ctx.tenant, &ctx.project, &history_request)
+                        .await?;
 
-                        let fhir_api_root = api_fhir_root_url(
-                            &state.config.api_uri,
-                            &context.ctx.tenant,
-                            &context.ctx.project,
-                        )?;
+                    let fhir_api_root =
+                        api_fhir_root_url(&state.config.api_uri, &ctx.tenant, &ctx.project)?;
 
-                        Ok(Some(FHIRResponse::History(HistoryResponse::Instance(
-                            FHIRHistoryInstanceResponse {
-                                bundle: to_bundle(
-                                    BundleType::history(),
-                                    None,
-                                    history_resources
-                                        .into_iter()
-                                        .map(|r| {
-                                            to_bundle_entry(
-                                                &fhir_api_root,
-                                                r.resource,
-                                                Some(r.request_method),
-                                            )
-                                        })
-                                        .collect(),
-                                ),
-                            },
-                        ))))
-                    }
-                    HistoryRequest::Type(_) => {
-                        let history_resources = state
-                            .repo
-                            .history(&context.ctx.tenant, &context.ctx.project, history_request)
-                            .await?;
-
-                        let fhir_api_root = api_fhir_root_url(
-                            &state.config.api_uri,
-                            &context.ctx.tenant,
-                            &context.ctx.project,
-                        )?;
-
-                        Ok(Some(FHIRResponse::History(HistoryResponse::Type(
-                            FHIRHistoryTypeResponse {
-                                bundle: to_bundle(
-                                    BundleType::history(),
-                                    None,
-                                    history_resources
-                                        .into_iter()
-                                        .map(|r| {
-                                            to_bundle_entry(
-                                                &fhir_api_root,
-                                                r.resource,
-                                                Some(r.request_method),
-                                            )
-                                        })
-                                        .collect(),
-                                ),
-                            },
-                        ))))
-                    }
-                    HistoryRequest::System(_) => {
-                        let history_resources = state
-                            .repo
-                            .history(&context.ctx.tenant, &context.ctx.project, history_request)
-                            .await?;
-
-                        let fhir_api_root = api_fhir_root_url(
-                            &state.config.api_uri,
-                            &context.ctx.tenant,
-                            &context.ctx.project,
-                        )?;
-
-                        Ok(Some(FHIRResponse::History(HistoryResponse::System(
-                            FHIRHistorySystemResponse {
-                                bundle: to_bundle(
-                                    BundleType::history(),
-                                    None,
-                                    history_resources
-                                        .into_iter()
-                                        .map(|r| {
-                                            to_bundle_entry(
-                                                &fhir_api_root,
-                                                r.resource,
-                                                Some(r.request_method),
-                                            )
-                                        })
-                                        .collect(),
-                                ),
-                            },
-                        ))))
-                    }
-                },
-                FHIRRequest::Update(update_request) => match update_request {
-                    UpdateRequest::Instance(update_request) => {
-                        let resource = state
-                            .repo
-                            .read_latest(
-                                &context.ctx.tenant,
-                                &context.ctx.project,
-                                &update_request.resource_type,
-                                &ResourceId::new(update_request.id.to_string()),
-                            )
-                            .await?;
-
-                        if let Some(resource) = resource {
-                            if std::mem::discriminant(&resource)
-                                != std::mem::discriminant(&update_request.resource)
-                            {
-                                return Err(StorageError::InvalidType.into());
-                            }
-
-                            Ok(Some(FHIRResponse::Update(FHIRUpdateResponse {
-                                resource: FHIRRepository::update(
-                                    state.repo.as_ref(),
-                                    &context.ctx.tenant,
-                                    &context.ctx.project,
-                                    &context.ctx.user.claims,
-                                    &context.ctx.fhir_version,
-                                    update_request.resource.clone(),
-                                    &update_request.id,
-                                )
-                                .await?,
-                            })))
-                        } else {
-                            // Create the resource if it does not exist. With the given id.
-                            Ok(Some(FHIRResponse::Create(FHIRCreateResponse {
-                                resource: FHIRRepository::update(
-                                    state.repo.as_ref(),
-                                    &context.ctx.tenant,
-                                    &context.ctx.project,
-                                    &context.ctx.user.claims,
-                                    &context.ctx.fhir_version,
-                                    update_request.resource.clone(),
-                                    &update_request.id,
-                                )
-                                .await?,
-                            })))
-                        }
-                    }
-                    UpdateRequest::Conditional(update_request) => {
-                        let update_parameters = update_request
-                            .parameters
-                            .parameters()
-                            .clone()
+                    let bundle = to_bundle(
+                        BundleType::history(),
+                        None,
+                        history_resources
                             .into_iter()
-                            .filter(|p| match p {
-                                ParsedParameter::Resource(_) => true,
-                                _ => false,
+                            .map(|r| {
+                                to_bundle_entry(&fhir_api_root, r.resource, Some(r.request_method))
                             })
-                            .collect();
+                            .collect(),
+                    );
 
-                        let update_search = SearchRequest::Type(FHIRSearchTypeRequest {
-                            resource_type: update_request.resource_type.clone(),
-                            parameters: ParsedParameters::new(update_parameters),
-                        });
-                        let search_results = state
-                            .search
-                            .search(
-                                &context.ctx.fhir_version,
-                                &context.ctx.tenant,
-                                &context.ctx.project,
-                                &update_search,
-                                search_options(
-                                    context.ctx.compartment.as_deref(),
-                                    &update_search,
-                                    None,
-                                ),
-                            )
-                            .await?;
-                        // No matches, no id provided:
-                        //   The server creates the resource.
-                        // No matches, id provided:
-                        //   The server treats the interaction as an Update as Create interaction (or rejects it, if it does not support Update as Create)
-                        match search_results.entries.len() {
-                            0 => {
-                                let id = update_request
-                                    .resource
-                                    .get_field("id")
-                                    .and_then(|id| id.as_any().downcast_ref::<String>())
-                                    .cloned();
-
-                                // From R5 but Applying here on all versions to dissallow updating a Resource if it already exists
-                                if let Some(id) = id {
-                                    let latest = state
-                                        .repo
-                                        .read_latest(
-                                            &context.ctx.tenant,
-                                            &context.ctx.project,
-                                            &update_request.resource_type,
-                                            &ResourceId::new(id.clone()),
-                                        )
-                                        .await?;
-
-                                    if latest.is_some() {
-                                        return Err(OperationOutcomeError::error(
-                                            IssueType::conflict(),
-                                            "Resource exists but not found in conditional criteria."
-                                                .to_string(),
-                                        ));
-                                    }
-
-                                    Ok(Some(FHIRResponse::Update(FHIRUpdateResponse {
-                                        resource: FHIRRepository::update(
-                                            state.repo.as_ref(),
-                                            &context.ctx.tenant,
-                                            &context.ctx.project,
-                                            &context.ctx.user.claims,
-                                            &context.ctx.fhir_version,
-                                            update_request.resource.clone(),
-                                            &id,
-                                        )
-                                        .await?,
-                                    })))
-                                } else {
-                                    Ok(Some(FHIRResponse::Create(FHIRCreateResponse {
-                                        resource: FHIRRepository::create(
-                                            state.repo.as_ref(),
-                                            &context.ctx.tenant,
-                                            &context.ctx.project,
-                                            &context.ctx.user.claims,
-                                            &context.ctx.fhir_version,
-                                            update_request.resource.clone(),
-                                        )
-                                        .await?,
-                                    })))
-                                }
-                            }
-                            1 => {
-                                let search_result =
-                                    search_results.entries.into_iter().next().unwrap();
-
-                                if update_request.resource_type != search_result.resource_type {
-                                    return Err(OperationOutcomeError::error(
-                                        IssueType::conflict(),
-                                        "Resource type mismatch".to_string(),
-                                    ));
-                                }
-
-                                let resource_id_body = update_request
-                                    .resource
-                                    .get_field("id")
-                                    .and_then(|id| id.as_any().downcast_ref::<String>());
-
-                                // If body has resource Id verify it's the same as one in search result.
-                                if resource_id_body.is_some()
-                                    && resource_id_body.as_ref().map(|s| s.as_str())
-                                        != Some(search_result.id.as_ref())
-                                {
-                                    return Err(OperationOutcomeError::error(
-                                        IssueType::conflict(),
-                                        "Resource ID mismatch".to_string(),
-                                    ));
-                                }
-
-                                Ok(Some(FHIRResponse::Update(FHIRUpdateResponse {
-                                    resource: FHIRRepository::update(
-                                        state.repo.as_ref(),
-                                        &context.ctx.tenant,
-                                        &context.ctx.project,
-                                        &context.ctx.user.claims,
-                                        &context.ctx.fhir_version,
-                                        update_request.resource.clone(),
-                                        search_result.id.as_ref(),
-                                    )
-                                    .await?,
-                                })))
-                            }
-                            _ => Err(OperationOutcomeError::error(
-                                IssueType::conflict(),
-                                "Multiple resources found for conditional update.".to_string(),
-                            )),
+                    Ok(FHIRResponse::History(match history_request {
+                        HistoryRequest::Instance(_) => {
+                            HistoryResponse::Instance(FHIRHistoryInstanceResponse { bundle })
                         }
-                    }
-                },
-                FHIRRequest::Search(search_request) => match search_request {
-                    SearchRequest::Type(_) => {
-                        let fhir_api_root = api_fhir_root_url(
-                            &state.config.api_uri,
-                            &context.ctx.tenant,
-                            &context.ctx.project,
-                        )?;
-
-                        let search_results = state
-                            .search
-                            .search(
-                                &context.ctx.fhir_version,
-                                &context.ctx.tenant,
-                                &context.ctx.project,
-                                search_request,
-                                search_options(
-                                    context.ctx.compartment.as_deref(),
-                                    search_request,
-                                    None,
-                                ),
-                            )
-                            .await?;
-                        let version_ids = search_results
-                            .entries
-                            .iter()
-                            .map(|v| &v.version_id)
-                            .collect::<Vec<_>>();
-
-                        let resources = state
-                            .repo
-                            .read_by_version_ids(
-                                &context.ctx.tenant,
-                                &context.ctx.project,
-                                version_ids.as_slice(),
-                                haste_repository::fhir::CachePolicy::NoCache,
-                            )
-                            .await?;
-
-                        // `_include` reads the references on this page of
-                        // matches. It adds entries; it never changes which
-                        // resources matched, so `total` is untouched.
-                        let directives = search_includes::include_directives(
-                            search_request_parameters(search_request),
-                        );
-
-                        let included = search_includes::resolve_includes(
-                            state.repo.as_ref(),
-                            &context.ctx.tenant,
-                            &context.ctx.project,
-                            &resources,
-                            directives,
+                        HistoryRequest::Type(_) => {
+                            HistoryResponse::Type(FHIRHistoryTypeResponse { bundle })
+                        }
+                        HistoryRequest::System(_) => {
+                            HistoryResponse::System(FHIRHistorySystemResponse { bundle })
+                        }
+                    }))
+                }
+                FHIRRequest::Update(UpdateRequest::Instance(update_request)) => {
+                    let current = state
+                        .repo
+                        .read_latest(
+                            &ctx.tenant,
+                            &ctx.project,
+                            &update_request.resource_type,
+                            &ResourceId::new(update_request.id.clone()),
                         )
                         .await?;
 
-                        let entries = search_entries(&fhir_api_root, resources, included);
-
-                        Ok(Some(FHIRResponse::Search(SearchResponse::Type(
-                            FHIRSearchTypeResponse {
-                                bundle: to_bundle(
-                                    BundleType::searchset(),
-                                    search_results.total,
-                                    entries,
-                                ),
-                            },
-                        ))))
+                    if let Some(current) = &current
+                        && std::mem::discriminant(current)
+                            != std::mem::discriminant(&update_request.resource)
+                    {
+                        return Err(StorageError::InvalidType.into());
                     }
-                    SearchRequest::System(_) => {
-                        let fhir_api_root = api_fhir_root_url(
-                            &state.config.api_uri,
-                            &context.ctx.tenant,
-                            &context.ctx.project,
-                        )?;
-                        let search_results = state
-                            .search
-                            .search(
-                                &context.ctx.fhir_version,
-                                &context.ctx.tenant,
-                                &context.ctx.project,
-                                search_request,
-                                search_options(
-                                    context.ctx.compartment.as_deref(),
-                                    search_request,
-                                    None,
-                                ),
+
+                    let resource = FHIRRepository::update(
+                        state.repo.as_ref(),
+                        &ctx.tenant,
+                        &ctx.project,
+                        &ctx.user.claims,
+                        &ctx.fhir_version,
+                        update_request.resource,
+                        &update_request.id,
+                    )
+                    .await?;
+
+                    // Update as create: a resource that did not exist is
+                    // created with the given id.
+                    Ok(match current {
+                        Some(_) => FHIRResponse::Update(FHIRUpdateResponse { resource }),
+                        None => FHIRResponse::Create(FHIRCreateResponse { resource }),
+                    })
+                }
+                FHIRRequest::Update(UpdateRequest::Conditional(update_request)) => {
+                    let update_parameters = update_request
+                        .parameters
+                        .parameters()
+                        .iter()
+                        .filter(|p| matches!(p, ParsedParameter::Resource(_)))
+                        .cloned()
+                        .collect();
+
+                    let update_search = SearchRequest::Type(FHIRSearchTypeRequest {
+                        resource_type: update_request.resource_type.clone(),
+                        parameters: ParsedParameters::new(update_parameters),
+                    });
+                    let search_results = state
+                        .search
+                        .search(
+                            &ctx.fhir_version,
+                            &ctx.tenant,
+                            &ctx.project,
+                            &update_search,
+                            search_options(ctx.compartment.as_deref(), &update_search, None),
+                        )
+                        .await?;
+                    // No matches, no id provided:
+                    //   The server creates the resource.
+                    // No matches, id provided:
+                    //   The server treats the interaction as an Update as Create interaction (or rejects it, if it does not support Update as Create)
+                    match search_results.entries.len() {
+                        0 => {
+                            let id = update_request
+                                .resource
+                                .get_field("id")
+                                .and_then(|id| id.as_any().downcast_ref::<String>())
+                                .cloned();
+
+                            // From R5 but Applying here on all versions to dissallow updating a Resource if it already exists
+                            if let Some(id) = id {
+                                let latest = state
+                                    .repo
+                                    .read_latest(
+                                        &ctx.tenant,
+                                        &ctx.project,
+                                        &update_request.resource_type,
+                                        &ResourceId::new(id.clone()),
+                                    )
+                                    .await?;
+
+                                if latest.is_some() {
+                                    return Err(OperationOutcomeError::error(
+                                        IssueType::conflict(),
+                                        "Resource exists but not found in conditional criteria."
+                                            .to_string(),
+                                    ));
+                                }
+
+                                Ok(FHIRResponse::Update(FHIRUpdateResponse {
+                                    resource: FHIRRepository::update(
+                                        state.repo.as_ref(),
+                                        &ctx.tenant,
+                                        &ctx.project,
+                                        &ctx.user.claims,
+                                        &ctx.fhir_version,
+                                        update_request.resource,
+                                        &id,
+                                    )
+                                    .await?,
+                                }))
+                            } else {
+                                Ok(FHIRResponse::Create(FHIRCreateResponse {
+                                    resource: FHIRRepository::create(
+                                        state.repo.as_ref(),
+                                        &ctx.tenant,
+                                        &ctx.project,
+                                        &ctx.user.claims,
+                                        &ctx.fhir_version,
+                                        update_request.resource,
+                                    )
+                                    .await?,
+                                }))
+                            }
+                        }
+                        1 => {
+                            let search_result = search_results.entries.into_iter().next().unwrap();
+
+                            if update_request.resource_type != search_result.resource_type {
+                                return Err(OperationOutcomeError::error(
+                                    IssueType::conflict(),
+                                    "Resource type mismatch".to_string(),
+                                ));
+                            }
+
+                            let resource_id_body = update_request
+                                .resource
+                                .get_field("id")
+                                .and_then(|id| id.as_any().downcast_ref::<String>());
+
+                            // If body has resource Id verify it's the same as one in search result.
+                            if resource_id_body.is_some()
+                                && resource_id_body.map(String::as_str)
+                                    != Some(search_result.id.as_ref())
+                            {
+                                return Err(OperationOutcomeError::error(
+                                    IssueType::conflict(),
+                                    "Resource ID mismatch".to_string(),
+                                ));
+                            }
+
+                            Ok(FHIRResponse::Update(FHIRUpdateResponse {
+                                resource: FHIRRepository::update(
+                                    state.repo.as_ref(),
+                                    &ctx.tenant,
+                                    &ctx.project,
+                                    &ctx.user.claims,
+                                    &ctx.fhir_version,
+                                    update_request.resource,
+                                    search_result.id.as_ref(),
+                                )
+                                .await?,
+                            }))
+                        }
+                        _ => Err(OperationOutcomeError::error(
+                            IssueType::conflict(),
+                            "Multiple resources found for conditional update.".to_string(),
+                        )),
+                    }
+                }
+                FHIRRequest::Search(search_request) => {
+                    let fhir_api_root =
+                        api_fhir_root_url(&state.config.api_uri, &ctx.tenant, &ctx.project)?;
+
+                    let search_results = state
+                        .search
+                        .search(
+                            &ctx.fhir_version,
+                            &ctx.tenant,
+                            &ctx.project,
+                            &search_request,
+                            search_options(ctx.compartment.as_deref(), &search_request, None),
+                        )
+                        .await?;
+                    let version_ids = search_results
+                        .entries
+                        .iter()
+                        .map(|v| &v.version_id)
+                        .collect::<Vec<_>>();
+
+                    let resources = state
+                        .repo
+                        .read_by_version_ids(
+                            &ctx.tenant,
+                            &ctx.project,
+                            version_ids.as_slice(),
+                            haste_repository::fhir::CachePolicy::NoCache,
+                        )
+                        .await?;
+
+                    match &search_request {
+                        SearchRequest::Type(_) => {
+                            // `_include` reads the references on this page of
+                            // matches. It adds entries; it never changes which
+                            // resources matched, so `total` is untouched.
+                            let directives = search_includes::include_directives(
+                                search_request_parameters(&search_request),
+                            );
+
+                            let included = search_includes::resolve_includes(
+                                state.repo.as_ref(),
+                                &ctx.tenant,
+                                &ctx.project,
+                                &resources,
+                                directives,
                             )
                             .await?;
-                        let version_ids = search_results
-                            .entries
-                            .iter()
-                            .map(|v| &v.version_id)
-                            .collect::<Vec<_>>();
 
-                        let resources = state
-                            .repo
-                            .read_by_version_ids(
-                                &context.ctx.tenant,
-                                &context.ctx.project,
-                                version_ids.as_slice(),
-                                haste_repository::fhir::CachePolicy::NoCache,
-                            )
-                            .await?;
+                            let entries = search_entries(&fhir_api_root, resources, included);
 
-                        Ok(Some(FHIRResponse::Search(SearchResponse::System(
-                            FHIRSearchSystemResponse {
+                            Ok(FHIRResponse::Search(SearchResponse::Type(
+                                FHIRSearchTypeResponse {
+                                    bundle: to_bundle(
+                                        BundleType::searchset(),
+                                        search_results.total,
+                                        entries,
+                                    ),
+                                },
+                            )))
+                        }
+                        SearchRequest::System(_) => Ok(FHIRResponse::Search(
+                            SearchResponse::System(FHIRSearchSystemResponse {
                                 bundle: to_bundle(
                                     BundleType::searchset(),
                                     search_results.total,
@@ -856,28 +702,22 @@ impl<
                                         .map(|r| to_bundle_entry(&fhir_api_root, r, None))
                                         .collect(),
                                 ),
-                            },
-                        ))))
+                            }),
+                        )),
                     }
-                },
+                }
                 FHIRRequest::Transaction(transaction_request) => {
-                    let mut transaction_entries: Option<Vec<BundleEntry>> = None;
-                    // Memswap so I can avoid cloning.
-                    std::mem::swap(
-                        &mut transaction_request.resource.entry,
-                        &mut transaction_entries,
-                    );
-
                     // Run sort before creating transaction.
                     // So that transaction is only used for the direct submission of the sorted entries.
                     // We want to limit time within a transaction as much as possible.
-                    let sorted_transaction =
-                        build_sorted_transaction_graph(transaction_entries.unwrap_or_default())
-                            .await?;
+                    let sorted_transaction = build_sorted_transaction_graph(
+                        transaction_request.resource.entry.unwrap_or_default(),
+                    )
+                    .await?;
 
                     let transaction_repo = Arc::new(state.repo.transaction(true).await?);
 
-                    let bundle_response: Result<Bundle, OperationOutcomeError> = {
+                    let bundle_response = {
                         let transaction_client = FHIRServerClient::new(
                             ServerClientConfig::new(
                                 transaction_repo.clone(),
@@ -889,19 +729,15 @@ impl<
                             .with_audit_repo(state.audit_repo.clone()),
                         );
 
-                        let transaction_context = Arc::new(
-                            context
-                                .ctx
-                                .as_ref()
-                                .swap_client(Arc::new(transaction_client)),
-                        );
+                        let transaction_context =
+                            Arc::new(ctx.swap_client(Arc::new(transaction_client)));
 
-                        Ok(process_transaction_bundle(
+                        process_transaction_bundle(
                             transaction_context.client.as_ref(),
                             transaction_context.clone(),
                             sorted_transaction,
                         )
-                        .await?)
+                        .await
                     };
 
                     let repo = Arc::try_unwrap(transaction_repo).map_err(|_e| {
@@ -911,27 +747,21 @@ impl<
                         )
                     })?;
 
-                    if let Ok(transaction_bundle) = bundle_response {
-                        repo.commit().await?;
-                        Ok(Some(FHIRResponse::Transaction(FHIRTransactionResponse {
-                            resource: transaction_bundle,
-                        })))
-                    } else if let Err(operation_error) = bundle_response {
-                        tracing::info!("Rolling back transaction due to error");
-                        repo.rollback().await?;
-
-                        Err(operation_error)
-                    } else {
-                        Err(OperationOutcomeError::fatal(
-                            IssueType::exception(),
-                            "Unexpected transaction error".to_string(),
-                        ))
+                    match bundle_response {
+                        Ok(transaction_bundle) => {
+                            repo.commit().await?;
+                            Ok(FHIRResponse::Transaction(FHIRTransactionResponse {
+                                resource: transaction_bundle,
+                            }))
+                        }
+                        Err(operation_error) => {
+                            tracing::info!("Rolling back transaction due to error");
+                            repo.rollback().await?;
+                            Err(operation_error)
+                        }
                     }
                 }
                 FHIRRequest::Batch(batch_request) => {
-                    let mut batch_entries: Option<Vec<BundleEntry>> = None;
-                    // Memswap so I can avoid cloning.
-                    std::mem::swap(&mut batch_request.resource.entry, &mut batch_entries);
                     let batch_client = FHIRServerClient::new(ServerClientConfig::new(
                         state.repo.clone(),
                         state.search.clone(),
@@ -940,39 +770,38 @@ impl<
                         state.deno_pool.clone(),
                     ));
 
-                    let batch_context =
-                        Arc::new(context.ctx.as_ref().swap_client(Arc::new(batch_client)));
+                    let batch_context = Arc::new(ctx.swap_client(Arc::new(batch_client)));
 
-                    Ok(Some(FHIRResponse::Batch(FHIRBatchResponse {
+                    Ok(FHIRResponse::Batch(FHIRBatchResponse {
                         resource: process_batch_bundle(
                             batch_context.client.as_ref(),
                             batch_context.clone(),
-                            batch_entries.unwrap_or_default(),
+                            batch_request.resource.entry.unwrap_or_default(),
                         )
                         .await?,
-                    })))
+                    }))
                 }
-                FHIRRequest::Patch(fhir_patch_request) => {
+                FHIRRequest::Patch(patch_request) => {
                     let patched_resource = apply_patch(
                         state.repo.as_ref(),
-                        &context.ctx.tenant,
-                        &context.ctx.project,
-                        fhir_patch_request,
+                        &ctx.tenant,
+                        &ctx.project,
+                        &patch_request,
                     )
                     .await?;
 
-                    Ok(Some(FHIRResponse::Patch(FHIRPatchResponse {
+                    Ok(FHIRResponse::Patch(FHIRPatchResponse {
                         resource: FHIRRepository::update(
                             state.repo.as_ref(),
-                            &context.ctx.tenant,
-                            &context.ctx.project,
-                            &context.ctx.user.claims,
-                            &context.ctx.fhir_version,
+                            &ctx.tenant,
+                            &ctx.project,
+                            &ctx.user.claims,
+                            &ctx.fhir_version,
                             patched_resource,
-                            &fhir_patch_request.id,
+                            &patch_request.id,
                         )
                         .await?,
-                    })))
+                    }))
                 }
                 FHIRRequest::Capabilities | FHIRRequest::Invocation(_) => {
                     Err(OperationOutcomeError::error(
@@ -981,25 +810,14 @@ impl<
                     ))
                 }
                 FHIRRequest::Compartment(compartment_request) => {
-                    let response = process_compartment_request(
-                        context.ctx.client.as_ref(),
-                        context.ctx.clone(),
-                        compartment_request,
+                    process_compartment_request(
+                        ctx.client.as_ref(),
+                        ctx.clone(),
+                        &compartment_request,
                     )
-                    .await?;
-
-                    Ok(Some(response))
+                    .await
                 }
-            }?;
-
-            let mut next_context = if let Some(next_) = next {
-                next_(state.clone(), context).await?
-            } else {
-                context
-            };
-
-            next_context.response = response;
-            Ok(next_context)
+            }
         })
     }
 }

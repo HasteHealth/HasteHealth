@@ -7,19 +7,14 @@
 //! against the resources it holds.
 
 use crate::fhir_client::{
-    ServerCTX,
+    ClientState, ServerCTX,
     middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+        Backend, Middleware, Next, Output,
         auth_z::{forbidden, patient_scope},
     },
     utilities::{is_search_match, map_search_entries, request_to_resource_type},
 };
-
-use haste_fhir_client::{
-    FHIRClient,
-    middleware::{Context, MiddlewareChain},
-    request::{FHIRRequest, FHIRResponse},
-};
+use haste_fhir_client::request::{FHIRRequest, FHIRResponse};
 use haste_fhir_model::r4::generated::{
     resources::{BundleEntry, ResourceType},
     terminology::IssueType,
@@ -182,125 +177,102 @@ async fn filter_entries(
 /// The response as the caller may see it: a read is checked against the
 /// `compartment` the request was confined to, a search page's includes
 /// against the caller's scopes.
+/// The response as the caller may see it: a read is checked against the
+/// `compartment` the request was confined to, a search page's includes
+/// against the caller's scopes.
 async fn filter_response(
     response: FHIRResponse,
     scopes: &Scopes,
     patient: Option<&str>,
     compartment: Option<&str>,
-) -> Option<FHIRResponse> {
+) -> Result<FHIRResponse, OperationOutcomeError> {
     match (compartment, response) {
         (Some(patient_id), response @ (FHIRResponse::Read(_) | FHIRResponse::VersionRead(_))) => {
             patient_scope::filter_read(patient_id, response).await
         }
-        (_, response) => Some(
-            map_search_entries(response, |entries| filter_entries(entries, scopes, patient)).await,
-        ),
+        (_, response) => {
+            Ok(
+                map_search_entries(response, |entries| filter_entries(entries, scopes, patient))
+                    .await,
+            )
+        }
     }
 }
 
-pub struct SMARTScopeAccessMiddleware {}
-impl SMARTScopeAccessMiddleware {
-    pub fn new() -> Self {
-        Self {}
-    }
-}
-impl<
-    State: Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
-> MiddlewareChain<State, Arc<ServerCTX<Client>>, FHIRRequest, FHIRResponse, OperationOutcomeError>
-    for SMARTScopeAccessMiddleware
-{
-    fn call(
-        &self,
-        state: State,
-        context: ServerMiddlewareContext<Client>,
-        next: Option<Arc<ServerMiddlewareNext<Client, State>>>,
-    ) -> ServerMiddlewareOutput<Client> {
-        Box::pin(async move {
-            match &context.request {
-                // Batch and transaction will call back into this middleware for their individual requests
-                // at which point the permissions will be checked.
-                FHIRRequest::Capabilities | FHIRRequest::Batch(_) | FHIRRequest::Transaction(_) => {
-                    if let Some(next) = next {
-                        Ok(next(state, context).await?)
-                    } else {
-                        Ok(context)
-                    }
+pub struct SmartScopeAccess;
+
+impl<B: Backend> Middleware<B> for SmartScopeAccess {
+    fn call<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+        next: Next<'a, B>,
+    ) -> Output<'a> {
+        match &request {
+            // Batch and transaction will call back into this middleware for their individual requests
+            // at which point the permissions will be checked.
+            FHIRRequest::Capabilities | FHIRRequest::Batch(_) | FHIRRequest::Transaction(_) => {
+                next.run(state, ctx, request)
+            }
+            // An operation's own data access comes back through this
+            // client and is checked there.
+            FHIRRequest::Invocation(invocation) => {
+                let claims = &ctx.user.claims;
+                if only_patient_scopes(&claims.scope)
+                    && !claims.patient.as_deref().is_some_and(|patient_id| {
+                        patient_scope::allows_invocation(patient_id, invocation)
+                    })
+                {
+                    return Box::pin(std::future::ready(Err(forbidden(
+                        "Operations are not supported under a patient-level scope, except \
+                         the patient's own $everything",
+                    ))));
                 }
-                // An operation's own data access comes back through this
-                // client and is checked there.
-                FHIRRequest::Invocation(invocation) => {
-                    let claims = &context.ctx.user.claims;
-                    if only_patient_scopes(&claims.scope)
-                        && !claims.patient.as_deref().is_some_and(|patient_id| {
-                            patient_scope::allows_invocation(patient_id, invocation)
-                        })
-                    {
+                next.run(state, ctx, request)
+            }
+            FHIRRequest::Compartment(_)
+            | FHIRRequest::Create(_)
+            | FHIRRequest::Read(_)
+            | FHIRRequest::VersionRead(_)
+            | FHIRRequest::Update(_)
+            | FHIRRequest::Patch(_)
+            | FHIRRequest::Delete(_)
+            | FHIRRequest::Search(_)
+            | FHIRRequest::History(_) => Box::pin(async move {
+                // The caller's claims outlive the context the request runs in.
+                let caller = ctx.clone();
+                let claims = &caller.user.claims;
+                let Some(matched_scope) =
+                    get_highest_value_for_request_scope(&claims.scope, &request)?
+                else {
+                    return Err(forbidden("Insufficient SMART scope for this request"));
+                };
+
+                // The compartment this request is confined to: the token's
+                // patient, when a `patient/` scope is what grants it.
+                let patient = claims.patient.as_deref();
+                let compartment = match (&matched_scope.user, patient) {
+                    (SmartResourceScopeUser::Patient, Some(patient_id)) => Some(patient_id),
+                    (SmartResourceScopeUser::Patient, None) => {
                         return Err(forbidden(
-                            "Operations are not supported under a patient-level scope, except \
-                             the patient's own $everything",
+                            "A patient-level scope grants nothing without a patient in context",
                         ));
                     }
-                    if let Some(next) = next {
-                        Ok(next(state, context).await?)
-                    } else {
-                        Ok(context)
+                    (SmartResourceScopeUser::User | SmartResourceScopeUser::System, _) => None,
+                };
+
+                let ctx = match compartment {
+                    None => ctx,
+                    Some(patient_id) => {
+                        patient_scope::check_request(&request)?;
+                        Arc::new(ctx.with_compartment(patient_id.to_string()))
                     }
-                }
-                FHIRRequest::Compartment(_)
-                | FHIRRequest::Create(_)
-                | FHIRRequest::Read(_)
-                | FHIRRequest::VersionRead(_)
-                | FHIRRequest::Update(_)
-                | FHIRRequest::Patch(_)
-                | FHIRRequest::Delete(_)
-                | FHIRRequest::Search(_)
-                | FHIRRequest::History(_) => {
-                    let ctx = context.ctx.clone();
-                    let claims = &ctx.user.claims;
-                    let Some(matched_scope) =
-                        get_highest_value_for_request_scope(&claims.scope, &context.request)?
-                    else {
-                        return Err(forbidden("Insufficient SMART scope for this request"));
-                    };
+                };
 
-                    // The compartment this request is confined to: the token's
-                    // patient, when a `patient/` scope is what grants it.
-                    let patient = claims.patient.as_deref();
-                    let compartment = match (&matched_scope.user, patient) {
-                        (SmartResourceScopeUser::Patient, Some(patient_id)) => Some(patient_id),
-                        (SmartResourceScopeUser::Patient, None) => {
-                            return Err(forbidden(
-                                "A patient-level scope grants nothing without a patient in context",
-                            ));
-                        }
-                        (SmartResourceScopeUser::User | SmartResourceScopeUser::System, _) => None,
-                    };
-
-                    let context = match compartment {
-                        None => context,
-                        Some(patient_id) => {
-                            patient_scope::check_request(&context.request)?;
-                            Context {
-                                ctx: Arc::new(ctx.with_compartment(patient_id.to_string())),
-                                request: context.request,
-                                response: context.response,
-                            }
-                        }
-                    };
-
-                    let Some(next) = next else {
-                        return Ok(context);
-                    };
-
-                    let mut result = next(state, context).await?;
-                    if let Some(response) = result.response.take() {
-                        result.response =
-                            filter_response(response, &claims.scope, patient, compartment).await;
-                    }
-                    Ok(result)
-                }
-            }
-        })
+                let response = next.run(state, ctx, request).await?;
+                filter_response(response, &claims.scope, patient, compartment).await
+            }),
+        }
     }
 }

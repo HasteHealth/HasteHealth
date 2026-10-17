@@ -1,22 +1,13 @@
-use std::sync::Arc;
-
-use crate::fhir_client::{
-    ServerCTX,
-    middleware::{ServerMiddlewareState, operations::ServerOperationContext},
-};
-use haste_fhir_client::{FHIRClient, request::InvocationRequest};
+use crate::fhir_client::middleware::{Backend, operations::ServerOperationContext};
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::HasteHealthListScopes;
 use haste_fhir_model::r4::{
     datetime::parse_datetime,
     generated::types::{FHIRDateTime, FHIRId, FHIRString},
 };
-use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{
-    Repository,
     admin::ProjectModelAdmin,
     types::scope::{ScopeSearchClaims, UserId},
 };
@@ -35,23 +26,15 @@ fn format_datetime(datetime: &OffsetDateTime) -> Option<String> {
         .ok()
 }
 
-pub fn approved_scopes_op<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->() -> OperationExecutor<
-    ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
+pub fn approved_scopes_op<B: Backend>() -> OperationExecutor<
+    ServerOperationContext<B>,
     HasteHealthListScopes::Input,
     HasteHealthListScopes::Output,
 > {
     OperationExecutor::new(
         &HasteHealthListScopes::OPERATION_DEFINITION,
         Box::new(
-            |context: ServerOperationContext<
-                ServerMiddlewareState<Repo, Search, Terminology>,
-                Client,
-            >,
+            |context: ServerOperationContext<B>,
              tenant: TenantId,
              project: ProjectId,
              _request: &InvocationRequest,

@@ -12,13 +12,10 @@
 //! client signed in on its own cannot start one.
 
 use crate::{
-    fhir_client::{
-        ServerCTX,
-        middleware::{ServerMiddlewareState, operations::ServerOperationContext},
-    },
+    fhir_client::middleware::{Backend, operations::ServerOperationContext},
     route_path::api_fhir_root_url,
 };
-use haste_fhir_client::{FHIRClient, request::InvocationRequest};
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::HasteHealthSmartLaunch;
 use haste_fhir_model::r4::generated::{
     resources::{Encounter, Resource, ResourceType},
@@ -27,16 +24,14 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{AuthorId, AuthorKind, ProjectId, ResourceId, TenantId};
+use haste_repository::fhir::FHIRRepository;
 use haste_repository::{
-    Repository,
     admin::ProjectModelAdmin,
     types::authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
 };
 use serde_json::json;
-use std::{sync::Arc, time::Duration};
+use std::time::Duration;
 use url::Url;
 
 /// How long a launch can be redeemed. An app is opened and asks for
@@ -96,23 +91,15 @@ fn parse_launch_uri(launch_uri: &str) -> Result<Url, OperationOutcomeError> {
         .ok_or_else(|| invalid("The client's launchUri must be an absolute http or https URL."))
 }
 
-pub fn smart_launch_op<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->() -> OperationExecutor<
-    ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
+pub fn smart_launch_op<B: Backend>() -> OperationExecutor<
+    ServerOperationContext<B>,
     HasteHealthSmartLaunch::Input,
     HasteHealthSmartLaunch::Output,
 > {
     OperationExecutor::new(
         &HasteHealthSmartLaunch::OPERATION_DEFINITION,
         Box::new(
-            |context: ServerOperationContext<
-                ServerMiddlewareState<Repo, Search, Terminology>,
-                Client,
-            >,
+            |context: ServerOperationContext<B>,
              tenant: TenantId,
              project: ProjectId,
              request: &InvocationRequest,

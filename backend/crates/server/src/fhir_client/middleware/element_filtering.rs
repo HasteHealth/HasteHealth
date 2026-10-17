@@ -1,34 +1,18 @@
 use crate::fhir_client::{
-    ServerCTX,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
-    },
+    ClientState, ServerCTX,
+    middleware::{Backend, Middleware, Next, Output},
     utilities::is_search_match,
 };
 use haste_fhir_client::{
-    FHIRClient,
-    middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse, SearchRequest, SearchResponse},
     url::{ParsedParameter, ParsedParameters},
 };
-use haste_fhir_model::r4::generated::{
-    resources::{Bundle, Resource},
-    terminology::IssueType,
-};
+use haste_fhir_model::r4::generated::{resources::Bundle, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::Repository;
 use std::sync::Arc;
 
 /// Element Filtering (should occur after access control checks).
-pub struct Middleware {}
-impl Middleware {
-    pub fn new() -> Self {
-        Middleware {}
-    }
-}
+pub struct ElementFiltering;
 
 fn find_element_summary_parameter(parameters: &ParsedParameters) -> Option<Vec<&ParsedParameter>> {
     let matched: Vec<&ParsedParameter> = parameters
@@ -65,14 +49,14 @@ pub fn get_summary_element_parameter(request: &FHIRRequest) -> Option<Vec<&Parse
 
 /// `_elements` is a comma-separated list of top-level element names and may be repeated.
 /// See the following for more information <https://hl7.org/fhir/R4/search.html#elements>.
-fn requested_elements<'a>(parameters: &'a [&ParsedParameter]) -> Vec<&'a str> {
+fn requested_elements(parameters: &[&ParsedParameter]) -> Vec<String> {
     parameters
         .iter()
         .filter_map(|p| match p {
             ParsedParameter::Result(param) if param.name == "_elements" => Some(param),
             _ => None,
         })
-        .flat_map(|param| param.value.iter().map(std::string::String::as_str))
+        .flat_map(|param| param.value.iter().cloned())
         .collect()
 }
 
@@ -99,14 +83,16 @@ impl From<&str> for SummaryMode {
     }
 }
 
-enum Subsetting<'a> {
-    Elements(Vec<&'a str>),
+/// What the caller asked to keep of each match. Owned, since it is decided
+/// from the request and applied to the response once the request is gone.
+enum Subsetting {
+    Elements(Vec<String>),
     Summary(SummaryMode),
 }
 
 /// `_elements` takes precedence over `_summary` when both are present; the
 /// spec doesn't define combined semantics for using both at once.
-fn subsetting<'a>(parameters: &'a [&ParsedParameter]) -> Option<Subsetting<'a>> {
+fn subsetting(parameters: &[&ParsedParameter]) -> Option<Subsetting> {
     let elements = requested_elements(parameters);
 
     if !elements.is_empty() {
@@ -122,26 +108,19 @@ fn subsetting<'a>(parameters: &'a [&ParsedParameter]) -> Option<Subsetting<'a>> 
     })
 }
 
-fn filter_resource(
-    resource: Resource,
-    subsetting: &Subsetting,
-) -> Result<Resource, OperationOutcomeError> {
-    let fields: &[&str] = match subsetting {
-        Subsetting::Elements(fields) => fields,
+/// The top-level elements each match is cut down to, or `None` when matches
+/// pass through whole.
+fn kept_fields(subsetting: &Subsetting) -> Option<Vec<&str>> {
+    match subsetting {
+        Subsetting::Elements(fields) => Some(fields.iter().map(String::as_str).collect()),
         // Do not have access yet to fields outside of minimum required yet.
         // Will need to mark fields in generated structs with #[summary] or something else.
-        Subsetting::Summary(SummaryMode::True) => &[],
-        Subsetting::Summary(SummaryMode::Text) => &["text"],
+        Subsetting::Summary(SummaryMode::True) => Some(Vec::new()),
+        Subsetting::Summary(SummaryMode::Text) => Some(vec!["text"]),
         // Count is handled at the bundle level (no entries at all); Data
         // isn't implemented yet. Both pass the resource through unchanged.
-        Subsetting::Summary(SummaryMode::Data | SummaryMode::Count | SummaryMode::False) => {
-            return Ok(resource);
-        }
-    };
-
-    resource
-        .filter(fields)
-        .map_err(|e| OperationOutcomeError::error(IssueType::invalid(), e.to_string()))
+        Subsetting::Summary(SummaryMode::Data | SummaryMode::Count | SummaryMode::False) => None,
+    }
 }
 
 fn filter_bundle(
@@ -153,6 +132,9 @@ fn filter_bundle(
         return Ok(bundle);
     }
 
+    let Some(fields) = kept_fields(subsetting) else {
+        return Ok(bundle);
+    };
     let Some(entries) = bundle.entry.take() else {
         return Ok(bundle);
     };
@@ -163,7 +145,10 @@ fn filter_bundle(
             if is_search_match(&entry)
                 && let Some(resource) = entry.resource.take()
             {
-                entry.resource = Some(Box::new(filter_resource(*resource, subsetting)?));
+                let filtered = resource.filter(&fields).map_err(|e| {
+                    OperationOutcomeError::error(IssueType::invalid(), e.to_string())
+                })?;
+                entry.resource = Some(Box::new(filtered));
             }
             Ok(entry)
         })
@@ -192,52 +177,25 @@ fn filter_response(
     }
 }
 
-impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for Middleware
-{
-    fn call(
-        &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext<Client>,
-        next: Option<
-            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
-        >,
-    ) -> ServerMiddlewareOutput<Client> {
+impl<B: Backend> Middleware<B> for ElementFiltering {
+    fn call<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+        next: Next<'a, B>,
+    ) -> Output<'a> {
+        // Decided before the request moves on: the response alone does not
+        // say what was asked for.
+        let Some(subsetting) =
+            get_summary_element_parameter(&request).and_then(|parameters| subsetting(&parameters))
+        else {
+            return next.run(state, ctx, request);
+        };
+
         Box::pin(async move {
-            let mut context = if let Some(next) = next {
-                next(state, context).await
-            } else {
-                Err(OperationOutcomeError::fatal(
-                    IssueType::exception(),
-                    "No next middleware found".to_string(),
-                ))
-            }?;
-
-            let Some(elements_summary_parameter) = get_summary_element_parameter(&context.request)
-            else {
-                return Ok(context);
-            };
-
-            let Some(subsetting) = subsetting(&elements_summary_parameter) else {
-                return Ok(context);
-            };
-
-            if let Some(response) = context.response.take() {
-                context.response = Some(filter_response(response, &subsetting)?);
-            }
-
-            Ok(context)
+            let response = next.run(state, ctx, request).await?;
+            filter_response(response, &subsetting)
         })
     }
 }

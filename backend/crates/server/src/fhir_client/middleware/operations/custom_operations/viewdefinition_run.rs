@@ -1,34 +1,16 @@
-use crate::fhir_client::{
-    ServerCTX,
-    middleware::{ServerMiddlewareState, operations::ServerOperationContext},
-};
-use haste_fhir_client::{FHIRClient, request::InvocationRequest};
+use crate::fhir_client::middleware::{Backend, operations::ServerOperationContext};
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::ViewDefinitionRun;
-use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
-use haste_repository::Repository;
-use std::sync::Arc;
 
-pub fn view_definition_run<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->() -> OperationExecutor<
-    ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
-    ViewDefinitionRun::Input,
-    ViewDefinitionRun::Output,
-> {
+pub fn view_definition_run<B: Backend>()
+-> OperationExecutor<ServerOperationContext<B>, ViewDefinitionRun::Input, ViewDefinitionRun::Output>
+{
     OperationExecutor::new(
         &ViewDefinitionRun::OPERATION_DEFINITION,
         Box::new(
-            |context: ServerOperationContext<
-                ServerMiddlewareState<Repo, Search, Terminology>,
-                Client,
-            >,
+            |context: ServerOperationContext<B>,
              _tenant: TenantId,
              _project: ProjectId,
              _request: &InvocationRequest,

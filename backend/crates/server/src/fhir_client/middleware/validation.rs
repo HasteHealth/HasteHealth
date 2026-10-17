@@ -1,23 +1,13 @@
 use crate::fhir_client::{
-    ServerCTX,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
-    },
+    ClientState, ServerCTX,
+    middleware::{Backend, Middleware, Next, Output},
     resolver::ServerCTXResolver,
 };
-use haste_fhir_client::{
-    FHIRClient,
-    middleware::MiddlewareChain,
-    request::{FHIRRequest, FHIRResponse, UpdateRequest},
-};
-use haste_fhir_model::r4::generated::{resources::Resource, types::Meta};
+use haste_fhir_client::request::{FHIRRequest, UpdateRequest};
+use haste_fhir_model::r4::generated::{resources::Resource, terminology::IssueType, types::Meta};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_profiling::FHIRProfileArguments;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_reflect::MetaValue;
-use haste_repository::Repository;
 use std::sync::Arc;
 
 fn extract_profile_url_from_resource(resource: &Resource) -> Option<Vec<&str>> {
@@ -56,7 +46,7 @@ fn extract_profile_url_and_resource_from_request(
             let profiles_url = extract_profile_url_from_resource(resource).unwrap_or(vec![]);
             if profiles_url.len() > MAX_PROFILES_PER_RESOURCE {
                 return Err(OperationOutcomeError::error(
-                    haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
+                    IssueType::invalid(),
                     format!(
                         "Too many profiles on resource. Maximum allowed is '{}'",
                         MAX_PROFILES_PER_RESOURCE
@@ -80,67 +70,42 @@ fn extract_profile_url_and_resource_from_request(
     }
 }
 
-pub struct Middleware {}
-impl Middleware {
-    pub fn new() -> Self {
-        Middleware {}
-    }
-}
-impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for Middleware
-{
-    fn call(
-        &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext<Client>,
-        next: Option<
-            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
-        >,
-    ) -> ServerMiddlewareOutput<Client> {
+/// Validates a written resource against the profiles its `meta.profile`
+/// claims.
+pub struct Validation;
+
+impl<B: Backend> Middleware<B> for Validation {
+    fn call<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+        next: Next<'a, B>,
+    ) -> Output<'a> {
         Box::pin(async move {
-            let Some(next) = next else {
-                return Err(OperationOutcomeError::error(
-                    haste_fhir_model::r4::generated::terminology::IssueType::invalid(),
-                    "Next middleware must be provided for profile middleware.".to_string(),
-                ));
-            };
+            if let Some((profile_urls, resource)) =
+                extract_profile_url_and_resource_from_request(&request)?
+            {
+                for profile_url in profile_urls {
+                    let resolver = ServerCTXResolver::new(ctx.clone());
+                    let validation_operation_outcome =
+                        haste_fhir_profiling::validate_profile_by_url(
+                            FHIRProfileArguments::new(Arc::new(resolver)),
+                            profile_url,
+                            resource,
+                        )
+                        .await?;
 
-            let Some((profile_urls, resource)) =
-                extract_profile_url_and_resource_from_request(&context.request)?
-            else {
-                let result = next(state, context).await;
-                return result;
-            };
-
-            for profile_url in profile_urls.iter() {
-                let resolver = ServerCTXResolver::new(context.ctx.clone());
-                let validation_operation_outcome = haste_fhir_profiling::validate_profile_by_url(
-                    FHIRProfileArguments::new(Arc::new(resolver)),
-                    profile_url,
-                    resource,
-                )
-                .await?;
-
-                if !validation_operation_outcome.issue.is_empty() {
-                    return Err(OperationOutcomeError::new(
-                        None,
-                        validation_operation_outcome,
-                    ));
+                    if !validation_operation_outcome.issue.is_empty() {
+                        return Err(OperationOutcomeError::new(
+                            None,
+                            validation_operation_outcome,
+                        ));
+                    }
                 }
             }
 
-            next(state, context).await
+            next.run(state, ctx, request).await
         })
     }
 }

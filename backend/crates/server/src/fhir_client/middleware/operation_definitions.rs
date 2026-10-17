@@ -11,23 +11,16 @@
 //! built-in's code is free for other levels and resource types.
 use crate::{
     fhir_client::{
-        ServerCTX,
-        middleware::{
-            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-            ServerMiddlewareState, storage::to_bundle_entry,
-        },
+        ClientState, ServerCTX,
+        middleware::{Backend, Middleware, Next, Output, storage::to_bundle_entry},
     },
     route_path::api_fhir_root_url,
 };
-use haste_fhir_client::{
-    FHIRClient,
-    middleware::MiddlewareChain,
-    request::{
-        DeleteRequest, FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest,
-        SearchRequest, SearchResponse, UpdateRequest,
-    },
-    url::{Parameter, ParsedParameter, ParsedParameters},
+use haste_fhir_client::request::{
+    DeleteRequest, FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest,
+    SearchRequest, SearchResponse, UpdateRequest,
 };
+use haste_fhir_client::url::{Parameter, ParsedParameter, ParsedParameters};
 use haste_fhir_model::r4::generated::{
     resources::{BundleEntry, BundleEntrySearch, OperationDefinition, Resource, ResourceType},
     terminology::{IssueType, SearchEntryMode},
@@ -37,29 +30,24 @@ use haste_fhir_ops::overlaps;
 use haste_fhir_search::{
     DEFAULT_COUNT, MAX_COUNT, SearchEngine, SearchReturn, memory::search::MemorySearch,
 };
-use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::Repository;
 use std::sync::Arc;
 
 /// The OperationDefinitions of the server's built-in operations.
 pub type Builtins = Arc<[&'static OperationDefinition]>;
 
-pub struct Middleware {
+pub struct OperationDefinitions {
     builtins: Builtins,
-    search: Arc<MemorySearch>,
+    search: MemorySearch,
 }
 
-impl Middleware {
+impl OperationDefinitions {
     pub fn new(builtins: Builtins) -> Self {
         let search = MemorySearch::new(
             builtins
                 .iter()
                 .map(|builtin| Resource::OperationDefinition((*builtin).clone())),
         );
-        Middleware {
-            builtins,
-            search: Arc::new(search),
-        }
+        OperationDefinitions { builtins, search }
     }
 }
 
@@ -161,70 +149,38 @@ fn rest(parameters: &ParsedParameters, builtins: u64, shown: u64) -> ParsedParam
     )
 }
 
-impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for Middleware
-{
-    fn call(
-        &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext<Client>,
-        next: Option<
-            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
-        >,
-    ) -> ServerMiddlewareOutput<Client> {
-        let builtins = self.builtins.clone();
-        let search = self.search.clone();
-
+impl<B: Backend> Middleware<B> for OperationDefinitions {
+    fn call<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+        next: Next<'a, B>,
+    ) -> Output<'a> {
         Box::pin(async move {
-            let Some(next) = next else {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::exception(),
-                    "No next middleware found".to_string(),
-                ));
-            };
-
-            match &context.request {
-                FHIRRequest::Create(create) => {
-                    check_definition(&builtins, &create.resource)?;
-                    next(state, context).await
-                }
+            match &request {
+                FHIRRequest::Create(create) => check_definition(&self.builtins, &create.resource)?,
                 FHIRRequest::Update(UpdateRequest::Instance(update)) => {
-                    check_id(&builtins, &update.id)?;
-                    check_definition(&builtins, &update.resource)?;
-                    next(state, context).await
+                    check_id(&self.builtins, &update.id)?;
+                    check_definition(&self.builtins, &update.resource)?;
                 }
                 FHIRRequest::Update(UpdateRequest::Conditional(update)) => {
-                    check_definition(&builtins, &update.resource)?;
-                    next(state, context).await
+                    check_definition(&self.builtins, &update.resource)?;
                 }
                 FHIRRequest::Delete(DeleteRequest::Instance(delete)) => {
-                    check_id(&builtins, &delete.id)?;
-                    next(state, context).await
+                    check_id(&self.builtins, &delete.id)?;
                 }
-                FHIRRequest::Read(read) => match by_id(&builtins, &read.id) {
-                    Some(builtin) => {
-                        context.response = Some(FHIRResponse::Read(FHIRReadResponse {
+                FHIRRequest::Read(read) => {
+                    if let Some(builtin) = by_id(&self.builtins, &read.id) {
+                        return Ok(FHIRResponse::Read(FHIRReadResponse {
                             resource: Some(Resource::OperationDefinition(builtin.clone())),
                         }));
-                        Ok(context)
                     }
-                    None => next(state, context).await,
-                },
-                FHIRRequest::Search(request @ SearchRequest::Type(type_request)) => {
-                    let ctx = &context.ctx;
-                    let found = match search
-                        .search(&ctx.fhir_version, &ctx.tenant, &ctx.project, request, None)
+                }
+                FHIRRequest::Search(search @ SearchRequest::Type(type_request)) => {
+                    let found = match self
+                        .search
+                        .search(&ctx.fhir_version, &ctx.tenant, &ctx.project, search, None)
                         .await
                     {
                         Ok(found) => found,
@@ -249,7 +205,7 @@ impl<
                     let builtin_entries = found
                         .entries
                         .iter()
-                        .filter_map(|entry| by_id(&builtins, entry.id.as_ref()))
+                        .filter_map(|entry| by_id(&self.builtins, entry.id.as_ref()))
                         .map(|builtin| BundleEntry {
                             search: Some(BundleEntrySearch {
                                 mode: Some(SearchEntryMode::match_()),
@@ -263,22 +219,18 @@ impl<
                         })
                         .collect::<Vec<_>>();
 
-                    // Search the project for the rest of the page, then put
-                    // the caller's request back.
-                    let request = std::mem::replace(
-                        &mut context.request,
+                    // The project's share of the page.
+                    let project_search =
                         FHIRRequest::Search(SearchRequest::Type(FHIRSearchTypeRequest {
                             resource_type: ResourceType::OperationDefinition,
                             parameters: project_parameters,
-                        })),
-                    );
-                    let mut context = next(state, context).await?;
-                    context.request = request;
+                        }));
+                    let mut response = next.run(state, ctx, project_search).await?;
 
-                    if let Some(FHIRResponse::Search(SearchResponse::Type(response))) =
-                        context.response.as_mut()
+                    if let FHIRResponse::Search(SearchResponse::Type(search_response)) =
+                        &mut response
                     {
-                        let bundle = &mut response.bundle;
+                        let bundle = &mut search_response.bundle;
                         bundle.entry = Some(
                             builtin_entries
                                 .into_iter()
@@ -290,10 +242,12 @@ impl<
                         }
                     }
 
-                    Ok(context)
+                    return Ok(response);
                 }
-                _ => next(state, context).await,
+                _ => {}
             }
+
+            next.run(state, ctx, request).await
         })
     }
 }

@@ -3,41 +3,26 @@ use crate::{
         middleware::jwt::derive_well_known_openid_configuration_url,
         oidc::routes::discovery::create_oidc_discovery_document,
     },
-    fhir_client::{
-        ServerCTX,
-        middleware::{ServerMiddlewareState, operations::ServerOperationContext},
-    },
+    fhir_client::middleware::{Backend, operations::ServerOperationContext},
     route_path::{api_fhir_root_url, api_v1_mcp_path, append_path_segments},
 };
-use haste_fhir_client::{FHIRClient, request::InvocationRequest};
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::TenantEndpointInformation;
 use haste_fhir_model::r4::generated::{terminology::IssueType, types::FHIRUri};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
-use haste_repository::Repository;
-use std::sync::Arc;
 use url::Url;
 
-pub fn endpoint_metadata_op<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->() -> OperationExecutor<
-    ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
+pub fn endpoint_metadata_op<B: Backend>() -> OperationExecutor<
+    ServerOperationContext<B>,
     TenantEndpointInformation::Input,
     TenantEndpointInformation::Output,
 > {
     OperationExecutor::new(
         &TenantEndpointInformation::OPERATION_DEFINITION,
         Box::new(
-            |context: ServerOperationContext<
-                ServerMiddlewareState<Repo, Search, Terminology>,
-                Client,
-            >,
+            |context: ServerOperationContext<B>,
              tenant: TenantId,
              project: ProjectId,
              _request: &InvocationRequest,

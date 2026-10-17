@@ -1,29 +1,19 @@
-/// For meta resources that require compute intensive operations we want to be able to limit access based on the users subscription tier.
-///  This middleware enforces those limits.
+//! For meta resources that require compute intensive operations we want to be
+//! able to limit access based on the users subscription tier. This middleware
+//! enforces those limits.
 use crate::fhir_client::{
-    ServerCTX,
-    middleware::{ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput},
+    ClientState, ServerCTX,
+    middleware::{Backend, Middleware, Next, Output},
     subscription_limits::resource_limits::{TenantResourceLimit, get_tenant_resource_limits},
     utilities::request_to_resource_type,
 };
-use haste_fhir_client::{
-    FHIRClient,
-    middleware::MiddlewareChain,
-    request::{FHIRRequest, FHIRResponse},
-};
-
+use haste_fhir_client::request::FHIRRequest;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::claims::SubscriptionTier;
-
 use std::sync::Arc;
 
-pub struct Middleware {}
-impl Middleware {
-    pub fn new() -> Self {
-        Middleware {}
-    }
-}
+pub struct TenantTierLimits;
 
 fn get_request_limits(
     subscription_tier: &SubscriptionTier,
@@ -45,28 +35,16 @@ fn get_request_limits(
     }
 }
 
-impl<
-    State: Send + Sync + Clone + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
-> MiddlewareChain<State, Arc<ServerCTX<Client>>, FHIRRequest, FHIRResponse, OperationOutcomeError>
-    for Middleware
-{
-    fn call(
-        &self,
-        state: State,
-        context: ServerMiddlewareContext<Client>,
-        next: Option<Arc<ServerMiddlewareNext<Client, State>>>,
-    ) -> ServerMiddlewareOutput<Client> {
+impl<B: Backend> Middleware<B> for TenantTierLimits {
+    fn call<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+        next: Next<'a, B>,
+    ) -> Output<'a> {
         Box::pin(async move {
-            let Some(next) = next else {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::exception(),
-                    "No next middleware found".to_string(),
-                ));
-            };
-
-            let request_limits =
-                get_request_limits(&context.ctx.user.claims.subscription_tier, &context.request)?;
+            let request_limits = get_request_limits(&ctx.user.claims.subscription_tier, &request)?;
 
             for request_limit in request_limits {
                 let TenantResourceLimit::Count {
@@ -94,19 +72,11 @@ impl<
                 // resource type; `Some` is the cap on one type.
                 let result = match resource_type.as_ref() {
                     Some(resource_type) => {
-                        context
-                            .ctx
-                            .client
-                            .search_type(context.ctx.clone(), resource_type.clone(), parameters)
+                        ctx.client
+                            .search_type(ctx.clone(), resource_type.clone(), parameters)
                             .await?
                     }
-                    None => {
-                        context
-                            .ctx
-                            .client
-                            .search_system(context.ctx.clone(), parameters)
-                            .await?
-                    }
+                    None => ctx.client.search_system(ctx.clone(), parameters).await?,
                 };
 
                 let total = result.total.and_then(|total| total.value).ok_or_else(|| {
@@ -128,13 +98,13 @@ impl<
                         IssueType::too_costly(),
                         format!(
                             "Request exceeds the limit of '{}' for {} for subscription tier {:?}",
-                            limit, scope, context.ctx.user.claims.subscription_tier
+                            limit, scope, ctx.user.claims.subscription_tier
                         ),
                     ));
                 }
             }
 
-            next(state, context).await
+            next.run(state, ctx, request).await
         })
     }
 }

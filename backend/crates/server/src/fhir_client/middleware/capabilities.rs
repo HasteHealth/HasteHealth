@@ -1,16 +1,12 @@
 use crate::{
     fhir_client::{
-        ServerCTX,
-        middleware::{
-            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-            ServerMiddlewareState,
-        },
+        ClientState, ServerCTX,
+        middleware::{Backend, Handler, Output},
     },
     load_artifacts::{get_all_operation_definitions, get_all_sds, get_all_sps},
 };
 use haste_fhir_client::{
     FHIRClient,
-    middleware::MiddlewareChain,
     request::{FHIRCapabilitiesResponse, FHIRRequest, FHIRResponse},
 };
 use haste_fhir_model::r4::{
@@ -33,7 +29,6 @@ use haste_fhir_model::r4::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
 use std::sync::{Arc, LazyLock};
 use tokio::sync::Mutex;
@@ -260,71 +255,43 @@ async fn generate_capabilities<
     })
 }
 
+/// Ends the capabilities lane: the CapabilityStatement, generated once and
+/// then served from memory.
 #[derive(Debug)]
-pub struct Middleware {}
-impl Middleware {
-    pub fn new() -> Self {
-        Middleware {}
-    }
-}
-impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for Middleware
-{
-    #[instrument(name = "Capabilities Middleware", skip(self, state, context, next))]
-    fn call(
-        &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext<Client>,
-        next: Option<
-            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
-        >,
-    ) -> ServerMiddlewareOutput<Client> {
+pub struct Capabilities;
+
+impl<B: Backend> Handler<B> for Capabilities {
+    #[instrument(name = "Capabilities Middleware", skip(self, state, ctx, request))]
+    fn handle<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+    ) -> Output<'a> {
         Box::pin(async move {
-            match context.request {
-                FHIRRequest::Capabilities => {
-                    let mut guard = CAPABILITIES.lock().await;
-
-                    if let Some(capabilities) = &*guard {
-                        context.response =
-                            Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
-                                capabilities: capabilities.clone(),
-                            }));
-                    } else {
-                        let capabilities = generate_capabilities(
-                            context.ctx.clone(),
-                            state.repo.as_ref(),
-                            state.search.as_ref(),
-                        )
-                        .await?;
-                        *guard = Some(capabilities.clone());
-
-                        context.response =
-                            Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
-                                capabilities,
-                            }));
-                    }
-
-                    Ok(context)
-                }
-                _ => {
-                    if let Some(next) = next {
-                        next(state, context).await
-                    } else {
-                        Ok(context)
-                    }
-                }
+            if !matches!(request, FHIRRequest::Capabilities) {
+                return Err(OperationOutcomeError::fatal(
+                    IssueType::exception(),
+                    "The capabilities handler only serves the capabilities interaction."
+                        .to_string(),
+                ));
             }
+
+            let mut guard = CAPABILITIES.lock().await;
+            let capabilities = match &*guard {
+                Some(capabilities) => capabilities.clone(),
+                None => {
+                    let capabilities =
+                        generate_capabilities(ctx, state.repo.as_ref(), state.search.as_ref())
+                            .await?;
+                    *guard = Some(capabilities.clone());
+                    capabilities
+                }
+            };
+
+            Ok(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
+                capabilities,
+            }))
         })
     }
 }

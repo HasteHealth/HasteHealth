@@ -1,13 +1,9 @@
 use crate::fhir_client::{
-    ServerCTX,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
-    },
+    ClientState, ServerCTX,
+    middleware::{Backend, Middleware, Next, Output},
 };
 use haste_fhir_client::{
     FHIRClient,
-    middleware::MiddlewareChain,
     request::{
         DeleteRequest, DeleteResponse, FHIRRequest, FHIRResponse, HistoryRequest,
         InvocationRequest, InvokeResponse, SearchRequest, SearchResponse, UpdateRequest,
@@ -25,9 +21,7 @@ use haste_fhir_model::r4::{
     },
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::{Repository, fhir::FHIRRepository};
+use haste_repository::fhir::FHIRRepository;
 use std::sync::Arc;
 use tracing::instrument;
 
@@ -53,32 +47,31 @@ fn detail(name: &str, value: String) -> AuditEventEntityDetail {
     }
 }
 
-fn response_kind(response: Option<&FHIRResponse>) -> String {
+fn response_kind(response: &FHIRResponse) -> String {
     match response {
-        Some(FHIRResponse::Create(_)) => "create".to_string(),
-        Some(FHIRResponse::Read(_)) => "read".to_string(),
-        Some(FHIRResponse::VersionRead(_)) => "version-read".to_string(),
-        Some(FHIRResponse::Update(_)) => "update".to_string(),
-        Some(FHIRResponse::Patch(_)) => "patch".to_string(),
-        Some(FHIRResponse::Delete(delete)) => match delete {
+        FHIRResponse::Create(_) => "create".to_string(),
+        FHIRResponse::Read(_) => "read".to_string(),
+        FHIRResponse::VersionRead(_) => "version-read".to_string(),
+        FHIRResponse::Update(_) => "update".to_string(),
+        FHIRResponse::Patch(_) => "patch".to_string(),
+        FHIRResponse::Delete(delete) => match delete {
             DeleteResponse::Instance(_) => "delete-instance".to_string(),
             DeleteResponse::Type(_) => "delete-type".to_string(),
             DeleteResponse::System(_) => "delete-system".to_string(),
         },
-        Some(FHIRResponse::Capabilities(_)) => "capabilities".to_string(),
-        Some(FHIRResponse::Search(search)) => match search {
+        FHIRResponse::Capabilities(_) => "capabilities".to_string(),
+        FHIRResponse::Search(search) => match search {
             SearchResponse::Type(_) => "search-type".to_string(),
             SearchResponse::System(_) => "search-system".to_string(),
         },
-        Some(FHIRResponse::History(_)) => "history".to_string(),
-        Some(FHIRResponse::Invoke(invoke)) => match invoke {
+        FHIRResponse::History(_) => "history".to_string(),
+        FHIRResponse::Invoke(invoke) => match invoke {
             InvokeResponse::Instance(_) => "invoke-instance".to_string(),
             InvokeResponse::Type(_) => "invoke-type".to_string(),
             InvokeResponse::System(_) => "invoke-system".to_string(),
         },
-        Some(FHIRResponse::Batch(_)) => "batch".to_string(),
-        Some(FHIRResponse::Transaction(_)) => "transaction".to_string(),
-        None => "none".to_string(),
+        FHIRResponse::Batch(_) => "batch".to_string(),
+        FHIRResponse::Transaction(_) => "transaction".to_string(),
     }
 }
 
@@ -92,16 +85,14 @@ fn failure_response_type(error: &OperationOutcomeError) -> String {
         .unwrap_or_else(|| "unknown".to_string())
 }
 
-fn add_response_outcome_to_audit_event<
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>,
->(
+fn add_response_outcome_to_audit_event(
     event: &mut AuditEvent,
-    result: &Result<ServerMiddlewareContext<Client>, OperationOutcomeError>,
+    result: &Result<FHIRResponse, OperationOutcomeError>,
 ) {
     let (success, response_type, failure_type, outcome_desc, outcome) = match result {
-        Ok(context) => (
+        Ok(response) => (
             true,
-            response_kind(context.response.as_ref()),
+            response_kind(response),
             "none".to_string(),
             "request completed successfully".to_string(),
             terminology::AuditEventOutcome::v0(),
@@ -445,58 +436,34 @@ impl<'a, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> From
     }
 }
 
-#[allow(dead_code)]
+/// Records an AuditEvent for every request when the audit repository is
+/// configured. The event is written in the background once the response is
+/// known, so a slow audit store never slows the caller.
 #[derive(Debug)]
-pub struct Middleware {}
-impl Middleware {
-    #[allow(dead_code)]
-    pub fn new() -> Self {
-        Middleware {}
-    }
-}
-impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for Middleware
-{
-    #[instrument(name = "Auditing Middleware", skip(self, state, context, next))]
-    fn call(
-        &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext<Client>,
-        next: Option<
-            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
-        >,
-    ) -> ServerMiddlewareOutput<Client> {
+pub struct Auditing;
+
+impl<B: Backend> Middleware<B> for Auditing {
+    #[instrument(name = "Auditing Middleware", skip(self, state, ctx, request, next))]
+    fn call<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+        next: Next<'a, B>,
+    ) -> Output<'a> {
+        let Some(audit_repo) = state.audit_repo.clone() else {
+            return next.run(state, ctx, request);
+        };
+
         Box::pin(async move {
-            let Some(audit_repo) = state.audit_repo.clone() else {
-                return match next {
-                    Some(next) => next(state, context).await,
-                    None => Ok(context),
-                };
-            };
+            let audit_event = Option::<AuditEvent>::from(Audit(ctx.clone(), &request));
 
-            let audit_event =
-                Option::<AuditEvent>::from(Audit(context.ctx.clone(), &context.request));
+            let tenant = ctx.tenant.clone();
+            let project = ctx.project.clone();
+            let user = ctx.user.claims.clone();
+            let fhir_version = ctx.fhir_version.clone();
 
-            let tenant = context.ctx.tenant.clone();
-            let project = context.ctx.project.clone();
-            let user = context.ctx.user.claims.clone();
-            let fhir_version = context.ctx.fhir_version.clone();
-
-            let result = match next {
-                Some(next) => next(state, context).await,
-                None => Ok(context),
-            };
+            let result = next.run(state, ctx, request).await;
 
             if let Some(mut event) = audit_event {
                 add_response_outcome_to_audit_event(&mut event, &result);

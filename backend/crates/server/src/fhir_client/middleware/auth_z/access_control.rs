@@ -1,23 +1,17 @@
 use crate::fhir_client::{
-    ServerCTX,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
-    },
+    ClientState, ServerCTX,
+    middleware::{Backend, Middleware, Next, Output},
     utilities::{is_search_match, map_search_entries},
 };
 use haste_access_control::context::{PolicyContext, PolicyEnvironment, UserInfo};
 use haste_fhir_client::{
     FHIRClient,
-    middleware::MiddlewareChain,
-    request::{FHIRReadRequest, FHIRRequest, FHIRResponse},
+    request::{FHIRReadRequest, FHIRRequest},
 };
 use haste_fhir_model::r4::generated::resources::{AccessPolicyV2, BundleEntry, Resource};
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId, UserRole};
-use haste_repository::Repository;
+use haste_repository::fhir::FHIRRepository;
 use std::sync::Arc;
 
 /// Reusable pieces for evaluating extra policy checks without re-deriving
@@ -114,105 +108,70 @@ async fn filter_unauthorized_includes<
     kept
 }
 
-pub struct AccessControlMiddleware {}
-impl AccessControlMiddleware {
-    pub fn new() -> Self {
-        Self {}
-    }
-}
-impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for AccessControlMiddleware
-{
-    fn call(
-        &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext<Client>,
-        next: Option<
-            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
-        >,
-    ) -> ServerMiddlewareOutput<Client> {
-        Box::pin(async move {
-            match context.ctx.user.claims.user_role {
-                // Admin and Owner roles are allowed to proceed without restrictions
-                UserRole::Admin | UserRole::Owner => {
-                    if let Some(next) = next {
-                        return next(state, context).await;
-                    }
-                    Ok(context)
-                }
-                UserRole::Member => {
-                    let policies = state
-                        .repo
-                        .read_by_version_ids(
-                            &context.ctx.tenant,
-                            &context.ctx.project,
-                            &context
-                                .ctx
-                                .user
-                                .claims
-                                .access_policy_version_ids
-                                .iter()
-                                .collect::<Vec<_>>(),
-                            haste_repository::fhir::CachePolicy::Cache,
-                        )
-                        .await?
-                        .into_iter()
-                        .filter_map(|v| match v {
-                            Resource::AccessPolicyV2(policy) => Some(Arc::new(policy)),
-                            _ => None,
-                        })
-                        .collect();
+/// Enforces a member's access policies: the request must be granted, and a
+/// search page keeps only the includes a direct read of them would be granted.
+pub struct AccessControl;
 
-                    // Use System context for policy evaluation.
-                    let system_ctx = Arc::new(ServerCTX::system(
-                        context.ctx.tenant.clone(),
-                        context.ctx.project.clone(),
-                        context.ctx.client.clone(),
-                        context.ctx.rate_limit.clone(),
-                    ));
-                    let user_info = Arc::new(UserInfo {
-                        id: context.ctx.user.claims.user_id.as_ref().to_string(),
-                    });
-                    let auth = IncludeAuthContext {
-                        client: context.ctx.client.clone(),
-                        system_ctx,
-                        tenant: context.ctx.tenant.clone(),
-                        project: context.ctx.project.clone(),
-                        user_info,
-                    };
+impl<B: Backend> Middleware<B> for AccessControl {
+    fn call<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+        next: Next<'a, B>,
+    ) -> Output<'a> {
+        match ctx.user.claims.user_role {
+            // Admin and Owner roles are allowed to proceed without restrictions
+            UserRole::Admin | UserRole::Owner => next.run(state, ctx, request),
+            UserRole::Member => Box::pin(async move {
+                let policies: Vec<Arc<AccessPolicyV2>> = state
+                    .repo
+                    .read_by_version_ids(
+                        &ctx.tenant,
+                        &ctx.project,
+                        &ctx.user
+                            .claims
+                            .access_policy_version_ids
+                            .iter()
+                            .collect::<Vec<_>>(),
+                        haste_repository::fhir::CachePolicy::Cache,
+                    )
+                    .await?
+                    .into_iter()
+                    .filter_map(|v| match v {
+                        Resource::AccessPolicyV2(policy) => Some(Arc::new(policy)),
+                        _ => None,
+                    })
+                    .collect();
 
-                    evaluate_request_policy(&auth, &context.request, &policies).await?;
+                // Use System context for policy evaluation.
+                let system_ctx = Arc::new(ServerCTX::system(
+                    ctx.tenant.clone(),
+                    ctx.project.clone(),
+                    ctx.client.clone(),
+                    ctx.rate_limit.clone(),
+                ));
+                let user_info = Arc::new(UserInfo {
+                    id: ctx.user.claims.user_id.as_ref().to_string(),
+                });
+                let auth = IncludeAuthContext {
+                    client: ctx.client.clone(),
+                    system_ctx,
+                    tenant: ctx.tenant.clone(),
+                    project: ctx.project.clone(),
+                    user_info,
+                };
 
-                    let mut result = if let Some(next) = next {
-                        next(state, context).await?
-                    } else {
-                        context
-                    };
+                evaluate_request_policy(&auth, &request, &policies).await?;
 
-                    if let Some(response) = result.response.take() {
-                        result.response = Some(
-                            map_search_entries(response, |entries| {
-                                filter_unauthorized_includes(entries, &auth, &policies)
-                            })
-                            .await,
-                        );
-                    }
+                let response = next.run(state, ctx, request).await?;
 
-                    Ok(result)
-                }
-            }
-        })
+                Ok(map_search_entries(response, |entries| {
+                    filter_unauthorized_includes(entries, &auth, &policies)
+                })
+                .await)
+            }),
+        }
     }
 }
 

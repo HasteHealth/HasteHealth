@@ -1,26 +1,19 @@
 use crate::{
     auth_n::invitations::{resource_email_verified, send_invitation, set_resource_email_verified},
     fhir_client::{
-        ServerCTX,
-        middleware::{
-            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-            ServerMiddlewareState,
-        },
+        ClientState, ServerCTX,
+        middleware::{Backend, Middleware, Next, Output},
         utilities::request_to_resource_type,
     },
 };
-use haste_fhir_client::{
-    FHIRClient,
-    middleware::MiddlewareChain,
-    request::{DeleteRequest, DeleteResponse, FHIRRequest, FHIRResponse, UpdateRequest},
+use haste_fhir_client::request::{
+    DeleteRequest, DeleteResponse, FHIRRequest, FHIRResponse, UpdateRequest,
 };
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType, User},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{AuthorKind, TenantId, UserRole, claims::UserTokenClaims};
 use haste_repository::{
     Repository,
@@ -188,65 +181,41 @@ fn response_user(resource: &Resource) -> Result<(&User, &String), OperationOutco
     }
 }
 
-pub struct Middleware {}
-impl Middleware {
-    pub fn new() -> Self {
-        Middleware {}
-    }
-}
-impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for Middleware
-{
-    fn call(
-        &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext<Client>,
-        next: Option<
-            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
-        >,
-    ) -> ServerMiddlewareOutput<Client> {
+/// Keeps the `users` table in step with `User` resources, and guards what a
+/// caller may change about one.
+pub struct UserSync;
+
+impl<B: Backend> Middleware<B> for UserSync {
+    fn call<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        mut request: FHIRRequest,
+        next: Next<'a, B>,
+    ) -> Output<'a> {
+        if request_to_resource_type(&request) != Some(&ResourceType::User) {
+            return next.run(state, ctx, request);
+        }
+
         Box::pin(async move {
-            let Some(next) = next else {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::exception(),
-                    "No next middleware found".to_string(),
-                ));
-            };
-
-            if request_to_resource_type(&context.request) != Some(&ResourceType::User) {
-                return next(state, context).await;
-            }
-
-            let claims = &context.ctx.user.claims;
+            let claims = &ctx.user.claims;
             let by_client = claims.resource_type != AuthorKind::System;
-            let stored =
-                stored_user(state.repo.as_ref(), &context.ctx.tenant, &context.request).await?;
+            let stored = stored_user(state.repo.as_ref(), &ctx.tenant, &request).await?;
 
-            guard_role_hierarchy(claims, &context.request, stored.as_ref())?;
+            guard_role_hierarchy(claims, &request, stored.as_ref())?;
             if by_client {
-                constrain_email_verified(&mut context.request, stored.as_ref());
+                constrain_email_verified(&mut request, stored.as_ref());
             }
 
-            let res = next(state.clone(), context).await?;
+            let response = next.run(state, ctx.clone(), request).await?;
 
-            match res.response.as_ref() {
-                Some(FHIRResponse::Create(create_response)) => {
+            match &response {
+                FHIRResponse::Create(create_response) => {
                     let (user, id) = response_user(&create_response.resource)?;
 
                     TenantModelAdmin::create(
                         state.repo.as_ref(),
-                        &res.ctx.tenant,
+                        &ctx.tenant,
                         CreateUser {
                             id: id.clone(),
                             email: user.email.clone().and_then(|e| e.value),
@@ -264,34 +233,34 @@ impl<
                         send_invitation(
                             state.repo.as_ref(),
                             state.config.as_ref(),
-                            &res.ctx.tenant,
+                            &ctx.tenant,
                             user,
                         )
                         .await;
                     }
                 }
-                Some(FHIRResponse::Delete(DeleteResponse::Instance(delete_response))) => {
+                FHIRResponse::Delete(DeleteResponse::Instance(delete_response)) => {
                     let (_, id) = response_user(&delete_response.resource)?;
 
                     TenantModelAdmin::<CreateUser, _, _, _, _>::delete(
                         state.repo.as_ref(),
-                        &res.ctx.tenant,
+                        &ctx.tenant,
                         id,
                     )
                     .await?;
                 }
-                Some(FHIRResponse::Update(update_response)) => {
+                FHIRResponse::Update(update_response) => {
                     let (user, id) = response_user(&update_response.resource)?;
 
                     // Checked after the write, when even a conditional update
                     // shows which user it reached. An error rolls it back.
                     if by_client {
-                        guard_identity(state.repo.as_ref(), &res.ctx.tenant, id, user).await?;
+                        guard_identity(state.repo.as_ref(), &ctx.tenant, id, user).await?;
                     }
 
                     TenantModelAdmin::<CreateUser, _, _, _, _>::update(
                         state.repo.as_ref(),
-                        &res.ctx.tenant,
+                        &ctx.tenant,
                         UpdateUser {
                             id: id.clone(),
                             email: user.email.clone().and_then(|e| e.value),
@@ -306,13 +275,11 @@ impl<
                 }
                 // Storage runs a type or system delete as instance deletes
                 // through the client, each synced above.
-                Some(
-                    FHIRResponse::Read(_)
-                    | FHIRResponse::VersionRead(_)
-                    | FHIRResponse::Search(_)
-                    | FHIRResponse::History(_)
-                    | FHIRResponse::Delete(DeleteResponse::Type(_) | DeleteResponse::System(_)),
-                ) => {}
+                FHIRResponse::Read(_)
+                | FHIRResponse::VersionRead(_)
+                | FHIRResponse::Search(_)
+                | FHIRResponse::History(_)
+                | FHIRResponse::Delete(DeleteResponse::Type(_) | DeleteResponse::System(_)) => {}
                 _ => {
                     return Err(OperationOutcomeError::fatal(
                         IssueType::not_supported(),
@@ -321,7 +288,7 @@ impl<
                 }
             }
 
-            Ok(res)
+            Ok(response)
         })
     }
 }

@@ -1,25 +1,15 @@
 use crate::fhir_client::{
-    ServerCTX,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
-    },
+    ClientState, ServerCTX,
+    middleware::{Backend, Middleware, Next, Output},
     utilities::request_to_resource_type,
 };
-use haste_fhir_client::{
-    FHIRClient,
-    middleware::MiddlewareChain,
-    request::{DeleteResponse, FHIRRequest, FHIRResponse},
-};
+use haste_fhir_client::request::{DeleteResponse, FHIRRequest, FHIRResponse};
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::{
-    Repository,
     admin::ProjectModelAdmin,
     types::membership::{self as m, CreateMembership},
 };
@@ -45,51 +35,27 @@ fn membership_ids(resource: &Resource) -> Result<(&str, &str), OperationOutcomeE
     }
 }
 
-pub struct Middleware {}
-impl Middleware {
-    pub fn new() -> Self {
-        Middleware {}
-    }
-}
-impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for Middleware
-{
-    fn call(
-        &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext<Client>,
-        next: Option<
-            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
-        >,
-    ) -> ServerMiddlewareOutput<Client> {
+/// Keeps the `memberships` table in step with `Membership` resources.
+pub struct MembershipSync;
+
+impl<B: Backend> Middleware<B> for MembershipSync {
+    fn call<'a>(
+        &'a self,
+        state: &'a ClientState<B>,
+        ctx: Arc<ServerCTX<B>>,
+        request: FHIRRequest,
+        next: Next<'a, B>,
+    ) -> Output<'a> {
+        if request_to_resource_type(&request) != Some(&ResourceType::Membership) {
+            return next.run(state, ctx, request);
+        }
+
         Box::pin(async move {
-            let Some(next) = next else {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::exception(),
-                    "No next middleware found".to_string(),
-                ));
-            };
+            let response = next.run(state, ctx.clone(), request).await?;
+            let (tenant, project) = (&ctx.tenant, &ctx.project);
 
-            if request_to_resource_type(&context.request) != Some(&ResourceType::Membership) {
-                return next(state, context).await;
-            }
-
-            let res = next(state.clone(), context).await?;
-            let (tenant, project) = (&res.ctx.tenant, &res.ctx.project);
-
-            match res.response.as_ref() {
-                Some(FHIRResponse::Create(create_response)) => {
+            match &response {
+                FHIRResponse::Create(create_response) => {
                     let (id, user_id) = membership_ids(&create_response.resource)?;
 
                     ProjectModelAdmin::create(
@@ -104,7 +70,7 @@ impl<
                     )
                     .await?;
                 }
-                Some(FHIRResponse::Update(update_response)) => {
+                FHIRResponse::Update(update_response) => {
                     let (id, user_id) = membership_ids(&update_response.resource)?;
 
                     ProjectModelAdmin::update(
@@ -121,7 +87,7 @@ impl<
                     )
                     .await?;
                 }
-                Some(FHIRResponse::Delete(DeleteResponse::Instance(delete_response))) => {
+                FHIRResponse::Delete(DeleteResponse::Instance(delete_response)) => {
                     let (_, user_id) = membership_ids(&delete_response.resource)?;
 
                     ProjectModelAdmin::<CreateMembership, _, _, _, _>::delete(
@@ -134,13 +100,11 @@ impl<
                 }
                 // Storage runs a type or system delete as instance deletes
                 // through the client, each synced above.
-                Some(
-                    FHIRResponse::Read(_)
-                    | FHIRResponse::VersionRead(_)
-                    | FHIRResponse::Search(_)
-                    | FHIRResponse::History(_)
-                    | FHIRResponse::Delete(DeleteResponse::Type(_) | DeleteResponse::System(_)),
-                ) => {}
+                FHIRResponse::Read(_)
+                | FHIRResponse::VersionRead(_)
+                | FHIRResponse::Search(_)
+                | FHIRResponse::History(_)
+                | FHIRResponse::Delete(DeleteResponse::Type(_) | DeleteResponse::System(_)) => {}
                 _ => {
                     return Err(OperationOutcomeError::fatal(
                         IssueType::not_supported(),
@@ -149,7 +113,7 @@ impl<
                 }
             }
 
-            Ok(res)
+            Ok(response)
         })
     }
 }

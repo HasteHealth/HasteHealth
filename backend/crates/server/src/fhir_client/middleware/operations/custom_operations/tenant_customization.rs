@@ -1,12 +1,9 @@
-use crate::fhir_client::{
-    ServerCTX,
-    middleware::{ServerMiddlewareState, operations::ServerOperationContext},
-};
+use crate::fhir_client::middleware::{Backend, operations::ServerOperationContext};
 use base64::{
     Engine as _,
     engine::general_purpose::{self, STANDARD},
 };
-use haste_fhir_client::{FHIRClient, request::InvocationRequest};
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::{
     HasteHealthTenantBranding, HasteHealthTenantCustomization,
 };
@@ -14,12 +11,9 @@ use haste_fhir_model::r4::generated::types::{Attachment, FHIRCode, FHIRString};
 use haste_fhir_model::r4::generated::{terminology::IssueType, types::FHIRBase64Binary};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId, UserRole};
-use haste_repository::{Repository, admin::TenantModelAdmin, types::tenant::CreateTenant};
+use haste_repository::{admin::TenantModelAdmin, types::tenant::CreateTenant};
 use std::io::Cursor;
-use std::sync::Arc;
 
 const LOGO_SIZE: u32 = 150;
 
@@ -72,23 +66,15 @@ fn process_png_logo(decoded: &[u8]) -> Result<Vec<u8>, OperationOutcomeError> {
     Ok(png_bytes.into_inner())
 }
 
-pub fn tenant_customization_op<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->() -> OperationExecutor<
-    ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
+pub fn tenant_customization_op<B: Backend>() -> OperationExecutor<
+    ServerOperationContext<B>,
     HasteHealthTenantCustomization::Input,
     HasteHealthTenantCustomization::Output,
 > {
     OperationExecutor::new(
         &HasteHealthTenantCustomization::OPERATION_DEFINITION,
         Box::new(
-            |context: ServerOperationContext<
-                ServerMiddlewareState<Repo, Search, Terminology>,
-                Client,
-            >,
+            |context: ServerOperationContext<B>,
              tenant: TenantId,
              _project: ProjectId,
              _request: &InvocationRequest,
@@ -163,23 +149,15 @@ pub fn tenant_customization_op<
     )
 }
 
-pub fn tenant_branding_op<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->() -> OperationExecutor<
-    ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
+pub fn tenant_branding_op<B: Backend>() -> OperationExecutor<
+    ServerOperationContext<B>,
     HasteHealthTenantBranding::Input,
     HasteHealthTenantBranding::Output,
 > {
     OperationExecutor::new(
         &HasteHealthTenantBranding::OPERATION_DEFINITION,
         Box::new(
-            |context: ServerOperationContext<
-                ServerMiddlewareState<Repo, Search, Terminology>,
-                Client,
-            >,
+            |context: ServerOperationContext<B>,
              tenant: TenantId,
              _project: ProjectId,
              _request: &InvocationRequest,
