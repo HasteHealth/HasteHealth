@@ -1,27 +1,43 @@
-// Generates the FHIR R4 model reference (docs/reference/fhir/model) from the
-// artifacts the server embeds, so no running server is needed:
+// The FHIR R4 reference (docs/reference/fhir): a page per resource and data
+// type, from the StructureDefinitions the server embeds, and a page for the
+// system level, from what the server declares. No running server is needed:
+// the server step has already snapshotted it.
 //
 //   docs/reference/fhir/model/{resources,types}/<Name>.mdx  thin pages
-//   src/fhir-model/<Name>.json                         page data
-//   src/fhir-model/index.json                          index pages
+//   docs/reference/fhir/system.mdx
+//   src/fhir-model/<Name>.json, system.json, index.json     page data
 //   static/fhir/R4/<Name>.json                              raw StructureDefinition
 //
-// Test results for each resource come from static/test-reports/support.json
-// (see generate-test-support.mjs), so run that first when reports change.
-//
-// Usage: node scripts/generate-fhir-model.mjs
+// Inputs: artifacts/r4 (structure definitions and search parameters), the
+// conformance report (test-support step) and the server snapshot (server
+// step): its CapabilityStatement for the interactions, its OperationDefinitions
+// for the operations each resource type and the system level offer.
 
 import fs from "node:fs";
 import path from "node:path";
 
-const ARTIFACTS = "../../../artifacts/r4";
-const HL7 = `${ARTIFACTS}/hl7-core/definitions/hl7`;
-const HASTE = `${ARTIFACTS}/hastehealth-core/definitions`;
-const SUPPORT = "static/test-reports/support.json";
+import {
+  ARTIFACTS,
+  METADATA,
+  OPERATION_DEFINITIONS,
+  SUPPORT,
+  combine,
+  jsonFiles,
+  readJson,
+  readResources,
+  relative,
+  removeStale,
+  site,
+  writeFile,
+  writeJson,
+} from "./lib.mjs";
 
-const DOCS = "docs/reference/fhir/model";
-const DATA = "src/fhir-model";
-const RAW = "static/fhir/R4";
+const HL7 = path.join(ARTIFACTS, "hl7-core/definitions/hl7");
+const HASTE = path.join(ARTIFACTS, "hastehealth-core/definitions");
+
+const DOCS = site("docs/reference/fhir");
+const DATA = site("src/fhir-model");
+const RAW = site("static/fhir/R4");
 
 const FHIR_TYPE_EXT =
   "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type";
@@ -31,35 +47,22 @@ const EXT = "http://hl7.org/fhir/StructureDefinition/structuredefinition-";
 // Loading
 // ---------------------------------------------------------------------------
 
-function readResources(file) {
-  const json = JSON.parse(fs.readFileSync(file, "utf8"));
-  if (json.resourceType === "Bundle") {
-    return (json.entry ?? []).map((entry) => entry.resource);
-  }
-  return Array.isArray(json) ? json : [json];
-}
-
-function jsonFiles(dir) {
-  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const file = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      return entry.name === "operation-frontend-only" ? [] : jsonFiles(file);
-    }
-    return entry.name.endsWith(".json") ? [file] : [];
-  });
-}
-
 /** The same resources the server embeds (backend/crates/artifacts). */
 function loadArtifacts() {
   const hl7 = fs
     .readdirSync(HL7)
     .filter((name) => name.endsWith(".min.json"))
+    .sort()
     .flatMap((name) => readResources(path.join(HL7, name)))
     .map((resource) => ({ resource, source: "hl7" }));
-  const haste = jsonFiles(HASTE).flatMap((file) => {
-    const source = file.includes("/sql-on-fhir/") ? "sql-on-fhir" : "haste-health";
-    return readResources(file).map((resource) => ({ resource, source }));
-  });
+  const haste = jsonFiles(HASTE, { skip: ["operation-frontend-only"] }).flatMap(
+    (file) => {
+      const source = file.includes("/sql-on-fhir/")
+        ? "sql-on-fhir"
+        : "haste-health";
+      return readResources(file).map((resource) => ({ resource, source }));
+    },
+  );
   return [...hl7, ...haste];
 }
 
@@ -86,8 +89,28 @@ function loadHl7Metadata() {
 
 function loadSupport() {
   if (!fs.existsSync(SUPPORT)) return new Map();
-  const support = JSON.parse(fs.readFileSync(SUPPORT, "utf8"));
-  return new Map(support.resources.map((r) => [r.resourceType, r]));
+  return new Map(readJson(SUPPORT).resources.map((r) => [r.resourceType, r]));
+}
+
+/** The server snapshot: its CapabilityStatement and the OperationDefinitions it serves. */
+function loadServer() {
+  if (!fs.existsSync(METADATA)) {
+    throw new Error(
+      `No server snapshot at ${relative(METADATA)}; run \`pnpm generate server\` first.`,
+    );
+  }
+  const capabilities = readJson(METADATA);
+  const rest =
+    capabilities.rest?.find((r) => r.mode === "server") ??
+    capabilities.rest?.[0] ??
+    {};
+  const definitions = jsonFiles(OPERATION_DEFINITIONS)
+    .map(readJson)
+    .filter(
+      (resource) =>
+        resource.resourceType === "OperationDefinition" && resource.code,
+    );
+  return { capabilities, rest, definitions };
 }
 
 // ---------------------------------------------------------------------------
@@ -97,25 +120,29 @@ function loadSupport() {
 const COLLECTION = { resource: "resources" };
 const pageHref = (name, kind) =>
   `/docs/reference/fhir/model/${COLLECTION[kind] ?? "types"}/${name}`;
+const SYSTEM_HREF = "/docs/reference/fhir/system";
 
 /** `http://hl7.org/fhirpath/System.String` with a fhir-type extension is `string`. */
 function typeCode(type) {
   const fhirType = type.extension?.find((e) => e.url === FHIR_TYPE_EXT);
-  return fhirType?.valueUrl ?? type.code.replace("http://hl7.org/fhirpath/", "");
+  return (
+    fhirType?.valueUrl ?? type.code.replace("http://hl7.org/fhirpath/", "")
+  );
 }
 
 const lastSegment = (url) => url.split("|")[0].split("/").pop();
 
+const targetLinks = (profiles, pages) =>
+  profiles.map(lastSegment).map((name) => ({ name, href: pages.get(name) }));
+
 function elementTypes(element, pages) {
   return (element.type ?? []).map((type) => {
     const code = typeCode(type);
-    const targets = (type.targetProfile ?? []).map(lastSegment);
+    const targets = type.targetProfile ?? [];
     return {
       code,
       href: pages.get(code),
-      ...(targets.length > 0 && {
-        targets: targets.map((name) => ({ name, href: pages.get(name) })),
-      }),
+      ...(targets.length > 0 && { targets: targetLinks(targets, pages) }),
     };
   });
 }
@@ -166,13 +193,6 @@ function expressionFor(expression, name) {
     (p) => p.startsWith(`${name}.`) || p.startsWith(`(${name}.`),
   );
   return (own.length > 0 ? own : parts).join(" | ");
-}
-
-/** The worst result: fail, then warn (a known failure), then pass. */
-function combine(results) {
-  if (results.includes("fail")) return "fail";
-  if (results.length === 0 || results.includes("not-run")) return "not-run";
-  return results.includes("warn") ? "warn" : "pass";
 }
 
 function paramCoverage(support, code) {
@@ -228,6 +248,101 @@ function hl7Link(sd, source) {
     : `https://hl7.org/fhir/R4/datatypes.html`;
 }
 
+// Operations, as the server defines them (haste_fhir_ops::defines): a
+// definition applies at each level it flags, and to the resource types it
+// lists, or to every type when it lists none.
+
+const LEVELS = ["system", "type", "instance"];
+const levelsOf = (definition) =>
+  LEVELS.filter((level) => definition[level] === true);
+
+function definedOn(definition, type) {
+  const types = definition.resource ?? [];
+  return types.length === 0 || types.includes(type);
+}
+
+/** The HL7 core operations each have a page: operation-patient-everything.html. */
+function hl7Operation(definition) {
+  const match = /^http:\/\/hl7\.org\/fhir\/OperationDefinition\/([^|]+)$/.exec(
+    definition.url ?? "",
+  );
+  return match
+    ? `https://hl7.org/fhir/R4/operation-${match[1].toLowerCase()}.html`
+    : undefined;
+}
+
+function parameter(part, pages) {
+  return {
+    name: part.name,
+    use: part.use,
+    min: part.min ?? 0,
+    max: part.max ?? "1",
+    ...(part.type && { type: part.type, href: pages.get(part.type) }),
+    ...(part.targetProfile?.length > 0 && {
+      targets: targetLinks(part.targetProfile, pages),
+    }),
+    ...(part.searchType && { searchType: part.searchType }),
+    ...(part.documentation && { documentation: part.documentation }),
+    ...(part.binding?.valueSet && {
+      binding: {
+        strength: part.binding.strength,
+        valueSet: part.binding.valueSet.split("|")[0],
+      },
+    }),
+    ...(part.part?.length > 0 && {
+      parts: part.part.map((p) => parameter(p, pages)),
+    }),
+  };
+}
+
+function operation(definition, pages) {
+  return {
+    code: definition.code,
+    id: definition.id,
+    url: definition.url,
+    title: definition.title ?? definition.name,
+    levels: levelsOf(definition),
+    resources: (definition.resource ?? []).map((name) => ({
+      name,
+      href: pages.get(name),
+    })),
+    description: definition.description ?? "",
+    affectsState: definition.affectsState === true,
+    hl7: hl7Operation(definition),
+    raw: `/fhir/R4/OperationDefinition/${definition.id}.json`,
+    parameters: (definition.parameter ?? []).map((p) => parameter(p, pages)),
+  };
+}
+
+const byCode = (a, b) => a.code.localeCompare(b.code);
+
+/** The operations invoked on `type` or its instances. */
+function operationsFor(type, definitions, pages) {
+  return definitions
+    .filter(
+      (d) => (d.type === true || d.instance === true) && definedOn(d, type),
+    )
+    .map((d) => operation(d, pages))
+    .sort(byCode);
+}
+
+function systemData(server, definitions, pages, resources) {
+  const { capabilities, rest } = server;
+  return {
+    fhirVersion: capabilities.fhirVersion,
+    formats: capabilities.format ?? [],
+    cors: rest.security?.cors === true,
+    interactions: (rest.interaction ?? []).map((i) => i.code),
+    operations: definitions
+      .filter((d) => d.system === true)
+      .map((d) => operation(d, pages))
+      .sort(byCode),
+    resourceTypes: rest.resource?.length ?? 0,
+    resources,
+    raw: "/fhir/R4/metadata.json",
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Writing
 // ---------------------------------------------------------------------------
@@ -235,6 +350,9 @@ function hl7Link(sd, source) {
 // JSON.stringify produces a double-quoted string with the same escaping
 // rules YAML uses for double-quoted scalars.
 const yamlString = (v) => JSON.stringify(v ?? "");
+
+const GENERATED =
+  "{/* Generated by scripts/generate/fhir.mjs. Do not edit. */}";
 
 const KIND_LABEL = {
   resource: "resource",
@@ -263,7 +381,8 @@ function metaDescription(sd, definition) {
   const body = raw.replace(/\s+/g, " ").trim();
   const prefix = `${sd.name} (FHIR R4 ${kind}): `;
   const budget = 155 - prefix.length;
-  const text = body.length > budget ? `${body.slice(0, budget - 1).trimEnd()}…` : body;
+  const text =
+    body.length > budget ? `${body.slice(0, budget - 1).trimEnd()}…` : body;
   return `${prefix}${text}`;
 }
 
@@ -272,13 +391,15 @@ function page(sd, data) {
   const kindTitle = isResource ? "Resource" : "Data Type";
   const description = metaDescription(sd, data.definition);
   const canonical = `https://haste.health${pageHref(sd.name, sd.kind)}`;
-  const sections = isResource
-    ? `
-## Search parameters
-
-<SearchParameters data={data} />
-`
-    : "";
+  const sections = [];
+  if (isResource) {
+    sections.push(`## Search parameters\n\n<SearchParameters data={data} />\n`);
+  }
+  if (data.operations?.length > 0) {
+    sections.push(
+      `## Operations\n\n<Operations operations={data.operations} type=${yamlString(sd.name)} />\n`,
+    );
+  }
 
   return `---
 id: ${sd.name}
@@ -294,9 +415,9 @@ tags:
   - ${sd.name}
 ---
 
-{/* Generated by scripts/generate-fhir-model.mjs. Do not edit. */}
+${GENERATED}
 
-import { ModelHeader, ElementTree, SearchParameters } from '@site/src/components/FhirModel';
+import { ModelHeader, ElementTree, Operations, SearchParameters } from '@site/src/components/FhirModel';
 import data from '@site/src/fhir-model/${sd.name}.json';
 
 <head>
@@ -330,29 +451,60 @@ import data from '@site/src/fhir-model/${sd.name}.json';
 ## Structure
 
 <ElementTree data={data} />
-${sections}`;
+${sections.map((section) => `\n${section}`).join("")}`;
 }
 
-function writeFile(file, content) {
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, content);
+function systemPage(data) {
+  const description =
+    "What the Haste Health FHIR R4 server offers at the system level: the interactions on the base URL, the system-level operations and the operations each resource type supports.";
+  const canonical = `https://haste.health${SYSTEM_HREF}`;
+  return `---
+id: system
+title: System-level API
+sidebar_label: System
+sidebar_position: 2
+description: ${yamlString(description)}
+hide_table_of_contents: true
+tags:
+  - fhir
+  - hl7
+  - interoperability
+  - CapabilityStatement
+---
+
+${GENERATED}
+
+import { OperationIndex, Operations, SystemHeader, SystemInteractions } from '@site/src/components/FhirModel';
+import data from '@site/src/fhir-model/system.json';
+
+<head>
+  <title>System-level API — FHIR R4 Reference | Haste Health</title>
+  <link rel="canonical" href="${canonical}" />
+</head>
+
+# System-level API
+
+<SystemHeader data={data} />
+
+## Interactions
+
+<SystemInteractions data={data} />
+
+## Operations
+
+<Operations operations={data.operations} />
+
+## Operations by resource type
+
+<OperationIndex data={data} />
+`;
 }
 
-/** Removes pages from a previous run whose type no longer exists. */
-function removeStale(dir, extension, keep) {
-  if (!fs.existsSync(dir)) return;
-  for (const file of fs.readdirSync(dir)) {
-    const name = file.slice(0, -extension.length);
-    if (file.endsWith(extension) && name !== "index" && !keep.has(name)) {
-      fs.rmSync(path.join(dir, file));
-    }
-  }
-}
-
-function main() {
+export async function run() {
   const artifacts = loadArtifacts();
   const metadata = loadHl7Metadata();
   const support = loadSupport();
+  const server = loadServer();
 
   const structureDefinitions = artifacts.filter(
     ({ resource }) =>
@@ -372,12 +524,19 @@ function main() {
   );
 
   const common = parameters
-    .filter((p) => p.base.includes("Resource") || p.base.includes("DomainResource"))
+    .filter(
+      (p) => p.base.includes("Resource") || p.base.includes("DomainResource"),
+    )
     .filter((p) => p.expression)
-    .map((p) => ({ code: p.code, type: p.type, description: p.description ?? "" }))
+    .map((p) => ({
+      code: p.code,
+      type: p.type,
+      description: p.description ?? "",
+    }))
     .sort((a, b) => a.code.localeCompare(b.code));
 
   const index = [];
+  const resourceOperations = [];
 
   for (const { resource: sd, source } of structureDefinitions) {
     const meta = metadata.get(sd.url) ?? {};
@@ -394,18 +553,34 @@ function main() {
       raw: `/fhir/R4/${sd.name}.json`,
       elements: elements(sd, pages),
       ...(isResource && {
-        searchParameters: searchParameters(sd.name, parameters, resourceSupport),
+        searchParameters: searchParameters(
+          sd.name,
+          parameters,
+          resourceSupport,
+        ),
         commonParameters: common,
         coverage: coverage(resourceSupport),
+        operations: operationsFor(sd.name, server.definitions, pages),
       }),
     };
 
-    writeFile(`${DATA}/${sd.name}.json`, JSON.stringify(data));
+    writeJson(`${DATA}/${sd.name}.json`, data);
     writeFile(
-      `${DOCS}/${isResource ? "resources" : "types"}/${sd.name}.mdx`,
+      `${DOCS}/model/${isResource ? "resources" : "types"}/${sd.name}.mdx`,
       page(sd, data),
     );
-    writeFile(`${RAW}/${sd.name}.json`, JSON.stringify(sd, null, 2));
+    writeJson(`${RAW}/${sd.name}.json`, sd, { pretty: true });
+
+    if (isResource && data.operations.length > 0) {
+      resourceOperations.push({
+        name: sd.name,
+        href: pages.get(sd.name),
+        operations: data.operations.map(({ code, levels }) => ({
+          code,
+          levels: levels.filter((level) => level !== "system"),
+        })),
+      });
+    }
 
     index.push({
       name: sd.name,
@@ -418,24 +593,30 @@ function main() {
       ...(meta.status && { status: meta.status }),
       ...(isResource && {
         searchParameters: data.searchParameters.length,
+        operations: data.operations.length,
         ...(resourceSupport && { overall: resourceSupport.overall }),
       }),
     });
   }
 
   index.sort((a, b) => a.name.localeCompare(b.name));
-  writeFile(`${DATA}/index.json`, JSON.stringify(index));
+  writeJson(`${DATA}/index.json`, index);
+
+  const system = systemData(
+    server,
+    server.definitions,
+    pages,
+    resourceOperations,
+  );
+  writeJson(`${DATA}/system.json`, system);
+  writeFile(`${DOCS}/system.mdx`, systemPage(system));
 
   const names = new Set(index.map((entry) => entry.name));
-  removeStale(`${DOCS}/resources`, ".mdx", names);
-  removeStale(`${DOCS}/types`, ".mdx", names);
-  removeStale(DATA, ".json", names);
-  removeStale(RAW, ".json", names);
+  removeStale(`${DOCS}/model/resources`, ".mdx", new Set([...names, "index"]));
+  removeStale(`${DOCS}/model/types`, ".mdx", new Set([...names, "index"]));
+  removeStale(DATA, ".json", new Set([...names, "index", "system"]));
+  removeStale(RAW, ".json", new Set([...names, "metadata"]));
 
   const resources = index.filter((e) => e.kind === "resource").length;
-  console.log(
-    `Wrote ${resources} resources and ${index.length - resources} data types.`,
-  );
+  return `Wrote ${resources} resources (${resourceOperations.length} with operations), ${index.length - resources} data types and the system page (${system.interactions.length} interactions, ${system.operations.length} operations)`;
 }
-
-main();

@@ -13,13 +13,8 @@
 		"write-translations": "docusaurus write-translations",
 		"write-heading-ids": "docusaurus write-heading-ids",
 		"typecheck": "tsc",
-		"generate-fhir": "node scripts/generate-fhir-model.mjs",
-		"generate-social-card": "node scripts/social-card.mjs",
-		"check-social-card": "node scripts/social-card.mjs --check",
-		"generate-mcp": "NODE_ENV=development pnpm node --env-file-if-exists=.env generate.mjs mcp",
-		"generate-test-support": "node scripts/generate-test-support.mjs --testscripts ../../../backend/testscripts/core --postgres ../../../backend/testreports/postgres.json --elasticsearch ../../../backend/testreports/elasticsearch.json --output static/test-reports/support.json",
-		"generate-pricing": "cd ../../../backend && cargo run --quiet subscription export --output ../frontend/packages/website/static/pricing/tiers.json",
-		"check-pricing": "cd ../../../backend && cargo run --quiet subscription export --check --output ../frontend/packages/website/static/pricing/tiers.json"
+		"generate": "node scripts/generate.mjs",
+		"check-generated": "node scripts/generate.mjs --check"
 	},
 	"dependencies": {
 		"@docusaurus/core": "3.10.2",

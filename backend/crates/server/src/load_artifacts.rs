@@ -9,8 +9,8 @@ use haste_fhir_client::{
 };
 use haste_fhir_model::r4::generated::{
     resources::{
-        Bundle, BundleEntry, BundleEntryRequest, Resource, ResourceType, SearchParameter,
-        StructureDefinition,
+        Bundle, BundleEntry, BundleEntryRequest, OperationDefinition, Resource, ResourceType,
+        SearchParameter, StructureDefinition,
     },
     terminology::{BundleType, HttpVerb, IssueType},
     types::{Coding, FHIRCode, FHIRUri, Meta},
@@ -18,7 +18,6 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::{SearchEngine, SearchOptions};
 use haste_jwt::{ProjectId, TenantId};
-
 use haste_repository::{Repository, fhir::CachePolicy, types::SupportedFHIRVersions};
 use sha1::{Digest, Sha1};
 
@@ -379,4 +378,32 @@ pub async fn get_all_sps<Repo: Repository, Search: SearchEngine>(
         });
 
     Ok(sps.collect())
+}
+
+/// Every `OperationDefinition` installed for the user.
+/// Includes the embeded operations we create
+pub async fn get_all_operation_definitions<
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+>(
+    ctx: Arc<ServerCTX<Client>>,
+) -> Result<Vec<OperationDefinition>, OperationOutcomeError> {
+    let operations = ctx
+        .client
+        .search_type(
+            ctx.clone(),
+            ResourceType::OperationDefinition,
+            (vec![] as Vec<(String, Vec<String>)>).into(),
+        )
+        .await?
+        .entry
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|e| e.resource)
+        .filter_map(|r| match *r {
+            Resource::OperationDefinition(operation) => Some(operation),
+            _ => None,
+        })
+        .collect();
+
+    Ok(operations)
 }

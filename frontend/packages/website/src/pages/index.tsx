@@ -311,7 +311,7 @@ function Hero() {
           </Heading>
 
           {/* The first sentence is the social card's subhead, word for word
-              (scripts/social-card.mjs), so a link preview and the page it
+              (scripts/generate/social-card.mjs), so a link preview and the page it
               opens say the same thing. */}
           <p
             className={clsx(

@@ -1,42 +1,34 @@
-#!/usr/bin/env node
-/**
- * Build the social card (og:image / twitter:image).
- *
- * The card used to be a hand-made PNG committed as a binary, with nothing tying
- * it to the site's copy. It drifted: the site's H1 changed and the card kept
- * advertising "The FHIR Data Layer for AI Agents", so a link preview in Slack
- * and the page it opened named two different products. That is the same "visits
- * twice, sees two products" problem the buyer-side site review opened with.
- *
- * So the card is generated. The headline and subhead live here in one place,
- * and the proof figures are read from the conformance report that the homepage
- * and the conformance page already use, so a card cannot claim a number the
- * site does not.
- *
- * Usage, from frontend/packages/website:
- *
- *   node scripts/social-card.mjs          # write the SVG and rasterize to PNG
- *   node scripts/social-card.mjs --check  # fail if the committed SVG is stale
- *
- * Rasterizing uses macOS `qlmanage`, which is the one renderer we can rely on
- * being present without adding a dependency. On a machine without it the SVG is
- * still written and the PNG is left alone, with a warning: the SVG is the
- * source of truth and the PNG is a build product that we commit because the
- * social platforms need a raster.
- */
+// The social card (og:image / twitter:image).
+//
+//   static/img/social-card.svg   the source of truth
+//   static/img/social-card.png   its raster, which the social platforms need
+//
+// The card used to be a hand-made PNG with nothing tying it to the site's
+// copy, and it drifted: the homepage H1 changed and the card kept advertising
+// the old product name, so a link preview and the page it opened named two
+// different products. So it is generated: the headline and subhead live here,
+// and the proof figure comes from the conformance report the homepage and the
+// conformance page already use, so the card cannot claim a number the site
+// does not.
+//
+// Rasterizing uses a headless Chrome or Chromium. Without one the SVG is still
+// written and the PNG is left alone, with a warning.
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
-const here = dirname(fileURLToPath(import.meta.url));
-const root = resolve(here, "..");
+import { SUPPORT, readJson, relative, site } from "./lib.mjs";
 
-const SVG_PATH = join(root, "static/img/social-card.svg");
-const PNG_PATH = join(root, "static/img/social-card.png");
-const SUPPORT_PATH = join(root, "static/test-reports/support.json");
+const SVG_PATH = site("static/img/social-card.svg");
+const PNG_PATH = site("static/img/social-card.png");
 
 // Open Graph's recommended size. Slack, LinkedIn and X all crop toward the
 // centre, so nothing load-bearing goes near the edges.
@@ -69,11 +61,11 @@ const ACCENT_WORD = "AI-Native";
 /**
  * The proof strip, read from the same conformance report the site renders.
  *
- * Only figures the report actually contains. The commit count and licence are
- * static facts about the repository rather than measurements.
+ * Only figures the report actually contains. The licence is a static fact
+ * about the repository rather than a measurement.
  */
 function proofLine() {
-  const data = JSON.parse(readFileSync(SUPPORT_PATH, "utf8"));
+  const data = readJson(SUPPORT);
   const total = data.resources.length;
 
   // A resource type "passes" when no group failed and none is still unrun.
@@ -162,8 +154,8 @@ ${headline}
 /**
  * Where to find a headless Chrome to rasterize with.
  *
- * Chrome is used rather than macOS `qlmanage`, which was the obvious choice and
- * is wrong: `qlmanage -t -s N` fits the render into an N-by-N box and returns a
+ * Chrome rather than macOS `qlmanage`, which was the obvious choice and is
+ * wrong: `qlmanage -t -s N` fits the render into an N-by-N box and returns a
  * square, so a 1200x630 card comes back 1200x1200 with the headline and the
  * proof strip cropped off. `--window-size` renders at exactly the size asked
  * for.
@@ -181,14 +173,14 @@ function findChrome() {
   return CHROME_CANDIDATES.find((candidate) => existsSync(candidate)) ?? "";
 }
 
-/** Rasterize the card at exactly WIDTH x HEIGHT. */
+/** Rasterizes the card at exactly WIDTH x HEIGHT; false when no browser was found. */
 function rasterize(svgPath, pngPath) {
   const chrome = findChrome();
 
   if (!chrome) {
     console.warn(
-      "! No Chrome or Chromium found: wrote the SVG but left social-card.png\n" +
-        "  untouched. Set CHROME_PATH, or rasterize the SVG at exactly " +
+      "  ! No Chrome or Chromium found: wrote the SVG but left social-card.png\n" +
+        "    untouched. Set CHROME_PATH, or rasterize the SVG at exactly " +
         `${WIDTH}x${HEIGHT} elsewhere and commit the PNG, or the preview stays stale.`,
     );
     return false;
@@ -220,22 +212,18 @@ function rasterize(svgPath, pngPath) {
   }
 }
 
-const svg = buildSvg();
-
-if (process.argv.includes("--check")) {
-  const current = existsSync(SVG_PATH) ? readFileSync(SVG_PATH, "utf8") : "";
-  if (current !== svg) {
-    console.error(
-      "social-card.svg is stale. Run `node scripts/social-card.mjs` and commit the result.",
-    );
-    process.exit(1);
-  }
-  console.log("social-card.svg is up to date.");
-  process.exit(0);
+export async function run() {
+  writeFileSync(SVG_PATH, buildSvg());
+  const png = rasterize(SVG_PATH, PNG_PATH);
+  return `Wrote ${relative(SVG_PATH)}${png ? ` and ${relative(PNG_PATH)}` : ""}`;
 }
 
-writeFileSync(SVG_PATH, svg);
-console.log(`wrote ${SVG_PATH}`);
-if (rasterize(SVG_PATH, PNG_PATH)) {
-  console.log(`wrote ${PNG_PATH}`);
+export async function check() {
+  const current = existsSync(SVG_PATH) ? readFileSync(SVG_PATH, "utf8") : "";
+  if (current !== buildSvg()) {
+    throw new Error(
+      `${relative(SVG_PATH)} is stale. Run \`pnpm generate social-card\` and commit the result.`,
+    );
+  }
+  return `${relative(SVG_PATH)} is up to date`;
 }

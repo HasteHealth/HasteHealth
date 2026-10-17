@@ -118,6 +118,9 @@ export default function ModelHeader({ data }: Readonly<{ data: ModelData }>) {
       <div className={styles.links}>
         <Link to="#structure">Structure</Link>
         {data.searchParameters && <Link to="#search-parameters">Search parameters</Link>}
+        {data.operations && data.operations.length > 0 && (
+          <Link to="#operations">Operations ({data.operations.length})</Link>
+        )}
         {data.hl7 && <Link href={data.hl7}>HL7 specification</Link>}
         <Link href={data.raw} target="_blank">
           StructureDefinition JSON

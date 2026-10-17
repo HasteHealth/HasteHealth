@@ -1,6 +1,29 @@
-import { readFile, readdir, writeFile } from "node:fs/promises";
+// The conformance report: what each core TestScript checked and what the two
+// search backends' TestReports say about it, merged into the compact file the
+// test coverage page downloads and the FHIR model pages embed.
+//
+//   static/test-reports/support.json
+//
+// Options (all optional):
+//   --testscripts <dir>         default backend/testscripts/core
+//   --postgres <bundle>         a TestReport Bundle, default backend/testreports/postgres.json
+//   --elasticsearch <bundle>    default backend/testreports/elasticsearch.json
+//   --output <file>             default static/test-reports/support.json
+
+import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+
+import {
+  ARTIFACTS,
+  BACKEND,
+  SUPPORT,
+  combine,
+  jsonFiles,
+  readJson,
+  readResources,
+  relative,
+  writeFile,
+} from "./lib.mjs";
 
 const CATEGORY_URL =
   "https://haste.health/fhir/StructureDefinition/testscript-category";
@@ -8,10 +31,14 @@ const CATEGORY_URL =
 const EXPECTED_FAILURE_URL =
   "https://haste.health/fhir/StructureDefinition/testreport-expected-failure";
 
-function argument(name) {
-  const index = process.argv.indexOf(`--${name}`);
-  return index === -1 ? undefined : process.argv[index + 1];
-}
+const HL7_SEARCH_PARAMETERS = path.join(
+  ARTIFACTS,
+  "hl7-core/definitions/hl7/search-parameters.json",
+);
+const HASTE_SEARCH_PARAMETERS = path.join(
+  ARTIFACTS,
+  "hastehealth-core/definitions/haste-health/search_parameter",
+);
 
 function extensionValue(extension, url) {
   const part = extension?.extension?.find((item) => item.url === url);
@@ -21,7 +48,9 @@ function extensionValue(extension, url) {
 
 function category(action) {
   const source = action.operation ?? action.assert;
-  const extension = source?.extension?.find((item) => item.url === CATEGORY_URL);
+  const extension = source?.extension?.find(
+    (item) => item.url === CATEGORY_URL,
+  );
   if (!extension) return undefined;
   return {
     group: extensionValue(extension, "group"),
@@ -31,10 +60,9 @@ function category(action) {
   };
 }
 
-function reportsById(bundle) {
+function reportsById(file) {
   return new Map(
-    (bundle.entry ?? [])
-      .map((entry) => entry.resource)
+    readResources(file)
       .filter((resource) => resource?.resourceType === "TestReport")
       .map((report) => [report.id, report]),
   );
@@ -68,32 +96,15 @@ function actionResult(report, testIndex, actionIndex, kind) {
   );
 }
 
-function overallResult(results) {
-  if (results.includes("fail")) return "fail";
-  if (results.length === 0 || results.includes("not-run")) return "not-run";
-  return results.includes("warn") ? "warn" : "pass";
-}
-
-/** The resources in a JSON file: a Bundle's entries, a list, or one. */
-async function resourcesIn(file) {
-  const json = JSON.parse(await readFile(file, "utf8"));
-  if (json.resourceType === "Bundle") {
-    return (json.entry ?? []).map((entry) => entry.resource);
-  }
-  return Array.isArray(json) ? json : [json];
-}
-
 /**
  * Canonical URL -> search parameter type, from the HL7 R4 bundle and Haste
  * Health's own parameters (User, AccessPolicyV2...).
  */
-async function searchParameterTypes(bundlePath, hasteDirectory) {
-  const hasteFiles = (await readdir(hasteDirectory, { recursive: true }))
-    .filter((file) => file.endsWith(".json"))
-    .map((file) => path.join(hasteDirectory, file));
-  const resources = (
-    await Promise.all([bundlePath, ...hasteFiles].map(resourcesIn))
-  ).flat();
+function searchParameterTypes() {
+  const resources = [
+    HL7_SEARCH_PARAMETERS,
+    ...jsonFiles(HASTE_SEARCH_PARAMETERS),
+  ].flatMap(readResources);
   return new Map(
     resources
       .filter((resource) => resource?.resourceType === "SearchParameter")
@@ -101,54 +112,8 @@ async function searchParameterTypes(bundlePath, hasteDirectory) {
   );
 }
 
-const testscriptDirectory = argument("testscripts");
-const postgresPath = argument("postgres");
-const elasticsearchPath = argument("elasticsearch");
-const outputPath = argument("output");
-
-if (!testscriptDirectory || !postgresPath || !elasticsearchPath || !outputPath) {
-  throw new Error(
-    "Usage: node generate-test-support.mjs --testscripts <dir> --postgres <bundle> --elasticsearch <bundle> --output <file>",
-  );
-}
-
-const artifacts = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../../artifacts/r4",
-);
-const searchParametersPath =
-  argument("search-parameters") ??
-  path.join(artifacts, "hl7-core/definitions/hl7/search-parameters.json");
-const hasteSearchParametersPath = path.join(
-  artifacts,
-  "hastehealth-core/definitions/haste-health/search_parameter",
-);
-
-const [postgresBundle, elasticsearchBundle, parameterTypes] = await Promise.all([
-  readFile(postgresPath, "utf8").then(JSON.parse),
-  readFile(elasticsearchPath, "utf8").then(JSON.parse),
-  searchParameterTypes(searchParametersPath, hasteSearchParametersPath),
-]);
-const backendReports = {
-  postgres: reportsById(postgresBundle),
-  elasticsearch: reportsById(elasticsearchBundle),
-};
-
-const files = (await readdir(testscriptDirectory))
-  .filter((file) => file.endsWith(".testscript.json"))
-  .sort();
-const resources = [];
-
-for (const file of files) {
-  const testScript = JSON.parse(
-    await readFile(path.join(testscriptDirectory, file), "utf8"),
-  );
-  const reports = Object.fromEntries(
-    Object.entries(backendReports).map(([backend, reports]) => [
-      backend,
-      reports.get(testScript.id),
-    ]),
-  );
+/** The groups of one TestScript: its actions by category, with each backend's results. */
+function resourceSupport(testScript, reports, parameterTypes) {
   const groups = new Map();
 
   for (const [testIndex, test] of (testScript.test ?? []).entries()) {
@@ -168,7 +133,9 @@ for (const file of files) {
         searchParameterType: parameterTypes.get(metadata.searchParameterUrl),
         variant: metadata.variant,
         assertions: [],
-        results: { postgres: [], elasticsearch: [] },
+        results: Object.fromEntries(
+          Object.keys(reports).map((backend) => [backend, []]),
+        ),
       };
 
       if (kind === "assert") {
@@ -185,17 +152,16 @@ for (const file of files) {
           ),
         });
       }
-      for (const backend of Object.keys(backendReports)) {
+      for (const [backend, report] of Object.entries(reports)) {
         entry.results[backend].push(
-          actionResult(reports[backend], testIndex, actionIndex, kind),
+          actionResult(report, testIndex, actionIndex, kind),
         );
       }
       groups.set(key, entry);
     }
   }
 
-  resources.push({
-    resourceType: file.replace(".testscript.json", ""),
+  return {
     testScriptUrl: testScript.url,
     overall: Object.fromEntries(
       Object.entries(reports).map(([backend, report]) => [
@@ -208,19 +174,59 @@ for (const file of files) {
       results: Object.fromEntries(
         Object.entries(group.results).map(([backend, results]) => [
           backend,
-          overallResult(results),
+          combine(results),
         ]),
       ),
     })),
-  });
+  };
 }
 
-// Compact: the docs page downloads this file at runtime.
-await writeFile(
-  outputPath,
-  `${JSON.stringify({
+export async function run({ args }) {
+  const testscripts =
+    args.testscripts ?? path.join(BACKEND, "testscripts/core");
+  const output = args.output ?? SUPPORT;
+  const bundles = {
+    postgres: args.postgres ?? path.join(BACKEND, "testreports/postgres.json"),
+    elasticsearch:
+      args.elasticsearch ??
+      path.join(BACKEND, "testreports/elasticsearch.json"),
+  };
+  for (const file of [testscripts, ...Object.values(bundles)]) {
+    if (!fs.existsSync(file)) throw new Error(`${file} does not exist.`);
+  }
+
+  const backendReports = Object.fromEntries(
+    Object.entries(bundles).map(([backend, file]) => [
+      backend,
+      reportsById(file),
+    ]),
+  );
+  const parameterTypes = searchParameterTypes();
+
+  const files = fs
+    .readdirSync(testscripts)
+    .filter((file) => file.endsWith(".testscript.json"))
+    .sort();
+  const resources = files.map((file) => {
+    const testScript = readJson(path.join(testscripts, file));
+    const reports = Object.fromEntries(
+      Object.entries(backendReports).map(([backend, reports]) => [
+        backend,
+        reports.get(testScript.id),
+      ]),
+    );
+    return {
+      resourceType: file.replace(".testscript.json", ""),
+      ...resourceSupport(testScript, reports, parameterTypes),
+    };
+  });
+
+  // Compact: the coverage page downloads this file at runtime.
+  const report = {
     generatedAt: new Date().toISOString(),
-    backends: ["postgres", "elasticsearch"],
+    backends: Object.keys(bundles),
     resources,
-  })}\n`,
-);
+  };
+  writeFile(output, `${JSON.stringify(report)}\n`);
+  return `Wrote ${relative(output)}: ${resources.length} resource types from ${files.length} TestScripts`;
+}

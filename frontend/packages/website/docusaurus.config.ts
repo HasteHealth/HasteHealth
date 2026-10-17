@@ -22,8 +22,8 @@ const config: Config = {
       },
     },
     // Site-wide Organization structured data (schema.org). Individual pages
-    // should NOT repeat this block — see generate.mjs for the per-resource
-    // structured data used on generated FHIR reference pages instead.
+    // should NOT repeat this block; the generated FHIR reference pages carry
+    // their own per-resource structured data (scripts/generate/fhir.mjs).
     {
       tagName: "script",
       attributes: { type: "application/ld+json" },
@@ -138,11 +138,11 @@ const config: Config = {
     // Default social card (og:image / twitter:image), 1200x630, for any page
     // that doesn't set its own `image` in Layout/frontmatter.
     //
-    // Generated, not hand-made: `pnpm generate-social-card` builds
+    // Generated, not hand-made: `pnpm generate social-card` builds
     // static/img/social-card.svg and rasterizes it. Its headline has to match
     // the homepage H1 in src/pages/index.tsx, and its proof figures come from
     // the same conformance report the site renders. Edit
-    // scripts/social-card.mjs and regenerate; a PNG edited by hand is
+    // scripts/generate/social-card.mjs and regenerate; a PNG edited by hand is
     // overwritten and will drift from the site's copy again.
     image: "img/social-card.png",
     // Global <meta> tags injected on every page. Per-page title/description

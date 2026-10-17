@@ -52,6 +52,57 @@ export type ModelData = {
     overall: BackendResults;
     interactions: Partial<Record<Interaction, BackendResults>>;
   };
+  /** Type- and instance-level operations the server defines on this type. */
+  operations?: Operation[];
+};
+
+export type OperationLevel = "system" | "type" | "instance";
+
+export type OperationParameter = {
+  name: string;
+  use: "in" | "out";
+  min: number;
+  max: string;
+  type?: string;
+  href?: string;
+  targets?: Link[];
+  searchType?: string;
+  documentation?: string;
+  binding?: { strength: string; valueSet: string };
+  parts?: OperationParameter[];
+};
+
+export type Operation = {
+  code: string;
+  id: string;
+  url?: string;
+  title?: string;
+  levels: OperationLevel[];
+  /** The resource types it is defined on; none means any. */
+  resources: Link[];
+  description: string;
+  affectsState: boolean;
+  hl7?: string;
+  raw: string;
+  parameters: OperationParameter[];
+};
+
+export type SystemData = {
+  fhirVersion: string;
+  formats: string[];
+  cors: boolean;
+  /** The system-level interaction codes the CapabilityStatement declares. */
+  interactions: string[];
+  operations: Operation[];
+  /** Resource types in the CapabilityStatement. */
+  resourceTypes: number;
+  /** The resource types that have operations, with their codes. */
+  resources: {
+    name: string;
+    href: string;
+    operations: { code: string; levels: OperationLevel[] }[];
+  }[];
+  raw: string;
 };
 
 export type IndexEntry = {
@@ -64,5 +115,6 @@ export type IndexEntry = {
   maturity?: number;
   status?: string;
   searchParameters?: number;
+  operations?: number;
   overall?: BackendResults;
 };

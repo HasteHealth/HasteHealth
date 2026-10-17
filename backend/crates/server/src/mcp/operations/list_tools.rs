@@ -2,6 +2,10 @@ use crate::{
     fhir_client::ServerCTX,
     mcp::{
         error::MCPError,
+        operations::{
+            operation_tools::{discover_operations, operation_to_tool},
+            scopes::{allows_any, allows_operation},
+        },
         request::ListToolsRequest,
         schemas::types::{ListToolsResult, Tool},
     },
@@ -12,6 +16,7 @@ use haste_fhir_model::r4::generated::{
     terminology::SearchParamType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_jwt::scopes::{Scopes, SmartResourceScopePermission};
 use serde_json::json;
 use std::sync::Arc;
 
@@ -604,6 +609,36 @@ fn generate_batch_tool(api_uri: &str) -> Tool {
     }
 }
 
+/// Permission a static tool requires, used to decide whether to advertise it.
+///
+/// Tools that are not tied to one permission (schema lookups, capability
+/// statement, bundles) are always listed: they either describe the server
+/// rather than touch data, or -- in the case of bundles -- carry requests whose
+/// individual entries are scope-checked as they are processed.
+fn static_tool_permission(tool_name: &str) -> Option<SmartResourceScopePermission> {
+    match tool_name {
+        R4_SEARCH_TOOL_NAME | R4_HISTORY_INSTANCE_TOOL_NAME | R4_HISTORY_TYPE_TOOL_NAME => {
+            Some(SmartResourceScopePermission::Search)
+        }
+        R4_READ_TOOL_NAME | R4_VREAD_TOOL_NAME => Some(SmartResourceScopePermission::Read),
+        R4_CREATE_TOOL_NAME => Some(SmartResourceScopePermission::Create),
+        R4_UPDATE_TOOL_NAME | R4_PATCH_TOOL_NAME => Some(SmartResourceScopePermission::Update),
+        R4_DELETE_TOOL_NAME => Some(SmartResourceScopePermission::Delete),
+        _ => None,
+    }
+}
+
+/// Drop tools the caller's SMART scopes could never permit.
+fn filter_by_scopes(tools: Vec<Tool>, scopes: &Scopes) -> Vec<Tool> {
+    tools
+        .into_iter()
+        .filter(|tool| match static_tool_permission(&tool.name) {
+            Some(permission) => allows_any(scopes, &permission),
+            None => true,
+        })
+        .collect()
+}
+
 pub async fn list_tools<
     Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >(
@@ -612,38 +647,39 @@ pub async fn list_tools<
     api_uri: &str,
 ) -> Result<ListToolsResult, MCPError<serde_json::Value>> {
     let capabilities = ctx.client.capabilities(ctx.clone()).await?;
-    let search_tool = generate_search_schema(&capabilities);
-    let get_search_parameters_tool = generate_get_search_parameters_tool(&capabilities);
-    let get_resource_schema_tool = generate_get_resource_schema_tool(&capabilities);
-    let read_tool = generate_read_tool(&capabilities);
-    let vread_tool = generate_vread_tool(&capabilities);
-    let create_tool = generate_create_tool(&capabilities);
-    let update_tool = generate_update_tool(&capabilities);
-    let patch_tool = generate_patch_tool(&capabilities);
-    let delete_tool = generate_delete_tool(&capabilities);
-    let history_instance_tool = generate_history_instance_tool(&capabilities);
-    let history_type_tool = generate_history_type_tool(&capabilities);
-    let capabilities_tool = generate_capabilities_tool();
-    let transaction_tool = generate_transaction_tool(api_uri);
-    let batch_tool = generate_batch_tool(api_uri);
+    let scopes = &ctx.user.claims.scope;
+
+    let static_tools = vec![
+        generate_search_schema(&capabilities),
+        generate_get_search_parameters_tool(&capabilities),
+        generate_get_resource_schema_tool(&capabilities),
+        generate_read_tool(&capabilities),
+        generate_vread_tool(&capabilities),
+        generate_create_tool(&capabilities),
+        generate_update_tool(&capabilities),
+        generate_patch_tool(&capabilities),
+        generate_delete_tool(&capabilities),
+        generate_history_instance_tool(&capabilities),
+        generate_history_type_tool(&capabilities),
+        generate_capabilities_tool(),
+        generate_transaction_tool(api_uri),
+        generate_batch_tool(api_uri),
+    ];
+
+    let mut tools = filter_by_scopes(static_tools, scopes);
+
+    // Every operation the caller can invoke -- the server's built-in ones and any
+    // the project has defined -- is advertised as its own tool.
+    let operations = discover_operations(ctx.clone()).await?;
+    tools.extend(
+        operations
+            .iter()
+            .filter(|operation| allows_operation(scopes, operation))
+            .map(operation_to_tool),
+    );
 
     Ok(ListToolsResult {
-        tools: vec![
-            search_tool,
-            get_search_parameters_tool,
-            get_resource_schema_tool,
-            read_tool,
-            vread_tool,
-            create_tool,
-            update_tool,
-            patch_tool,
-            delete_tool,
-            history_instance_tool,
-            history_type_tool,
-            capabilities_tool,
-            transaction_tool,
-            batch_tool,
-        ],
+        tools,
         meta: None,
         next_cursor: None,
     })

@@ -6,7 +6,7 @@ use crate::{
             ServerMiddlewareState,
         },
     },
-    load_artifacts::{get_all_sds, get_all_sps},
+    load_artifacts::{get_all_operation_definitions, get_all_sds, get_all_sps},
 };
 use haste_fhir_client::{
     FHIRClient,
@@ -17,13 +17,16 @@ use haste_fhir_model::r4::{
     datetime::DateTime,
     generated::{
         resources::{
-            CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestResource,
-            CapabilityStatementRestResourceInteraction, CapabilityStatementRestResourceSearchParam,
-            CapabilityStatementRestSecurity, SearchParameter, StructureDefinition,
+            CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestInteraction,
+            CapabilityStatementRestResource, CapabilityStatementRestResourceInteraction,
+            CapabilityStatementRestResourceOperation, CapabilityStatementRestResourceSearchParam,
+            CapabilityStatementRestSecurity, OperationDefinition, SearchParameter,
+            StructureDefinition,
         },
         terminology::{
             BoundCode, CapabilityStatementKind, FHIRVersion, IssueType, PublicationStatus,
-            ResourceTypes, RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy,
+            ResourceTypes, RestfulCapabilityMode, SystemRestfulInteraction, TypeRestfulInteraction,
+            VersioningPolicy,
         },
         types::{FHIRBoolean, FHIRCanonical, FHIRCode, FHIRDateTime, FHIRString},
     },
@@ -39,9 +42,64 @@ use tracing::instrument;
 static CAPABILITIES: LazyLock<Mutex<Option<CapabilityStatement>>> =
     LazyLock::new(|| Mutex::new(None));
 
+/// Build a `CapabilityStatementRestResourceOperation` entry from an `OperationDefinition`.
+///
+/// `name` is the code clients invoke it by (`$expand`), and `definition` points at
+/// the OperationDefinition carrying its parameters.
+fn operation_entry(
+    operation: &OperationDefinition,
+) -> Option<CapabilityStatementRestResourceOperation> {
+    let code = operation.code.value.clone()?;
+
+    Some(CapabilityStatementRestResourceOperation {
+        name: Box::new(FHIRString {
+            value: Some(code),
+            ..Default::default()
+        }),
+        definition: Box::new(FHIRCanonical {
+            value: operation.url.as_ref().and_then(|u| u.value.clone()),
+            ..Default::default()
+        }),
+        documentation: operation.description.as_ref().map(|d| {
+            Box::new(haste_fhir_model::r4::generated::types::FHIRMarkdown {
+                value: d.value.clone(),
+                ..Default::default()
+            })
+        }),
+        ..Default::default()
+    })
+}
+
+/// Operations this resource type supports at type or instance level.
+fn operations_for_type<'a>(
+    sd_type: &str,
+    operations: &'a [OperationDefinition],
+) -> Vec<&'a OperationDefinition> {
+    operations
+        .iter()
+        .filter(|operation| {
+            // Only type- and instance-level operations belong on a resource;
+            // system-level ones are listed once on the rest element.
+            if !(operation.type_.value.unwrap_or(false)
+                || operation.instance.value.unwrap_or(false))
+            {
+                return false;
+            }
+
+            operation
+                .resource
+                .as_deref()
+                .unwrap_or_default()
+                .iter()
+                .any(|r| r.as_str() == Some(sd_type))
+        })
+        .collect()
+}
+
 fn create_capability_rest_statement(
     sd: StructureDefinition,
     all_sps: &Vec<SearchParameter>,
+    all_operations: &[OperationDefinition],
 ) -> Result<CapabilityStatementRestResource, OperationOutcomeError> {
     let sd_type = sd.type_.value.unwrap_or_default();
     let shared_base_types = ["DomainResource".to_string(), "Resource".to_string()];
@@ -101,6 +159,7 @@ fn create_capability_rest_statement(
                 TypeRestfulInteraction::read(),
                 TypeRestfulInteraction::vread(),
                 TypeRestfulInteraction::update(),
+                TypeRestfulInteraction::patch(),
                 TypeRestfulInteraction::delete(),
                 TypeRestfulInteraction::search_type(),
                 TypeRestfulInteraction::create(),
@@ -115,21 +174,42 @@ fn create_capability_rest_statement(
             .collect(),
         ),
         versioning: Some(VersioningPolicy::versioned()),
+        operation: Some(
+            operations_for_type(&sd_type, all_operations)
+                .into_iter()
+                .filter_map(operation_entry)
+                .collect(),
+        ),
         ..Default::default()
     })
 }
 
-async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
+async fn generate_capabilities<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+>(
+    ctx: Arc<ServerCTX<Client>>,
     repo: &Repo,
     search_engine: &Search,
 ) -> Result<CapabilityStatement, OperationOutcomeError> {
-    let (sds, sps) = tokio::join!(
+    let (sds, sps, operations) = tokio::join!(
         get_all_sds(&["resource"], repo, search_engine),
-        get_all_sps(repo, search_engine)
+        get_all_sps(repo, search_engine),
+        get_all_operation_definitions(ctx)
     );
 
     let sds = sds?;
     let sps = sps?;
+    let operations = operations?;
+
+    // System-level operations are not tied to a resource type, so they are
+    // documented once on the rest element itself.
+    let system_operations: Vec<_> = operations
+        .iter()
+        .filter(|operation| operation.system.value.unwrap_or(false))
+        .filter_map(operation_entry)
+        .collect();
 
     Ok(CapabilityStatement {
         status: PublicationStatus::active(),
@@ -154,9 +234,26 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
             }),
             resource: Some(
                 sds.into_iter()
-                    .map(|sd| create_capability_rest_statement(sd, &sps))
+                    .map(|sd| create_capability_rest_statement(sd, &sps, &operations))
                     .collect::<Result<Vec<_>, _>>()?,
             ),
+            // Interactions on the base URL itself; each resource type lists
+            // its own above.
+            interaction: Some(
+                vec![
+                    SystemRestfulInteraction::transaction(),
+                    SystemRestfulInteraction::batch(),
+                    SystemRestfulInteraction::search_system(),
+                    SystemRestfulInteraction::history_system(),
+                ]
+                .into_iter()
+                .map(|code| CapabilityStatementRestInteraction {
+                    code,
+                    ..Default::default()
+                })
+                .collect(),
+            ),
+            operation: Some(system_operations),
             ..Default::default()
         }]),
         ..Default::default()
@@ -204,9 +301,12 @@ impl<
                                 capabilities: capabilities.clone(),
                             }));
                     } else {
-                        let capabilities =
-                            generate_capabilities(state.repo.as_ref(), state.search.as_ref())
-                                .await?;
+                        let capabilities = generate_capabilities(
+                            context.ctx.clone(),
+                            state.repo.as_ref(),
+                            state.search.as_ref(),
+                        )
+                        .await?;
                         *guard = Some(capabilities.clone());
 
                         context.response =
