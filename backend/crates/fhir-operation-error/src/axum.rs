@@ -28,6 +28,8 @@ impl OperationOutcomeError {
                     || issue.code == IssueType::suppressed()
                 {
                     axum::http::StatusCode::FORBIDDEN
+                } else if issue.code == IssueType::not_supported() {
+                    axum::http::StatusCode::NOT_IMPLEMENTED
                 } else {
                     axum::http::StatusCode::INTERNAL_SERVER_ERROR
                 }

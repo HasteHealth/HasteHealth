@@ -80,18 +80,19 @@ impl<
         }
     }
 
-    /// Executes the middleware chain for the given request.
+    /// Runs the chain for `request`. The future owns all it needs, so it
+    /// outlives this borrow.
     ///
     /// # Errors
     ///
-    /// Returns an error if any `MiddlewareChain` in the execution pipeline fails
-    /// while processing the state or request context.
-    pub async fn call(
+    /// The future fails if any `MiddlewareChain` in the pipeline fails while
+    /// processing the state or request context.
+    pub fn call(
         &self,
         state: State,
         ctx: CTX,
         request: Request,
-    ) -> Result<Context<CTX, Request, Response>, Error> {
+    ) -> MiddlewareOutput<Context<CTX, Request, Response>, Error> {
         (self.execute)(
             state,
             Context {
@@ -100,7 +101,6 @@ impl<
                 response: None,
             },
         )
-        .await
     }
 }
 

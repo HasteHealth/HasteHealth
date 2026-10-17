@@ -304,7 +304,21 @@ impl<
                     )
                     .await?;
                 }
-                _ => {}
+                // Storage runs a type or system delete as instance deletes
+                // through the client, each synced above.
+                Some(
+                    FHIRResponse::Read(_)
+                    | FHIRResponse::VersionRead(_)
+                    | FHIRResponse::Search(_)
+                    | FHIRResponse::History(_)
+                    | FHIRResponse::Delete(DeleteResponse::Type(_) | DeleteResponse::System(_)),
+                ) => {}
+                _ => {
+                    return Err(OperationOutcomeError::fatal(
+                        IssueType::not_supported(),
+                        "User resources do not support this interaction.".to_string(),
+                    ));
+                }
             }
 
             Ok(res)

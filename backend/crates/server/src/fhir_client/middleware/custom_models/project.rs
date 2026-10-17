@@ -11,7 +11,7 @@ use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{
         DeleteRequest, FHIRDeleteInstanceRequest, FHIRRequest, FHIRResponse,
-        FHIRUpdateInstanceRequest, SearchRequest, UpdateRequest,
+        FHIRUpdateInstanceRequest, HistoryRequest, SearchRequest, UpdateRequest,
     },
 };
 use haste_fhir_model::r4::generated::{
@@ -235,11 +235,21 @@ impl<
                             Ok(res)
                         }
 
-                        FHIRRequest::Search(SearchRequest::Type(_)) => {
-                            next(state.clone(), context).await
-                        }
+                        FHIRRequest::Read(_)
+                        | FHIRRequest::VersionRead(_)
+                        | FHIRRequest::Search(SearchRequest::Type(_))
+                        | FHIRRequest::History(
+                            HistoryRequest::Instance(_) | HistoryRequest::Type(_),
+                        ) => next(state, context).await,
 
-                        FHIRRequest::Read(_read_request) => next(state.clone(), context).await,
+                        // Projects are deleted one at a time, by id.
+                        FHIRRequest::Delete(DeleteRequest::Type(_)) => {
+                            Err(OperationOutcomeError::fatal(
+                                IssueType::not_supported(),
+                                "Projects cannot be deleted by search. Delete each one by id."
+                                    .to_string(),
+                            ))
+                        }
 
                         // Dissallow updates on project because could impact integrity of system. For example project has stored
                         // resources in a specific FHIR version, changing that version would cause issues.
