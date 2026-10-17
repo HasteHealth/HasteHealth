@@ -40,10 +40,7 @@ use haste_jwt::{
 };
 use haste_operation_executor::providers::deno_embedded::pool::DenoPool;
 use haste_repository::{Repository, types::SupportedFHIRVersions};
-use std::{
-    fmt::Debug,
-    sync::{Arc, LazyLock},
-};
+use std::{fmt::Debug, sync::Arc};
 
 mod batch_transaction_processing;
 mod compartment;
@@ -64,6 +61,11 @@ pub enum StorageError {
         diagnostic = "No response was returned from the request."
     )]
     NoResponse,
+    #[error(
+        code = "exception",
+        diagnostic = "The request returned a response of another kind."
+    )]
+    UnexpectedResponse,
     #[error(
         code = "not-found",
         diagnostic = "Resource '{arg0:?}' with id '{arg1}' not found."
@@ -211,15 +213,106 @@ struct ClientState<
     deno_pool: Arc<DenoPool>,
 }
 
-pub struct Route<State, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> {
-    filter: Box<dyn Fn(&FHIRRequest) -> bool + Send + Sync>,
-    middleware: Middleware<
-        Arc<State>,
-        Arc<ServerCTX<Client>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    >,
+/// The pipelines a request is dispatched to after the cross-cutting chain.
+/// Each ends in storage, the operation executor or the capability statement.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Lane {
+    Clinical,
+    Artifact,
+    OperationDefinition,
+    ProjectAuth,
+    TenantAuth,
+    Operation,
+    Capabilities,
+}
+
+impl Lane {
+    /// The lane that stores `resource_type`.
+    fn of(resource_type: &ResourceType) -> Lane {
+        match resource_type {
+            ResourceType::ValueSet
+            | ResourceType::CodeSystem
+            | ResourceType::StructureDefinition
+            | ResourceType::SearchParameter => Lane::Artifact,
+            ResourceType::OperationDefinition => Lane::OperationDefinition,
+            ResourceType::Membership => Lane::ProjectAuth,
+            ResourceType::User | ResourceType::Project | ResourceType::IdentityProvider => {
+                Lane::TenantAuth
+            }
+            _ => Lane::Clinical,
+        }
+    }
+
+    /// Whether this lane serves `request`. Artifacts are read from the system
+    /// tenant beside the project's, which only these interactions do.
+    fn allows(self, request: &FHIRRequest) -> bool {
+        match self {
+            Lane::Artifact => matches!(
+                request,
+                FHIRRequest::Create(_)
+                    | FHIRRequest::Read(_)
+                    | FHIRRequest::Update(_)
+                    | FHIRRequest::Patch(_)
+                    | FHIRRequest::Delete(_)
+                    | FHIRRequest::Search(SearchRequest::Type(_))
+            ),
+            _ => true,
+        }
+    }
+}
+
+/// The lane for `request`, or `NotSupported` when its lane does not serve
+/// the interaction. Every variant is matched: a new one fails to compile here.
+fn route(request: &FHIRRequest) -> Result<Lane, StorageError> {
+    match request {
+        FHIRRequest::Capabilities => Ok(Lane::Capabilities),
+        FHIRRequest::Invocation(_) => Ok(Lane::Operation),
+        // Bundle entries and compartment searches are re-dispatched through
+        // `ctx.client`, so each is routed on its own. System-level requests
+        // have no type to route by.
+        FHIRRequest::Batch(_)
+        | FHIRRequest::Transaction(_)
+        | FHIRRequest::Compartment(_)
+        | FHIRRequest::Search(SearchRequest::System(_))
+        | FHIRRequest::History(HistoryRequest::System(_))
+        | FHIRRequest::Delete(DeleteRequest::System(_)) => Ok(Lane::Clinical),
+        FHIRRequest::Create(_)
+        | FHIRRequest::Read(_)
+        | FHIRRequest::VersionRead(_)
+        | FHIRRequest::Update(_)
+        | FHIRRequest::Patch(_)
+        | FHIRRequest::Delete(DeleteRequest::Instance(_) | DeleteRequest::Type(_))
+        | FHIRRequest::History(HistoryRequest::Instance(_) | HistoryRequest::Type(_))
+        | FHIRRequest::Search(SearchRequest::Type(_)) => {
+            let resource_type =
+                request_to_resource_type(request).ok_or(StorageError::InvalidType)?;
+            let lane = Lane::of(resource_type);
+            if lane.allows(request) {
+                Ok(lane)
+            } else {
+                Err(StorageError::NotSupported)
+            }
+        }
+    }
+}
+
+type Chain<State, Client> = Middleware<
+    Arc<State>,
+    Arc<ServerCTX<Client>>,
+    FHIRRequest,
+    FHIRResponse,
+    OperationOutcomeError,
+>;
+
+/// Ends the chain: runs the request's lane and returns its response.
+struct Router<State, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> {
+    clinical: Chain<State, Client>,
+    artifact: Chain<State, Client>,
+    operation_definition: Chain<State, Client>,
+    project_auth: Chain<State, Client>,
+    tenant_auth: Chain<State, Client>,
+    operation: Chain<State, Client>,
+    capabilities: Chain<State, Client>,
 }
 
 pub struct FHIRServerClient<
@@ -237,21 +330,6 @@ pub struct FHIRServerClient<
     >,
 }
 
-pub struct RouterMiddleware<
-    State,
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>,
-> {
-    routes: Arc<Vec<Route<State, Client>>>,
-}
-
-impl<State, Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>>
-    RouterMiddleware<State, Client>
-{
-    pub fn new(routes: Arc<Vec<Route<State, Client>>>) -> Self {
-        RouterMiddleware { routes }
-    }
-}
-
 impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -264,7 +342,7 @@ impl<
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
-    > for RouterMiddleware<ClientState<Repo, Search, Terminology>, Client>
+    > for Router<ClientState<Repo, Search, Terminology>, Client>
 {
     fn call(
         &self,
@@ -274,58 +352,20 @@ impl<
             Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
         >,
     ) -> ServerMiddlewareOutput<Client> {
-        let routes = self.routes.clone();
-        Box::pin(async move {
-            let route = routes.iter().find(|r| (r.filter)(&context.request));
-
-            match route {
-                Some(route) => {
-                    let context = route
-                        .middleware
-                        .call(state.clone(), context.ctx, context.request)
-                        .await?;
-                    if let Some(next) = next {
-                        next(state, context).await
-                    } else {
-                        Ok(context)
-                    }
-                }
-                None => {
-                    if let Some(next) = next {
-                        next(state, context).await
-                    } else {
-                        Ok(context)
-                    }
-                }
-            }
-        })
+        debug_assert!(next.is_none(), "the router ends the chain");
+        match route(&context.request) {
+            Ok(Lane::Clinical) => &self.clinical,
+            Ok(Lane::Artifact) => &self.artifact,
+            Ok(Lane::OperationDefinition) => &self.operation_definition,
+            Ok(Lane::ProjectAuth) => &self.project_auth,
+            Ok(Lane::TenantAuth) => &self.tenant_auth,
+            Ok(Lane::Operation) => &self.operation,
+            Ok(Lane::Capabilities) => &self.capabilities,
+            Err(error) => return Box::pin(std::future::ready(Err(error.into()))),
+        }
+        .call(state, context.ctx, context.request)
     }
 }
-
-static ARTIFACT_TYPES: &[ResourceType] = &[
-    ResourceType::ValueSet,
-    ResourceType::CodeSystem,
-    ResourceType::StructureDefinition,
-    ResourceType::SearchParameter,
-];
-
-static TENANT_AUTH_TYPES: &[ResourceType] = &[
-    ResourceType::User,
-    ResourceType::Project,
-    ResourceType::IdentityProvider,
-];
-static PROJECT_AUTH_TYPES: &[ResourceType] = &[ResourceType::Membership];
-static OPERATION_DEFINITION_TYPES: &[ResourceType] = &[ResourceType::OperationDefinition];
-
-static SPECIAL_TYPES: LazyLock<Vec<ResourceType>> = LazyLock::new(|| {
-    [
-        TENANT_AUTH_TYPES,
-        PROJECT_AUTH_TYPES,
-        ARTIFACT_TYPES,
-        OPERATION_DEFINITION_TYPES,
-    ]
-    .concat()
-});
 
 pub struct ServerClientConfig<
     Repo: Repository + Send + Sync + 'static,
@@ -383,115 +423,53 @@ impl<
 > FHIRServerClient<Repo, Search, Terminology>
 {
     pub fn new(config: ServerClientConfig<Repo, Search, Terminology>) -> Self {
-        let operation_executor_middleware =
-            middleware::operations::Middleware::new(config.deno_pool.clone());
-        let builtin_operations = operation_executor_middleware.operation_definitions();
+        let operations = middleware::operations::Middleware::new(config.deno_pool.clone());
+        let builtin_operations = operations.operation_definitions();
 
-        let route_middleware = RouterMiddleware::new(Arc::new(vec![
-            // Clinical resources.
-            Route {
-                filter: Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Invocation(_) | FHIRRequest::Capabilities => false,
-                    _ => {
-                        if let Some(resource_type) = request_to_resource_type(req) {
-                            !SPECIAL_TYPES.contains(resource_type)
-                        } else {
-                            true
-                        }
-                    }
-                }),
-                middleware: Middleware::new(vec![Box::new(middleware::storage::Middleware::new())]),
-            },
-            // Artifact routes.
-            Route {
-                filter: Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Create(_)
-                    | FHIRRequest::Update(_)
-                    | FHIRRequest::Patch(_)
-                    | FHIRRequest::Delete(_)
-                    | FHIRRequest::Read(_)
-                    | FHIRRequest::Search(SearchRequest::Type(_)) => {
-                        if let Some(resource_type) = request_to_resource_type(req) {
-                            ARTIFACT_TYPES.contains(resource_type)
-                        } else {
-                            false
-                        }
-                    }
-                    _ => false,
-                }),
-
-                middleware: Middleware::new(vec![
-                    Box::new(middleware::set_artifact_tenant::Middleware::new()),
-                    Box::new(middleware::storage::Middleware::new()),
-                ]),
-            },
+        let router: Router<ClientState<Repo, Search, Terminology>, Self> = Router {
+            clinical: Middleware::new(vec![Box::new(middleware::storage::Middleware::new())]),
+            artifact: Middleware::new(vec![
+                Box::new(middleware::set_artifact_tenant::Middleware::new()),
+                Box::new(middleware::storage::Middleware::new()),
+            ]),
             // OperationDefinitions, served beside the built-in operations' own.
-            Route {
-                filter: Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Invocation(_) => false,
-                    _ => request_to_resource_type(req)
-                        .is_some_and(|rt| OPERATION_DEFINITION_TYPES.contains(rt)),
-                }),
-                middleware: Middleware::new(vec![
-                    // A PATCH runs as an update, so the patched resource gets
-                    // the built-in collision checks.
-                    Box::new(middleware::patch_as_update::Middleware::new()),
-                    Box::new(middleware::operation_definitions::Middleware::new(
-                        builtin_operations,
-                    )),
-                    Box::new(middleware::storage::Middleware::new()),
-                ]),
-            },
-            // Operation routes
-            Route {
-                filter: Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Invocation(_) => true,
-                    _ => false,
-                }),
-                middleware: Middleware::new(vec![Box::new(operation_executor_middleware)]),
-            },
-            // Authentication routes.
-            Route {
-                filter: Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Invocation(_) => false,
-                    _ => request_to_resource_type(req)
-                        .is_some_and(|rt| PROJECT_AUTH_TYPES.contains(rt)),
-                }),
-                middleware: Middleware::new(vec![
-                    Box::new(middleware::transaction::Middleware::new()),
-                    // A PATCH runs as an update, so the membership row stays in sync.
-                    Box::new(middleware::patch_as_update::Middleware::new()),
-                    Box::new(middleware::custom_models::membership::Middleware::new()),
-                    Box::new(middleware::storage::Middleware::new()),
-                ]),
-            },
-            // Tenant auth routes.
-            Route {
-                filter: Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Invocation(_) => false,
-                    _ => request_to_resource_type(req)
-                        .is_some_and(|rt| TENANT_AUTH_TYPES.contains(rt)),
-                }),
-                middleware: Middleware::new(vec![
-                    Box::new(
-                        middleware::check_project::SetProjectReadOnlyMiddleware::new(
-                            ProjectId::System,
-                        ),
-                    ),
-                    // Confirm in system project as above will only set to system if readonly.
-                    Box::new(middleware::check_project::Middleware::new(
-                        ProjectId::System,
-                    )),
-                    Box::new(middleware::transaction::Middleware::new()),
-                    // A PATCH runs as an update, so it gets the Project update
-                    // checks and the users table stays in sync.
-                    Box::new(middleware::patch_as_update::Middleware::new()),
-                    Box::new(middleware::custom_models::project::Middleware::new()),
-                    Box::new(middleware::custom_models::user::Middleware::new()),
-                    Box::new(middleware::storage::Middleware::new()),
-                ]),
-            },
-        ]));
+            operation_definition: Middleware::new(vec![
+                // A PATCH runs as an update, so the patched resource gets
+                // the built-in collision checks.
+                Box::new(middleware::patch_as_update::Middleware::new()),
+                Box::new(middleware::operation_definitions::Middleware::new(
+                    builtin_operations,
+                )),
+                Box::new(middleware::storage::Middleware::new()),
+            ]),
+            project_auth: Middleware::new(vec![
+                Box::new(middleware::transaction::Middleware::new()),
+                // A PATCH runs as an update, so the membership row stays in sync.
+                Box::new(middleware::patch_as_update::Middleware::new()),
+                Box::new(middleware::custom_models::membership::Middleware::new()),
+                Box::new(middleware::storage::Middleware::new()),
+            ]),
+            tenant_auth: Middleware::new(vec![
+                Box::new(
+                    middleware::check_project::SetProjectReadOnlyMiddleware::new(ProjectId::System),
+                ),
+                // Confirm in system project as above will only set to system if readonly.
+                Box::new(middleware::check_project::Middleware::new(
+                    ProjectId::System,
+                )),
+                Box::new(middleware::transaction::Middleware::new()),
+                // A PATCH runs as an update, so it gets the Project update
+                // checks and the users table stays in sync.
+                Box::new(middleware::patch_as_update::Middleware::new()),
+                Box::new(middleware::custom_models::project::Middleware::new()),
+                Box::new(middleware::custom_models::user::Middleware::new()),
+                Box::new(middleware::storage::Middleware::new()),
+            ]),
+            operation: Middleware::new(vec![Box::new(operations)]),
+            capabilities: Middleware::new(vec![Box::new(
+                middleware::capabilities::Middleware::new(),
+            )]),
+        };
 
         FHIRServerClient {
             state: Arc::new(ClientState {
@@ -510,8 +488,7 @@ impl<
                 Box::new(middleware::auth_z::scope_check::SMARTScopeAccessMiddleware::new()),
                 Box::new(middleware::auth_z::access_control::AccessControlMiddleware::new()),
                 Box::new(middleware::validation::Middleware::new()),
-                Box::new(route_middleware),
-                Box::new(middleware::capabilities::Middleware::new()),
+                Box::new(router),
             ]),
         }
     }
@@ -563,7 +540,7 @@ impl<
             Some(FHIRResponse::Capabilities(capabilities_response)) => {
                 Ok(capabilities_response.capabilities)
             }
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -587,7 +564,7 @@ impl<
             Some(FHIRResponse::Search(SearchResponse::System(search_response))) => {
                 Ok(search_response.bundle)
             }
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -613,7 +590,7 @@ impl<
             Some(FHIRResponse::Search(SearchResponse::Type(search_response))) => {
                 Ok(search_response.bundle)
             }
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -637,7 +614,7 @@ impl<
 
         match res.response {
             Some(FHIRResponse::Create(create_response)) => Ok(create_response.resource),
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -664,7 +641,7 @@ impl<
         match res.response {
             Some(FHIRResponse::Create(create_response)) => Ok(create_response.resource),
             Some(FHIRResponse::Update(update_response)) => Ok(update_response.resource),
-            _ => panic!("Unexpected response type {:?}", res.response),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -691,7 +668,7 @@ impl<
         match res.response {
             Some(FHIRResponse::Create(create_response)) => Ok(create_response.resource),
             Some(FHIRResponse::Update(update_response)) => Ok(update_response.resource),
-            _ => panic!("Unexpected response type {:?}", res.response),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -722,7 +699,7 @@ impl<
 
         match res.response {
             Some(FHIRResponse::Read(read_response)) => Ok(read_response.resource),
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -750,7 +727,7 @@ impl<
             Some(FHIRResponse::VersionRead(version_read_response)) => {
                 Ok(Some(version_read_response.resource))
             }
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -774,7 +751,7 @@ impl<
 
         match res.response {
             Some(FHIRResponse::Delete(DeleteResponse::Instance(_delete_response))) => Ok(()),
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -798,7 +775,7 @@ impl<
 
         match res.response {
             Some(FHIRResponse::Delete(DeleteResponse::Type(_delete_response))) => Ok(()),
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -820,7 +797,7 @@ impl<
 
         match res.response {
             Some(FHIRResponse::Delete(DeleteResponse::System(_delete_response))) => Ok(()),
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -843,7 +820,7 @@ impl<
             Some(FHIRResponse::History(HistoryResponse::System(history_response))) => {
                 Ok(history_response.bundle)
             }
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -868,7 +845,7 @@ impl<
             Some(FHIRResponse::History(HistoryResponse::Type(history_response))) => {
                 Ok(history_response.bundle)
             }
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -895,7 +872,7 @@ impl<
             Some(FHIRResponse::History(HistoryResponse::Instance(history_response))) => {
                 Ok(history_response.bundle)
             }
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -947,7 +924,7 @@ impl<
             Some(FHIRResponse::Transaction(transaction_response)) => {
                 Ok(transaction_response.resource)
             }
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 
@@ -967,7 +944,7 @@ impl<
 
         match res.response {
             Some(FHIRResponse::Batch(batch_response)) => Ok(batch_response.resource),
-            _ => panic!("Unexpected response type"),
+            _ => Err(StorageError::UnexpectedResponse.into()),
         }
     }
 }

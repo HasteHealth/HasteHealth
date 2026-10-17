@@ -33,7 +33,7 @@ use haste_fhir_model::r4::generated::{
     types::{FHIRUnsignedInt, FHIRUri},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::{SearchEngine, SearchOptions};
+use haste_fhir_search::{SearchEngine, SearchEntry, SearchOptions};
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, ResourceId, TenantId};
 use haste_reflect::MetaValue;
@@ -248,6 +248,95 @@ pub fn to_bundle(
     }
 }
 
+/// Deletes every match of `search`, each as its own instance delete through
+/// the client so it gets its lane's checks and sync hooks. The deletes commit
+/// together: in the lane's transaction when it opened one, else in one here.
+async fn delete_matches<Repo, Search, Terminology, Client>(
+    state: &ServerMiddlewareState<Repo, Search, Terminology>,
+    ctx: &ServerCTX<Client>,
+    search: SearchRequest,
+) -> Result<(), OperationOutcomeError>
+where
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+{
+    let delete_limit = state.config.fhir.delete_limit;
+    let found = state
+        .search
+        .search(
+            &ctx.fhir_version,
+            &ctx.tenant,
+            &ctx.project,
+            &search,
+            search_options(ctx.compartment.as_deref(), &search, Some(delete_limit + 1)),
+        )
+        .await?;
+    if found.entries.len() as u64 > delete_limit {
+        return Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            format!("Too many resources to delete at once. Limit to '{delete_limit}'."),
+        ));
+    }
+
+    if state.repo.in_transaction() {
+        return delete_each(state, state.repo.clone(), ctx, found.entries).await;
+    }
+
+    let repo = Arc::new(state.repo.transaction(true).await?);
+    let result = delete_each(state, repo.clone(), ctx, found.entries).await;
+    let repo = Arc::try_unwrap(repo).map_err(|_| {
+        OperationOutcomeError::fatal(
+            IssueType::exception(),
+            "Failed to unwrap transaction client".to_string(),
+        )
+    })?;
+    match result {
+        Ok(()) => repo.commit().await,
+        Err(error) => {
+            repo.rollback().await?;
+            Err(error)
+        }
+    }
+}
+
+/// One instance delete per entry, through a client on `repo`.
+async fn delete_each<Repo, Search, Terminology, Client>(
+    state: &ServerMiddlewareState<Repo, Search, Terminology>,
+    repo: Arc<Repo>,
+    ctx: &ServerCTX<Client>,
+    entries: Vec<SearchEntry>,
+) -> Result<(), OperationOutcomeError>
+where
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+{
+    let client = FHIRServerClient::new(
+        ServerClientConfig::new(
+            repo,
+            state.search.clone(),
+            state.terminology.clone(),
+            state.config.clone(),
+            state.deno_pool.clone(),
+        )
+        .with_audit_repo(state.audit_repo.clone()),
+    );
+    let ctx = Arc::new(ctx.swap_client(Arc::new(client)));
+    for entry in entries {
+        ctx.client
+            .delete_instance(
+                ctx.clone(),
+                entry.resource_type,
+                entry.id.as_ref().to_string(),
+            )
+            .await?;
+    }
+    Ok(())
+}
+
 impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -299,150 +388,66 @@ impl<
 
                     Ok(Some(FHIRResponse::Read(FHIRReadResponse { resource })))
                 }
-                FHIRRequest::Delete(req) => match req {
-                    DeleteRequest::Instance(delete_request) => {
-                        let current_resource = FHIRRepository::read_latest(
-                            state.repo.as_ref(),
-                            &context.ctx.tenant,
-                            &context.ctx.project,
-                            &delete_request.resource_type,
-                            &ResourceId::new(delete_request.id.to_string()),
-                        )
-                        .await?;
-                        if let Some(resource) = current_resource {
-                            Ok(Some(FHIRResponse::Delete(DeleteResponse::Instance(
-                                Box::new(FHIRDeleteInstanceResponse {
-                                    resource: FHIRRepository::delete(
-                                        state.repo.as_ref(),
-                                        &context.ctx.tenant,
-                                        &context.ctx.project,
-                                        &context.ctx.user.claims,
-                                        &context.ctx.fhir_version,
-                                        resource,
-                                        &delete_request.id,
-                                    )
-                                    .await?,
-                                }),
-                            ))))
-                        } else {
-                            Err(OperationOutcomeError::error(
-                                IssueType::not_found(),
-                                format!("Resource with id '{}' not found", delete_request.id),
-                            ))
-                        }
+                FHIRRequest::Delete(DeleteRequest::Instance(delete_request)) => {
+                    let current_resource = FHIRRepository::read_latest(
+                        state.repo.as_ref(),
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        &delete_request.resource_type,
+                        &ResourceId::new(delete_request.id.to_string()),
+                    )
+                    .await?;
+                    if let Some(resource) = current_resource {
+                        Ok(Some(FHIRResponse::Delete(DeleteResponse::Instance(
+                            Box::new(FHIRDeleteInstanceResponse {
+                                resource: FHIRRepository::delete(
+                                    state.repo.as_ref(),
+                                    &context.ctx.tenant,
+                                    &context.ctx.project,
+                                    &context.ctx.user.claims,
+                                    &context.ctx.fhir_version,
+                                    resource,
+                                    &delete_request.id,
+                                )
+                                .await?,
+                            }),
+                        ))))
+                    } else {
+                        Err(OperationOutcomeError::error(
+                            IssueType::not_found(),
+                            format!("Resource with id '{}' not found", delete_request.id),
+                        ))
                     }
-                    DeleteRequest::System(_) | DeleteRequest::Type(_) => {
-                        let delete_search_request = match req {
-                            DeleteRequest::System(delete_request) => {
-                                SearchRequest::System(FHIRSearchSystemRequest {
-                                    parameters: delete_request.parameters.clone(),
-                                })
-                            }
+                }
+                FHIRRequest::Delete(DeleteRequest::Type(delete_request)) => {
+                    delete_matches(
+                        &state,
+                        &context.ctx,
+                        SearchRequest::Type(FHIRSearchTypeRequest {
+                            resource_type: delete_request.resource_type.clone(),
+                            parameters: delete_request.parameters.clone(),
+                        }),
+                    )
+                    .await?;
 
-                            DeleteRequest::Type(delete_request) => {
-                                SearchRequest::Type(FHIRSearchTypeRequest {
-                                    resource_type: delete_request.resource_type.clone(),
-                                    parameters: delete_request.parameters.clone(),
-                                })
-                            }
-                            _ => {
-                                return Err(OperationOutcomeError::fatal(
-                                    IssueType::exception(),
-                                    "Invalid delete request type".to_string(),
-                                ));
-                            }
-                        };
+                    Ok(Some(FHIRResponse::Delete(DeleteResponse::Type(
+                        FHIRDeleteTypeResponse {},
+                    ))))
+                }
+                FHIRRequest::Delete(DeleteRequest::System(delete_request)) => {
+                    delete_matches(
+                        &state,
+                        &context.ctx,
+                        SearchRequest::System(FHIRSearchSystemRequest {
+                            parameters: delete_request.parameters.clone(),
+                        }),
+                    )
+                    .await?;
 
-                        let delete_limit = state.config.fhir.delete_limit;
-
-                        let search_results = state
-                            .search
-                            .search(
-                                &context.ctx.fhir_version,
-                                &context.ctx.tenant,
-                                &context.ctx.project,
-                                &delete_search_request,
-                                search_options(
-                                    context.ctx.compartment.as_deref(),
-                                    &delete_search_request,
-                                    Some(delete_limit + 1),
-                                ),
-                            )
-                            .await?;
-
-                        if search_results.entries.len() as u64 > delete_limit {
-                            return Err(OperationOutcomeError::error(
-                                IssueType::invalid(),
-                                format!(
-                                    "Too many resources to delete at once. Limit to '{}'.",
-                                    delete_limit
-                                ),
-                            ));
-                        }
-
-                        let version_ids = search_results
-                            .entries
-                            .iter()
-                            .map(|v| &v.version_id)
-                            .collect::<Vec<_>>();
-
-                        let resources = state
-                            .repo
-                            .read_by_version_ids(
-                                &context.ctx.tenant,
-                                &context.ctx.project,
-                                version_ids.as_slice(),
-                                haste_repository::fhir::CachePolicy::NoCache,
-                            )
-                            .await?;
-
-                        for resource in resources.into_iter() {
-                            let id = resource
-                                .get_field("id")
-                                .ok_or_else(|| {
-                                    OperationOutcomeError::fatal(
-                                        IssueType::invalid(),
-                                        "Resource missing id field during deletion.".to_string(),
-                                    )
-                                })?
-                                .as_any()
-                                .downcast_ref::<String>()
-                                .ok_or_else(|| {
-                                    OperationOutcomeError::fatal(
-                                        IssueType::invalid(),
-                                        "Resource missing id field during deletion.".to_string(),
-                                    )
-                                })?
-                                .clone();
-
-                            FHIRRepository::delete(
-                                state.repo.as_ref(),
-                                &context.ctx.tenant,
-                                &context.ctx.project,
-                                &context.ctx.user.claims,
-                                &context.ctx.fhir_version,
-                                resource,
-                                &id,
-                            )
-                            .await?;
-                        }
-
-                        match req {
-                            DeleteRequest::System(_) => Ok(Some(FHIRResponse::Delete(
-                                DeleteResponse::System(FHIRDeleteSystemResponse {}),
-                            ))),
-                            DeleteRequest::Type(_) => Ok(Some(FHIRResponse::Delete(
-                                DeleteResponse::Type(FHIRDeleteTypeResponse {}),
-                            ))),
-                            _ => {
-                                return Err(OperationOutcomeError::fatal(
-                                    IssueType::exception(),
-                                    "Invalid delete request type".to_string(),
-                                ));
-                            }
-                        }
-                    }
-                },
+                    Ok(Some(FHIRResponse::Delete(DeleteResponse::System(
+                        FHIRDeleteSystemResponse {},
+                    ))))
+                }
                 FHIRRequest::VersionRead(vread_request) => {
                     let mut vread_resources = state
                         .repo

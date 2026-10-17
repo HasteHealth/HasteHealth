@@ -46,7 +46,10 @@ pub async fn setup_transaction_context<
                 }))
             }
         }
-        FHIRRequest::Read(_) | FHIRRequest::Search(_) => Ok(state),
+        FHIRRequest::Read(_)
+        | FHIRRequest::VersionRead(_)
+        | FHIRRequest::Search(_)
+        | FHIRRequest::History(_) => Ok(state),
         _ => Err(OperationOutcomeError::fatal(
             IssueType::not_supported(),
             "Request type not supported for transaction middleware.".to_string(),
