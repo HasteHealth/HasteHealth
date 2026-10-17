@@ -330,23 +330,24 @@ export function ResourcePanel({ target }: Readonly<ResourcePanelProps>) {
           },
         ]),
   ];
-  const { tabs, selectedTab, onTab } = useViewTabs((paneState, showPane) =>
-    resourceViews(
-      {
-        // Custom views read and write the draft, so an edit here shows in the
-        // JSON tab and vice versa.
-        resource: draft ?? resource ?? ({} as Resource),
-        resourceType,
-        resourceId,
-        dirty,
-        readOnly,
-        saved: true,
-        onChange: setDraft,
-        paneState,
-        onPaneStateChange: showPane,
-      },
-      generic,
-    ),
+  const { tabs, selectedTab, onTab } = useViewTabs(
+    (host) =>
+      resourceViews(
+        {
+          // Custom views read and write the draft, so an edit here shows in
+          // the JSON tab and vice versa.
+          resource: draft ?? resource ?? ({} as Resource),
+          resourceType,
+          resourceId,
+          dirty,
+          readOnly,
+          saved: true,
+          onChange: setDraft,
+          ...host,
+        },
+        generic,
+      ),
+    `${resourceType}/${resourceId}/${versionId ?? ""}`,
   );
 
   if (loading) {

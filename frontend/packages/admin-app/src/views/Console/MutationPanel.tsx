@@ -238,60 +238,63 @@ export function MutationPanel({
     tabs: bodyTabs,
     selectedTab,
     onTab,
-  } = useViewTabs((paneState, showPane) => [
-    ...(bodyResource && hasCustomViews(bodyResource.resourceType)
-      ? customViews({
-          resource: bodyResource,
-          resourceType: bodyResource.resourceType as string,
-          // Nothing is saved yet, so there is nothing to diff against,
-          // invoke, or look up logs for.
-          saved: false,
-          dirty: false,
-          readOnly: false,
-          onChange: (next) => setBody(JSON.stringify(next, null, 2)),
-          paneState,
-          onPaneStateChange: showPane,
-        })
-      : []),
-    {
-      id: "json",
-      title: "JSON",
-      content: (
-        <JSONTextEditor value={body} onChange={setBody} hint="Request body" />
-      ),
-    },
-    // A create has no resource to read yet, so the form is the only place
-    // the body can be written without knowing the type's shape. It needs the
-    // body to parse, which it does not while the JSON tab is mid-edit.
-    ...(bodyResource?.resourceType
-      ? [
-          {
-            id: "generated-form",
-            title: "Form",
-            content: (
-              <GeneratedForm
-                resource={bodyResource}
-                resourceType={bodyResource.resourceType as string}
-                // The form edits a resource, the body is text, so it is
-                // written back as text. `bodyResource` is what parsed, so
-                // applying to it avoids re-parsing text that may not.
-                onChange={(update) =>
-                  setBody(
-                    JSON.stringify(
-                      typeof update === "function"
-                        ? update(bodyResource)
-                        : update,
-                      null,
-                      2,
-                    ),
-                  )
-                }
-              />
-            ),
-          },
-        ]
-      : []),
-  ]);
+  } = useViewTabs(
+    (host) => [
+      ...(bodyResource && hasCustomViews(bodyResource.resourceType)
+        ? customViews({
+            resource: bodyResource,
+            resourceType: bodyResource.resourceType as string,
+            // Nothing is saved yet, so there is nothing to diff against,
+            // invoke, or look up logs for.
+            saved: false,
+            dirty: false,
+            readOnly: false,
+            onChange: (next) => setBody(JSON.stringify(next, null, 2)),
+            ...host,
+          })
+        : []),
+      {
+        id: "json",
+        title: "JSON",
+        content: (
+          <JSONTextEditor value={body} onChange={setBody} hint="Request body" />
+        ),
+      },
+      // A create has no resource to read yet, so the form is the only place
+      // the body can be written without knowing the type's shape. It needs the
+      // body to parse, which it does not while the JSON tab is mid-edit.
+      ...(bodyResource?.resourceType
+        ? [
+            {
+              id: "generated-form",
+              title: "Form",
+              content: (
+                <GeneratedForm
+                  resource={bodyResource}
+                  resourceType={bodyResource.resourceType as string}
+                  // The form edits a resource, the body is text, so it is
+                  // written back as text. `bodyResource` is what parsed, so
+                  // applying to it avoids re-parsing text that may not.
+                  onChange={(update) =>
+                    setBody(
+                      JSON.stringify(
+                        typeof update === "function"
+                          ? update(bodyResource)
+                          : update,
+                        null,
+                        2,
+                      ),
+                    )
+                  }
+                />
+              ),
+            },
+          ]
+        : []),
+    ],
+    // The state the views hold is for this staged write only.
+    `${command.verb} ${JSON.stringify(command.target)}`,
+  );
 
   const request = useMemo(() => describeRequest(command), [command]);
   const warning = mutationWarning(command);

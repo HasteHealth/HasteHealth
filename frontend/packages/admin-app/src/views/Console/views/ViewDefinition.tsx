@@ -3,13 +3,17 @@
  *
  * The SQL runner would render its own tab strip, which inside the panel's
  * tabs reads as two stacked rows. Instead it is shown one pane at a time and
- * its panes become siblings of the panel's own tabs.
+ * its panes become siblings of the panel's own tabs. That mounts a runner per
+ * tab, so the runner's state (the run's options and its results) is held by
+ * the host and handed to each of them; otherwise a run's results would vanish
+ * with the editor pane that produced them.
  */
 import { useAtomValue } from "jotai";
 import React from "react";
 
 import {
   VIEW_DEFINITION_PANES,
+  ViewDefinitionRunnerState,
   ViewDefinitionSqlRunner,
 } from "@haste-health/components";
 import {
@@ -26,19 +30,33 @@ import { JSON_EXTENSIONS, PanelHint } from "./shared";
 /** Far enough back that a new view still returns rows. */
 const SINCE = "1980-01-01T00:00:00Z" as instant;
 
-/** Key the panel state is stored under; see `paneState` on the registry. */
+/** Key the pane shown is stored under; see `paneState` on the registry. */
 const PANE_KEY = "view";
+
+/** Key the runner's state is stored under; see `viewState` on the registry. */
+const STATE_KEY = "view-runner";
+
+/** How the runner reports a change to the state the host holds. */
+type RunnerStateChange = (
+  update: (
+    current: ViewDefinitionRunnerState | undefined,
+  ) => ViewDefinitionRunnerState,
+) => void;
 
 function ViewPane({
   view,
   pane,
   readOnly,
+  state,
+  onStateChange,
   onPaneChange,
   onChange,
 }: Readonly<{
   view: ViewDefinition;
   pane: number;
   readOnly: boolean;
+  state: ViewDefinitionRunnerState | undefined;
+  onStateChange: RunnerStateChange;
   onPaneChange: (pane: number) => void;
   onChange: (resource: Resource) => void;
 }>) {
@@ -63,14 +81,29 @@ function ViewPane({
         since={SINCE}
         activePane={pane}
         onActivePaneChange={onPaneChange}
+        state={state}
+        onStateChange={onStateChange}
       />
     </div>
   );
 }
 
 registerResourceViews("ViewDefinition", {
-  views: ({ resource, readOnly, onChange, paneState, onPaneStateChange }) =>
-    VIEW_DEFINITION_PANES.map((definition) => ({
+  views: ({
+    resource,
+    readOnly,
+    onChange,
+    onPaneStateChange,
+    viewState,
+    onViewStateChange,
+  }) => {
+    const state = viewState[STATE_KEY] as ViewDefinitionRunnerState | undefined;
+    const onStateChange: RunnerStateChange = (update) =>
+      onViewStateChange(STATE_KEY, (current) =>
+        update(current as ViewDefinitionRunnerState | undefined),
+      );
+
+    return VIEW_DEFINITION_PANES.map((definition) => ({
       id: `view-${definition.id}`,
       title: definition.id === 0 ? "Projection" : definition.title,
       paneKey: PANE_KEY,
@@ -80,9 +113,12 @@ registerResourceViews("ViewDefinition", {
           view={resource as ViewDefinition}
           pane={definition.id}
           readOnly={readOnly}
+          state={state}
+          onStateChange={onStateChange}
           onPaneChange={(next) => onPaneStateChange(PANE_KEY, next)}
           onChange={onChange}
         />
       ),
-    })),
+    }));
+  },
 });
