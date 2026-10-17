@@ -1,0 +1,75 @@
+name: <Release> Admin App
+
+# Deploys the admin app (frontend/packages/admin-app) to Cloudflare Workers at
+# haste-admin.app, the same way test_e2e_core_testscripts.yml deploys the
+# website. Unlike the website this never runs on its own: start it from the
+# Actions tab ("Run workflow"), choosing the branch or tag to build from.
+#
+# The app reads its FHIR server and OIDC client id at build time
+# (frontend/packages/admin-app/src/config.ts), so both are inputs with the
+# production values as defaults.
+on:
+  workflow_dispatch:
+    inputs:
+      fhir_base_url:
+        description: "FHIR server the app talks to (VITE_FHIR_BASE_URL)"
+        required: true
+        default: "https://api.haste.health"
+        type: string
+      client_id:
+        description: "OIDC client the app logs in with (VITE_CLIENT_ID)"
+        required: true
+        default: "admin-app"
+        type: string
+
+permissions:
+  contents: read
+
+# One deploy at a time; a second run queues behind the first instead of
+# racing it to Cloudflare.
+concurrency:
+  group: deploy-admin-app
+  cancel-in-progress: false
+
+jobs:
+  deploy-admin-app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 11.9.0
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 23
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: ./frontend
+
+      # The admin app plus the workspace packages it depends on, in dependency
+      # order (`...` selects dependencies). The website and the rest of the
+      # workspace aren't built.
+      - name: Build admin app
+        run: pnpm --filter "@haste-health/admin-app..." run build
+        working-directory: ./frontend
+        env:
+          VITE_FHIR_BASE_URL: ${{ inputs.fhir_base_url }}
+          VITE_CLIENT_ID: ${{ inputs.client_id }}
+
+      # Uploads frontend/packages/admin-app/dist as the Worker's static assets
+      # (see its wrangler.jsonc).
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
+        with:
+          wranglerVersion: "4.130.0"
+          workingDirectory: "frontend/packages/admin-app"
+          packageManager: pnpm
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
