@@ -41,7 +41,10 @@ use std::sync::Arc;
 use tower::{Layer, ServiceBuilder};
 use tower_http::{catch_panic::CatchPanicLayer, cors::AllowHeaders, normalize_path::NormalizePath};
 use tower_http::{
-    compression::CompressionLayer,
+    compression::{
+        CompressionLayer,
+        predicate::{DefaultPredicate, NotForContentType, Predicate},
+    },
     cors::{Any, CorsLayer},
     normalize_path::NormalizePathLayer,
     set_header::SetResponseHeaderLayer,
@@ -321,7 +324,15 @@ pub async fn server(
                 .layer(TraceLayer::new_for_http())
                 // 4mb by default.
                 .layer(DefaultBodyLimit::max(config.max_request_body_size))
-                .layer(CompressionLayer::new())
+                // HTML pages carry the session's CSRF token next to text the
+                // caller chose (the query string echoed into form actions,
+                // the entered email). Compressing the two together lets the
+                // token be recovered byte by byte from response sizes
+                // (BREACH), so pages are sent uncompressed; JSON and FHIR
+                // responses, which is where size matters, still are.
+                .layer(CompressionLayer::new().compress_when(
+                    DefaultPredicate::new().and(NotForContentType::new("text/html")),
+                ))
                 .layer(security_headers(config.signup.turnstile.is_some()))
                 .layer(SetResponseHeaderLayer::overriding(
                     HeaderName::from_static("x-api-version"),
