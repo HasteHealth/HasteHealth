@@ -12,7 +12,8 @@ use crate::{
 };
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
-    resources::CapabilityStatementRestResourceSearchParam, terminology::SearchParamType,
+    resources::CapabilityStatementRestResourceSearchParam,
+    terminology::{BoundCode, SearchParamType},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::scopes::{Scopes, SmartResourceScopePermission};
@@ -41,6 +42,66 @@ pub fn schema_base_url(api_uri: &str) -> String {
     format!("{}/schemas/fhir", api_uri)
 }
 
+/// How a value of one search parameter type is written: its syntax, an
+/// example and the modifiers the search engine accepts for it.
+struct SearchValueSyntax {
+    syntax: &'static str,
+    example: &'static str,
+    modifiers: &'static [&'static str],
+}
+
+/// Syntax for a parameter type, or `None` for the composite and special types
+/// the search engine does not index.
+fn search_value_syntax(type_: &BoundCode<SearchParamType>) -> Option<SearchValueSyntax> {
+    Some(match type_.as_str()? {
+        "number" => SearchValueSyntax {
+            syntax: "number with an optional prefix eq, ne, gt, lt, ge, le, sa, eb or ap",
+            example: "gt5",
+            modifiers: &[":missing"],
+        },
+        "date" => SearchValueSyntax {
+            syntax: "date or dateTime (YYYY, YYYY-MM-DD or full instant) with an optional \
+                     prefix eq, ne, gt, lt, ge, le, sa, eb or ap; a partial date covers its \
+                     whole period",
+            example: "ge2024-01-01",
+            modifiers: &[":missing"],
+        },
+        "quantity" => SearchValueSyntax {
+            syntax: "number[|system|code] with an optional prefix eq, ne, gt, lt, ge, le, sa, \
+                     eb or ap",
+            example: "gt5.4|http://unitsofmeasure.org|mg",
+            modifiers: &[":missing"],
+        },
+        "string" => SearchValueSyntax {
+            syntax: "text matched from the start of each word, case-insensitive; :exact for the \
+                     whole value, :contains for anywhere in it",
+            example: "Smith",
+            modifiers: &[":exact", ":contains", ":text", ":missing"],
+        },
+        "token" => SearchValueSyntax {
+            syntax: "system|code, code alone (any system) or |code (no system); :text matches \
+                     the display, :not excludes, :of-type matches identifiers by type",
+            example: "http://loinc.org|8867-4",
+            modifiers: &[
+                ":not", ":text", ":in", ":not-in", ":above", ":below", ":of-type", ":missing",
+            ],
+        },
+        "reference" => SearchValueSyntax {
+            syntax: "Type/id, an id alone or a full URL; narrow the target type with :Type \
+                     (subject:Patient) and chain into the target's parameters with a dot \
+                     (subject.name=Smith)",
+            example: "Patient/123",
+            modifiers: &[":Type", ":identifier", ":above", ":below", ":missing"],
+        },
+        "uri" => SearchValueSyntax {
+            syntax: "the URI exactly; :below for everything under it, :above for its parents",
+            example: "http://hl7.org/fhir/StructureDefinition/Patient",
+            modifiers: &[":above", ":below", ":missing"],
+        },
+        _ => return None,
+    })
+}
+
 pub fn search_tool_parameters(
     capability_search_params: &Vec<CapabilityStatementRestResourceSearchParam>,
 ) -> serde_json::Value {
@@ -53,34 +114,37 @@ pub fn search_tool_parameters(
             .as_ref()
             .and_then(|d| d.value.as_ref());
 
-        let json_schema_type = if capability_parameter.type_ == SearchParamType::number() {
-            Some("number".to_string())
-        } else if capability_parameter.type_ == SearchParamType::special()
-            || capability_parameter.type_ == SearchParamType::quantity()
-            || capability_parameter.type_ == SearchParamType::reference()
-            || capability_parameter.type_ == SearchParamType::date()
-            || capability_parameter.type_ == SearchParamType::string()
-            || capability_parameter.type_ == SearchParamType::token()
-            || capability_parameter.type_ == SearchParamType::uri()
-        {
-            Some("string".to_string())
-        } else {
-            None
+        // Every value is written as a string: a number or date carries its
+        // comparison prefix in the text (gt5, ge2024-01-01).
+        let Some(value_syntax) = search_value_syntax(&capability_parameter.type_) else {
+            continue;
         };
 
-        if let Some(json_schema_type) = json_schema_type {
-            properties.insert(
-                name,
-                json!({
-                    "type": json_schema_type,
-                    "description": description,
-                }),
-            );
-        }
+        // `_id` is a token in the definitions but holds a plain logical id.
+        let (syntax, example) = if name == "_id" {
+            ("the resource's logical id", "abc123")
+        } else {
+            (value_syntax.syntax, value_syntax.example)
+        };
+
+        properties.insert(
+            name,
+            json!({
+                "type": "string",
+                "description": description,
+                "fhirType": capability_parameter.type_.as_str(),
+                "syntax": syntax,
+                "example": example,
+                "modifiers": value_syntax.modifiers,
+            }),
+        );
     }
 
     json!({
         "type": "object",
+        "description": "Search parameters by name. Each gives its FHIR type, how a value is \
+                        written, an example and the modifiers it accepts (appended to the name, \
+                        as in name:exact). Comma-separated values match any of them.",
         "properties": serde_json::Value::Object(properties),
     })
 }
