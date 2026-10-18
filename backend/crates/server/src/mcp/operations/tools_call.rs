@@ -23,11 +23,39 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use json_patch::Patch;
 use std::{collections::HashMap, sync::Arc};
 
+/// A search parameter value as a model sends it: one value, or several that
+/// each become their own `name=value` pair, as repeating the parameter in a
+/// URL does. Numbers and booleans are taken as their text.
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+#[serde(untagged)]
+enum SearchValue {
+    Text(String),
+    Number(serde_json::Number),
+    Bool(bool),
+    Many(Vec<SearchValue>),
+}
+
+impl SearchValue {
+    /// Appends the `name=value` pairs this value stands for.
+    fn push_pairs(self, name: &str, pairs: &mut Vec<(String, String)>) {
+        match self {
+            SearchValue::Text(text) => pairs.push((name.to_string(), text)),
+            SearchValue::Number(number) => pairs.push((name.to_string(), number.to_string())),
+            SearchValue::Bool(flag) => pairs.push((name.to_string(), flag.to_string())),
+            SearchValue::Many(values) => {
+                for value in values {
+                    value.push_pairs(name, pairs);
+                }
+            }
+        }
+    }
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 struct FHIRSearchArguments {
     #[serde(rename = "resourceType")]
     resource_type: String,
-    search_parameters: Option<HashMap<String, String>>,
+    search_parameters: Option<HashMap<String, SearchValue>>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
@@ -340,18 +368,25 @@ pub async fn tools_call<
             )?;
             let resource_type = parse_resource_type(&ctx, &args.resource_type, &request.id).await?;
 
-            let parsed_parameters = ParsedParameters::try_from(
-                &args.search_parameters.unwrap_or_default(),
-            )
-            .map_err(|_| MCPError {
-                id: request.id.clone(),
-                jsonrpc: "2.0".to_string(),
-                error: MCPErrorDetail {
-                    code: 400,
-                    message: "Failed to parse search parameters".to_string(),
-                    data: None,
-                },
-            })?;
+            let mut pairs: Vec<(String, String)> = Vec::new();
+            for (name, value) in args.search_parameters.unwrap_or_default() {
+                value.push_pairs(&name, &mut pairs);
+            }
+
+            let parsed_parameters =
+                ParsedParameters::try_from(pairs.as_slice()).map_err(|e| MCPError {
+                    id: request.id.clone(),
+                    jsonrpc: "2.0".to_string(),
+                    error: MCPErrorDetail {
+                        code: 400,
+                        message: format!(
+                            "Invalid search_parameters: {e}. Keys are search parameter names, \
+                             optionally with a :modifier or .chain; values are strings, or \
+                             arrays of strings to repeat a parameter"
+                        ),
+                        data: None,
+                    },
+                })?;
 
             let result = ctx
                 .client

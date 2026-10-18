@@ -110,8 +110,23 @@ fn generate_search_schema() -> Tool {
         "search_parameters": {
           "type": "object",
           "description": format!(
-            "Search parameters for the FHIR resource type being queried. Use the '{}' tool to discover available search parameters for each resource type.",
-           GET_SEARCH_PARAMETERS_TOOL_NAME),
+            "Search parameters keyed by name, as in a FHIR query string; the '{}' tool lists \
+             the names for a resource type. Values use FHIR search syntax: tokens as system|code, \
+             dates, numbers and quantities with a prefix (ge2024-01-01, gt5), references as \
+             Type/id. A comma between values matches any of them (OR); an array repeats the \
+             parameter so every value must match (AND), e.g. \
+             {{\"date\": [\"ge2024-01-01\", \"lt2025-01-01\"]}}. Modifiers go on the name \
+             (name:exact, subject:Patient, identifier:missing) and chains use dots \
+             (subject.name). Result parameters: _count and _offset to page; _sort (-name for \
+             descending); _include and _revinclude (Observation:subject); _elements (comma-separated \
+             element names) or _summary=true to shrink each resource; _total=accurate or estimate.",
+            GET_SEARCH_PARAMETERS_TOOL_NAME),
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } },
+            ],
+          },
         },
       },
       "required": ["resourceType"]
