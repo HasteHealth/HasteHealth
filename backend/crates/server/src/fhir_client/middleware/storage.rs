@@ -762,13 +762,16 @@ impl<B: Backend> Handler<B> for Storage {
                     }
                 }
                 FHIRRequest::Batch(batch_request) => {
-                    let batch_client = FHIRServerClient::new(ServerClientConfig::new(
-                        state.repo.clone(),
-                        state.search.clone(),
-                        state.terminology.clone(),
-                        state.config.clone(),
-                        state.deno_pool.clone(),
-                    ));
+                    let batch_client = FHIRServerClient::new(
+                        ServerClientConfig::new(
+                            state.repo.clone(),
+                            state.search.clone(),
+                            state.terminology.clone(),
+                            state.config.clone(),
+                            state.deno_pool.clone(),
+                        )
+                        .with_audit_repo(state.audit_repo.clone()),
+                    );
 
                     let batch_context = Arc::new(ctx.swap_client(Arc::new(batch_client)));
 
