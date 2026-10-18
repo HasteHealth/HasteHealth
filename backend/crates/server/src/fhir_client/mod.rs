@@ -13,10 +13,11 @@ use haste_fhir_client::{
         DeleteRequest, DeleteResponse, FHIRBatchRequest, FHIRConditionalUpdateRequest,
         FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
         FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest, FHIRHistorySystemRequest,
-        FHIRHistoryTypeRequest, FHIRReadRequest, FHIRRequest, FHIRResponse,
+        FHIRHistoryTypeRequest, FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest,
+        FHIRInvokeTypeRequest, FHIRPatchRequest, FHIRReadRequest, FHIRRequest, FHIRResponse,
         FHIRSearchSystemRequest, FHIRSearchTypeRequest, FHIRTransactionRequest,
         FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest, HistoryResponse,
-        SearchRequest, SearchResponse, UpdateRequest,
+        InvocationRequest, InvokeResponse, Operation, SearchRequest, SearchResponse, UpdateRequest,
     },
     url::ParsedParameters,
 };
@@ -626,12 +627,20 @@ impl<
 
     async fn patch(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _resource_type: ResourceType,
-        _id: String,
-        _patches: json_patch::Patch,
+        ctx: Arc<ServerCTX<Self>>,
+        resource_type: ResourceType,
+        id: String,
+        patches: json_patch::Patch,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let request = FHIRRequest::Patch(FHIRPatchRequest {
+            resource_type,
+            id,
+            patch: patches,
+        });
+        match self.run(ctx, request).await? {
+            FHIRResponse::Patch(response) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
+        }
     }
 
     async fn read(
@@ -761,32 +770,57 @@ impl<
 
     async fn invoke_instance(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _resource_type: ResourceType,
-        _id: String,
-        _operation: String,
-        _parameters: Parameters,
+        ctx: Arc<ServerCTX<Self>>,
+        resource_type: ResourceType,
+        id: String,
+        operation: String,
+        parameters: Parameters,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let request =
+            FHIRRequest::Invocation(InvocationRequest::Instance(FHIRInvokeInstanceRequest {
+                operation: Operation::new(&operation),
+                resource_type,
+                id,
+                parameters,
+            }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::Invoke(InvokeResponse::Instance(response)) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
+        }
     }
 
     async fn invoke_type(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _resource_type: ResourceType,
-        _operation: String,
-        _parameters: Parameters,
+        ctx: Arc<ServerCTX<Self>>,
+        resource_type: ResourceType,
+        operation: String,
+        parameters: Parameters,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let request = FHIRRequest::Invocation(InvocationRequest::Type(FHIRInvokeTypeRequest {
+            operation: Operation::new(&operation),
+            resource_type,
+            parameters,
+        }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::Invoke(InvokeResponse::Type(response)) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
+        }
     }
 
     async fn invoke_system(
         &self,
-        _ctx: Arc<ServerCTX<Self>>,
-        _operation: String,
-        _parameters: Parameters,
+        ctx: Arc<ServerCTX<Self>>,
+        operation: String,
+        parameters: Parameters,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let request = FHIRRequest::Invocation(InvocationRequest::System(FHIRInvokeSystemRequest {
+            operation: Operation::new(&operation),
+            parameters,
+        }));
+        match self.run(ctx, request).await? {
+            FHIRResponse::Invoke(InvokeResponse::System(response)) => Ok(response.resource),
+            _ => Err(StorageError::UnexpectedResponse.into()),
+        }
     }
 
     async fn transaction(
