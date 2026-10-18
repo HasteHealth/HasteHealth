@@ -633,6 +633,8 @@ fn verify_client(
                 client_app,
                 &ClientapplicationGrantType::client_credentials(),
             )?;
+            // Enforce requirement of a client_secret.
+            require_client_secret(client_app)?;
         }
         schemas::token_body::OAuth2TokenBodyGrantType::RefreshToken => {
             validate_client_grant_type(client_app, &ClientapplicationGrantType::refresh_token())?;
@@ -665,6 +667,25 @@ fn verify_client(
     }
 
     Ok(())
+}
+
+/// Refuses a confidential grant for a client that has no secret stored.
+fn require_client_secret(client_app: &ClientApplication) -> Result<(), OIDCError> {
+    let has_secret = client_app
+        .secret
+        .as_ref()
+        .and_then(|s| s.value.as_deref())
+        .is_some_and(|secret| !secret.is_empty());
+
+    if has_secret {
+        Ok(())
+    } else {
+        Err(OIDCError::new(
+            OIDCErrorCode::AccessDenied,
+            Some("Invalid credentials".to_string()),
+            None,
+        ))
+    }
 }
 
 async fn refresh_token_client_id<Repo: Repository>(
