@@ -106,8 +106,8 @@ pub struct UserTokenClaims {
     pub fhir_version: SupportedFHIRVersions,
 }
 
-/// The id token issued with an access token when `openid` is granted (OpenID
-/// Connect Core §2). It tells the client that requested the sign-in who signed
+/// The id token issued with an access token when `openid` is granted (`OpenID
+/// Connect Core`). It tells the client that requested the sign-in who signed
 /// in, so unlike the access token its audience is that client and not the FHIR
 /// server. A Haste Health server using this one as an identity provider
 /// verifies it on federated login.
