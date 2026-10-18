@@ -17,6 +17,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use axum_extra::extract::Cached;
+use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
@@ -57,6 +58,20 @@ pub async fn mcp_handler<
 
     let api_uri = &state.config.api_uri;
 
+    // Most errors are raised where the request id is not at hand, but the
+    // response must still carry it for the client to match it to its request.
+    let request_id = mcp_request.id();
+
+    respond(ctx, api_uri, mcp_request)
+        .await
+        .map_err(|error| error.with_id(request_id))
+}
+
+async fn respond<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static>(
+    ctx: Arc<ServerCTX<Client>>,
+    api_uri: &str,
+    mcp_request: MCPRequest,
+) -> Result<Response, MCPError<serde_json::Value>> {
     match mcp_request {
         MCPRequest::Initialize(initialize_request) => {
             let result = operations::initialize(ctx, &initialize_request)?;
