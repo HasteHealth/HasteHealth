@@ -4,7 +4,7 @@ use crate::{
         routes::{authorize, jwks, token},
     },
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
-    route_path::{api_v1_oidc_auth_path, api_v1_oidc_path, project_path},
+    route_path::{api_v1_oidc_auth_path, api_v1_oidc_path, issuer_url, project_path},
     services::ServerState,
 };
 use axum::{
@@ -440,9 +440,8 @@ pub fn create_oidc_discovery_document(
         // used to look this document up (RFC 8414 §3.3) - the same
         // tenant/project-scoped URL `oauth_protected_resource` advertises
         // via `authorization_servers`, not the bare root API URL.
-        issuer: api_url
-            .join(project_path(tenant, project).to_str().unwrap_or_default())
-            .unwrap_or(api_url.clone())
+        issuer: issuer_url(api_url_string, tenant, project)
+            .map_err(|e| OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None))?
             .to_string(),
         authorization_endpoint: api_url
             .join(authorize_path.to_str().unwrap_or_default())

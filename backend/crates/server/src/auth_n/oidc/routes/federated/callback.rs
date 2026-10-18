@@ -92,9 +92,30 @@ struct FederatedTokenClaims {
     pub family_name: Option<String>,
 }
 
+/// Whether an id token signed with `algorithm` can be verified against a
+/// provider's published keys.
+///
+/// The provider's JWKS holds public keys. An HMAC algorithm would use a key
+/// from it as the shared secret instead, so a token naming one is refused
+/// before any key is looked up.
+fn is_asymmetric(algorithm: jsonwebtoken::Algorithm) -> bool {
+    use jsonwebtoken::Algorithm::*;
+
+    matches!(
+        algorithm,
+        RS256 | RS384 | RS512 | PS256 | PS384 | PS512 | ES256 | ES384 | EdDSA
+    )
+}
+
+/// Verifies the provider's id token and returns its claims.
+///
+/// The token must be signed with an asymmetric algorithm by a key in the
+/// provider's JWKS, be unexpired, and name `client_id` in its audience
+/// (OpenID Connect Core §3.1.3.7).
 async fn decode_using_jwk(
     token: &str,
     jwk_url: &str,
+    client_id: &str,
 ) -> Result<FederatedTokenClaims, OperationOutcomeError> {
     let header = jsonwebtoken::decode_header(token).map_err(|_| {
         OperationOutcomeError::error(
@@ -102,6 +123,13 @@ async fn decode_using_jwk(
             "Failed to decode token header".to_string(),
         )
     })?;
+
+    if !is_asymmetric(header.alg) {
+        return Err(OperationOutcomeError::error(
+            IssueType::invalid(),
+            "Identity provider id token is not signed with an asymmetric algorithm.".to_string(),
+        ));
+    }
 
     let res = reqwest::get(jwk_url).await.map_err(|_e| {
         OperationOutcomeError::error(
@@ -141,7 +169,10 @@ async fn decode_using_jwk(
     })?;
 
     let mut token_validation_settings = jsonwebtoken::Validation::new(header.alg);
-    token_validation_settings.validate_aud = false;
+    // An id token must carry both (OpenID Connect Core §2). Without this a
+    // token with no `aud` at all would pass the audience check.
+    token_validation_settings.set_required_spec_claims(&["exp", "aud"]);
+    token_validation_settings.set_audience(&[client_id]);
 
     let result = jsonwebtoken::decode::<FederatedTokenClaims>(
         token,
@@ -657,7 +688,7 @@ pub async fn federated_callback<
         ));
     };
 
-    let claims = decode_using_jwk(&id_token, jwk_url).await?;
+    let claims = decode_using_jwk(&id_token, jwk_url, client_id).await?;
 
     let user = create_user_if_not_exists(
         &app_state,

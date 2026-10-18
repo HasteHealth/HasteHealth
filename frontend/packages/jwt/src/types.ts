@@ -65,7 +65,9 @@ export interface SMARTPayload {
 }
 
 export interface AccessTokenPayload<role>
-  extends HasteHealthCustomClaims<role>, SMARTPayload, jose.JWTPayload {
+  extends HasteHealthCustomClaims<role>,
+    SMARTPayload,
+    jose.JWTPayload {
   /**
    * REQUIRED. Issuer Identifier for the Issuer of the response.
    * The iss value is a case-sensitive URL using the https scheme that contains scheme, host, and optionally,
@@ -93,9 +95,31 @@ export interface AccessTokenPayload<role>
 }
 
 /**
- * ID Token Payload. Extends Access token with additional claims from https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims.
+ * ID Token Payload (https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
+ * Issued with the access token when `openid` is granted. It tells the client that
+ * requested the sign-in who signed in, so its `aud` is that client's id where the
+ * access token's is the FHIR server. Carries the standard claims the server has
+ * (https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims), the SMART
+ * `fhirUser` claim, and the Haste Health claims that place the user in a tenant and
+ * project. Scopes and access policies are on the access token only.
  */
-export interface IDTokenPayload<role> extends AccessTokenPayload<role> {
+export interface IDTokenPayload<role> extends jose.JWTPayload {
+  iss: Issuer;
+  sub: Subject;
+  /**
+   * The client_id of the application the token was issued to.
+   */
+  aud: string;
+  fhirUser?: canonical;
+  /**
+   * The users role for the tenant.
+   */
+  [CUSTOM_CLAIMS.ROLE]: role;
+  /**
+   * The tenant and project the user signed in to.
+   */
+  [CUSTOM_CLAIMS.TENANT]: TenantId;
+  [CUSTOM_CLAIMS.PROJECT]: ProjectId;
   /**
    * End-User's full name in displayable form including all name parts, possibly including titles and suffixes, ordered according to the End-User's locale and preferences.
    */

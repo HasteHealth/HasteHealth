@@ -12,7 +12,7 @@ use crate::{
     },
     config::ServerConfig,
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
-    route_path::api_fhir_root_url,
+    route_path::{api_fhir_root_url, issuer_url},
     services::ServerState,
 };
 use axum::{
@@ -34,7 +34,7 @@ use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{
     AuthorId, AuthorKind, ProjectId, TenantId, UserRole, VersionId,
-    claims::{SubscriptionTier, UserTokenClaims},
+    claims::{IdTokenClaims, SubscriptionTier, UserTokenClaims},
     scopes::{
         LaunchSystemScope, LaunchType, LaunchTypeScope, OIDCScope, SMARTResourceScope, Scope,
         Scopes, SmartResourceScopePermission, SmartResourceScopePermissions,
@@ -113,6 +113,40 @@ struct TokenResponseArguments {
     encounter: Option<String>,
     /// The SMART EHR launch the token comes from, kept on its refresh token.
     launch: Option<LaunchContext>,
+    /// The user's address and whether they verified it, for the id token's
+    /// `email` claims. A client application has neither.
+    email: Option<String>,
+    email_verified: bool,
+}
+
+/// What a token says about the user it is issued to.
+struct TokenUser {
+    role: UserRole,
+    email: Option<String>,
+    email_verified: bool,
+}
+
+impl TokenUser {
+    /// A user that could not be read is issued the least privileged role and
+    /// no address.
+    fn of(user: Option<User>) -> TokenUser {
+        match user {
+            Some(user) => TokenUser {
+                role: match user.role {
+                    RepoUserRole::Admin => UserRole::Admin,
+                    RepoUserRole::Member => UserRole::Member,
+                    RepoUserRole::Owner => UserRole::Owner,
+                },
+                email: user.email,
+                email_verified: user.email_verified,
+            },
+            None => TokenUser {
+                role: UserRole::Member,
+                email: None,
+                email_verified: false,
+            },
+        }
+    }
 }
 
 /// The context `$launch` saved and authorize copied onto the authorization
@@ -337,15 +371,16 @@ async fn create_token_response<Repo: Repository>(
     })?
     .fhir_version;
 
+    let issued_at = chrono::Utc::now().timestamp() as usize;
+
     let mut header = Header::new(Algorithm::RS256);
     header.kid = Some(encoding_key.kid.clone());
 
-    let token = jsonwebtoken::encode(
+    let access_token = jsonwebtoken::encode(
         &header,
         &UserTokenClaims {
             sub: AuthorId::new(args.user_id.clone()),
-            exp: (chrono::Utc::now() + chrono::Duration::seconds(TOKEN_EXPIRATION as i64))
-                .timestamp() as usize,
+            exp: issued_at + TOKEN_EXPIRATION,
             aud: audience.to_string(),
             scope: args.scopes.clone(),
             tenant: args.tenant.clone(),
@@ -353,7 +388,7 @@ async fn create_token_response<Repo: Repository>(
                 |e| OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None),
             )?,
             project: Some(args.project.clone()),
-            user_role: args.user_role,
+            user_role: args.user_role.clone(),
             user_id: AuthorId::new(args.user_id.clone()),
             membership: args.membership.clone(),
             resource_type: args.user_kind,
@@ -377,9 +412,54 @@ async fn create_token_response<Repo: Repository>(
             .scopes
             .contains_scope(&Scope::SMART(SmartScope::LaunchSystem(LaunchSystemScope)));
 
+    // An id token describes the signed-in user to the client that asked for
+    // the login (OpenID Connect Core §2), so unlike the access token it is
+    // addressed to that client and not to the FHIR server. A client credentials
+    // grant has no user to describe.
+    let id_token = if args.scopes.contains_scope(&Scope::OIDC(OIDCScope::OpenId))
+        && *grant_type_used != schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials
+    {
+        let issuer = issuer_url(&config.api_uri, &args.tenant, &args.project)
+            .map_err(|e| OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None))?;
+        // The email claims go with the `email` scope (OpenID Connect Core §5.4).
+        let email = args
+            .email
+            .clone()
+            .filter(|_| args.scopes.contains_scope(&Scope::OIDC(OIDCScope::Email)));
+
+        let id_token = jsonwebtoken::encode(
+            &header,
+            &IdTokenClaims {
+                iss: issuer.to_string(),
+                sub: args.user_id.clone(),
+                aud: args.client_id.clone(),
+                exp: issued_at + TOKEN_EXPIRATION,
+                iat: issued_at,
+                email_verified: email.as_ref().map(|_| args.email_verified),
+                email,
+                fhir_user: args.fhir_user.clone(),
+                tenant: args.tenant.clone(),
+                project: args.project.clone(),
+                user_role: args.user_role.clone(),
+            },
+            &encoding_key.encoding_key,
+        )
+        .map_err(|_| {
+            OIDCError::new(
+                OIDCErrorCode::ServerError,
+                Some("Failed to create id token.".to_string()),
+                None,
+            )
+        })?;
+
+        Some(id_token)
+    } else {
+        None
+    };
+
     let mut response = TokenResponse {
-        access_token: token.clone(),
-        id_token: None,
+        access_token,
+        id_token,
         expires_in: TOKEN_EXPIRATION,
         refresh_token: None,
         token_type: TokenType::Bearer,
@@ -393,10 +473,6 @@ async fn create_token_response<Repo: Repository>(
         encounter: args.encounter.clone().filter(|_| launch_granted),
         need_patient_banner: launch_granted.then_some(true),
     };
-
-    if args.scopes.contains_scope(&Scope::OIDC(OIDCScope::OpenId)) {
-        response.id_token = Some(token);
-    }
 
     // If offline means refresh token should be generated.
     if args.scopes.0
@@ -868,6 +944,8 @@ pub async fn client_credentials_to_token_response<
         TokenResponseArguments {
             user_id: client_app.id.clone().unwrap_or_default(),
             user_role: UserRole::Member,
+            email: None,
+            email_verified: false,
             user_kind: AuthorKind::ClientApplication,
             client_id: client_app.id.clone().unwrap_or_default(),
             // A client has no patient in context.
@@ -1020,6 +1098,7 @@ pub async fn token<
                             None,
                         )
                     })?;
+            let token_user = TokenUser::of(user);
 
             let link =
                 membership_link(&state, &tenant, &project, code.membership.as_deref()).await?;
@@ -1042,12 +1121,9 @@ pub async fn token<
                 TokenResponseArguments {
                     user_id: code.user_id,
                     user_kind: AuthorKind::Membership,
-                    user_role: match user.map(|u| u.role) {
-                        Some(RepoUserRole::Admin) => UserRole::Admin,
-                        Some(RepoUserRole::Member) => UserRole::Member,
-                        Some(RepoUserRole::Owner) => UserRole::Owner,
-                        None => UserRole::Member,
-                    },
+                    user_role: token_user.role,
+                    email: token_user.email,
+                    email_verified: token_user.email_verified,
                     client_id: client_id.clone(),
                     scopes: approved_scopes.clone(),
                     tenant: tenant.clone(),
@@ -1185,6 +1261,7 @@ pub async fn token<
                             None,
                         )
                     })?;
+            let token_user = TokenUser::of(user);
 
             let link =
                 membership_link(&state, &tenant, &project, code.membership.as_deref()).await?;
@@ -1206,12 +1283,9 @@ pub async fn token<
                 TokenResponseArguments {
                     user_id: code.user_id,
                     user_kind: AuthorKind::Membership,
-                    user_role: match user.map(|u| u.role) {
-                        Some(RepoUserRole::Admin) => UserRole::Admin,
-                        Some(RepoUserRole::Member) => UserRole::Member,
-                        Some(RepoUserRole::Owner) => UserRole::Owner,
-                        None => UserRole::Member,
-                    },
+                    user_role: token_user.role,
+                    email: token_user.email,
+                    email_verified: token_user.email_verified,
                     client_id: client_id.clone(),
                     scopes: approved_scopes.clone(),
                     tenant: tenant.clone(),
