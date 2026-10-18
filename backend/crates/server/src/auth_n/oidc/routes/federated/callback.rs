@@ -27,6 +27,7 @@ use url::Url;
 
 use crate::{
     auth_n::{
+        constant_time,
         mfa::routes::totp_verification::totp_verification_route,
         oidc::routes::federated::initiate::{get_idp, get_idp_session_info},
         session::{self, user::SessionAuthorizationState},
@@ -577,7 +578,10 @@ pub async fn federated_callback<
         ));
     }
 
-    if state.as_ref() != Some(&idp_session_info.state) {
+    let state_matches = state
+        .as_deref()
+        .is_some_and(|s| constant_time::str_eq(s, &idp_session_info.state));
+    if !state_matches {
         return Err(OperationOutcomeError::error(
             IssueType::invalid(),
             "State parameter does not match the stored session state.".to_string(),
