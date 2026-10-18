@@ -16,7 +16,7 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
-use haste_jwt::{ProjectId, ResourceId, TenantId};
+use haste_jwt::{ProjectId, ResourceId, TenantId, UserRole};
 
 fn derive_user_id(
     user_reference: Option<Reference>,
@@ -117,15 +117,29 @@ pub fn evaluate_policy_op<B: Backend>() -> OperationExecutor<
                                         project.clone(),
                                         fhir_request,
                                         Arc::new(UserInfo {
-                                            id: derive_user_id(input.user)?.unwrap_or(
-                                                context
+                                            // Only an admin or owner may evaluate
+                                            // a policy as a different user; anyone
+                                            // else is evaluated as themselves, so
+                                            // the operation cannot be used as an
+                                            // allow/deny oracle for other subjects.
+                                            id: {
+                                                let caller_id = context
                                                     .ctx
                                                     .user
                                                     .claims
                                                     .user_id
                                                     .as_ref()
-                                                    .to_string(),
-                                            ),
+                                                    .to_string();
+                                                if matches!(
+                                                    context.ctx.user.claims.user_role,
+                                                    UserRole::Admin | UserRole::Owner
+                                                ) {
+                                                    derive_user_id(input.user)?
+                                                        .unwrap_or(caller_id)
+                                                } else {
+                                                    caller_id
+                                                }
+                                            },
                                         }),
                                     ),
                                 )),
