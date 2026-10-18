@@ -43,6 +43,8 @@ import { getErrorMessage } from "../../utilities";
 
 type SettingsProps = {
   user?: IDTokenPayload<string>;
+  /** The scopes the access token was issued with. */
+  scope?: string;
 };
 
 type ScopeRecord = NonNullable<HasteHealthListScopes.Output["scopes"]>[number];
@@ -393,7 +395,7 @@ function TenantBranding({ isOwner }: Readonly<{ isOwner: boolean }>) {
   );
 }
 
-function SettingsContent({ user }: Readonly<SettingsProps>) {
+function SettingsContent({ user, scope }: Readonly<SettingsProps>) {
   const client = useAtomValue(getClient);
   const endpointMetadata = useAtomValue(getEndpointMetadata);
 
@@ -600,7 +602,7 @@ function SettingsContent({ user }: Readonly<SettingsProps>) {
               value={user?.["https://haste.health/project"]}
             />
             <CopyField label="Audience" value={user?.aud} />
-            <CopyField label="Scope" value={user?.scope} />
+            <CopyField label="Scope" value={scope} />
           </div>
         </SectionCard>
 
@@ -797,7 +799,10 @@ export default function Settings() {
         </div>
       }
     >
-      <SettingsContent user={hasteHealth.user} />
+      <SettingsContent
+        user={hasteHealth.user}
+        scope={hasteHealth.payload?.scope}
+      />
     </React.Suspense>
   );
 }

@@ -208,6 +208,8 @@ code_verifier=ORIGINAL_VERIFIER
 }
 ```
 
+The `id_token` is returned when `openid` is granted. It identifies the signed-in user to your application: `sub` is the user's id, `aud` is your `client_id` and `iss` is the project's issuer from its discovery document. With the `email` scope it carries `email` and `email_verified`, with the `fhirUser` scope the user's FHIR resource, and it always names the tenant, project and role in `https://haste.health/tenant`, `https://haste.health/project` and `https://haste.health/user_role`. Call the API with the `access_token`: its `aud` is the project's FHIR base URL, and only it carries the granted scopes.
+
 ### Step 6: Access Protected Resources
 
 Use the access token to call protected APIs:
