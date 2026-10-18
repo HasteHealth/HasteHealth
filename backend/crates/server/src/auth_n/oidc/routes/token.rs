@@ -938,12 +938,18 @@ pub async fn client_credentials_to_token_response<
         .and_then(|s| s.value.as_deref())
         .unwrap_or_default();
 
-    let requested_scopes = Scopes::from(
-        token_body
-            .scope
-            .clone()
-            .unwrap_or_else(|| client_app_scopes.to_string()),
-    );
+    let requested = token_body
+        .scope
+        .clone()
+        .unwrap_or_else(|| client_app_scopes.to_string());
+
+    let requested_scopes = Scopes::try_from(requested.as_str()).map_err(|_| {
+        OIDCError::new(
+            OIDCErrorCode::InvalidScope,
+            Some("Invalid scope requested.".to_string()),
+            None,
+        )
+    })?;
 
     verify_requested_scope_is_subset(
         &requested_scopes,

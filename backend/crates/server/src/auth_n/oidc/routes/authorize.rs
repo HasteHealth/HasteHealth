@@ -398,16 +398,19 @@ pub async fn authorize<
     })?;
 
     if existing_scopes.as_ref().map(|s| &s.scope) != Some(&scopes) {
-        verify_requested_scope_is_subset(
-            &scopes,
-            &haste_jwt::scopes::Scopes::from(
-                client_app
-                    .scope
-                    .as_ref()
-                    .and_then(|s| s.value.clone())
-                    .unwrap_or_default(),
-            ),
-        )?;
+        let client_scope = client_app
+            .scope
+            .as_ref()
+            .and_then(|s| s.value.clone())
+            .unwrap_or_default();
+        let allowed = haste_jwt::scopes::Scopes::try_from(client_scope.as_str()).map_err(|_| {
+            OIDCError::new(
+                OIDCErrorCode::InvalidScope,
+                Some("Client application has an invalid scope configured.".to_string()),
+                Some(redirect_uri.to_string()),
+            )
+        })?;
+        verify_requested_scope_is_subset(&scopes, &allowed)?;
 
         return Ok(pages::scope_approval::scope_approval_html(
             &tenant,
@@ -461,18 +464,29 @@ pub async fn authorize<
         )
     })?;
 
+    let query = url::form_urlencoded::Serializer::new(String::new())
+        .append_pair("code", authorization_code.code.as_str())
+        .append_pair("state", state.as_str())
+        .finish();
+    let authority = uri.authority().cloned().ok_or_else(|| {
+        OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Request URI has no authority.".to_string()),
+            None,
+        )
+    })?;
     let redirection = Uri::builder()
         .scheme(uri.scheme().cloned().unwrap_or(Scheme::HTTPS))
-        .authority(uri.authority().unwrap().clone())
-        .path_and_query(
-            uri.path().to_string()
-                + "?code="
-                + authorization_code.code.as_str()
-                + "&state="
-                + state.as_str(),
-        )
+        .authority(authority)
+        .path_and_query(format!("{}?{}", uri.path(), query))
         .build()
-        .unwrap();
+        .map_err(|_| {
+            OIDCError::new(
+                OIDCErrorCode::ServerError,
+                Some("Failed to build redirect.".to_string()),
+                None,
+            )
+        })?;
 
     let redirect = Redirect::to(&redirection.to_string());
     let response = redirect.into_response();
