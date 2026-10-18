@@ -134,8 +134,7 @@ pub fn evaluate_policy_op<B: Backend>() -> OperationExecutor<
                                                     context.ctx.user.claims.user_role,
                                                     UserRole::Admin | UserRole::Owner
                                                 ) {
-                                                    derive_user_id(input.user)?
-                                                        .unwrap_or(caller_id)
+                                                    derive_user_id(input.user)?.unwrap_or(caller_id)
                                                 } else {
                                                     caller_id
                                                 }
