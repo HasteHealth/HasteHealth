@@ -293,7 +293,7 @@ pub fn isolated_schema(
     }
 }
 
-// Creates a type schema for a bundle of resources
+// Creates a type schema for a bundle of resources.
 #[must_use]
 pub fn bundle_of_resource(resource_schema: &serde_json::Value) -> serde_json::Value {
     json!({
@@ -313,13 +313,12 @@ pub fn bundle_of_resource(resource_schema: &serde_json::Value) -> serde_json::Va
                     "properties": {
                         "resource": resource_schema
                     },
-                    "required": ["resource"],
                     "additionalProperties": true
                 }
             }
         },
-        "required": ["resourceType", "type", "entry"],
-        "additionalProperties": false
+        "required": ["resourceType", "type"],
+        "additionalProperties": true
     })
 }
 
