@@ -125,16 +125,45 @@ fn parse_resource_type(
 }
 
 /// Helper: parse tool arguments from JSON value.
+///
+/// A failure names the tool, the field serde rejected and the shape the tool
+/// expects, so a model can correct the call rather than guess at it.
 fn parse_arguments<T: serde::de::DeserializeOwned>(
+    tool_name: &str,
     arguments: Option<serde_json::Value>,
+    example: serde_json::Value,
 ) -> Result<T, MCPError<serde_json::Value>> {
-    serde_json::from_value::<T>(arguments.unwrap_or_default()).map_err(|e| {
+    // Absent arguments read as an empty object, so the error names the first
+    // missing field instead of saying a struct was expected.
+    let arguments = match arguments {
+        Some(serde_json::Value::Null) | None => serde_json::json!({}),
+        Some(arguments) => arguments,
+    };
+
+    serde_path_to_error::deserialize::<_, T>(arguments).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::invalid(),
-            format!("Failed to parse tool arguments: '{}'", e),
+            format!(
+                "Invalid arguments for '{tool_name}': {}. Expected an object like {example}",
+                describe_json_error(e)
+            ),
         )
         .into()
     })
+}
+
+/// A deserialization error with the path of the element it happened at, so
+/// "invalid FHIR date" says which date (`birthDate`, `name[0].period.start`).
+fn describe_json_error(error: serde_path_to_error::Error<serde_json::Error>) -> String {
+    let path = error.path().to_string();
+    let inner = error.into_inner();
+
+    // "." is the root: the message already names the field or the type.
+    if path == "." {
+        inner.to_string()
+    } else {
+        format!("{inner} at {path}")
+    }
 }
 
 /// Helper: build a successful CallToolResult with text + structured content.
@@ -169,10 +198,14 @@ fn resource_to_json(resource: &Resource) -> Result<serde_json::Value, MCPError<s
 
 /// Helper: deserialize a JSON value into a FHIR Resource.
 fn json_to_resource(value: serde_json::Value) -> Result<Resource, MCPError<serde_json::Value>> {
-    serde_json::from_value::<Resource>(value).map_err(|e| {
+    serde_path_to_error::deserialize::<_, Resource>(value).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::invalid(),
-            format!("Failed to parse FHIR resource: '{}'", e),
+            format!(
+                "Invalid 'resource': {}. The '{GET_RESOURCE_SCHEMA_TOOL_NAME}' tool gives the \
+                 exact schema of a resource type",
+                describe_json_error(e)
+            ),
         )
         .into()
     })
@@ -190,10 +223,13 @@ fn history_params(
     if let Some(s) = since {
         params.insert("_since".to_string(), s);
     }
-    ParsedParameters::try_from(&params).map_err(|_| {
+    ParsedParameters::try_from(&params).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::invalid(),
-            "Failed to parse history parameters".to_string(),
+            format!(
+                "Invalid history parameters: {e}. _count is a positive integer and _since an \
+                 instant such as 2024-01-01T00:00:00Z"
+            ),
         )
         .into()
     })
@@ -208,7 +244,11 @@ pub async fn tools_call<
 ) -> Result<CallToolResult, MCPError<serde_json::Value>> {
     match request.params.name.as_str() {
         R4_SEARCH_TOOL_NAME => {
-            let args: FHIRSearchArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRSearchArguments = parse_arguments(
+                R4_SEARCH_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Observation", "search_parameters": {"code": "http://loinc.org|8867-4", "_count": "20"}}),
+            )?;
             let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
 
             let parsed_parameters = ParsedParameters::try_from(
@@ -278,7 +318,11 @@ pub async fn tools_call<
             success_result(&parameters)
         }
         GET_RESOURCE_SCHEMA_TOOL_NAME => {
-            let args: FHIRGetResourceSchemaArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRGetResourceSchemaArguments = parse_arguments(
+                GET_RESOURCE_SCHEMA_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient"}),
+            )?;
             // Validate it's a real resource type before fetching.
             parse_resource_type(&args.resource_type, &request.id)?;
 
@@ -326,7 +370,11 @@ pub async fn tools_call<
             success_result(&schema)
         }
         R4_READ_TOOL_NAME => {
-            let args: FHIRReadArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRReadArguments = parse_arguments(
+                R4_READ_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "id": "123"}),
+            )?;
             let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
 
             let result = ctx
@@ -351,7 +399,11 @@ pub async fn tools_call<
             }
         }
         R4_VREAD_TOOL_NAME => {
-            let args: FHIRVReadArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRVReadArguments = parse_arguments(
+                R4_VREAD_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "id": "123", "versionId": "2"}),
+            )?;
             let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
 
             let result = ctx
@@ -384,7 +436,11 @@ pub async fn tools_call<
             }
         }
         R4_CREATE_TOOL_NAME => {
-            let args: FHIRCreateArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRCreateArguments = parse_arguments(
+                R4_CREATE_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "resource": {"resourceType": "Patient", "name": [{"family": "Smith"}]}}),
+            )?;
             let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
             let resource = json_to_resource(args.resource)?;
 
@@ -397,7 +453,11 @@ pub async fn tools_call<
             success_result(&json_value)
         }
         R4_UPDATE_TOOL_NAME => {
-            let args: FHIRUpdateArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRUpdateArguments = parse_arguments(
+                R4_UPDATE_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "id": "123", "resource": {"resourceType": "Patient", "id": "123", "active": true}}),
+            )?;
             let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
             let resource = json_to_resource(args.resource)?;
 
@@ -410,7 +470,11 @@ pub async fn tools_call<
             success_result(&json_value)
         }
         R4_PATCH_TOOL_NAME => {
-            let args: FHIRPatchArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRPatchArguments = parse_arguments(
+                R4_PATCH_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "id": "123", "patches": [{"op": "replace", "path": "/active", "value": false}]}),
+            )?;
             let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
 
             let patches: Patch = serde_json::from_value(args.patches).map_err(|e| MCPError {
@@ -418,7 +482,10 @@ pub async fn tools_call<
                 jsonrpc: "2.0".to_string(),
                 error: MCPErrorDetail {
                     code: 400,
-                    message: format!("Invalid JSON Patch document: '{}'", e),
+                    message: format!(
+                        "Invalid 'patches': {e}. Expected an array of RFC 6902 operations such as \
+                         [{{\"op\": \"replace\", \"path\": \"/active\", \"value\": false}}]"
+                    ),
                     data: None,
                 },
             })?;
@@ -432,7 +499,11 @@ pub async fn tools_call<
             success_result(&json_value)
         }
         R4_DELETE_TOOL_NAME => {
-            let args: FHIRDeleteArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRDeleteArguments = parse_arguments(
+                R4_DELETE_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "id": "123"}),
+            )?;
             let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
 
             ctx.client
@@ -445,7 +516,11 @@ pub async fn tools_call<
             }))
         }
         R4_HISTORY_INSTANCE_TOOL_NAME => {
-            let args: FHIRHistoryInstanceArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRHistoryInstanceArguments = parse_arguments(
+                R4_HISTORY_INSTANCE_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "id": "123", "_count": "10"}),
+            )?;
             let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
             let params = history_params(args.count, args.since)?;
 
@@ -464,7 +539,11 @@ pub async fn tools_call<
             success_result(&json_value)
         }
         R4_HISTORY_TYPE_TOOL_NAME => {
-            let args: FHIRHistoryTypeArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRHistoryTypeArguments = parse_arguments(
+                R4_HISTORY_TYPE_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"resourceType": "Patient", "_since": "2024-01-01T00:00:00Z"}),
+            )?;
             let resource_type = parse_resource_type(&args.resource_type, &request.id)?;
             let params = history_params(args.count, args.since)?;
 
@@ -495,14 +574,22 @@ pub async fn tools_call<
             success_result(&json_value)
         }
         R4_TRANSACTION_TOOL_NAME => {
-            let args: FHIRBundleArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRBundleArguments = parse_arguments(
+                R4_TRANSACTION_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"bundle": {"resourceType": "Bundle", "type": "transaction", "entry": [{"request": {"method": "POST", "url": "Patient"}, "resource": {"resourceType": "Patient"}}]}}),
+            )?;
 
             let bundle: Bundle = serde_json::from_value(args.bundle).map_err(|e| MCPError {
                 id: request.id.clone(),
                 jsonrpc: "2.0".to_string(),
                 error: MCPErrorDetail {
                     code: 400,
-                    message: format!("Invalid transaction Bundle: '{}'", e),
+                    message: format!(
+                        "Invalid 'bundle': {e}. Expected a FHIR Bundle of type 'transaction' whose \
+                         entries each carry request.method and request.url, plus a resource for \
+                         POST and PUT"
+                    ),
                     data: None,
                 },
             })?;
@@ -519,14 +606,22 @@ pub async fn tools_call<
             success_result(&json_value)
         }
         R4_BATCH_TOOL_NAME => {
-            let args: FHIRBundleArguments = parse_arguments(request.params.arguments)?;
+            let args: FHIRBundleArguments = parse_arguments(
+                R4_BATCH_TOOL_NAME,
+                request.params.arguments,
+                serde_json::json!({"bundle": {"resourceType": "Bundle", "type": "batch", "entry": [{"request": {"method": "GET", "url": "Patient/123"}}]}}),
+            )?;
 
             let bundle: Bundle = serde_json::from_value(args.bundle).map_err(|e| MCPError {
                 id: request.id.clone(),
                 jsonrpc: "2.0".to_string(),
                 error: MCPErrorDetail {
                     code: 400,
-                    message: format!("Invalid batch Bundle: '{}'", e),
+                    message: format!(
+                        "Invalid 'bundle': {e}. Expected a FHIR Bundle of type 'batch' whose \
+                         entries each carry request.method and request.url, plus a resource for \
+                         POST and PUT"
+                    ),
                     data: None,
                 },
             })?;

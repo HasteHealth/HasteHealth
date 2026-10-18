@@ -96,6 +96,7 @@ reqwest = { version = "0.13", default-features = false }
 rust-embed = { version = "8.12.0", default-features = false }
 sentry = { version = "0.46.2", default-features = false }
 serde = { version = "1.0.229", default-features = false, features = ["alloc"] }
+serde_path_to_error = "0.1.20"
 serde_json = { version = "1.0.151", default-features = false, features = [
     "alloc",
 ] }
