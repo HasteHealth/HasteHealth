@@ -78,9 +78,12 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
         .fetch_all(pool)
         .await
         .map_err(|e| {
+            // Keep the sqlx detail (which can include connection host and user)
+            // in the log, not in the client-facing OperationOutcome.
+            tracing::error!(error = %e, "Failed to query PG search for SearchParameters");
             OperationOutcomeError::fatal(
                 IssueType::exception(),
-                format!("Failed to query PG search for SearchParameters: {e}"),
+                "Failed to resolve search parameters.".to_string(),
             )
         })?;
 
