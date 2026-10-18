@@ -318,38 +318,37 @@ impl TryFrom<&str> for ParsedParameters {
             query_string = &query_string[1..];
         }
 
-        let query_map = query_string
+        let pairs = query_string
             .split('&')
             .map(|pair| {
                 pair.split_once('=')
-                    .map(|(key, value)| (key.to_string(), value.to_string()))
                     .ok_or_else(|| ParseError::InvalidParameter(pair.to_string()))
             })
-            .collect::<Result<std::collections::HashMap<String, String>, ParseError>>()?;
+            .collect::<Result<Vec<(&str, &str)>, ParseError>>()?;
 
-        Self::try_from(&query_map)
+        Self::try_from(pairs.as_slice())
     }
 }
 
 impl TryFrom<&HashMap<String, String>> for ParsedParameters {
     type Error = ParseError;
     fn try_from(query_params: &HashMap<String, String>) -> Result<Self, ParseError> {
-        if query_params.is_empty() {
-            return Ok(Self(vec![]));
-        }
+        let pairs: Vec<(&String, &String)> = query_params.iter().collect();
 
-        let params = query_params
-            .keys()
-            .map(|param_name| {
-                let value = query_params.get(param_name).unwrap();
+        Self::try_from(pairs.as_slice())
+    }
+}
 
-                let param = Parameter::parse(param_name, value)?;
-
-                if RESULT_PARAMETERS.contains(&param.name.as_str()) {
-                    Ok(ParsedParameter::Result(param))
-                } else {
-                    Ok(ParsedParameter::Resource(param))
-                }
+/// Query pairs in order. A name that repeats stays one parameter per pair,
+/// which a search reads as every one having to match; a map cannot carry a
+/// repeat, a slice can.
+impl<Name: AsRef<str>, Value: AsRef<str>> TryFrom<&[(Name, Value)]> for ParsedParameters {
+    type Error = ParseError;
+    fn try_from(pairs: &[(Name, Value)]) -> Result<Self, ParseError> {
+        let params = pairs
+            .iter()
+            .map(|(name, value)| {
+                Parameter::parse(name.as_ref(), value.as_ref()).map(ParsedParameter::from)
             })
             .collect::<Result<Vec<ParsedParameter>, ParseError>>()?;
 
