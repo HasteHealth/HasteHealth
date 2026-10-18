@@ -12,8 +12,7 @@ use crate::{
 };
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
-    resources::{CapabilityStatement, CapabilityStatementRestResourceSearchParam},
-    terminology::SearchParamType,
+    resources::CapabilityStatementRestResourceSearchParam, terminology::SearchParamType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::scopes::{Scopes, SmartResourceScopePermission};
@@ -86,29 +85,28 @@ pub fn search_tool_parameters(
     })
 }
 
-fn resource_type_enum(capabilities: &CapabilityStatement) -> Vec<&str> {
-    let default_ = vec![];
-    capabilities
-        .rest
-        .as_ref()
-        .unwrap_or(&default_)
-        .iter()
-        .filter_map(|r| r.resource.as_ref())
-        .flatten()
-        .filter_map(|rc| rc.type_.as_str())
-        .collect()
+/// Schema of the `resourceType` argument the per-type tools share.
+///
+/// A plain string rather than an enum of every supported type: the enum ran to
+/// 155 values and, repeated on 11 tools, was close to half of the tool list.
+/// The server validates the type on each call and suggests the closest name on
+/// a miss; the capabilities tool lists the full set.
+fn resource_type_schema() -> serde_json::Value {
+    json!({
+        "type": "string",
+        "description": format!(
+            "FHIR resource type, e.g. Patient or Observation (case-sensitive). \
+             The '{}' tool lists every type this project supports.",
+            R4_CAPABILITIES_TOOL_NAME
+        ),
+    })
 }
 
-fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
-    let resource_types = resource_type_enum(capabilities);
-
+fn generate_search_schema() -> Tool {
     let input_schema = json!({
       "type": "object",
       "properties": {
-        "resourceType": {
-          "type": "string",
-          "enum": resource_types,
-        },
+        "resourceType": resource_type_schema(),
         "search_parameters": {
           "type": "object",
           "description": format!(
@@ -133,16 +131,11 @@ fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
     }
 }
 
-fn generate_get_search_parameters_tool(capabilities: &CapabilityStatement) -> Tool {
-    let resource_types = resource_type_enum(capabilities);
-
+fn generate_get_search_parameters_tool() -> Tool {
     let input_schema = json!({
       "type": "object",
       "properties": {
-        "resourceType": {
-          "type": "string",
-          "enum": resource_types,
-        },
+        "resourceType": resource_type_schema(),
       },
       "required": ["resourceType"]
     });
@@ -164,16 +157,11 @@ fn generate_get_search_parameters_tool(capabilities: &CapabilityStatement) -> To
     }
 }
 
-fn generate_get_resource_schema_tool(capabilities: &CapabilityStatement) -> Tool {
-    let resource_types = resource_type_enum(capabilities);
-
+fn generate_get_resource_schema_tool() -> Tool {
     let input_schema = json!({
       "type": "object",
       "properties": {
-        "resourceType": {
-          "type": "string",
-          "enum": resource_types,
-        },
+        "resourceType": resource_type_schema(),
       },
       "required": ["resourceType"]
     });
@@ -198,9 +186,7 @@ fn generate_get_resource_schema_tool(capabilities: &CapabilityStatement) -> Tool
     }
 }
 
-fn generate_read_tool(capabilities: &CapabilityStatement) -> Tool {
-    let resource_types = resource_type_enum(capabilities);
-
+fn generate_read_tool() -> Tool {
     Tool {
         annotations: None,
         description: Some(
@@ -210,10 +196,7 @@ fn generate_read_tool(capabilities: &CapabilityStatement) -> Tool {
         input_schema: json!({
             "type": "object",
             "properties": {
-                "resourceType": {
-                    "type": "string",
-                    "enum": resource_types,
-                },
+                "resourceType": resource_type_schema(),
                 "id": {
                     "type": "string",
                     "description": "The logical ID of the resource to read",
@@ -234,9 +217,7 @@ fn generate_read_tool(capabilities: &CapabilityStatement) -> Tool {
     }
 }
 
-fn generate_vread_tool(capabilities: &CapabilityStatement) -> Tool {
-    let resource_types = resource_type_enum(capabilities);
-
+fn generate_vread_tool() -> Tool {
     Tool {
         annotations: None,
         description: Some(
@@ -247,10 +228,7 @@ fn generate_vread_tool(capabilities: &CapabilityStatement) -> Tool {
         input_schema: json!({
             "type": "object",
             "properties": {
-                "resourceType": {
-                    "type": "string",
-                    "enum": resource_types,
-                },
+                "resourceType": resource_type_schema(),
                 "id": {
                     "type": "string",
                     "description": "The logical ID of the resource",
@@ -275,9 +253,7 @@ fn generate_vread_tool(capabilities: &CapabilityStatement) -> Tool {
     }
 }
 
-fn generate_create_tool(capabilities: &CapabilityStatement) -> Tool {
-    let resource_types = resource_type_enum(capabilities);
-
+fn generate_create_tool() -> Tool {
     Tool {
         annotations: None,
         description: Some(
@@ -288,10 +264,7 @@ fn generate_create_tool(capabilities: &CapabilityStatement) -> Tool {
         input_schema: json!({
             "type": "object",
             "properties": {
-                "resourceType": {
-                    "type": "string",
-                    "enum": resource_types,
-                },
+                "resourceType": resource_type_schema(),
                 "resource": {
                     "type": "object",
                     "description": "The FHIR resource to create. Must include resourceType field matching the resourceType parameter.",
@@ -312,9 +285,7 @@ fn generate_create_tool(capabilities: &CapabilityStatement) -> Tool {
     }
 }
 
-fn generate_update_tool(capabilities: &CapabilityStatement) -> Tool {
-    let resource_types = resource_type_enum(capabilities);
-
+fn generate_update_tool() -> Tool {
     Tool {
         annotations: None,
         description: Some(
@@ -325,10 +296,7 @@ fn generate_update_tool(capabilities: &CapabilityStatement) -> Tool {
         input_schema: json!({
             "type": "object",
             "properties": {
-                "resourceType": {
-                    "type": "string",
-                    "enum": resource_types,
-                },
+                "resourceType": resource_type_schema(),
                 "id": {
                     "type": "string",
                     "description": "The logical ID of the resource to update",
@@ -353,9 +321,7 @@ fn generate_update_tool(capabilities: &CapabilityStatement) -> Tool {
     }
 }
 
-fn generate_patch_tool(capabilities: &CapabilityStatement) -> Tool {
-    let resource_types = resource_type_enum(capabilities);
-
+fn generate_patch_tool() -> Tool {
     Tool {
         annotations: None,
         description: Some(
@@ -366,10 +332,7 @@ fn generate_patch_tool(capabilities: &CapabilityStatement) -> Tool {
         input_schema: json!({
             "type": "object",
             "properties": {
-                "resourceType": {
-                    "type": "string",
-                    "enum": resource_types,
-                },
+                "resourceType": resource_type_schema(),
                 "id": {
                     "type": "string",
                     "description": "The logical ID of the resource to patch",
@@ -415,9 +378,7 @@ fn generate_patch_tool(capabilities: &CapabilityStatement) -> Tool {
     }
 }
 
-fn generate_delete_tool(capabilities: &CapabilityStatement) -> Tool {
-    let resource_types = resource_type_enum(capabilities);
-
+fn generate_delete_tool() -> Tool {
     Tool {
         annotations: None,
         description: Some("Delete a FHIR resource by its resource type and logical ID".to_string()),
@@ -425,10 +386,7 @@ fn generate_delete_tool(capabilities: &CapabilityStatement) -> Tool {
         input_schema: json!({
             "type": "object",
             "properties": {
-                "resourceType": {
-                    "type": "string",
-                    "enum": resource_types,
-                },
+                "resourceType": resource_type_schema(),
                 "id": {
                     "type": "string",
                     "description": "The logical ID of the resource to delete",
@@ -449,9 +407,7 @@ fn generate_delete_tool(capabilities: &CapabilityStatement) -> Tool {
     }
 }
 
-fn generate_history_instance_tool(capabilities: &CapabilityStatement) -> Tool {
-    let resource_types = resource_type_enum(capabilities);
-
+fn generate_history_instance_tool() -> Tool {
     Tool {
         annotations: None,
         description: Some(
@@ -461,10 +417,7 @@ fn generate_history_instance_tool(capabilities: &CapabilityStatement) -> Tool {
         input_schema: json!({
             "type": "object",
             "properties": {
-                "resourceType": {
-                    "type": "string",
-                    "enum": resource_types,
-                },
+                "resourceType": resource_type_schema(),
                 "id": {
                     "type": "string",
                     "description": "The logical ID of the resource",
@@ -489,9 +442,7 @@ fn generate_history_instance_tool(capabilities: &CapabilityStatement) -> Tool {
     }
 }
 
-fn generate_history_type_tool(capabilities: &CapabilityStatement) -> Tool {
-    let resource_types = resource_type_enum(capabilities);
-
+fn generate_history_type_tool() -> Tool {
     Tool {
         annotations: None,
         description: Some(
@@ -501,10 +452,7 @@ fn generate_history_type_tool(capabilities: &CapabilityStatement) -> Tool {
         input_schema: json!({
             "type": "object",
             "properties": {
-                "resourceType": {
-                    "type": "string",
-                    "enum": resource_types,
-                },
+                "resourceType": resource_type_schema(),
                 "_count": {
                     "type": "string",
                     "description": "Maximum number of history entries to return",
@@ -646,21 +594,20 @@ pub async fn list_tools<
     _request: &ListToolsRequest,
     api_uri: &str,
 ) -> Result<ListToolsResult, MCPError<serde_json::Value>> {
-    let capabilities = ctx.client.capabilities(ctx.clone()).await?;
     let scopes = &ctx.user.claims.scope;
 
     let static_tools = vec![
-        generate_search_schema(&capabilities),
-        generate_get_search_parameters_tool(&capabilities),
-        generate_get_resource_schema_tool(&capabilities),
-        generate_read_tool(&capabilities),
-        generate_vread_tool(&capabilities),
-        generate_create_tool(&capabilities),
-        generate_update_tool(&capabilities),
-        generate_patch_tool(&capabilities),
-        generate_delete_tool(&capabilities),
-        generate_history_instance_tool(&capabilities),
-        generate_history_type_tool(&capabilities),
+        generate_search_schema(),
+        generate_get_search_parameters_tool(),
+        generate_get_resource_schema_tool(),
+        generate_read_tool(),
+        generate_vread_tool(),
+        generate_create_tool(),
+        generate_update_tool(),
+        generate_patch_tool(),
+        generate_delete_tool(),
+        generate_history_instance_tool(),
+        generate_history_type_tool(),
         generate_capabilities_tool(),
         generate_transaction_tool(api_uri),
         generate_batch_tool(api_uri),
