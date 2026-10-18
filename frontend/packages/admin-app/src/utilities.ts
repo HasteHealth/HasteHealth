@@ -102,6 +102,20 @@ export function resourceInstancePath(
   return `${resourceListPath(resourceType)}/${resourceId}`;
 }
 
+/**
+ * Whether a route segment is a resource type name, by the grammar the console's
+ * command parser uses. Route segments arrive percent-decoded and become request
+ * URLs, so anything else (such as `//other.example`) must not be routed.
+ */
+export function isResourceTypeName(value: string): boolean {
+  return /^[A-Z][A-Za-z0-9]*$/.test(value);
+}
+
+/** Whether a route segment is a FHIR id: `[A-Za-z0-9\-.]{1,64}`. */
+export function isResourceId(value: string): boolean {
+  return /^[A-Za-z0-9\-.]{1,64}$/.test(value);
+}
+
 /** Matches `HOSTNAME_ID_MIN_LEN` in the repository crate. */
 export const MIN_SLUG_LENGTH = 3;
 const MAX_SLUG_LENGTH = 40;
