@@ -86,6 +86,7 @@ serde_html_form = { version = "0.4.1", default-features = false, features = [
     "std",
 ] }
 serde_json = { workspace = true }
+serde_path_to_error = { workspace = true }
 sha1 = { version = "0.10.7", default-features = false }
 sha2 = { version = "0.10.9", default-features = false }
 sqlx = { workspace = true, features = [
