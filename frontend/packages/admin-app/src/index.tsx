@@ -47,6 +47,8 @@ import Projects from "./views/System/Projects";
 import {
   deriveProjectId,
   deriveTenantId,
+  isResourceId,
+  isResourceTypeName,
   legacyHostnameRedirectUrl,
 } from "./utilities";
 import * as r4Types from "@haste-health/fhir-types/r4/types";
@@ -166,6 +168,16 @@ const APP_HEADER_OFFSET = "4rem";
 
 function SystemBar() {
   const params = useParams();
+
+  // The resource type and id below are joined into request URLs, so a link
+  // with anything else in them is sent to the default view instead.
+  if (
+    (params.resourceType !== undefined &&
+      !isResourceTypeName(params.resourceType)) ||
+    (params.id !== undefined && !isResourceId(params.id))
+  ) {
+    return <Navigate to="/r/Project" replace />;
+  }
 
   return (
     <div className="flex w-full flex-col overflow-y-auto z-10">
