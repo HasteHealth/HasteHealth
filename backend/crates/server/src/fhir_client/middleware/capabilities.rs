@@ -30,12 +30,19 @@ use haste_fhir_model::r4::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_repository::Repository;
+use std::collections::HashMap;
 use std::sync::{Arc, LazyLock};
 use tokio::sync::Mutex;
 use tracing::instrument;
 
-static CAPABILITIES: LazyLock<Mutex<Option<CapabilityStatement>>> =
-    LazyLock::new(|| Mutex::new(None));
+// Keyed by (tenant, project): the statement lists that project's custom
+// operations, so a single process-wide value would serve one project's
+// operations to every other tenant (and, through the public metadata route,
+// to unauthenticated callers).
+#[allow(clippy::type_complexity)]
+static CAPABILITIES: LazyLock<
+    Mutex<HashMap<(haste_jwt::TenantId, haste_jwt::ProjectId), CapabilityStatement>>,
+> = LazyLock::new(|| Mutex::new(HashMap::new()));
 
 /// Build a `CapabilityStatementRestResourceOperation` entry from an `OperationDefinition`.
 ///
@@ -277,14 +284,15 @@ impl<B: Backend> Handler<B> for Capabilities {
                 ));
             }
 
+            let cache_key = (ctx.tenant.clone(), ctx.project.clone());
             let mut guard = CAPABILITIES.lock().await;
-            let capabilities = match &*guard {
+            let capabilities = match guard.get(&cache_key) {
                 Some(capabilities) => capabilities.clone(),
                 None => {
                     let capabilities =
                         generate_capabilities(ctx, state.repo.as_ref(), state.search.as_ref())
                             .await?;
-                    *guard = Some(capabilities.clone());
+                    guard.insert(cache_key, capabilities.clone());
                     capabilities
                 }
             };
