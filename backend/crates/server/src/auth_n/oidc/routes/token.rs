@@ -942,8 +942,7 @@ pub async fn client_credentials_to_token_response<
         .scope
         .clone()
         .unwrap_or_else(|| client_app_scopes.to_string());
-    // A malformed `scope` must be an invalid_scope error, not a panic (the old
-    // `Scopes::from` used `.expect`, which `CatchPanicLayer` turns into a 500).
+
     let requested_scopes = Scopes::try_from(requested.as_str()).map_err(|_| {
         OIDCError::new(
             OIDCErrorCode::InvalidScope,

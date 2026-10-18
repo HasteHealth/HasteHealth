@@ -403,8 +403,6 @@ pub async fn authorize<
             .as_ref()
             .and_then(|s| s.value.clone())
             .unwrap_or_default();
-        // A malformed client scope must not panic the endpoint (old
-        // `Scopes::from` used `.expect`).
         let allowed = haste_jwt::scopes::Scopes::try_from(client_scope.as_str()).map_err(|_| {
             OIDCError::new(
                 OIDCErrorCode::InvalidScope,
@@ -466,9 +464,6 @@ pub async fn authorize<
         )
     })?;
 
-    // Percent-encode the parameters and avoid unwraps: a `state` containing a
-    // space, `+`, `&` or `#` previously either did not round-trip or panicked
-    // the builder (a 500 via CatchPanicLayer).
     let query = url::form_urlencoded::Serializer::new(String::new())
         .append_pair("code", authorization_code.code.as_str())
         .append_pair("state", state.as_str())

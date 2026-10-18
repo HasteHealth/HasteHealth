@@ -119,7 +119,7 @@ pub async fn scope_post<
             .as_ref()
             .and_then(|s| s.value.clone())
             .unwrap_or_default();
-        // A malformed client scope must not panic the endpoint.
+
         let allowed = Scopes::try_from(client_scope.as_str()).map_err(|_| {
             OIDCError::new(
                 OIDCErrorCode::InvalidScope,
