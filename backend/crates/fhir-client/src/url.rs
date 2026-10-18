@@ -322,10 +322,9 @@ impl TryFrom<&str> for ParsedParameters {
             .split('&')
             .map(|pair| {
                 pair.split_once('=')
-                    .map(|(key, value)| (key.to_string(), value.to_string()))
                     .ok_or_else(|| ParseError::InvalidParameter(pair.to_string()))
             })
-            .collect::<Result<Vec<(String, String)>, ParseError>>()?;
+            .collect::<Result<Vec<(&str, &str)>, ParseError>>()?;
 
         Self::try_from(pairs.as_slice())
     }
@@ -334,10 +333,7 @@ impl TryFrom<&str> for ParsedParameters {
 impl TryFrom<&HashMap<String, String>> for ParsedParameters {
     type Error = ParseError;
     fn try_from(query_params: &HashMap<String, String>) -> Result<Self, ParseError> {
-        let pairs: Vec<(String, String)> = query_params
-            .iter()
-            .map(|(name, value)| (name.clone(), value.clone()))
-            .collect();
+        let pairs: Vec<(&String, &String)> = query_params.iter().collect();
 
         Self::try_from(pairs.as_slice())
     }
@@ -346,12 +342,14 @@ impl TryFrom<&HashMap<String, String>> for ParsedParameters {
 /// Query pairs in order. A name that repeats stays one parameter per pair,
 /// which a search reads as every one having to match; a map cannot carry a
 /// repeat, a slice can.
-impl TryFrom<&[(String, String)]> for ParsedParameters {
+impl<Name: AsRef<str>, Value: AsRef<str>> TryFrom<&[(Name, Value)]> for ParsedParameters {
     type Error = ParseError;
-    fn try_from(pairs: &[(String, String)]) -> Result<Self, ParseError> {
+    fn try_from(pairs: &[(Name, Value)]) -> Result<Self, ParseError> {
         let params = pairs
             .iter()
-            .map(|(name, value)| Parameter::parse(name, value).map(ParsedParameter::from))
+            .map(|(name, value)| {
+                Parameter::parse(name.as_ref(), value.as_ref()).map(ParsedParameter::from)
+            })
             .collect::<Result<Vec<ParsedParameter>, ParseError>>()?;
 
         Ok(Self(params))
