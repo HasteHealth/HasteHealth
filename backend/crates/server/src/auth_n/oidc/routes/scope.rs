@@ -114,16 +114,20 @@ pub async fn scope_post<
         })?;
 
     if let Some("on") = scope_data.accept.as_deref() {
-        verify_requested_scope_is_subset(
-            &scope_data.scope,
-            &Scopes::from(
-                client_app
-                    .scope
-                    .as_ref()
-                    .and_then(|s| s.value.clone())
-                    .unwrap_or_default(),
-            ),
-        )?;
+        let client_scope = client_app
+            .scope
+            .as_ref()
+            .and_then(|s| s.value.clone())
+            .unwrap_or_default();
+        // A malformed client scope must not panic the endpoint.
+        let allowed = Scopes::try_from(client_scope.as_str()).map_err(|_| {
+            OIDCError::new(
+                OIDCErrorCode::InvalidScope,
+                Some("Client application has an invalid scope configured.".to_string()),
+                error_redirect_uri.clone(),
+            )
+        })?;
+        verify_requested_scope_is_subset(&scope_data.scope, &allowed)?;
 
         let client_id = client_app.id.clone().ok_or_else(|| {
             OIDCError::new(
