@@ -23,6 +23,7 @@ use tower_sessions::Session;
 
 use crate::{
     auth_n::{
+        constant_time,
         mfa::{
             routes::activate::{activate_html, mfa_activation_post_route},
             utilities::{get_aes_encryptor, get_aes_key},
@@ -58,7 +59,7 @@ pub async fn create_post<
     Cached(current_session): Cached<Session>,
     Form(create_body): Form<MFACreatePOSTBody>,
 ) -> Result<Response, OperationOutcomeError> {
-    if create_body.csrf_token != csrf_token {
+    if !constant_time::str_eq(&create_body.csrf_token, &csrf_token) {
         return Err(OperationOutcomeError::error(
             IssueType::security(),
             "Invalid CSRF token.".to_string(),

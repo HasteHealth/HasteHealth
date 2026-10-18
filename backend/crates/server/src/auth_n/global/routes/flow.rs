@@ -6,6 +6,7 @@
 
 use crate::{
     auth_n::{
+        constant_time,
         email::send_email_code,
         global::{
             bot_check::{self, Verdict},
@@ -81,7 +82,7 @@ pub fn client_ip(ip: Result<ClientIp, axum_client_ip::Rejection>) -> Option<IpAd
 }
 
 pub fn check_csrf(expected: &str, submitted: &str) -> Result<(), OperationOutcomeError> {
-    if expected == submitted {
+    if constant_time::str_eq(expected, submitted) {
         Ok(())
     } else {
         Err(OperationOutcomeError::error(
