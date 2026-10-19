@@ -3002,7 +3002,6 @@ name = "haste-sql-on-fhir"
 version = "0.126.24"
 dependencies = [
  "base64 0.22.1",
- "chrono",
  "csv",
  "futures",
  "haste-artifacts",

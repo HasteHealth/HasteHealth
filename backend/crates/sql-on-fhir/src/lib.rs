@@ -1,15 +1,13 @@
 use base64::{Engine as _, engine::general_purpose};
-use chrono::Utc;
 use futures::{StreamExt as _, stream::FuturesOrdered};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_generated_ops::generated::ViewDefinitionRun;
-use haste_fhir_model::r4::{
-    self,
-    generated::{
-        resources::{Binary, Bundle, Resource, ResourceType, ViewDefinition, ViewDefinitionSelect},
-        terminology::{BoundCode, IssueType, OutputFormatCodes},
-        types::{FHIRBase64Binary, FHIRBoolean, Reference},
+use haste_fhir_model::r4::generated::{
+    resources::{
+        Binary, BundleEntry, Resource, ResourceType, ViewDefinition, ViewDefinitionSelect,
     },
+    terminology::{BoundCode, HttpVerb, IssueType, OutputFormatCodes},
+    types::{FHIRBase64Binary, FHIRBoolean, FHIRCode, Reference},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::{Config, FPEngine};
@@ -17,7 +15,11 @@ use haste_reflect::MetaValue;
 use itertools::Itertools as _;
 use ordermap::OrderMap;
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, collections::HashMap, sync::Arc};
+use std::{
+    borrow::Cow,
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 
 use crate::conversions::primitives::PrimitiveValue;
 
@@ -168,22 +170,22 @@ async fn resolve_view_definition<
     }
 }
 
-/// Page size used both for the unfiltered `_since` history scan and for
-/// following its pagination to completion.
+/// Page size used both for the unscoped history scan and for following its
+/// pagination to completion.
 const HISTORY_PAGE_SIZE: u32 = 1000;
 
 /// Hard cap on the number of resources fetched for a single run when there's
 /// no `patient`/`group` scoping to naturally bound the working set (e.g. a
-/// view over an entire resource type's history). Without this, a client that
-/// omits `_limit` would cause the full history of a resource type to be
-/// pulled into memory before any filtering happens. A client that wants more
+/// view over an entire resource type's history). Without this, the full
+/// history of a resource type would be pulled into memory before any filtering
+/// happens. `_limit` does not lower it: it counts output rows, and history
+/// entries are filtered by `where`, collapsed to current versions and stripped
+/// of deletes before they become rows. A client that wants more
 /// than one page's worth of matching rows should page through results by
 /// re-running with `_since` set to the last-seen `lastUpdated` value.
 const MAX_RESOURCES_PER_RUN: usize = 50_000;
 
-/// The client-requested `_limit`, if any. Used both to bound how many
-/// resources are fetched (see `MAX_RESOURCES_PER_RUN`) and to truncate the
-/// final output rows.
+/// The client-requested `_limit`, if any: the most output rows to return.
 fn requested_limit(input: &ViewDefinitionRun::Input) -> Option<usize> {
     input
         .limit
@@ -233,57 +235,64 @@ async fn get_resources_to_process<
         .await;
     }
 
-    let since = since_instant.unwrap_or(r4::datetime::Instant::Iso8601(Utc::now()));
-
-    let resource_limit = requested_limit(input).map_or(MAX_RESOURCES_PER_RUN, |limit| {
-        limit.min(MAX_RESOURCES_PER_RUN)
-    });
-
-    let mut combined: Option<Bundle> = None;
+    let mut entries: Vec<BundleEntry> = Vec::new();
     let mut offset = 0u32;
-    let mut total_fetched = 0usize;
 
     loop {
-        let mut page = client
-            .history_type(
-                context.clone(),
-                resource_type.clone(),
-                vec![
-                    ("_since".to_string(), vec![since.to_string()]),
-                    ("_count".to_string(), vec![HISTORY_PAGE_SIZE.to_string()]),
-                    ("_offset".to_string(), vec![offset.to_string()]),
-                ]
-                .into(),
-            )
-            .await?;
-
-        let entry_count = page.entry.as_ref().map_or(0, Vec::len);
-        total_fetched += entry_count;
-
-        match combined.as_mut() {
-            Some(accumulated) => accumulated
-                .entry
-                .get_or_insert_with(Vec::new)
-                .extend(page.entry.take().into_iter().flatten()),
-            None => combined = Some(page),
+        let mut parameters = vec![
+            ("_count".to_string(), vec![HISTORY_PAGE_SIZE.to_string()]),
+            ("_offset".to_string(), vec![offset.to_string()]),
+        ];
+        // Without `_since` the whole history is scanned, so the view covers
+        // every resource of the type rather than only later changes.
+        if let Some(since) = since_instant.as_ref() {
+            parameters.push(("_since".to_string(), vec![since.to_string()]));
         }
 
-        if entry_count < HISTORY_PAGE_SIZE as usize || total_fetched >= resource_limit {
+        let page = client
+            .history_type(context.clone(), resource_type.clone(), parameters.into())
+            .await?
+            .entry
+            .unwrap_or_default();
+
+        let entry_count = page.len();
+        entries.extend(page);
+
+        if entry_count < HISTORY_PAGE_SIZE as usize || entries.len() >= MAX_RESOURCES_PER_RUN {
             break;
         }
 
         offset += HISTORY_PAGE_SIZE;
     }
 
-    let mut combined = combined.unwrap_or_default();
-
     // Guards against the last loop execution which could be an additional
     // 999 resources that may have been fetched in the last loop iteration.
-    if let Some(entries) = combined.entry.as_mut() {
-        entries.truncate(resource_limit);
-    }
+    entries.truncate(MAX_RESOURCES_PER_RUN);
 
-    Ok(vec![Resource::Bundle(combined)])
+    Ok(current_versions(entries))
+}
+
+/// The current version of each resource in a history, newest first as the
+/// history is. A view has one row set per resource, so earlier versions are
+/// dropped, and a resource whose latest entry is a delete is left out.
+fn current_versions(entries: Vec<BundleEntry>) -> Vec<Resource> {
+    let mut seen = HashSet::new();
+
+    entries
+        .into_iter()
+        .filter_map(|entry| {
+            let resource = entry.resource?;
+            if !seen.insert(resource.id().clone()) {
+                return None;
+            }
+
+            let deleted = entry
+                .request
+                .is_some_and(|request| request.method == HttpVerb::delete());
+
+            (!deleted).then_some(*resource)
+        })
+        .collect()
 }
 
 fn build_hashmap_fp_variables(viewdefinition: &ViewDefinition) -> HashMap<String, &dyn MetaValue> {
@@ -722,50 +731,37 @@ async fn process_view_definition<
         .and_then(|header| header.value)
         .unwrap_or(true);
 
-    match output_format {
+    // `contentType` is required on Binary; without it a client cannot read
+    // the result back.
+    let (content_type, data) = match output_format {
         binding if binding == &OutputFormatCodes::csv() => {
-            let data = output::csv::csv(&results, include_header)?;
-
-            let base64_string: String = general_purpose::STANDARD.encode(&data);
-
-            Ok(Binary {
-                data: Some(Box::new(FHIRBase64Binary {
-                    value: Some(base64_string),
-                    ..Default::default()
-                })),
-                ..Default::default()
-            })
+            ("text/csv", output::csv::csv(&results, include_header)?)
         }
         binding if binding == &OutputFormatCodes::json() => {
-            let data = output::json::json(&results)?;
-
-            let base64_string: String = general_purpose::STANDARD.encode(&data);
-
-            Ok(Binary {
-                data: Some(Box::new(FHIRBase64Binary {
-                    value: Some(base64_string),
-                    ..Default::default()
-                })),
-                ..Default::default()
-            })
+            ("application/json", output::json::json(&results)?)
         }
         binding if binding == &OutputFormatCodes::ndjson() => {
-            let data = output::ndjson::ndjson(results)?;
-            let base64_string: String = general_purpose::STANDARD.encode(&data);
-
-            Ok(Binary {
-                data: Some(Box::new(FHIRBase64Binary {
-                    value: Some(base64_string),
-                    ..Default::default()
-                })),
-                ..Default::default()
-            })
+            ("application/x-ndjson", output::ndjson::ndjson(results)?)
         }
-        _ => Err(OperationOutcomeError::error(
-            IssueType::not_supported(),
-            format!("Output format '{output_format:?}' is not supported"),
-        )),
-    }
+        _ => {
+            return Err(OperationOutcomeError::error(
+                IssueType::not_supported(),
+                format!("Output format '{output_format:?}' is not supported"),
+            ));
+        }
+    };
+
+    Ok(Binary {
+        contentType: Box::new(FHIRCode {
+            value: Some(content_type.to_string()),
+            ..Default::default()
+        }),
+        data: Some(Box::new(FHIRBase64Binary {
+            value: Some(general_purpose::STANDARD.encode(&data)),
+            ..Default::default()
+        })),
+        ..Default::default()
+    })
 }
 
 /// Runs a FHIR `ViewDefinition` and returns the generated result in the requested
