@@ -73,14 +73,14 @@ pub async fn apply_patch<Repo: Repository>(
 
     json_patch::patch(&mut json, &fhir_patch_request.patch).map_err(|e| {
         OperationOutcomeError::fatal(
-            IssueType::exception(),
+            IssueType::invalid(),
             format!("Failed to apply JSON patch: '{}'", e),
         )
     })?;
 
     let patched_resource = serde_json::from_value::<Resource>(json).map_err(|e| {
         OperationOutcomeError::fatal(
-            IssueType::exception(),
+            IssueType::invalid(),
             format!("Failed to deserialize patched resource '{}'.", e),
         )
     })?;
