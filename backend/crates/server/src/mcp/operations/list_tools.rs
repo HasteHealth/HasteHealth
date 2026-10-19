@@ -206,7 +206,7 @@ fn generate_search_schema() -> Tool {
         output_schema: Some(haste_sd_to_json_schema::bundle_of_resource(&json!({
             "type": "object"
         }))),
-        title: Some(R4_SEARCH_TOOL_NAME.to_string()),
+        title: Some("Search FHIR Resources".to_string()),
     }
 }
 
@@ -232,7 +232,7 @@ fn generate_get_search_parameters_tool() -> Tool {
             "type": "object",
             "description": "JSON Schema describing the available search parameters for the specified FHIR Resource Type",
         })),
-        title: Some(GET_SEARCH_PARAMETERS_TOOL_NAME.to_string()),
+        title: Some("Search Parameters for a Resource Type".to_string()),
     }
 }
 
@@ -261,7 +261,7 @@ fn generate_get_resource_schema_tool() -> Tool {
             "type": "object",
             "description": "JSON Schema describing the structure of the specified FHIR Resource Type",
         })),
-        title: Some(GET_RESOURCE_SCHEMA_TOOL_NAME.to_string()),
+        title: Some("JSON Schema for a Resource Type".to_string()),
     }
 }
 
