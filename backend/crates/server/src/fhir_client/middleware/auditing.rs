@@ -72,6 +72,7 @@ fn response_kind(response: &FHIRResponse) -> String {
         },
         FHIRResponse::Batch(_) => "batch".to_string(),
         FHIRResponse::Transaction(_) => "transaction".to_string(),
+        FHIRResponse::Accepted(_) => "accepted".to_string(),
     }
 }
 

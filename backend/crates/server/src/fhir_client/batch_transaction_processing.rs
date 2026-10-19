@@ -10,7 +10,7 @@ use haste_fhir_client::{
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, BundleEntryResponse, Resource},
     terminology::{BundleType, IssueType},
-    types::Reference,
+    types::{FHIRString, FHIRUri, Reference},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_reflect::MetaValue;
@@ -117,6 +117,16 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
         },
         Ok(FHIRResponse::Transaction(res)) => BundleEntry {
             resource: Some(Box::new(Resource::Bundle(res.resource))),
+            ..Default::default()
+        },
+        // An entry queued as an asynchronous job: no resource yet, only the
+        // status URL to poll, as the entry's `location`.
+        Ok(FHIRResponse::Accepted(res)) => BundleEntry {
+            response: Some(BundleEntryResponse {
+                status: Box::new(FHIRString::from("202 Accepted".to_string())),
+                location: Some(Box::new(FHIRUri::from(res.content_location))),
+                ..Default::default()
+            }),
             ..Default::default()
         },
         Err(operation_error) => {

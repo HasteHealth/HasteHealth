@@ -1,5 +1,6 @@
 use crate::request::{
-    DeleteResponse, FHIRResponse, HistoryResponse, InvokeResponse, SearchResponse,
+    DeleteResponse, FHIRAcceptedResponse, FHIRResponse, HistoryResponse, InvokeResponse,
+    SearchResponse,
 };
 use axum::response::IntoResponse;
 use haste_fhir_model::r4::generated::{
@@ -130,6 +131,8 @@ impl IntoResponse for FHIRResponse {
             FHIRResponse::Transaction(response) => {
                 FHIRResponse::ok_json(header, &response.resource)
             }
+
+            FHIRResponse::Accepted(response) => FHIRResponse::accepted(header, &response),
         }
     }
 }
@@ -159,6 +162,25 @@ impl FHIRResponse {
 
     fn no_content(header: HeaderMap) -> axum::response::Response {
         (StatusCode::NO_CONTENT, header, "").into_response()
+    }
+
+    /// No body, so no content type either: only the status URL to poll.
+    fn accepted(
+        mut header: HeaderMap,
+        response: &FHIRAcceptedResponse,
+    ) -> axum::response::Response {
+        header.remove(axum::http::header::CONTENT_TYPE);
+        match response.content_location.parse() {
+            Ok(location) => {
+                header.insert(axum::http::header::CONTENT_LOCATION, location);
+                (StatusCode::ACCEPTED, header).into_response()
+            }
+            Err(_) => OperationOutcomeError::fatal(
+                IssueType::exception(),
+                "The job's status URL is not a valid header value.".to_string(),
+            )
+            .into_response(),
+        }
     }
 
     fn not_found() -> axum::response::Response {
