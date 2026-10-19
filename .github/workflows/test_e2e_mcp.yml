@@ -1,0 +1,154 @@
+name: <Test> E2E MCP
+
+# Checks the MCP endpoint against MCP 2025-11-25 and FHIR R4, and calls every
+# tool it lists (frontend/packages/mcp-conformance). Tests titled "known gap"
+# are requirements the server does not meet yet: they run in their own step,
+# which reports their failures without failing the job. Postgres only: the MCP
+# layer does not vary by search backend.
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  # Run by audit_autofix.yml on its pull request branches.
+  workflow_dispatch: {}
+
+# Also runs on Audit Autofix branches, so the token stays read-only.
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  mcp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HASTE_CERTIFICATION_DIR: certifications
+      HASTE_ADMIN_APP_REDIRECT_URI: http://*.localhost:3001
+      HASTE_API_URI: http://localhost:3000
+      HASTE_REPO.backend: postgres
+      HASTE_REPO.database_url: postgresql://postgres:postgres@localhost:5432/haste_health
+      HASTE_SEARCH.backend: postgres
+      HASTE_SEARCH.database_url: postgresql://postgres:postgres@localhost:5432/haste_health_search
+      HASTE_SEARCH.max_connections: 20
+      RUST_LOG: none
+      SQLX_OFFLINE: true
+
+    services:
+      postgres:
+        # Google's mirror of Docker Hub, which rate-limits anonymous pulls from runners.
+        image: mirror.gcr.io/library/postgres:18.1
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_DB: haste_health
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions-rust-lang/setup-rust-toolchain@ecabd13d1c56bd1345c230e542e9144811ad706f # v2.0.0
+        with:
+          toolchain: stable
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          workspaces: "./backend -> target"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 11.9.0
+
+      - name: Setup node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 23
+
+      # The Postgres search backend indexes into its own database, kept apart
+      # from the repo's.
+      - name: Create search database
+        run: PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE haste_health_search;"
+
+      - name: Build
+        run: cargo build --locked --bin haste-health
+        working-directory: ./backend
+
+      # Only the conformance package and its dependencies, not the workspace.
+      - name: Install MCP conformance suite
+        run: pnpm install --frozen-lockfile --filter @haste-health/mcp-conformance
+        working-directory: ./frontend
+
+      - name: Run migrations
+        run: |
+          ./target/debug/haste-health admin migrate search
+          ./target/debug/haste-health admin migrate repo
+          ./target/debug/haste-health admin migrate artifacts
+        working-directory: ./backend
+
+      - name: Start server and worker
+        run: |
+          ./target/debug/haste-health server start > server.log 2>&1 &
+          ./target/debug/haste-health worker > worker.log 2>&1 &
+        working-directory: ./backend
+
+      - name: Set up tenant and client
+        run: |
+          ./target/debug/haste-health admin tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited
+          ./target/debug/haste-health admin client create --id testing --secret testing --tenant my-health --project system --grant-type client-credentials
+        working-directory: ./backend
+
+      # tools/list finds the operation tools through search, and terminology
+      # operations find their ValueSets the same way, so the artifacts have to
+      # be indexed first. This also has to come before the first token: a
+      # token lists the client's access policies found through search.
+      - name: Wait for artifacts to be indexed
+        run: bash .github/scripts/wait_for_indexing.sh 600
+
+      - name: Wait for server
+        run: curl -sf --retry 30 --retry-delay 1 --retry-all-errors http://localhost:3000/w/my-health/system/api/v1/fhir/r4/metadata > /dev/null
+
+      - name: Run MCP conformance suite
+        run: >-
+          node --test --test-concurrency=1 --test-skip-pattern="known gap"
+          --test-reporter=spec --test-reporter-destination=stdout
+          --test-reporter=junit --test-reporter-destination=mcp-conformance.xml
+          'tests/*.test.mjs'
+        working-directory: ./frontend/packages/mcp-conformance
+
+      # Requirements to address in future pull requests.
+      - name: Run known gaps
+        if: success() || failure()
+        continue-on-error: true
+        run: >-
+          node --test --test-concurrency=1 --test-name-pattern="known gap"
+          --test-reporter=spec --test-reporter-destination=stdout
+          --test-reporter=junit --test-reporter-destination=mcp-conformance-gaps.xml
+          'tests/*.test.mjs'
+        working-directory: ./frontend/packages/mcp-conformance
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: mcp-conformance
+          path: frontend/packages/mcp-conformance/mcp-conformance*.xml
+          if-no-files-found: ignore
+
+      - name: Dump logs on failure
+        if: failure()
+        run: |
+          echo "===== server.log ====="
+          tail -300 server.log || true
+          echo "===== worker.log ====="
+          tail -100 worker.log || true
+        working-directory: ./backend
