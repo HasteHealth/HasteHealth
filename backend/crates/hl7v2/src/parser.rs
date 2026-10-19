@@ -9,17 +9,28 @@ use haste_fhir_operation_error::OperationOutcomeError;
 #[derive(Debug, Clone)]
 pub struct ParsedHL7V2Message(pub HL7V2);
 
+/// Marks an element that holds an empty value. JSON drops an empty string, so
+/// without the marker an empty field, component or subcomponent would vanish
+/// and shift the positions after it. A value that is not empty needs none.
+const EMPTY_VALUE_MARKER: &str = "_non_empty";
+
 fn parse_empty_string(v: String) -> FHIRString {
+    let empty = v.is_empty();
     let mut fhir_string: FHIRString = v.into();
 
-    fhir_string.id = Some("_non_empty".to_string());
+    if empty {
+        fhir_string.id = Some(EMPTY_VALUE_MARKER.to_string());
+    }
     fhir_string
 }
 
 fn parse_empty_id(v: String) -> FHIRId {
+    let empty = v.is_empty();
     let mut fhir_id: FHIRId = v.into();
 
-    fhir_id.id = Some("_non_empty".to_string());
+    if empty {
+        fhir_id.id = Some(EMPTY_VALUE_MARKER.to_string());
+    }
     fhir_id
 }
 
