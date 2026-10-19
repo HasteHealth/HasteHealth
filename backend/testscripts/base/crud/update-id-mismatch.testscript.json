@@ -1,0 +1,367 @@
+{
+    "id": "update-id-mismatch",
+    "url": "https://haste.health/fhir/TestScript/update-id-mismatch",
+    "name": "Update rejects a body id that differs from the URL id",
+    "title": "Update id mismatch",
+    "status": "active",
+    "description": "An update whose body carries an id other than the one in the request URL is refused with an invalid OperationOutcome (HTTP 400) instead of being stored under the URL id. A conditional update whose body id differs from the matched resource is refused the same way. A body with the URL's id, or with none, is accepted.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "update-id-mismatch-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Fixture"
+                }
+            ],
+            "id": "patient",
+            "identifier": [
+                {
+                    "system": "https://haste.health/testscript/update-id-mismatch",
+                    "value": "conditional-target"
+                }
+            ]
+        },
+        {
+            "id": "put-mismatch",
+            "resourceType": "Bundle",
+            "type": "transaction",
+            "entry": [
+                {
+                    "resource": {
+                        "resourceType": "Patient",
+                        "meta": {
+                            "tag": [
+                                {
+                                    "code": "update-id-mismatch-test"
+                                }
+                            ]
+                        },
+                        "name": [
+                            {
+                                "family": "Mismatch"
+                            }
+                        ],
+                        "id": "id-mismatch-body"
+                    },
+                    "request": {
+                        "method": "PUT",
+                        "url": "Patient/id-mismatch-url"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "put-match",
+            "resourceType": "Bundle",
+            "type": "transaction",
+            "entry": [
+                {
+                    "resource": {
+                        "resourceType": "Patient",
+                        "meta": {
+                            "tag": [
+                                {
+                                    "code": "update-id-mismatch-test"
+                                }
+                            ]
+                        },
+                        "name": [
+                            {
+                                "family": "Match"
+                            }
+                        ],
+                        "id": "id-match"
+                    },
+                    "request": {
+                        "method": "PUT",
+                        "url": "Patient/id-match"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "conditional-put-mismatch",
+            "resourceType": "Bundle",
+            "type": "transaction",
+            "entry": [
+                {
+                    "resource": {
+                        "resourceType": "Patient",
+                        "meta": {
+                            "tag": [
+                                {
+                                    "code": "update-id-mismatch-test"
+                                }
+                            ]
+                        },
+                        "name": [
+                            {
+                                "family": "Conditional"
+                            }
+                        ],
+                        "id": "id-mismatch-conditional",
+                        "identifier": [
+                            {
+                                "system": "https://haste.health/testscript/update-id-mismatch",
+                                "value": "conditional-target"
+                            }
+                        ]
+                    },
+                    "request": {
+                        "method": "PUT",
+                        "url": "Patient?identifier=https://haste.health/testscript/update-id-mismatch|conditional-target"
+                    }
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-patient",
+            "resource": {
+                "reference": "#patient"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-put-mismatch",
+            "resource": {
+                "reference": "#put-mismatch"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-put-match",
+            "resource": {
+                "reference": "#put-match"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-conditional-put-mismatch",
+            "resource": {
+                "reference": "#conditional-put-mismatch"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "setup": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "create"
+                    },
+                    "resource": "Patient",
+                    "sourceId": "fixture-patient",
+                    "responseId": "patient-response",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "assert": {
+                    "label": "patient created",
+                    "direction": "response",
+                    "resource": "Patient",
+                    "warningOnly": false
+                }
+            }
+        ]
+    },
+    "test": [
+        {
+            "id": "body-id-mismatch",
+            "name": "Body id differs from the URL id",
+            "description": "A PUT whose body id differs from the URL id is refused as invalid. Sent in a transaction, since an update step sends the target's id (see fixture-id-is-local).",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "transaction"
+                        },
+                        "sourceId": "fixture-put-mismatch",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "mismatched id refused",
+                        "direction": "response",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "mismatched id refused as invalid",
+                        "expression": "OperationOutcome.issue[0].code",
+                        "value": "invalid",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "names both ids",
+                        "expression": "OperationOutcome.issue[0].diagnostics.contains('id-mismatch-body') and OperationOutcome.issue[0].diagnostics.contains('id-mismatch-url')",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "body-id-match",
+            "name": "Body id equals the URL id",
+            "description": "A PUT whose body id equals the URL id is stored under it.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "transaction"
+                        },
+                        "sourceId": "fixture-put-match",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "matching id accepted",
+                        "direction": "response",
+                        "resource": "Bundle",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "matching id stored",
+                        "expression": "Bundle.entry[0].resource.id",
+                        "value": "id-match",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "conditional-body-id-mismatch",
+            "name": "Conditional update body id differs from the match",
+            "description": "A conditional PUT that matches the setup Patient but whose body names another id is refused as invalid.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "identifier=https://haste.health/testscript/update-id-mismatch|conditional-target",
+                        "description": "Waits for the setup Patient to be indexed, which a transaction step does not.",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "setup Patient matches",
+                        "expression": "Bundle.entry.count()",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "transaction"
+                        },
+                        "sourceId": "fixture-conditional-put-mismatch",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "conditional mismatch refused",
+                        "direction": "response",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "conditional mismatch refused as invalid",
+                        "expression": "OperationOutcome.issue[0].code",
+                        "value": "invalid",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "fixture-id-is-local",
+            "name": "Update from a fixture keeps the target id",
+            "description": "An update step sends the fixture with the target's id, since a contained fixture's id is local to the TestScript.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "update"
+                        },
+                        "resource": "Patient",
+                        "targetId": "patient-response",
+                        "sourceId": "fixture-patient",
+                        "responseId": "update-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "update accepted",
+                        "direction": "response",
+                        "resource": "Patient",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "id kept",
+                        "expression": "Patient.id",
+                        "operator": "equals",
+                        "compareToSourceId": "patient-response",
+                        "compareToSourceExpression": "Patient.id",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Patient",
+                    "params": "_tag=update-id-mismatch-test",
+                    "description": "Delete Patients created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

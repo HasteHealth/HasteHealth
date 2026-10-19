@@ -471,6 +471,20 @@ impl<B: Backend> Handler<B> for Storage {
                     }))
                 }
                 FHIRRequest::Update(UpdateRequest::Instance(update_request)) => {
+                    // The URL names the resource. A body that names another
+                    // one is a client error, not a request to move it.
+                    if let Some(body_id) = update_request.resource.id()
+                        && body_id != &update_request.id
+                    {
+                        return Err(OperationOutcomeError::error(
+                            IssueType::invalid(),
+                            format!(
+                                "The resource's id '{body_id}' does not match the id '{}' in the request URL.",
+                                update_request.id
+                            ),
+                        ));
+                    }
+
                     let current = state
                         .repo
                         .read_latest(
@@ -601,8 +615,11 @@ impl<B: Backend> Handler<B> for Storage {
                                     != Some(search_result.id.as_ref())
                             {
                                 return Err(OperationOutcomeError::error(
-                                    IssueType::conflict(),
-                                    "Resource ID mismatch".to_string(),
+                                    IssueType::invalid(),
+                                    format!(
+                                        "The resource's id does not match the id '{}' of the resource the search matched.",
+                                        search_result.id.as_ref()
+                                    ),
                                 ));
                             }
 
