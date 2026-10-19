@@ -30,13 +30,35 @@ use clauses::{
 mod chained;
 pub(crate) mod clauses;
 
+/// Postgres' `query_canceled`, raised by `statement_timeout`.
+const QUERY_CANCELED: &str = "57014";
+
+/// How far a total is counted exactly before the planner's estimate answers.
+#[derive(Clone, Copy)]
+struct CountLimit {
+    max_rows: u64,
+    timeout_ms: u64,
+}
+
+/// `_total=estimate`: exact for small results, where the planner is least
+/// reliable.
+const ESTIMATE_COUNT: CountLimit = CountLimit {
+    max_rows: 10_000,
+    timeout_ms: 100,
+};
+
+/// `_total=accurate`.
+const ACCURATE_COUNT: CountLimit = CountLimit {
+    max_rows: 50_000,
+    timeout_ms: 500,
+};
+
 /// Paging, total and sort settings from the result parameters.
 struct QueryState {
     max_count: u64,
     offset: u64,
-    /// Return a total. Always the planner's estimate refined by the page (see
-    /// [`refine_estimate`]); an exact count would scan every match.
-    estimate_total: bool,
+    /// `None` when `_total` is absent or `none`.
+    total: Option<CountLimit>,
     sort: Vec<SortEntry>,
 }
 
@@ -61,13 +83,25 @@ struct SearchScope<'a, ParameterResolver> {
 struct FinalQuery {
     /// The ordered, limited page.
     page_sql: String,
-    /// `EXPLAIN` of the same filter, unordered and unlimited; its top row
-    /// estimate answers `_total`.
-    estimate_sql: String,
-    /// The page's binds. The estimate uses only the first
-    /// `estimate_param_count`, so sort and limit binds must come last.
+    /// `FROM ... WHERE ...`: the page unordered and unlimited, for totals.
+    filter_sql: String,
+    /// Totals bind only the first `filter_param_count`, so sort and limit
+    /// binds come last.
     params: Vec<SqlParam>,
-    estimate_param_count: usize,
+    filter_param_count: usize,
+}
+
+impl FinalQuery {
+    fn filter_params(&self) -> &[SqlParam] {
+        &self.params[..self.filter_param_count]
+    }
+}
+
+/// What a bounded count proved.
+enum Count {
+    Exact(i64),
+    /// Stopped at the limit or timeout.
+    AtLeast(i64),
 }
 
 type PgQuery<'q> = sqlx::query::Query<'q, Postgres, sqlx::postgres::PgArguments>;
@@ -98,7 +132,7 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
     let mut state = QueryState {
         max_count: max_count(options)?,
         offset: 0,
-        estimate_total: false,
+        total: None,
         sort: Vec::new(),
     };
     for parameter in parameters.parameters() {
@@ -128,24 +162,45 @@ pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
         &state,
     );
 
-    let page = fetch_page(pool, &query.page_sql, &query.params);
-    let (rows, estimate) = if state.estimate_total {
-        // The estimate only plans, so run it concurrently with the page.
-        let estimate_params = &query.params[..query.estimate_param_count];
-        let (rows, estimate) = tokio::try_join!(
-            page,
-            estimate_rows(pool, &query.estimate_sql, estimate_params)
-        )?;
-        (rows, Some(estimate))
-    } else {
-        (page.await?, None)
+    let rows = fetch_page(pool, &query.page_sql, &query.params).await?;
+    let total = match state.total {
+        Some(count_limit) => {
+            Some(search_total(pool, &query, count_limit, rows.len(), &state).await?)
+        }
+        None => None,
     };
 
     Ok(SearchReturn {
-        total: estimate
-            .map(|estimate| refine_estimate(estimate, rows.len(), state.offset, state.max_count)),
+        total,
         entries: rows.iter().map(search_entry).collect(),
     })
+}
+
+/// The page's total if the page proves it, else a bounded count, else the
+/// planner's estimate.
+async fn search_total(
+    pool: &Pool<Postgres>,
+    query: &FinalQuery,
+    count_limit: CountLimit,
+    returned: usize,
+    state: &QueryState,
+) -> Result<i64, OperationOutcomeError> {
+    if let Some(total) = page_total(returned, state.offset, state.max_count) {
+        return Ok(total);
+    }
+
+    match count_rows(pool, query, count_limit).await? {
+        Count::Exact(count) => Ok(count),
+        Count::AtLeast(seen) => {
+            let estimate = estimate_rows(pool, query).await?;
+            Ok(refine_estimate(
+                estimate.max(seen),
+                returned,
+                state.offset,
+                state.max_count,
+            ))
+        }
+    }
 }
 
 fn request_parts(request: &SearchRequest) -> (Option<&ResourceType>, &ParsedParameters) {
@@ -155,22 +210,28 @@ fn request_parts(request: &SearchRequest) -> (Option<&ResourceType>, &ParsedPara
     }
 }
 
-/// Corrects the planner's estimate with what the page proves: a short page is
-/// exact, a full page is a lower bound, and an empty page past the start caps
-/// the total at the offset.
-fn refine_estimate(estimate: i64, returned: usize, offset: u64, limit: u64) -> i64 {
-    let offset = offset.cast_signed();
+/// A short page that is not past the end stops at the last match.
+fn page_total(returned: usize, offset: u64, limit: u64) -> Option<i64> {
     let returned = i64::try_from(returned).unwrap_or(i64::MAX);
+    let offset = offset.cast_signed();
 
-    if returned == 0 && offset > 0 {
-        return estimate.min(offset);
+    (returned < limit.cast_signed() && (returned > 0 || offset == 0))
+        .then(|| offset.saturating_add(returned))
+}
+
+/// Corrects an estimate with the page: a short page is exact, a full page is a
+/// lower bound, an empty page past the start is an upper bound.
+fn refine_estimate(estimate: i64, returned: usize, offset: u64, limit: u64) -> i64 {
+    if let Some(total) = page_total(returned, offset, limit) {
+        return total;
     }
 
-    let seen = offset.saturating_add(returned);
-    if returned < limit.cast_signed() {
-        seen
+    let offset = offset.cast_signed();
+    let returned = i64::try_from(returned).unwrap_or(i64::MAX);
+    if returned == 0 && offset > 0 {
+        estimate.min(offset)
     } else {
-        estimate.max(seen)
+        estimate.max(offset.saturating_add(returned))
     }
 }
 
@@ -328,11 +389,11 @@ async fn apply_result_parameter<ParameterResolver: SearchParameterResolve>(
             offset: parse_u64(param)?.min(i64::MAX.cast_unsigned()),
             ..state
         },
-        // `accurate` also gets the estimate; an exact count scans every match.
         "_total" => QueryState {
-            estimate_total: match param.value.iter().map(String::as_str).collect::<Vec<_>>()[..] {
-                ["none"] => false,
-                ["estimate" | "accurate"] => true,
+            total: match param.value.iter().map(String::as_str).collect::<Vec<_>>()[..] {
+                ["none"] => None,
+                ["estimate"] => Some(ESTIMATE_COUNT),
+                ["accurate"] => Some(ACCURATE_COUNT),
                 _ => return Err(QueryBuildError::InvalidParameterValue(param.name.clone()).into()),
             },
             ..state
@@ -382,8 +443,8 @@ async fn sort_entry<ParameterResolver: SearchParameterResolve>(
     })
 }
 
-/// Combines the scope filter and parameter clauses into the page and estimate
-/// statements.
+/// Combines the scope filter and parameter clauses into the page statement and
+/// the filter totals reuse.
 fn build_final_query(
     where_clauses: &[SqlClause],
     registry: &SchemaRegistry,
@@ -458,8 +519,8 @@ fn build_final_query(
         _ => (String::new(), params),
     };
 
-    // Everything the estimate reads is bound by now.
-    let estimate_param_count = params.len();
+    // Everything the filter reads is bound by now.
+    let filter_param_count = params.len();
 
     let (order_by, params) = build_order_by(&state.sort, params);
     let (params, limit_idx) = bind(
@@ -472,21 +533,17 @@ fn build_final_query(
     let offset_idx = limit_idx + 1;
 
     let resource_table = resource_table_name(&registry.version);
+    let filter_sql = format!("FROM {resource_table} sr {join_sql}WHERE {where_sql}");
 
     FinalQuery {
         page_sql: format!(
             "SELECT sr.resource_id, sr.resource_type, sr.version_id, sr.project \
-             FROM {resource_table} sr \
-             {join_sql}\
-             WHERE {where_sql}\
-             {order_by} \
+             {filter_sql}{order_by} \
              LIMIT ${limit_idx} OFFSET ${offset_idx}",
         ),
-        estimate_sql: format!(
-            "EXPLAIN SELECT 1 FROM {resource_table} sr {join_sql}WHERE {where_sql}"
-        ),
+        filter_sql,
         params,
-        estimate_param_count,
+        filter_param_count,
     }
 }
 
@@ -576,13 +633,14 @@ async fn fetch_page(
     })
 }
 
-/// Row estimate from the top line of an `EXPLAIN`.
+/// The planner's row estimate for the filter. Plans only, so it costs the same
+/// at any size.
 async fn estimate_rows(
     pool: &Pool<Postgres>,
-    sql: &str,
-    params: &[SqlParam],
+    query: &FinalQuery,
 ) -> Result<i64, OperationOutcomeError> {
-    let top: String = bind_params(sql, params)
+    let sql = format!("EXPLAIN SELECT 1 {}", query.filter_sql);
+    let top: String = bind_params(&sql, query.filter_params())
         .fetch_one(pool)
         .await
         .map_err(|e| {
@@ -600,6 +658,49 @@ async fn estimate_rows(
             format!("PG search estimate has no row count: '{top}'"),
         )
     })
+}
+
+/// Counts matches up to one past `limit.max_rows`; the `LIMIT` stops the scan
+/// there. The transaction only scopes the timeout and rolls back on drop.
+async fn count_rows(
+    pool: &Pool<Postgres>,
+    query: &FinalQuery,
+    limit: CountLimit,
+) -> Result<Count, OperationOutcomeError> {
+    let count_failed = |e: sqlx::Error| {
+        tracing::error!(error = %e, "PG search count failed");
+        OperationOutcomeError::fatal(IssueType::exception(), "Search count failed.".to_string())
+    };
+
+    let mut tx = pool.begin().await.map_err(count_failed)?;
+    let timeout = format!("SET LOCAL statement_timeout = {}", limit.timeout_ms);
+    sqlx::query(AssertSqlSafe(timeout))
+        .execute(&mut *tx)
+        .await
+        .map_err(count_failed)?;
+
+    let sql = format!(
+        "SELECT count(*) FROM (SELECT 1 {} LIMIT {}) matches",
+        query.filter_sql,
+        limit.max_rows + 1
+    );
+    match bind_params(&sql, query.filter_params())
+        .fetch_one(&mut *tx)
+        .await
+    {
+        Ok(row) => {
+            let count: i64 = row.get(0);
+            Ok(if count > limit.max_rows.cast_signed() {
+                Count::AtLeast(count)
+            } else {
+                Count::Exact(count)
+            })
+        }
+        Err(sqlx::Error::Database(e)) if e.code().as_deref() == Some(QUERY_CANCELED) => {
+            Ok(Count::AtLeast(0))
+        }
+        Err(e) => Err(count_failed(e)),
+    }
 }
 
 /// Reads `rows=N` from a plan line like
@@ -660,7 +761,7 @@ mod tests {
         }
     }
 
-    /// The estimate drops ORDER BY and LIMIT, so it must bind exactly its own
+    /// Totals drop ORDER BY and LIMIT, so the filter must bind exactly its own
     /// placeholders or Postgres rejects it.
     #[tokio::test]
     async fn each_statement_binds_exactly_its_placeholders() {
@@ -711,7 +812,7 @@ mod tests {
             let state = QueryState {
                 max_count: 20,
                 offset: 0,
-                estimate_total: true,
+                total: Some(ACCURATE_COUNT),
                 sort: sorts,
             };
             let query = build_final_query(
@@ -734,10 +835,10 @@ mod tests {
                 query.page_sql
             );
             assert_eq!(
-                highest_placeholder(&query.estimate_sql),
-                query.estimate_param_count,
+                highest_placeholder(&query.filter_sql),
+                query.filter_param_count,
                 "{}",
-                query.estimate_sql
+                query.filter_sql
             );
         }
     }
