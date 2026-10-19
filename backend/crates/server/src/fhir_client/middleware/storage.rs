@@ -1,6 +1,6 @@
 use crate::{
     fhir_client::{
-        ClientState, FHIRServerClient, ServerCTX, ServerClientConfig, StorageError,
+        ClientState, FHIRServerClient, ServerCTX, ServerClientConfig,
         batch_transaction_processing::{
             build_sorted_transaction_graph, process_batch_bundle, process_transaction_bundle,
         },
@@ -480,13 +480,6 @@ impl<B: Backend> Handler<B> for Storage {
                             &ResourceId::new(update_request.id.clone()),
                         )
                         .await?;
-
-                    if let Some(current) = &current
-                        && std::mem::discriminant(current)
-                            != std::mem::discriminant(&update_request.resource)
-                    {
-                        return Err(StorageError::InvalidType.into());
-                    }
 
                     let resource = FHIRRepository::update(
                         state.repo.as_ref(),
