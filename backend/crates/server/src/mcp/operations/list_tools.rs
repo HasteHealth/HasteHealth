@@ -35,9 +35,8 @@ pub const R4_CAPABILITIES_TOOL_NAME: &str = "fhir_r4_capabilities";
 pub const R4_TRANSACTION_TOOL_NAME: &str = "fhir_r4_transaction";
 pub const R4_BATCH_TOOL_NAME: &str = "fhir_r4_batch";
 
-/// Returns the base URL for external JSON Schema `$ref`s.
-/// Points to the `/schemas/fhir/{ResourceType}` endpoint so MCP tool
-/// input/output schemas use external refs instead of inlining definitions.
+/// Base URL of the `/schemas/fhir/{ResourceType}` endpoint, which serves the
+/// JSON Schema of each FHIR type.
 pub fn schema_base_url(api_uri: &str) -> String {
     format!("{}/schemas/fhir", api_uri)
 }
@@ -574,9 +573,101 @@ fn generate_capabilities_tool() -> Tool {
     }
 }
 
-fn generate_transaction_tool(api_uri: &str) -> Tool {
-    let base = schema_base_url(api_uri);
+/// Schema for a transaction or batch Bundle sent to the server.
+///
+/// Written out here rather than as a `$ref` to the `/schemas/fhir/Bundle`
+/// endpoint: MCP clients must not fetch a `$ref` that resolves to a network URI,
+/// and should reject a schema they cannot resolve.
+fn request_bundle_schema(bundle_type: &str, description: &str) -> serde_json::Value {
+    json!({
+        "type": "object",
+        "description": description,
+        "properties": {
+            "resourceType": { "const": "Bundle" },
+            "type": { "const": bundle_type },
+            "entry": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "fullUrl": {
+                            "type": "string",
+                            "description": "Identifies the entry, so other entries can reference a resource created in this Bundle (for example 'urn:uuid:...').",
+                        },
+                        "resource": {
+                            "type": "object",
+                            "description": format!(
+                                "The FHIR resource to create or update. Use the '{}' tool to get its exact schema.",
+                                GET_RESOURCE_SCHEMA_TOOL_NAME
+                            ),
+                        },
+                        "request": {
+                            "type": "object",
+                            "properties": {
+                                "method": {
+                                    "enum": ["GET", "HEAD", "POST", "PUT", "DELETE", "PATCH"],
+                                },
+                                "url": {
+                                    "type": "string",
+                                    "description": "URL relative to the FHIR base, such as 'Patient', 'Patient/123' or 'Observation?subject=Patient/123'.",
+                                },
+                                "ifNoneExist": {
+                                    "type": "string",
+                                    "description": "Search query for a conditional create, such as 'identifier=http://example.org|123'.",
+                                },
+                                "ifMatch": {
+                                    "type": "string",
+                                    "description": "ETag the resource must have for the update or delete to proceed, such as 'W/\"3\"'.",
+                                },
+                            },
+                            "required": ["method", "url"],
+                        },
+                    },
+                    "required": ["request"],
+                },
+            },
+        },
+        "required": ["resourceType", "type"],
+    })
+}
 
+/// Schema for the transaction-response or batch-response Bundle the server
+/// returns: one entry per request entry, in the same order.
+fn response_bundle_schema(bundle_type: &str, description: &str) -> serde_json::Value {
+    json!({
+        "type": "object",
+        "description": description,
+        "properties": {
+            "resourceType": { "const": "Bundle" },
+            "type": { "const": bundle_type },
+            "entry": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "resource": { "type": "object" },
+                        "response": {
+                            "type": "object",
+                            "properties": {
+                                "status": { "type": "string" },
+                                "location": { "type": "string" },
+                                "etag": { "type": "string" },
+                                "lastModified": { "type": "string" },
+                                "outcome": {
+                                    "type": "object",
+                                    "description": "OperationOutcome describing why this entry failed.",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        "required": ["resourceType", "type"],
+    })
+}
+
+fn generate_transaction_tool() -> Tool {
     Tool {
         annotations: Some(ToolAnnotations::write(true, false)),
         description: Some(
@@ -587,27 +678,24 @@ fn generate_transaction_tool(api_uri: &str) -> Tool {
         input_schema: json!({
             "type": "object",
             "properties": {
-                "bundle": {
-                    "$ref": format!("{}/Bundle", base),
-                    "description": "A FHIR Bundle with type 'transaction'. Each entry must have a request element with method and url.",
-                },
+                "bundle": request_bundle_schema(
+                    "transaction",
+                    "A FHIR Bundle with type 'transaction'. Each entry must have a request element with method and url.",
+                ),
             },
             "required": ["bundle"]
         }),
         meta: None,
         name: R4_TRANSACTION_TOOL_NAME.to_string(),
-        output_schema: Some(json!({
-            "type": "object",
-            "$ref": format!("{}/Bundle", base),
-            "description": "Transaction response Bundle with one entry per request, containing status and resource outcomes.",
-        })),
+        output_schema: Some(response_bundle_schema(
+            "transaction-response",
+            "Transaction response Bundle with one entry per request, containing status and resource outcomes.",
+        )),
         title: Some("FHIR Transaction".to_string()),
     }
 }
 
-fn generate_batch_tool(api_uri: &str) -> Tool {
-    let base = schema_base_url(api_uri);
-
+fn generate_batch_tool() -> Tool {
     Tool {
         annotations: Some(ToolAnnotations::write(true, false)),
         description: Some(
@@ -618,20 +706,19 @@ fn generate_batch_tool(api_uri: &str) -> Tool {
         input_schema: json!({
             "type": "object",
             "properties": {
-                "bundle": {
-                    "$ref": format!("{}/Bundle", base),
-                    "description": "A FHIR Bundle with type 'batch'. Each entry must have a request element with method and url.",
-                },
+                "bundle": request_bundle_schema(
+                    "batch",
+                    "A FHIR Bundle with type 'batch'. Each entry must have a request element with method and url.",
+                ),
             },
             "required": ["bundle"]
         }),
         meta: None,
         name: R4_BATCH_TOOL_NAME.to_string(),
-        output_schema: Some(json!({
-            "type": "object",
-            "$ref": format!("{}/Bundle", base),
-            "description": "Batch response Bundle with one entry per request, containing individual status codes and outcomes.",
-        })),
+        output_schema: Some(response_bundle_schema(
+            "batch-response",
+            "Batch response Bundle with one entry per request, containing individual status codes and outcomes.",
+        )),
         title: Some("FHIR Batch".to_string()),
     }
 }
@@ -671,7 +758,6 @@ pub async fn list_tools<
 >(
     ctx: Arc<ServerCTX<Client>>,
     _request: &ListToolsRequest,
-    api_uri: &str,
 ) -> Result<ListToolsResult, MCPError<serde_json::Value>> {
     let scopes = &ctx.user.claims.scope;
 
@@ -688,8 +774,8 @@ pub async fn list_tools<
         generate_history_instance_tool(),
         generate_history_type_tool(),
         generate_capabilities_tool(),
-        generate_transaction_tool(api_uri),
-        generate_batch_tool(api_uri),
+        generate_transaction_tool(),
+        generate_batch_tool(),
     ];
 
     let mut tools = filter_by_scopes(static_tools, scopes);
