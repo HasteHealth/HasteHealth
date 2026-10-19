@@ -10,6 +10,7 @@ use crate::Repository;
 
 pub use pending::PendingRows;
 
+mod async_job;
 mod failed_indexing;
 mod migrate;
 mod models;
