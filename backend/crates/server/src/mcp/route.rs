@@ -83,7 +83,7 @@ async fn respond<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeErro
             .into_response())
         }
         MCPRequest::ListTools(list_tools_request) => {
-            let result = operations::list_tools(ctx, &list_tools_request, api_uri).await?;
+            let result = operations::list_tools(ctx, &list_tools_request).await?;
             Ok(Json(JSONRPCResult {
                 id: list_tools_request.id.clone(),
                 result: ServerResult::ListTools(result),
