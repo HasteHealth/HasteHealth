@@ -7,7 +7,7 @@ use crate::{
             scopes::{allows_any, allows_operation},
         },
         request::ListToolsRequest,
-        schemas::types::{ListToolsResult, Tool},
+        schemas::types::{ListToolsResult, Tool, ToolAnnotations},
     },
 };
 use haste_fhir_client::FHIRClient;
@@ -197,7 +197,7 @@ fn generate_search_schema() -> Tool {
     });
 
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::read_only()),
         description: Some("Tool for FHIR Resource Search across supported types".to_string()),
 
         input_schema,
@@ -220,7 +220,7 @@ fn generate_get_search_parameters_tool() -> Tool {
     });
 
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::read_only()),
         description: Some(
             "Tool to get available search parameters for a given FHIR Resource Type".to_string(),
         ),
@@ -246,7 +246,7 @@ fn generate_get_resource_schema_tool() -> Tool {
     });
 
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::read_only()),
         description: Some(
             "Tool to get the exact JSON Schema (Draft 2020-12) for a given FHIR Resource Type. \
              Use this to see the full field structure before creating or updating a resource, \
@@ -267,7 +267,7 @@ fn generate_get_resource_schema_tool() -> Tool {
 
 fn generate_read_tool() -> Tool {
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::read_only()),
         description: Some(
             "Read a specific FHIR resource by its resource type and logical ID".to_string(),
         ),
@@ -298,7 +298,7 @@ fn generate_read_tool() -> Tool {
 
 fn generate_vread_tool() -> Tool {
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::read_only()),
         description: Some(
             "Read a specific version of a FHIR resource by resource type, logical ID, and version ID"
                 .to_string(),
@@ -334,7 +334,7 @@ fn generate_vread_tool() -> Tool {
 
 fn generate_create_tool() -> Tool {
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::write(false, false)),
         description: Some(
             "Create a new FHIR resource. Provide the resourceType and the full resource body."
                 .to_string(),
@@ -366,7 +366,7 @@ fn generate_create_tool() -> Tool {
 
 fn generate_update_tool() -> Tool {
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::write(true, true)),
         description: Some(
             "Update an existing FHIR resource by its resource type and logical ID. Replaces the entire resource."
                 .to_string(),
@@ -402,7 +402,7 @@ fn generate_update_tool() -> Tool {
 
 fn generate_patch_tool() -> Tool {
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::write(true, false)),
         description: Some(
             "Partially update a FHIR resource using JSON Patch (RFC 6902). Provide an array of patch operations."
                 .to_string(),
@@ -459,7 +459,7 @@ fn generate_patch_tool() -> Tool {
 
 fn generate_delete_tool() -> Tool {
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::write(true, true)),
         description: Some("Delete a FHIR resource by its resource type and logical ID".to_string()),
 
         input_schema: json!({
@@ -488,7 +488,7 @@ fn generate_delete_tool() -> Tool {
 
 fn generate_history_instance_tool() -> Tool {
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::read_only()),
         description: Some(
             "Retrieve the version history for a specific FHIR resource instance".to_string(),
         ),
@@ -523,7 +523,7 @@ fn generate_history_instance_tool() -> Tool {
 
 fn generate_history_type_tool() -> Tool {
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::read_only()),
         description: Some(
             "Retrieve the version history for all resources of a given type".to_string(),
         ),
@@ -554,7 +554,7 @@ fn generate_history_type_tool() -> Tool {
 
 fn generate_capabilities_tool() -> Tool {
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::read_only()),
         description: Some(
             "Retrieve the server's CapabilityStatement describing supported resources, operations, and search parameters"
                 .to_string(),
@@ -578,7 +578,7 @@ fn generate_transaction_tool(api_uri: &str) -> Tool {
     let base = schema_base_url(api_uri);
 
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::write(true, false)),
         description: Some(
             "Execute a FHIR transaction Bundle. All entries are processed atomically — if any entry fails, the entire transaction is rolled back."
                 .to_string(),
@@ -609,7 +609,7 @@ fn generate_batch_tool(api_uri: &str) -> Tool {
     let base = schema_base_url(api_uri);
 
     Tool {
-        annotations: None,
+        annotations: Some(ToolAnnotations::write(true, false)),
         description: Some(
             "Execute a FHIR batch Bundle. Each entry is processed independently — failures in one entry do not affect others."
                 .to_string(),

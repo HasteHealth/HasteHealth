@@ -8,7 +8,10 @@
 
 use crate::{
     fhir_client::ServerCTX,
-    mcp::{error::MCPError, schemas::types::Tool},
+    mcp::{
+        error::MCPError,
+        schemas::types::{Tool, ToolAnnotations},
+    },
 };
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::resources::{
@@ -286,8 +289,24 @@ pub fn operation_to_tool(operation: &OperationTool) -> Tool {
         .or_else(|| operation.definition.name.value.clone())
         .unwrap_or_else(|| operation.tool_name.clone());
 
+    // Hints only when the definition says so: `affectsState: false` is a read,
+    // `true` a write treated as destructive and non-idempotent (the definition
+    // says no more). An absent `affectsState` makes no claim, since clients
+    // approve read-only tools without asking and none of the built-in
+    // definitions declares it yet, deletes included.
+    let annotations = match operation
+        .definition
+        .affectsState
+        .as_ref()
+        .and_then(|a| a.value)
+    {
+        Some(false) => Some(ToolAnnotations::read_only()),
+        Some(true) => Some(ToolAnnotations::write(true, false)),
+        None => None,
+    };
+
     Tool {
-        annotations: None,
+        annotations,
         description: Some(operation_description(operation)),
         input_schema: operation_input_schema(operation),
         meta: None,
