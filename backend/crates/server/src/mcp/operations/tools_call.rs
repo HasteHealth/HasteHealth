@@ -16,7 +16,7 @@ use crate::{
 };
 use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_model::r4::generated::{
-    resources::{Bundle, Resource, ResourceType},
+    resources::{Bundle, OperationOutcome, Resource, ResourceType},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -156,6 +156,18 @@ enum CallError {
 
 impl From<MCPError<serde_json::Value>> for CallError {
     fn from(error: MCPError<serde_json::Value>) -> Self {
+        // An MCPError made from a FHIR error carries its OperationOutcome as
+        // `data`. Kept a FHIR error, it is reported like any other.
+        if let Some(outcome) = error
+            .error
+            .data
+            .as_ref()
+            .and_then(serde_json::Value::as_str)
+            .and_then(|outcome| serde_json::from_str::<OperationOutcome>(outcome).ok())
+        {
+            return CallError::Fhir(OperationOutcomeError::new(None, outcome));
+        }
+
         CallError::Failed(error)
     }
 }
@@ -852,6 +864,22 @@ fn tool_error(text: String) -> CallToolResult {
     }
 }
 
+/// A failure the tool reported itself (bad arguments, an unknown type, a
+/// missing resource), in the `severity (code): text` form of a FHIR issue, so
+/// every tool error reads the same whichever layer refused the call.
+fn failed_text(error: &MCPError<serde_json::Value>) -> String {
+    let code = match error.error.code {
+        404 => "not-found",
+        409 => "conflict",
+        410 => "deleted",
+        501 => "not-supported",
+        400..=499 => "invalid",
+        _ => "exception",
+    };
+
+    format!("error ({code}): {}", error.error.message)
+}
+
 /// The issues of a FHIR error, one per line, each formatted as the JSON-RPC
 /// error message formats them, so both roads read the same.
 fn outcome_text(error: &OperationOutcomeError) -> String {
@@ -875,7 +903,7 @@ pub async fn tools_call<
         Ok(result) => Ok(result),
         Err(CallError::UnknownTool(error)) => Err(error),
         Err(CallError::Failed(error)) if answered_over_http(error.error.code) => Err(error),
-        Err(CallError::Failed(error)) => Ok(tool_error(error.error.message)),
+        Err(CallError::Failed(error)) => Ok(tool_error(failed_text(&error))),
         Err(CallError::Fhir(error))
             if answered_over_http(error.status().as_u16()) || server_fault(&error) =>
         {
