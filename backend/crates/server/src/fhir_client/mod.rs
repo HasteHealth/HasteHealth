@@ -82,6 +82,11 @@ pub enum StorageError {
     NotFound(ResourceType, String),
     #[error(code = "invalid", diagnostic = "Invalid resource type.")]
     InvalidType,
+    #[error(
+        code = "invalid",
+        diagnostic = "The resource's type '{arg0}' does not match the requested type '{arg1}'."
+    )]
+    TypeMismatch(String, String),
 }
 
 #[derive(Derivative)]
@@ -285,6 +290,33 @@ impl Lane {
             ),
             _ => true,
         }
+    }
+}
+
+/// Rejects a create or update whose body is another type than the request
+/// names. Access control, the lane and storage all go by the requested type,
+/// so a body of another type would be checked as one type and stored as
+/// another.
+fn check_body_type(request: &FHIRRequest) -> Result<(), StorageError> {
+    let (requested, resource) = match request {
+        FHIRRequest::Create(create) => (&create.resource_type, &create.resource),
+        FHIRRequest::Update(UpdateRequest::Instance(update)) => {
+            (&update.resource_type, &update.resource)
+        }
+        FHIRRequest::Update(UpdateRequest::Conditional(update)) => {
+            (&update.resource_type, &update.resource)
+        }
+        _ => return Ok(()),
+    };
+
+    let actual = resource.resource_type();
+    if &actual == requested {
+        Ok(())
+    } else {
+        Err(StorageError::TypeMismatch(
+            actual.as_ref().to_string(),
+            requested.as_ref().to_string(),
+        ))
     }
 }
 
@@ -509,6 +541,9 @@ impl<
 
     /// Runs `request` through the pipeline.
     fn run(&self, ctx: Arc<ServerCTX<Self>>, request: FHIRRequest) -> Output<'_> {
+        if let Err(error) = check_body_type(&request) {
+            return Box::pin(async move { Err(error.into()) });
+        }
         self.pipeline.run(&self.state, ctx, request)
     }
 }
