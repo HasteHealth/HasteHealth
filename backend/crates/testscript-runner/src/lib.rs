@@ -156,7 +156,7 @@ fn response_to_meta_value(response: &Response) -> Option<&dyn MetaValue> {
                 InvokeResponse::System(res) => Some(&res.resource),
             },
 
-            FHIRResponse::Delete(_) => None,
+            FHIRResponse::Delete(_) | FHIRResponse::Accepted(_) => None,
         },
         Response::OperationError(op_error) => {
             let outcome = op_error.outcome();
