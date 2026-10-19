@@ -347,7 +347,10 @@ impl FHIRTerminology for FHIRCanonicalTerminology {
             },
             display: None,
             message: Some(FHIRString {
-                value: Some("Code is valid in the ValueSet".to_string()),
+                value: Some(format!(
+                    "Code '{}' is not in the ValueSet",
+                    code.value.as_deref().unwrap_or_default()
+                )),
                 ..Default::default()
             }),
         })

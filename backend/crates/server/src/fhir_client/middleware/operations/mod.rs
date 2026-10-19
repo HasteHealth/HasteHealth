@@ -3,7 +3,8 @@ use crate::fhir_client::{
     middleware::{Backend, Handler, Output, operation_definitions},
 };
 use haste_fhir_client::request::{
-    FHIRInvokeSystemResponse, FHIRRequest, FHIRResponse, InvocationRequest, InvokeResponse,
+    FHIRInvokeInstanceResponse, FHIRInvokeSystemResponse, FHIRInvokeTypeResponse, FHIRRequest,
+    FHIRResponse, InvocationRequest, InvokeResponse,
 };
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType},
@@ -109,6 +110,20 @@ fn invocation(request: &InvocationRequest) -> (&str, &'static str, String) {
     }
 }
 
+/// The response to `request`, at the level it was invoked at. The typed client
+/// methods (`invoke_instance`, `invoke_type`) only accept their own level.
+fn invoke_response(request: &InvocationRequest, resource: Resource) -> FHIRResponse {
+    FHIRResponse::Invoke(match request {
+        InvocationRequest::Instance(_) => {
+            InvokeResponse::Instance(FHIRInvokeInstanceResponse { resource })
+        }
+        InvocationRequest::Type(_) => InvokeResponse::Type(FHIRInvokeTypeResponse { resource }),
+        InvocationRequest::System(_) => {
+            InvokeResponse::System(FHIRInvokeSystemResponse { resource })
+        }
+    })
+}
+
 impl<B: Backend> Handler<B> for Operations<B> {
     fn handle<'a>(
         &'a self,
@@ -137,9 +152,7 @@ impl<B: Backend> Handler<B> for Operations<B> {
                     )
                     .await?;
 
-                return Ok(FHIRResponse::Invoke(InvokeResponse::System(
-                    FHIRInvokeSystemResponse { resource: output },
-                )));
+                return Ok(invoke_response(invoke_request, output));
             }
 
             // The project's definitions of this code at this level. The
@@ -186,11 +199,10 @@ impl<B: Backend> Handler<B> for Operations<B> {
                 )
                 .await?;
 
-            Ok(FHIRResponse::Invoke(InvokeResponse::System(
-                FHIRInvokeSystemResponse {
-                    resource: Resource::Parameters(output),
-                },
-            )))
+            Ok(invoke_response(
+                invoke_request,
+                Resource::Parameters(output),
+            ))
         })
     }
 }
