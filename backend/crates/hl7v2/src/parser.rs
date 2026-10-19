@@ -75,8 +75,24 @@ impl TryFrom<&str> for ParsedHL7V2Message {
             let segment_id = segment.next().ok_or_else(|| {
                 OperationOutcomeError::error(IssueType::invalid(), "Missing segment ID".to_string())
             })?;
+            let is_header = segment_id == "MSH";
 
-            let segment_fields = segment.map(|field| {
+            let segment_fields = segment.enumerate().map(|(index, field)| {
+                // MSH-2 holds the encoding characters themselves, so it is
+                // kept as one value rather than split on them.
+                if is_header && index == 0 {
+                    return HL7V2SegmentsFields {
+                        value: Some(HL7V2SegmentsFieldsValue {
+                            value: Some(HL7V2SegmentsFieldsValueValue {
+                                value: Some(Box::new(parse_empty_string(field.to_string()))),
+                                subcomponents: None,
+                            }),
+                            components: None,
+                        }),
+                        repetitions: None,
+                    };
+                }
+
                 let fields = field
                     .split(encoding_characters.chars().nth(1).unwrap_or('~'))
                     .map(|field| {
