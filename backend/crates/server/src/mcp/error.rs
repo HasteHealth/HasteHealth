@@ -105,8 +105,9 @@ struct ErrorResponseDetail<'a, T> {
 }
 
 /// One issue as a model should read it: severity and code, the diagnostics
-/// (or the details text), and the element path when the server names one.
-fn issue_line(issue: &OperationOutcomeIssue) -> String {
+/// (or the details text), and the element path when the server names one:
+/// `expression`, else `location`, which profile validation fills in instead.
+pub(crate) fn issue_line(issue: &OperationOutcomeIssue) -> String {
     let mut line = format!(
         "{} ({})",
         issue.severity.as_str().unwrap_or("error"),
@@ -132,9 +133,13 @@ fn issue_line(issue: &OperationOutcomeIssue) -> String {
     let paths: Vec<&str> = issue
         .expression
         .as_deref()
+        .filter(|expression| !expression.is_empty())
+        .or(issue.location.as_deref())
         .unwrap_or_default()
         .iter()
         .filter_map(|e| e.value.as_deref())
+        // Profile validation gives the resource root as an empty location.
+        .filter(|path| !path.is_empty())
         .collect();
     if !paths.is_empty() {
         line.push_str(" at ");

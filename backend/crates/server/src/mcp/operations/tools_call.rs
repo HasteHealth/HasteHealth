@@ -1,7 +1,7 @@
 use crate::{
     fhir_client::ServerCTX,
     mcp::{
-        error::{MCPError, MCPErrorDetail},
+        error::{MCPError, MCPErrorDetail, issue_line},
         operations::{
             GET_RESOURCE_SCHEMA_TOOL_NAME, GET_SEARCH_PARAMETERS_TOOL_NAME, OPERATION_TOOL_PREFIX,
             R4_BATCH_TOOL_NAME, R4_CAPABILITIES_TOOL_NAME, R4_CREATE_TOOL_NAME,
@@ -142,6 +142,30 @@ struct FHIRBundleArguments {
     bundle: serde_json::Value,
 }
 
+/// Why a tool call failed.
+///
+/// Per the MCP spec, naming a tool the server does not have, or a fault inside
+/// the server, is a protocol error. A tool that runs and fails (bad arguments,
+/// a FHIR error) is a tool execution error, returned as a result with `isError`
+/// set, which clients pass to the model so it can correct the call.
+enum CallError {
+    UnknownTool(MCPError<serde_json::Value>),
+    Failed(MCPError<serde_json::Value>),
+    Fhir(OperationOutcomeError),
+}
+
+impl From<MCPError<serde_json::Value>> for CallError {
+    fn from(error: MCPError<serde_json::Value>) -> Self {
+        CallError::Failed(error)
+    }
+}
+
+impl From<OperationOutcomeError> for CallError {
+    fn from(error: OperationOutcomeError) -> Self {
+        CallError::Fhir(error)
+    }
+}
+
 /// Resource types this project serves, from its CapabilityStatement. Empty
 /// when it cannot be read, which only costs the suggestion.
 async fn supported_resource_types<
@@ -213,7 +237,7 @@ async fn parse_resource_type<
     ctx: &Arc<ServerCTX<Client>>,
     resource_type: &str,
     request_id: &Option<crate::mcp::schemas::types::RequestId>,
-) -> Result<ResourceType, MCPError<serde_json::Value>> {
+) -> Result<ResourceType, CallError> {
     if let Ok(parsed) = ResourceType::try_from(resource_type) {
         return Ok(parsed);
     }
@@ -230,7 +254,7 @@ async fn parse_resource_type<
         ),
     };
 
-    Err(MCPError {
+    Err(CallError::Failed(MCPError {
         id: request_id.clone(),
         jsonrpc: "2.0".to_string(),
         error: MCPErrorDetail {
@@ -238,7 +262,7 @@ async fn parse_resource_type<
             message,
             data: None,
         },
-    })
+    }))
 }
 
 /// Helper: parse tool arguments from JSON value.
@@ -249,7 +273,7 @@ fn parse_arguments<T: serde::de::DeserializeOwned>(
     tool_name: &str,
     arguments: Option<serde_json::Value>,
     example: serde_json::Value,
-) -> Result<T, MCPError<serde_json::Value>> {
+) -> Result<T, CallError> {
     // Absent arguments read as an empty object, so the error names the first
     // missing field instead of saying a struct was expected.
     let arguments = match arguments {
@@ -284,12 +308,10 @@ fn describe_json_error(error: serde_path_to_error::Error<serde_json::Error>) -> 
 }
 
 /// Helper: build a successful CallToolResult with text + structured content.
-fn success_result(
-    value: &serde_json::Value,
-) -> Result<CallToolResult, MCPError<serde_json::Value>> {
+fn success_result(value: &serde_json::Value) -> Result<CallToolResult, CallError> {
     let text = serde_json::to_string(value).map_err(|e| {
         OperationOutcomeError::error(
-            IssueType::processing(),
+            IssueType::exception(),
             format!("Failed to serialize result: '{}'", e),
         )
     })?;
@@ -303,10 +325,10 @@ fn success_result(
 }
 
 /// Helper: serialize a Resource to JSON value.
-fn resource_to_json(resource: &Resource) -> Result<serde_json::Value, MCPError<serde_json::Value>> {
+fn resource_to_json(resource: &Resource) -> Result<serde_json::Value, CallError> {
     serde_json::to_value(resource).map_err(|e| {
         OperationOutcomeError::error(
-            IssueType::processing(),
+            IssueType::exception(),
             format!("Failed to serialize resource: '{}'", e),
         )
         .into()
@@ -314,7 +336,7 @@ fn resource_to_json(resource: &Resource) -> Result<serde_json::Value, MCPError<s
 }
 
 /// Helper: deserialize a JSON value into a FHIR Resource.
-fn json_to_resource(value: serde_json::Value) -> Result<Resource, MCPError<serde_json::Value>> {
+fn json_to_resource(value: serde_json::Value) -> Result<Resource, CallError> {
     serde_path_to_error::deserialize::<_, Resource>(value).map_err(|e| {
         OperationOutcomeError::error(
             IssueType::invalid(),
@@ -332,7 +354,7 @@ fn json_to_resource(value: serde_json::Value) -> Result<Resource, MCPError<serde
 fn history_params(
     count: Option<String>,
     since: Option<String>,
-) -> Result<ParsedParameters, MCPError<serde_json::Value>> {
+) -> Result<ParsedParameters, CallError> {
     let mut params = HashMap::new();
     if let Some(c) = count {
         params.insert("_count".to_string(), c);
@@ -352,13 +374,11 @@ fn history_params(
     })
 }
 
-pub async fn tools_call<
-    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
->(
+async fn call_tool<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static>(
     ctx: Arc<ServerCTX<Client>>,
     request: CallToolRequest,
     api_uri: &str,
-) -> Result<CallToolResult, MCPError<serde_json::Value>> {
+) -> Result<CallToolResult, CallError> {
     match request.params.name.as_str() {
         R4_SEARCH_TOOL_NAME => {
             let args: FHIRSearchArguments = parse_arguments(
@@ -395,7 +415,7 @@ pub async fn tools_call<
 
             let json_value = serde_json::to_value(&result).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::processing(),
+                    IssueType::exception(),
                     format!("Failed to serialize search result: '{}'", e),
                 )
             })?;
@@ -423,7 +443,7 @@ pub async fn tools_call<
                 .as_ref()
                 .and_then(|rc| rc.searchParam.as_ref())
             else {
-                return Err(MCPError {
+                return Err(CallError::Failed(MCPError {
                     id: request.id.clone(),
                     jsonrpc: "2.0".to_string(),
                     error: MCPErrorDetail {
@@ -435,7 +455,7 @@ pub async fn tools_call<
                         ),
                         data: None,
                     },
-                });
+                }));
             };
 
             let parameters = search_tool_parameters(resource_capability_statement_params);
@@ -463,7 +483,7 @@ pub async fn tools_call<
             })?;
 
             if !response.status().is_success() {
-                return Err(MCPError {
+                return Err(CallError::Failed(MCPError {
                     id: request.id.clone(),
                     jsonrpc: "2.0".to_string(),
                     error: MCPErrorDetail {
@@ -475,7 +495,7 @@ pub async fn tools_call<
                         ),
                         data: None,
                     },
-                });
+                }));
             }
 
             let schema: serde_json::Value = response.json().await.map_err(|e| MCPError {
@@ -511,7 +531,7 @@ pub async fn tools_call<
                     let json_value = resource_to_json(&resource)?;
                     success_result(&json_value)
                 }
-                None => Err(MCPError {
+                None => Err(CallError::Failed(MCPError {
                     id: request.id.clone(),
                     jsonrpc: "2.0".to_string(),
                     error: MCPErrorDetail {
@@ -519,7 +539,7 @@ pub async fn tools_call<
                         message: format!("Resource {}/{} not found", args.resource_type, args.id),
                         data: None,
                     },
-                }),
+                })),
             }
         }
         R4_VREAD_TOOL_NAME => {
@@ -545,7 +565,7 @@ pub async fn tools_call<
                     let json_value = resource_to_json(&resource)?;
                     success_result(&json_value)
                 }
-                None => Err(MCPError {
+                None => Err(CallError::Failed(MCPError {
                     id: request.id.clone(),
                     jsonrpc: "2.0".to_string(),
                     error: MCPErrorDetail {
@@ -556,7 +576,7 @@ pub async fn tools_call<
                         ),
                         data: None,
                     },
-                }),
+                })),
             }
         }
         R4_CREATE_TOOL_NAME => {
@@ -655,7 +675,7 @@ pub async fn tools_call<
 
             let json_value = serde_json::to_value(&result).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::processing(),
+                    IssueType::exception(),
                     format!("Failed to serialize history result: '{}'", e),
                 )
             })?;
@@ -678,7 +698,7 @@ pub async fn tools_call<
 
             let json_value = serde_json::to_value(&result).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::processing(),
+                    IssueType::exception(),
                     format!("Failed to serialize history result: '{}'", e),
                 )
             })?;
@@ -690,7 +710,7 @@ pub async fn tools_call<
 
             let json_value = serde_json::to_value(&capabilities).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::processing(),
+                    IssueType::exception(),
                     format!("Failed to serialize capabilities: '{}'", e),
                 )
             })?;
@@ -722,7 +742,7 @@ pub async fn tools_call<
 
             let json_value = serde_json::to_value(&result).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::processing(),
+                    IssueType::exception(),
                     format!("Failed to serialize transaction result: '{}'", e),
                 )
             })?;
@@ -754,7 +774,7 @@ pub async fn tools_call<
 
             let json_value = serde_json::to_value(&result).map_err(|e| {
                 OperationOutcomeError::error(
-                    IssueType::processing(),
+                    IssueType::exception(),
                     format!("Failed to serialize batch result: '{}'", e),
                 )
             })?;
@@ -767,7 +787,7 @@ pub async fn tools_call<
             let operations = discover_operations(ctx.clone()).await?;
 
             let Some(operation) = operations.iter().find(|o| o.tool_name == name) else {
-                return Err(MCPError {
+                return Err(CallError::UnknownTool(MCPError {
                     id: request.id.clone(),
                     jsonrpc: "2.0".to_string(),
                     error: MCPErrorDetail {
@@ -775,7 +795,7 @@ pub async fn tools_call<
                         message: format!("Unknown operation tool: '{name}'"),
                         data: None,
                     },
-                });
+                }));
             };
 
             let result = invoke_operation(
@@ -789,7 +809,7 @@ pub async fn tools_call<
             let json_value = resource_to_json(&result)?;
             success_result(&json_value)
         }
-        _ => Err(MCPError {
+        _ => Err(CallError::UnknownTool(MCPError {
             id: request.id.clone(),
             jsonrpc: "2.0".to_string(),
             error: MCPErrorDetail {
@@ -797,6 +817,70 @@ pub async fn tools_call<
                 message: format!("Unknown tool name: '{}'", request.params.name),
                 data: None,
             },
-        }),
+        })),
+    }
+}
+
+/// Authentication, authorization and rate-limit failures stay protocol
+/// errors: MCP clients act on their HTTP status (sign in again, ask for more
+/// scopes, back off), not on a tool result.
+fn answered_over_http(status: u16) -> bool {
+    matches!(status, 401 | 403 | 429)
+}
+
+/// A fault inside the server rather than in the call, which no change to the
+/// arguments fixes, so the spec makes it a protocol error. The FHIR issue type
+/// tells: `exception` and the other transient types. HTTP 500 does not, since
+/// `status()` also gives it to `value`, `required` and other invalid input.
+fn server_fault(error: &OperationOutcomeError) -> bool {
+    error.outcome().issue.first().is_some_and(|issue| {
+        matches!(
+            issue.code.as_str(),
+            Some("exception" | "transient" | "timeout" | "lock-error" | "no-store" | "incomplete")
+        )
+    })
+}
+
+/// A failed call as a result the model reads: `isError` with the reason as text.
+/// No `structuredContent`, which would have to match the tool's output schema.
+fn tool_error(text: String) -> CallToolResult {
+    CallToolResult {
+        structured_content: None,
+        content: vec![ContentBlock::Text(TextContent::new(text))],
+        is_error: Some(true),
+        meta: None,
+    }
+}
+
+/// The issues of a FHIR error, one per line, each formatted as the JSON-RPC
+/// error message formats them, so both roads read the same.
+fn outcome_text(error: &OperationOutcomeError) -> String {
+    let issues: Vec<String> = error.outcome().issue.iter().map(issue_line).collect();
+
+    if issues.is_empty() {
+        error.to_string()
+    } else {
+        issues.join("\n")
+    }
+}
+
+pub async fn tools_call<
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+>(
+    ctx: Arc<ServerCTX<Client>>,
+    request: CallToolRequest,
+    api_uri: &str,
+) -> Result<CallToolResult, MCPError<serde_json::Value>> {
+    match call_tool(ctx, request, api_uri).await {
+        Ok(result) => Ok(result),
+        Err(CallError::UnknownTool(error)) => Err(error),
+        Err(CallError::Failed(error)) if answered_over_http(error.error.code) => Err(error),
+        Err(CallError::Failed(error)) => Ok(tool_error(error.error.message)),
+        Err(CallError::Fhir(error))
+            if answered_over_http(error.status().as_u16()) || server_fault(&error) =>
+        {
+            Err(error.into())
+        }
+        Err(CallError::Fhir(error)) => Ok(tool_error(outcome_text(&error))),
     }
 }
