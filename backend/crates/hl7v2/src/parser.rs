@@ -34,6 +34,62 @@ fn parse_empty_id(v: String) -> FHIRId {
     fhir_id
 }
 
+/// Splits one field on the repetition, component and subcomponent
+/// separators, in that order.
+fn parse_field(field: &str, encoding_characters: &str) -> HL7V2SegmentsFields {
+    let fields = field
+        .split(encoding_characters.chars().nth(1).unwrap_or('~'))
+        .map(|field| {
+            let components = field
+                .split(encoding_characters.chars().next().unwrap_or('^'))
+                .map(|component| {
+                    let subcomponent = component
+                        .split(encoding_characters.chars().nth(3).unwrap_or('&'))
+                        .collect::<Vec<_>>();
+                    if subcomponent.len() > 1 {
+                        HL7V2SegmentsFieldsValueValue {
+                            value: None,
+                            subcomponents: Some(
+                                subcomponent
+                                    .iter()
+                                    .map(|s| parse_empty_string(s.to_string()))
+                                    .collect(),
+                            ),
+                        }
+                    } else {
+                        HL7V2SegmentsFieldsValueValue {
+                            value: Some(Box::new(parse_empty_string(component.to_string()))),
+                            subcomponents: None,
+                        }
+                    }
+                })
+                .collect::<Vec<_>>();
+            if components.len() > 1 {
+                HL7V2SegmentsFieldsValue {
+                    value: None,
+                    components: Some(components),
+                }
+            } else {
+                HL7V2SegmentsFieldsValue {
+                    value: components.into_iter().next(),
+                    components: None,
+                }
+            }
+        })
+        .collect::<Vec<_>>();
+    if fields.len() > 1 {
+        HL7V2SegmentsFields {
+            value: None,
+            repetitions: Some(fields),
+        }
+    } else {
+        HL7V2SegmentsFields {
+            value: Some(fields.into_iter().next().unwrap()),
+            repetitions: None,
+        }
+    }
+}
+
 impl TryFrom<&str> for ParsedHL7V2Message {
     type Error = OperationOutcomeError;
 
@@ -93,59 +149,7 @@ impl TryFrom<&str> for ParsedHL7V2Message {
                     };
                 }
 
-                let fields = field
-                    .split(encoding_characters.chars().nth(1).unwrap_or('~'))
-                    .map(|field| {
-                        let components = field
-                            .split(encoding_characters.chars().nth(0).unwrap_or('^'))
-                            .map(|component| {
-                                let subcomponent = component
-                                    .split(encoding_characters.chars().nth(3).unwrap_or('&'))
-                                    .collect::<Vec<_>>();
-                                if subcomponent.len() > 1 {
-                                    HL7V2SegmentsFieldsValueValue {
-                                        value: None,
-                                        subcomponents: Some(
-                                            subcomponent
-                                                .iter()
-                                                .map(|s| parse_empty_string(s.to_string()))
-                                                .collect(),
-                                        ),
-                                    }
-                                } else {
-                                    HL7V2SegmentsFieldsValueValue {
-                                        value: Some(Box::new(parse_empty_string(
-                                            component.to_string(),
-                                        ))),
-                                        subcomponents: None,
-                                    }
-                                }
-                            })
-                            .collect::<Vec<_>>();
-                        if components.len() > 1 {
-                            HL7V2SegmentsFieldsValue {
-                                value: None,
-                                components: Some(components),
-                            }
-                        } else {
-                            HL7V2SegmentsFieldsValue {
-                                value: components.into_iter().next(),
-                                components: None,
-                            }
-                        }
-                    })
-                    .collect::<Vec<_>>();
-                if fields.len() > 1 {
-                    HL7V2SegmentsFields {
-                        value: None,
-                        repetitions: Some(fields),
-                    }
-                } else {
-                    HL7V2SegmentsFields {
-                        value: Some(fields.into_iter().next().unwrap()),
-                        repetitions: None,
-                    }
-                }
+                parse_field(field, &encoding_characters)
             });
 
             segments.push(HL7V2Segments {

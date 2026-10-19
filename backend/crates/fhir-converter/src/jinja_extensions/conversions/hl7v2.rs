@@ -386,13 +386,12 @@ mod tests {
 
     /// MSH-2 is the encoding characters, the first value the parser stores.
     ///
-    /// Its value contains the component separator, so the parser splits it
-    /// into components like any other field; `.1` is the first of them. The
-    /// whole field renders when no component is named.
+    /// Its value contains the separators it defines, so the parser keeps it
+    /// as one value rather than splitting it; `.1` answers with all of it.
     #[test]
     fn msh_2_is_the_encoding_characters() {
         assert_eq!(render("hl7v2.MSH[0][2]"), "^~\\&");
-        assert_eq!(render("hl7v2.MSH[0][2][1]"), "^");
+        assert_eq!(render("hl7v2.MSH[0][2][1]"), "^~\\&");
     }
 
     /// There is no field, component or subcomponent zero. Answering index 0
