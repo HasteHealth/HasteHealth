@@ -596,16 +596,26 @@ fn update_request(
 ) -> Result<FHIRRequest, TestScriptError> {
     let source_id = require_source_id(operation, pointer.path(), "Update")?;
     let source = state.resolve_fixture(source_id)?;
-    let resource = fixture_resource(source, source_id)?;
+    let mut resource = fixture_resource(source, source_id)?;
 
     let target_id = require_target_id(operation, pointer.path(), "Update")?;
     let target = state.resolve_fixture(target_id)?;
     let target_resource = fixture_resource(target, target_id)?;
+    let id = fixture_string_field(&target_resource, target_id, "id")?;
+
+    // A contained fixture's id is local to the TestScript. The update
+    // addresses the target, and the server refuses a body naming another id.
+    if let Some(body_id) = resource
+        .get_field_mut("id")
+        .and_then(|body_id| (body_id as &mut dyn Any).downcast_mut::<Option<String>>())
+    {
+        *body_id = Some(id.clone());
+    }
 
     Ok(FHIRRequest::Update(UpdateRequest::Instance(
         FHIRUpdateInstanceRequest {
             resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
-            id: fixture_string_field(&target_resource, target_id, "id")?,
+            id,
             resource,
         },
     )))
