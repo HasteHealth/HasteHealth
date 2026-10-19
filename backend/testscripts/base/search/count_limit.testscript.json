@@ -387,6 +387,159 @@
                     }
                 }
             ]
+        },
+        {
+            "id": "05-total-checks",
+            "name": "Search total checks.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=limit-count-test&_count=1&_total=accurate",
+                        "encodeRequestUrl": false,
+                        "description": "A full first page, with an accurate total."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "Accurate counts every match, not just the page.",
+                        "expression": "Bundle.total",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=limit-count-test&_count=1&_offset=1&_total=accurate",
+                        "encodeRequestUrl": false,
+                        "description": "A full middle page, with an accurate total."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "The total does not depend on the page.",
+                        "expression": "Bundle.total",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=limit-count-test&_count=5&_total=accurate",
+                        "encodeRequestUrl": false,
+                        "description": "A short first page, with an accurate total."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A short page ends at the last match.",
+                        "expression": "Bundle.total",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=limit-count-test&_count=1&_offset=2&_total=accurate",
+                        "encodeRequestUrl": false,
+                        "description": "The full last page, with an accurate total."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "A full last page still counts.",
+                        "expression": "Bundle.total",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=limit-count-test&_count=1&_offset=5&_total=accurate",
+                        "encodeRequestUrl": false,
+                        "description": "A page past the end, with an accurate total."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An empty page past the end still counts.",
+                        "expression": "Bundle.total",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=limit-count-test&_count=1&_total=estimate",
+                        "encodeRequestUrl": false,
+                        "description": "A full first page, with an estimated total."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "An estimate is exact for a small result.",
+                        "expression": "Bundle.total",
+                        "operator": "equals",
+                        "value": "3",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "_tag=limit-count-test&_count=1&_total=none",
+                        "encodeRequestUrl": false,
+                        "description": "No total."
+                    }
+                },
+                {
+                    "assert": {
+                        "description": "_total=none leaves the total out.",
+                        "expression": "Bundle.total.exists()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                }
+            ]
         }
     ],
     "teardown": {
