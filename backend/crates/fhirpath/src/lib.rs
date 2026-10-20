@@ -27,6 +27,9 @@ use std::{
 };
 
 mod allocators;
+
+#[cfg(test)]
+mod proptests;
 use allocators::AllocatorTrait;
 
 fn evaluate_literal<'b>(

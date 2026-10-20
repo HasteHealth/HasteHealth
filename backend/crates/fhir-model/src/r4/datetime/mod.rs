@@ -1,8 +1,22 @@
+use chrono::{Datelike, Days, NaiveDate};
 use regex::Regex;
 use std::sync::LazyLock;
 
 mod reflect;
 mod serialize;
+
+#[cfg(test)]
+mod proptests;
+
+/// `year` as four digits. The integer fast path, padded only when short.
+#[inline]
+fn padded_year(year: u16) -> String {
+    let mut text = year.to_string();
+    if text.len() < 4 {
+        text.insert_str(0, &"000"[..4 - text.len()]);
+    }
+    text
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum DateTime {
@@ -15,7 +29,7 @@ pub enum DateTime {
 impl ToString for DateTime {
     fn to_string(&self) -> String {
         match self {
-            DateTime::Year(year) => year.to_string(),
+            DateTime::Year(year) => padded_year(*year),
             DateTime::YearMonth(year, month) => format!("{:04}-{:02}", year, month),
             DateTime::YearMonthDay(year, month, day) => {
                 format!("{:04}-{:02}-{:02}", year, month, day)
@@ -70,7 +84,7 @@ pub enum Date {
 impl ToString for Date {
     fn to_string(&self) -> String {
         match self {
-            Date::Year(year) => year.to_string(),
+            Date::Year(year) => padded_year(*year),
             Date::YearMonth(year, month) => format!("{:04}-{:02}", year, month),
             Date::YearMonthDay(year, month, day) => {
                 format!("{:04}-{:02}-{:02}", year, month, day)
@@ -136,10 +150,58 @@ pub static TIME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"^([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?$").unwrap()
 });
 
+/// A capture the regex matched as digits.
+#[inline]
+fn captured<T: std::str::FromStr>(capture: regex::Match<'_>) -> T
+where
+    T::Err: std::fmt::Debug,
+{
+    capture.as_str().parse().expect("the regex matched digits")
+}
+
+/// The calendar date `day` of `month` names. The regexes admit any day up
+/// to 31; a day the month lacks carries into the next month as chrono
+/// counts from the first: `2023-02-30` is `2023-03-02`, `2024-06-31` is
+/// `2024-07-01`. Every month has 28 days, so only a later day is checked.
+#[inline]
+fn calendar_date(year: u16, month: u8, day: u8) -> Result<(u16, u8, u8), ParseError> {
+    let (y, m) = (i32::from(year), u32::from(month));
+    if day <= 28 || NaiveDate::from_ymd_opt(y, m, u32::from(day)).is_some() {
+        return Ok((year, month, day));
+    }
+    let carried = NaiveDate::from_ymd_opt(y, m, 1)
+        .and_then(|first| first.checked_add_days(Days::new(u64::from(day).saturating_sub(1))))
+        .ok_or(ParseError::InvalidFormat)?;
+    Ok((
+        u16::try_from(carried.year()).map_err(|_| ParseError::InvalidFormat)?,
+        u8::try_from(carried.month()).map_err(|_| ParseError::InvalidFormat)?,
+        u8::try_from(carried.day()).map_err(|_| ParseError::InvalidFormat)?,
+    ))
+}
+
+/// RFC 3339 text a regex matched, parsed. Chrono rejects a day the month
+/// lacks, so that text is parsed again with the day carried over
+/// ([`calendar_date`]); the regex fixes the date at ten characters.
+#[inline]
+fn parse_rfc3339(text: &str) -> Result<chrono::DateTime<chrono::FixedOffset>, ParseError> {
+    if let Ok(datetime) = chrono::DateTime::parse_from_rfc3339(text) {
+        return Ok(datetime);
+    }
+    let (date, time) = text.split_at(10);
+    let (year, rest) = date.split_once('-').ok_or(ParseError::InvalidFormat)?;
+    let (month, day) = rest.split_once('-').ok_or(ParseError::InvalidFormat)?;
+    let (year, month, day) = calendar_date(
+        year.parse().map_err(|_| ParseError::InvalidFormat)?,
+        month.parse().map_err(|_| ParseError::InvalidFormat)?,
+        day.parse().map_err(|_| ParseError::InvalidFormat)?,
+    )?;
+    chrono::DateTime::parse_from_rfc3339(&format!("{year:04}-{month:02}-{day:02}{time}"))
+        .map_err(|_| ParseError::InvalidFormat)
+}
+
 pub fn parse_instant(instant_string: &str) -> Result<Instant, ParseError> {
     if INSTANT_REGEX.is_match(instant_string) {
-        let datetime = chrono::DateTime::parse_from_rfc3339(instant_string)
-            .map_err(|_| ParseError::InvalidFormat)?;
+        let datetime = parse_rfc3339(instant_string)?;
         Ok(Instant::Iso8601(datetime.with_timezone(&chrono::Utc)))
     } else {
         Err(ParseError::InvalidFormat)
@@ -166,26 +228,20 @@ pub fn parse_datetime(datetime_string: &str) -> Result<DateTime, ParseError> {
             captures.name("day"),
             captures.name("time"),
         ) {
-            (Some(year), None, None, None) => {
-                let year = year.as_str().parse::<u16>().unwrap();
-                Ok(DateTime::Year(year))
-            }
+            (Some(year), None, None, None) => Ok(DateTime::Year(captured(year))),
             (Some(year), Some(month), None, None) => {
-                let year = year.as_str().parse::<u16>().unwrap();
-                let month = month.as_str().parse::<u8>().unwrap();
-                Ok(DateTime::YearMonth(year, month))
+                Ok(DateTime::YearMonth(captured(year), captured(month)))
             }
             (Some(year), Some(month), Some(day), None) => {
-                let year = year.as_str().parse::<u16>().unwrap();
-                let month = month.as_str().parse::<u8>().unwrap();
-                let day = day.as_str().parse::<u8>().unwrap();
+                let (year, month, day) =
+                    calendar_date(captured(year), captured(month), captured(day))?;
                 Ok(DateTime::YearMonthDay(year, month, day))
             }
-            _ => {
-                let datetime = chrono::DateTime::parse_from_rfc3339(datetime_string)
-                    .map_err(|_| ParseError::InvalidFormat)?;
+            (Some(_), Some(_), Some(_), Some(_)) => {
+                let datetime = parse_rfc3339(datetime_string)?;
                 Ok(DateTime::Iso8601(datetime.with_timezone(&chrono::Utc)))
             }
+            _ => Err(ParseError::InvalidFormat),
         }
     } else {
         Err(ParseError::InvalidFormat)
@@ -199,19 +255,11 @@ pub fn parse_date(date_string: &str) -> Result<Date, ParseError> {
             captures.name("month"),
             captures.name("day"),
         ) {
-            (Some(year), None, None) => {
-                let year = year.as_str().parse::<u16>().unwrap();
-                Ok(Date::Year(year))
-            }
-            (Some(year), Some(month), None) => {
-                let year = year.as_str().parse::<u16>().unwrap();
-                let month = month.as_str().parse::<u8>().unwrap();
-                Ok(Date::YearMonth(year, month))
-            }
+            (Some(year), None, None) => Ok(Date::Year(captured(year))),
+            (Some(year), Some(month), None) => Ok(Date::YearMonth(captured(year), captured(month))),
             (Some(year), Some(month), Some(day)) => {
-                let year = year.as_str().parse::<u16>().unwrap();
-                let month = month.as_str().parse::<u8>().unwrap();
-                let day = day.as_str().parse::<u8>().unwrap();
+                let (year, month, day) =
+                    calendar_date(captured(year), captured(month), captured(day))?;
                 Ok(Date::YearMonthDay(year, month, day))
             }
             _ => Err(ParseError::InvalidFormat),

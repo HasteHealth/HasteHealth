@@ -3,6 +3,9 @@ use std::{fmt::Display, sync::Arc};
 
 mod escape;
 
+#[cfg(test)]
+mod proptests;
+
 #[derive(Debug, Clone)]
 pub struct Path(String);
 

@@ -30,3 +30,14 @@ sqlx = { workspace = true, features = ["runtime-tokio", "tls-rustls-ring-native-
 sqlx-postgres = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
 tracing = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+haste-fhir-model = { path = "../fhir-model", version = "0.*", features = [
+    "testing",
+] }
+proptest = { workspace = true }
+
+[[bench]]
+name = "decimal_range_bench"
+harness = false
