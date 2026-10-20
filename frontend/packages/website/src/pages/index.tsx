@@ -6,16 +6,14 @@ import Layout from "@theme/Layout";
 import Heading from "@theme/Heading";
 
 import DataFlowDiagram from "@site/src/components/DataFlowDiagram";
-import McpPreview from "@site/src/components/McpPreview";
 import AgentSession from "@site/src/components/home/AgentSession";
 import ConformanceGrid from "@site/src/components/home/ConformanceGrid";
+import ProductGrid from "@site/src/components/home/ProductGrid";
 import { useHomepageFacts } from "@site/src/components/home/facts";
-import home from "@site/src/components/home/styles.module.css";
 import { GitHubMark, type IconName } from "@site/src/components/site/icons";
 import {
   CountUp,
   revealDelay,
-  riseDelay,
   useScrollReveal,
 } from "@site/src/components/site/motion";
 import site from "@site/src/components/site/styles.module.css";
@@ -23,7 +21,7 @@ import {
   ArrowLink,
   Button,
   Container,
-  HeroBadge,
+  Eyebrow,
   IconTile,
   LinkCard,
   SectionHeader,
@@ -39,18 +37,6 @@ import { EMPHASIZED_TIER, TIERS } from "@site/src/pricing/tiers";
 // ---------------------------------------------------------------------------
 // Content
 // ---------------------------------------------------------------------------
-
-/** The interoperability standards the server implements, as a trust bar. */
-const standards = [
-  "HL7 FHIR R4",
-  "SMART on FHIR",
-  "OAuth 2.0",
-  "OpenID Connect",
-  "Model Context Protocol",
-  "SQL on FHIR",
-  "HL7v2",
-  "FHIRPath",
-];
 
 type Feature = { icon: IconName; title: string; body: string };
 
@@ -90,54 +76,6 @@ const agentUseCases = [
 
 /** A feature that links somewhere. The label defaults to "Read the docs". */
 type LinkedFeature = Feature & { href: string; label?: string };
-
-const platform: LinkedFeature[] = [
-  {
-    icon: "database",
-    title: "A complete FHIR R4 API",
-    body: "Every R4 resource type with create, read, update, patch, delete, history, transactions and batches. Search supports modifiers and prefixes, _include, _revinclude and Patient/$everything.",
-    href: "/docs/api/rest_api/fhir/intro",
-  },
-  {
-    icon: "key",
-    title: "Authentication built in",
-    body: "An OAuth 2.0 and OpenID Connect provider with SMART on FHIR standalone launch, plus federated sign-in through Okta, Azure, Auth0, Keycloak or Google.",
-    href: "/docs/category/authentication",
-  },
-  {
-    icon: "shieldCheck",
-    title: "Fine-grained access control",
-    body: "Attribute-based policies written in FHIRPath decide who can read or write what. Assign them to people, client applications and custom operations.",
-    href: "/docs/auth/authorization/access_control",
-  },
-  {
-    icon: "layers",
-    title: "Multi-tenant by design",
-    body: "Tenants and projects are enforced at the storage and search layers, so one deployment can serve every customer, environment or business unit.",
-    href: "/docs/core_concepts/platform_architecture",
-  },
-  {
-    icon: "table",
-    title: "Analytics without a warehouse",
-    body: "SQL on FHIR ViewDefinitions flatten resources into CSV, JSON or NDJSON on demand. Point a BI tool at clinical data without building an ETL pipeline.",
-    href: "/docs/guides/sql_on_fhir",
-  },
-  {
-    icon: "code",
-    title: "Custom logic without a fork",
-    body: "Custom operations run as sandboxed TypeScript in an embedded Deno runtime, stored and versioned as FHIR OperationDefinition resources.",
-    href: "/docs/reference/fhir/model/resources/OperationDefinition",
-  },
-];
-
-/** The rest of the box, one link each. */
-const alsoIncluded = [
-  { label: "Admin console", href: "/docs/guides/admin_app" },
-  { label: "CLI", href: "/docs/tutorials/cli" },
-  { label: "TypeScript, Rust and React SDKs", href: "/docs/category/sdks" },
-  { label: "Terminology services", href: "/docs/category/terminology" },
-  { label: "HL7v2 ingestion (experimental)", href: "/docs/guides/hl7v2" },
-];
 
 const performance = [
   { prefix: "<", value: 10, unit: "ms", label: "Create and update latency" },
@@ -228,6 +166,57 @@ const ways: LinkedFeature[] = [
 // Building blocks
 // ---------------------------------------------------------------------------
 
+/**
+ * A large feature card. Below the product grid the page is a column of
+ * these, each one subject on a white panel, instead of full-bleed bands.
+ */
+function Panel({
+  children,
+  className,
+}: Readonly<{ children: ReactNode; className?: string }>) {
+  return (
+    <div
+      className={clsx(
+        "overflow-hidden rounded-3xl border border-slate-200 bg-white",
+        className,
+      )}
+      data-reveal=""
+    >
+      {children}
+    </div>
+  );
+}
+
+/** A heading inside a panel, one size down from a section header. */
+function PanelHeader({
+  eyebrow,
+  title,
+  children,
+  centered = false,
+}: Readonly<{
+  eyebrow: string;
+  title: string;
+  children?: ReactNode;
+  centered?: boolean;
+}>) {
+  return (
+    <div className={clsx("max-w-[40rem]", centered && "mx-auto text-center")}>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <Heading
+        as="h2"
+        className="mt-3 text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.02em] text-ink-950 text-balance md:text-[2.25rem]"
+      >
+        {title}
+      </Heading>
+      {children ? (
+        <p className="mt-4 text-[1.0625rem] leading-relaxed text-slate-600 md:text-lg">
+          {children}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 function FeatureCard({ feature }: Readonly<{ feature: LinkedFeature }>) {
   return (
     <LinkCard
@@ -247,176 +236,85 @@ function FeatureCard({ feature }: Readonly<{ feature: LinkedFeature }>) {
 
 function Hero() {
   return (
-    <section className="relative z-10 text-white">
-      <div className={site.heroBackdrop} aria-hidden="true">
-        <div className={site.grid} />
-        <svg
+    <section>
+      <Container className="pb-6 pt-10 md:pb-8 md:pt-16">
+        {/* Headline left, the pitch and the buttons right. The headline is
+            centred on the pitch and the buttons: its bottom padding offsets
+            the small line under the buttons, which would otherwise pull it
+            down. The grid follows at the same gap it uses between its tiles. */}
+        <div
           className={clsx(
-            home.pulseLine,
-            "absolute inset-x-0 bottom-36 h-40 w-full",
+            site.rise,
+            "grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:gap-10",
           )}
-          viewBox="0 0 1600 200"
-          preserveAspectRatio="none"
-          fill="none"
         >
-          <path
-            d="M0 100H78l18 0 16-52 22 104 18-52h1296l18 0 16-44 22 88 18-44h78"
-            stroke="white"
-            strokeOpacity="0.16"
-            strokeWidth="1.5"
-            vectorEffect="non-scaling-stroke"
-          />
-        </svg>
-      </div>
-
-      {/* A flex column, so the panel's negative margin shortens the section
-          and the panel hangs over the edge into the next one. */}
-      <Container className="relative flex flex-col pt-14 md:pt-20">
-        <div className="mx-auto flex max-w-[66rem] flex-col items-center text-center">
-          {/* The H1 and subhead already say open source; the badge carries
-              the two things a buyer comparing FHIR servers cannot get from
-              most rivals without a sales call. */}
-          <HeroBadge className={site.rise}>
-            Apache-2.0 · Published pricing · BAA available
-          </HeroBadge>
-
           {/* The category noun a buyer actually shortlists on ("FHIR
               server") leads; AI-native is the audience, not the category.
-              An H1 built on MCP alone competes on a feature every rival
-              now ships.
-
-              From the md breakpoint up it breaks into the same two lines as
-              the social card, and the size steps with the viewport so the
-              longer line, "The Open-Source FHIR Server" (about 13.7em in a
-              semibold system font), always fits the container. Below that it
-              wraps freely, and the nowrap spans keep the compound words
-              whole. */}
+              The two lines are the social card's (scripts/generate/
+              social-card.mjs), with the same accent word. */}
           <Heading
             as="h1"
-            className={clsx(
-              site.rise,
-              "mt-7 text-[2.375rem] font-semibold leading-[1.05] tracking-[-0.035em] text-white text-balance md:text-5xl lg:text-6xl xl:text-7xl",
-            )}
-            style={riseDelay(60)}
+            className="m-0 text-[2.5rem] font-semibold leading-[1.02] tracking-[-0.035em] text-ink-950 text-balance md:text-5xl lg:pb-10 xl:text-[3.25rem]"
           >
-            The <span className="whitespace-nowrap">Open-Source</span>{" "}
-            <span className="whitespace-nowrap">FHIR Server</span>{" "}
-            <span className="md:block">
+            <span className="lg:block">
+              The <span className="whitespace-nowrap">Open-Source</span>{" "}
+              <span className="whitespace-nowrap">FHIR Server</span>
+            </span>{" "}
+            <span className="lg:block">
               for{" "}
-              <span className="whitespace-nowrap text-brand-300">
+              <span className="whitespace-nowrap text-brand-700">
                 AI-Native
               </span>{" "}
               Health Apps
             </span>
           </Heading>
 
-          {/* The first sentence is the social card's subhead, word for word
-              (scripts/generate/social-card.mjs), so a link preview and the page it
-              opens say the same thing. */}
-          <p
-            className={clsx(
-              site.rise,
-              "mt-7 max-w-[46rem] text-lg leading-relaxed text-slate-300 md:text-xl",
-            )}
-            style={riseDelay(140)}
-          >
-            <span className="font-medium text-white">
-              Epic, Oracle Health and HL7v2 in. FHIR, SQL and MCP out.
-            </span>{" "}
-            One governed clinical data layer for your applications and your AI
-            agents. Self-host it under Apache-2.0, or let us run it for you with
-            a signed BAA.
-          </p>
+          <div className="max-w-[36rem]">
+            {/* The first sentence is the social card's subhead, word for
+                word, so a link preview and the page it opens say the same
+                thing. */}
+            <p className="m-0 text-lg leading-relaxed text-slate-600 text-balance">
+              <span className="font-medium text-ink-950">
+                Epic, Oracle Health and HL7v2 in. FHIR, SQL and MCP out.
+              </span>{" "}
+              One governed clinical data layer for your applications and your AI
+              agents. Self-host it under Apache-2.0, or let us run it for you
+              with a signed BAA.
+            </p>
 
-          {/* The hosted free tenant is the lowest-friction start and the path
-              to a paid tier; the demo is for the buyer who wants a person.
-              Self-hosting stays one click away on the line below. */}
-          <div
-            className={clsx(
-              site.rise,
-              "mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row",
-            )}
-            style={riseDelay(220)}
-          >
-            <Button to={SIGNUP_URL} on="dark">
-              Start for free
-            </Button>
-            <Button to={DEMO_URL} variant="secondary" on="dark">
-              Book a demo
-            </Button>
+            {/* The hosted free tenant is the lowest-friction start and the
+                path to a paid tier; the demo is for the buyer who wants a
+                person. Self-hosting stays one click away on the line below. */}
+            <div className="mt-5 flex flex-wrap items-center gap-2.5">
+              <Button to={SIGNUP_URL} size="sm">
+                Start for free
+              </Button>
+              <Button to={DEMO_URL} variant="secondary" size="sm">
+                Book a demo
+              </Button>
+            </div>
+            <p className="m-0 mt-4 text-sm text-slate-500">
+              Free hosted tenant, no credit card. Or{" "}
+              <Link
+                to={QUICK_START_URL}
+                className="font-medium text-slate-700 underline decoration-slate-300 underline-offset-4 hover:text-ink-950 hover:decoration-slate-500"
+              >
+                self-host in 5 minutes
+              </Link>
+              .
+            </p>
           </div>
-          <p
-            className={clsx(site.rise, "mt-5 text-sm text-slate-300")}
-            style={riseDelay(280)}
-          >
-            Free hosted tenant, no credit card. Or{" "}
-            <Link
-              to={QUICK_START_URL}
-              className="font-medium text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white hover:decoration-white/70"
-            >
-              self-host in 5 minutes
-            </Link>
-            .
-          </p>
-        </div>
-
-        <div
-          className={clsx(
-            site.rise,
-            "relative mx-auto -mb-24 mt-14 w-full max-w-[70rem] md:-mb-32 md:mt-16",
-          )}
-          style={riseDelay(380)}
-        >
-          <AgentSession />
         </div>
       </Container>
     </section>
   );
 }
 
-function Standards() {
+function Products() {
   return (
-    // The top padding clears the hero panel that hangs into this section.
-    <section className="border-b border-slate-200/80 bg-white pb-12 pt-36 md:pb-14 md:pt-48">
+    <section className="pb-6 md:pb-8">
       <Container>
-        <p className="text-center text-[0.8125rem] font-semibold uppercase tracking-[0.16em] text-slate-500">
-          Built on the open standards your stack already speaks
-        </p>
-        <ul className="mt-6 flex list-none flex-wrap items-center justify-center gap-x-9 gap-y-3 p-0">
-          {standards.map((standard) => (
-            <li
-              key={standard}
-              className="text-[1.0625rem] font-semibold tracking-tight text-slate-500"
-            >
-              {standard}
-            </li>
-          ))}
-        </ul>
-      </Container>
-    </section>
-  );
-}
-
-function HowItFits() {
-  return (
-    <section className="bg-white py-20 md:py-28">
-      <Container>
-        <SectionHeader
-          eyebrow="How it fits"
-          title="One clinical data layer between your systems of record and everything you build"
-          centered
-        >
-          Point EHRs, HL7v2 interfaces and other FHIR servers at Haste Health.
-          What comes out is a single, normalized FHIR R4 API for your
-          applications, your analysts and your AI agents.
-        </SectionHeader>
-
-        <div
-          className="mt-14 rounded-3xl border border-slate-200 bg-slate-50/70 p-5 sm:p-8 md:mt-16 md:p-12"
-          data-reveal=""
-        >
-          <DataFlowDiagram />
-        </div>
+        <ProductGrid />
       </Container>
     </section>
   );
@@ -426,118 +324,96 @@ function AiNative() {
   const { mcpTools } = useHomepageFacts();
 
   return (
-    <section className="relative isolate py-20 text-white md:py-28">
-      <div className={clsx(site.darkBackdrop, "-z-10")} aria-hidden="true" />
+    <section className="py-4 md:py-5">
       <Container>
-        <SectionHeader
-          eyebrow="AI-native"
-          title="Agents are first-class clients, held to first-class rules"
-          on="dark"
-        >
-          Every project serves a Model Context Protocol endpoint beside its REST
-          API. Agents get typed tools and real FHIR schemas instead of a scraped
-          UI, and each call they make is authenticated, authorized and audited
-          like any other request.
-        </SectionHeader>
+        <Panel>
+          <div className="grid lg:grid-cols-12">
+            <div className="p-7 md:p-10 lg:col-span-5 lg:p-12">
+              <PanelHeader
+                eyebrow="AI-native"
+                title="Agents are first-class clients, held to first-class rules"
+              >
+                Every project serves a Model Context Protocol endpoint beside
+                its REST API. Agents get typed tools and real FHIR schemas
+                instead of a scraped UI, and each call they make is
+                authenticated, authorized and audited like any other request.
+              </PanelHeader>
 
-        <div
-          className="mt-8 flex flex-wrap items-center gap-x-2.5 gap-y-2.5"
-          data-reveal=""
-        >
-          <span className="mr-1.5 text-base font-medium text-slate-300">
-            What you can build:
-          </span>
-          {agentUseCases.map((useCase) => (
-            <span
-              key={useCase}
-              className="rounded-full border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[0.9375rem] font-medium text-slate-200"
-            >
-              {useCase}
-            </span>
-          ))}
-        </div>
+              <div className="mt-8 flex flex-wrap items-center gap-2">
+                <span className="mr-1 text-[0.9375rem] font-medium text-slate-500">
+                  What you can build:
+                </span>
+                {agentUseCases.map((useCase) => (
+                  <span
+                    key={useCase}
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[0.8125rem] font-medium text-slate-600"
+                  >
+                    {useCase}
+                  </span>
+                ))}
+              </div>
 
-        <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:mt-14 lg:grid-cols-4">
-          {agentFeatures(mcpTools).map((feature, index) => (
-            <div key={feature.title} data-reveal="" style={revealDelay(index)}>
-              <IconTile name={feature.icon} on="dark" />
-              <h3 className="mt-5 text-lg font-semibold tracking-tight text-white">
-                {feature.title}
-              </h3>
-              <p className="mt-2 text-base leading-relaxed text-slate-300">
-                {feature.body}
-              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Button to="/docs/category/ai" size="sm">
+                  Connect Claude or Gemini
+                </Button>
+                <Button
+                  to="/docs/api/rest_api/model_context_protocol/tools"
+                  variant="secondary"
+                  size="sm"
+                >
+                  Browse the MCP tools
+                </Button>
+              </div>
             </div>
-          ))}
-        </div>
 
-        <div className="mt-14" data-reveal="">
-          <McpPreview />
-        </div>
-
-        <div
-          className="mt-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between"
-          data-reveal=""
-        >
-          <p className="max-w-[36rem] text-base leading-relaxed text-slate-300">
-            Works with Claude, Gemini and any other client that speaks MCP, and
-            with the same OAuth 2.0 flows your applications already use.
-          </p>
-          <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
-            <Button to="/docs/category/ai" on="dark">
-              Connect Claude or Gemini
-            </Button>
-            <Button
-              to="/docs/api/rest_api/model_context_protocol/tools"
-              variant="secondary"
-              on="dark"
-            >
-              Browse the MCP tools
-            </Button>
+            <div className="flex items-center border-t border-slate-200 bg-slate-50 p-4 sm:p-6 lg:col-span-7 lg:border-l lg:border-t-0 lg:p-8">
+              <div className="w-full">
+                <AgentSession />
+              </div>
+            </div>
           </div>
-        </div>
+
+          {/* Hairlines between the cells: a 1px gap over a slate background. */}
+          <div className="grid gap-px border-t border-slate-200 bg-slate-200 sm:grid-cols-2 lg:grid-cols-4">
+            {agentFeatures(mcpTools).map((feature) => (
+              <div key={feature.title} className="bg-white p-6 md:p-7">
+                <IconTile name={feature.icon} size="sm" />
+                <h3 className="m-0 mt-4 text-[1.0625rem] font-semibold tracking-tight text-ink-950">
+                  {feature.title}
+                </h3>
+                <p className="m-0 mt-1.5 text-[0.9375rem] leading-relaxed text-slate-600">
+                  {feature.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Panel>
       </Container>
     </section>
   );
 }
 
-function Platform() {
+function HowItFits() {
   return (
-    <section className="bg-white py-20 md:py-28">
+    <section className="py-4 md:py-5">
       <Container>
-        <SectionHeader
-          eyebrow="Platform"
-          title="Everything a production FHIR backend needs, already built"
-        >
-          The plumbing most healthcare teams end up writing themselves ships in
-          the box.
-        </SectionHeader>
-
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:mt-14 lg:grid-cols-3">
-          {platform.map((item, index) => (
-            <div key={item.title} data-reveal="" style={revealDelay(index % 3)}>
-              <FeatureCard feature={item} />
-            </div>
-          ))}
-        </div>
-
-        <div
-          className="mt-10 flex flex-wrap items-center gap-x-3 gap-y-3"
-          data-reveal=""
-        >
-          <span className="mr-1 text-base font-medium text-slate-500">
-            Also in the box:
-          </span>
-          {alsoIncluded.map((item) => (
-            <Link
-              key={item.label}
-              to={item.href}
-              className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-[0.9375rem] font-medium text-slate-700 no-underline transition-colors hover:border-brand-400 hover:text-brand-900 hover:no-underline"
+        <Panel>
+          <div className="px-7 pt-10 md:px-10 md:pt-12">
+            <PanelHeader
+              eyebrow="How it fits"
+              title="One clinical data layer between your systems of record and everything you build"
+              centered
             >
-              {item.label}
-            </Link>
-          ))}
-        </div>
+              Point EHRs, HL7v2 interfaces and other FHIR servers at Haste
+              Health. What comes out is a single, normalized FHIR R4 API for
+              your applications, your analysts and your AI agents.
+            </PanelHeader>
+          </div>
+          <div className="p-5 sm:p-8 md:p-12">
+            <DataFlowDiagram />
+          </div>
+        </Panel>
       </Container>
     </section>
   );
@@ -552,72 +428,74 @@ function Proof() {
   ];
 
   return (
-    <section className="border-y border-slate-200/80 bg-slate-50 py-20 md:py-28">
+    <section className="py-4 md:py-5">
       <Container>
-        <SectionHeader
-          eyebrow="Proof"
-          title="Fast under load, and tested against the specification"
-        >
-          A Rust core keeps latency low and throughput high without oversized
-          infrastructure, and every claim about FHIR support is backed by a test
-          you can read.
-        </SectionHeader>
-
-        <dl className="mt-12 grid grid-cols-2 gap-x-8 gap-y-10 lg:mt-14 lg:grid-cols-4">
-          {performance.map((stat, index) => (
-            // Term first in the markup, figure first on screen. The column is
-            // reversed, so justify-end is what pins the figure to the top.
-            <div
-              key={stat.label}
-              className="flex flex-col-reverse justify-end border-t border-slate-300 pt-5"
-              data-reveal=""
-              style={revealDelay(index)}
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Panel className="flex flex-col p-7 md:p-10">
+            <PanelHeader
+              eyebrow="Performance"
+              title="Fast under load, without oversized infrastructure"
             >
-              <dt className="mt-2 text-base leading-snug text-slate-600">
-                {stat.label}
-              </dt>
-              <dd className="m-0 text-[2.75rem] font-semibold leading-none tracking-[-0.03em] text-ink-950 md:text-[3.5rem]">
-                {stat.prefix}
-                <CountUp value={stat.value} />
-                <span className="ml-1 text-2xl font-semibold tracking-normal text-slate-500">
-                  {stat.unit}
-                </span>
-              </dd>
-            </div>
-          ))}
-        </dl>
-        <p className="mt-6 text-sm leading-relaxed text-slate-500">
-          Benchmarked on a single machine with Postgres 18 and a
-          Synthea-generated dataset, 10 threads.
-        </p>
+              A Rust core keeps latency low and throughput high on ordinary
+              hardware.
+            </PanelHeader>
 
-        <div
-          className="mt-12 grid gap-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42/0.04)] md:p-10 lg:mt-14 lg:grid-cols-12 lg:gap-14"
-          data-reveal=""
-        >
-          <div className="lg:col-span-7">
-            <p className="text-[0.8125rem] font-semibold uppercase tracking-[0.16em] text-slate-500">
-              Conformance
+            <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-8">
+              {performance.map((stat, index) => (
+                // Term first in the markup, figure first on screen. The
+                // column is reversed, so justify-end pins the figure to the
+                // top.
+                <div
+                  key={stat.label}
+                  className="flex flex-col-reverse justify-end border-t border-slate-200 pt-4"
+                  data-reveal=""
+                  style={revealDelay(index)}
+                >
+                  <dt className="mt-1.5 text-[0.9375rem] leading-snug text-slate-600">
+                    {stat.label}
+                  </dt>
+                  <dd className="m-0 text-[2.25rem] font-semibold leading-none tracking-[-0.03em] text-ink-950 md:text-[2.75rem]">
+                    {stat.prefix}
+                    <CountUp value={stat.value} />
+                    <span className="ml-1 text-xl font-semibold tracking-normal text-slate-500">
+                      {stat.unit}
+                    </span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <p className="m-0 mt-auto pt-8 text-sm leading-relaxed text-slate-500">
+              Benchmarked on a single machine with Postgres 18 and a
+              Synthea-generated dataset, 10 threads.
             </p>
-            <p className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="text-[2.75rem] font-semibold leading-none tracking-[-0.03em] text-ink-950 md:text-[3.5rem]">
+          </Panel>
+
+          <Panel className="flex flex-col p-7 md:p-10">
+            <PanelHeader
+              eyebrow="Conformance"
+              title="Tested against the specification, in public"
+            >
+              Every claim about FHIR support is backed by a test you can read.
+              Known gaps are published, not hidden.
+            </PanelHeader>
+
+            <p className="m-0 mt-8 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="text-[2.25rem] font-semibold leading-none tracking-[-0.03em] text-ink-950 md:text-[2.75rem]">
                 <CountUp value={conformance.passing} />
-                <span className="text-slate-500">
+                <span className="text-slate-400">
                   {" "}
                   / {conformance.resourceTypes}
                 </span>
               </span>
-              <span className="text-lg text-slate-600">
-                FHIR resource types pass every check
+              <span className="text-[1.0625rem] text-slate-600">
+                resource types pass every check
               </span>
             </p>
-            <div className="mt-6">
+            <div className="mt-5">
               <ConformanceGrid />
             </div>
-          </div>
 
-          <div className="flex flex-col justify-center lg:col-span-5">
-            <dl className="grid grid-cols-3 gap-4">
+            <dl className="mt-6 grid grid-cols-3 gap-4 border-t border-slate-200 pt-6">
               {coverage.map((fact) => (
                 <div
                   key={fact.label}
@@ -632,17 +510,16 @@ function Proof() {
                 </div>
               ))}
             </dl>
-            <p className="mt-6 border-t border-slate-200 pt-6 text-base leading-relaxed text-slate-600">
+            <p className="m-0 mt-5 text-sm leading-relaxed text-slate-500">
               Each square is one resource type with its own TestScript, run in
-              CI against both PostgreSQL and Elasticsearch. Known gaps are
-              published, not hidden.
+              CI against both PostgreSQL and Elasticsearch.
             </p>
-            <div className="mt-5">
+            <div className="mt-auto pt-6">
               <ArrowLink to="/docs/reference/conformance/test-coverage">
                 See the full conformance report
               </ArrowLink>
             </div>
-          </div>
+          </Panel>
         </div>
       </Container>
     </section>
@@ -651,49 +528,50 @@ function Proof() {
 
 function Security() {
   return (
-    <section className="bg-white py-20 md:py-28">
+    <section className="py-4 md:py-5">
       <Container>
-        <SectionHeader
-          eyebrow="Security and governance"
-          title="The controls a security review asks for, on by default"
-        >
-          Clinical data needs more than an API key. Haste Health ships its own
-          identity provider, policy engine and audit trail, and applies them to
-          people, services and autonomous agents alike.
-        </SectionHeader>
-
-        <div className="mt-12 grid gap-x-10 gap-y-9 sm:grid-cols-2 lg:mt-14 lg:grid-cols-3">
-          {controls.map((control, index) => (
-            <div
-              key={control.title}
-              className="flex gap-4"
-              data-reveal=""
-              style={revealDelay(index % 3)}
+        <Panel className="grid lg:grid-cols-12">
+          <div className="p-7 md:p-10 lg:col-span-5 lg:p-12">
+            <PanelHeader
+              eyebrow="Security and governance"
+              title="The controls a security review asks for, on by default"
             >
-              <IconTile name={control.icon} />
-              <div>
-                <h3 className="text-lg font-semibold tracking-tight text-ink-950">
+              Clinical data needs more than an API key. Haste Health ships its
+              own identity provider, policy engine and audit trail, and applies
+              them to people, services and autonomous agents alike.
+            </PanelHeader>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Button
+                to="/docs/core_concepts/identity_access_control"
+                size="sm"
+              >
+                Review the security model
+              </Button>
+              <Button
+                to="/docs/auth/authorization/access_control"
+                variant="secondary"
+                size="sm"
+              >
+                Explore access policies
+              </Button>
+            </div>
+          </div>
+
+          {/* Hairlines between the cells: a 1px gap over a slate background. */}
+          <div className="grid gap-px border-t border-slate-200 bg-slate-200 sm:grid-cols-2 lg:col-span-7 lg:border-l lg:border-t-0">
+            {controls.map((control) => (
+              <div key={control.title} className="bg-white p-6 md:p-7">
+                <IconTile name={control.icon} size="sm" />
+                <h3 className="m-0 mt-4 text-[1.0625rem] font-semibold tracking-tight text-ink-950">
                   {control.title}
                 </h3>
-                <p className="mt-1.5 text-base leading-relaxed text-slate-600">
+                <p className="m-0 mt-1.5 text-[0.9375rem] leading-relaxed text-slate-600">
                   {control.body}
                 </p>
               </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-12 flex flex-col gap-3 sm:flex-row" data-reveal="">
-          <Button to="/docs/core_concepts/identity_access_control">
-            Review the security model
-          </Button>
-          <Button
-            to="/docs/auth/authorization/access_control"
-            variant="secondary"
-          >
-            Explore access policies
-          </Button>
-        </div>
+            ))}
+          </div>
+        </Panel>
       </Container>
     </section>
   );
@@ -701,18 +579,19 @@ function Security() {
 
 function OpenSource() {
   return (
-    <section className="border-t border-slate-200/80 bg-slate-50 py-20 md:py-28">
+    <section className="pb-8 pt-16 md:pb-10 md:pt-24">
       <Container>
         <SectionHeader
           eyebrow="Open source"
           title="Yours to run, with or without us"
+          centered
         >
           Everything we build lands in the Apache-2.0 repository, with no
           feature gates and no license key. The hosted service runs the same
           server, on the same storage schema, that you can run yourself.
         </SectionHeader>
 
-        <div className="mt-12 grid gap-5 lg:mt-14 lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 md:mt-12 lg:grid-cols-3">
           {ways.map((way, index) => (
             <div key={way.title} data-reveal="" style={revealDelay(index)}>
               <FeatureCard feature={way} />
@@ -726,33 +605,28 @@ function OpenSource() {
 
 function FinalCta() {
   return (
-    <section className="bg-slate-50 pb-20 md:pb-28">
+    <section className="pb-20 pt-8 md:pb-28 md:pt-10">
       <Container>
         <div
-          className="relative isolate overflow-hidden rounded-3xl px-6 py-14 text-center text-white sm:px-10 md:py-20"
+          className="rounded-3xl border border-slate-200 bg-white px-6 py-14 text-center sm:px-10 md:py-20"
           data-reveal=""
         >
-          <div className={clsx(site.heroBackdrop, "-z-10")} aria-hidden="true">
-            <div className={site.grid} />
-          </div>
           <Heading
             as="h2"
-            className="mx-auto max-w-[44rem] text-[2rem] font-semibold leading-[1.12] tracking-[-0.025em] text-white text-balance md:text-[2.75rem]"
+            className="mx-auto max-w-[44rem] text-[2rem] font-semibold leading-[1.12] tracking-[-0.025em] text-ink-950 text-balance md:text-[2.75rem]"
           >
             Build on an open foundation for clinical data and AI
           </Heading>
-          <p className="mx-auto mt-5 max-w-[40rem] text-lg leading-relaxed text-slate-300 md:text-xl">
+          <p className="mx-auto mt-5 max-w-[40rem] text-lg leading-relaxed text-slate-600 md:text-xl">
             Start on a free hosted tenant in under a minute, self-host in five,
             or book a demo and talk it through with the founder.
           </p>
           <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button to={SIGNUP_URL} on="dark">
-              Start for free
-            </Button>
-            <Button to={DEMO_URL} variant="secondary" on="dark">
+            <Button to={SIGNUP_URL}>Start for free</Button>
+            <Button to={DEMO_URL} variant="secondary">
               Book a demo
             </Button>
-            <Button to={GITHUB_URL} variant="secondary" on="dark">
+            <Button to={GITHUB_URL} variant="secondary">
               <GitHubMark className="h-[1.125rem] w-[1.125rem]" />
               View on GitHub
             </Button>
@@ -799,10 +673,9 @@ export default function Home(): ReactNode {
       </Head>
       <main id="tw-scope" ref={page} className="text-ink-950">
         <Hero />
-        <Standards />
-        <HowItFits />
+        <Products />
         <AiNative />
-        <Platform />
+        <HowItFits />
         <Proof />
         <Security />
         <OpenSource />

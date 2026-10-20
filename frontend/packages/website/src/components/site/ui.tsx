@@ -4,7 +4,6 @@ import Link from "@docusaurus/Link";
 import Heading from "@theme/Heading";
 
 import { Icon, type IconName } from "./icons";
-import { riseDelay } from "./motion";
 import styles from "./styles.module.css";
 
 /*
@@ -12,10 +11,10 @@ import styles from "./styles.module.css";
  * of, so that a button or a section heading is the same thing on all three.
  * They assume the Tailwind reset, so they belong inside a page's
  * `<main id="tw-scope">`.
+ *
+ * Every surface is white. The brand teal is a highlight: the primary button,
+ * links, eyebrows and icons wear it, and nothing else does.
  */
-
-/** Which surface a control sits on, so it can pick legible colours. */
-export type Surface = "light" | "dark";
 
 export function Container({
   children,
@@ -31,41 +30,29 @@ export function Container({
 }
 
 const BUTTON =
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold no-underline transition-colors hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2";
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold no-underline transition-colors hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-800";
 
 const BUTTON_SIZES = {
   md: "px-6 py-3 text-[1.0625rem]",
   sm: "px-5 py-2.5 text-[0.9375rem]",
 };
 
-const BUTTON_STYLES: Record<
-  "primary" | "secondary",
-  Record<Surface, string>
-> = {
-  primary: {
-    dark: "bg-white text-ink-950 hover:bg-brand-100 hover:text-ink-950 focus-visible:outline-white",
-    light:
-      "bg-brand-800 text-white hover:bg-brand-900 hover:text-white focus-visible:outline-brand-800",
-  },
-  secondary: {
-    dark: "border border-white/25 text-white hover:border-white/50 hover:bg-white/10 hover:text-white focus-visible:outline-white",
-    light:
-      "border border-slate-300 bg-white text-ink-900 hover:border-slate-400 hover:bg-slate-50 hover:text-ink-900 focus-visible:outline-brand-800",
-  },
+const BUTTON_STYLES = {
+  primary: "bg-brand-800 text-white hover:bg-brand-900 hover:text-white",
+  secondary:
+    "border border-slate-300 bg-white text-ink-900 hover:border-slate-400 hover:bg-slate-50 hover:text-ink-900",
 };
 
 export function Button({
   to,
   children,
   variant = "primary",
-  on = "light",
   size = "md",
   className,
 }: Readonly<{
   to: string;
   children: ReactNode;
-  variant?: "primary" | "secondary";
-  on?: Surface;
+  variant?: keyof typeof BUTTON_STYLES;
   size?: keyof typeof BUTTON_SIZES;
   className?: string;
 }>) {
@@ -75,7 +62,7 @@ export function Button({
       className={clsx(
         BUTTON,
         BUTTON_SIZES[size],
-        BUTTON_STYLES[variant][on],
+        BUTTON_STYLES[variant],
         className,
       )}
     >
@@ -96,18 +83,12 @@ function mailTarget(to: string): { target?: "_self" } {
 export function ArrowLink({
   to,
   children,
-  on = "light",
-}: Readonly<{ to: string; children: ReactNode; on?: Surface }>) {
+}: Readonly<{ to: string; children: ReactNode }>) {
   return (
     <Link
       to={to}
       {...mailTarget(to)}
-      className={clsx(
-        "inline-flex items-center gap-1.5 text-[1.0625rem] font-semibold no-underline hover:no-underline",
-        on === "dark"
-          ? "text-brand-300 hover:text-brand-200"
-          : "text-brand-800 hover:text-brand-900",
-      )}
+      className="inline-flex items-center gap-1.5 text-[1.0625rem] font-semibold text-brand-800 no-underline hover:text-brand-900 hover:no-underline"
     >
       {children}
       <Icon name="arrowRight" className={clsx("h-4 w-4", styles.arrow)} />
@@ -118,14 +99,12 @@ export function ArrowLink({
 /** The small capitals above a heading. */
 export function Eyebrow({
   children,
-  on = "light",
   className,
-}: Readonly<{ children: ReactNode; on?: Surface; className?: string }>) {
+}: Readonly<{ children: ReactNode; className?: string }>) {
   return (
     <p
       className={clsx(
-        "text-[0.8125rem] font-semibold uppercase tracking-[0.16em]",
-        on === "dark" ? "text-brand-300" : "text-brand-800",
+        "m-0 text-[0.8125rem] font-semibold uppercase tracking-[0.16em] text-brand-800",
         className,
       )}
     >
@@ -138,13 +117,11 @@ export function SectionHeader({
   eyebrow,
   title,
   children,
-  on = "light",
   centered = false,
 }: Readonly<{
   eyebrow?: string;
   title: string;
   children?: ReactNode;
-  on?: Surface;
   centered?: boolean;
 }>) {
   return (
@@ -152,30 +129,29 @@ export function SectionHeader({
       className={clsx("max-w-[52rem]", centered && "mx-auto text-center")}
       data-reveal=""
     >
-      {eyebrow ? <Eyebrow on={on}>{eyebrow}</Eyebrow> : null}
+      {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
       <Heading
         as="h2"
         className={clsx(
-          "text-[2rem] font-semibold leading-[1.12] tracking-[-0.025em] text-balance md:text-[2.75rem]",
+          "text-[2rem] font-semibold leading-[1.12] tracking-[-0.025em] text-ink-950 text-balance md:text-[2.75rem]",
           eyebrow && "mt-4",
-          on === "dark" ? "text-white" : "text-ink-950",
         )}
       >
         {title}
       </Heading>
       {children ? (
-        <p
-          className={clsx(
-            "mt-5 text-lg leading-relaxed md:text-xl",
-            on === "dark" ? "text-slate-300" : "text-slate-600",
-          )}
-        >
+        <p className="mt-5 text-lg leading-relaxed text-slate-600 md:text-xl">
           {children}
         </p>
       ) : null}
     </div>
   );
 }
+
+const ICON_TILE_SIZES = {
+  md: { tile: "h-12 w-12 rounded-xl", icon: "h-[1.375rem] w-[1.375rem]" },
+  sm: { tile: "h-9 w-9 rounded-lg", icon: "h-[1.125rem] w-[1.125rem]" },
+};
 
 /**
  * An icon in a tinted tile, the lead-in to a feature. Pass `name` for one of
@@ -184,19 +160,21 @@ export function SectionHeader({
 export function IconTile({
   name,
   children,
-  on = "light",
-}: Readonly<{ name?: IconName; children?: ReactNode; on?: Surface }>) {
+  size = "md",
+}: Readonly<{
+  name?: IconName;
+  children?: ReactNode;
+  size?: keyof typeof ICON_TILE_SIZES;
+}>) {
   return (
     <span
       className={clsx(
-        "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl",
-        on === "dark"
-          ? "bg-white/[0.06] text-brand-300 ring-1 ring-white/10"
-          : "bg-brand-50 text-brand-800 ring-1 ring-brand-200/70",
+        "flex shrink-0 items-center justify-center bg-brand-50 text-brand-700 ring-1 ring-brand-200/70",
+        ICON_TILE_SIZES[size].tile,
       )}
     >
       {name ? (
-        <Icon name={name} className="h-[1.375rem] w-[1.375rem]" />
+        <Icon name={name} className={ICON_TILE_SIZES[size].icon} />
       ) : (
         children
       )}
@@ -242,88 +220,41 @@ export function LinkCard({
   );
 }
 
-/** The pill above a hero's headline. */
-export function HeroBadge({
-  children,
-  className,
-}: Readonly<{ children: ReactNode; className?: string }>) {
-  return (
-    <p
-      className={clsx(
-        "inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.06] px-4 py-1.5 text-[0.8125rem] font-medium tracking-wide text-brand-100",
-        className,
-      )}
-    >
-      <span
-        className="h-1.5 w-1.5 rounded-full bg-brand-400"
-        aria-hidden="true"
-      />
-      {children}
-    </p>
-  );
-}
-
 /**
- * The dark band that opens an interior page. The homepage's hero is its own
- * markup (src/pages/index.tsx), but it is drawn from the same backdrop, badge
- * and load-in, one size up.
+ * The block that opens an interior page: the title, the pitch under it and
+ * any actions under that, centred, with the page's content following at
+ * once. No band and no backdrop.
  */
 export function PageHero({
-  badge,
   title,
   children,
   actions,
-  overlap = false,
 }: Readonly<{
-  badge?: string;
   title: string;
   children?: ReactNode;
   actions?: ReactNode;
-  /** Leave room at the bottom for the next section to ride up over the hero. */
-  overlap?: boolean;
 }>) {
   return (
-    <section className="relative isolate text-white">
-      <div className={clsx(styles.heroBackdrop, "-z-10")} aria-hidden="true">
-        <div className={styles.grid} />
-      </div>
+    <section>
       <Container
         className={clsx(
-          "flex flex-col items-center pt-14 text-center md:pt-20",
-          overlap ? "pb-40 md:pb-48" : "pb-16 md:pb-24",
+          styles.rise,
+          "flex flex-col items-center pb-8 pt-10 text-center md:pb-10 md:pt-16",
         )}
       >
-        {badge ? <HeroBadge className={styles.rise}>{badge}</HeroBadge> : null}
         <Heading
           as="h1"
-          className={clsx(
-            styles.rise,
-            "text-[2.375rem] font-semibold leading-[1.05] tracking-[-0.035em] text-white text-balance md:text-5xl lg:text-6xl",
-            badge && "mt-7",
-          )}
-          style={riseDelay(60)}
+          className="m-0 text-[2.5rem] font-semibold leading-[1.02] tracking-[-0.035em] text-ink-950 text-balance md:text-5xl xl:text-[3.25rem]"
         >
           {title}
         </Heading>
         {children ? (
-          <p
-            className={clsx(
-              styles.rise,
-              "mt-6 max-w-[46rem] text-lg leading-relaxed text-slate-300 md:text-xl",
-            )}
-            style={riseDelay(140)}
-          >
+          <p className="m-0 mt-4 max-w-[40rem] text-lg leading-relaxed text-slate-600 text-balance">
             {children}
           </p>
         ) : null}
         {actions ? (
-          <div
-            className={clsx(
-              styles.rise,
-              "mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row",
-            )}
-            style={riseDelay(220)}
-          >
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
             {actions}
           </div>
         ) : null}
