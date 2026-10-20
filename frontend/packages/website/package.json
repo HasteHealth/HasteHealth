@@ -1,6 +1,6 @@
 {
 	"name": "@haste-health/website",
-	"version": "0.126.25",
+	"version": "0.126.26",
 	"private": true,
 	"scripts": {
 		"docusaurus": "docusaurus",
