@@ -119,10 +119,13 @@ const crates = (findings) => [
 ];
 
 // Registry crates that depend on `crate`, as name@version. Workspace and git
-// crates are left out: `cargo update --package` can't move them.
+// crates are left out: `cargo update --package` can't move them. --workspace
+// because backend/Cargo.toml is also a package, and without it cargo tree
+// only walks that package's dependencies, while cargo audit reads the whole
+// Cargo.lock.
 function dependents(crate) {
   const tree = output(
-    cmd`cargo tree --invert ${crate} --target all --prefix none --format {p}`,
+    cmd`cargo tree --workspace --invert ${crate} --target all --prefix none --format {p}`,
     { cwd: backendDir },
   );
   const specs = tree
