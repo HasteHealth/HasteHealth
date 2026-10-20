@@ -21,6 +21,7 @@ haste-fhir-serialization-json = { path = "../fhir-serialization-json", version =
 
 criterion = { workspace = true, features = ["async_tokio"] }
 insta = { version = "1.48.0", default-features = false }
+proptest = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }
 

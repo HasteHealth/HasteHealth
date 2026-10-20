@@ -12,6 +12,9 @@ pub mod sqlx;
 pub mod claims;
 pub mod scopes;
 
+#[cfg(test)]
+mod proptests;
+
 // Reserved keyword for system tenant, author and project.
 static SYSTEM: &str = "system";
 

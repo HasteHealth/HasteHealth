@@ -12,3 +12,4 @@ haste-reflect = { path = "../reflect", version = "0.*" }
 
 [dev-dependencies]
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
+proptest = { workspace = true }

@@ -574,15 +574,22 @@ fn index_token_id(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIn
     }])
 }
 
-fn get_decimal_precision(value: &str) -> u32 {
-    let value = value.to_string();
-    let decimal_characters = value.split('.').nth(1);
-    let mut digits = 0;
-    if let Some(decimal_part) = decimal_characters {
-        decimal_part.chars().for_each(|_| digits += 1);
-    }
-
-    digits
+/// How many decimal places `value` is written to, which sets the width of
+/// its implicit range (<https://hl7.org/fhir/R4/search.html#number>): `45`
+/// has 0 and covers `[44.5, 45.5)`, `45.0` has 1. An exponent shifts it:
+/// `1e2` has -2 and covers `[50, 150)`, `1.5e2` has -1. A malformed
+/// exponent is left for the `f64` parse to reject.
+fn get_decimal_precision(value: &str) -> i32 {
+    let (mantissa, exponent) = match value.split_once(['e', 'E']) {
+        Some((mantissa, exponent)) => (mantissa, exponent.parse::<i32>().unwrap_or(0)),
+        None => (value, 0),
+    };
+    let fraction_digits = mantissa
+        .split_once('.')
+        .map_or(0, |(_, fraction)| fraction.len());
+    i32::try_from(fraction_digits)
+        .unwrap_or(i32::MAX)
+        .saturating_sub(exponent)
 }
 
 #[derive(Debug)]
@@ -604,9 +611,10 @@ pub fn get_decimal_range(value: &str) -> Result<DecimalRange, InsertableIndexErr
         .parse::<f64>()
         .map_err(|_e| InsertableIndexError::FailedDowncast(value.to_string()))?;
 
+    let half_step = 0.5 * 10f64.powi(-decimal_precision);
     Ok(DecimalRange {
-        start: parsed_v - 0.5 * 10f64.powi(-(decimal_precision.cast_signed())),
-        end: parsed_v + 0.5 * 10f64.powi(-(decimal_precision.cast_signed())),
+        start: parsed_v - half_step,
+        end: parsed_v + half_step,
     })
 }
 

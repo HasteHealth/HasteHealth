@@ -9,9 +9,15 @@ use crate::indexing_conversion::DecimalRange;
 /// `ap` margin. FHIR leaves it to the server; like other servers this uses 10%.
 const MARGIN: f64 = 0.1;
 
-/// Fraction of a precision step treated as float rounding error. Far below
-/// any real difference between decimals, far above `f64` rounding.
-const TOLERANCE: f64 = 1e-9;
+/// Float rounding allowance as a fraction of the precision step.
+const STEP_TOLERANCE: f64 = 1e-9;
+
+/// Float rounding allowance as a fraction of a bound's magnitude: at least
+/// four ulps. A bound is a parsed value plus or minus half a step, rounded
+/// twice, compared with an indexed bound rounded the same way. From about
+/// seven significant digits an ulp exceeds the step allowance, so without
+/// this `45.123456` would not count as above `45.123455`.
+const ROUNDING_TOLERANCE: f64 = 4.0 * f64::EPSILON;
 
 /// The lowest indexed range start that lies wholly above `range` (`gt`/`sa`).
 /// Touching counts: `45` (`[44.5, 45.5)`) is above `44` (`[43.5, 44.5)`).
@@ -26,8 +32,12 @@ pub fn below(range: &DecimalRange) -> f64 {
     range.start + tolerance(range)
 }
 
+/// The larger of the two allowances. Both are far below one step for any
+/// decimal an `f64` tells apart (fifteen significant digits).
 fn tolerance(range: &DecimalRange) -> f64 {
-    (range.end - range.start) * TOLERANCE
+    let step = range.end - range.start;
+    let magnitude = range.start.abs().max(range.end.abs());
+    (step * STEP_TOLERANCE).max(magnitude * ROUNDING_TOLERANCE)
 }
 
 /// A decimal's precision range widened by 10% of its value.

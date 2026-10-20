@@ -16,6 +16,9 @@ mod query;
 pub mod search_parameter_cardinality;
 mod search_ranges;
 
+#[cfg(test)]
+mod proptests;
+
 /// The page size of a search that doesn't set `_count`.
 pub const DEFAULT_COUNT: u64 = 50;
 

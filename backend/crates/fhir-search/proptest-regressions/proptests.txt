@@ -1,0 +1,10 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc b90409c6ffe1d43c0007e2491019e7eab1c242137004c7004b0f89260bc84e19 # shrinks to decimal = Scaled { mantissa: 82573255, scale: 4 }
+cc d78bcdf955889472e71d9b28be409ba42493743dc7aef2eed5eff104997286bd # shrinks to text = "0e1"
+cc 70b9ae6bcb66d40905e48ab7e656bc8fadd06472350559c910c956afae817a41 # shrinks to input = "0001-02-30"
+cc 46e3de4b917db4379191afb0e4416ead1cab9c5850267916959322359e8b987b # shrinks to text = "110000.000000E0"
