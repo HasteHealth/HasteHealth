@@ -1,4 +1,4 @@
-//! Property tests for FHIRPath: the parser and the evaluator take any input
+//! Property tests for `FHIRPath`: the parser and the evaluator take any input
 //! without panicking, and an expression evaluates the same every time and
 //! the same in parentheses.
 //!
@@ -345,7 +345,7 @@ fn decimal_literal(value: f64) -> String {
 
 const COMPARISONS: [&str; 4] = ["<", ">", "<=", ">="];
 
-fn compare<T: PartialOrd>(operator: &str, left: T, right: T) -> bool {
+fn compare<T: PartialOrd>(operator: &str, left: &T, right: &T) -> bool {
     match operator {
         "<" => left < right,
         ">" => left > right,
@@ -398,9 +398,9 @@ proptest! {
         #[allow(clippy::cast_precision_loss)]
         let af = a as f64;
         for operator in COMPARISONS {
-            prop_assert_eq!(boolean(&format!("{a} {operator} {b}"))?, Some(compare(operator, a, b)));
-            prop_assert_eq!(boolean(&format!("{xs} {operator} {ys}"))?, Some(compare(operator, xv, yv)));
-            prop_assert_eq!(boolean(&format!("{a} {operator} {ys}"))?, Some(compare(operator, af, yv)));
+            prop_assert_eq!(boolean(&format!("{a} {operator} {b}"))?, Some(compare(operator, &a, &b)));
+            prop_assert_eq!(boolean(&format!("{xs} {operator} {ys}"))?, Some(compare(operator, &xv, &yv)));
+            prop_assert_eq!(boolean(&format!("{a} {operator} {ys}"))?, Some(compare(operator, &af, &yv)));
         }
     }
 

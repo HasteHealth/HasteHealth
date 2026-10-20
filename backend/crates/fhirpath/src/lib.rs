@@ -715,8 +715,10 @@ impl Number {
     /// `None` when the whole number does not fit an Integer.
     #[allow(clippy::cast_possible_truncation)]
     fn integer_from(value: f64) -> Option<Number> {
-        // i64::MAX as f64 rounds up to 2^63, so the upper bound is exclusive.
-        (value.is_finite() && value >= i64::MIN as f64 && value < i64::MAX as f64)
+        // 2^63, exact as an f64. The range also rejects NaN and infinity.
+        const BOUND: f64 = 9_223_372_036_854_775_808.0;
+        (-BOUND..BOUND)
+            .contains(&value)
             .then_some(Number::Integer(value as i64))
     }
 
@@ -1350,10 +1352,7 @@ async fn evaluate_operation<'a>(
         }
         Operation::Equivalent(_, _) => not_implemented("Equivalent"),
         Operation::NotEquivalent(_, _) => not_implemented("NotEquivalent"),
-        Operation::In(element, collection) => {
-            evaluate_membership(element, collection, context, config).await
-        }
-        Operation::Contains(collection, element) => {
+        Operation::In(element, collection) | Operation::Contains(collection, element) => {
             evaluate_membership(element, collection, context, config).await
         }
         Operation::Implies(left, right) => evaluate_implies(left, right, context, config).await,
